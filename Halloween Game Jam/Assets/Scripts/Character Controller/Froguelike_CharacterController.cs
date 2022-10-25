@@ -10,10 +10,16 @@ public class Froguelike_CharacterController : MonoBehaviour
 
     [Header("References")]
     public Transform weaponsParent;
+    public Transform weaponStartPoint;
+    public Transform healthBar;
 
     [Header("Character data")]
     public float landSpeed;
     public float swimSpeed;
+
+    public float currentHealth = 100;
+    public float maxHealth = 100;
+    public float healthRecovery = 0.01f;
 
     [Header("Settings - controls")]
     public string horizontalInputName;
@@ -28,12 +34,15 @@ public class Froguelike_CharacterController : MonoBehaviour
     public Animator animator;
 
     private Rigidbody2D playerRigidbody;
-    private float moveSpeed;
+
+    private bool isOnLand;
+
+    private float orientationAngle;
 
     // Start is called before the first frame update
     void Start()
     {
-        moveSpeed = landSpeed;
+        isOnLand = true;
         rewiredPlayer = ReInput.players.GetPlayer(playerID);
         playerRigidbody = GetComponent<Rigidbody2D>();
     }
@@ -41,21 +50,18 @@ public class Froguelike_CharacterController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        foreach (Transform weaponTransform in weaponsParent)
+        if (Froguelike_GameManager.instance.isGameRunning)
         {
-            weaponTransform.GetComponent<Froguelike_TongueBehaviour>().TryAttack();
+            foreach (Transform weaponTransform in weaponsParent)
+            {
+                weaponTransform.GetComponent<Froguelike_TongueBehaviour>().TryAttack();
+            }
+            ChangeHealth(healthRecovery);
         }
     }
 
     public void LevelUP()
     {
-        landSpeed *= 1.2f;
-        swimSpeed *= 1.2f;
-        foreach (Transform weaponTransform in weaponsParent)
-        {
-            weaponTransform.GetComponent<Froguelike_TongueBehaviour>().attackSpeed *= 1.5f;
-            weaponTransform.GetComponent<Froguelike_TongueBehaviour>().cooldown /= 1.5f;
-        }
     }
 
     private void FixedUpdate()
@@ -63,8 +69,21 @@ public class Froguelike_CharacterController : MonoBehaviour
         UpdateHorizontalInput();
         UpdateVerticalInput();
 
+        float moveSpeed = isOnLand ? landSpeed : swimSpeed;
         Vector2 moveInput = (((HorizontalInput * Vector2.right).normalized + (VerticalInput * Vector2.up).normalized)).normalized * moveSpeed;
+
+        if (!moveInput.Equals(Vector2.zero))
+        {
+            orientationAngle = 90 * Mathf.RoundToInt((Vector2.SignedAngle(moveInput, Vector2.right)) / 90);
+            transform.localRotation = Quaternion.Euler(0, 0, -orientationAngle);
+        }
+
         playerRigidbody.velocity = moveInput;
+
+        foreach (Transform weaponTransform in weaponsParent)
+        {
+            weaponTransform.GetComponent<Froguelike_TongueBehaviour>().SetTonguePosition(weaponStartPoint);
+        }
     }
 
     #region Update Inputs
@@ -85,14 +104,45 @@ public class Froguelike_CharacterController : MonoBehaviour
     {
         if (collision.CompareTag("Water"))
         {
-            moveSpeed = swimSpeed;
+            isOnLand = false;
         }
     }
     private void OnTriggerExit2D(Collider2D collision)
     {
         if (collision.CompareTag("Water"))
         {
-            moveSpeed = landSpeed;
+            isOnLand = true;
         }
+    }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.collider.CompareTag("Fly") && Froguelike_GameManager.instance.isGameRunning)
+        {
+            ChangeHealth(-Froguelike_FliesManager.instance.flyDamage);
+        }
+    }
+
+    private void ChangeHealth(float change)
+    {
+        currentHealth += change;
+        if (currentHealth >= maxHealth)
+        {
+            currentHealth = maxHealth;
+        }
+        if (currentHealth <= 0)
+        {
+            // game over
+            Froguelike_GameManager.instance.TriggerGameOver();
+        }
+        UpdateHealthBar();
+    }
+
+    private void UpdateHealthBar()
+    {
+        float healthRatio = currentHealth / maxHealth;
+        if (healthRatio < 0)
+            healthRatio = 0;
+        healthBar.localScale = healthRatio * Vector3.right + healthBar.localScale.y * Vector3.up + healthBar.localScale.z * Vector3.forward;
     }
 }

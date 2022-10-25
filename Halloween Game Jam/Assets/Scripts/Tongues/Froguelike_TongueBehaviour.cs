@@ -2,16 +2,36 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public enum WeaponType
+{
+    RANDOM,
+    NEAREST,
+    QUICK,
+    ROTATING,
+    ULTIMATE
+}
+
 public class Froguelike_TongueBehaviour : MonoBehaviour
 {
+    [Header("References")]
+    public LineRenderer tongueLineRenderer1;
+    public LineRenderer tongueLineRenderer2;
+
+    [Header("Settings")]
+    public WeaponType weaponType;
+
     public float cooldown;
     public float damage;
     public float attackSpeed;
-    public int maxFlies;
+    public float maxFlies;
+    public float range;
 
-    private float maxLength;
+    [Header("Layer")]
+    public LayerMask foodLayer;
+
+
     private PolygonCollider2D polygonCollider;
-    private LineRenderer lineRenderer;
 
     private float lastAttackTime;
     
@@ -19,15 +39,23 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
 
     private int eatenFliesCount;
 
+    private bool isAttacking;
+
+
     private void SetTongueScale(float scale)
     {
-        this.transform.localScale = Vector3.forward + Vector3.up + scale * Vector3.right;
+        this.transform.localScale =  Vector3.forward + Vector3.up + scale * range * Vector3.right;
     }
 
     private void SetTongueDirection(Vector2 direction)
     {
         float angle = -Vector2.SignedAngle(direction.normalized, Vector2.right);
-        this.transform.localRotation = Quaternion.Euler(0, 0, angle);
+        this.transform.rotation = Quaternion.Euler(0, 0, angle);
+    }
+
+    public void SetTonguePosition(Transform weaponStartPosition)
+    {
+        this.transform.position = weaponStartPosition.position;
     }
 
     // Start is called before the first frame update
@@ -36,24 +64,67 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
         SetTongueScale(0);
         lastAttackTime = Time.time;
         polygonCollider = GetComponent<PolygonCollider2D>();
-        lineRenderer = GetComponent<LineRenderer>();
-        lineRenderer.transform.GetChild(0).GetComponent<LineRenderer>().startWidth = 0.2f;
-        lineRenderer.transform.GetChild(0).GetComponent<LineRenderer>().endWidth = 0.2f;
+        tongueLineRenderer1.startWidth = 0.1f;
+        tongueLineRenderer1.endWidth = 0.1f;
+        tongueLineRenderer2.startWidth = 0.2f;
+        tongueLineRenderer2.endWidth = 0.2f;
+    }
+
+    private GameObject GetNearestFly()
+    {
+        GameObject fly = null;
+        Vector2 playerPosition = Froguelike_GameManager.instance.player.transform.position;
+        Collider2D[] allColliders = Physics2D.OverlapCircleAll(playerPosition, range, foodLayer);
+        if (allColliders.Length > 0)
+        {
+            float shortestDistance = float.MaxValue;
+            Collider2D nearestFly = null;
+            foreach (Collider2D col in allColliders)
+            {
+                Froguelike_Fly flyInfo = Froguelike_FliesManager.instance.GetFlyInfo(col.gameObject.name);
+                float distanceWithPlayer = Vector2.Distance(col.transform.position, playerPosition);
+                if (distanceWithPlayer < shortestDistance && flyInfo.active)
+                {
+                    shortestDistance = distanceWithPlayer;
+                    nearestFly = col;
+                }
+            }
+            fly = nearestFly.gameObject;
+        }
+        return fly;
     }
 
     public void TryAttack()
     {
-        if (Time.time - lastAttackTime > cooldown)
+        if (!isAttacking && Time.time - lastAttackTime > cooldown)
         {
-            Attack();
+            switch(weaponType)
+            {
+                case WeaponType.QUICK:
+                case WeaponType.NEAREST:
+                    GameObject targetFly = GetNearestFly();
+                    Attack(Froguelike_FliesManager.instance.GetFlyInfo(targetFly.name));
+                    break;
+                case WeaponType.RANDOM:
+                    Vector2 direction = Random.insideUnitCircle.normalized;
+                    Attack(direction);
+                    break;
+            }
+
         }
     }
 
-    public void Attack()
+    public void Attack(Vector2 direction)
     {
         eatenFliesCount = 0;
         lastAttackTime = Time.time;
-        Froguelike_Fly fly = Froguelike_FliesManager.instance.GetNearest();
+        StartCoroutine(SendTongueInDirection(direction.normalized));
+    }
+
+    public void Attack(Froguelike_Fly fly)
+    {
+        eatenFliesCount = 0;
+        lastAttackTime = Time.time;
         if (fly != null)
         {
             StartCoroutine(SendTongueInDirection((fly.flyTransform.position - this.transform.position).normalized));
@@ -62,10 +133,12 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
 
     private IEnumerator SendTongueInDirection(Vector2 direction)
     {
+        isAttacking = true;
         SetTongueDirection(direction);
         float t = 0;
         isTongueGoingOut = true;
-        lineRenderer.enabled = true;
+        tongueLineRenderer1.enabled = true;
+        tongueLineRenderer2.enabled = true;
         while (isTongueGoingOut)
         {
             SetTongueScale(t);
@@ -82,7 +155,9 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
             t -= (Time.fixedDeltaTime * attackSpeed);
             yield return new WaitForFixedUpdate();
         }
-        lineRenderer.enabled = false;
+        tongueLineRenderer1.enabled = false;
+        tongueLineRenderer2.enabled = false;
+        isAttacking = false;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -95,10 +170,24 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
             {
                 collision.enabled = false;
                 eatenFliesCount++;
-                if (eatenFliesCount >= maxFlies)
-                {
+                CheckEatenFlyCount();
+            }
+        }
+    }
+
+    private void CheckEatenFlyCount()
+    {
+        if (eatenFliesCount >= maxFlies)
+        {
+            switch(weaponType)
+            {
+                case WeaponType.NEAREST:
+                case WeaponType.QUICK:
+                case WeaponType.RANDOM:
                     isTongueGoingOut = false;
-                }
+                    break;
+                default:
+                    break;
             }
         }
     }

@@ -18,6 +18,8 @@ public class Froguelike_FliesManager : MonoBehaviour
 
     public Transform fliesParent;
 
+    public static int lastKey;
+
     [Header("Settings")]
     public int flyMaxHP;
     public int flyXPBonus;
@@ -27,23 +29,16 @@ public class Froguelike_FliesManager : MonoBehaviour
     public Color flyAliveColor;
     public Color flyDeadColor;
 
-    private List<Froguelike_Fly> allActiveFliesList;
+    private Dictionary<int,Froguelike_Fly> allActiveFliesDico;
 
-
-    public Froguelike_Fly GetNearest()
+    public Froguelike_Fly GetFlyInfo(int ID)
     {
-        float shorterDistance = float.MaxValue;
-        Froguelike_Fly nearestFly = null;
-        foreach (Froguelike_Fly fly in allActiveFliesList)
-        {
-            float distanceWithPlayer = Vector2.Distance(fly.flyTransform.position, Froguelike_GameManager.instance.player.transform.position);
-            if (distanceWithPlayer < shorterDistance)
-            {
-                shorterDistance = distanceWithPlayer;
-                nearestFly = fly;
-            }
-        }
-        return nearestFly;
+        return allActiveFliesDico[ID];
+    }
+    public Froguelike_Fly GetFlyInfo(string name)
+    {
+        int ID = int.Parse(name);
+        return GetFlyInfo(ID);
     }
 
     private void Awake()
@@ -54,8 +49,9 @@ public class Froguelike_FliesManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        allActiveFliesList = new List<Froguelike_Fly>();
-        InvokeRepeating("MoveAllFlies", 0, 0.1f);
+        lastKey = 1;
+        allActiveFliesDico = new Dictionary<int, Froguelike_Fly>();
+        InvokeRepeating("UpdateAllFlies", 0, 0.1f);
     }
 
     public void AddFly(Transform flyTransform)
@@ -66,16 +62,17 @@ public class Froguelike_FliesManager : MonoBehaviour
         newFly.HP = flyMaxHP;
         newFly.flyRigidbody = flyTransform.GetComponent<Rigidbody2D>();
         newFly.active = true;
-        flyTransform.gameObject.name = allActiveFliesList.Count.ToString();
+        lastKey++;
+        flyTransform.gameObject.name = lastKey.ToString();
         newFly.flyRenderer.color = flyAliveColor;
-        allActiveFliesList.Add(newFly);
+        allActiveFliesDico.Add(lastKey, newFly);
     }
 
     // Return true if fly dieded
     public bool DamageFly(string flyGoName, float damage)
     {
         int index = int.Parse(flyGoName);
-        Froguelike_Fly fly = allActiveFliesList[index];
+        Froguelike_Fly fly = allActiveFliesDico[index];
         fly.HP -= damage;
 
         if (fly.HP <= 0)
@@ -88,26 +85,29 @@ public class Froguelike_FliesManager : MonoBehaviour
         return false;
     }
 
-    public void MoveAllFlies()
+    public void UpdateAllFlies()
     {
         Transform playerTransform = Froguelike_GameManager.instance.player.transform;
         float angle = 0;
         int roundedAngle = 0;
-        foreach (Froguelike_Fly fly in allActiveFliesList)
+        List<int> fliesToDestroyIDList = new List<int>();
+        foreach (KeyValuePair<int, Froguelike_Fly> flyInfo in allActiveFliesDico)
         {
+            Froguelike_Fly fly = flyInfo.Value;
             if (fly.active)
             {
                 if (fly.HP < 0.01f)
                 {
                     // fly is dead
                     fly.moveDirection = (playerTransform.position - fly.flyTransform.position).normalized;
-                    fly.flyRigidbody.velocity = 4 * fly.moveDirection * flyMoveSpeed;
+                    fly.flyRigidbody.velocity = 2 * fly.moveDirection * Froguelike_GameManager.instance.player.landSpeed;
                     float distanceWithPlayer = Vector2.Distance(playerTransform.position, fly.flyTransform.position);
-                    if (distanceWithPlayer < 0.5f)
+                    if (distanceWithPlayer < 1)
                     {
                         fly.flyRenderer.enabled = false;
                         fly.active = false;
                         Froguelike_GameManager.instance.EatFly(flyXPBonus);
+                        fliesToDestroyIDList.Add(flyInfo.Key);
                     }
                 }
                 else
@@ -120,6 +120,12 @@ public class Froguelike_FliesManager : MonoBehaviour
                     fly.flyRigidbody.velocity = fly.moveDirection * flyMoveSpeed;
                 }
             }
+        }
+        foreach (int flyID in fliesToDestroyIDList)
+        {
+            Froguelike_Fly fly = allActiveFliesDico[flyID];
+            allActiveFliesDico.Remove(flyID);
+            Destroy(fly.flyTransform.gameObject, 0.1f);
         }
     }
 }

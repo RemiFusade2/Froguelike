@@ -9,8 +9,7 @@ public class Froguelike_SpawnManager : MonoBehaviour
     public float delayBetweenSpawns;
 
     public Transform spawnParent;
-
-    private bool spawnActive;
+    
     private float lastSpawnTime;
 
     public float distanceFromPlayer = 10;
@@ -25,16 +24,10 @@ public class Froguelike_SpawnManager : MonoBehaviour
         Froguelike_FliesManager.instance.AddFly(newSpawn.transform);
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        spawnActive = true;
-    }
-
     // Update is called once per frame
     void Update()
     {
-        if (spawnActive && (Time.time - lastSpawnTime) > delayBetweenSpawns)
+        if (Froguelike_GameManager.instance.isGameRunning && (Time.time - lastSpawnTime) > delayBetweenSpawns)
         {
             Spawn();
         }
