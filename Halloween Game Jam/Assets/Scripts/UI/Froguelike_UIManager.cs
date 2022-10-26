@@ -46,7 +46,11 @@ public class Froguelike_UIManager : MonoBehaviour
     public List<Text> levelUpChoicesTitles;
     public List<Text> levelUpChoicesLevels;
     public List<Text> levelUpChoicesDescriptions;
-    
+    [Space]
+    public Color defaultUIColor;
+    public Color newItemColor;
+    public Color maxLevelColor;
+
 
     private void Awake()
     {
@@ -152,19 +156,25 @@ public class Froguelike_UIManager : MonoBehaviour
         {
             levelUpChoicesPanels[index].SetActive(true);
             levelUpChoicesTitles[index].text = item.itemName;
-            levelUpChoicesLevels[index].text = "LVL " + itemLevels[index].ToString();
-            if (itemLevels[index] == 1)
+            int level = itemLevels[index];
+            if (level == 1)
             {
-                levelUpChoicesDescriptions[index].text = item.firstDescription;
-            }
-            else if (itemLevels[index] == item.maxLevel)
+                // new item!
+                levelUpChoicesLevels[index].color = newItemColor;
+                levelUpChoicesLevels[index].text = "New!";
+            }            
+            else if (level == item.levels.Count-1)
             {
-                levelUpChoicesDescriptions[index].text = item.lastDescription;
+                // max level
+                levelUpChoicesLevels[index].color = maxLevelColor;
+                levelUpChoicesLevels[index].text = "LVL MAX";
             }
             else
             {
-                levelUpChoicesDescriptions[index].text = item.defaultDescription;
+                levelUpChoicesLevels[index].color = defaultUIColor;
+                levelUpChoicesLevels[index].text = "LVL " + level.ToString();
             }
+            levelUpChoicesDescriptions[index].text = item.levels[level].description;
             index++;
         }
     }

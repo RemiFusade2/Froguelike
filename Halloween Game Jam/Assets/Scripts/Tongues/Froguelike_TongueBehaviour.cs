@@ -70,28 +70,28 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
         tongueLineRenderer2.endWidth = 0.2f;
     }
 
-    private GameObject GetNearestFly()
+    private GameObject GetNearestEnemy()
     {
-        GameObject fly = null;
+        GameObject enemy = null;
         Vector2 playerPosition = Froguelike_GameManager.instance.player.transform.position;
         Collider2D[] allColliders = Physics2D.OverlapCircleAll(playerPosition, range, foodLayer);
         if (allColliders.Length > 0)
         {
             float shortestDistance = float.MaxValue;
-            Collider2D nearestFly = null;
+            Collider2D nearestEnemy = null;
             foreach (Collider2D col in allColliders)
             {
-                Froguelike_Fly flyInfo = Froguelike_FliesManager.instance.GetFlyInfo(col.gameObject.name);
+                Froguelike_EnemyInstance enemyInfo = Froguelike_FliesManager.instance.GetEnemyInfo(col.gameObject.name);
                 float distanceWithPlayer = Vector2.Distance(col.transform.position, playerPosition);
-                if (distanceWithPlayer < shortestDistance && flyInfo.active)
+                if (distanceWithPlayer < shortestDistance && enemyInfo.active)
                 {
                     shortestDistance = distanceWithPlayer;
-                    nearestFly = col;
+                    nearestEnemy = col;
                 }
             }
-            fly = nearestFly.gameObject;
+            enemy = nearestEnemy.gameObject;
         }
-        return fly;
+        return enemy;
     }
 
     public void TryAttack()
@@ -102,8 +102,8 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
             {
                 case WeaponType.QUICK:
                 case WeaponType.NEAREST:
-                    GameObject targetFly = GetNearestFly();
-                    Attack(Froguelike_FliesManager.instance.GetFlyInfo(targetFly.name));
+                    GameObject targetEnemy = GetNearestEnemy();
+                    Attack(Froguelike_FliesManager.instance.GetEnemyInfo(targetEnemy.name));
                     break;
                 case WeaponType.RANDOM:
                     Vector2 direction = Random.insideUnitCircle.normalized;
@@ -121,13 +121,13 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
         StartCoroutine(SendTongueInDirection(direction.normalized));
     }
 
-    public void Attack(Froguelike_Fly fly)
+    public void Attack(Froguelike_EnemyInstance enemy)
     {
         eatenFliesCount = 0;
-        lastAttackTime = Time.time;
-        if (fly != null)
+        if (enemy != null)
         {
-            StartCoroutine(SendTongueInDirection((fly.flyTransform.position - this.transform.position).normalized));
+            lastAttackTime = Time.time;
+            StartCoroutine(SendTongueInDirection((enemy.enemyTransform.position - this.transform.position).normalized));
         }
     }
 
@@ -164,9 +164,9 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
     {
         if (collision.CompareTag("Fly") && eatenFliesCount < maxFlies)
         {
-            string flyName = collision.gameObject.name;
-            bool flyIsDead = Froguelike_FliesManager.instance.DamageFly(flyName, damage);
-            if (flyIsDead)
+            string enemyName = collision.gameObject.name;
+            bool enemyIsDead = Froguelike_FliesManager.instance.DamageEnemy(enemyName, damage);
+            if (enemyIsDead)
             {
                 collision.enabled = false;
                 eatenFliesCount++;

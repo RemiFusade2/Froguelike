@@ -2,21 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-[CreateAssetMenu(fileName = "Item Data", menuName = "ScriptableObjects/Froguelike/Item Data", order = 1)]
-public class Froguelike_ItemScriptableObject : ScriptableObject
+[System.Serializable]
+public class Froguelike_ItemLevel
 {
-    public string itemName;
-    public string firstDescription;
-    public string defaultDescription;
-    public string lastDescription;
-
-    public bool isWeapon;
-    public GameObject weaponPrefab;
-
-    public int maxLevel;
-
-    public Sprite icon;
+    public int level;
+    public string description;
 
     [Header("Character Boosts")]
     public float walkSpeedBoost; // move speed on land
@@ -46,4 +36,29 @@ public class Froguelike_ItemScriptableObject : ScriptableObject
     public float weaponCooldownBoost;
     public float weaponRangeBoost;
     public float weaponMaxFliesBoost;
+
+    public int weaponExtraWeapon;
+}
+
+[System.Serializable]
+[CreateAssetMenu(fileName = "Item Data", menuName = "ScriptableObjects/Froguelike/Item Data", order = 1)]
+public class Froguelike_ItemScriptableObject : ScriptableObject
+{
+    public string itemName;
+
+    public List<Froguelike_ItemLevel> levels;
+
+    public bool isWeapon;
+    public GameObject weaponPrefab;
+
+    public Sprite icon;
+
+    public override bool Equals(object other)
+    {
+        if (other is Froguelike_ItemScriptableObject)
+        {
+            return itemName.Equals((other as Froguelike_ItemScriptableObject).itemName);
+        }
+        return base.Equals(other);
+    }
 }

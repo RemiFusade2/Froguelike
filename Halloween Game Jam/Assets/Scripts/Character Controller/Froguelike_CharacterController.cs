@@ -39,10 +39,13 @@ public class Froguelike_CharacterController : MonoBehaviour
 
     private float orientationAngle;
 
+    private float invincibilityTime;
+
     // Start is called before the first frame update
     void Start()
     {
         isOnLand = true;
+        invincibilityTime = 0;
         rewiredPlayer = ReInput.players.GetPlayer(playerID);
         playerRigidbody = GetComponent<Rigidbody2D>();
     }
@@ -59,9 +62,12 @@ public class Froguelike_CharacterController : MonoBehaviour
             ChangeHealth(healthRecovery);
         }
     }
-
-    public void LevelUP()
+    
+    public void Respawn()
     {
+        currentHealth = maxHealth;
+        UpdateHealthBar();
+        invincibilityTime = 1;
     }
 
     private void FixedUpdate()
@@ -69,12 +75,17 @@ public class Froguelike_CharacterController : MonoBehaviour
         UpdateHorizontalInput();
         UpdateVerticalInput();
 
+        if (invincibilityTime > 0)
+        {
+            invincibilityTime -= Time.fixedDeltaTime;
+        }
+
         float moveSpeed = isOnLand ? landSpeed : swimSpeed;
         Vector2 moveInput = (((HorizontalInput * Vector2.right).normalized + (VerticalInput * Vector2.up).normalized)).normalized * moveSpeed;
 
         if (!moveInput.Equals(Vector2.zero))
         {
-            orientationAngle = 90 * Mathf.RoundToInt((Vector2.SignedAngle(moveInput, Vector2.right)) / 90);
+            orientationAngle = 90 + 90 * Mathf.RoundToInt((Vector2.SignedAngle(moveInput, Vector2.right)) / 90);
             transform.localRotation = Quaternion.Euler(0, 0, -orientationAngle);
         }
 
@@ -117,9 +128,10 @@ public class Froguelike_CharacterController : MonoBehaviour
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (collision.collider.CompareTag("Fly") && Froguelike_GameManager.instance.isGameRunning)
+        if (collision.collider.CompareTag("Fly") && Froguelike_GameManager.instance.isGameRunning && invincibilityTime <= 0)
         {
-            ChangeHealth(-Froguelike_FliesManager.instance.flyDamage);
+            float damage = Froguelike_FliesManager.instance.GetEnemyDataFromName(collision.gameObject.name).damage;
+            ChangeHealth(-damage);
         }
     }
 
