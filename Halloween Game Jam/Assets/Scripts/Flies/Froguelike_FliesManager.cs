@@ -12,6 +12,7 @@ public class Froguelike_EnemyInstance
     public Transform enemyTransform;
     public Rigidbody2D enemyRigidbody;
     public SpriteRenderer enemyRenderer;
+    public Animator enemyAnimator;
     public bool active;
 }
 
@@ -42,11 +43,11 @@ public class Froguelike_FliesManager : MonoBehaviour
         {
             float delayBetweenSpawns = currentWave.spawnDelays[i];
             Froguelike_SpawnPattern spawnPattern = currentWave.spawnPatterns[i];
+            Froguelike_EnemyData enemyData = currentWave.spawnEnemies[i];
             float lastSpawnTime = lastSpawnTimesList[i];
 
             if ((Time.time - lastSpawnTime) > delayBetweenSpawns)
             {
-                Froguelike_EnemyData enemyData = spawnPattern.enemySpawned;
                 int enemyAmount = spawnPattern.spawnAmount;
                 Froguelike_SpawnPatternType patternType = spawnPattern.spawnPatternType;
                 
@@ -156,13 +157,13 @@ public class Froguelike_FliesManager : MonoBehaviour
         // setup enemy
         newEnemy.EnemyDataID = enemyData.ID;
         newEnemy.enemyRenderer = enemyTransform.GetComponent<SpriteRenderer>();
+        newEnemy.enemyAnimator = enemyTransform.GetComponent<Animator>();
         newEnemy.enemyTransform = enemyTransform;
         newEnemy.HP = enemyData.maxHP;
         newEnemy.enemyRigidbody = enemyTransform.GetComponent<Rigidbody2D>();
         newEnemy.active = true;
         lastKey++;
         enemyTransform.gameObject.name = lastKey.ToString();
-        newEnemy.enemyRenderer.color = enemyData.aliveColor;
         allActiveEnemiesDico.Add(lastKey, newEnemy);
 
         // set starting velocity (always moving towards player)
@@ -183,7 +184,6 @@ public class Froguelike_FliesManager : MonoBehaviour
         if (enemy.HP <= 0)
         {
             // enemy died, let's eat it now
-            enemy.enemyRenderer.color = enemiesDataDico[enemy.EnemyDataID].deadColor;
             enemy.enemyTransform.rotation = Quaternion.Euler(0, 0, 45);
             return true;
         }

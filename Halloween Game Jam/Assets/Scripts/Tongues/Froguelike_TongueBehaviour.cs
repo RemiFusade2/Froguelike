@@ -41,6 +41,23 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
 
     private bool isAttacking;
 
+    public void CopyWeaponStats(Froguelike_TongueBehaviour weapon)
+    {
+        cooldown = weapon.cooldown;
+        damage = weapon.damage;
+        attackSpeed = weapon.attackSpeed;
+        maxFlies = weapon.maxFlies;
+        range = weapon.range;
+    }
+
+    public void LevelUp(Froguelike_ItemLevel itemLevel)
+    {
+        cooldown += itemLevel.weaponCooldownBoost;
+        damage += itemLevel.weaponDamageBoost;
+        attackSpeed += itemLevel.weaponSpeedBoost;
+        maxFlies += itemLevel.weaponMaxFliesBoost;
+        range += itemLevel.weaponRangeBoost;
+    }
 
     private void SetTongueScale(float scale)
     {
@@ -74,7 +91,7 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
     {
         GameObject enemy = null;
         Vector2 playerPosition = Froguelike_GameManager.instance.player.transform.position;
-        Collider2D[] allColliders = Physics2D.OverlapCircleAll(playerPosition, range, foodLayer);
+        Collider2D[] allColliders = Physics2D.OverlapCircleAll(playerPosition, range * 1.5f, foodLayer);
         if (allColliders.Length > 0)
         {
             float shortestDistance = float.MaxValue;
@@ -103,7 +120,10 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
                 case WeaponType.QUICK:
                 case WeaponType.NEAREST:
                     GameObject targetEnemy = GetNearestEnemy();
-                    Attack(Froguelike_FliesManager.instance.GetEnemyInfo(targetEnemy.name));
+                    if (targetEnemy != null)
+                    {
+                        Attack(Froguelike_FliesManager.instance.GetEnemyInfo(targetEnemy.name));
+                    }
                     break;
                 case WeaponType.RANDOM:
                     Vector2 direction = Random.insideUnitCircle.normalized;
@@ -157,6 +177,7 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
         }
         tongueLineRenderer1.enabled = false;
         tongueLineRenderer2.enabled = false;
+        lastAttackTime = Time.time;
         isAttacking = false;
     }
 

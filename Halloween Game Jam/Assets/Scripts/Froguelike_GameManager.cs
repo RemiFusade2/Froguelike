@@ -6,6 +6,7 @@ using UnityEngine;
 public class Froguelike_ItemInfo
 {
     public Froguelike_ItemScriptableObject item;
+    public List<GameObject> weaponsList;
     public int level;
 }
 
@@ -19,6 +20,8 @@ public class Froguelike_GameManager : MonoBehaviour
 
     public Froguelike_Wave waveInfo;
 
+    public Froguelike_ItemScriptableObject startingWeapon;
+
     public float xp;
     public float nextLevelXp = 5;
     public float xpNeededForNextLevelFactor = 1.3f;
@@ -28,6 +31,7 @@ public class Froguelike_GameManager : MonoBehaviour
     public int currentRespawns;
 
     public List<Froguelike_ItemScriptableObject> availableItems;
+    public List<Froguelike_ItemScriptableObject> defaultItems;
 
     public List<Froguelike_ItemInfo> ownedItems;
 
@@ -67,31 +71,90 @@ public class Froguelike_GameManager : MonoBehaviour
 
     public List<Froguelike_ItemScriptableObject> levelUpPossibleItems;
 
-    public void ChooseLevelUpChoice(int index)
+    private void SpawnWeapon(Froguelike_ItemInfo weaponItem)
     {
-        Froguelike_ItemScriptableObject pickedItem = levelUpPossibleItems[index];
+        if (weaponItem.item.isWeapon)
+        {
+            WeaponType weaponType = weaponItem.item.weaponType;
+            GameObject weaponPrefab = weaponItem.item.weaponPrefab;
+            GameObject weaponGo = Instantiate(weaponPrefab, player.weaponStartPoint.position, Quaternion.identity, player.weaponsParent);
+            if (weaponItem.weaponsList.Count > 0)
+            {
+                weaponGo.GetComponent<Froguelike_TongueBehaviour>().CopyWeaponStats(weaponItem.weaponsList[0].GetComponent<Froguelike_TongueBehaviour>());
+            }
+            weaponItem.weaponsList.Add(weaponGo);
+            weaponGo.GetComponent<Froguelike_TongueBehaviour>().weaponType = weaponType;
+        }        
+    }
 
+    private void PickItem(Froguelike_ItemScriptableObject pickedItem)
+    {
         bool itemIsNew = true;
-
+        int level = 0;
+        Froguelike_ItemInfo pickedItemInfo = null;
         foreach (Froguelike_ItemInfo itemInfo in ownedItems)
         {
-            if (itemInfo.Equals(pickedItem))
+            if (itemInfo.item.Equals(pickedItem))
             {
+                // We already own such an item
                 itemIsNew = false;
+                pickedItemInfo = itemInfo;
                 itemInfo.level++;
+                level = itemInfo.level;
+
+                if (pickedItem.isWeapon)
+                {
+                    // It is a weapon, so we need to upgrade all similar weapons
+                    foreach (GameObject weaponGo in itemInfo.weaponsList)
+                    {
+                        weaponGo.GetComponent<Froguelike_TongueBehaviour>().LevelUp(itemInfo.item.levels[level]);
+                    }
+                }
+                break;
             }
         }
 
-        if (itemIsNew)
+        int spawnWeapons = pickedItem.levels[level].weaponExtraWeapon;
+        Debug.Log("Pick Item - " + pickedItem.itemName + " ; level = " + level + " ; spawnWeapons = " + spawnWeapons);
+        if (itemIsNew && pickedItemInfo == null)
         {
-            Froguelike_ItemInfo newItem = new Froguelike_ItemInfo();
-            newItem.level = 1;
-            newItem.item = pickedItem;
-            ownedItems.Add(newItem);
+            // Create item info and add it to owned items
+            pickedItemInfo = new Froguelike_ItemInfo();
+            pickedItemInfo.level = 1;
+            pickedItemInfo.item = pickedItem;
+            pickedItemInfo.weaponsList = new List<GameObject>();
+            ownedItems.Add(pickedItemInfo);
+            spawnWeapons++;
         }
 
+        if (pickedItem.isWeapon)
+        {
+            for (int w = 0; w < spawnWeapons; w++)
+            {
+                SpawnWeapon(pickedItemInfo);
+            }
+        }
+    }
+
+    public void ChooseLevelUpChoice(int index)
+    {
+        Froguelike_ItemScriptableObject pickedItem = levelUpPossibleItems[index];
+        PickItem(pickedItem);
         Froguelike_UIManager.instance.HideLevelUpItemSelection();
         Time.timeScale = 1;
+    }
+
+    private int GetLevelForItem(Froguelike_ItemScriptableObject item)
+    {
+        int level = 0;
+        foreach (Froguelike_ItemInfo itemInfo in ownedItems)
+        {
+            if (itemInfo.item.Equals(item))
+            {
+                level = itemInfo.level;
+            }
+        }
+        return level;
     }
 
     public void LevelUP()
@@ -100,7 +163,22 @@ public class Froguelike_GameManager : MonoBehaviour
         Time.timeScale = 0;
 
         // Pick possible items from a pool
-        List<Froguelike_ItemScriptableObject> possibleItems = new List<Froguelike_ItemScriptableObject>(availableItems);
+        List<Froguelike_ItemScriptableObject> possibleItems = new List<Froguelike_ItemScriptableObject>();
+        foreach (Froguelike_ItemScriptableObject possibleItem in availableItems)
+        {
+            if (GetLevelForItem(possibleItem) < (possibleItem.levels.Count-1))
+            {
+                possibleItems.Add(possibleItem);
+            }
+        }
+        if (possibleItems.Count == 0)
+        {
+            foreach (Froguelike_ItemScriptableObject possibleItem in defaultItems)
+            {
+                possibleItems.Add(possibleItem);
+            }
+        }
+        
         levelUpPossibleItems.Clear();
         for (int i = 0; i < 3; i++)
         {
@@ -108,17 +186,18 @@ public class Froguelike_GameManager : MonoBehaviour
             {
                 break;
             }
+
             int randomIndex = Random.Range(0, possibleItems.Count);
             levelUpPossibleItems.Add(possibleItems[randomIndex]);
             possibleItems.RemoveAt(randomIndex);
         }
-        
-        // Find levels for each of these items
 
+        // Find levels for each of these items
         List<int> itemLevels = new List<int>();
-        itemLevels.Add(1);
-        itemLevels.Add(2);
-        itemLevels.Add(3);
+        foreach (Froguelike_ItemScriptableObject item in levelUpPossibleItems)
+        {
+            itemLevels.Add(GetLevelForItem(item)+1);
+        }
 
         // Show Update level UI
         Froguelike_UIManager.instance.ShowLevelUpItemSelection(levelUpPossibleItems, itemLevels);
@@ -149,6 +228,7 @@ public class Froguelike_GameManager : MonoBehaviour
         Froguelike_UIManager.instance.ShowGameUI();
         hasGameStarted = true;
         isGameRunning = true;
+        PickItem(startingWeapon);
         Froguelike_FliesManager.instance.SetWave(waveInfo);
         Time.timeScale = 1;
         player.Respawn();

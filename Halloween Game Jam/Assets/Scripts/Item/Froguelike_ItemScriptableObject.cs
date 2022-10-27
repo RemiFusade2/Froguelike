@@ -50,6 +50,7 @@ public class Froguelike_ItemScriptableObject : ScriptableObject
 
     public bool isWeapon;
     public GameObject weaponPrefab;
+    public WeaponType weaponType;
 
     public Sprite icon;
 
@@ -60,5 +61,10 @@ public class Froguelike_ItemScriptableObject : ScriptableObject
             return itemName.Equals((other as Froguelike_ItemScriptableObject).itemName);
         }
         return base.Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return itemName.GetHashCode();
     }
 }

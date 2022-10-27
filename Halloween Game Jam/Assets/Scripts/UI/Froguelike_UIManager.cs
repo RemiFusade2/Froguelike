@@ -156,25 +156,40 @@ public class Froguelike_UIManager : MonoBehaviour
         {
             levelUpChoicesPanels[index].SetActive(true);
             levelUpChoicesTitles[index].text = item.itemName;
-            int level = itemLevels[index];
-            if (level == 1)
+            if (itemLevels.Count == 1)
             {
-                // new item!
-                levelUpChoicesLevels[index].color = newItemColor;
-                levelUpChoicesLevels[index].text = "New!";
-            }            
-            else if (level == item.levels.Count-1)
-            {
-                // max level
-                levelUpChoicesLevels[index].color = maxLevelColor;
-                levelUpChoicesLevels[index].text = "LVL MAX";
+                // item without levels
+                levelUpChoicesLevels[index].color = defaultUIColor;
+                levelUpChoicesLevels[index].text = "";
+                levelUpChoicesDescriptions[index].text = item.levels[0].description;
             }
             else
             {
-                levelUpChoicesLevels[index].color = defaultUIColor;
-                levelUpChoicesLevels[index].text = "LVL " + level.ToString();
+                int level = itemLevels[index];
+                if (level == 1)
+                {
+                    // new item!
+                    levelUpChoicesLevels[index].color = newItemColor;
+                    levelUpChoicesLevels[index].text = "New!";
+                }
+                else if (level == item.levels.Count - 1)
+                {
+                    // max level
+                    levelUpChoicesLevels[index].color = maxLevelColor;
+                    levelUpChoicesLevels[index].text = "LVL MAX";
+                }
+                else
+                {
+                    levelUpChoicesLevels[index].color = defaultUIColor;
+                    levelUpChoicesLevels[index].text = "LVL " + level.ToString();
+                }
+                string description = "Better I guess...";
+                if (level < item.levels.Count)
+                {
+                    description = item.levels[level].description;
+                }
+                levelUpChoicesDescriptions[index].text = description;
             }
-            levelUpChoicesDescriptions[index].text = item.levels[level].description;
             index++;
         }
     }

@@ -24,7 +24,4 @@ public class Froguelike_EnemyData : ScriptableObject
     public float damage;
 
     public GameObject prefab;
-
-    public Color aliveColor;
-    public Color deadColor;
 }
