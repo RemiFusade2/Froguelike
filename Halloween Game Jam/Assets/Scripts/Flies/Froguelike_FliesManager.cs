@@ -12,7 +12,6 @@ public class Froguelike_EnemyInstance
     public Transform enemyTransform;
     public Rigidbody2D enemyRigidbody;
     public SpriteRenderer enemyRenderer;
-    public Animator enemyAnimator;
     public bool active;
 }
 
@@ -157,7 +156,6 @@ public class Froguelike_FliesManager : MonoBehaviour
         // setup enemy
         newEnemy.EnemyDataID = enemyData.ID;
         newEnemy.enemyRenderer = enemyTransform.GetComponent<SpriteRenderer>();
-        newEnemy.enemyAnimator = enemyTransform.GetComponent<Animator>();
         newEnemy.enemyTransform = enemyTransform;
         newEnemy.HP = enemyData.maxHP;
         newEnemy.enemyRigidbody = enemyTransform.GetComponent<Rigidbody2D>();
@@ -248,6 +246,7 @@ public class Froguelike_FliesManager : MonoBehaviour
                                 enemy.enemyRigidbody.velocity = Vector2.zero;
                                 break;
                             case Froguelike_EnemyMovePattern.STRAIGHTLINE:
+                                SetEnemyVelocity(enemy);
                                 break;
                             case Froguelike_EnemyMovePattern.TARGETPLAYER:
                                 enemy.moveDirection = (playerTransform.position - enemy.enemyTransform.position).normalized;
@@ -269,7 +268,7 @@ public class Froguelike_FliesManager : MonoBehaviour
     private void SetEnemyVelocity(Froguelike_EnemyInstance enemyInstance)
     {
         float angle = -Vector2.SignedAngle(enemyInstance.moveDirection, Vector2.right);
-        float roundedAngle = Mathf.RoundToInt(angle / 90) * 90;
+        float roundedAngle = 90 + Mathf.RoundToInt(angle / 90) * 90;
         enemyInstance.enemyTransform.rotation = Quaternion.Euler(0, 0, roundedAngle);
         enemyInstance.enemyRigidbody.velocity = enemyInstance.moveDirection * GetEnemyDataFromName(enemyInstance.enemyTransform.name).moveSpeed;
     }

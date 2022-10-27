@@ -129,9 +129,54 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
                     Vector2 direction = Random.insideUnitCircle.normalized;
                     Attack(direction);
                     break;
+                case WeaponType.ROTATING:
+                    AttackRotating();
+                    break;
             }
 
         }
+    }
+
+    public void AttackRotating()
+    {
+        eatenFliesCount = 0;
+        lastAttackTime = Time.time;
+        Vector2 direction = Froguelike_GameManager.instance.player.transform.up;
+        StartCoroutine(SendTongueInDirectionRotating(direction));
+    }
+
+    private IEnumerator SendTongueInDirectionRotating(Vector2 direction)
+    {
+        isAttacking = true;
+        SetTongueDirection(direction);
+        float t = 0;
+        isTongueGoingOut = true;
+        tongueLineRenderer1.enabled = true;
+        tongueLineRenderer2.enabled = true;
+        float angle = 0;
+        while (isTongueGoingOut)
+        {
+            if (t <= 1)
+            {
+                SetTongueScale(t);
+                t += (Time.fixedDeltaTime * attackSpeed);
+            }
+            angle += (Time.fixedDeltaTime * attackSpeed * 10);
+            SetTongueDirection((Mathf.Cos(angle) * Vector2.right + Mathf.Sin(angle) * Vector2.up).normalized);
+            yield return new WaitForFixedUpdate();
+        }
+        while (t > 0)
+        {
+            SetTongueScale(t);
+            t -= (Time.fixedDeltaTime * attackSpeed);
+            angle += (Time.fixedDeltaTime * attackSpeed * 10);
+            SetTongueDirection((Mathf.Cos(angle) * Vector2.right + Mathf.Sin(angle) * Vector2.up).normalized);
+            yield return new WaitForFixedUpdate();
+        }
+        tongueLineRenderer1.enabled = false;
+        tongueLineRenderer2.enabled = false;
+        lastAttackTime = Time.time;
+        isAttacking = false;
     }
 
     public void Attack(Vector2 direction)
@@ -205,6 +250,7 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
             {
                 case WeaponType.NEAREST:
                 case WeaponType.QUICK:
+                case WeaponType.ROTATING:
                 case WeaponType.RANDOM:
                     isTongueGoingOut = false;
                     break;
