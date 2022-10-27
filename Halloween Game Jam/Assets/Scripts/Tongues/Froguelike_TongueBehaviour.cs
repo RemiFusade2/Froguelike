@@ -7,7 +7,6 @@ public enum WeaponType
 {
     RANDOM,
     NEAREST,
-    QUICK,
     ROTATING,
     ULTIMATE
 }
@@ -26,6 +25,8 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
     public float attackSpeed;
     public float maxFlies;
     public float range;
+
+    public float width = 1;
 
     [Header("Layer")]
     public LayerMask foodLayer;
@@ -48,6 +49,7 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
         attackSpeed = weapon.attackSpeed;
         maxFlies = weapon.maxFlies;
         range = weapon.range;
+        width = weapon.width;
     }
 
     public void LevelUp(Froguelike_ItemLevel itemLevel)
@@ -61,7 +63,11 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
 
     private void SetTongueScale(float scale)
     {
-        this.transform.localScale = Vector3.forward + Vector3.up + scale * range * Vector3.right;
+        this.transform.localScale = Vector3.forward + (width * Vector3.up) + (scale * range * Vector3.right);
+        tongueLineRenderer1.startWidth = 0.1f * width;
+        tongueLineRenderer1.endWidth = 0.1f * width;
+        tongueLineRenderer2.startWidth = 0.1f * width + 0.1f;
+        tongueLineRenderer2.endWidth = 0.1f * width + 0.1f;
     }
 
     private void SetTongueDirection(Vector2 direction)
@@ -81,10 +87,6 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
         SetTongueScale(0);
         lastAttackTime = Time.time;
         polygonCollider = GetComponent<PolygonCollider2D>();
-        tongueLineRenderer1.startWidth = 0.1f;
-        tongueLineRenderer1.endWidth = 0.1f;
-        tongueLineRenderer2.startWidth = 0.2f;
-        tongueLineRenderer2.endWidth = 0.2f;
     }
 
     private GameObject GetNearestEnemy()
@@ -117,7 +119,6 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
         {
             switch (weaponType)
             {
-                case WeaponType.QUICK:
                 case WeaponType.NEAREST:
                     GameObject targetEnemy = GetNearestEnemy();
                     if (targetEnemy != null)
@@ -249,7 +250,6 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
             switch (weaponType)
             {
                 case WeaponType.NEAREST:
-                case WeaponType.QUICK:
                 case WeaponType.ROTATING:
                 case WeaponType.RANDOM:
                     isTongueGoingOut = false;

@@ -75,7 +75,6 @@ public class Froguelike_GameManager : MonoBehaviour
     {
         if (weaponItem.item.isWeapon)
         {
-            WeaponType weaponType = weaponItem.item.weaponType;
             GameObject weaponPrefab = weaponItem.item.weaponPrefab;
             GameObject weaponGo = Instantiate(weaponPrefab, player.weaponStartPoint.position, Quaternion.identity, player.weaponsParent);
             if (weaponItem.weaponsList.Count > 0)
@@ -83,7 +82,6 @@ public class Froguelike_GameManager : MonoBehaviour
                 weaponGo.GetComponent<Froguelike_TongueBehaviour>().CopyWeaponStats(weaponItem.weaponsList[0].GetComponent<Froguelike_TongueBehaviour>());
             }
             weaponItem.weaponsList.Add(weaponGo);
-            weaponGo.GetComponent<Froguelike_TongueBehaviour>().weaponType = weaponType;
         }        
     }
 

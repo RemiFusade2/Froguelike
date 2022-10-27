@@ -50,7 +50,6 @@ public class Froguelike_ItemScriptableObject : ScriptableObject
 
     public bool isWeapon;
     public GameObject weaponPrefab;
-    public WeaponType weaponType;
 
     public Sprite icon;
 
