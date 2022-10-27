@@ -10,6 +10,19 @@ public class Froguelike_ItemInfo
     public int level;
 }
 
+[System.Serializable]
+public class Froguelike_PlayableCharacterInfo
+{
+    public bool unlocked;
+
+    public int characterAnimatorValue;
+    public float startingLandSpeed;
+    public float startingSwimSpeed;
+    public float startingMaxHealth;
+    public float startingHealthRecovery;
+
+    public Froguelike_ItemScriptableObject startingWeapon;
+}
 public class Froguelike_GameManager : MonoBehaviour
 {
     public static Froguelike_GameManager instance;
@@ -18,9 +31,12 @@ public class Froguelike_GameManager : MonoBehaviour
 
     public Transform fliesParent;
 
-    public Froguelike_Wave waveInfo;
+    public List<Froguelike_ChapterData> allPlayableChaptersList;
+    private List<Froguelike_ChapterData> currentPlayableChaptersList;
+    public Froguelike_ChapterData currentChapter;
 
-    public Froguelike_ItemScriptableObject startingWeapon;
+    public List<Froguelike_PlayableCharacterInfo> playableCharactersList;
+    public Froguelike_PlayableCharacterInfo currentPlayedCharacter;
 
     public float xp;
     public float nextLevelXp = 5;
@@ -48,6 +64,7 @@ public class Froguelike_GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        ReinitializeChaptersList();
         level = 1;
         xp = 0;
         Froguelike_UIManager.instance.UpdateXPSlider(0, nextLevelXp);
@@ -206,28 +223,60 @@ public class Froguelike_GameManager : MonoBehaviour
 
     public void OpenCharacterSelection()
     {
-        Froguelike_UIManager.instance.ShowCharacterSelection();
+        List<bool> unlockedCharactersBoolList = new List<bool>();
+        foreach(Froguelike_PlayableCharacterInfo charInfo in playableCharactersList)
+        {
+            unlockedCharactersBoolList.Add(charInfo.unlocked);
+        }
+        Froguelike_UIManager.instance.ShowCharacterSelection(unlockedCharactersBoolList);
+    }
+
+    #region Level Up
+
+    private List<Froguelike_ChapterData> selectionOfNextChaptersList;
+
+    private void SelectNextPossibleChapters(int chapterCount)
+    {
+        selectionOfNextChaptersList = new List<Froguelike_ChapterData>();
+
+        if (currentPlayableChaptersList.Count < chapterCount)
+        {
+            ReinitializeChaptersList();
+        }
+
+        for (int i = 0; i < chapterCount; i++)
+        {
+            Froguelike_ChapterData selectedChapter = currentPlayableChaptersList[Random.Range(0, currentPlayableChaptersList.Count)];
+            currentPlayableChaptersList.Remove(selectedChapter);
+            selectionOfNextChaptersList.Add(selectedChapter);
+        }
     }
 
     public void SelectCharacter(int index)
     {
-        Froguelike_UIManager.instance.ShowChapterSelection(1, "THE SWAMP", "BEES");
+        currentPlayedCharacter = playableCharactersList[index];
+        SelectNextPossibleChapters(3);
+        Froguelike_UIManager.instance.ShowChapterSelection(1, selectionOfNextChaptersList);
     }
 
     public void SelectChapter(int index)
     {
-        StartCoroutine(StartGame(1, "THE SWAMP"));
+        currentChapter = selectionOfNextChaptersList[index];
+        StartCoroutine(StartChapter(1));
     }
 
-    public IEnumerator StartGame(int chapterCount, string chapterTitle)
+    #endregion
+
+    public IEnumerator StartChapter(int chapterCount)
     {
-        Froguelike_UIManager.instance.ShowChapterStart(chapterCount, chapterTitle);
+        Froguelike_UIManager.instance.ShowChapterStart(chapterCount, currentChapter.chapterTitle);
         yield return new WaitForSecondsRealtime(3.0f);
         Froguelike_UIManager.instance.ShowGameUI();
         hasGameStarted = true;
         isGameRunning = true;
-        PickItem(startingWeapon);
-        Froguelike_FliesManager.instance.SetWave(waveInfo);
+        player.InitializeCharacter(currentPlayedCharacter);
+        PickItem(currentPlayedCharacter.startingWeapon);
+        Froguelike_FliesManager.instance.SetWave(currentChapter.waves[0]);
         Time.timeScale = 1;
         player.Respawn();
         currentRespawns = respawns;
@@ -264,5 +313,15 @@ public class Froguelike_GameManager : MonoBehaviour
     public void QuitGame()
     {
         Application.Quit();
+    }
+
+    public void ReinitializeChaptersList()
+    {
+        currentPlayableChaptersList = new List<Froguelike_ChapterData>(allPlayableChaptersList);
+    }
+
+    public void InitializeStuff()
+    {
+        ReinitializeChaptersList();
     }
 }

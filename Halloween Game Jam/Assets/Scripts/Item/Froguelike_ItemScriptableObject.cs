@@ -8,6 +8,9 @@ public class Froguelike_ItemLevel
     public int level;
     public string description;
 
+    [Header("Character Heal")]
+    public float recoverHealth; // instantly heal x HP
+
     [Header("Character Boosts")]
     public float walkSpeedBoost; // move speed on land
     public float swimSpeedBoost; // move speed on water

@@ -12,6 +12,9 @@ public class Froguelike_UIManager : MonoBehaviour
 
     [Header("Character Selection")]
     public GameObject characterSelectionScreen;
+    public List<Button> charactersButtonsList;
+    public List<Text> charactersNamesTextList;
+    public List<string> charactersNamesList;
 
     [Header("In game UI")]
     public GameObject inGameUIPanel;
@@ -21,10 +24,8 @@ public class Froguelike_UIManager : MonoBehaviour
     [Header("Chapter selection")]
     public GameObject chapterSelectionScreen;
     public Text chapterSelectionTopText;
-    public Text chapterSelectionChoice1TopText;
-    public Text chapterSelectionChoice1BottomText;
-    public Text chapterSelectionChoice2TopText;
-    public Text chapterSelectionChoice2BottomText;
+    public List<Text> chapterTitleTextsList;
+    public List<Text> chapterDescriptionTextsList;
 
     [Header("Chapter Start")]
     public GameObject chapterStartScreen;
@@ -41,6 +42,7 @@ public class Froguelike_UIManager : MonoBehaviour
 
     [Header("Level UP Panel")]
     public GameObject levelUpPanel;
+    public Animator levelUpPanelAnimator;
     [Space]
     public List<GameObject> levelUpChoicesPanels;
     public List<Text> levelUpChoicesTitles;
@@ -69,7 +71,7 @@ public class Froguelike_UIManager : MonoBehaviour
         chapterSelectionScreen.SetActive(false);
         chapterStartScreen.SetActive(false);
         scoreScreen.SetActive(false);
-        levelUpPanel.SetActive(false);
+        //levelUpPanel.SetActive(false);
         inGameUIPanel.SetActive(false);
         gameOverPanel.SetActive(false);
     }
@@ -80,21 +82,44 @@ public class Froguelike_UIManager : MonoBehaviour
         titleScreen.SetActive(true);
     }
 
-    public void ShowCharacterSelection()
+    public void ShowCharacterSelection(List<bool> unlockedCharactersList)
     {
         HideAllScreens();
+
+        for (int i = 0; i < unlockedCharactersList.Count; i++)
+        {
+            charactersButtonsList[i].interactable = unlockedCharactersList[i];
+            charactersNamesTextList[i].text = (unlockedCharactersList[i] ? charactersNamesList[i] : "???");
+        }
+
         titleScreen.SetActive(true);
         characterSelectionScreen.SetActive(true);
     }
 
-    public void ShowChapterSelection(int chapterCount, string choice1Title, string choice2Title)
+    public void ShowChapterSelection(int chapterCount, List<Froguelike_ChapterData> chapters)
     {
         HideAllScreens();
-        chapterSelectionTopText.text = (chapterCount == 1) ? "HOW DOES THE STORY START?" : "WHAT HAPPENED NEXT?";
-        chapterSelectionChoice1TopText.text = "Chapter " + chapterCount.ToString();
-        chapterSelectionChoice2TopText.text = "Chapter " + chapterCount.ToString();
-        chapterSelectionChoice1BottomText.text = choice1Title;
-        chapterSelectionChoice2BottomText.text = choice2Title;
+        string chapterIntro = "";
+        if (chapterCount == 1)
+        {
+            titleScreen.SetActive(true);
+            chapterIntro = "How does the story start?";
+        }
+        else if (chapterCount == 5)
+        {
+            chapterIntro = "How does that story end?";
+        }
+        else
+        {
+            chapterIntro = "What happens in chapter " + chapterCount.ToString() + "?";
+        }
+        chapterSelectionTopText.text = chapterIntro;
+        for (int i = 0; i < chapters.Count; i++)
+        {
+            Froguelike_ChapterData chapter = chapters[i];
+            chapterTitleTextsList[i].text = chapter.chapterTitle;
+            chapterDescriptionTextsList[i].text = chapter.chapterDescription;
+        }
         chapterSelectionScreen.SetActive(true);
     }
 
@@ -140,12 +165,14 @@ public class Froguelike_UIManager : MonoBehaviour
 
     public void HideLevelUpItemSelection()
     {
-        levelUpPanel.SetActive(false);
+        levelUpPanelAnimator.SetBool("Visible", false);
+        //levelUpPanel.SetActive(false);
     }
 
     public void ShowLevelUpItemSelection(List<Froguelike_ItemScriptableObject> possibleItems, List<int> itemLevels)
     {
         levelUpPanel.SetActive(true);
+        levelUpPanelAnimator.SetBool("Visible", true);
         foreach (GameObject panel in levelUpChoicesPanels)
         {
             panel.SetActive(false);
@@ -184,9 +211,9 @@ public class Froguelike_UIManager : MonoBehaviour
                     levelUpChoicesLevels[index].text = "LVL " + level.ToString();
                 }
                 string description = "Better I guess...";
-                if (level < item.levels.Count)
+                if ((level-1) < item.levels.Count)
                 {
-                    description = item.levels[level].description;
+                    description = item.levels[level - 1].description;
                 }
                 levelUpChoicesDescriptions[index].text = description;
             }

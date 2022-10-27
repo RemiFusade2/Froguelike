@@ -93,7 +93,7 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
     {
         GameObject enemy = null;
         Vector2 playerPosition = Froguelike_GameManager.instance.player.transform.position;
-        Collider2D[] allColliders = Physics2D.OverlapCircleAll(playerPosition, range * 1.5f, foodLayer);
+        Collider2D[] allColliders = Physics2D.OverlapCircleAll(playerPosition, range * 2.0f * 3.0f, foodLayer);
         if (allColliders.Length > 0)
         {
             float shortestDistance = float.MaxValue;
@@ -229,10 +229,11 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Fly") && eatenFliesCount < maxFlies)
+        if (collision.CompareTag("Fly"))
         {
             string enemyName = collision.gameObject.name;
-            bool enemyIsDead = Froguelike_FliesManager.instance.DamageEnemy(enemyName, damage);
+            bool canKillEnemy = (eatenFliesCount < maxFlies);
+            bool enemyIsDead = Froguelike_FliesManager.instance.DamageEnemy(enemyName, damage, canKillEnemy);
             if (enemyIsDead)
             {
                 collision.GetComponent<Animator>().SetBool("IsDead", true);

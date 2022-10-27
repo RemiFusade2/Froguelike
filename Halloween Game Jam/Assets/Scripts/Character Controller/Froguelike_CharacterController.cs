@@ -62,6 +62,18 @@ public class Froguelike_CharacterController : MonoBehaviour
             ChangeHealth(healthRecovery);
         }
     }
+
+    public void InitializeCharacter(Froguelike_PlayableCharacterInfo characterInfo)
+    {
+        // TODO : set animator value
+        // characterInfo.characterAnimatorValue
+
+        healthRecovery = characterInfo.startingHealthRecovery;
+        landSpeed = characterInfo.startingLandSpeed;
+        swimSpeed = characterInfo.startingSwimSpeed;
+        maxHealth = characterInfo.startingMaxHealth;
+        currentHealth = maxHealth;
+    }
     
     public void Respawn()
     {

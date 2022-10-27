@@ -173,7 +173,7 @@ public class Froguelike_FliesManager : MonoBehaviour
     }
 
     // Return true if enemy dieded
-    public bool DamageEnemy(string enemyGoName, float damage)
+    public bool DamageEnemy(string enemyGoName, float damage, bool canKill)
     {
         int index = int.Parse(enemyGoName);
         Froguelike_EnemyInstance enemy = allActiveEnemiesDico[index];
@@ -181,18 +181,24 @@ public class Froguelike_FliesManager : MonoBehaviour
 
         if (enemy.HP <= 0)
         {
-            // enemy died, let's eat it now
-            enemy.enemyTransform.rotation = Quaternion.Euler(0, 0, 45);
-            return true;
+            if (canKill)
+            {
+                // enemy died, let's eat it now
+                enemy.enemyTransform.rotation = Quaternion.Euler(0, 0, 45);
+                return true;
+            }
+            else
+            {
+                // enemy can't die because of tongue limit
+                enemy.HP = 0.1f;
+            }
         }
-        else
-        {
-            // if enemy didn't die, then display damage text
-            Vector2 position = enemy.enemyTransform.position;
-            GameObject damageText = Instantiate(damageTextPrefab, position, Quaternion.identity, null);
-            damageText.GetComponent<TMPro.TextMeshPro>().text = Mathf.RoundToInt(damage).ToString();
-            Destroy(damageText, 1.0f);
-        }
+        
+        // if enemy didn't die, then display damage text
+        Vector2 position = (Vector2)enemy.enemyTransform.position + 0.1f*Random.insideUnitCircle;
+        GameObject damageText = Instantiate(damageTextPrefab, position, Quaternion.identity, null);
+        damageText.GetComponent<TMPro.TextMeshPro>().text = Mathf.CeilToInt(damage).ToString();
+        Destroy(damageText, 1.0f);
 
         return false;
     }
@@ -268,7 +274,7 @@ public class Froguelike_FliesManager : MonoBehaviour
     private void SetEnemyVelocity(Froguelike_EnemyInstance enemyInstance)
     {
         float angle = -Vector2.SignedAngle(enemyInstance.moveDirection, Vector2.right);
-        float roundedAngle = 90 + Mathf.RoundToInt(angle / 90) * 90;
+        float roundedAngle = -90 + Mathf.RoundToInt(angle / 90) * 90;
         enemyInstance.enemyTransform.rotation = Quaternion.Euler(0, 0, roundedAngle);
         enemyInstance.enemyRigidbody.velocity = enemyInstance.moveDirection * GetEnemyDataFromName(enemyInstance.enemyTransform.name).moveSpeed;
     }
