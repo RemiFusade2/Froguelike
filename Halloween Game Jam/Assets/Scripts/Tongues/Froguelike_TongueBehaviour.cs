@@ -34,7 +34,7 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
     private PolygonCollider2D polygonCollider;
 
     private float lastAttackTime;
-    
+
     private bool isTongueGoingOut;
 
     private int eatenFliesCount;
@@ -61,7 +61,7 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
 
     private void SetTongueScale(float scale)
     {
-        this.transform.localScale =  Vector3.forward + Vector3.up + scale * range * Vector3.right;
+        this.transform.localScale = Vector3.forward + Vector3.up + scale * range * Vector3.right;
     }
 
     private void SetTongueDirection(Vector2 direction)
@@ -115,7 +115,7 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
     {
         if (!isAttacking && Time.time - lastAttackTime > cooldown)
         {
-            switch(weaponType)
+            switch (weaponType)
             {
                 case WeaponType.QUICK:
                 case WeaponType.NEAREST:
@@ -189,6 +189,7 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
             bool enemyIsDead = Froguelike_FliesManager.instance.DamageEnemy(enemyName, damage);
             if (enemyIsDead)
             {
+                collision.GetComponent<Animator>().SetBool("IsDead", true);
                 collision.enabled = false;
                 eatenFliesCount++;
                 CheckEatenFlyCount();
@@ -200,7 +201,7 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
     {
         if (eatenFliesCount >= maxFlies)
         {
-            switch(weaponType)
+            switch (weaponType)
             {
                 case WeaponType.NEAREST:
                 case WeaponType.QUICK:
