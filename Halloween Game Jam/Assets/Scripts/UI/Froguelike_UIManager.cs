@@ -61,6 +61,8 @@ public class Froguelike_UIManager : MonoBehaviour
     public Color newItemColor;
     public Color maxLevelColor;
 
+    [Header("Sound")]
+    public Froguelike_SoundManager soundManager;
 
     private void Awake()
     {
@@ -151,12 +153,13 @@ public class Froguelike_UIManager : MonoBehaviour
         chapterStartScreen.SetActive(true);
         chapterStartTopText.text = "Chapter " + chapterCount.ToString();
         chapterStartBottomText.text = chapterTitle;
+        PlayPageSound();
     }
 
     public void ShowScoreScreen(List<Froguelike_ChapterInfo> chaptersInfoList, List<Froguelike_ItemInfo> itemsInfoList)
     {
         HideAllScreens();
-        
+
         // Hide all chapters texts
         foreach (Text chapterTextParent in chaptersTextList)
         {
@@ -165,7 +168,7 @@ public class Froguelike_UIManager : MonoBehaviour
 
         // Display the relevant ones
         int totalScore = 0;
-        for (int i=0; i < chaptersInfoList.Count; i++)
+        for (int i = 0; i < chaptersInfoList.Count; i++)
         {
             Froguelike_ChapterInfo chapterInfo = chaptersInfoList[i];
 
@@ -201,6 +204,7 @@ public class Froguelike_UIManager : MonoBehaviour
         upgradesLevelsText.text = allItemsLevels;
 
         scoreScreen.SetActive(true);
+        PlayPageSound();
     }
 
     public void ShowGameUI()
@@ -216,6 +220,7 @@ public class Froguelike_UIManager : MonoBehaviour
         gameOverPanel.SetActive(true);
         gameOverRespawnButton.SetActive(respawnAvailable);
         gameOverGiveUpButton.SetActive(!respawnAvailable);
+        PlayDeathSound();
     }
 
     public void UpdateXPSlider(float xp, float maxXp)
@@ -281,7 +286,7 @@ public class Froguelike_UIManager : MonoBehaviour
                     levelUpChoicesLevels[index].text = "LVL " + level.ToString();
                 }
                 string description = "Better I guess...";
-                if ((level-1) < item.levels.Count)
+                if ((level - 1) < item.levels.Count)
                 {
                     description = item.levels[level - 1].description;
                 }
@@ -289,5 +294,15 @@ public class Froguelike_UIManager : MonoBehaviour
             }
             index++;
         }
+    }
+
+    public void PlayPageSound()
+    {
+        soundManager.PlayPageSound();
+    }
+
+    public void PlayDeathSound()
+    {
+        soundManager.PlayDeathSound();
     }
 }

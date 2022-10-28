@@ -211,6 +211,7 @@ GameObject:
   - component: {fileID: 37332910}
   - component: {fileID: 37332909}
   - component: {fileID: 37332908}
+  - component: {fileID: 37332911}
   m_Layer: 5
   m_Name: Quit
   m_TagString: Untagged
@@ -264,7 +265,7 @@ MonoBehaviour:
     m_NormalColor: {r: 1, g: 0.9686275, b: 0.7254902, a: 1}
     m_HighlightedColor: {r: 0.94509804, g: 0.80784315, b: 0.627451, a: 1}
     m_PressedColor: {r: 1, g: 0.9686275, b: 0.7254902, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 1, g: 0.9686275, b: 0.7254902, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -334,6 +335,35 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 37332906}
   m_CullTransparentMesh: 1
+--- !u!114 &37332911
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 37332906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 464157710}
+          m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+          m_MethodName: PlayButtonSound
+          m_Mode: 2
+          m_Arguments:
+            m_ObjectArgument: {fileID: 37332908}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &39240025
 GameObject:
   m_ObjectHideFlags: 0
@@ -648,6 +678,7 @@ GameObject:
   - component: {fileID: 134203122}
   - component: {fileID: 134203121}
   - component: {fileID: 134203120}
+  - component: {fileID: 134203123}
   m_Layer: 5
   m_Name: Chapter Selection 1
   m_TagString: Untagged
@@ -702,7 +733,7 @@ MonoBehaviour:
     m_NormalColor: {r: 1, g: 0.96862745, b: 0.7254902, a: 1}
     m_HighlightedColor: {r: 0.94509804, g: 0.80784315, b: 0.627451, a: 1}
     m_PressedColor: {r: 1, g: 0.9686275, b: 0.7254902, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 1, g: 0.9686275, b: 0.7254902, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -772,6 +803,35 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 134203118}
   m_CullTransparentMesh: 1
+--- !u!114 &134203123
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 134203118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 464157710}
+          m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+          m_MethodName: PlayButtonSound
+          m_Mode: 2
+          m_Arguments:
+            m_ObjectArgument: {fileID: 134203120}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &145005848
 GameObject:
   m_ObjectHideFlags: 0
@@ -784,6 +844,7 @@ GameObject:
   - component: {fileID: 145005852}
   - component: {fileID: 145005851}
   - component: {fileID: 145005850}
+  - component: {fileID: 145005853}
   m_Layer: 5
   m_Name: Button (1)
   m_TagString: Untagged
@@ -839,7 +900,7 @@ MonoBehaviour:
     m_NormalColor: {r: 0.7372549, g: 0.81960785, b: 0.8509804, a: 1}
     m_HighlightedColor: {r: 0.44705883, g: 0.5254902, b: 0.5921569, a: 1}
     m_PressedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -909,6 +970,35 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 145005848}
   m_CullTransparentMesh: 1
+--- !u!114 &145005853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 145005848}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 464157710}
+          m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+          m_MethodName: PlayButtonSound
+          m_Mode: 2
+          m_Arguments:
+            m_ObjectArgument: {fileID: 145005850}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1001 &152333514
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1634,6 +1724,8 @@ GameObject:
   - component: {fileID: 229593740}
   - component: {fileID: 229593739}
   - component: {fileID: 229593738}
+  - component: {fileID: 229593742}
+  - component: {fileID: 229593741}
   m_Layer: 5
   m_Name: Try Again
   m_TagString: Untagged
@@ -1687,7 +1779,7 @@ MonoBehaviour:
     m_NormalColor: {r: 1, g: 0.9686275, b: 0.7254902, a: 1}
     m_HighlightedColor: {r: 0.94509804, g: 0.80784315, b: 0.627451, a: 1}
     m_PressedColor: {r: 1, g: 0.9686275, b: 0.7254902, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 1, g: 0.9686275, b: 0.7254902, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -1757,6 +1849,48 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 229593736}
   m_CullTransparentMesh: 1
+--- !u!114 &229593741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 229593736}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates: []
+--- !u!114 &229593742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 229593736}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 464157710}
+          m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+          m_MethodName: PlayButtonSound
+          m_Mode: 2
+          m_Arguments:
+            m_ObjectArgument: {fileID: 229593738}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &236664490
 GameObject:
   m_ObjectHideFlags: 0
@@ -1769,6 +1903,7 @@ GameObject:
   - component: {fileID: 236664494}
   - component: {fileID: 236664493}
   - component: {fileID: 236664492}
+  - component: {fileID: 236664495}
   m_Layer: 5
   m_Name: Button (3)
   m_TagString: Untagged
@@ -1825,7 +1960,7 @@ MonoBehaviour:
     m_NormalColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
     m_HighlightedColor: {r: 0.44705883, g: 0.5254902, b: 0.5921569, a: 1}
     m_PressedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
     m_DisabledColor: {r: 0.9882353, g: 0.99607843, b: 0.99607843, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -1895,6 +2030,35 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 236664490}
   m_CullTransparentMesh: 1
+--- !u!114 &236664495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 236664490}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 464157710}
+          m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+          m_MethodName: PlayButtonSound
+          m_Mode: 2
+          m_Arguments:
+            m_ObjectArgument: {fileID: 236664492}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &244333656
 GameObject:
   m_ObjectHideFlags: 0
@@ -2608,6 +2772,7 @@ GameObject:
   - component: {fileID: 369748699}
   - component: {fileID: 369748698}
   - component: {fileID: 369748697}
+  - component: {fileID: 369748700}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -2664,7 +2829,7 @@ MonoBehaviour:
     m_NormalColor: {r: 0.7372549, g: 0.81960785, b: 0.8509804, a: 1}
     m_HighlightedColor: {r: 0.44705883, g: 0.5254902, b: 0.5921569, a: 1}
     m_PressedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
     m_DisabledColor: {r: 0.9882353, g: 0.99607843, b: 0.99607843, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -2734,6 +2899,35 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 369748695}
   m_CullTransparentMesh: 1
+--- !u!114 &369748700
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 369748695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 464157710}
+          m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+          m_MethodName: PlayButtonSound
+          m_Mode: 2
+          m_Arguments:
+            m_ObjectArgument: {fileID: 369748697}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &372494531
 GameObject:
   m_ObjectHideFlags: 0
@@ -2790,6 +2984,7 @@ MonoBehaviour:
   enemySpeedFactor: 1
   enemyDamageFactor: 1
   enemyXPFactor: 1
+  curse: 0
   currentWave: {fileID: 0}
 --- !u!1 &382207742
 GameObject:
@@ -2884,7 +3079,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &385861511
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3020,6 +3215,7 @@ GameObject:
   - component: {fileID: 396913353}
   - component: {fileID: 396913352}
   - component: {fileID: 396913351}
+  - component: {fileID: 396913354}
   m_Layer: 5
   m_Name: Button (4)
   m_TagString: Untagged
@@ -3076,7 +3272,7 @@ MonoBehaviour:
     m_NormalColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
     m_HighlightedColor: {r: 0.44705883, g: 0.5254902, b: 0.5921569, a: 1}
     m_PressedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
     m_DisabledColor: {r: 0.9882353, g: 0.99607843, b: 0.99607843, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -3146,6 +3342,35 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 396913349}
   m_CullTransparentMesh: 1
+--- !u!114 &396913354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 396913349}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 464157710}
+          m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+          m_MethodName: PlayButtonSound
+          m_Mode: 2
+          m_Arguments:
+            m_ObjectArgument: {fileID: 396913351}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &426128669
 GameObject:
   m_ObjectHideFlags: 0
@@ -3314,6 +3539,7 @@ GameObject:
   - component: {fileID: 437419359}
   - component: {fileID: 437419358}
   - component: {fileID: 437419357}
+  - component: {fileID: 437419360}
   m_Layer: 5
   m_Name: Start Game
   m_TagString: Untagged
@@ -3367,7 +3593,7 @@ MonoBehaviour:
     m_NormalColor: {r: 0.9960785, g: 0.9686275, b: 0.7254902, a: 1}
     m_HighlightedColor: {r: 0.94509804, g: 0.80784315, b: 0.627451, a: 1}
     m_PressedColor: {r: 0.9960785, g: 0.9686275, b: 0.7254902, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.9960785, g: 0.9686275, b: 0.7254902, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -3437,6 +3663,35 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 437419355}
   m_CullTransparentMesh: 1
+--- !u!114 &437419360
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 437419355}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 464157710}
+          m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+          m_MethodName: PlayButtonSound
+          m_Mode: 2
+          m_Arguments:
+            m_ObjectArgument: {fileID: 437419357}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &437610008
 GameObject:
   m_ObjectHideFlags: 0
@@ -3547,6 +3802,7 @@ GameObject:
   - component: {fileID: 463907150}
   - component: {fileID: 463907149}
   - component: {fileID: 463907148}
+  - component: {fileID: 463907151}
   m_Layer: 5
   m_Name: Button (6)
   m_TagString: Untagged
@@ -3603,7 +3859,7 @@ MonoBehaviour:
     m_NormalColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
     m_HighlightedColor: {r: 0.44705883, g: 0.5254902, b: 0.5921569, a: 1}
     m_PressedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
     m_DisabledColor: {r: 0.9882353, g: 0.99607843, b: 0.99607843, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -3673,6 +3929,182 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 463907146}
   m_CullTransparentMesh: 1
+--- !u!114 &463907151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 463907146}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 464157710}
+          m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+          m_MethodName: PlayButtonSound
+          m_Mode: 2
+          m_Arguments:
+            m_ObjectArgument: {fileID: 463907148}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+--- !u!1 &464157708
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 464157711}
+  - component: {fileID: 464157710}
+  - component: {fileID: 464157709}
+  m_Layer: 0
+  m_Name: Sound Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!82 &464157709
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 464157708}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &464157710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 464157708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba5d85746b45a694e90133d374942bcb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buttonSound: {fileID: 8300000, guid: 4fd524aa30b04874fb1285caed3760ed, type: 3}
+  buttonVolume: 0.5
+  deathSound: {fileID: 8300000, guid: f15541d86a1c9c64399ec5c85dc1d0d1, type: 3}
+  deathVolume: 1
+  pageSound: {fileID: 8300000, guid: 6ca09f107f050484089cc30ab08edf8e, type: 3}
+  pageVolume: 1
+--- !u!4 &464157711
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 464157708}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 526, y: 276.27084, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &472995952
 GameObject:
   m_ObjectHideFlags: 0
@@ -3766,7 +4198,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &473319585
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5318,8 +5750,6 @@ MonoBehaviour:
   deathEnemyData: {fileID: 11400000, guid: 1c49aab4868b59c44a26f5d0441acb5b, type: 2}
   startLevelXp: 5
   startXpNeededForNextLevelFactor: 1.5
-  respawns: 2
-  currentRespawns: 0
   hasGameStarted: 0
   isGameRunning: 0
   chapterRemainingTime: 0
@@ -6568,6 +6998,7 @@ MonoBehaviour:
   defaultUIColor: {r: 0.09411765, g: 0.09803922, b: 0.12156863, a: 1}
   newItemColor: {r: 1, g: 0.6431373, b: 0, a: 1}
   maxLevelColor: {r: 1, g: 0.6431373, b: 0, a: 1}
+  soundManager: {fileID: 464157710}
 --- !u!4 &813424182
 Transform:
   m_ObjectHideFlags: 0
@@ -7169,6 +7600,7 @@ GameObject:
   - component: {fileID: 894015030}
   - component: {fileID: 894015029}
   - component: {fileID: 894015028}
+  - component: {fileID: 894015031}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -7224,7 +7656,7 @@ MonoBehaviour:
     m_NormalColor: {r: 0.7372549, g: 0.81960785, b: 0.8509804, a: 1}
     m_HighlightedColor: {r: 0.44705883, g: 0.5254902, b: 0.5921569, a: 1}
     m_PressedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -7294,6 +7726,35 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 894015026}
   m_CullTransparentMesh: 1
+--- !u!114 &894015031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 894015026}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 464157710}
+          m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+          m_MethodName: PlayButtonSound
+          m_Mode: 2
+          m_Arguments:
+            m_ObjectArgument: {fileID: 894015028}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &899129845
 GameObject:
   m_ObjectHideFlags: 0
@@ -7664,6 +8125,7 @@ GameObject:
   - component: {fileID: 962251375}
   - component: {fileID: 962251374}
   - component: {fileID: 962251373}
+  - component: {fileID: 962251376}
   m_Layer: 5
   m_Name: Buy Stuff
   m_TagString: Untagged
@@ -7699,7 +8161,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 962251371}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
@@ -7731,7 +8193,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 962251374}
   m_OnClick:
     m_PersistentCalls:
@@ -7774,6 +8236,35 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 962251371}
   m_CullTransparentMesh: 1
+--- !u!114 &962251376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 962251371}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 464157710}
+          m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+          m_MethodName: PlayButtonSound
+          m_Mode: 2
+          m_Arguments:
+            m_ObjectArgument: {fileID: 962251373}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &985926066
 GameObject:
   m_ObjectHideFlags: 0
@@ -8679,6 +9170,14 @@ MonoBehaviour:
   currentHealth: 100
   maxHealth: 100
   healthRecovery: 0.01
+  armorBoost: 0
+  experienceBoost: 0
+  revivals: 0
+  attackCooldownBoost: 0
+  attackDamageBoost: 0
+  attackMaxFliesBoost: 0
+  attackRangeBoost: 0
+  attackSpeedBoost: 0
   horizontalInputName: horizontal
   verticalInputName: vertical
   animator: {fileID: 1127068951}
@@ -10391,6 +10890,7 @@ GameObject:
   - component: {fileID: 1442310628}
   - component: {fileID: 1442310627}
   - component: {fileID: 1442310626}
+  - component: {fileID: 1442310629}
   m_Layer: 5
   m_Name: Chapter Selection 3
   m_TagString: Untagged
@@ -10445,7 +10945,7 @@ MonoBehaviour:
     m_NormalColor: {r: 1, g: 0.96862745, b: 0.7254902, a: 1}
     m_HighlightedColor: {r: 0.94509804, g: 0.80784315, b: 0.627451, a: 1}
     m_PressedColor: {r: 1, g: 0.9686275, b: 0.7254902, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 1, g: 0.9686275, b: 0.7254902, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -10515,6 +11015,35 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1442310624}
   m_CullTransparentMesh: 1
+--- !u!114 &1442310629
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1442310624}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 464157710}
+          m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+          m_MethodName: PlayButtonSound
+          m_Mode: 2
+          m_Arguments:
+            m_ObjectArgument: {fileID: 1442310626}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &1455105405
 GameObject:
   m_ObjectHideFlags: 0
@@ -10691,6 +11220,7 @@ GameObject:
   - component: {fileID: 1498598637}
   - component: {fileID: 1498598636}
   - component: {fileID: 1498598635}
+  - component: {fileID: 1498598638}
   m_Layer: 5
   m_Name: Button (2)
   m_TagString: Untagged
@@ -10747,7 +11277,7 @@ MonoBehaviour:
     m_NormalColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
     m_HighlightedColor: {r: 0.44705883, g: 0.5254902, b: 0.5921569, a: 1}
     m_PressedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
     m_DisabledColor: {r: 0.9882353, g: 0.99607843, b: 0.99607843, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -10817,6 +11347,35 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1498598633}
   m_CullTransparentMesh: 1
+--- !u!114 &1498598638
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1498598633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 464157710}
+          m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+          m_MethodName: PlayButtonSound
+          m_Mode: 2
+          m_Arguments:
+            m_ObjectArgument: {fileID: 1498598635}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &1509706044
 GameObject:
   m_ObjectHideFlags: 0
@@ -11474,6 +12033,7 @@ GameObject:
   - component: {fileID: 1647460443}
   - component: {fileID: 1647460442}
   - component: {fileID: 1647460441}
+  - component: {fileID: 1647460444}
   m_Layer: 5
   m_Name: Button (1)
   m_TagString: Untagged
@@ -11530,7 +12090,7 @@ MonoBehaviour:
     m_NormalColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
     m_HighlightedColor: {r: 0.44705883, g: 0.5254902, b: 0.5921569, a: 1}
     m_PressedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
     m_DisabledColor: {r: 0.9882353, g: 0.99607843, b: 0.99607843, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -11600,6 +12160,35 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1647460439}
   m_CullTransparentMesh: 1
+--- !u!114 &1647460444
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1647460439}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 464157710}
+          m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+          m_MethodName: PlayButtonSound
+          m_Mode: 2
+          m_Arguments:
+            m_ObjectArgument: {fileID: 1647460441}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &1647783023
 GameObject:
   m_ObjectHideFlags: 0
@@ -12283,6 +12872,7 @@ GameObject:
   - component: {fileID: 1748587631}
   - component: {fileID: 1748587630}
   - component: {fileID: 1748587629}
+  - component: {fileID: 1748587632}
   m_Layer: 5
   m_Name: Button (5)
   m_TagString: Untagged
@@ -12339,7 +12929,7 @@ MonoBehaviour:
     m_NormalColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
     m_HighlightedColor: {r: 0.44705883, g: 0.5254902, b: 0.5921569, a: 1}
     m_PressedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
     m_DisabledColor: {r: 0.9882353, g: 0.99607843, b: 0.99607843, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -12409,6 +12999,35 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1748587627}
   m_CullTransparentMesh: 1
+--- !u!114 &1748587632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1748587627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 464157710}
+          m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+          m_MethodName: PlayButtonSound
+          m_Mode: 2
+          m_Arguments:
+            m_ObjectArgument: {fileID: 1748587629}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &1754959443
 GameObject:
   m_ObjectHideFlags: 0
@@ -12804,7 +13423,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1819741221
 RectTransform:
   m_ObjectHideFlags: 0
@@ -12884,7 +13503,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1853500120
 RectTransform:
   m_ObjectHideFlags: 0
@@ -13283,6 +13902,7 @@ GameObject:
   - component: {fileID: 1909246879}
   - component: {fileID: 1909246878}
   - component: {fileID: 1909246877}
+  - component: {fileID: 1909246880}
   m_Layer: 5
   m_Name: Respawn Button
   m_TagString: Untagged
@@ -13336,7 +13956,7 @@ MonoBehaviour:
     m_NormalColor: {r: 0.7372549, g: 0.81960785, b: 0.8509804, a: 1}
     m_HighlightedColor: {r: 0.44705883, g: 0.5254902, b: 0.5921569, a: 1}
     m_PressedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
     m_DisabledColor: {r: 0, g: 0, b: 0, a: 0.56078434}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -13406,6 +14026,35 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1909246875}
   m_CullTransparentMesh: 1
+--- !u!114 &1909246880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1909246875}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 464157710}
+          m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+          m_MethodName: PlayButtonSound
+          m_Mode: 2
+          m_Arguments:
+            m_ObjectArgument: {fileID: 1909246877}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &1923286624
 GameObject:
   m_ObjectHideFlags: 0
@@ -13578,6 +14227,7 @@ GameObject:
   - component: {fileID: 1927933167}
   - component: {fileID: 1927933166}
   - component: {fileID: 1927933165}
+  - component: {fileID: 1927933168}
   m_Layer: 5
   m_Name: Button (2)
   m_TagString: Untagged
@@ -13633,7 +14283,7 @@ MonoBehaviour:
     m_NormalColor: {r: 0.7372549, g: 0.81960785, b: 0.8509804, a: 1}
     m_HighlightedColor: {r: 0.44705883, g: 0.5254902, b: 0.5921569, a: 1}
     m_PressedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -13703,6 +14353,35 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1927933163}
   m_CullTransparentMesh: 1
+--- !u!114 &1927933168
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1927933163}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 464157710}
+          m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+          m_MethodName: PlayButtonSound
+          m_Mode: 2
+          m_Arguments:
+            m_ObjectArgument: {fileID: 1927933165}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &1942238417
 GameObject:
   m_ObjectHideFlags: 0
@@ -13957,6 +14636,7 @@ GameObject:
   - component: {fileID: 1984526425}
   - component: {fileID: 1984526424}
   - component: {fileID: 1984526423}
+  - component: {fileID: 1984526426}
   m_Layer: 5
   m_Name: Chapter Selection 2
   m_TagString: Untagged
@@ -14011,7 +14691,7 @@ MonoBehaviour:
     m_NormalColor: {r: 1, g: 0.96862745, b: 0.7254902, a: 1}
     m_HighlightedColor: {r: 0.94509804, g: 0.80784315, b: 0.627451, a: 1}
     m_PressedColor: {r: 1, g: 0.9686275, b: 0.7254902, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 1, g: 0.9686275, b: 0.7254902, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -14081,6 +14761,35 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1984526421}
   m_CullTransparentMesh: 1
+--- !u!114 &1984526426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1984526421}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 464157710}
+          m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+          m_MethodName: PlayButtonSound
+          m_Mode: 2
+          m_Arguments:
+            m_ObjectArgument: {fileID: 1984526423}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &2009587069
 GameObject:
   m_ObjectHideFlags: 0
@@ -14728,6 +15437,7 @@ GameObject:
   - component: {fileID: 2137366818}
   - component: {fileID: 2137366817}
   - component: {fileID: 2137366816}
+  - component: {fileID: 2137366819}
   m_Layer: 5
   m_Name: Give up Button
   m_TagString: Untagged
@@ -14781,7 +15491,7 @@ MonoBehaviour:
     m_NormalColor: {r: 0.7372549, g: 0.81960785, b: 0.8509804, a: 1}
     m_HighlightedColor: {r: 0.44705883, g: 0.5254902, b: 0.5921569, a: 1}
     m_PressedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.7372549, g: 0.8196079, b: 0.85098046, a: 1}
     m_DisabledColor: {r: 0, g: 0, b: 0, a: 0.56078434}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -14851,6 +15561,35 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2137366814}
   m_CullTransparentMesh: 1
+--- !u!114 &2137366819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2137366814}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 464157710}
+          m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+          m_MethodName: PlayButtonSound
+          m_Mode: 2
+          m_Arguments:
+            m_ObjectArgument: {fileID: 2137366816}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &2137972056
 GameObject:
   m_ObjectHideFlags: 0
