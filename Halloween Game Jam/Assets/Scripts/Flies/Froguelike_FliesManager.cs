@@ -215,6 +215,8 @@ public class Froguelike_FliesManager : MonoBehaviour
             Destroy(allActiveEnemiesDico[id].enemyTransform.gameObject, .1f);
             allActiveEnemiesDico.Remove(id);
         }
+        allActiveEnemiesDico.Clear();
+        lastKey = 0;
     }
 
     public void UpdateAllEnemies()
@@ -229,7 +231,7 @@ public class Froguelike_FliesManager : MonoBehaviour
                 Froguelike_EnemyData enemyData = enemiesDataDico[enemy.EnemyDataID];
                 if (enemy.active)
                 {
-                    if (enemy.HP < 0.01f)
+                    if (enemy.HP <= 0.01f)
                     {
                         // enemy is dead
                         enemy.moveDirection = (playerTransform.position - enemy.enemyTransform.position).normalized;

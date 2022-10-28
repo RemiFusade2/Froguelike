@@ -27,32 +27,42 @@ public class Froguelike_GameManager : MonoBehaviour
 {
     public static Froguelike_GameManager instance;
 
+    [Header("References")]
     public Froguelike_CharacterController player;
-
+    public Froguelike_MapBehaviour map;
     public Transform fliesParent;
 
+    [Header("Chapters data")]
     public List<Froguelike_ChapterData> allPlayableChaptersList;
-    private List<Froguelike_ChapterData> currentPlayableChaptersList;
-    public Froguelike_ChapterData currentChapter;
 
+    [Header("Characters data")]
     public List<Froguelike_PlayableCharacterInfo> playableCharactersList;
-    public Froguelike_PlayableCharacterInfo currentPlayedCharacter;
 
-    public float xp;
-    public float nextLevelXp = 5;
-    public float xpNeededForNextLevelFactor = 1.3f;
-    public int level;
-
-    public int respawns;
-    public int currentRespawns;
-
+    [Header("Items data")]
     public List<Froguelike_ItemScriptableObject> availableItems;
     public List<Froguelike_ItemScriptableObject> defaultItems;
 
-    public List<Froguelike_ItemInfo> ownedItems;
+    [Header("XP")]
+    public float nextLevelXp = 5;
+    public float xpNeededForNextLevelFactor = 1.5f;
 
+    [Header("Respawns")]
+    public int respawns;
+    public int currentRespawns;
+
+    [Header("Runtime")]
     public bool hasGameStarted;
     public bool isGameRunning;
+    [Space]
+    public float xp;
+    public int level;
+    [Space]
+    public List<Froguelike_ItemInfo> ownedItems;
+    [Space]
+    public Froguelike_PlayableCharacterInfo currentPlayedCharacter;
+    [Space]
+    private List<Froguelike_ChapterData> currentPlayableChaptersList;
+    public Froguelike_ChapterData currentChapter;
 
     private void Awake()
     {
@@ -64,22 +74,33 @@ public class Froguelike_GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        ReinitializeChaptersList();
+        InitializeStuff();
+        InitializeNewGame();
+        Froguelike_UIManager.instance.UpdateXPSlider(0, nextLevelXp);
+        InvokeRepeating("UpdateMap", 0.2f, 0.5f);
+    }
+
+    public void InitializeNewGame()
+    {
         level = 1;
         xp = 0;
-        Froguelike_UIManager.instance.UpdateXPSlider(0, nextLevelXp);
+        currentRespawns = respawns;
+        ClearAllItems();
+        TeleportToStart();
     }
 
     public void EatFly(int experiencePoints)
     {
         xp += experiencePoints;
 
-        while (xp >= nextLevelXp)
+        if (xp >= nextLevelXp)
         {
             LevelUP();
             xp -= nextLevelXp;
             nextLevelXp *= xpNeededForNextLevelFactor;
         }
+
+        //Debug.Log("EatFly, xp = " + xp + " , nextLevelXp = " + nextLevelXp);
 
         Froguelike_UIManager.instance.UpdateXPSlider(xp, nextLevelXp);
     }
@@ -270,16 +291,21 @@ public class Froguelike_GameManager : MonoBehaviour
     public IEnumerator StartChapter(int chapterCount)
     {
         Froguelike_UIManager.instance.ShowChapterStart(chapterCount, currentChapter.chapterTitle);
-        yield return new WaitForSecondsRealtime(3.0f);
-        Froguelike_UIManager.instance.ShowGameUI();
-        hasGameStarted = true;
-        isGameRunning = true;
+        map.rockDensity = currentChapter.amountOfRocks;
+        map.waterDensity = currentChapter.amountOfPonds;
+        map.ClearMap();
+        TeleportToStart();
+        UpdateMap();
         player.InitializeCharacter(currentPlayedCharacter);
         PickItem(currentPlayedCharacter.startingWeapon);
         Froguelike_FliesManager.instance.SetWave(currentChapter.waves[0]);
+
+        yield return new WaitForSecondsRealtime(3.0f);
+
+        Froguelike_UIManager.instance.ShowGameUI();
+        hasGameStarted = true;
+        isGameRunning = true;
         Time.timeScale = 1;
-        player.Respawn();
-        currentRespawns = respawns;
     }
 
     public void TriggerGameOver()
@@ -306,6 +332,7 @@ public class Froguelike_GameManager : MonoBehaviour
     public void BackToTitleScreen()
     {
         Froguelike_FliesManager.instance.ClearAllEnemies();
+        InitializeNewGame();
         Froguelike_UIManager.instance.ShowTitleScreen();
         hasGameStarted = false;
     }
@@ -313,6 +340,23 @@ public class Froguelike_GameManager : MonoBehaviour
     public void QuitGame()
     {
         Application.Quit();
+    }
+
+    private void ClearAllItems()
+    {
+        foreach (Froguelike_ItemInfo item in ownedItems)
+        {
+            foreach (GameObject weaponGo in item.weaponsList)
+            {
+                Destroy(weaponGo, 0.1f);
+            }            
+        }
+        ownedItems.Clear();
+    }
+
+    private void TeleportToStart()
+    {
+        player.transform.localPosition = Vector3.zero;
     }
 
     public void ReinitializeChaptersList()
@@ -323,5 +367,10 @@ public class Froguelike_GameManager : MonoBehaviour
     public void InitializeStuff()
     {
         ReinitializeChaptersList();
+    }
+
+    public void UpdateMap()
+    {
+        map.GenerateNewTilesAroundPosition(player.transform.position);
     }
 }

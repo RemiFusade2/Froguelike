@@ -154,8 +154,12 @@ public class Froguelike_UIManager : MonoBehaviour
 
     public void UpdateXPSlider(float xp, float maxXp)
     {
+        //Debug.Log("Call UpdateXPSlider(" + xp + " ," + maxXp);
+
         xpSlider.maxValue = maxXp;
         xpSlider.value = xp;
+
+        //Debug.Log("After UpdateXPSlider. xpSlider.maxValue = " + xpSlider.maxValue + " , xpSlider.value = " + xpSlider.value);
     }
 
     public void UpdateLevel(int level)

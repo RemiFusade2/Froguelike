@@ -166,7 +166,9 @@ public class Froguelike_CharacterController : MonoBehaviour
     {
         float healthRatio = currentHealth / maxHealth;
         if (healthRatio < 0)
+        {
             healthRatio = 0;
+        }
         healthBar.localScale = healthRatio * Vector3.right + healthBar.localScale.y * Vector3.up + healthBar.localScale.z * Vector3.forward;
     }
 }
