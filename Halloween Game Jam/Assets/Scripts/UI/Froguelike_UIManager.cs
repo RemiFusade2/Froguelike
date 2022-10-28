@@ -153,7 +153,7 @@ public class Froguelike_UIManager : MonoBehaviour
         chapterStartScreen.SetActive(true);
         chapterStartTopText.text = "Chapter " + chapterCount.ToString();
         chapterStartBottomText.text = chapterTitle;
-        PlayPageSound();
+        PlayLongPageSound();
     }
 
     public void ShowScoreScreen(List<Froguelike_ChapterInfo> chaptersInfoList, List<Froguelike_ItemInfo> itemsInfoList)
@@ -204,7 +204,7 @@ public class Froguelike_UIManager : MonoBehaviour
         upgradesLevelsText.text = allItemsLevels;
 
         scoreScreen.SetActive(true);
-        PlayPageSound();
+        PlayLongPageSound();
     }
 
     public void ShowGameUI()
@@ -242,10 +242,12 @@ public class Froguelike_UIManager : MonoBehaviour
     {
         levelUpPanelAnimator.SetBool("Visible", false);
         //levelUpPanel.SetActive(false);
+        PlaySlideBookSound();
     }
 
     public void ShowLevelUpItemSelection(List<Froguelike_ItemScriptableObject> possibleItems, List<int> itemLevels)
     {
+        PlaySlideBookSound();
         levelUpPanel.SetActive(true);
         levelUpPanelAnimator.SetBool("Visible", true);
         foreach (GameObject panel in levelUpChoicesPanels)
@@ -296,13 +298,23 @@ public class Froguelike_UIManager : MonoBehaviour
         }
     }
 
-    public void PlayPageSound()
+    public void PlayLongPageSound()
     {
-        soundManager.PlayPageSound();
+        soundManager.PlayLongPageSound();
     }
 
     public void PlayDeathSound()
     {
         soundManager.PlayDeathSound();
+    }
+
+    public void PlayShortPageSound()
+    {
+        soundManager.PlayShortPageSound();
+    }
+
+    public void PlaySlideBookSound()
+    {
+        soundManager.PlaySlideBookSound();
     }
 }

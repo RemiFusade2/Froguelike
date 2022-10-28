@@ -1811,6 +1811,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 464157710}
+        m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+        m_MethodName: PlayShortPageSound
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &229593739
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1988,6 +2000,18 @@ MonoBehaviour:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 3
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 464157710}
+        m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+        m_MethodName: PlayShortPageSound
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
@@ -2861,6 +2885,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 464157710}
+        m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+        m_MethodName: PlayShortPageSound
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &369748698
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3304,6 +3340,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 464157710}
+        m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+        m_MethodName: PlayShortPageSound
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &396913352
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3625,6 +3673,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 464157710}
+        m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+        m_MethodName: PlaySlideBookSound
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &437419358
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3891,6 +3951,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 464157710}
+        m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+        m_MethodName: PlayShortPageSound
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &463907149
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4088,8 +4160,12 @@ MonoBehaviour:
   buttonVolume: 0.5
   deathSound: {fileID: 8300000, guid: f15541d86a1c9c64399ec5c85dc1d0d1, type: 3}
   deathVolume: 1
-  pageSound: {fileID: 8300000, guid: 6ca09f107f050484089cc30ab08edf8e, type: 3}
-  pageVolume: 1
+  pageLongSound: {fileID: 8300000, guid: 6ca09f107f050484089cc30ab08edf8e, type: 3}
+  pageLongVolume: 1
+  pageShortSound: {fileID: 8300000, guid: 795539d7ca30d8043a1c367c9eee30c5, type: 3}
+  pageShortVolume: 1
+  slideBookSound: {fileID: 8300000, guid: 788ac2932af76fc4a8cec33690a0678c, type: 3}
+  slideBookVolume: 1
 --- !u!4 &464157711
 Transform:
   m_ObjectHideFlags: 0
@@ -9513,10 +9589,10 @@ RectTransform:
   m_Father: {fileID: 229593737}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 90, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1168095801
 MonoBehaviour:
@@ -11335,6 +11411,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 464157710}
+        m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+        m_MethodName: PlayShortPageSound
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1498598636
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12144,6 +12232,18 @@ MonoBehaviour:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 464157710}
+        m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+        m_MethodName: PlayShortPageSound
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
@@ -12987,6 +13087,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 464157710}
+        m_TargetAssemblyTypeName: Froguelike_SoundManager, Assembly-CSharp
+        m_MethodName: PlayShortPageSound
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1748587630
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13449,7 +13561,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1819741221
 RectTransform:
   m_ObjectHideFlags: 0
