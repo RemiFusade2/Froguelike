@@ -33,6 +33,9 @@ public class Froguelike_PlayableCharacterInfo
     public float startingMaxHealth;
     public float startingHealthRecovery;
 
+    public float startingArmor;
+    public int startingRevivals;
+
     public Froguelike_ItemScriptableObject startingWeapon;
 }
 public class Froguelike_GameManager : MonoBehaviour
@@ -123,8 +126,6 @@ public class Froguelike_GameManager : MonoBehaviour
         Froguelike_UIManager.instance.UpdateLevel(level);
         Froguelike_UIManager.instance.UpdateXPSlider(xp, xpNeededForNextLevelFactor);
 
-        player.revivals = 1;
-
         Froguelike_FliesManager.instance.enemyDamageFactor = 1;
         Froguelike_FliesManager.instance.enemyHPFactor = 1;
         Froguelike_FliesManager.instance.enemySpeedFactor = 1;
@@ -137,7 +138,7 @@ public class Froguelike_GameManager : MonoBehaviour
 
     public void EatFly(float experiencePoints)
     {
-        xp += experiencePoints;
+        xp += (experiencePoints * (1+player.experienceBoost));
 
         if (xp >= nextLevelXp)
         {
@@ -262,13 +263,75 @@ public class Froguelike_GameManager : MonoBehaviour
 
         // Pick possible items from a pool
         List<Froguelike_ItemScriptableObject> possibleItems = new List<Froguelike_ItemScriptableObject>();
-        foreach (Froguelike_ItemScriptableObject possibleItem in availableItems)
+
+        int weaponCount = 0;
+        int itemNotWeaponCount = 0;
+
+        foreach (Froguelike_ItemInfo itemInfo in ownedItems)
         {
-            if (GetLevelForItem(possibleItem) < (possibleItem.levels.Count-1))
+            if (itemInfo.item.isWeapon)
             {
-                possibleItems.Add(possibleItem);
+                weaponCount++;
+            }
+            else
+            {
+                itemNotWeaponCount++;
             }
         }
+
+        foreach (Froguelike_ItemScriptableObject possibleItem in availableItems)
+        {
+            bool itemLevelIsNotMaxed = GetLevelForItem(possibleItem) < (possibleItem.levels.Count - 1);
+            if (possibleItem.isWeapon)
+            {
+                if (weaponCount >= 3)
+                {
+                    // only add that item IF it is already part of our owned items
+                    bool alreadyOwned = false;
+                    foreach (Froguelike_ItemInfo itemInfo in ownedItems)
+                    {
+                        if (itemInfo.item.Equals(possibleItem))
+                        {
+                            alreadyOwned = true;
+                            break;
+                        }
+                    }
+                    if (alreadyOwned)
+                    {
+                        possibleItems.Add(possibleItem);
+                    }
+                }
+                else
+                {
+                    possibleItems.Add(possibleItem);
+                }
+            }
+            else
+            {
+                if (itemNotWeaponCount >= 3)
+                {
+                    // only add that item IF it is already part of our owned items
+                    bool alreadyOwned = false;
+                    foreach (Froguelike_ItemInfo itemInfo in ownedItems)
+                    {
+                        if (itemInfo.item.Equals(possibleItem))
+                        {
+                            alreadyOwned = true;
+                            break;
+                        }
+                    }
+                    if (alreadyOwned)
+                    {
+                        possibleItems.Add(possibleItem);
+                    }
+                }
+                else
+                {
+                    possibleItems.Add(possibleItem);
+                }
+            }
+        }
+
         if (possibleItems.Count == 0)
         {
             foreach (Froguelike_ItemScriptableObject possibleItem in defaultItems)
@@ -337,6 +400,9 @@ public class Froguelike_GameManager : MonoBehaviour
 
         chaptersPlayed = new List<Froguelike_ChapterInfo>();
         Froguelike_UIManager.instance.ShowChapterSelection(1, selectionOfNextChaptersList);
+
+        player.InitializeCharacter(currentPlayedCharacter);
+        PickItem(currentPlayedCharacter.startingWeapon);
     }
 
     public void SelectChapter(int index)
@@ -388,8 +454,6 @@ public class Froguelike_GameManager : MonoBehaviour
         map.ClearMap();
         TeleportToStart();
         UpdateMap();
-        player.InitializeCharacter(currentPlayedCharacter);
-        PickItem(currentPlayedCharacter.startingWeapon);
         Froguelike_FliesManager.instance.SetWave(currentChapter.chapterData.waves[0]);
 
         yield return new WaitForSecondsRealtime(3.0f);

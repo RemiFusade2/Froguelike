@@ -2790,6 +2790,7 @@ MonoBehaviour:
   enemySpeedFactor: 1
   enemyDamageFactor: 1
   enemyXPFactor: 1
+  curse: 0
   currentWave: {fileID: 0}
 --- !u!1 &382207742
 GameObject:
@@ -2884,7 +2885,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &385861511
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3766,7 +3767,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &473319585
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5242,6 +5243,8 @@ MonoBehaviour:
     startingSwimSpeed: 3
     startingMaxHealth: 100
     startingHealthRecovery: 0.005
+    startingArmor: 0
+    startingRevivals: 1
     startingWeapon: {fileID: 11400000, guid: 4477789dafab2f442b56ed8ccb5a8147, type: 2}
   - unlocked: 1
     characterName: Toad
@@ -5252,6 +5255,8 @@ MonoBehaviour:
     startingSwimSpeed: 2
     startingMaxHealth: 200
     startingHealthRecovery: 0.01
+    startingArmor: 0.25
+    startingRevivals: 1
     startingWeapon: {fileID: 11400000, guid: 025912a11c563394e9b7c8cd7ddbef8a, type: 2}
   - unlocked: 0
     characterName: Ghost
@@ -5262,6 +5267,8 @@ MonoBehaviour:
     startingSwimSpeed: 7
     startingMaxHealth: 50
     startingHealthRecovery: 0.005
+    startingArmor: 0
+    startingRevivals: 5
     startingWeapon: {fileID: 11400000, guid: f1e4b3ec6b292464694ccda6accd44d9, type: 2}
   - unlocked: 0
     characterName: James
@@ -5272,36 +5279,44 @@ MonoBehaviour:
     startingSwimSpeed: 5
     startingMaxHealth: 100
     startingHealthRecovery: 0.01
+    startingArmor: 0.1
+    startingRevivals: 1
     startingWeapon: {fileID: 11400000, guid: ca3c8ebfc0bccba408d3f05a33ea19c9, type: 2}
   - unlocked: 0
-    characterName: James
-    characterDescription: Poisonous frog.\nDon't eat him.
+    characterName: Remi
+    characterDescription: The best frog
     unlockHint: Unlock hint:\nEat a million flies
     characterAnimatorValue: 3
     startingLandSpeed: 3
     startingSwimSpeed: 5
     startingMaxHealth: 100
     startingHealthRecovery: 0.01
+    startingArmor: 0.2
+    startingRevivals: 2
     startingWeapon: {fileID: 11400000, guid: ca3c8ebfc0bccba408d3f05a33ea19c9, type: 2}
   - unlocked: 0
-    characterName: James
-    characterDescription: Poisonous frog.\nDon't eat him.
+    characterName: Johanna
+    characterDescription: The bestest frog
     unlockHint: Unlock hint:\nTouch the right rock
     characterAnimatorValue: 3
     startingLandSpeed: 3
     startingSwimSpeed: 5
     startingMaxHealth: 100
     startingHealthRecovery: 0.01
+    startingArmor: 0.3
+    startingRevivals: 3
     startingWeapon: {fileID: 11400000, guid: ca3c8ebfc0bccba408d3f05a33ea19c9, type: 2}
   - unlocked: 0
-    characterName: James
-    characterDescription: Poisonous frog.\nDon't eat him.
+    characterName: Stanley
+    characterDescription: The cutest
     unlockHint: Unlock hint:\nSpend some time swimming
     characterAnimatorValue: 3
     startingLandSpeed: 3
     startingSwimSpeed: 5
     startingMaxHealth: 100
     startingHealthRecovery: 0.01
+    startingArmor: 0.25
+    startingRevivals: 9
     startingWeapon: {fileID: 11400000, guid: ca3c8ebfc0bccba408d3f05a33ea19c9, type: 2}
   availableItems:
   - {fileID: 11400000, guid: 2e0410ebc0758f24c8d266b9f1bf12f6, type: 2}
@@ -5312,14 +5327,22 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ca3c8ebfc0bccba408d3f05a33ea19c9, type: 2}
   - {fileID: 11400000, guid: 4477789dafab2f442b56ed8ccb5a8147, type: 2}
   - {fileID: 11400000, guid: 025912a11c563394e9b7c8cd7ddbef8a, type: 2}
+  - {fileID: 11400000, guid: 22ffcd908e4221a4ab8bd9bf2ec65732, type: 2}
+  - {fileID: 11400000, guid: 2cbb82bb8cfd36b4081c5d2a3c9c36a2, type: 2}
+  - {fileID: 11400000, guid: 8550783ba127b454ebe491ce4a015e86, type: 2}
+  - {fileID: 11400000, guid: dc5f60e80613c0845a309e21133f7b39, type: 2}
+  - {fileID: 11400000, guid: ac731990ba6a5ef40a9a3a33abd675c5, type: 2}
+  - {fileID: 11400000, guid: db5348d0c0460f841b318bc2dcbaa0a0, type: 2}
+  - {fileID: 11400000, guid: 091c8715d22970c4aafb5e907b3c8fbe, type: 2}
+  - {fileID: 11400000, guid: fc94ec10eff756240966492ba68d6f54, type: 2}
+  - {fileID: 11400000, guid: 59fb3d546b847a0438aabf31f81e81c1, type: 2}
+  - {fileID: 11400000, guid: eb6f60cc92443154ba06548975cda2d5, type: 2}
   defaultItems:
   - {fileID: 11400000, guid: 185688c9271f1d34ca7335496679d590, type: 2}
   deathEnemyPrefab: {fileID: 770728660837659543, guid: c0c03e657bf4c1147bcafec37c169ae4, type: 3}
   deathEnemyData: {fileID: 11400000, guid: 1c49aab4868b59c44a26f5d0441acb5b, type: 2}
   startLevelXp: 5
   startXpNeededForNextLevelFactor: 1.5
-  respawns: 2
-  currentRespawns: 0
   hasGameStarted: 0
   isGameRunning: 0
   chapterRemainingTime: 0
@@ -5337,6 +5360,8 @@ MonoBehaviour:
     startingSwimSpeed: 0
     startingMaxHealth: 0
     startingHealthRecovery: 0
+    startingArmor: 0
+    startingRevivals: 0
     startingWeapon: {fileID: 0}
   currentChapter:
     chapterData: {fileID: 0}
@@ -8679,6 +8704,14 @@ MonoBehaviour:
   currentHealth: 100
   maxHealth: 100
   healthRecovery: 0.01
+  armorBoost: 0
+  experienceBoost: 0
+  revivals: 0
+  attackCooldownBoost: 0
+  attackDamageBoost: 0
+  attackMaxFliesBoost: 0
+  attackRangeBoost: 0
+  attackSpeedBoost: 0
   horizontalInputName: horizontal
   verticalInputName: vertical
   animator: {fileID: 1127068951}
