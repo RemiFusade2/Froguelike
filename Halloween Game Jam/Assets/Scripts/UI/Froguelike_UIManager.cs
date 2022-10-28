@@ -13,13 +13,16 @@ public class Froguelike_UIManager : MonoBehaviour
     [Header("Character Selection")]
     public GameObject characterSelectionScreen;
     public List<Button> charactersButtonsList;
+    public List<Image> charactersImagesList;
     public List<Text> charactersNamesTextList;
-    public List<string> charactersNamesList;
+    public List<Text> charactersDescriptionTextList;
 
     [Header("In game UI")]
     public GameObject inGameUIPanel;
     public Slider xpSlider;
     public Text levelText;
+    public string timerPrefix;
+    public Text timerText;
 
     [Header("Chapter selection")]
     public GameObject chapterSelectionScreen;
@@ -39,6 +42,11 @@ public class Froguelike_UIManager : MonoBehaviour
 
     [Header("Score Screen")]
     public GameObject scoreScreen;
+    public List<Text> chaptersTextList;
+    public List<Text> chaptersScoreTextList;
+    public Text totalScoreText;
+    public Text upgradesText;
+    public Text upgradesLevelsText;
 
     [Header("Level UP Panel")]
     public GameObject levelUpPanel;
@@ -76,20 +84,34 @@ public class Froguelike_UIManager : MonoBehaviour
         gameOverPanel.SetActive(false);
     }
 
+    public void SetTimer(float remainingTime)
+    {
+        System.TimeSpan time = new System.TimeSpan(0, 0, Mathf.RoundToInt(remainingTime));
+        timerText.text = timerPrefix + time.ToString("m\\:ss");
+    }
+
     public void ShowTitleScreen()
     {
         HideAllScreens();
         titleScreen.SetActive(true);
     }
 
-    public void ShowCharacterSelection(List<bool> unlockedCharactersList)
+    public void ShowCharacterSelection(List<Froguelike_PlayableCharacterInfo> playableCharactersList)
     {
         HideAllScreens();
 
-        for (int i = 0; i < unlockedCharactersList.Count; i++)
+        for (int i = 0; i < playableCharactersList.Count; i++)
         {
-            charactersButtonsList[i].interactable = unlockedCharactersList[i];
-            charactersNamesTextList[i].text = (unlockedCharactersList[i] ? charactersNamesList[i] : "???");
+            if (i < charactersButtonsList.Count)
+            {
+                Froguelike_PlayableCharacterInfo characterInfo = playableCharactersList[i];
+                charactersButtonsList[i].interactable = characterInfo.unlocked;
+                charactersNamesTextList[i].text = (characterInfo.unlocked ? characterInfo.characterName : "???");
+                string description = (characterInfo.unlocked ? characterInfo.characterDescription : characterInfo.unlockHint);
+                description = description.Replace("\\n", "\n");
+                charactersDescriptionTextList[i].text = description;
+                charactersImagesList[i].enabled = characterInfo.unlocked;
+            }
         }
 
         titleScreen.SetActive(true);
@@ -131,9 +153,53 @@ public class Froguelike_UIManager : MonoBehaviour
         chapterStartBottomText.text = chapterTitle;
     }
 
-    public void ShowScoreScreen()
+    public void ShowScoreScreen(List<Froguelike_ChapterInfo> chaptersInfoList, List<Froguelike_ItemInfo> itemsInfoList)
     {
         HideAllScreens();
+        
+        // Hide all chapters texts
+        foreach (Text chapterTextParent in chaptersTextList)
+        {
+            chapterTextParent.gameObject.SetActive(false);
+        }
+
+        // Display the relevant ones
+        int totalScore = 0;
+        for (int i=0; i < chaptersInfoList.Count; i++)
+        {
+            Froguelike_ChapterInfo chapterInfo = chaptersInfoList[i];
+
+            chaptersTextList[i].gameObject.SetActive(true);
+            chaptersTextList[i].text = "Chapter " + chapterInfo.chapterCount + "\n\t" + chapterInfo.chapterData.chapterTitle;
+            chaptersScoreTextList[i].text = chapterInfo.enemiesKilledCount.ToString();
+            totalScore += chapterInfo.enemiesKilledCount;
+        }
+        totalScoreText.text = totalScore.ToString();
+
+        // Display all items and their level
+        string allItemsNames = "";
+        string allItemsLevels = "";
+        foreach (Froguelike_ItemInfo itemInfo in itemsInfoList)
+        {
+            if (itemInfo.item.isWeapon)
+            {
+                allItemsNames += itemInfo.item.itemName + "\n";
+                allItemsLevels += "LVL " + itemInfo.level + "\n";
+            }
+        }
+        allItemsNames += "\n";
+        allItemsLevels += "\n";
+        foreach (Froguelike_ItemInfo itemInfo in itemsInfoList)
+        {
+            if (!itemInfo.item.isWeapon)
+            {
+                allItemsNames += itemInfo.item.itemName + "\n";
+                allItemsLevels += "LVL " + itemInfo.level + "\n";
+            }
+        }
+        upgradesText.text = allItemsNames;
+        upgradesLevelsText.text = allItemsLevels;
+
         scoreScreen.SetActive(true);
     }
 

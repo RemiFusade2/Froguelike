@@ -16,10 +16,27 @@ public class Froguelike_CharacterController : MonoBehaviour
     [Header("Character data")]
     public float landSpeed;
     public float swimSpeed;
-
+    [Space]
     public float currentHealth = 100;
     public float maxHealth = 100;
     public float healthRecovery = 0.01f;
+    [Space]
+    [Range(0,0.5f)]
+    public float armorBoost = 0;
+    [Range(0, 1)]
+    public float experienceBoost = 0;
+    public float revivals = 0;
+    [Space]
+    [Range(0, 1)]
+    public float attackCooldownBoost = 0;
+    [Range(0, 1)]
+    public float attackDamageBoost = 0;
+    [Range(0, 1)]
+    public float attackMaxFliesBoost = 0;
+    [Range(0, 1)]
+    public float attackRangeBoost = 0;
+    [Range(0, 1)]
+    public float attackSpeedBoost = 0;
 
     [Header("Settings - controls")]
     public string horizontalInputName;
@@ -65,8 +82,7 @@ public class Froguelike_CharacterController : MonoBehaviour
 
     public void InitializeCharacter(Froguelike_PlayableCharacterInfo characterInfo)
     {
-        // TODO : set animator value
-        // characterInfo.characterAnimatorValue
+        animator.SetInteger("character", characterInfo.characterAnimatorValue);
 
         healthRecovery = characterInfo.startingHealthRecovery;
         landSpeed = characterInfo.startingLandSpeed;
@@ -74,7 +90,35 @@ public class Froguelike_CharacterController : MonoBehaviour
         maxHealth = characterInfo.startingMaxHealth;
         currentHealth = maxHealth;
     }
-    
+
+    public void ResolvePickedItemLevel(Froguelike_ItemLevel itemLevelData)
+    {
+        Froguelike_FliesManager.instance.curse += itemLevelData.curseBoost;
+        
+        // character stats
+        armorBoost += itemLevelData.armorBoost;
+        experienceBoost += itemLevelData.experienceBoost;
+        healthRecovery += itemLevelData.healthRecoveryBoost;
+        maxHealth += itemLevelData.maxHealthBoost;
+        revivals += itemLevelData.revivalBoost;
+
+        landSpeed += itemLevelData.walkSpeedBoost;
+        swimSpeed += itemLevelData.swimSpeedBoost;
+
+        // attack stuff
+        attackCooldownBoost += itemLevelData.attackCooldownBoost;
+        attackDamageBoost += itemLevelData.attackDamageBoost;
+        attackMaxFliesBoost += itemLevelData.attackMaxFliesBoost;
+        attackRangeBoost += itemLevelData.attackRangeBoost;
+        attackSpeedBoost += itemLevelData.attackSpeedBoost;
+       
+        if (itemLevelData.recoverHealth > 0)
+        {
+            currentHealth += Mathf.Clamp(currentHealth + itemLevelData.recoverHealth, 0, maxHealth);
+        }
+    }
+
+
     public void Respawn()
     {
         currentHealth = maxHealth;
@@ -142,7 +186,8 @@ public class Froguelike_CharacterController : MonoBehaviour
     {
         if (collision.collider.CompareTag("Fly") && Froguelike_GameManager.instance.isGameRunning && invincibilityTime <= 0)
         {
-            float damage = Froguelike_FliesManager.instance.GetEnemyDataFromName(collision.gameObject.name).damage;
+            float damage = Froguelike_FliesManager.instance.GetEnemyDataFromName(collision.gameObject.name).damage * Froguelike_FliesManager.instance.enemyDamageFactor;
+            damage *= armorBoost;
             ChangeHealth(-damage);
         }
     }

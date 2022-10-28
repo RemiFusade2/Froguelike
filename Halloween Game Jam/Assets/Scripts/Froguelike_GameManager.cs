@@ -11,9 +11,21 @@ public class Froguelike_ItemInfo
 }
 
 [System.Serializable]
+public class Froguelike_ChapterInfo
+{
+    public Froguelike_ChapterData chapterData;
+    public int chapterCount;
+    public int enemiesKilledCount;
+}
+
+[System.Serializable]
 public class Froguelike_PlayableCharacterInfo
 {
     public bool unlocked;
+
+    public string characterName;
+    public string characterDescription;
+    public string unlockHint;
 
     public int characterAnimatorValue;
     public float startingLandSpeed;
@@ -42,17 +54,21 @@ public class Froguelike_GameManager : MonoBehaviour
     public List<Froguelike_ItemScriptableObject> availableItems;
     public List<Froguelike_ItemScriptableObject> defaultItems;
 
+    [Header("Death Enemy data")]
+    public GameObject deathEnemyPrefab;
+    public Froguelike_EnemyData deathEnemyData;
+
     [Header("XP")]
-    public float nextLevelXp = 5;
-    public float xpNeededForNextLevelFactor = 1.5f;
-
-    [Header("Respawns")]
-    public int respawns;
-    public int currentRespawns;
-
+    public float startLevelXp = 5;
+    public float startXpNeededForNextLevelFactor = 1.5f;
+    
     [Header("Runtime")]
     public bool hasGameStarted;
     public bool isGameRunning;
+    [Space]
+    public float chapterRemainingTime; // in seconds
+
+    public List<Froguelike_ChapterInfo> chaptersPlayed;
     [Space]
     public float xp;
     public int level;
@@ -62,7 +78,10 @@ public class Froguelike_GameManager : MonoBehaviour
     public Froguelike_PlayableCharacterInfo currentPlayedCharacter;
     [Space]
     private List<Froguelike_ChapterData> currentPlayableChaptersList;
-    public Froguelike_ChapterData currentChapter;
+    public Froguelike_ChapterInfo currentChapter;
+
+    private float nextLevelXp = 5;
+    private float xpNeededForNextLevelFactor = 1.5f;
 
     private void Awake()
     {
@@ -80,16 +99,43 @@ public class Froguelike_GameManager : MonoBehaviour
         InvokeRepeating("UpdateMap", 0.2f, 0.5f);
     }
 
+    private void Update()
+    {
+        if (isGameRunning)
+        {
+            chapterRemainingTime -= Time.deltaTime;
+            Froguelike_UIManager.instance.SetTimer(chapterRemainingTime);
+            if (chapterRemainingTime < 0)
+            {
+                EndChapter();
+            }
+        }
+    }
+
     public void InitializeNewGame()
     {
         level = 1;
         xp = 0;
-        currentRespawns = respawns;
+
+        nextLevelXp = startLevelXp;
+        xpNeededForNextLevelFactor = startXpNeededForNextLevelFactor;
+
+        Froguelike_UIManager.instance.UpdateLevel(level);
+        Froguelike_UIManager.instance.UpdateXPSlider(xp, xpNeededForNextLevelFactor);
+
+        player.revivals = 1;
+
+        Froguelike_FliesManager.instance.enemyDamageFactor = 1;
+        Froguelike_FliesManager.instance.enemyHPFactor = 1;
+        Froguelike_FliesManager.instance.enemySpeedFactor = 1;
+        Froguelike_FliesManager.instance.enemyXPFactor = 1;
+        Froguelike_FliesManager.instance.curse = 0;
+
         ClearAllItems();
         TeleportToStart();
     }
 
-    public void EatFly(int experiencePoints)
+    public void EatFly(float experiencePoints)
     {
         xp += experiencePoints;
 
@@ -100,7 +146,7 @@ public class Froguelike_GameManager : MonoBehaviour
             nextLevelXp *= xpNeededForNextLevelFactor;
         }
 
-        //Debug.Log("EatFly, xp = " + xp + " , nextLevelXp = " + nextLevelXp);
+        currentChapter.enemiesKilledCount++;
 
         Froguelike_UIManager.instance.UpdateXPSlider(xp, nextLevelXp);
     }
@@ -143,15 +189,23 @@ public class Froguelike_GameManager : MonoBehaviour
                     // It is a weapon, so we need to upgrade all similar weapons
                     foreach (GameObject weaponGo in itemInfo.weaponsList)
                     {
-                        weaponGo.GetComponent<Froguelike_TongueBehaviour>().LevelUp(itemInfo.item.levels[level]);
+                        if (level >= 0 && level < itemInfo.item.levels.Count)
+                        {
+                            weaponGo.GetComponent<Froguelike_TongueBehaviour>().LevelUp(itemInfo.item.levels[level]);
+                        }
                     }
                 }
                 break;
             }
         }
 
-        int spawnWeapons = pickedItem.levels[level].weaponExtraWeapon;
+        int spawnWeapons = 0;
+        if (pickedItem.isWeapon && level >= 0 && level < pickedItem.levels.Count)
+        {
+            spawnWeapons = pickedItem.levels[level].weaponExtraWeapon;
+        }
         Debug.Log("Pick Item - " + pickedItem.itemName + " ; level = " + level + " ; spawnWeapons = " + spawnWeapons);
+
         if (itemIsNew && pickedItemInfo == null)
         {
             // Create item info and add it to owned items
@@ -165,10 +219,18 @@ public class Froguelike_GameManager : MonoBehaviour
 
         if (pickedItem.isWeapon)
         {
+            // spawn as many weapons as needed
             for (int w = 0; w < spawnWeapons; w++)
             {
                 SpawnWeapon(pickedItemInfo);
             }
+        }
+        else
+        {
+            // resolve the item picked (according to its current level)
+            int levelIndex = pickedItemInfo.level - 1;
+            levelIndex = Mathf.Clamp(levelIndex, 0, pickedItemInfo.item.levels.Count-1);
+            player.ResolvePickedItemLevel(pickedItemInfo.item.levels[levelIndex]);
         }
     }
 
@@ -244,12 +306,7 @@ public class Froguelike_GameManager : MonoBehaviour
 
     public void OpenCharacterSelection()
     {
-        List<bool> unlockedCharactersBoolList = new List<bool>();
-        foreach(Froguelike_PlayableCharacterInfo charInfo in playableCharactersList)
-        {
-            unlockedCharactersBoolList.Add(charInfo.unlocked);
-        }
-        Froguelike_UIManager.instance.ShowCharacterSelection(unlockedCharactersBoolList);
+        Froguelike_UIManager.instance.ShowCharacterSelection(playableCharactersList);
     }
 
     #region Level Up
@@ -277,34 +334,70 @@ public class Froguelike_GameManager : MonoBehaviour
     {
         currentPlayedCharacter = playableCharactersList[index];
         SelectNextPossibleChapters(3);
+
+        chaptersPlayed = new List<Froguelike_ChapterInfo>();
         Froguelike_UIManager.instance.ShowChapterSelection(1, selectionOfNextChaptersList);
     }
 
     public void SelectChapter(int index)
     {
-        currentChapter = selectionOfNextChaptersList[index];
-        StartCoroutine(StartChapter(1));
+        Froguelike_ChapterInfo chapterInfo = new Froguelike_ChapterInfo();
+        chapterInfo.chapterData = selectionOfNextChaptersList[index];
+        chapterInfo.chapterCount = (chaptersPlayed.Count + 1);
+        chapterInfo.enemiesKilledCount = 0;
+
+        currentChapter = chapterInfo;
+        StartCoroutine(StartChapter(chapterInfo.chapterCount));
     }
 
     #endregion
 
+    public void EndChapter()
+    {
+        chaptersPlayed.Add(currentChapter);
+        if (chaptersPlayed.Count < 5)
+        {
+            Time.timeScale = 0;
+            chapterRemainingTime = 120;
+            SelectNextPossibleChapters(3);
+            Froguelike_UIManager.instance.ShowChapterSelection(chaptersPlayed.Count+1, selectionOfNextChaptersList);
+        }
+        else
+        {
+            chapterRemainingTime = 4 * 60 + 59;
+            Froguelike_FliesManager.instance.ClearAllEnemies();
+            Froguelike_FliesManager.instance.SpawnEnemy(deathEnemyPrefab, player.transform.position + 30 * Vector3.right, deathEnemyData);
+        }
+    }
+
     public IEnumerator StartChapter(int chapterCount)
     {
-        Froguelike_UIManager.instance.ShowChapterStart(chapterCount, currentChapter.chapterTitle);
-        map.rockDensity = currentChapter.amountOfRocks;
-        map.waterDensity = currentChapter.amountOfPonds;
+        Froguelike_UIManager.instance.ShowChapterStart(chapterCount, currentChapter.chapterData.chapterTitle);
+        map.rockDensity = currentChapter.chapterData.amountOfRocks;
+        map.waterDensity = currentChapter.chapterData.amountOfPonds;
+        Froguelike_FliesManager.instance.ClearAllEnemies();
+
+        if (chapterCount > 1)
+        {
+            Froguelike_FliesManager.instance.enemyDamageFactor *= 1.5f;
+            Froguelike_FliesManager.instance.enemyHPFactor *= 2;
+            Froguelike_FliesManager.instance.enemySpeedFactor *= 1.1f;
+            Froguelike_FliesManager.instance.enemyXPFactor *= 1.5f;
+        }
+
         map.ClearMap();
         TeleportToStart();
         UpdateMap();
         player.InitializeCharacter(currentPlayedCharacter);
         PickItem(currentPlayedCharacter.startingWeapon);
-        Froguelike_FliesManager.instance.SetWave(currentChapter.waves[0]);
+        Froguelike_FliesManager.instance.SetWave(currentChapter.chapterData.waves[0]);
 
         yield return new WaitForSecondsRealtime(3.0f);
 
         Froguelike_UIManager.instance.ShowGameUI();
         hasGameStarted = true;
         isGameRunning = true;
+        chapterRemainingTime = currentChapter.chapterData.chapterLengthInSeconds;
         Time.timeScale = 1;
     }
 
@@ -312,7 +405,7 @@ public class Froguelike_GameManager : MonoBehaviour
     {
         Time.timeScale = 0;
         isGameRunning = false;
-        Froguelike_UIManager.instance.ShowGameOver((currentRespawns > 0));
+        Froguelike_UIManager.instance.ShowGameOver((player.revivals > 0));
     }
 
     public void Respawn()
@@ -321,12 +414,13 @@ public class Froguelike_GameManager : MonoBehaviour
         player.Respawn();
         isGameRunning = true;
         Froguelike_UIManager.instance.ShowGameUI();
-        currentRespawns--;
+        player.revivals--;
     }
 
     public void ShowScores()
     {
-        Froguelike_UIManager.instance.ShowScoreScreen();
+        chaptersPlayed.Add(currentChapter);
+        Froguelike_UIManager.instance.ShowScoreScreen(chaptersPlayed, ownedItems);
     }
 
     public void BackToTitleScreen()

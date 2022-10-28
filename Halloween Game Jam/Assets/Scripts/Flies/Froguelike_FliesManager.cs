@@ -18,29 +18,40 @@ public class Froguelike_EnemyInstance
 public class Froguelike_FliesManager : MonoBehaviour
 {
     public static Froguelike_FliesManager instance;
-
+    
+    [Header("References")]
     public Transform enemiesParent;
 
-    public static int lastKey;
-
-    public Froguelike_Wave currentWave;
-
+    [Header("Data")]
     public List<Froguelike_EnemyData> enemiesDataList;
-    private Dictionary<string, Froguelike_EnemyData> enemiesDataDico;
-    
-    private Dictionary<int, Froguelike_EnemyInstance> allActiveEnemiesDico;
 
+    [Header("Prefabs")]
     public GameObject damageTextPrefab;
 
-    private List<float> lastSpawnTimesList;
-
+    [Header("Settings")]
     public float spawnDistanceFromPlayer = 15;
+    public float enemyHPFactor = 1;
+    public float enemySpeedFactor = 1;
+    public float enemyDamageFactor = 1;
+    public float enemyXPFactor = 1;
+    [Range(0,0.5f)]
+    public float curse = 0;
+
+    [Header("Runtime")]
+    public Froguelike_Wave currentWave;
+    public static int lastKey;
+
+
+    // private
+    private List<float> lastSpawnTimesList;
+    private Dictionary<string, Froguelike_EnemyData> enemiesDataDico;
+    private Dictionary<int, Froguelike_EnemyInstance> allActiveEnemiesDico;
 
     public void TrySpawnCurrentWave()
     {
         for (int i = 0; i < currentWave.spawnDelays.Count; i++)
         {
-            float delayBetweenSpawns = currentWave.spawnDelays[i];
+            float delayBetweenSpawns = currentWave.spawnDelays[i] * (1 - curse);
             Froguelike_SpawnPattern spawnPattern = currentWave.spawnPatterns[i];
             Froguelike_EnemyData enemyData = currentWave.spawnEnemies[i];
             float lastSpawnTime = lastSpawnTimesList[i];
@@ -86,7 +97,7 @@ public class Froguelike_FliesManager : MonoBehaviour
         }
     }
 
-    private void SpawnEnemy(GameObject prefab, Vector3 position, Froguelike_EnemyData enemyData)
+    public void SpawnEnemy(GameObject prefab, Vector3 position, Froguelike_EnemyData enemyData)
     {
         GameObject newSpawn = Instantiate(prefab, position, Quaternion.identity, enemiesParent);
         AddEnemy(newSpawn.transform, enemyData);
@@ -157,7 +168,7 @@ public class Froguelike_FliesManager : MonoBehaviour
         newEnemy.EnemyDataID = enemyData.ID;
         newEnemy.enemyRenderer = enemyTransform.GetComponent<SpriteRenderer>();
         newEnemy.enemyTransform = enemyTransform;
-        newEnemy.HP = enemyData.maxHP;
+        newEnemy.HP = enemyData.maxHP * (enemyHPFactor + curse);
         newEnemy.enemyRigidbody = enemyTransform.GetComponent<Rigidbody2D>();
         newEnemy.active = true;
         lastKey++;
@@ -212,7 +223,7 @@ public class Froguelike_FliesManager : MonoBehaviour
         }
         foreach (int id in enemiesToDestroyIDList)
         {
-            Destroy(allActiveEnemiesDico[id].enemyTransform.gameObject, .1f);
+            Destroy(allActiveEnemiesDico[id].enemyTransform.gameObject);
             allActiveEnemiesDico.Remove(id);
         }
         allActiveEnemiesDico.Clear();
@@ -241,7 +252,7 @@ public class Froguelike_FliesManager : MonoBehaviour
                         {
                             enemy.enemyRenderer.enabled = false;
                             enemy.active = false;
-                            Froguelike_GameManager.instance.EatFly(enemyData.xPBonus);
+                            Froguelike_GameManager.instance.EatFly(enemyData.xPBonus * (enemyXPFactor + curse));
                             enemiesToDestroyIDList.Add(enemyInfo.Key);
                         }
                     }
@@ -278,6 +289,6 @@ public class Froguelike_FliesManager : MonoBehaviour
         float angle = -Vector2.SignedAngle(enemyInstance.moveDirection, Vector2.right);
         float roundedAngle = -90 + Mathf.RoundToInt(angle / 90) * 90;
         enemyInstance.enemyTransform.rotation = Quaternion.Euler(0, 0, roundedAngle);
-        enemyInstance.enemyRigidbody.velocity = enemyInstance.moveDirection * GetEnemyDataFromName(enemyInstance.enemyTransform.name).moveSpeed;
+        enemyInstance.enemyRigidbody.velocity = enemyInstance.moveDirection * GetEnemyDataFromName(enemyInstance.enemyTransform.name).moveSpeed * enemySpeedFactor;
     }
 }
