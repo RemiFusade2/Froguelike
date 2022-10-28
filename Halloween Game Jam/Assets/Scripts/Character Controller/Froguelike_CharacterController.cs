@@ -50,6 +50,8 @@ public class Froguelike_CharacterController : MonoBehaviour
     [Header("Animator")]
     public Animator animator;
 
+    private int animatorCharacterValue;
+
     private Rigidbody2D playerRigidbody;
 
     private bool isOnLand;
@@ -80,9 +82,20 @@ public class Froguelike_CharacterController : MonoBehaviour
         }
     }
 
+    private void SetAnimatorCharacterValue(int value)
+    {
+        animatorCharacterValue = value;
+        animator.SetInteger("character", animatorCharacterValue);
+    }
+
+    public void ForceGhost(bool isGhost)
+    {
+        animator.SetInteger("character", isGhost ? 2 : animatorCharacterValue);
+    }
+
     public void InitializeCharacter(Froguelike_PlayableCharacterInfo characterInfo)
     {
-        animator.SetInteger("character", characterInfo.characterAnimatorValue);
+        SetAnimatorCharacterValue(characterInfo.characterAnimatorValue);
 
         healthRecovery = characterInfo.startingHealthRecovery;
         landSpeed = characterInfo.startingLandSpeed;

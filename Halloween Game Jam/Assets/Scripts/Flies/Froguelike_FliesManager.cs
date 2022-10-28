@@ -64,7 +64,7 @@ public class Froguelike_FliesManager : MonoBehaviour
                 GameObject enemyPrefab = enemyData.prefab;
 
                 int enemyCount = spawnPattern.spawnAmount;
-                Vector2 onUnitCircle = Random.insideUnitCircle.normalized * spawnDistanceFromPlayer;
+                Vector2 onUnitCircle = Random.insideUnitCircle.normalized * spawnDistanceFromPlayer * Random.Range(0.8f, 1.7f);
                 Vector3 position = Froguelike_GameManager.instance.player.transform.position + onUnitCircle.x * Vector3.right + onUnitCircle.y * Vector3.up;
 
                 switch (patternType)
@@ -86,8 +86,13 @@ public class Froguelike_FliesManager : MonoBehaviour
                         }
                         break;
                     case Froguelike_SpawnPatternType.RANDOM:
-                        // choose a position at a distance from the player and spawn just one enemy
-                        SpawnEnemy(enemyPrefab, position, enemyData);
+                        // choose a position at a distance from the player and spawn enemies
+                        for (int j = 0; j < enemyCount; j++)
+                        {
+                            onUnitCircle = Random.insideUnitCircle.normalized * spawnDistanceFromPlayer * Random.Range(0.8f, 1.7f);
+                            position = Froguelike_GameManager.instance.player.transform.position + onUnitCircle.x * Vector3.right + onUnitCircle.y * Vector3.up;
+                            SpawnEnemy(enemyPrefab, position, enemyData);
+                        }
                         break;
                 }
 
@@ -190,7 +195,7 @@ public class Froguelike_FliesManager : MonoBehaviour
         Froguelike_EnemyInstance enemy = allActiveEnemiesDico[index];
         enemy.HP -= damage;
 
-        if (enemy.HP <= 0)
+        if (enemy.HP < 0.01f)
         {
             if (canKill)
             {
@@ -242,7 +247,7 @@ public class Froguelike_FliesManager : MonoBehaviour
                 Froguelike_EnemyData enemyData = enemiesDataDico[enemy.EnemyDataID];
                 if (enemy.active)
                 {
-                    if (enemy.HP <= 0.01f)
+                    if (enemy.HP < 0.01f)
                     {
                         // enemy is dead
                         enemy.moveDirection = (playerTransform.position - enemy.enemyTransform.position).normalized;

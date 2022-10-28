@@ -455,6 +455,7 @@ public class Froguelike_GameManager : MonoBehaviour
         TeleportToStart();
         UpdateMap();
         Froguelike_FliesManager.instance.SetWave(currentChapter.chapterData.waves[0]);
+        player.ForceGhost(currentChapter.chapterData.isCharacterGhost);
 
         yield return new WaitForSecondsRealtime(3.0f);
 
