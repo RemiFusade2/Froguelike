@@ -117,7 +117,8 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
 
     public void TryAttack()
     {
-        if (!isAttacking && Time.time - lastAttackTime > cooldown)
+        float actualCooldown = cooldown * (1 - Froguelike_GameManager.instance.player.attackCooldownBoost);
+        if (!isAttacking && Time.time - lastAttackTime > actualCooldown)
         {
             switch (weaponType)
             {
@@ -252,7 +253,8 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
 
     private void CheckEatenFlyCount()
     {
-        if (eatenFliesCount >= maxFlies)
+        float actualMaxFiles = maxFlies + Froguelike_GameManager.instance.player.attackMaxFliesBoost;
+        if (eatenFliesCount >= actualMaxFiles)
         {
             switch (weaponType)
             {

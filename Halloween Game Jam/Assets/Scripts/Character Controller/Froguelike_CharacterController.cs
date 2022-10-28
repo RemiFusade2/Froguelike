@@ -88,6 +88,10 @@ public class Froguelike_CharacterController : MonoBehaviour
         landSpeed = characterInfo.startingLandSpeed;
         swimSpeed = characterInfo.startingSwimSpeed;
         maxHealth = characterInfo.startingMaxHealth;
+
+        armorBoost = characterInfo.startingArmor;
+        revivals = characterInfo.startingRevivals;
+
         currentHealth = maxHealth;
     }
 
@@ -187,7 +191,7 @@ public class Froguelike_CharacterController : MonoBehaviour
         if (collision.collider.CompareTag("Fly") && Froguelike_GameManager.instance.isGameRunning && invincibilityTime <= 0)
         {
             float damage = Froguelike_FliesManager.instance.GetEnemyDataFromName(collision.gameObject.name).damage * Froguelike_FliesManager.instance.enemyDamageFactor;
-            damage *= armorBoost;
+            damage = damage * (1-armorBoost);
             ChangeHealth(-damage);
         }
     }
