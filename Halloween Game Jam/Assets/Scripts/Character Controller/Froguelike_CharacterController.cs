@@ -186,8 +186,8 @@ public class Froguelike_CharacterController : MonoBehaviour
         
         if (isPetActive)
         {
-            float petOrientationAngle = 90 + 90 * Mathf.RoundToInt((Vector2.SignedAngle(petGo.GetComponent<Rigidbody2D>().velocity, Vector2.right)) / 90);
-            petGo.transform.localRotation = Quaternion.Euler(0, 0, -orientationAngle);
+            float petOrientationAngle = 90 + 90 * Mathf.RoundToInt((Vector2.SignedAngle(petGo.GetComponent<Rigidbody2D>().velocity.normalized, Vector2.right)) / 90);
+            petGo.transform.localRotation = Quaternion.Euler(0, 0, -petOrientationAngle);
             petTongueWeapon.SetTonguePosition(petTonguePositionTransform);
         }
     }

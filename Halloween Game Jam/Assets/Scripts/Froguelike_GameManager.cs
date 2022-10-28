@@ -46,6 +46,7 @@ public class Froguelike_GameManager : MonoBehaviour
     public Froguelike_CharacterController player;
     public Froguelike_MapBehaviour map;
     public Transform fliesParent;
+    public ParticleSystem levelUpParticleSystem;
 
     [Header("Chapters data")]
     public List<Froguelike_ChapterData> allPlayableChaptersList;
@@ -56,6 +57,8 @@ public class Froguelike_GameManager : MonoBehaviour
     [Header("Items data")]
     public List<Froguelike_ItemScriptableObject> availableItems;
     public List<Froguelike_ItemScriptableObject> defaultItems;
+    public int maxWeaponCount = 3;
+    public int maxNonWeaponCount = 5;
 
     [Header("Death Enemy data")]
     public GameObject deathEnemyPrefab;
@@ -64,7 +67,7 @@ public class Froguelike_GameManager : MonoBehaviour
     [Header("XP")]
     public float startLevelXp = 5;
     public float startXpNeededForNextLevelFactor = 1.5f;
-    
+
     [Header("Runtime")]
     public bool hasGameStarted;
     public bool isGameRunning;
@@ -261,6 +264,8 @@ public class Froguelike_GameManager : MonoBehaviour
         level++;
         Time.timeScale = 0;
 
+        levelUpParticleSystem.Play();
+
         // Pick possible items from a pool
         List<Froguelike_ItemScriptableObject> possibleItems = new List<Froguelike_ItemScriptableObject>();
 
@@ -284,7 +289,7 @@ public class Froguelike_GameManager : MonoBehaviour
             bool itemLevelIsNotMaxed = GetLevelForItem(possibleItem) < (possibleItem.levels.Count - 1);
             if (possibleItem.isWeapon)
             {
-                if (weaponCount >= 3)
+                if (weaponCount >= maxWeaponCount)
                 {
                     // only add that item IF it is already part of our owned items
                     bool alreadyOwned = false;
@@ -308,7 +313,7 @@ public class Froguelike_GameManager : MonoBehaviour
             }
             else
             {
-                if (itemNotWeaponCount >= 3)
+                if (itemNotWeaponCount >= maxNonWeaponCount)
                 {
                     // only add that item IF it is already part of our owned items
                     bool alreadyOwned = false;
@@ -425,7 +430,10 @@ public class Froguelike_GameManager : MonoBehaviour
             playableCharactersList[currentChapter.chapterData.unlockedCharacterIndex].unlocked = true;
         }
 
-        chaptersPlayed.Add(currentChapter);
+        if (chaptersPlayed.Count < 5)
+        {
+            chaptersPlayed.Add(currentChapter);
+        }
         if (chaptersPlayed.Count < 5)
         {
             Time.timeScale = 0;
@@ -451,9 +459,9 @@ public class Froguelike_GameManager : MonoBehaviour
         if (chapterCount > 1)
         {
             Froguelike_FliesManager.instance.enemyDamageFactor *= 1.5f;
-            Froguelike_FliesManager.instance.enemyHPFactor *= 2;
+            Froguelike_FliesManager.instance.enemyHPFactor *= 3;
             Froguelike_FliesManager.instance.enemySpeedFactor *= 1.1f;
-            Froguelike_FliesManager.instance.enemyXPFactor *= 1.5f;
+            Froguelike_FliesManager.instance.enemyXPFactor *= 1.8f;
         }
 
         map.ClearMap();

@@ -170,12 +170,14 @@ public class Froguelike_UIManager : MonoBehaviour
         int totalScore = 0;
         for (int i = 0; i < chaptersInfoList.Count; i++)
         {
-            Froguelike_ChapterInfo chapterInfo = chaptersInfoList[i];
-
-            chaptersTextList[i].gameObject.SetActive(true);
-            chaptersTextList[i].text = "Chapter " + chapterInfo.chapterCount + "\n\t" + chapterInfo.chapterData.chapterTitle;
-            chaptersScoreTextList[i].text = chapterInfo.enemiesKilledCount.ToString();
-            totalScore += chapterInfo.enemiesKilledCount;
+            if (i < chaptersTextList.Count && i < chaptersScoreTextList.Count)
+            {
+                Froguelike_ChapterInfo chapterInfo = chaptersInfoList[i];
+                chaptersTextList[i].gameObject.SetActive(true);
+                chaptersTextList[i].text = "Chapter " + chapterInfo.chapterCount + "\n\t" + chapterInfo.chapterData.chapterTitle;
+                chaptersScoreTextList[i].text = chapterInfo.enemiesKilledCount.ToString();
+                totalScore += chapterInfo.enemiesKilledCount;
+            }
         }
         totalScoreText.text = totalScore.ToString();
 
