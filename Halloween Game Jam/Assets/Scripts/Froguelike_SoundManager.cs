@@ -10,8 +10,12 @@ public class Froguelike_SoundManager : MonoBehaviour
     [Range(0, 1)] public float buttonVolume = 1;
     public AudioClip deathSound;
     [Range(0, 1)] public float deathVolume = 1;
-    public AudioClip pageSound;
-    [Range(0, 1)] public float pageVolume = 1;
+    public AudioClip pageLongSound;
+    [Range(0, 1)] public float pageLongVolume = 1;
+    public AudioClip pageShortSound;
+    [Range(0, 1)] public float pageShortVolume = 1;
+    public AudioClip slideBookSound;
+    [Range(0, 1)] public float slideBookVolume = 1;
 
     private AudioSource audioSource;
 
@@ -36,15 +40,27 @@ public class Froguelike_SoundManager : MonoBehaviour
         }
     }
 
-    public void PlayPageSound()
+    public void PlayLongPageSound()
     {
-        audioSource.volume = pageVolume;
-        audioSource.PlayOneShot(pageSound);
+        audioSource.volume = pageLongVolume;
+        audioSource.PlayOneShot(pageLongSound);
     }
 
     public void PlayDeathSound()
     {
         audioSource.volume = deathVolume;
         audioSource.PlayOneShot(deathSound);
+    }
+
+    public void PlayShortPageSound()
+    {
+        audioSource.volume = pageShortVolume;
+        audioSource.PlayOneShot(pageShortSound);
+    }
+
+    public void PlaySlideBookSound()
+    {
+        audioSource.volume = slideBookVolume;
+        audioSource.PlayOneShot(slideBookSound);
     }
 }
