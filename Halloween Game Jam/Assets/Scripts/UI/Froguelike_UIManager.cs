@@ -276,7 +276,7 @@ public class Froguelike_UIManager : MonoBehaviour
                     levelUpChoicesLevels[index].color = newItemColor;
                     levelUpChoicesLevels[index].text = "New!";
                 }
-                else if (level >= item.levels.Count - 1)
+                else if (level >= item.levels.Count)
                 {
                     // max level
                     levelUpChoicesLevels[index].color = maxLevelColor;

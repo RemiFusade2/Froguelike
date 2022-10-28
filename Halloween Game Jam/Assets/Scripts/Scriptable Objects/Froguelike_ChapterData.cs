@@ -26,7 +26,7 @@ public class Froguelike_ChapterData : ScriptableObject
     public int petFrogStyle;
 
     public bool unlocksACharacter;
-    public int characterIndex;
+    public int unlockedCharacterIndex;
 
     public List<Froguelike_Wave> waves;
 }

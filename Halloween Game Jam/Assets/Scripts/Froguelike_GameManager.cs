@@ -183,7 +183,7 @@ public class Froguelike_GameManager : MonoBehaviour
                 itemIsNew = false;
                 pickedItemInfo = itemInfo;
                 itemInfo.level++;
-                level = itemInfo.level;
+                level = itemInfo.level-1;
 
                 if (pickedItem.isWeapon)
                 {
@@ -420,6 +420,11 @@ public class Froguelike_GameManager : MonoBehaviour
 
     public void EndChapter()
     {
+        if (currentChapter.chapterData.unlocksACharacter)
+        {
+            playableCharactersList[currentChapter.chapterData.unlockedCharacterIndex].unlocked = true;
+        }
+
         chaptersPlayed.Add(currentChapter);
         if (chaptersPlayed.Count < 5)
         {
@@ -456,6 +461,15 @@ public class Froguelike_GameManager : MonoBehaviour
         UpdateMap();
         Froguelike_FliesManager.instance.SetWave(currentChapter.chapterData.waves[0]);
         player.ForceGhost(currentChapter.chapterData.isCharacterGhost);
+        int hatStyle = 0;
+        if (currentChapter.chapterData.hasHat)
+        {
+            hatStyle = currentChapter.chapterData.hatStyle;
+        }
+
+        player.SetPetActive(currentChapter.chapterData.hasPetFrog);
+
+        player.SetHat(hatStyle);
 
         yield return new WaitForSecondsRealtime(3.0f);
 

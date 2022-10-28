@@ -12,6 +12,8 @@ public class Froguelike_CharacterController : MonoBehaviour
     public Transform weaponsParent;
     public Transform weaponStartPoint;
     public Transform healthBar;
+    [Space]
+    public List<GameObject> hatsGoList;
 
     [Header("Character data")]
     public float landSpeed;
@@ -50,6 +52,13 @@ public class Froguelike_CharacterController : MonoBehaviour
     [Header("Animator")]
     public Animator animator;
 
+    [Header("Pet Frog")]
+    public bool isPetActive;
+    public GameObject petGo;
+    public Transform petTonguePositionTransform;
+    public Froguelike_TongueBehaviour petTongueWeapon;
+
+
     private int animatorCharacterValue;
 
     private Rigidbody2D playerRigidbody;
@@ -78,6 +87,12 @@ public class Froguelike_CharacterController : MonoBehaviour
             {
                 weaponTransform.GetComponent<Froguelike_TongueBehaviour>().TryAttack();
             }
+
+            if (isPetActive)
+            {
+                petTongueWeapon.TryAttack();
+            }
+
             ChangeHealth(healthRecovery);
         }
     }
@@ -167,6 +182,32 @@ public class Froguelike_CharacterController : MonoBehaviour
         foreach (Transform weaponTransform in weaponsParent)
         {
             weaponTransform.GetComponent<Froguelike_TongueBehaviour>().SetTonguePosition(weaponStartPoint);
+        }
+        
+        if (isPetActive)
+        {
+            float petOrientationAngle = 90 + 90 * Mathf.RoundToInt((Vector2.SignedAngle(petGo.GetComponent<Rigidbody2D>().velocity, Vector2.right)) / 90);
+            petGo.transform.localRotation = Quaternion.Euler(0, 0, -orientationAngle);
+            petTongueWeapon.SetTonguePosition(petTonguePositionTransform);
+        }
+    }
+
+    public void SetPetActive(bool active)
+    {
+        isPetActive = active;
+        petGo.SetActive(active);
+        petTongueWeapon.gameObject.SetActive(active);
+    }
+
+    public void SetHat(int style)
+    {
+        foreach (GameObject hatGo in hatsGoList)
+        {
+            hatGo.SetActive(false);
+        }
+        if (style > 0)
+        {
+            hatsGoList[((style-1) % hatsGoList.Count)].SetActive(true);
         }
     }
 

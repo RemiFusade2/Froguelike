@@ -60,20 +60,20 @@ public class Froguelike_MapBehaviour : MonoBehaviour
     {
         Vector2 tileWorldPosition = tileCoordinates * tileSize;
         Instantiate(backgroundTilePrefab, tileWorldPosition, Quaternion.identity, mapTilesParent);
-        // generate rocks
-        for (int i = 0; i < rockDensity * maxRockCount; i++)
-        {
-            if (Random.Range(0,3) != 0)
-            {
-                AddSomething(rocksPrefabs, tileCoordinates);
-            }
-        }
         // generate water
         for (int i = 0; i < waterDensity * maxWaterCount; i++)
         {
             if (Random.Range(0, 3) != 0)
             {
                 AddSomething(watersPrefabs, tileCoordinates);
+            }
+        }
+        // generate rocks
+        for (int i = 0; i < rockDensity * maxRockCount; i++)
+        {
+            if (Random.Range(0,3) != 0)
+            {
+                AddSomething(rocksPrefabs, tileCoordinates);
             }
         }
         existingTilesCoordinates.Add(tileCoordinates);
