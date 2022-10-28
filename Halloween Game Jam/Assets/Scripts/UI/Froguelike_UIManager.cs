@@ -63,6 +63,7 @@ public class Froguelike_UIManager : MonoBehaviour
 
     [Header("Sound")]
     public Froguelike_SoundManager soundManager;
+    public Froguelike_MusicManager musicManager;
 
     private void Awake()
     {
@@ -94,6 +95,7 @@ public class Froguelike_UIManager : MonoBehaviour
 
     public void ShowTitleScreen()
     {
+        musicManager.PlayTitleMusic();
         HideAllScreens();
         titleScreen.SetActive(true);
     }

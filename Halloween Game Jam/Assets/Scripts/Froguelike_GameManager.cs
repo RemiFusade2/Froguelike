@@ -64,7 +64,7 @@ public class Froguelike_GameManager : MonoBehaviour
     [Header("XP")]
     public float startLevelXp = 5;
     public float startXpNeededForNextLevelFactor = 1.5f;
-    
+
     [Header("Runtime")]
     public bool hasGameStarted;
     public bool isGameRunning;
@@ -138,7 +138,7 @@ public class Froguelike_GameManager : MonoBehaviour
 
     public void EatFly(float experiencePoints)
     {
-        xp += (experiencePoints * (1+player.experienceBoost));
+        xp += (experiencePoints * (1 + player.experienceBoost));
 
         if (xp >= nextLevelXp)
         {
@@ -167,7 +167,7 @@ public class Froguelike_GameManager : MonoBehaviour
                 weaponGo.GetComponent<Froguelike_TongueBehaviour>().CopyWeaponStats(weaponItem.weaponsList[0].GetComponent<Froguelike_TongueBehaviour>());
             }
             weaponItem.weaponsList.Add(weaponGo);
-        }        
+        }
     }
 
     private void PickItem(Froguelike_ItemScriptableObject pickedItem)
@@ -183,7 +183,7 @@ public class Froguelike_GameManager : MonoBehaviour
                 itemIsNew = false;
                 pickedItemInfo = itemInfo;
                 itemInfo.level++;
-                level = itemInfo.level-1;
+                level = itemInfo.level - 1;
 
                 if (pickedItem.isWeapon)
                 {
@@ -230,7 +230,7 @@ public class Froguelike_GameManager : MonoBehaviour
         {
             // resolve the item picked (according to its current level)
             int levelIndex = pickedItemInfo.level - 1;
-            levelIndex = Mathf.Clamp(levelIndex, 0, pickedItemInfo.item.levels.Count-1);
+            levelIndex = Mathf.Clamp(levelIndex, 0, pickedItemInfo.item.levels.Count - 1);
             player.ResolvePickedItemLevel(pickedItemInfo.item.levels[levelIndex]);
         }
     }
@@ -339,7 +339,7 @@ public class Froguelike_GameManager : MonoBehaviour
                 possibleItems.Add(possibleItem);
             }
         }
-        
+
         levelUpPossibleItems.Clear();
         for (int i = 0; i < 3; i++)
         {
@@ -357,7 +357,7 @@ public class Froguelike_GameManager : MonoBehaviour
         List<int> itemLevels = new List<int>();
         foreach (Froguelike_ItemScriptableObject item in levelUpPossibleItems)
         {
-            itemLevels.Add(GetLevelForItem(item)+1);
+            itemLevels.Add(GetLevelForItem(item) + 1);
         }
 
         // Show Update level UI
@@ -431,7 +431,7 @@ public class Froguelike_GameManager : MonoBehaviour
             Time.timeScale = 0;
             chapterRemainingTime = 120;
             SelectNextPossibleChapters(3);
-            Froguelike_UIManager.instance.ShowChapterSelection(chaptersPlayed.Count+1, selectionOfNextChaptersList);
+            Froguelike_UIManager.instance.ShowChapterSelection(chaptersPlayed.Count + 1, selectionOfNextChaptersList);
         }
         else
         {
@@ -473,6 +473,7 @@ public class Froguelike_GameManager : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(3.0f);
 
+        Froguelike_MusicManager.instance.PlayLevelMusic();
         Froguelike_UIManager.instance.ShowGameUI();
         hasGameStarted = true;
         isGameRunning = true;
@@ -522,7 +523,7 @@ public class Froguelike_GameManager : MonoBehaviour
             foreach (GameObject weaponGo in item.weaponsList)
             {
                 Destroy(weaponGo, 0.1f);
-            }            
+            }
         }
         ownedItems.Clear();
     }
