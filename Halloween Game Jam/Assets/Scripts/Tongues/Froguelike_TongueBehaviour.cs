@@ -240,7 +240,7 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
             float actualDamage = damage * (1 + Froguelike_GameManager.instance.player.attackDamageBoost);
             float actualMaxFiles = maxFlies + Froguelike_GameManager.instance.player.attackMaxFliesBoost;
             bool canKillEnemy = (eatenFliesCount < actualMaxFiles);
-            bool enemyIsDead = Froguelike_FliesManager.instance.DamageEnemy(enemyName, damage, canKillEnemy);
+            bool enemyIsDead = Froguelike_FliesManager.instance.DamageEnemy(enemyName, actualDamage, canKillEnemy);
             if (enemyIsDead)
             {
                 collision.GetComponent<Animator>().SetBool("IsDead", true);

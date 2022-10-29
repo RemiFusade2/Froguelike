@@ -33,6 +33,10 @@ public class Froguelike_MusicManager : MonoBehaviour
 
     public void PlayTitleMusic()
     {
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+        }
         audioSource.volume = titleMusicVolume;
         audioSource.clip = titleMusic;
         audioSource.Play();
@@ -40,6 +44,10 @@ public class Froguelike_MusicManager : MonoBehaviour
 
     public void PlayLevelMusic()
     {
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+        }
         audioSource.volume = levelMusicVolume;
         audioSource.clip = levelMusic;
         audioSource.Play();
