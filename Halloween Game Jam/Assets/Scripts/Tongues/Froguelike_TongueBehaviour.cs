@@ -41,6 +41,15 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
     private int eatenFliesCount;
 
     private bool isAttacking;
+    
+    public void Initialize()
+    {
+        isAttacking = false;
+        eatenFliesCount = 0;
+        isTongueGoingOut = false;
+        lastAttackTime = Time.time;
+        SetTongueScale(0);
+    }
 
     public void CopyWeaponStats(Froguelike_TongueBehaviour weapon)
     {

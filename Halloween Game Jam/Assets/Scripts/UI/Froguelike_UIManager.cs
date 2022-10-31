@@ -21,8 +21,15 @@ public class Froguelike_UIManager : MonoBehaviour
     public GameObject inGameUIPanel;
     public Slider xpSlider;
     public Text levelText;
+    [Space]
     public string timerPrefix;
     public Text timerText;
+    [Space]
+    public string killCountPrefix;
+    public Text killCountText;
+    [Space]
+    public string extraLivesPrefix;
+    public Text extraLivesCountText;
 
     [Header("Chapter selection")]
     public GameObject chapterSelectionScreen;
@@ -91,6 +98,16 @@ public class Froguelike_UIManager : MonoBehaviour
     {
         System.TimeSpan time = new System.TimeSpan(0, 0, Mathf.RoundToInt(remainingTime));
         timerText.text = timerPrefix + time.ToString("m\\:ss");
+    }
+
+    public void SetEatenCount(int eatenBugs)
+    {
+        killCountText.text = killCountPrefix + eatenBugs.ToString();
+    }
+
+    public void SetExtraLives(int reviveCount)
+    {
+        extraLivesCountText.text = extraLivesPrefix + reviveCount.ToString();
     }
 
     public void ShowTitleScreen()
@@ -198,10 +215,20 @@ public class Froguelike_UIManager : MonoBehaviour
         allItemsLevels += "\n";
         foreach (Froguelike_ItemInfo itemInfo in itemsInfoList)
         {
-            if (!itemInfo.item.isWeapon)
+            if (!itemInfo.item.isWeapon && itemInfo.item.levels.Count > 1)
             {
                 allItemsNames += itemInfo.item.itemName + "\n";
                 allItemsLevels += "LVL " + itemInfo.level + "\n";
+            }
+        }
+        allItemsNames += "\n";
+        allItemsLevels += "\n";
+        foreach (Froguelike_ItemInfo itemInfo in itemsInfoList)
+        {
+            if (!itemInfo.item.isWeapon && itemInfo.item.levels.Count == 1)
+            {
+                allItemsNames += itemInfo.item.itemName + "\n";
+                allItemsLevels += "x" + itemInfo.level + "\n";
             }
         }
         upgradesText.text = allItemsNames;
@@ -264,7 +291,7 @@ public class Froguelike_UIManager : MonoBehaviour
         {
             levelUpChoicesPanels[index].SetActive(true);
             levelUpChoicesTitles[index].text = item.itemName;
-            if (itemLevels.Count == 1)
+            if (item.levels.Count == 1)
             {
                 // item without levels
                 levelUpChoicesLevels[index].color = defaultUIColor;

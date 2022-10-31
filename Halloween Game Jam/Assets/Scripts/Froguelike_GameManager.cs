@@ -48,6 +48,9 @@ public class Froguelike_GameManager : MonoBehaviour
     public Transform fliesParent;
     public ParticleSystem levelUpParticleSystem;
 
+    [Header("Prefabs")]
+    public GameObject destroyParticleEffectPrefab;
+
     [Header("Chapters data")]
     public List<Froguelike_ChapterData> allPlayableChaptersList;
 
@@ -151,6 +154,7 @@ public class Froguelike_GameManager : MonoBehaviour
         }
 
         currentChapter.enemiesKilledCount++;
+        Froguelike_UIManager.instance.SetEatenCount(currentChapter.enemiesKilledCount);
 
         Froguelike_UIManager.instance.UpdateXPSlider(xp, nextLevelXp);
     }
@@ -286,53 +290,56 @@ public class Froguelike_GameManager : MonoBehaviour
 
         foreach (Froguelike_ItemScriptableObject possibleItem in availableItems)
         {
-            bool itemLevelIsNotMaxed = GetLevelForItem(possibleItem) < (possibleItem.levels.Count - 1);
-            if (possibleItem.isWeapon)
+            bool itemLevelIsNotMaxed = (GetLevelForItem(possibleItem) < possibleItem.levels.Count);
+            if (itemLevelIsNotMaxed)
             {
-                if (weaponCount >= maxWeaponCount)
+                if (possibleItem.isWeapon)
                 {
-                    // only add that item IF it is already part of our owned items
-                    bool alreadyOwned = false;
-                    foreach (Froguelike_ItemInfo itemInfo in ownedItems)
+                    if (weaponCount >= maxWeaponCount)
                     {
-                        if (itemInfo.item.Equals(possibleItem))
+                        // only add that item IF it is already part of our owned items
+                        bool alreadyOwned = false;
+                        foreach (Froguelike_ItemInfo itemInfo in ownedItems)
                         {
-                            alreadyOwned = true;
-                            break;
+                            if (itemInfo.item.Equals(possibleItem))
+                            {
+                                alreadyOwned = true;
+                                break;
+                            }
+                        }
+                        if (alreadyOwned)
+                        {
+                            possibleItems.Add(possibleItem);
                         }
                     }
-                    if (alreadyOwned)
+                    else
                     {
                         possibleItems.Add(possibleItem);
                     }
                 }
                 else
                 {
-                    possibleItems.Add(possibleItem);
-                }
-            }
-            else
-            {
-                if (itemNotWeaponCount >= maxNonWeaponCount)
-                {
-                    // only add that item IF it is already part of our owned items
-                    bool alreadyOwned = false;
-                    foreach (Froguelike_ItemInfo itemInfo in ownedItems)
+                    if (itemNotWeaponCount >= maxNonWeaponCount)
                     {
-                        if (itemInfo.item.Equals(possibleItem))
+                        // only add that item IF it is already part of our owned items
+                        bool alreadyOwned = false;
+                        foreach (Froguelike_ItemInfo itemInfo in ownedItems)
                         {
-                            alreadyOwned = true;
-                            break;
+                            if (itemInfo.item.Equals(possibleItem))
+                            {
+                                alreadyOwned = true;
+                                break;
+                            }
+                        }
+                        if (alreadyOwned)
+                        {
+                            possibleItems.Add(possibleItem);
                         }
                     }
-                    if (alreadyOwned)
+                    else
                     {
                         possibleItems.Add(possibleItem);
                     }
-                }
-                else
-                {
-                    possibleItems.Add(possibleItem);
                 }
             }
         }
@@ -446,16 +453,42 @@ public class Froguelike_GameManager : MonoBehaviour
             chapterRemainingTime = 4 * 60 + 59;
             Froguelike_FliesManager.instance.ClearAllEnemies();
             Froguelike_FliesManager.instance.SpawnEnemy(deathEnemyPrefab, player.transform.position + 30 * Vector3.right, deathEnemyData);
+            map.ClearRocks();
         }
+    }
+
+    public void SpawnDestroyParticleEffect(Vector2 position)
+    {
+        Instantiate(destroyParticleEffectPrefab, position, Quaternion.identity);
     }
 
     public IEnumerator StartChapter(int chapterCount)
     {
+        // Show chapter start screen
         Froguelike_UIManager.instance.ShowChapterStart(chapterCount, currentChapter.chapterData.chapterTitle);
+
+        // Move frog to center
+        TeleportToStart();
+        // Set map info
         map.rockDensity = currentChapter.chapterData.amountOfRocks;
         map.waterDensity = currentChapter.chapterData.amountOfPonds;
+        // Update map
+        map.ClearMap();
+        UpdateMap();
+
+        // Reinitialize all weapons
+        foreach (Transform tongue in player.weaponsParent)
+        {
+            if (tongue.GetComponent<Froguelike_TongueBehaviour>() != null)
+            {
+                tongue.GetComponent<Froguelike_TongueBehaviour>().Initialize();
+            }
+        }
+
+        // Remove all enemies on screen
         Froguelike_FliesManager.instance.ClearAllEnemies();
 
+        // Increase enemies stats
         if (chapterCount > 1)
         {
             Froguelike_FliesManager.instance.enemyDamageFactor *= 1.5f;
@@ -464,29 +497,45 @@ public class Froguelike_GameManager : MonoBehaviour
             Froguelike_FliesManager.instance.enemyXPFactor *= 1.8f;
         }
 
-        map.ClearMap();
-        TeleportToStart();
-        UpdateMap();
+        // Set current wave to chapter wave
         Froguelike_FliesManager.instance.SetWave(currentChapter.chapterData.waves[0]);
+
+        // If character is ghost in that chapter, force it to ghost sprite
         player.ForceGhost(currentChapter.chapterData.isCharacterGhost);
+
+        // If character has hat, set hat style
         int hatStyle = 0;
         if (currentChapter.chapterData.hasHat)
         {
             hatStyle = currentChapter.chapterData.hatStyle;
         }
-
-        player.SetPetActive(currentChapter.chapterData.hasPetFrog);
-
         player.SetHat(hatStyle);
 
-        yield return new WaitForSecondsRealtime(3.0f);
+        // If character has pet, set pet style
+        player.SetPetActive(currentChapter.chapterData.hasPetFrog);
 
+        // Wait for 1.5 seconds, real time
+        yield return new WaitForSecondsRealtime(1.5f);
+
+        Time.timeScale = 1;
+
+        // Reset kill count
+        currentChapter.enemiesKilledCount = 0;
+        Froguelike_UIManager.instance.SetEatenCount(currentChapter.enemiesKilledCount);
+
+        // Play level music
         Froguelike_MusicManager.instance.PlayLevelMusic();
+
+        // Wait for 1.5 seconds, real time
+        yield return new WaitForSecondsRealtime(1.5f);
+
+        // Show Game UI (hide chapter start screen)
         Froguelike_UIManager.instance.ShowGameUI();
+
+        // Start game!
+        chapterRemainingTime = currentChapter.chapterData.chapterLengthInSeconds;
         hasGameStarted = true;
         isGameRunning = true;
-        chapterRemainingTime = currentChapter.chapterData.chapterLengthInSeconds;
-        Time.timeScale = 1;
     }
 
     public void TriggerGameOver()
@@ -503,6 +552,7 @@ public class Froguelike_GameManager : MonoBehaviour
         isGameRunning = true;
         Froguelike_UIManager.instance.ShowGameUI();
         player.revivals--;
+        Froguelike_UIManager.instance.SetExtraLives(player.revivals);
     }
 
     public void ShowScores()

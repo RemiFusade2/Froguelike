@@ -228,6 +228,7 @@ public class Froguelike_FliesManager : MonoBehaviour
         }
         foreach (int id in enemiesToDestroyIDList)
         {
+            Froguelike_GameManager.instance.SpawnDestroyParticleEffect(allActiveEnemiesDico[id].enemyTransform.position);
             Destroy(allActiveEnemiesDico[id].enemyTransform.gameObject);
             allActiveEnemiesDico.Remove(id);
         }

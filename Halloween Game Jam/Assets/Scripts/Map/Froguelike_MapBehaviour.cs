@@ -44,6 +44,23 @@ public class Froguelike_MapBehaviour : MonoBehaviour
         }
     }
 
+    public void ClearRocks()
+    {
+        List<GameObject> gameObjectsToDestroyList = new List<GameObject>();
+        foreach (Transform tile in mapTilesParent)
+        {
+            if (tile.CompareTag("Rock"))
+            {
+                gameObjectsToDestroyList.Add(tile.gameObject);
+            }
+        }
+        foreach (GameObject go in gameObjectsToDestroyList)
+        {
+            Destroy(go);
+            Froguelike_GameManager.instance.SpawnDestroyParticleEffect(go.transform.position);
+        }
+    }
+
     private void AddSomething(List<GameObject> prefabs, Vector2Int tileCoordinates)
     {
         int randomIndex = Random.Range(0, prefabs.Count);

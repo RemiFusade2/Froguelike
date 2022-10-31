@@ -27,7 +27,7 @@ public class Froguelike_CharacterController : MonoBehaviour
     public float armorBoost = 0;
     [Range(0, 1)]
     public float experienceBoost = 0;
-    public float revivals = 0;
+    public int revivals = 0;
     [Space]
     [Range(0, 1)]
     public float attackCooldownBoost = 0;
@@ -113,12 +113,20 @@ public class Froguelike_CharacterController : MonoBehaviour
         SetAnimatorCharacterValue(characterInfo.characterAnimatorValue);
 
         healthRecovery = characterInfo.startingHealthRecovery;
+
         landSpeed = characterInfo.startingLandSpeed;
         swimSpeed = characterInfo.startingSwimSpeed;
         maxHealth = characterInfo.startingMaxHealth;
 
         armorBoost = characterInfo.startingArmor;
         revivals = characterInfo.startingRevivals;
+        Froguelike_UIManager.instance.SetExtraLives(revivals);
+
+        attackCooldownBoost = 0;
+        attackDamageBoost = 0;
+        attackMaxFliesBoost = 0;
+        attackRangeBoost = 0;
+        attackSpeedBoost = 0;
 
         currentHealth = maxHealth;
     }
@@ -133,6 +141,11 @@ public class Froguelike_CharacterController : MonoBehaviour
         healthRecovery += itemLevelData.healthRecoveryBoost;
         maxHealth += itemLevelData.maxHealthBoost;
         revivals += itemLevelData.revivalBoost;
+
+        Froguelike_UIManager.instance.SetExtraLives(revivals);
+
+        Froguelike_GameManager.instance.currentChapter.enemiesKilledCount += itemLevelData.extraScore;
+        Froguelike_UIManager.instance.SetEatenCount(Froguelike_GameManager.instance.currentChapter.enemiesKilledCount);
 
         landSpeed += itemLevelData.walkSpeedBoost;
         swimSpeed += itemLevelData.swimSpeedBoost;
@@ -197,6 +210,7 @@ public class Froguelike_CharacterController : MonoBehaviour
         isPetActive = active;
         petGo.SetActive(active);
         petTongueWeapon.gameObject.SetActive(active);
+        petTongueWeapon.Initialize();
     }
 
     public void SetHat(int style)
