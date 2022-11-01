@@ -11,7 +11,7 @@ public enum WeaponType
     ULTIMATE
 }
 
-public class Froguelike_TongueBehaviour : MonoBehaviour
+public class WeaponBehaviour : MonoBehaviour
 {
     [Header("References")]
     public LineRenderer tongueLineRenderer1;
@@ -51,7 +51,7 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
         SetTongueScale(0);
     }
 
-    public void CopyWeaponStats(Froguelike_TongueBehaviour weapon)
+    public void CopyWeaponStats(WeaponBehaviour weapon)
     {
         cooldown = weapon.cooldown;
         damage = weapon.damage;
@@ -72,7 +72,7 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
 
     private void SetTongueScale(float scale)
     {
-        float actualRange = range * (1 + Froguelike_GameManager.instance.player.attackRangeBoost);
+        float actualRange = range * (1 + GameManager.instance.player.attackRangeBoost);
         this.transform.localScale = Vector3.forward + (width * Vector3.up) + (scale * actualRange * Vector3.right);
         tongueLineRenderer1.startWidth = 0.1f * width;
         tongueLineRenderer1.endWidth = 0.1f * width;
@@ -102,8 +102,8 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
     private GameObject GetNearestEnemy()
     {
         GameObject enemy = null;
-        Vector2 playerPosition = Froguelike_GameManager.instance.player.transform.position;
-        float actualRange = range * (1 + Froguelike_GameManager.instance.player.attackRangeBoost);
+        Vector2 playerPosition = GameManager.instance.player.transform.position;
+        float actualRange = range * (1 + GameManager.instance.player.attackRangeBoost);
         Collider2D[] allColliders = Physics2D.OverlapCircleAll(playerPosition, actualRange * 2.0f * 3.0f, foodLayer);
         if (allColliders.Length > 0)
         {
@@ -126,7 +126,7 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
 
     public void TryAttack()
     {
-        float actualCooldown = cooldown * (1 - Froguelike_GameManager.instance.player.attackCooldownBoost);
+        float actualCooldown = cooldown * (1 - GameManager.instance.player.attackCooldownBoost);
         if (!isAttacking && Time.time - lastAttackTime > actualCooldown)
         {
             switch (weaponType)
@@ -154,7 +154,7 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
     {
         eatenFliesCount = 0;
         lastAttackTime = Time.time;
-        Vector2 direction = Froguelike_GameManager.instance.player.transform.up;
+        Vector2 direction = GameManager.instance.player.transform.up;
         StartCoroutine(SendTongueInDirectionRotating(direction));
     }
 
@@ -167,7 +167,7 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
         tongueLineRenderer1.enabled = true;
         tongueLineRenderer2.enabled = true;
         float angle = 0;
-        float actualAttackSpeed = attackSpeed * (1 + Froguelike_GameManager.instance.player.attackSpeedBoost);
+        float actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
         while (isTongueGoingOut)
         {
             if (t <= 1)
@@ -218,7 +218,7 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
         isTongueGoingOut = true;
         tongueLineRenderer1.enabled = true;
         tongueLineRenderer2.enabled = true;
-        float actualAttackSpeed = attackSpeed * (1+Froguelike_GameManager.instance.player.attackSpeedBoost);
+        float actualAttackSpeed = attackSpeed * (1+GameManager.instance.player.attackSpeedBoost);
         while (isTongueGoingOut)
         {
             SetTongueScale(t);
@@ -246,8 +246,8 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
         if (collision.CompareTag("Fly"))
         {
             string enemyName = collision.gameObject.name;
-            float actualDamage = damage * (1 + Froguelike_GameManager.instance.player.attackDamageBoost);
-            float actualMaxFiles = maxFlies + Froguelike_GameManager.instance.player.attackMaxFliesBoost;
+            float actualDamage = damage * (1 + GameManager.instance.player.attackDamageBoost);
+            float actualMaxFiles = maxFlies + GameManager.instance.player.attackMaxFliesBoost;
             bool canKillEnemy = (eatenFliesCount < actualMaxFiles);
             bool enemyIsDead = Froguelike_FliesManager.instance.DamageEnemy(enemyName, actualDamage, canKillEnemy);
             if (enemyIsDead)
@@ -262,7 +262,7 @@ public class Froguelike_TongueBehaviour : MonoBehaviour
 
     private void CheckEatenFlyCount()
     {
-        float actualMaxFiles = maxFlies + Froguelike_GameManager.instance.player.attackMaxFliesBoost;
+        float actualMaxFiles = maxFlies + GameManager.instance.player.attackMaxFliesBoost;
         if (eatenFliesCount >= actualMaxFiles)
         {
             switch (weaponType)

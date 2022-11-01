@@ -122,7 +122,7 @@ public class Froguelike_UIManager : MonoBehaviour
         titleScreen.SetActive(true);
     }
 
-    public void ShowCharacterSelection(List<Froguelike_PlayableCharacterInfo> playableCharactersList)
+    public void ShowCharacterSelection(List<PlayableCharacterInfo> playableCharactersList)
     {
         HideAllScreens();
 
@@ -130,7 +130,7 @@ public class Froguelike_UIManager : MonoBehaviour
         {
             if (i < charactersButtonsList.Count)
             {
-                Froguelike_PlayableCharacterInfo characterInfo = playableCharactersList[i];
+                PlayableCharacterInfo characterInfo = playableCharactersList[i];
                 charactersButtonsList[i].interactable = characterInfo.unlocked;
                 charactersNamesTextList[i].text = (characterInfo.unlocked ? characterInfo.characterData.characterName : "???");
                 charactersImagesList[i].sprite = characterInfo.characterData.characterSprite;
@@ -145,7 +145,7 @@ public class Froguelike_UIManager : MonoBehaviour
         characterSelectionScreen.SetActive(true);
     }
 
-    public void ShowChapterSelection(int chapterCount, List<Froguelike_ChapterData> chapters)
+    public void ShowChapterSelection(int chapterCount, List<ChapterData> chapters)
     {
         HideAllScreens();
         string chapterIntro = "";
@@ -165,7 +165,7 @@ public class Froguelike_UIManager : MonoBehaviour
         chapterSelectionTopText.text = chapterIntro;
         for (int i = 0; i < chapters.Count; i++)
         {
-            Froguelike_ChapterData chapter = chapters[i];
+            ChapterData chapter = chapters[i];
             chapterTitleTextsList[i].text = chapter.chapterTitle;
             chapterDescriptionTextsList[i].text = chapter.chapterDescription;
         }
@@ -181,7 +181,7 @@ public class Froguelike_UIManager : MonoBehaviour
         PlayLongPageSound();
     }
 
-    public void ShowScoreScreen(List<Froguelike_ChapterInfo> chaptersInfoList, string moral, List<Froguelike_ItemInfo> itemsInfoList, List<CharacterData> unlockedCharacters)
+    public void ShowScoreScreen(List<ChapterInfo> chaptersInfoList, string moral, List<ItemInfo> itemsInfoList, List<CharacterData> unlockedCharacters)
     {
         HideAllScreens();
 
@@ -197,7 +197,7 @@ public class Froguelike_UIManager : MonoBehaviour
         {
             if (i < chaptersTextList.Count && i < chaptersScoreTextList.Count)
             {
-                Froguelike_ChapterInfo chapterInfo = chaptersInfoList[i];
+                ChapterInfo chapterInfo = chaptersInfoList[i];
                 chaptersTextList[i].gameObject.SetActive(true);
                 chaptersTextList[i].text = "Chapter " + chapterInfo.chapterCount + "\n\t" + chapterInfo.chapterData.chapterTitle;
                 chaptersScoreTextList[i].text = chapterInfo.enemiesKilledCount.ToString();
@@ -212,7 +212,7 @@ public class Froguelike_UIManager : MonoBehaviour
         // Display all items and their level
         string allItemsNames = "";
         string allItemsLevels = "";
-        foreach (Froguelike_ItemInfo itemInfo in itemsInfoList)
+        foreach (ItemInfo itemInfo in itemsInfoList)
         {
             if (itemInfo.item.isWeapon)
             {
@@ -222,7 +222,7 @@ public class Froguelike_UIManager : MonoBehaviour
         }
         allItemsNames += "\n";
         allItemsLevels += "\n";
-        foreach (Froguelike_ItemInfo itemInfo in itemsInfoList)
+        foreach (ItemInfo itemInfo in itemsInfoList)
         {
             if (!itemInfo.item.isWeapon && itemInfo.item.levels.Count > 1)
             {
@@ -232,7 +232,7 @@ public class Froguelike_UIManager : MonoBehaviour
         }
         allItemsNames += "\n";
         allItemsLevels += "\n";
-        foreach (Froguelike_ItemInfo itemInfo in itemsInfoList)
+        foreach (ItemInfo itemInfo in itemsInfoList)
         {
             if (!itemInfo.item.isWeapon && itemInfo.item.levels.Count == 1)
             {
@@ -295,7 +295,7 @@ public class Froguelike_UIManager : MonoBehaviour
         PlaySlideBookSound();
     }
 
-    public void ShowLevelUpItemSelection(List<Froguelike_ItemScriptableObject> possibleItems, List<int> itemLevels)
+    public void ShowLevelUpItemSelection(List<ItemScriptableObject> possibleItems, List<int> itemLevels)
     {
         PlaySlideBookSound();
         levelUpPanel.SetActive(true);
@@ -306,7 +306,7 @@ public class Froguelike_UIManager : MonoBehaviour
         }
 
         int index = 0;
-        foreach (Froguelike_ItemScriptableObject item in possibleItems)
+        foreach (ItemScriptableObject item in possibleItems)
         {
             levelUpChoicesPanels[index].SetActive(true);
             levelUpChoicesTitles[index].text = item.itemName;

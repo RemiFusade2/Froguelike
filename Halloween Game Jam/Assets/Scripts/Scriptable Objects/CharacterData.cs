@@ -21,5 +21,5 @@ public class CharacterData : ScriptableObject
     public float startingArmor;
     public int startingRevivals;
 
-    public Froguelike_ItemScriptableObject startingWeapon;
+    public ItemScriptableObject startingWeapon;
 }

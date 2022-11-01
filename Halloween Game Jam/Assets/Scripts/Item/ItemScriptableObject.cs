@@ -46,7 +46,7 @@ public class Froguelike_ItemLevel
 
 [System.Serializable]
 [CreateAssetMenu(fileName = "Item Data", menuName = "ScriptableObjects/Froguelike/Item Data", order = 1)]
-public class Froguelike_ItemScriptableObject : ScriptableObject
+public class ItemScriptableObject : ScriptableObject
 {
     public string itemName;
 
@@ -59,9 +59,9 @@ public class Froguelike_ItemScriptableObject : ScriptableObject
 
     public override bool Equals(object other)
     {
-        if (other is Froguelike_ItemScriptableObject)
+        if (other is ItemScriptableObject)
         {
-            return itemName.Equals((other as Froguelike_ItemScriptableObject).itemName);
+            return itemName.Equals((other as ItemScriptableObject).itemName);
         }
         return base.Equals(other);
     }

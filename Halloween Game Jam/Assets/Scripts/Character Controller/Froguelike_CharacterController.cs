@@ -3,6 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using Rewired;
 
+[System.Serializable]
+public class FriendInfo
+{
+    public GameObject friendGameObject;
+    public Transform weaponPositionTransform;
+    public WeaponBehaviour weapon;
+    public Animator animator;
+    public int style;
+}
+
 public class Froguelike_CharacterController : MonoBehaviour
 {
     [Header("Player id")]
@@ -52,12 +62,10 @@ public class Froguelike_CharacterController : MonoBehaviour
     [Header("Animator")]
     public Animator animator;
 
-    [Header("Pet Frog")]
-    public bool isPetActive;
-    public GameObject petGo;
-    public Transform petTonguePositionTransform;
-    public Froguelike_TongueBehaviour petTongueWeapon;
+    [Header("Friend Frog")]
+    public List<FriendInfo> allFriends;
 
+    private List<int> activeFriendsIndexList;
 
     private int animatorCharacterValue;
 
@@ -76,21 +84,24 @@ public class Froguelike_CharacterController : MonoBehaviour
         invincibilityTime = 0;
         rewiredPlayer = ReInput.players.GetPlayer(playerID);
         playerRigidbody = GetComponent<Rigidbody2D>();
+        activeFriendsIndexList = new List<int>();
+        ClearFriends();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Froguelike_GameManager.instance.isGameRunning)
+        if (GameManager.instance.isGameRunning)
         {
             foreach (Transform weaponTransform in weaponsParent)
             {
-                weaponTransform.GetComponent<Froguelike_TongueBehaviour>().TryAttack();
+                weaponTransform.GetComponent<WeaponBehaviour>().TryAttack();
             }
 
-            if (isPetActive)
+            foreach (int friendIndex in activeFriendsIndexList)
             {
-                petTongueWeapon.TryAttack();
+                FriendInfo friend = allFriends[friendIndex];
+                friend.weapon.TryAttack();
             }
 
             ChangeHealth(healthRecovery);
@@ -144,8 +155,8 @@ public class Froguelike_CharacterController : MonoBehaviour
 
         Froguelike_UIManager.instance.SetExtraLives(revivals);
 
-        Froguelike_GameManager.instance.currentChapter.enemiesKilledCount += itemLevelData.extraScore;
-        Froguelike_UIManager.instance.SetEatenCount(Froguelike_GameManager.instance.currentChapter.enemiesKilledCount);
+        GameManager.instance.currentChapter.enemiesKilledCount += itemLevelData.extraScore;
+        Froguelike_UIManager.instance.SetEatenCount(GameManager.instance.currentChapter.enemiesKilledCount);
 
         landSpeed += itemLevelData.walkSpeedBoost;
         swimSpeed += itemLevelData.swimSpeedBoost;
@@ -209,23 +220,48 @@ public class Froguelike_CharacterController : MonoBehaviour
 
         foreach (Transform weaponTransform in weaponsParent)
         {
-            weaponTransform.GetComponent<Froguelike_TongueBehaviour>().SetTonguePosition(weaponStartPoint);
+            weaponTransform.GetComponent<WeaponBehaviour>().SetTonguePosition(weaponStartPoint);
         }
 
-        if (isPetActive)
+        foreach (int friendIndex in activeFriendsIndexList)
         {
-            float petOrientationAngle = 90 + 90 * Mathf.RoundToInt((Vector2.SignedAngle(petGo.GetComponent<Rigidbody2D>().velocity.normalized, Vector2.right)) / 90);
-            petGo.transform.localRotation = Quaternion.Euler(0, 0, -petOrientationAngle);
-            petTongueWeapon.SetTonguePosition(petTonguePositionTransform);
+            FriendInfo friend = allFriends[friendIndex];
+            friend.weapon.TryAttack();
+            float friendOrientationAngle = 90 + 90 * Mathf.RoundToInt((Vector2.SignedAngle(friend.friendGameObject.GetComponent<Rigidbody2D>().velocity.normalized, Vector2.right)) / 90);
+            friend.friendGameObject.transform.localRotation = Quaternion.Euler(0, 0, -friendOrientationAngle);
+            friend.weapon.SetTonguePosition(friend.weaponPositionTransform);
         }
     }
 
-    public void SetPetActive(bool active)
+    public void ClearFriends()
     {
-        isPetActive = active;
-        petGo.SetActive(active);
-        petTongueWeapon.gameObject.SetActive(active);
-        petTongueWeapon.Initialize();
+        foreach (FriendInfo friend in allFriends)
+        {
+            friend.friendGameObject.SetActive(false);
+            friend.weapon.gameObject.SetActive(false);
+        }
+        if (activeFriendsIndexList == null)
+        {
+            activeFriendsIndexList = new List<int>();
+        }
+        activeFriendsIndexList.Clear();
+    }
+
+    public bool HasActiveFriend(int index)
+    {
+        return activeFriendsIndexList.Contains(index);
+    }
+
+    public void AddActiveFriend(int index)
+    {
+        if (!HasActiveFriend(index))
+        {
+            activeFriendsIndexList.Add(index);
+            allFriends[index].friendGameObject.SetActive(true);
+            allFriends[index].weapon.gameObject.SetActive(true);
+            allFriends[index].weapon.Initialize();
+            allFriends[index].animator.SetInteger("Style", allFriends[index].style);
+        }
     }
 
     public void SetHat(int style)
@@ -271,7 +307,7 @@ public class Froguelike_CharacterController : MonoBehaviour
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (collision.collider.CompareTag("Fly") && Froguelike_GameManager.instance.isGameRunning && invincibilityTime <= 0)
+        if (collision.collider.CompareTag("Fly") && GameManager.instance.isGameRunning && invincibilityTime <= 0)
         {
             float damage = Froguelike_FliesManager.instance.GetEnemyDataFromName(collision.gameObject.name).damage * Froguelike_FliesManager.instance.enemyDamageFactor;
             damage = damage * (1 - armorBoost);
@@ -289,7 +325,7 @@ public class Froguelike_CharacterController : MonoBehaviour
         if (currentHealth <= 0)
         {
             // game over
-            Froguelike_GameManager.instance.TriggerGameOver();
+            GameManager.instance.TriggerGameOver();
         }
         UpdateHealthBar();
     }

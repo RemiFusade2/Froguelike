@@ -4,7 +4,7 @@ using UnityEngine;
 
 [System.Serializable]
 [CreateAssetMenu(fileName = "Chapter Data", menuName = "ScriptableObjects/Froguelike/Chapter Data", order = 1)]
-public class Froguelike_ChapterData : ScriptableObject
+public class ChapterData : ScriptableObject
 {
     public string chapterTitle;
     public string chapterDescription;
@@ -22,8 +22,8 @@ public class Froguelike_ChapterData : ScriptableObject
     public bool hasHat;
     public int hatStyle;
 
-    public bool hasPetFrog;
-    public int petFrogStyle;
+    public bool hasFriend;
+    public int friendStyle;
 
     public bool unlocksACharacter;
     public int unlockedCharacterIndex;

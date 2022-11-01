@@ -3,30 +3,30 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class Froguelike_ItemInfo
+public class ItemInfo
 {
-    public Froguelike_ItemScriptableObject item;
+    public ItemScriptableObject item;
     public List<GameObject> weaponsList;
     public int level;
 }
 
 [System.Serializable]
-public class Froguelike_ChapterInfo
+public class ChapterInfo
 {
-    public Froguelike_ChapterData chapterData;
+    public ChapterData chapterData;
     public int chapterCount;
     public int enemiesKilledCount;
 }
 
 [System.Serializable]
-public class Froguelike_PlayableCharacterInfo
+public class PlayableCharacterInfo
 {
     public CharacterData characterData;
     public bool unlocked;
 }
-public class Froguelike_GameManager : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
-    public static Froguelike_GameManager instance;
+    public static GameManager instance;
 
     [Header("References")]
     public Froguelike_CharacterController player;
@@ -38,16 +38,16 @@ public class Froguelike_GameManager : MonoBehaviour
     public GameObject destroyParticleEffectPrefab;
 
     [Header("Chapters data")]
-    public List<Froguelike_ChapterData> allPlayableChaptersList;
+    public List<ChapterData> allPlayableChaptersList;
     [Space]
     public List<string> possibleMorals;
 
     [Header("Characters data")]
-    public List<Froguelike_PlayableCharacterInfo> playableCharactersList;
+    public List<PlayableCharacterInfo> playableCharactersList;
 
     [Header("Items data")]
-    public List<Froguelike_ItemScriptableObject> availableItems;
-    public List<Froguelike_ItemScriptableObject> defaultItems;
+    public List<ItemScriptableObject> availableItems;
+    public List<ItemScriptableObject> defaultItems;
     public int maxWeaponCount = 3;
     public int maxNonWeaponCount = 5;
 
@@ -65,17 +65,17 @@ public class Froguelike_GameManager : MonoBehaviour
     [Space]
     public float chapterRemainingTime; // in seconds
 
-    public List<Froguelike_ChapterInfo> chaptersPlayed;
+    public List<ChapterInfo> chaptersPlayed;
     [Space]
     public float xp;
     public int level;
     [Space]
-    public List<Froguelike_ItemInfo> ownedItems;
+    public List<ItemInfo> ownedItems;
     [Space]
-    public Froguelike_PlayableCharacterInfo currentPlayedCharacter;
+    public PlayableCharacterInfo currentPlayedCharacter;
     [Space]
-    private List<Froguelike_ChapterData> currentPlayableChaptersList;
-    public Froguelike_ChapterInfo currentChapter;
+    private List<ChapterData> currentPlayableChaptersList;
+    public ChapterInfo currentChapter;
 
     private float nextLevelXp = 5;
     private float xpNeededForNextLevelFactor = 1.5f;
@@ -120,6 +120,8 @@ public class Froguelike_GameManager : MonoBehaviour
         nextLevelXp = startLevelXp;
         xpNeededForNextLevelFactor = startXpNeededForNextLevelFactor;
 
+        player.ClearFriends();
+
         Froguelike_UIManager.instance.UpdateLevel(level);
         Froguelike_UIManager.instance.UpdateXPSlider(xp, xpNeededForNextLevelFactor);
 
@@ -152,9 +154,9 @@ public class Froguelike_GameManager : MonoBehaviour
 
     #region Level Up
 
-    public List<Froguelike_ItemScriptableObject> levelUpPossibleItems;
+    public List<ItemScriptableObject> levelUpPossibleItems;
 
-    private void SpawnWeapon(Froguelike_ItemInfo weaponItem)
+    private void SpawnWeapon(ItemInfo weaponItem)
     {
         if (weaponItem.item.isWeapon)
         {
@@ -162,18 +164,18 @@ public class Froguelike_GameManager : MonoBehaviour
             GameObject weaponGo = Instantiate(weaponPrefab, player.weaponStartPoint.position, Quaternion.identity, player.weaponsParent);
             if (weaponItem.weaponsList.Count > 0)
             {
-                weaponGo.GetComponent<Froguelike_TongueBehaviour>().CopyWeaponStats(weaponItem.weaponsList[0].GetComponent<Froguelike_TongueBehaviour>());
+                weaponGo.GetComponent<WeaponBehaviour>().CopyWeaponStats(weaponItem.weaponsList[0].GetComponent<WeaponBehaviour>());
             }
             weaponItem.weaponsList.Add(weaponGo);
         }
     }
 
-    private void PickItem(Froguelike_ItemScriptableObject pickedItem)
+    private void PickItem(ItemScriptableObject pickedItem)
     {
         bool itemIsNew = true;
         int level = 0;
-        Froguelike_ItemInfo pickedItemInfo = null;
-        foreach (Froguelike_ItemInfo itemInfo in ownedItems)
+        ItemInfo pickedItemInfo = null;
+        foreach (ItemInfo itemInfo in ownedItems)
         {
             if (itemInfo.item.Equals(pickedItem))
             {
@@ -190,7 +192,7 @@ public class Froguelike_GameManager : MonoBehaviour
                     {
                         if (level >= 0 && level < itemInfo.item.levels.Count)
                         {
-                            weaponGo.GetComponent<Froguelike_TongueBehaviour>().LevelUp(itemInfo.item.levels[level]);
+                            weaponGo.GetComponent<WeaponBehaviour>().LevelUp(itemInfo.item.levels[level]);
                         }
                     }
                 }
@@ -208,7 +210,7 @@ public class Froguelike_GameManager : MonoBehaviour
         if (itemIsNew && pickedItemInfo == null)
         {
             // Create item info and add it to owned items
-            pickedItemInfo = new Froguelike_ItemInfo();
+            pickedItemInfo = new ItemInfo();
             pickedItemInfo.level = 1;
             pickedItemInfo.item = pickedItem;
             pickedItemInfo.weaponsList = new List<GameObject>();
@@ -235,16 +237,16 @@ public class Froguelike_GameManager : MonoBehaviour
 
     public void ChooseLevelUpChoice(int index)
     {
-        Froguelike_ItemScriptableObject pickedItem = levelUpPossibleItems[index];
+        ItemScriptableObject pickedItem = levelUpPossibleItems[index];
         PickItem(pickedItem);
         Froguelike_UIManager.instance.HideLevelUpItemSelection();
         Time.timeScale = 1;
     }
 
-    private int GetLevelForItem(Froguelike_ItemScriptableObject item)
+    private int GetLevelForItem(ItemScriptableObject item)
     {
         int level = 0;
-        foreach (Froguelike_ItemInfo itemInfo in ownedItems)
+        foreach (ItemInfo itemInfo in ownedItems)
         {
             if (itemInfo.item.Equals(item))
             {
@@ -262,12 +264,12 @@ public class Froguelike_GameManager : MonoBehaviour
         levelUpParticleSystem.Play();
 
         // Pick possible items from a pool
-        List<Froguelike_ItemScriptableObject> possibleItems = new List<Froguelike_ItemScriptableObject>();
+        List<ItemScriptableObject> possibleItems = new List<ItemScriptableObject>();
 
         int weaponCount = 0;
         int itemNotWeaponCount = 0;
 
-        foreach (Froguelike_ItemInfo itemInfo in ownedItems)
+        foreach (ItemInfo itemInfo in ownedItems)
         {
             if (itemInfo.item.isWeapon)
             {
@@ -279,7 +281,7 @@ public class Froguelike_GameManager : MonoBehaviour
             }
         }
 
-        foreach (Froguelike_ItemScriptableObject possibleItem in availableItems)
+        foreach (ItemScriptableObject possibleItem in availableItems)
         {
             bool itemLevelIsNotMaxed = (GetLevelForItem(possibleItem) < possibleItem.levels.Count);
             if (itemLevelIsNotMaxed)
@@ -290,7 +292,7 @@ public class Froguelike_GameManager : MonoBehaviour
                     {
                         // only add that item IF it is already part of our owned items
                         bool alreadyOwned = false;
-                        foreach (Froguelike_ItemInfo itemInfo in ownedItems)
+                        foreach (ItemInfo itemInfo in ownedItems)
                         {
                             if (itemInfo.item.Equals(possibleItem))
                             {
@@ -314,7 +316,7 @@ public class Froguelike_GameManager : MonoBehaviour
                     {
                         // only add that item IF it is already part of our owned items
                         bool alreadyOwned = false;
-                        foreach (Froguelike_ItemInfo itemInfo in ownedItems)
+                        foreach (ItemInfo itemInfo in ownedItems)
                         {
                             if (itemInfo.item.Equals(possibleItem))
                             {
@@ -337,7 +339,7 @@ public class Froguelike_GameManager : MonoBehaviour
 
         if (possibleItems.Count == 0)
         {
-            foreach (Froguelike_ItemScriptableObject possibleItem in defaultItems)
+            foreach (ItemScriptableObject possibleItem in defaultItems)
             {
                 possibleItems.Add(possibleItem);
             }
@@ -358,7 +360,7 @@ public class Froguelike_GameManager : MonoBehaviour
 
         // Find levels for each of these items
         List<int> itemLevels = new List<int>();
-        foreach (Froguelike_ItemScriptableObject item in levelUpPossibleItems)
+        foreach (ItemScriptableObject item in levelUpPossibleItems)
         {
             itemLevels.Add(GetLevelForItem(item) + 1);
         }
@@ -377,20 +379,26 @@ public class Froguelike_GameManager : MonoBehaviour
 
     #region Level Up
 
-    private List<Froguelike_ChapterData> selectionOfNextChaptersList;
+    private List<ChapterData> selectionOfNextChaptersList;
 
     private void SelectNextPossibleChapters(int chapterCount)
     {
-        selectionOfNextChaptersList = new List<Froguelike_ChapterData>();
+        selectionOfNextChaptersList = new List<ChapterData>();
 
-        if (currentPlayableChaptersList.Count < chapterCount)
+        while (selectionOfNextChaptersList.Count < chapterCount)
         {
-            ReinitializeChaptersList();
-        }
+            if (currentPlayableChaptersList.Count < 1)
+            {
+                ReinitializeChaptersList();
+            }
 
-        for (int i = 0; i < chapterCount; i++)
-        {
-            Froguelike_ChapterData selectedChapter = currentPlayableChaptersList[Random.Range(0, currentPlayableChaptersList.Count)];
+            ChapterData selectedChapter = currentPlayableChaptersList[Random.Range(0, currentPlayableChaptersList.Count)];
+            if ( (selectedChapter.hasFriend && player.HasActiveFriend(selectedChapter.friendStyle)) || selectionOfNextChaptersList.Contains(selectedChapter))
+            {
+                currentPlayableChaptersList.Remove(selectedChapter);
+                continue;
+            }
+
             currentPlayableChaptersList.Remove(selectedChapter);
             selectionOfNextChaptersList.Add(selectedChapter);
         }
@@ -401,7 +409,7 @@ public class Froguelike_GameManager : MonoBehaviour
         currentPlayedCharacter = playableCharactersList[index];
         SelectNextPossibleChapters(3);
 
-        chaptersPlayed = new List<Froguelike_ChapterInfo>();
+        chaptersPlayed = new List<ChapterInfo>();
         Froguelike_UIManager.instance.ShowChapterSelection(1, selectionOfNextChaptersList);
 
         player.InitializeCharacter(currentPlayedCharacter.characterData);
@@ -410,7 +418,7 @@ public class Froguelike_GameManager : MonoBehaviour
 
     public void SelectChapter(int index)
     {
-        Froguelike_ChapterInfo chapterInfo = new Froguelike_ChapterInfo();
+        ChapterInfo chapterInfo = new ChapterInfo();
         chapterInfo.chapterData = selectionOfNextChaptersList[index];
         chapterInfo.chapterCount = (chaptersPlayed.Count + 1);
         chapterInfo.enemiesKilledCount = 0;
@@ -470,9 +478,9 @@ public class Froguelike_GameManager : MonoBehaviour
         // Reinitialize all weapons
         foreach (Transform tongue in player.weaponsParent)
         {
-            if (tongue.GetComponent<Froguelike_TongueBehaviour>() != null)
+            if (tongue.GetComponent<WeaponBehaviour>() != null)
             {
-                tongue.GetComponent<Froguelike_TongueBehaviour>().Initialize();
+                tongue.GetComponent<WeaponBehaviour>().Initialize();
             }
         }
 
@@ -502,8 +510,11 @@ public class Froguelike_GameManager : MonoBehaviour
         }
         player.SetHat(hatStyle);
 
-        // If character has pet, set pet style
-        player.SetPetActive(currentChapter.chapterData.hasPetFrog);
+        // If character has friend, set friend style
+        if (currentChapter.chapterData.hasFriend)
+        {
+            player.AddActiveFriend(currentChapter.chapterData.friendStyle);
+        }
 
         // Wait for 1.5 seconds, real time
         yield return new WaitForSecondsRealtime(1.5f);
@@ -573,7 +584,7 @@ public class Froguelike_GameManager : MonoBehaviour
 
     private void ClearAllItems()
     {
-        foreach (Froguelike_ItemInfo item in ownedItems)
+        foreach (ItemInfo item in ownedItems)
         {
             foreach (GameObject weaponGo in item.weaponsList)
             {
@@ -590,7 +601,7 @@ public class Froguelike_GameManager : MonoBehaviour
 
     public void ReinitializeChaptersList()
     {
-        currentPlayableChaptersList = new List<Froguelike_ChapterData>(allPlayableChaptersList);
+        currentPlayableChaptersList = new List<ChapterData>(allPlayableChaptersList);
     }
 
     public void InitializeStuff()

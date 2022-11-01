@@ -65,7 +65,7 @@ public class Froguelike_FliesManager : MonoBehaviour
 
                 int enemyCount = spawnPattern.spawnAmount;
                 Vector2 onUnitCircle = Random.insideUnitCircle.normalized * spawnDistanceFromPlayer * Random.Range(0.8f, 1.7f);
-                Vector3 position = Froguelike_GameManager.instance.player.transform.position + onUnitCircle.x * Vector3.right + onUnitCircle.y * Vector3.up;
+                Vector3 position = GameManager.instance.player.transform.position + onUnitCircle.x * Vector3.right + onUnitCircle.y * Vector3.up;
 
                 switch (patternType)
                 {
@@ -81,7 +81,7 @@ public class Froguelike_FliesManager : MonoBehaviour
                         float deltaAngle = 360.0f / enemyCount;
                         for (float angle = 0; angle < 360; angle += deltaAngle)
                         {
-                            position = Froguelike_GameManager.instance.player.transform.position + (Mathf.Cos(angle*Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(angle * Mathf.Deg2Rad) * Vector3.up) * spawnDistanceFromPlayer;
+                            position = GameManager.instance.player.transform.position + (Mathf.Cos(angle*Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(angle * Mathf.Deg2Rad) * Vector3.up) * spawnDistanceFromPlayer;
                             SpawnEnemy(enemyPrefab, position, enemyData);
                         }
                         break;
@@ -90,7 +90,7 @@ public class Froguelike_FliesManager : MonoBehaviour
                         for (int j = 0; j < enemyCount; j++)
                         {
                             onUnitCircle = Random.insideUnitCircle.normalized * spawnDistanceFromPlayer * Random.Range(0.8f, 1.7f);
-                            position = Froguelike_GameManager.instance.player.transform.position + onUnitCircle.x * Vector3.right + onUnitCircle.y * Vector3.up;
+                            position = GameManager.instance.player.transform.position + onUnitCircle.x * Vector3.right + onUnitCircle.y * Vector3.up;
                             SpawnEnemy(enemyPrefab, position, enemyData);
                         }
                         break;
@@ -159,7 +159,7 @@ public class Froguelike_FliesManager : MonoBehaviour
 
     private void Update()
     {
-        if (Froguelike_GameManager.instance.isGameRunning)
+        if (GameManager.instance.isGameRunning)
         {
             TrySpawnCurrentWave();
         }
@@ -183,7 +183,7 @@ public class Froguelike_FliesManager : MonoBehaviour
         // set starting velocity (always moving towards player)
         if (enemyData.movePattern == Froguelike_EnemyMovePattern.STRAIGHTLINE)
         {
-            newEnemy.moveDirection = (Froguelike_GameManager.instance.player.transform.position - newEnemy.enemyTransform.position).normalized;
+            newEnemy.moveDirection = (GameManager.instance.player.transform.position - newEnemy.enemyTransform.position).normalized;
             SetEnemyVelocity(newEnemy);
         }
     }
@@ -228,7 +228,7 @@ public class Froguelike_FliesManager : MonoBehaviour
         }
         foreach (int id in enemiesToDestroyIDList)
         {
-            Froguelike_GameManager.instance.SpawnDestroyParticleEffect(allActiveEnemiesDico[id].enemyTransform.position);
+            GameManager.instance.SpawnDestroyParticleEffect(allActiveEnemiesDico[id].enemyTransform.position);
             Destroy(allActiveEnemiesDico[id].enemyTransform.gameObject);
             allActiveEnemiesDico.Remove(id);
         }
@@ -238,9 +238,9 @@ public class Froguelike_FliesManager : MonoBehaviour
 
     public void UpdateAllEnemies()
     {
-        if (Froguelike_GameManager.instance.isGameRunning)
+        if (GameManager.instance.isGameRunning)
         {
-            Transform playerTransform = Froguelike_GameManager.instance.player.transform;
+            Transform playerTransform = GameManager.instance.player.transform;
             List<int> enemiesToDestroyIDList = new List<int>();
             foreach (KeyValuePair<int, Froguelike_EnemyInstance> enemyInfo in allActiveEnemiesDico)
             {
@@ -252,13 +252,13 @@ public class Froguelike_FliesManager : MonoBehaviour
                     {
                         // enemy is dead
                         enemy.moveDirection = (playerTransform.position - enemy.enemyTransform.position).normalized;
-                        enemy.enemyRigidbody.velocity = 2 * enemy.moveDirection * Froguelike_GameManager.instance.player.landSpeed;
+                        enemy.enemyRigidbody.velocity = 2 * enemy.moveDirection * GameManager.instance.player.landSpeed;
                         float distanceWithPlayer = Vector2.Distance(playerTransform.position, enemy.enemyTransform.position);
                         if (distanceWithPlayer < 1)
                         {
                             enemy.enemyRenderer.enabled = false;
                             enemy.active = false;
-                            Froguelike_GameManager.instance.EatFly(enemyData.xPBonus * (enemyXPFactor + curse));
+                            GameManager.instance.EatFly(enemyData.xPBonus * (enemyXPFactor + curse));
                             enemiesToDestroyIDList.Add(enemyInfo.Key);
                         }
                     }

@@ -57,7 +57,7 @@ public class Froguelike_MapBehaviour : MonoBehaviour
         foreach (GameObject go in gameObjectsToDestroyList)
         {
             Destroy(go);
-            Froguelike_GameManager.instance.SpawnDestroyParticleEffect(go.transform.position);
+            GameManager.instance.SpawnDestroyParticleEffect(go.transform.position);
         }
     }
 
