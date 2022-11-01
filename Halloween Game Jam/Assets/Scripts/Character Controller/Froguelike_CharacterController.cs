@@ -23,7 +23,7 @@ public class Froguelike_CharacterController : MonoBehaviour
     public float maxHealth = 100;
     public float healthRecovery = 0.01f;
     [Space]
-    [Range(0,0.5f)]
+    [Range(0, 0.5f)]
     public float armorBoost = 0;
     [Range(0, 1)]
     public float experienceBoost = 0;
@@ -134,7 +134,7 @@ public class Froguelike_CharacterController : MonoBehaviour
     public void ResolvePickedItemLevel(Froguelike_ItemLevel itemLevelData)
     {
         Froguelike_FliesManager.instance.curse += itemLevelData.curseBoost;
-        
+
         // character stats
         armorBoost += itemLevelData.armorBoost;
         experienceBoost += itemLevelData.experienceBoost;
@@ -156,7 +156,7 @@ public class Froguelike_CharacterController : MonoBehaviour
         attackMaxFliesBoost += itemLevelData.attackMaxFliesBoost;
         attackRangeBoost += itemLevelData.attackRangeBoost;
         attackSpeedBoost += itemLevelData.attackSpeedBoost;
-       
+
         if (itemLevelData.recoverHealth > 0)
         {
             currentHealth += Mathf.Clamp(currentHealth + itemLevelData.recoverHealth, 0, maxHealth);
@@ -175,6 +175,21 @@ public class Froguelike_CharacterController : MonoBehaviour
     {
         UpdateHorizontalInput();
         UpdateVerticalInput();
+
+        if (Mathf.Abs(HorizontalInput) > 0 || Mathf.Abs(VerticalInput) > 0)
+        {
+            if (!animator.GetBool("IsMoving"))
+            {
+                animator.SetBool("IsMoving", true);
+            }
+        }
+        else
+        {
+            if (animator.GetBool("IsMoving"))
+            {
+                animator.SetBool("IsMoving", false);
+            }
+        }
 
         if (invincibilityTime > 0)
         {
@@ -196,7 +211,7 @@ public class Froguelike_CharacterController : MonoBehaviour
         {
             weaponTransform.GetComponent<Froguelike_TongueBehaviour>().SetTonguePosition(weaponStartPoint);
         }
-        
+
         if (isPetActive)
         {
             float petOrientationAngle = 90 + 90 * Mathf.RoundToInt((Vector2.SignedAngle(petGo.GetComponent<Rigidbody2D>().velocity.normalized, Vector2.right)) / 90);
@@ -221,7 +236,7 @@ public class Froguelike_CharacterController : MonoBehaviour
         }
         if (style > 0)
         {
-            hatsGoList[((style-1) % hatsGoList.Count)].SetActive(true);
+            hatsGoList[((style - 1) % hatsGoList.Count)].SetActive(true);
         }
     }
 
@@ -259,7 +274,7 @@ public class Froguelike_CharacterController : MonoBehaviour
         if (collision.collider.CompareTag("Fly") && Froguelike_GameManager.instance.isGameRunning && invincibilityTime <= 0)
         {
             float damage = Froguelike_FliesManager.instance.GetEnemyDataFromName(collision.gameObject.name).damage * Froguelike_FliesManager.instance.enemyDamageFactor;
-            damage = damage * (1-armorBoost);
+            damage = damage * (1 - armorBoost);
             ChangeHealth(-damage);
         }
     }
