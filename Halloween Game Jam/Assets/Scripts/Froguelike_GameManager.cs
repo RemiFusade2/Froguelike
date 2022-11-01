@@ -39,6 +39,8 @@ public class Froguelike_GameManager : MonoBehaviour
 
     [Header("Chapters data")]
     public List<Froguelike_ChapterData> allPlayableChaptersList;
+    [Space]
+    public List<string> possibleMorals;
 
     [Header("Characters data")]
     public List<Froguelike_PlayableCharacterInfo> playableCharactersList;
@@ -78,11 +80,14 @@ public class Froguelike_GameManager : MonoBehaviour
     private float nextLevelXp = 5;
     private float xpNeededForNextLevelFactor = 1.5f;
 
+    private List<CharacterData> unlockedCharacters;
+
     private void Awake()
     {
         instance = this;
         hasGameStarted = false;
         isGameRunning = false;
+        unlockedCharacters = new List<CharacterData>();
     }
 
     // Start is called before the first frame update
@@ -541,10 +546,16 @@ public class Froguelike_GameManager : MonoBehaviour
         Froguelike_UIManager.instance.SetExtraLives(player.revivals);
     }
 
+    private string GetRandomMoral()
+    {
+        return possibleMorals[Random.Range(0, possibleMorals.Count)];
+    }
+
     public void ShowScores()
     {
         chaptersPlayed.Add(currentChapter);
-        Froguelike_UIManager.instance.ShowScoreScreen(chaptersPlayed, ownedItems);
+        string moral = GetRandomMoral();
+        Froguelike_UIManager.instance.ShowScoreScreen(chaptersPlayed, moral, ownedItems, unlockedCharacters);
     }
 
     public void BackToTitleScreen()

@@ -181,7 +181,7 @@ public class Froguelike_UIManager : MonoBehaviour
         PlayLongPageSound();
     }
 
-    public void ShowScoreScreen(List<Froguelike_ChapterInfo> chaptersInfoList, List<Froguelike_ItemInfo> itemsInfoList)
+    public void ShowScoreScreen(List<Froguelike_ChapterInfo> chaptersInfoList, string moral, List<Froguelike_ItemInfo> itemsInfoList, List<CharacterData> unlockedCharacters)
     {
         HideAllScreens();
 
@@ -205,6 +205,9 @@ public class Froguelike_UIManager : MonoBehaviour
             }
         }
         totalScoreText.text = totalScore.ToString();
+
+        // Display random moral
+        moralText.text = moral;
 
         // Display all items and their level
         string allItemsNames = "";
@@ -240,6 +243,16 @@ public class Froguelike_UIManager : MonoBehaviour
         upgradesText.text = allItemsNames;
         upgradesLevelsText.text = allItemsLevels;
 
+        // Display unlocked character info
+        unlockPanel.SetActive(false);
+        if (unlockedCharacters.Count > 0)
+        {
+            CharacterData unlockedCharacter = unlockedCharacters[0];
+            unlockPanel.SetActive(true);
+            unlockedCharacterName.text = unlockedCharacter.characterName;
+            unlockedCharacterImage.sprite = unlockedCharacter.characterSprite;
+        }
+        
         scoreScreen.SetActive(true);
         PlayLongPageSound();
     }
