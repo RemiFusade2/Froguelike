@@ -52,8 +52,13 @@ public class Froguelike_UIManager : MonoBehaviour
     public List<Text> chaptersTextList;
     public List<Text> chaptersScoreTextList;
     public Text totalScoreText;
+    public Text moralText;
+    [Space]
     public Text upgradesText;
     public Text upgradesLevelsText;
+    public GameObject unlockPanel;
+    public Text unlockedCharacterName;
+    public Image unlockedCharacterImage;
 
     [Header("Level UP Panel")]
     public GameObject levelUpPanel;
@@ -127,8 +132,9 @@ public class Froguelike_UIManager : MonoBehaviour
             {
                 Froguelike_PlayableCharacterInfo characterInfo = playableCharactersList[i];
                 charactersButtonsList[i].interactable = characterInfo.unlocked;
-                charactersNamesTextList[i].text = (characterInfo.unlocked ? characterInfo.characterName : "???");
-                string description = (characterInfo.unlocked ? characterInfo.characterDescription : characterInfo.unlockHint);
+                charactersNamesTextList[i].text = (characterInfo.unlocked ? characterInfo.characterData.characterName : "???");
+                charactersImagesList[i].sprite = characterInfo.characterData.characterSprite;
+                string description = (characterInfo.unlocked ? characterInfo.characterData.characterDescription : ("UNLOCK: " + characterInfo.characterData.unlockHint));
                 description = description.Replace("\\n", "\n");
                 charactersDescriptionTextList[i].text = description;
                 charactersImagesList[i].enabled = characterInfo.unlocked;

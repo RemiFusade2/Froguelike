@@ -21,22 +21,8 @@ public class Froguelike_ChapterInfo
 [System.Serializable]
 public class Froguelike_PlayableCharacterInfo
 {
+    public CharacterData characterData;
     public bool unlocked;
-
-    public string characterName;
-    public string characterDescription;
-    public string unlockHint;
-
-    public int characterAnimatorValue;
-    public float startingLandSpeed;
-    public float startingSwimSpeed;
-    public float startingMaxHealth;
-    public float startingHealthRecovery;
-
-    public float startingArmor;
-    public int startingRevivals;
-
-    public Froguelike_ItemScriptableObject startingWeapon;
 }
 public class Froguelike_GameManager : MonoBehaviour
 {
@@ -413,8 +399,8 @@ public class Froguelike_GameManager : MonoBehaviour
         chaptersPlayed = new List<Froguelike_ChapterInfo>();
         Froguelike_UIManager.instance.ShowChapterSelection(1, selectionOfNextChaptersList);
 
-        player.InitializeCharacter(currentPlayedCharacter);
-        PickItem(currentPlayedCharacter.startingWeapon);
+        player.InitializeCharacter(currentPlayedCharacter.characterData);
+        PickItem(currentPlayedCharacter.characterData.startingWeapon);
     }
 
     public void SelectChapter(int index)

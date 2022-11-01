@@ -108,18 +108,18 @@ public class Froguelike_CharacterController : MonoBehaviour
         animator.SetInteger("character", isGhost ? 2 : animatorCharacterValue);
     }
 
-    public void InitializeCharacter(Froguelike_PlayableCharacterInfo characterInfo)
+    public void InitializeCharacter(CharacterData characterData)
     {
-        SetAnimatorCharacterValue(characterInfo.characterAnimatorValue);
+        SetAnimatorCharacterValue(characterData.characterAnimatorValue);
 
-        healthRecovery = characterInfo.startingHealthRecovery;
+        healthRecovery = characterData.startingHealthRecovery;
 
-        landSpeed = characterInfo.startingLandSpeed;
-        swimSpeed = characterInfo.startingSwimSpeed;
-        maxHealth = characterInfo.startingMaxHealth;
+        landSpeed = characterData.startingLandSpeed;
+        swimSpeed = characterData.startingSwimSpeed;
+        maxHealth = characterData.startingMaxHealth;
 
-        armorBoost = characterInfo.startingArmor;
-        revivals = characterInfo.startingRevivals;
+        armorBoost = characterData.startingArmor;
+        revivals = characterData.startingRevivals;
         Froguelike_UIManager.instance.SetExtraLives(revivals);
 
         attackCooldownBoost = 0;
