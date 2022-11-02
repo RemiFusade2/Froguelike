@@ -253,6 +253,7 @@ public class Froguelike_UIManager : MonoBehaviour
             unlockedCharacterImage.sprite = unlockedCharacter.characterSprite;
         }
         
+        // Display score screen
         scoreScreen.SetActive(true);
         PlayLongPageSound();
     }

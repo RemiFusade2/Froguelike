@@ -23,7 +23,8 @@ public class Froguelike_CharacterController : MonoBehaviour
     public Transform weaponStartPoint;
     public Transform healthBar;
     [Space]
-    public List<GameObject> hatsGoList;
+    public List<SpriteRenderer> hatRenderersList;
+    public List<Sprite> hatSpritesList;
 
     [Header("Character data")]
     public float landSpeed;
@@ -264,15 +265,24 @@ public class Froguelike_CharacterController : MonoBehaviour
         }
     }
 
-    public void SetHat(int style)
+    public void ClearHats()
     {
-        foreach (GameObject hatGo in hatsGoList)
+        foreach (SpriteRenderer hatRenderer in hatRenderersList)
         {
-            hatGo.SetActive(false);
+            hatRenderer.gameObject.SetActive(false);
         }
-        if (style > 0)
+    }
+
+    public void AddHat(int style)
+    {
+        foreach (SpriteRenderer hatRenderer in hatRenderersList)
         {
-            hatsGoList[((style - 1) % hatsGoList.Count)].SetActive(true);
+            if (!hatRenderer.gameObject.activeInHierarchy)
+            {
+                hatRenderer.gameObject.SetActive(true);
+                hatRenderer.sprite = hatSpritesList[((style - 1) % hatSpritesList.Count)];
+                break;
+            }
         }
     }
 

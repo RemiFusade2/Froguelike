@@ -6312,15 +6312,15 @@ MonoBehaviour:
   - characterData: {fileID: 11400000, guid: 48bf8a1f6fb11cd4aba4d9e2e54c2f11, type: 2}
     unlocked: 1
   - characterData: {fileID: 11400000, guid: 2d0ffd1520e0bd243a6ee158e1719242, type: 2}
-    unlocked: 1
+    unlocked: 0
   - characterData: {fileID: 11400000, guid: 8532a20df8a530548b6aa40feab1c90b, type: 2}
-    unlocked: 1
+    unlocked: 0
   - characterData: {fileID: 11400000, guid: 5ab0e6d6ba86eaa49b03dd06719d4e52, type: 2}
-    unlocked: 1
+    unlocked: 0
   - characterData: {fileID: 11400000, guid: 319522fbb809eaf409fdbb5b2262cf2f, type: 2}
-    unlocked: 1
+    unlocked: 0
   - characterData: {fileID: 11400000, guid: 63cab506d07186443bfd2babb7702689, type: 2}
-    unlocked: 1
+    unlocked: 0
   availableItems:
   - {fileID: 11400000, guid: 2e0410ebc0758f24c8d266b9f1bf12f6, type: 2}
   - {fileID: 11400000, guid: 4021146edf4f42d41a036d5443273ba2, type: 2}
@@ -6349,6 +6349,7 @@ MonoBehaviour:
   deathEnemyData: {fileID: 11400000, guid: 1c49aab4868b59c44a26f5d0441acb5b, type: 2}
   startLevelXp: 5
   startXpNeededForNextLevelFactor: 1.1
+  saveFileName: froguelikeSaveFile
   hasGameStarted: 0
   isGameRunning: 0
   chapterRemainingTime: 0
@@ -6961,7 +6962,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 664096492}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.535, z: 0}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9893,6 +9894,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3767166972506915067, guid: 3ddeb7e08834c974d8cd1098457130b6, type: 3}
   m_PrefabInstance: {fileID: 1117810502}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1123195671
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1123195672}
+  m_Layer: 0
+  m_Name: Hat position 1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1123195672
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1123195671}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.1875, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1127068949}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1127068948
 GameObject:
   m_ObjectHideFlags: 0
@@ -9930,6 +9962,7 @@ Transform:
   - {fileID: 1850933531}
   - {fileID: 2084589941}
   - {fileID: 1207251983}
+  - {fileID: 1123195672}
   m_Father: {fileID: 1377549577}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -10021,10 +10054,11 @@ MonoBehaviour:
   weaponsParent: {fileID: 1612635252}
   weaponStartPoint: {fileID: 664096493}
   healthBar: {fileID: 697158258}
-  hatsGoList:
-  - {fileID: 1850933530}
-  - {fileID: 2084589940}
-  - {fileID: 1207251982}
+  hatRenderersList:
+  - {fileID: 1850933532}
+  - {fileID: 2084589942}
+  - {fileID: 1207251984}
+  hatSpritesList: []
   landSpeed: 5
   swimSpeed: 3
   currentHealth: 100
@@ -10597,7 +10631,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1207251983
 Transform:
   m_ObjectHideFlags: 0
@@ -10606,7 +10640,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1207251982}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.1875, z: 0}
+  m_LocalPosition: {x: 0, y: -0.8125, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10653,7 +10687,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 100
+  m_SortingOrder: 13
   m_Sprite: {fileID: 21300000, guid: 80ef4ef9c2cc9524c9bc2c09abc6f2db, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -19703,7 +19737,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1850933531
 Transform:
   m_ObjectHideFlags: 0
@@ -19759,7 +19793,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 100
+  m_SortingOrder: 11
   m_Sprite: {fileID: 21300000, guid: e2476706cb932544ba6742e1ef9affd2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -21938,7 +21972,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2084589941
 Transform:
   m_ObjectHideFlags: 0
@@ -21947,7 +21981,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2084589940}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.1875, z: 0}
+  m_LocalPosition: {x: 0, y: -0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -21994,7 +22028,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 100
+  m_SortingOrder: 12
   m_Sprite: {fileID: 21300000, guid: b3270297934ecb9458e1d7e2060cc88b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

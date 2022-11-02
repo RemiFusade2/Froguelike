@@ -1,6 +1,111 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
+
+
+public class SaveData
+{
+    public List<int> unlockedCharacterIndexList;
+    public List<int> wonTheGameWithCharacterIndexList;
+
+    public int deathCount;
+    public int bestScore;
+    public int cumulatedScore;
+
+    public int attempts;
+    public int wins;
+    
+    /// <summary>
+    /// Constructor, initialize everything at zero
+    /// </summary>
+    public SaveData()
+    {
+        unlockedCharacterIndexList = new List<int>();
+        wonTheGameWithCharacterIndexList = new List<int>();
+        deathCount = 0;
+        bestScore = 0;
+        cumulatedScore = 0;
+        attempts = 0;
+        wins = 0;
+    }
+
+    /// <summary>
+    /// Try to save data into a save file from a SaveData object.
+    /// </summary>
+    /// <param name="saveFileName"></param>
+    /// <param name="saveDataObject"></param>
+    /// <returns>true if file was saved correctly</returns>
+    public static bool Save(string saveFileName, SaveData saveDataObject)
+    {
+        return saveDataObject.Save(saveFileName);
+    }
+
+    public bool Save(string saveFileName)
+    {
+        string saveFilePath = GetFilePath(saveFileName);
+        Debug.Log("Debug info - Saving at: " + saveFilePath);
+        bool result = false;
+        try
+        {
+            string jsonData = JsonUtility.ToJson(this);
+            File.WriteAllText(saveFilePath, jsonData);
+            result = true;
+            Debug.Log("Debug info - Saved successfully");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning("Exception in Save(): " + ex.Message);
+        }
+        return result;
+    }
+
+
+
+    private void OverwriteFromJsonData(string savedData)
+    {
+        JsonUtility.FromJsonOverwrite(savedData, this);
+    }
+
+    /// <summary>
+    /// Try to load a save file and create a SaveData object assuming the save file exists and contains valid JSON info.
+    /// </summary>
+    /// <param name="saveFileName"></param>
+    /// <param name="saveDataObject"></param>
+    /// <returns>true if success, false if failed</returns>
+    public static bool Load(string saveFileName, out SaveData saveDataObject)
+    {
+        bool success = false;
+        string saveFilePath = GetFilePath(saveFileName);
+        Debug.Log("Debug info - Loading: " + saveFilePath);
+        saveDataObject = null;
+        try
+        {
+            if (File.Exists(saveFilePath))
+            {
+                string jsonData = File.ReadAllText(saveFilePath);
+                saveDataObject = new SaveData();
+                saveDataObject.OverwriteFromJsonData(jsonData);
+                success = true;
+                Debug.Log("Debug info - loaded successfully");
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning("Exception in Load(): " + ex.Message);
+        }
+        if (!success)
+        {
+            saveDataObject = null;
+        }
+        return success;
+    }
+
+    private static string GetFilePath(string saveFileName)
+    {
+        return Application.persistentDataPath + "/" + saveFileName + ".json";
+    }
+}
 
 [System.Serializable]
 public class ItemInfo
@@ -59,6 +164,9 @@ public class GameManager : MonoBehaviour
     public float startLevelXp = 5;
     public float startXpNeededForNextLevelFactor = 1.5f;
 
+    [Header("Save")]
+    public string saveFileName;
+    
     [Header("Runtime")]
     public bool hasGameStarted;
     public bool isGameRunning;
@@ -80,14 +188,38 @@ public class GameManager : MonoBehaviour
     private float nextLevelXp = 5;
     private float xpNeededForNextLevelFactor = 1.5f;
 
-    private List<CharacterData> unlockedCharacters;
+    private List<int> unlockedCharactersIndex;
+
+    private SaveData currentSavedData;
+
+    #region Save
+
+    public void SaveDataToFile()
+    {
+        currentSavedData.Save(saveFileName);
+    }
+
+    public void TryLoadDataFromFile()
+    {
+        SaveData loadedData;
+        if (SaveData.Load(saveFileName, out loadedData))
+        {
+            currentSavedData = loadedData;
+        }
+        else
+        {
+            currentSavedData = new SaveData();
+            SaveDataToFile();
+        }
+    }
+
+    #endregion
 
     private void Awake()
     {
         instance = this;
         hasGameStarted = false;
         isGameRunning = false;
-        unlockedCharacters = new List<CharacterData>();
     }
 
     // Start is called before the first frame update
@@ -130,6 +262,8 @@ public class GameManager : MonoBehaviour
         Froguelike_FliesManager.instance.enemySpeedFactor = 1;
         Froguelike_FliesManager.instance.enemyXPFactor = 1;
         Froguelike_FliesManager.instance.curse = 0;
+
+        unlockedCharactersIndex = new List<int>();
 
         ClearAllItems();
         TeleportToStart();
@@ -502,13 +636,11 @@ public class GameManager : MonoBehaviour
         // If character is ghost in that chapter, force it to ghost sprite
         player.ForceGhost(currentChapter.chapterData.isCharacterGhost);
 
-        // If character has hat, set hat style
-        int hatStyle = 0;
+        // Add hat if needed
         if (currentChapter.chapterData.hasHat)
         {
-            hatStyle = currentChapter.chapterData.hatStyle;
+            player.AddHat(currentChapter.chapterData.hatStyle);
         }
-        player.SetHat(hatStyle);
 
         // If character has friend, set friend style
         if (currentChapter.chapterData.hasFriend)
@@ -545,6 +677,9 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0;
         isGameRunning = false;
         Froguelike_UIManager.instance.ShowGameOver((player.revivals > 0));
+        currentSavedData.deathCount++;
+        CheckForUnlockingCharacters();
+        SaveDataToFile();
     }
 
     public void Respawn()
@@ -562,10 +697,54 @@ public class GameManager : MonoBehaviour
         return possibleMorals[Random.Range(0, possibleMorals.Count)];
     }
 
+    private void CheckForUnlockingCharacters()
+    {
+        // Ghost frog
+        if (!playableCharactersList[2].unlocked)
+        {
+            if (currentSavedData.deathCount >= 15)
+            {
+                // Unlock ghost after dying 15 times
+                unlockedCharactersIndex.Add(2);
+                playableCharactersList[2].unlocked = true;
+            }
+        }
+
+        // Poisonous frog
+        if (chaptersPlayed.Count >= 6 && !playableCharactersList[3].unlocked)
+        {
+            foreach (ItemInfo item in ownedItems)
+            {
+                if (item.item.itemName.Equals("Vampire Tongue") && item.level >= item.item.levels.Count)
+                {
+                    // Unlock poisonous frog after wining a game (all 6 chapters) with a maxed out vampire tongue
+                    unlockedCharactersIndex.Add(3);
+                    playableCharactersList[3].unlocked = true;
+                    break;
+                }
+            }
+        }
+
+        // Swimming frog
+        Debug.LogError("Unlock character is not implemented");
+
+        /*
+        - unlock swimming frog after staying a whole chapter in water
+        - unlock tomato frog after getting all the 4 pets and wining the game
+        - unlock Stanley after wining the game with tomato frog */
+    }
+
     public void ShowScores()
     {
         chaptersPlayed.Add(currentChapter);
         string moral = GetRandomMoral();
+
+        List<CharacterData> unlockedCharacters = new List<CharacterData>();
+        foreach (int unlockedCharacterIndex in unlockedCharactersIndex)
+        {
+            unlockedCharacters.Add(playableCharactersList[unlockedCharacterIndex].characterData);
+        }
+
         Froguelike_UIManager.instance.ShowScoreScreen(chaptersPlayed, moral, ownedItems, unlockedCharacters);
     }
 
@@ -606,6 +785,14 @@ public class GameManager : MonoBehaviour
 
     public void InitializeStuff()
     {
+        TryLoadDataFromFile();
+
+        List<int> unlockedCharacterIndexList = currentSavedData.unlockedCharacterIndexList;
+        foreach (int unlockedCharacter in currentSavedData.unlockedCharacterIndexList)
+        {
+            playableCharactersList[unlockedCharacter].unlocked = true;
+        }
+
         ReinitializeChaptersList();
     }
 
