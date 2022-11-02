@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class Froguelike_UIManager : MonoBehaviour
@@ -89,6 +90,7 @@ public class Froguelike_UIManager : MonoBehaviour
 
     private void HideAllScreens()
     {
+        EventSystem.current.SetSelectedGameObject(null);
         titleScreen.SetActive(false);
         characterSelectionScreen.SetActive(false);
         chapterSelectionScreen.SetActive(false);
@@ -277,12 +279,8 @@ public class Froguelike_UIManager : MonoBehaviour
 
     public void UpdateXPSlider(float xp, float maxXp)
     {
-        //Debug.Log("Call UpdateXPSlider(" + xp + " ," + maxXp);
-
         xpSlider.maxValue = maxXp;
         xpSlider.value = xp;
-
-        //Debug.Log("After UpdateXPSlider. xpSlider.maxValue = " + xpSlider.maxValue + " , xpSlider.value = " + xpSlider.value);
     }
 
     public void UpdateLevel(int level)
@@ -299,6 +297,7 @@ public class Froguelike_UIManager : MonoBehaviour
 
     public void ShowLevelUpItemSelection(List<ItemScriptableObject> possibleItems, List<int> itemLevels)
     {
+        EventSystem.current.SetSelectedGameObject(null);
         PlaySlideBookSound();
         levelUpPanel.SetActive(true);
         levelUpPanelAnimator.SetBool("Visible", true);
