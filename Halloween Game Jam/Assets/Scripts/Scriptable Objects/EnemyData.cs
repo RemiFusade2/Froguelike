@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public enum Froguelike_EnemyMovePattern
+public enum EnemyMovePattern
 {
     NO_MOVEMENT,
     STRAIGHTLINE,
@@ -12,16 +12,18 @@ public enum Froguelike_EnemyMovePattern
 
 [System.Serializable]
 [CreateAssetMenu(fileName = "Enemy Data", menuName = "ScriptableObjects/Froguelike/Enemy Data", order = 1)]
-public class Froguelike_EnemyData : ScriptableObject
+public class EnemyData : ScriptableObject
 {
     public string ID;
 
-    public Froguelike_EnemyMovePattern movePattern;
+    public EnemyMovePattern movePattern;
 
-    public int maxHP;
+    public float maxHP;
     public int xPBonus;
     public float moveSpeed;
     public float damage;
+
+    public bool instantlyEndChapter;
 
     public GameObject prefab;
 }
