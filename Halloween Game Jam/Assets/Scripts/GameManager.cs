@@ -156,9 +156,8 @@ public class GameManager : MonoBehaviour
     public int maxWeaponCount = 3;
     public int maxNonWeaponCount = 5;
 
-    [Header("Death Enemy data")]
-    public GameObject deathEnemyPrefab;
-    public Froguelike_EnemyData deathEnemyData;
+    [Header("Final Chapter data")]
+    public ChapterData finalChapter;
 
     [Header("XP")]
     public float startLevelXp = 5;
@@ -253,6 +252,7 @@ public class GameManager : MonoBehaviour
         xpNeededForNextLevelFactor = startXpNeededForNextLevelFactor;
 
         player.ClearFriends();
+        player.ClearHats();
 
         Froguelike_UIManager.instance.UpdateLevel(level);
         Froguelike_UIManager.instance.UpdateXPSlider(xp, xpNeededForNextLevelFactor);
@@ -269,21 +269,27 @@ public class GameManager : MonoBehaviour
         TeleportToStart();
     }
 
-    public void EatFly(float experiencePoints)
+    public void EatFly(float experiencePoints, bool instantlyEndChapter = false)
     {
-        xp += (experiencePoints * (1 + player.experienceBoost));
-
-        if (xp >= nextLevelXp)
-        {
-            LevelUP();
-            xp -= nextLevelXp;
-            nextLevelXp *= xpNeededForNextLevelFactor;
-        }
-
         currentChapter.enemiesKilledCount++;
-        Froguelike_UIManager.instance.SetEatenCount(currentChapter.enemiesKilledCount);
+        if (instantlyEndChapter)
+        {
+            EndChapter();
+        }
+        else
+        {
+            xp += (experiencePoints * (1 + player.experienceBoost));
+            if (xp >= nextLevelXp)
+            {
+                LevelUP();
+                xp -= nextLevelXp;
+                nextLevelXp *= xpNeededForNextLevelFactor;
+            }
 
-        Froguelike_UIManager.instance.UpdateXPSlider(xp, nextLevelXp);
+            Froguelike_UIManager.instance.SetEatenCount(currentChapter.enemiesKilledCount);
+
+            Froguelike_UIManager.instance.UpdateXPSlider(xp, nextLevelXp);
+        }
     }
 
     #region Level Up
@@ -565,28 +571,38 @@ public class GameManager : MonoBehaviour
 
     public void EndChapter()
     {
-        if (currentChapter.chapterData.unlocksACharacter)
-        {
-            playableCharactersList[currentChapter.chapterData.unlockedCharacterIndex].unlocked = true;
-        }
+        // Add current played chapter to the list
+        chaptersPlayed.Add(currentChapter);
+        // Check for possibly having unlocked characters
+        CheckForUnlockingCharacters();
 
-        if (chaptersPlayed.Count < 5)
+        // Stop time
+        Time.timeScale = 0;
+        chapterRemainingTime = 120;
+
+        if (chaptersPlayed.Count >= 6)
         {
-            chaptersPlayed.Add(currentChapter);
+            // This was the final chapter
+            // Game must end now and display Score
+            ShowScores();
         }
-        if (chaptersPlayed.Count < 5)
+        else if (chaptersPlayed.Count == 5)
         {
-            Time.timeScale = 0;
-            chapterRemainingTime = 120;
-            SelectNextPossibleChapters(3);
-            Froguelike_UIManager.instance.ShowChapterSelection(chaptersPlayed.Count + 1, selectionOfNextChaptersList);
+            // This was the chapter before the last, we must now start the last chapter (it is forced)
+            chapterRemainingTime = finalChapter.chapterLengthInSeconds;
+            Froguelike_FliesManager.instance.ClearAllEnemies();
+            ChapterInfo chapterInfo = new ChapterInfo();
+            chapterInfo.chapterData = finalChapter;
+            chapterInfo.chapterCount = 6;
+            chapterInfo.enemiesKilledCount = 0;
+            currentChapter = chapterInfo;
+            StartCoroutine(StartChapter(chapterInfo.chapterCount));
         }
         else
         {
-            chapterRemainingTime = 4 * 60 + 59;
-            Froguelike_FliesManager.instance.ClearAllEnemies();
-            Froguelike_FliesManager.instance.SpawnEnemy(deathEnemyPrefab, player.transform.position + 30 * Vector3.right, deathEnemyData);
-            map.ClearRocks();
+            // This was a chapter before 5th, so we offer a choice between 3 chapters for the next one
+            SelectNextPossibleChapters(3);
+            Froguelike_UIManager.instance.ShowChapterSelection(chaptersPlayed.Count + 1, selectionOfNextChaptersList);
         }
     }
 
@@ -734,9 +750,21 @@ public class GameManager : MonoBehaviour
         - unlock Stanley after wining the game with tomato frog */
     }
 
+    public void GiveUp()
+    {
+        // Add current played chapter to the list
+        chaptersPlayed.Add(currentChapter);
+
+        // Maybe unlock some characters if conditions are met
+        CheckForUnlockingCharacters();
+
+        // Show score screen
+        ShowScores();
+    }
+
     public void ShowScores()
     {
-        chaptersPlayed.Add(currentChapter);
+        Time.timeScale = 0;
         string moral = GetRandomMoral();
 
         List<CharacterData> unlockedCharacters = new List<CharacterData>();
@@ -775,7 +803,7 @@ public class GameManager : MonoBehaviour
 
     private void TeleportToStart()
     {
-        player.transform.localPosition = Vector3.zero;
+        player.ResetPosition();
     }
 
     public void ReinitializeChaptersList()

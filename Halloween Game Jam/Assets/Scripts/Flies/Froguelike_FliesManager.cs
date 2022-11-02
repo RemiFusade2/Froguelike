@@ -23,7 +23,7 @@ public class Froguelike_FliesManager : MonoBehaviour
     public Transform enemiesParent;
 
     [Header("Data")]
-    public List<Froguelike_EnemyData> enemiesDataList;
+    public List<EnemyData> enemiesDataList;
 
     [Header("Prefabs")]
     public GameObject damageTextPrefab;
@@ -44,7 +44,7 @@ public class Froguelike_FliesManager : MonoBehaviour
 
     // private
     private List<float> lastSpawnTimesList;
-    private Dictionary<string, Froguelike_EnemyData> enemiesDataDico;
+    private Dictionary<string, EnemyData> enemiesDataDico;
     private Dictionary<int, Froguelike_EnemyInstance> allActiveEnemiesDico;
 
     public void TrySpawnCurrentWave()
@@ -53,7 +53,7 @@ public class Froguelike_FliesManager : MonoBehaviour
         {
             float delayBetweenSpawns = currentWave.spawnDelays[i] * (1 - curse);
             Froguelike_SpawnPattern spawnPattern = currentWave.spawnPatterns[i];
-            Froguelike_EnemyData enemyData = currentWave.spawnEnemies[i];
+            EnemyData enemyData = currentWave.spawnEnemies[i];
             float lastSpawnTime = lastSpawnTimesList[i];
 
             if ((Time.time - lastSpawnTime) > delayBetweenSpawns)
@@ -102,7 +102,7 @@ public class Froguelike_FliesManager : MonoBehaviour
         }
     }
 
-    public void SpawnEnemy(GameObject prefab, Vector3 position, Froguelike_EnemyData enemyData)
+    public void SpawnEnemy(GameObject prefab, Vector3 position, EnemyData enemyData)
     {
         GameObject newSpawn = Instantiate(prefab, position, Quaternion.identity, enemiesParent);
         AddEnemy(newSpawn.transform, enemyData);
@@ -129,7 +129,7 @@ public class Froguelike_FliesManager : MonoBehaviour
         return GetEnemyInfo(ID);
     }
 
-    public Froguelike_EnemyData GetEnemyDataFromName(string name)
+    public EnemyData GetEnemyDataFromName(string name)
     {
         int ID = int.Parse(name);
         Froguelike_EnemyInstance instance = GetEnemyInfo(ID);
@@ -145,8 +145,8 @@ public class Froguelike_FliesManager : MonoBehaviour
     void Start()
     {
         lastSpawnTimesList = new List<float>();
-        enemiesDataDico = new Dictionary<string, Froguelike_EnemyData>();
-        foreach (Froguelike_EnemyData enemyData in enemiesDataList)
+        enemiesDataDico = new Dictionary<string, EnemyData>();
+        foreach (EnemyData enemyData in enemiesDataList)
         {
             enemiesDataDico.Add(enemyData.ID, enemyData);
         }
@@ -165,7 +165,7 @@ public class Froguelike_FliesManager : MonoBehaviour
         }
     }
 
-    public void AddEnemy(Transform enemyTransform, Froguelike_EnemyData enemyData)
+    public void AddEnemy(Transform enemyTransform, EnemyData enemyData)
     {
         Froguelike_EnemyInstance newEnemy = new Froguelike_EnemyInstance();
 
@@ -181,7 +181,7 @@ public class Froguelike_FliesManager : MonoBehaviour
         allActiveEnemiesDico.Add(lastKey, newEnemy);
 
         // set starting velocity (always moving towards player)
-        if (enemyData.movePattern == Froguelike_EnemyMovePattern.STRAIGHTLINE)
+        if (enemyData.movePattern == EnemyMovePattern.STRAIGHTLINE)
         {
             newEnemy.moveDirection = (GameManager.instance.player.transform.position - newEnemy.enemyTransform.position).normalized;
             SetEnemyVelocity(newEnemy);
@@ -245,7 +245,7 @@ public class Froguelike_FliesManager : MonoBehaviour
             foreach (KeyValuePair<int, Froguelike_EnemyInstance> enemyInfo in allActiveEnemiesDico)
             {
                 Froguelike_EnemyInstance enemy = enemyInfo.Value;
-                Froguelike_EnemyData enemyData = enemiesDataDico[enemy.EnemyDataID];
+                EnemyData enemyData = enemiesDataDico[enemy.EnemyDataID];
                 if (enemy.active)
                 {
                     if (enemy.HP < 0.01f)
@@ -254,11 +254,11 @@ public class Froguelike_FliesManager : MonoBehaviour
                         enemy.moveDirection = (playerTransform.position - enemy.enemyTransform.position).normalized;
                         enemy.enemyRigidbody.velocity = 2 * enemy.moveDirection * GameManager.instance.player.landSpeed;
                         float distanceWithPlayer = Vector2.Distance(playerTransform.position, enemy.enemyTransform.position);
-                        if (distanceWithPlayer < 1)
+                        if (distanceWithPlayer < 1.5f)
                         {
                             enemy.enemyRenderer.enabled = false;
                             enemy.active = false;
-                            GameManager.instance.EatFly(enemyData.xPBonus * (enemyXPFactor + curse));
+                            GameManager.instance.EatFly(enemyData.xPBonus * (enemyXPFactor + curse), enemyData.instantlyEndChapter);
                             enemiesToDestroyIDList.Add(enemyInfo.Key);
                         }
                     }
@@ -267,13 +267,13 @@ public class Froguelike_FliesManager : MonoBehaviour
                         // enemy is alive
                         switch (enemyData.movePattern)
                         {
-                            case Froguelike_EnemyMovePattern.NO_MOVEMENT:
+                            case EnemyMovePattern.NO_MOVEMENT:
                                 enemy.enemyRigidbody.velocity = Vector2.zero;
                                 break;
-                            case Froguelike_EnemyMovePattern.STRAIGHTLINE:
+                            case EnemyMovePattern.STRAIGHTLINE:
                                 SetEnemyVelocity(enemy);
                                 break;
-                            case Froguelike_EnemyMovePattern.TARGETPLAYER:
+                            case EnemyMovePattern.TARGETPLAYER:
                                 enemy.moveDirection = (playerTransform.position - enemy.enemyTransform.position).normalized;
                                 SetEnemyVelocity(enemy);
                                 break;

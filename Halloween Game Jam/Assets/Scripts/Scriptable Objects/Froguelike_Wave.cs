@@ -7,6 +7,6 @@ using UnityEngine;
 public class Froguelike_Wave : ScriptableObject
 {
     public List<float> spawnDelays;
-    public List<Froguelike_EnemyData> spawnEnemies;
+    public List<EnemyData> spawnEnemies;
     public List<Froguelike_SpawnPattern> spawnPatterns;
 }

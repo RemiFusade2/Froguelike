@@ -254,6 +254,7 @@ public class Froguelike_UIManager : MonoBehaviour
         }
         
         // Display score screen
+        inGameUIPanel.SetActive(true);
         scoreScreen.SetActive(true);
         PlayLongPageSound();
     }

@@ -11,6 +11,7 @@ public class FriendInfo
     public WeaponBehaviour weapon;
     public Animator animator;
     public int style;
+    public Vector2 startPosition;
 }
 
 public class Froguelike_CharacterController : MonoBehaviour
@@ -103,9 +104,21 @@ public class Froguelike_CharacterController : MonoBehaviour
             {
                 FriendInfo friend = allFriends[friendIndex];
                 friend.weapon.TryAttack();
+
+
+                // update animator speed TODO
             }
 
             ChangeHealth(healthRecovery);
+        }
+    }
+
+    public void ResetPosition()
+    {
+        transform.localPosition = Vector3.zero;
+        foreach (FriendInfo friend in allFriends)
+        {
+            friend.friendGameObject.transform.localPosition = friend.startPosition;
         }
     }
 
