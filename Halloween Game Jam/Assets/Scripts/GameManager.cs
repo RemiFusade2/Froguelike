@@ -257,11 +257,11 @@ public class GameManager : MonoBehaviour
         Froguelike_UIManager.instance.UpdateLevel(level);
         Froguelike_UIManager.instance.UpdateXPSlider(xp, xpNeededForNextLevelFactor);
 
-        Froguelike_FliesManager.instance.enemyDamageFactor = 1;
-        Froguelike_FliesManager.instance.enemyHPFactor = 1;
-        Froguelike_FliesManager.instance.enemySpeedFactor = 1;
-        Froguelike_FliesManager.instance.enemyXPFactor = 1;
-        Froguelike_FliesManager.instance.curse = 0;
+        FliesManager.instance.enemyDamageFactor = 1;
+        FliesManager.instance.enemyHPFactor = 1;
+        FliesManager.instance.enemySpeedFactor = 1;
+        FliesManager.instance.enemyXPFactor = 1;
+        FliesManager.instance.curse = 0;
 
         unlockedCharactersIndex = new List<int>();
 
@@ -590,7 +590,7 @@ public class GameManager : MonoBehaviour
         {
             // This was the chapter before the last, we must now start the last chapter (it is forced)
             chapterRemainingTime = finalChapter.chapterLengthInSeconds;
-            Froguelike_FliesManager.instance.ClearAllEnemies();
+            FliesManager.instance.ClearAllEnemies();
             ChapterInfo chapterInfo = new ChapterInfo();
             chapterInfo.chapterData = finalChapter;
             chapterInfo.chapterCount = 6;
@@ -635,19 +635,19 @@ public class GameManager : MonoBehaviour
         }
 
         // Remove all enemies on screen
-        Froguelike_FliesManager.instance.ClearAllEnemies();
+        FliesManager.instance.ClearAllEnemies();
 
         // Increase enemies stats
         if (chapterCount > 1)
         {
-            Froguelike_FliesManager.instance.enemyDamageFactor *= 1.5f;
-            Froguelike_FliesManager.instance.enemyHPFactor *= 3;
-            Froguelike_FliesManager.instance.enemySpeedFactor *= 1.1f;
-            Froguelike_FliesManager.instance.enemyXPFactor *= 1.8f;
+            FliesManager.instance.enemyDamageFactor *= 1.5f;
+            FliesManager.instance.enemyHPFactor *= 3;
+            FliesManager.instance.enemySpeedFactor *= 1.1f;
+            FliesManager.instance.enemyXPFactor *= 1.8f;
         }
 
         // Set current wave to chapter wave
-        Froguelike_FliesManager.instance.SetWave(currentChapter.chapterData.waves[0]);
+        FliesManager.instance.SetWave(currentChapter.chapterData.waves[0]);
 
         // If character is ghost in that chapter, force it to ghost sprite
         player.ForceGhost(currentChapter.chapterData.isCharacterGhost);
@@ -778,7 +778,7 @@ public class GameManager : MonoBehaviour
 
     public void BackToTitleScreen()
     {
-        Froguelike_FliesManager.instance.ClearAllEnemies();
+        FliesManager.instance.ClearAllEnemies();
         InitializeNewGame();
         Froguelike_UIManager.instance.ShowTitleScreen();
         hasGameStarted = false;

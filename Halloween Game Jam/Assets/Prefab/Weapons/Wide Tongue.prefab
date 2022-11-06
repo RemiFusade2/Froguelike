@@ -25,8 +25,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8238029178202319300}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -0.1, y: 0, z: 0}
+  m_LocalScale: {x: 1.2, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8238029179615910582}
@@ -75,7 +75,7 @@ LineRenderer:
   m_SortingOrder: 16
   m_Positions:
   - {x: 0, y: 0, z: 0}
-  - {x: 3.1, y: 0, z: 0}
+  - {x: 1, y: 0, z: 0}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
@@ -143,7 +143,7 @@ GameObject:
   - component: {fileID: 8238029179615910581}
   - component: {fileID: 8238029179615910579}
   - component: {fileID: 8238029179615910578}
-  - component: {fileID: 8238029179615910577}
+  - component: {fileID: 4389264874946088634}
   m_Layer: 0
   m_Name: Wide Tongue
   m_TagString: Untagged
@@ -158,7 +158,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8238029179615910583}
-  m_LocalRotation: {x: 0, y: 0, z: 0.2588191, w: 0.9659258}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -166,7 +166,7 @@ Transform:
   - {fileID: 8238029178202319299}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 30}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!120 &8238029179615910581
 LineRenderer:
   m_ObjectHideFlags: 0
@@ -210,7 +210,7 @@ LineRenderer:
   m_SortingOrder: 17
   m_Positions:
   - {x: 0, y: 0, z: 0}
-  - {x: 3, y: 0, z: 0}
+  - {x: 1, y: 0, z: 0}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.1
@@ -278,15 +278,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22dc257ef3f2ed0478e3378a81878adf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tongueLineRenderer1: {fileID: 8238029179615910581}
-  tongueLineRenderer2: {fileID: 8238029178202319298}
-  weaponType: 1
+  outlineTransform: {fileID: 8238029178202319299}
+  tongueColor: {r: 0.8117648, g: 0.27450982, b: 0.4039216, a: 1}
+  tongueWidth: 0.3
+  outlineColor: {r: 0, g: 0, b: 0, a: 1}
+  outlineWeight: 0.1
+  weaponDirection: 1
   cooldown: 1.5
   damage: 5
   attackSpeed: 0.5
   maxFlies: 2
-  range: 0.8
-  width: 3
+  range: 2
+  healthAbsorbRatio: 0
+  healthAbsorbMax: 0
+  poisonDamage: 0
+  poisonDuration: 0
+  changeSpeedFactor: 0
+  changeSpeedDuration: 0
   foodLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -311,8 +319,8 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 0
---- !u!60 &8238029179615910577
-PolygonCollider2D:
+--- !u!61 &4389264874946088634
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -324,7 +332,7 @@ PolygonCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0.5, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -334,9 +342,6 @@ PolygonCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Points:
-    m_Paths:
-    - - {x: 0, y: 0.1}
-      - {x: 3, y: 0.1}
-      - {x: 3, y: -0.1}
-      - {x: 0, y: -0.1}
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0

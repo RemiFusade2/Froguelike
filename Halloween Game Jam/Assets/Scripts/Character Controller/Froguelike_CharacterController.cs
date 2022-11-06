@@ -104,12 +104,14 @@ public class Froguelike_CharacterController : MonoBehaviour
             {
                 FriendInfo friend = allFriends[friendIndex];
                 friend.weapon.TryAttack();
-
-
-                // update animator speed TODO
+                float friendSpeed = Mathf.Clamp(friend.friendGameObject.GetComponent<Rigidbody2D>().velocity.magnitude, 0, 3);
+                friend.animator.SetFloat("Speed", friendSpeed);
             }
 
             ChangeHealth(healthRecovery);
+
+            float speed = Mathf.Clamp(playerRigidbody.velocity.magnitude, 0, 10);
+            animator.SetFloat("Speed", speed);
         }
     }
 
@@ -144,6 +146,7 @@ public class Froguelike_CharacterController : MonoBehaviour
         maxHealth = characterData.startingMaxHealth;
 
         armorBoost = characterData.startingArmor;
+        experienceBoost = 0;
         revivals = characterData.startingRevivals;
         Froguelike_UIManager.instance.SetExtraLives(revivals);
 
@@ -152,13 +155,13 @@ public class Froguelike_CharacterController : MonoBehaviour
         attackMaxFliesBoost = 0;
         attackRangeBoost = 0;
         attackSpeedBoost = 0;
-
+        
         currentHealth = maxHealth;
     }
 
     public void ResolvePickedItemLevel(Froguelike_ItemLevel itemLevelData)
     {
-        Froguelike_FliesManager.instance.curse += itemLevelData.curseBoost;
+        FliesManager.instance.curse += itemLevelData.curseBoost;
 
         // character stats
         armorBoost += itemLevelData.armorBoost;
@@ -200,21 +203,6 @@ public class Froguelike_CharacterController : MonoBehaviour
     {
         UpdateHorizontalInput();
         UpdateVerticalInput();
-
-        if (Mathf.Abs(HorizontalInput) > 0 || Mathf.Abs(VerticalInput) > 0)
-        {
-            if (!animator.GetBool("IsMoving"))
-            {
-                animator.SetBool("IsMoving", true);
-            }
-        }
-        else
-        {
-            if (animator.GetBool("IsMoving"))
-            {
-                animator.SetBool("IsMoving", false);
-            }
-        }
 
         if (invincibilityTime > 0)
         {
@@ -332,10 +320,15 @@ public class Froguelike_CharacterController : MonoBehaviour
     {
         if (collision.collider.CompareTag("Fly") && GameManager.instance.isGameRunning && invincibilityTime <= 0)
         {
-            float damage = Froguelike_FliesManager.instance.GetEnemyDataFromName(collision.gameObject.name).damage * Froguelike_FliesManager.instance.enemyDamageFactor;
+            float damage = FliesManager.instance.GetEnemyDataFromName(collision.gameObject.name).damage * FliesManager.instance.enemyDamageFactor;
             damage = damage * (1 - armorBoost);
             ChangeHealth(-damage);
         }
+    }
+
+    public void Heal(float healAmount)
+    {
+        ChangeHealth((healAmount > 0) ? healAmount : 0);
     }
 
     private void ChangeHealth(float change)

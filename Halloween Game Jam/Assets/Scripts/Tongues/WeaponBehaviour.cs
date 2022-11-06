@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public enum WeaponType
+public enum WeaponDirection
 {
     RANDOM,
     NEAREST,
@@ -14,25 +14,40 @@ public enum WeaponType
 public class WeaponBehaviour : MonoBehaviour
 {
     [Header("References")]
-    public LineRenderer tongueLineRenderer1;
-    public LineRenderer tongueLineRenderer2;
+    public Transform outlineTransform;
+    
+    [Header("Settings - appearance")]
+    public Color tongueColor;
+    public float tongueWidth = 1;
+    public Color outlineColor;
+    public float outlineWeight = 0.1f;
 
-    [Header("Settings")]
-    public WeaponType weaponType;
-
+    [Header("Settings - base metrics")]
+    public WeaponDirection weaponDirection;
     public float cooldown;
     public float damage;
     public float attackSpeed;
     public float maxFlies;
     public float range;
 
-    public float width = 1;
+    [Header("Settings - special metrics")]
+    public float healthAbsorbRatio;
+    public float healthAbsorbMax;    
+    [Space]
+    public float poisonDamage;
+    public float poisonDuration;    
+    [Space]
+    public float changeSpeedFactor;
+    public float changeSpeedDuration;
 
-    [Header("Layer")]
+    [Header("Collision Layer")]
     public LayerMask foodLayer;
 
 
-    private PolygonCollider2D polygonCollider;
+    private LineRenderer tongueLineRenderer;
+    private LineRenderer outlineLineRenderer;
+
+    private Collider2D tongueCollider;
 
     private float lastAttackTime;
 
@@ -42,42 +57,43 @@ public class WeaponBehaviour : MonoBehaviour
 
     private bool isAttacking;
     
-    public void Initialize()
+    public void SetTongueColor()
     {
-        isAttacking = false;
-        eatenFliesCount = 0;
-        isTongueGoingOut = false;
-        lastAttackTime = Time.time;
-        SetTongueScale(0);
+        if (tongueLineRenderer != null && outlineLineRenderer != null)
+        {
+            tongueLineRenderer.startColor = tongueColor;
+            tongueLineRenderer.endColor = tongueColor;
+            outlineLineRenderer.startColor = outlineColor;
+            outlineLineRenderer.endColor = outlineColor;
+        }
     }
 
-    public void CopyWeaponStats(WeaponBehaviour weapon)
+    public void SetTongueWidth(float width)
     {
-        cooldown = weapon.cooldown;
-        damage = weapon.damage;
-        attackSpeed = weapon.attackSpeed;
-        maxFlies = weapon.maxFlies;
-        range = weapon.range;
-        width = weapon.width;
-    }
-
-    public void LevelUp(Froguelike_ItemLevel itemLevel)
-    {
-        cooldown += itemLevel.weaponCooldownBoost;
-        damage += itemLevel.weaponDamageBoost;
-        attackSpeed += itemLevel.weaponSpeedBoost;
-        maxFlies += itemLevel.weaponMaxFliesBoost;
-        range += itemLevel.weaponRangeBoost;
+        if (tongueLineRenderer != null && outlineLineRenderer != null)
+        {
+            tongueLineRenderer.startWidth = width;
+            tongueLineRenderer.endWidth = width;
+            outlineLineRenderer.startWidth = width + outlineWeight * 2;
+            outlineLineRenderer.endWidth = width + outlineWeight * 2;
+        }
     }
 
     private void SetTongueScale(float scale)
     {
         float actualRange = range * (1 + GameManager.instance.player.attackRangeBoost);
-        this.transform.localScale = Vector3.forward + (width * Vector3.up) + (scale * actualRange * Vector3.right);
-        tongueLineRenderer1.startWidth = 0.1f * width;
-        tongueLineRenderer1.endWidth = 0.1f * width;
-        tongueLineRenderer2.startWidth = 0.1f * width + 0.1f;
-        tongueLineRenderer2.endWidth = 0.1f * width + 0.1f;
+        if (scale <= 0)
+        {
+            this.transform.localScale = Vector3.zero;
+            outlineTransform.localScale = Vector3.zero;
+        }
+        else
+        {
+            this.transform.localScale = Vector3.forward + (tongueWidth * Vector3.up) + (scale * actualRange * Vector3.right);
+            outlineTransform.localPosition = (-outlineWeight / (scale * actualRange)) * Vector3.right;
+            outlineTransform.localScale = Vector3.forward + Vector3.up + ((1 + ((outlineWeight*2)/(scale * actualRange))) * Vector3.right);
+            SetTongueWidth(tongueWidth);
+        }
     }
 
     private void SetTongueDirection(Vector2 direction)
@@ -91,12 +107,44 @@ public class WeaponBehaviour : MonoBehaviour
         this.transform.position = weaponStartPosition.position;
     }
 
+    public void Initialize()
+    {
+        isAttacking = false;
+        eatenFliesCount = 0;
+        isTongueGoingOut = false;
+        lastAttackTime = Time.time;
+        SetTongueScale(0);
+        tongueLineRenderer = GetComponent<LineRenderer>();
+        outlineLineRenderer = outlineTransform.GetComponent<LineRenderer>();
+    }
+
+    public void CopyWeaponStats(WeaponBehaviour weapon)
+    {
+        cooldown = weapon.cooldown;
+        damage = weapon.damage;
+        attackSpeed = weapon.attackSpeed;
+        maxFlies = weapon.maxFlies;
+        range = weapon.range;
+        tongueWidth = weapon.tongueWidth;
+    }
+
+    public void LevelUp(Froguelike_ItemLevel itemLevel)
+    {
+        cooldown += itemLevel.weaponCooldownBoost;
+        damage += itemLevel.weaponDamageBoost;
+        attackSpeed += itemLevel.weaponSpeedBoost;
+        maxFlies += itemLevel.weaponMaxFliesBoost;
+        range += itemLevel.weaponRangeBoost;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
         SetTongueScale(0);
         lastAttackTime = Time.time;
-        polygonCollider = GetComponent<PolygonCollider2D>();
+        tongueCollider = GetComponent<Collider2D>();
+        tongueLineRenderer = GetComponent<LineRenderer>();
+        outlineLineRenderer = outlineTransform.GetComponent<LineRenderer>();
     }
 
     private GameObject GetNearestEnemy()
@@ -111,7 +159,7 @@ public class WeaponBehaviour : MonoBehaviour
             Collider2D nearestEnemy = null;
             foreach (Collider2D col in allColliders)
             {
-                Froguelike_EnemyInstance enemyInfo = Froguelike_FliesManager.instance.GetEnemyInfo(col.gameObject.name);
+                EnemyInstance enemyInfo = FliesManager.instance.GetEnemyInfo(col.gameObject.name);
                 float distanceWithPlayer = Vector2.Distance(col.transform.position, playerPosition);
                 if (distanceWithPlayer < shortestDistance && enemyInfo.active)
                 {
@@ -129,20 +177,20 @@ public class WeaponBehaviour : MonoBehaviour
         float actualCooldown = cooldown * (1 - GameManager.instance.player.attackCooldownBoost);
         if (!isAttacking && Time.time - lastAttackTime > actualCooldown)
         {
-            switch (weaponType)
+            switch (weaponDirection)
             {
-                case WeaponType.NEAREST:
+                case WeaponDirection.NEAREST:
                     GameObject targetEnemy = GetNearestEnemy();
                     if (targetEnemy != null)
                     {
-                        Attack(Froguelike_FliesManager.instance.GetEnemyInfo(targetEnemy.name));
+                        Attack(FliesManager.instance.GetEnemyInfo(targetEnemy.name));
                     }
                     break;
-                case WeaponType.RANDOM:
+                case WeaponDirection.RANDOM:
                     Vector2 direction = Random.insideUnitCircle.normalized;
                     Attack(direction);
                     break;
-                case WeaponType.ROTATING:
+                case WeaponDirection.ROTATING:
                     AttackRotating();
                     break;
             }
@@ -155,7 +203,10 @@ public class WeaponBehaviour : MonoBehaviour
         eatenFliesCount = 0;
         lastAttackTime = Time.time;
         Vector2 direction = GameManager.instance.player.transform.up;
-        StartCoroutine(SendTongueInDirectionRotating(direction));
+        if (tongueLineRenderer != null && outlineLineRenderer != null)
+        {
+            StartCoroutine(SendTongueInDirectionRotating(direction));
+        }
     }
 
     private IEnumerator SendTongueInDirectionRotating(Vector2 direction)
@@ -164,8 +215,8 @@ public class WeaponBehaviour : MonoBehaviour
         SetTongueDirection(direction);
         float t = 0;
         isTongueGoingOut = true;
-        tongueLineRenderer1.enabled = true;
-        tongueLineRenderer2.enabled = true;
+        tongueLineRenderer.enabled = true;
+        outlineLineRenderer.enabled = true;
         float angle = 0;
         float actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
         while (isTongueGoingOut)
@@ -187,8 +238,8 @@ public class WeaponBehaviour : MonoBehaviour
             SetTongueDirection((Mathf.Cos(angle) * Vector2.right + Mathf.Sin(angle) * Vector2.up).normalized);
             yield return new WaitForFixedUpdate();
         }
-        tongueLineRenderer1.enabled = false;
-        tongueLineRenderer2.enabled = false;
+        tongueLineRenderer.enabled = false;
+        outlineLineRenderer.enabled = false;
         lastAttackTime = Time.time;
         isAttacking = false;
     }
@@ -197,13 +248,16 @@ public class WeaponBehaviour : MonoBehaviour
     {
         eatenFliesCount = 0;
         lastAttackTime = Time.time;
-        StartCoroutine(SendTongueInDirection(direction.normalized));
+        if (tongueLineRenderer != null && outlineLineRenderer != null)
+        {
+            StartCoroutine(SendTongueInDirection(direction.normalized));
+        }
     }
 
-    public void Attack(Froguelike_EnemyInstance enemy)
+    public void Attack(EnemyInstance enemy)
     {
         eatenFliesCount = 0;
-        if (enemy != null)
+        if (enemy != null && tongueLineRenderer != null && outlineLineRenderer != null)
         {
             lastAttackTime = Time.time;
             StartCoroutine(SendTongueInDirection((enemy.enemyTransform.position - this.transform.position).normalized));
@@ -216,8 +270,8 @@ public class WeaponBehaviour : MonoBehaviour
         SetTongueDirection(direction);
         float t = 0;
         isTongueGoingOut = true;
-        tongueLineRenderer1.enabled = true;
-        tongueLineRenderer2.enabled = true;
+        tongueLineRenderer.enabled = true;
+        outlineLineRenderer.enabled = true;
         float actualAttackSpeed = attackSpeed * (1+GameManager.instance.player.attackSpeedBoost);
         while (isTongueGoingOut)
         {
@@ -235,8 +289,8 @@ public class WeaponBehaviour : MonoBehaviour
             t -= (Time.fixedDeltaTime * actualAttackSpeed * 2);
             yield return new WaitForFixedUpdate();
         }
-        tongueLineRenderer1.enabled = false;
-        tongueLineRenderer2.enabled = false;
+        tongueLineRenderer.enabled = false;
+        outlineLineRenderer.enabled = false;
         lastAttackTime = Time.time;
         isAttacking = false;
     }
@@ -249,7 +303,11 @@ public class WeaponBehaviour : MonoBehaviour
             float actualDamage = damage * (1 + GameManager.instance.player.attackDamageBoost);
             float actualMaxFiles = maxFlies + GameManager.instance.player.attackMaxFliesBoost;
             bool canKillEnemy = (eatenFliesCount < actualMaxFiles);
-            bool enemyIsDead = Froguelike_FliesManager.instance.DamageEnemy(enemyName, actualDamage, canKillEnemy);
+            bool enemyIsDead = FliesManager.instance.DamageEnemy(enemyName, actualDamage, canKillEnemy);
+
+            float healAmount = Mathf.Clamp(actualDamage * healthAbsorbRatio, 0, healthAbsorbMax);
+            GameManager.instance.player.Heal(healAmount);
+
             if (enemyIsDead)
             {
                 collision.GetComponent<Animator>().SetBool("IsDead", true);
@@ -265,11 +323,11 @@ public class WeaponBehaviour : MonoBehaviour
         float actualMaxFiles = maxFlies + GameManager.instance.player.attackMaxFliesBoost;
         if (eatenFliesCount >= actualMaxFiles)
         {
-            switch (weaponType)
+            switch (weaponDirection)
             {
-                case WeaponType.NEAREST:
-                case WeaponType.ROTATING:
-                case WeaponType.RANDOM:
+                case WeaponDirection.NEAREST:
+                case WeaponDirection.ROTATING:
+                case WeaponDirection.RANDOM:
                     isTongueGoingOut = false;
                     break;
                 default:

@@ -1205,7 +1205,7 @@ CircleCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -1830,7 +1830,7 @@ GameObject:
   - component: {fileID: 209024786}
   - component: {fileID: 209024785}
   - component: {fileID: 209024788}
-  - component: {fileID: 209024787}
+  - component: {fileID: 209024790}
   m_Layer: 0
   m_Name: Ghost friend Tongue
   m_TagString: Untagged
@@ -1850,15 +1850,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22dc257ef3f2ed0478e3378a81878adf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tongueLineRenderer1: {fileID: 209024786}
-  tongueLineRenderer2: {fileID: 544023912}
-  weaponType: 0
+  outlineTransform: {fileID: 544023913}
+  tongueColor: {r: 0.5242524, g: 0.9339623, b: 0.9180512, a: 1}
+  tongueWidth: 0.06
+  outlineColor: {r: 0, g: 0, b: 0, a: 1}
+  outlineWeight: 0.1
+  weaponDirection: 1
   cooldown: 0.8
   damage: 1
   attackSpeed: 0.8
   maxFlies: 1
   range: 1
-  width: 0.5
+  healthAbsorbRatio: 0
+  healthAbsorbMax: 0
+  poisonDamage: 0
+  poisonDuration: 0
+  changeSpeedFactor: 0
+  changeSpeedDuration: 0
   foodLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -1905,7 +1913,7 @@ LineRenderer:
   m_SortingOrder: 17
   m_Positions:
   - {x: 0, y: 0, z: 0}
-  - {x: 3, y: 0, z: 0}
+  - {x: 1, y: 0, z: 0}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.1
@@ -1961,35 +1969,6 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 0
   m_Loop: 0
---- !u!60 &209024787
-PolygonCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 209024784}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Points:
-    m_Paths:
-    - - {x: 0, y: 0.1}
-      - {x: 3, y: 0.1}
-      - {x: 3, y: -0.1}
-      - {x: 0, y: -0.1}
 --- !u!50 &209024788
 Rigidbody2D:
   serializedVersion: 4
@@ -2027,6 +2006,32 @@ Transform:
   m_Father: {fileID: 1377549577}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &209024790
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 209024784}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.5, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
 --- !u!1 &219029073
 GameObject:
   m_ObjectHideFlags: 0
@@ -2570,7 +2575,7 @@ GameObject:
   - component: {fileID: 284953844}
   - component: {fileID: 284953843}
   - component: {fileID: 284953846}
-  - component: {fileID: 284953845}
+  - component: {fileID: 284953848}
   m_Layer: 0
   m_Name: Poisonous friend Tongue
   m_TagString: Untagged
@@ -2590,15 +2595,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22dc257ef3f2ed0478e3378a81878adf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tongueLineRenderer1: {fileID: 284953844}
-  tongueLineRenderer2: {fileID: 2033289630}
-  weaponType: 2
+  outlineTransform: {fileID: 2033289631}
+  tongueColor: {r: 0.8117648, g: 0.2784314, b: 0.4039216, a: 1}
+  tongueWidth: 0.06
+  outlineColor: {r: 0, g: 0, b: 0, a: 1}
+  outlineWeight: 0.1
+  weaponDirection: 2
   cooldown: 1.2
   damage: 1
   attackSpeed: 0.5
   maxFlies: 1
-  range: 0.8
-  width: 0.6
+  range: 2
+  healthAbsorbRatio: 0
+  healthAbsorbMax: 0
+  poisonDamage: 0
+  poisonDuration: 0
+  changeSpeedFactor: 0
+  changeSpeedDuration: 0
   foodLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -2645,7 +2658,7 @@ LineRenderer:
   m_SortingOrder: 17
   m_Positions:
   - {x: 0, y: 0, z: 0}
-  - {x: 3, y: 0, z: 0}
+  - {x: 1, y: 0, z: 0}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.1
@@ -2701,35 +2714,6 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 0
   m_Loop: 0
---- !u!60 &284953845
-PolygonCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 284953842}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Points:
-    m_Paths:
-    - - {x: 0, y: 0.1}
-      - {x: 3, y: 0.1}
-      - {x: 3, y: -0.1}
-      - {x: 0, y: -0.1}
 --- !u!50 &284953846
 Rigidbody2D:
   serializedVersion: 4
@@ -2767,6 +2751,32 @@ Transform:
   m_Father: {fileID: 1377549577}
   m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &284953848
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 284953842}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.5, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
 --- !u!1 &297745059
 GameObject:
   m_ObjectHideFlags: 0
@@ -5124,7 +5134,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &473319585
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5672,7 +5682,7 @@ LineRenderer:
   m_SortingOrder: 16
   m_Positions:
   - {x: 0, y: 0, z: 0}
-  - {x: 3.1, y: 0, z: 0}
+  - {x: 1, y: 0, z: 0}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
@@ -5736,8 +5746,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 544023911}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -0.1, y: 0, z: 0}
+  m_LocalScale: {x: 1.2, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 209024789}
@@ -6472,7 +6482,7 @@ MonoBehaviour:
   possibleMorals:
   - Everything is possible when you're a frog
   - Drugs are bad mkay
-  - Don't be afraid to fall in love
+  - When in doubt, don't touch a frog
   - Even small creatures can change the world's destiny
   playableCharactersList:
   - characterData: {fileID: 11400000, guid: e12bbdd99d50ae74ba6dbf789aa002a8, type: 2}
@@ -9496,8 +9506,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1006948972}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -0.1, y: 0, z: 0}
+  m_LocalScale: {x: 1.2, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1927110834}
@@ -9546,7 +9556,7 @@ LineRenderer:
   m_SortingOrder: 16
   m_Positions:
   - {x: 0, y: 0, z: 0}
-  - {x: 3.1, y: 0, z: 0}
+  - {x: 1, y: 0, z: 0}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
@@ -20631,7 +20641,7 @@ GameObject:
   - component: {fileID: 1927110838}
   - component: {fileID: 1927110837}
   - component: {fileID: 1927110836}
-  - component: {fileID: 1927110835}
+  - component: {fileID: 1927110839}
   m_Layer: 0
   m_Name: Toad Friend Tongue
   m_TagString: Untagged
@@ -20655,35 +20665,6 @@ Transform:
   m_Father: {fileID: 1377549577}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!60 &1927110835
-PolygonCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1927110833}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Points:
-    m_Paths:
-    - - {x: 0, y: 0.1}
-      - {x: 3, y: 0.1}
-      - {x: 3, y: -0.1}
-      - {x: 0, y: -0.1}
 --- !u!50 &1927110836
 Rigidbody2D:
   serializedVersion: 4
@@ -20717,15 +20698,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22dc257ef3f2ed0478e3378a81878adf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tongueLineRenderer1: {fileID: 1927110838}
-  tongueLineRenderer2: {fileID: 1006948974}
-  weaponType: 1
+  outlineTransform: {fileID: 1006948973}
+  tongueColor: {r: 0.8117648, g: 0.2784314, b: 0.4039216, a: 1}
+  tongueWidth: 0.15
+  outlineColor: {r: 0, g: 0, b: 0, a: 1}
+  outlineWeight: 0.1
+  weaponDirection: 1
   cooldown: 2.5
   damage: 2
   attackSpeed: 0.4
   maxFlies: 2
-  range: 0.6
-  width: 1.2
+  range: 1.5
+  healthAbsorbRatio: 0
+  healthAbsorbMax: 0
+  poisonDamage: 0
+  poisonDuration: 0
+  changeSpeedFactor: 0
+  changeSpeedDuration: 0
   foodLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -20772,7 +20761,7 @@ LineRenderer:
   m_SortingOrder: 17
   m_Positions:
   - {x: 0, y: 0, z: 0}
-  - {x: 3, y: 0, z: 0}
+  - {x: 1, y: 0, z: 0}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.1
@@ -20828,6 +20817,32 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 0
   m_Loop: 0
+--- !u!61 &1927110839
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1927110833}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.5, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1.1, y: 1}
+  m_EdgeRadius: 0
 --- !u!1 &1927415171
 GameObject:
   m_ObjectHideFlags: 0
@@ -21763,7 +21778,7 @@ LineRenderer:
   m_SortingOrder: 16
   m_Positions:
   - {x: 0, y: 0, z: 0}
-  - {x: 3.1, y: 0, z: 0}
+  - {x: 1, y: 0, z: 0}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
@@ -21827,8 +21842,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2033289629}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -0.1, y: 0, z: 0}
+  m_LocalScale: {x: 1.2, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 284953847}
@@ -22667,8 +22682,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3990334964508031989}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -0.1, y: 0, z: 0}
+  m_LocalScale: {x: 1.2, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3990334965778745479}
@@ -22717,7 +22732,7 @@ LineRenderer:
   m_SortingOrder: 16
   m_Positions:
   - {x: 0, y: 0, z: 0}
-  - {x: 3.1, y: 0, z: 0}
+  - {x: 1, y: 0, z: 0}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
@@ -22790,35 +22805,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!60 &3990334965778745472
-PolygonCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3990334965778745478}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Points:
-    m_Paths:
-    - - {x: 0, y: 0.1}
-      - {x: 3, y: 0.1}
-      - {x: 3, y: -0.1}
-      - {x: 0, y: -0.1}
 --- !u!114 &3990334965778745474
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22831,15 +22817,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22dc257ef3f2ed0478e3378a81878adf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tongueLineRenderer1: {fileID: 3990334965778745476}
-  tongueLineRenderer2: {fileID: 3990334964508031987}
-  weaponType: 1
+  outlineTransform: {fileID: 3990334964508031986}
+  tongueColor: {r: 0.8117648, g: 0.2784314, b: 0.4039216, a: 1}
+  tongueWidth: 0.07
+  outlineColor: {r: 0, g: 0, b: 0, a: 1}
+  outlineWeight: 0.1
+  weaponDirection: 1
   cooldown: 1
   damage: 1
   attackSpeed: 0.6
   maxFlies: 1
-  range: 0.8
-  width: 0.7
+  range: 2
+  healthAbsorbRatio: 0
+  healthAbsorbMax: 0
+  poisonDamage: 0
+  poisonDuration: 0
+  changeSpeedFactor: 0
+  changeSpeedDuration: 0
   foodLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -22907,7 +22901,7 @@ LineRenderer:
   m_SortingOrder: 17
   m_Positions:
   - {x: 0, y: 0, z: 0}
-  - {x: 3, y: 0, z: 0}
+  - {x: 1, y: 0, z: 0}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.1
@@ -22975,7 +22969,7 @@ GameObject:
   - component: {fileID: 3990334965778745476}
   - component: {fileID: 3990334965778745474}
   - component: {fileID: 3990334965778745475}
-  - component: {fileID: 3990334965778745472}
+  - component: {fileID: 3990334965778745480}
   m_Layer: 0
   m_Name: Green Friend Tongue
   m_TagString: Untagged
@@ -22999,3 +22993,29 @@ Transform:
   m_Father: {fileID: 1377549577}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &3990334965778745480
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3990334965778745478}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.5, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0

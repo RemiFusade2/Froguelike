@@ -3,21 +3,30 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class Froguelike_EnemyInstance
+public class EnemyInstance
 {
     public string EnemyDataID;
 
+    public bool active;
+    public bool alive;
+
     public float HP;
     public Vector2 moveDirection;
+
+    public float poisonDamage;
+    public float poisonRemainingTime;
+
+    public float changeSpeedFactor;
+    public float changeSpeedRemainingTime;
+
     public Transform enemyTransform;
     public Rigidbody2D enemyRigidbody;
     public SpriteRenderer enemyRenderer;
-    public bool active;
 }
 
-public class Froguelike_FliesManager : MonoBehaviour
+public class FliesManager : MonoBehaviour
 {
-    public static Froguelike_FliesManager instance;
+    public static FliesManager instance;
     
     [Header("References")]
     public Transform enemiesParent;
@@ -45,7 +54,7 @@ public class Froguelike_FliesManager : MonoBehaviour
     // private
     private List<float> lastSpawnTimesList;
     private Dictionary<string, EnemyData> enemiesDataDico;
-    private Dictionary<int, Froguelike_EnemyInstance> allActiveEnemiesDico;
+    private Dictionary<int, EnemyInstance> allActiveEnemiesDico;
 
     public void TrySpawnCurrentWave()
     {
@@ -119,11 +128,11 @@ public class Froguelike_FliesManager : MonoBehaviour
         }
     }
 
-    public Froguelike_EnemyInstance GetEnemyInfo(int ID)
+    public EnemyInstance GetEnemyInfo(int ID)
     {
         return allActiveEnemiesDico[ID];
     }
-    public Froguelike_EnemyInstance GetEnemyInfo(string name)
+    public EnemyInstance GetEnemyInfo(string name)
     {
         int ID = int.Parse(name);
         return GetEnemyInfo(ID);
@@ -132,7 +141,7 @@ public class Froguelike_FliesManager : MonoBehaviour
     public EnemyData GetEnemyDataFromName(string name)
     {
         int ID = int.Parse(name);
-        Froguelike_EnemyInstance instance = GetEnemyInfo(ID);
+        EnemyInstance instance = GetEnemyInfo(ID);
         return enemiesDataDico[instance.EnemyDataID];
     }
 
@@ -153,7 +162,7 @@ public class Froguelike_FliesManager : MonoBehaviour
 
         lastKey = 1;
 
-        allActiveEnemiesDico = new Dictionary<int, Froguelike_EnemyInstance>();
+        allActiveEnemiesDico = new Dictionary<int, EnemyInstance>();
         InvokeRepeating("UpdateAllEnemies", 0, 0.1f);
     }
 
@@ -167,7 +176,7 @@ public class Froguelike_FliesManager : MonoBehaviour
 
     public void AddEnemy(Transform enemyTransform, EnemyData enemyData)
     {
-        Froguelike_EnemyInstance newEnemy = new Froguelike_EnemyInstance();
+        EnemyInstance newEnemy = new EnemyInstance();
 
         // setup enemy
         newEnemy.EnemyDataID = enemyData.ID;
@@ -176,6 +185,7 @@ public class Froguelike_FliesManager : MonoBehaviour
         newEnemy.HP = enemyData.maxHP * (enemyHPFactor + curse);
         newEnemy.enemyRigidbody = enemyTransform.GetComponent<Rigidbody2D>();
         newEnemy.active = true;
+        newEnemy.alive = true;
         lastKey++;
         enemyTransform.gameObject.name = lastKey.ToString();
         allActiveEnemiesDico.Add(lastKey, newEnemy);
@@ -191,8 +201,9 @@ public class Froguelike_FliesManager : MonoBehaviour
     // Return true if enemy dieded
     public bool DamageEnemy(string enemyGoName, float damage, bool canKill)
     {
+        Debug.Log("DamageEnemy " + enemyGoName);
         int index = int.Parse(enemyGoName);
-        Froguelike_EnemyInstance enemy = allActiveEnemiesDico[index];
+        EnemyInstance enemy = allActiveEnemiesDico[index];
         enemy.HP -= damage;
 
         if (enemy.HP < 0.01f)
@@ -200,17 +211,22 @@ public class Froguelike_FliesManager : MonoBehaviour
             if (canKill)
             {
                 // enemy died, let's eat it now
+                Debug.Log("Enemy " + enemyGoName + " Died");
+                enemy.HP = 0;
+                enemy.alive = false;
                 enemy.enemyTransform.rotation = Quaternion.Euler(0, 0, 45);
                 return true;
             }
             else
             {
                 // enemy can't die because of tongue limit
+                Debug.Log("Enemy " + enemyGoName + " can't die");
                 enemy.HP = 0.1f;
             }
         }
-        
+
         // if enemy didn't die, then display damage text
+        Debug.Log("Enemy " + enemyGoName + " didn't die");
         Vector2 position = (Vector2)enemy.enemyTransform.position + 0.1f*Random.insideUnitCircle;
         GameObject damageText = Instantiate(damageTextPrefab, position, Quaternion.identity, null);
         damageText.GetComponent<TMPro.TextMeshPro>().text = Mathf.CeilToInt(damage).ToString();
@@ -222,7 +238,7 @@ public class Froguelike_FliesManager : MonoBehaviour
     public void ClearAllEnemies()
     {
         List<int> enemiesToDestroyIDList = new List<int>();
-        foreach (KeyValuePair<int, Froguelike_EnemyInstance> enemyInfo in allActiveEnemiesDico)
+        foreach (KeyValuePair<int, EnemyInstance> enemyInfo in allActiveEnemiesDico)
         {
             enemiesToDestroyIDList.Add(enemyInfo.Key);
         }
@@ -242,13 +258,13 @@ public class Froguelike_FliesManager : MonoBehaviour
         {
             Transform playerTransform = GameManager.instance.player.transform;
             List<int> enemiesToDestroyIDList = new List<int>();
-            foreach (KeyValuePair<int, Froguelike_EnemyInstance> enemyInfo in allActiveEnemiesDico)
+            foreach (KeyValuePair<int, EnemyInstance> enemyInfo in allActiveEnemiesDico)
             {
-                Froguelike_EnemyInstance enemy = enemyInfo.Value;
+                EnemyInstance enemy = enemyInfo.Value;
                 EnemyData enemyData = enemiesDataDico[enemy.EnemyDataID];
                 if (enemy.active)
                 {
-                    if (enemy.HP < 0.01f)
+                    if (!enemy.alive)
                     {
                         // enemy is dead
                         enemy.moveDirection = (playerTransform.position - enemy.enemyTransform.position).normalized;
@@ -283,14 +299,14 @@ public class Froguelike_FliesManager : MonoBehaviour
             }
             foreach (int enemyID in enemiesToDestroyIDList)
             {
-                Froguelike_EnemyInstance enemy = allActiveEnemiesDico[enemyID];
+                EnemyInstance enemy = allActiveEnemiesDico[enemyID];
                 allActiveEnemiesDico.Remove(enemyID);
                 Destroy(enemy.enemyTransform.gameObject, 0.1f);
             }
         }
     }
 
-    private void SetEnemyVelocity(Froguelike_EnemyInstance enemyInstance)
+    private void SetEnemyVelocity(EnemyInstance enemyInstance)
     {
         float angle = -Vector2.SignedAngle(enemyInstance.moveDirection, Vector2.right);
         float roundedAngle = -90 + Mathf.RoundToInt(angle / 90) * 90;
