@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public enum Froguelike_SpawnPatternType
+public enum SpawnPatternType
 {
     RANDOM,
     CIRCLE,
@@ -12,8 +12,8 @@ public enum Froguelike_SpawnPatternType
 
 [System.Serializable]
 [CreateAssetMenu(fileName = "Spawn Pattern Data", menuName = "ScriptableObjects/Froguelike/Spawn Pattern Data", order = 1)]
-public class Froguelike_SpawnPattern : ScriptableObject
+public class SpawnPattern : ScriptableObject
 {
-    public Froguelike_SpawnPatternType spawnPatternType;
+    public SpawnPatternType spawnPatternType;
     public int spawnAmount;
 }

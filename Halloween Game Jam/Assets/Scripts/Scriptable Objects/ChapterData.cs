@@ -28,6 +28,6 @@ public class ChapterData : ScriptableObject
     public bool unlocksACharacter;
     public int unlockedCharacterIndex;
 
-    public List<Froguelike_Wave> waves;
+    public List<Wave> waves;
 }
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Froguelike_SoundManager : MonoBehaviour
+public class SoundManager : MonoBehaviour
 {
     [Header("Audio Clips")]
     public AudioClip buttonSound;

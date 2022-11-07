@@ -6,7 +6,7 @@ using System.Collections;
 namespace Rewired.Demos {
 
     [AddComponentMenu("")]
-    [RequireComponent(typeof(CharacterController))]
+    [RequireComponent(typeof(UnityEngine.CharacterController))]
     public class PressAnyButtonToJoinExample_GamePlayer : MonoBehaviour {
 
         public int playerId = 0;
@@ -15,7 +15,7 @@ namespace Rewired.Demos {
         public float bulletSpeed = 15.0f;
         public GameObject bulletPrefab;
 
-        private CharacterController cc;
+        private UnityEngine.CharacterController cc;
         private Vector3 moveVector;
         private bool fire;
 
@@ -23,7 +23,7 @@ namespace Rewired.Demos {
 
         void OnEnable() {
             // Get the character controller
-            cc = GetComponent<CharacterController>();
+            cc = GetComponent<UnityEngine.CharacterController>();
         }
 
         void Update() {

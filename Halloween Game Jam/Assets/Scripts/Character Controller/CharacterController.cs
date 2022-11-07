@@ -14,7 +14,7 @@ public class FriendInfo
     public Vector2 startPosition;
 }
 
-public class Froguelike_CharacterController : MonoBehaviour
+public class CharacterController : MonoBehaviour
 {
     [Header("Player id")]
     public int playerID;
@@ -148,7 +148,7 @@ public class Froguelike_CharacterController : MonoBehaviour
         armorBoost = characterData.startingArmor;
         experienceBoost = 0;
         revivals = characterData.startingRevivals;
-        Froguelike_UIManager.instance.SetExtraLives(revivals);
+        UIManager.instance.SetExtraLives(revivals);
 
         attackCooldownBoost = 0;
         attackDamageBoost = 0;
@@ -170,10 +170,10 @@ public class Froguelike_CharacterController : MonoBehaviour
         maxHealth += itemLevelData.maxHealthBoost;
         revivals += itemLevelData.revivalBoost;
 
-        Froguelike_UIManager.instance.SetExtraLives(revivals);
+        UIManager.instance.SetExtraLives(revivals);
 
         GameManager.instance.currentChapter.enemiesKilledCount += itemLevelData.extraScore;
-        Froguelike_UIManager.instance.SetEatenCount(GameManager.instance.currentChapter.enemiesKilledCount);
+        UIManager.instance.SetEatenCount(GameManager.instance.currentChapter.enemiesKilledCount);
 
         landSpeed += itemLevelData.walkSpeedBoost;
         swimSpeed += itemLevelData.swimSpeedBoost;

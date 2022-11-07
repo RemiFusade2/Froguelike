@@ -47,7 +47,7 @@ public class FliesManager : MonoBehaviour
     public float curse = 0;
 
     [Header("Runtime")]
-    public Froguelike_Wave currentWave;
+    public Wave currentWave;
     public static int lastKey;
 
 
@@ -61,14 +61,14 @@ public class FliesManager : MonoBehaviour
         for (int i = 0; i < currentWave.spawnDelays.Count; i++)
         {
             float delayBetweenSpawns = currentWave.spawnDelays[i] * (1 - curse);
-            Froguelike_SpawnPattern spawnPattern = currentWave.spawnPatterns[i];
+            SpawnPattern spawnPattern = currentWave.spawnPatterns[i];
             EnemyData enemyData = currentWave.spawnEnemies[i];
             float lastSpawnTime = lastSpawnTimesList[i];
 
             if ((Time.time - lastSpawnTime) > delayBetweenSpawns)
             {
                 int enemyAmount = spawnPattern.spawnAmount;
-                Froguelike_SpawnPatternType patternType = spawnPattern.spawnPatternType;
+                SpawnPatternType patternType = spawnPattern.spawnPatternType;
                 
                 GameObject enemyPrefab = enemyData.prefab;
 
@@ -78,14 +78,14 @@ public class FliesManager : MonoBehaviour
 
                 switch (patternType)
                 {
-                    case Froguelike_SpawnPatternType.CHUNK:
+                    case SpawnPatternType.CHUNK:
                         // choose a position at a distance from the player and spawn a chunk of enemies
                         for (int j = 0; j < enemyCount; j++)
                         {
                             SpawnEnemy(enemyPrefab, position + Random.Range(-1.0f,1.0f) * Vector3.right + Random.Range(-1.0f, 1.0f) * Vector3.up, enemyData);
                         }
                         break;
-                    case Froguelike_SpawnPatternType.CIRCLE:
+                    case SpawnPatternType.CIRCLE:
                         // spawn enemies all around the player
                         float deltaAngle = 360.0f / enemyCount;
                         for (float angle = 0; angle < 360; angle += deltaAngle)
@@ -94,7 +94,7 @@ public class FliesManager : MonoBehaviour
                             SpawnEnemy(enemyPrefab, position, enemyData);
                         }
                         break;
-                    case Froguelike_SpawnPatternType.RANDOM:
+                    case SpawnPatternType.RANDOM:
                         // choose a position at a distance from the player and spawn enemies
                         for (int j = 0; j < enemyCount; j++)
                         {
@@ -117,7 +117,7 @@ public class FliesManager : MonoBehaviour
         AddEnemy(newSpawn.transform, enemyData);
     }
 
-    public void SetWave(Froguelike_Wave wave)
+    public void SetWave(Wave wave)
     {
         currentWave = wave;
         lastSpawnTimesList.Clear();

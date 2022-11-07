@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Froguelike_MapBehaviour : MonoBehaviour
+public class MapBehaviour : MonoBehaviour
 {
     [Header("References")]
     public Transform mapTilesParent;
@@ -20,6 +20,8 @@ public class Froguelike_MapBehaviour : MonoBehaviour
     [Range(0, 1)]
     public float waterDensity = 0.2f;
     public int maxWaterCount = 13;
+    [Space]
+    public float minDistanceWithPlayer = 2;
 
 
     private List<Vector2Int> existingTilesCoordinates;
@@ -61,19 +63,22 @@ public class Froguelike_MapBehaviour : MonoBehaviour
         }
     }
 
-    private void AddSomething(List<GameObject> prefabs, Vector2Int tileCoordinates)
+    private void AddSomething(List<GameObject> prefabs, Vector2Int tileCoordinates, bool preventSpawnAtPosition, Vector2 preventSpawnPosition)
     {
         int randomIndex = Random.Range(0, prefabs.Count);
         Vector2 randomVector = Random.insideUnitCircle;
-        Vector2 rockPosition = GetWorldPositionOfTile(tileCoordinates) + randomVector * (tileSize / 2.0f);
-        Instantiate(prefabs[randomIndex], rockPosition, Quaternion.identity, mapTilesParent);
+        Vector2 position = GetWorldPositionOfTile(tileCoordinates) + randomVector * (tileSize / 2.0f);
+        if (!preventSpawnAtPosition || Vector2.Distance(position, preventSpawnPosition) > minDistanceWithPlayer)
+        {
+            Instantiate(prefabs[randomIndex], position, Quaternion.identity, mapTilesParent);
+        }
     }
 
     private bool DoesTileExist(Vector2Int tileCoordinates)
     {
         return existingTilesCoordinates.Contains(tileCoordinates);
     }
-    private void AddTile(Vector2Int tileCoordinates)
+    private void AddTile(Vector2Int tileCoordinates, bool preventSpawnRocksAtPosition, Vector2 preventSpawnPosition)
     {
         Vector2 tileWorldPosition = tileCoordinates * tileSize;
         Instantiate(backgroundTilePrefab, tileWorldPosition, Quaternion.identity, mapTilesParent);
@@ -82,7 +87,7 @@ public class Froguelike_MapBehaviour : MonoBehaviour
         {
             if (Random.Range(0, 3) != 0)
             {
-                AddSomething(watersPrefabs, tileCoordinates);
+                AddSomething(watersPrefabs, tileCoordinates, false, preventSpawnPosition);
             }
         }
         // generate rocks
@@ -90,7 +95,7 @@ public class Froguelike_MapBehaviour : MonoBehaviour
         {
             if (Random.Range(0,3) != 0)
             {
-                AddSomething(rocksPrefabs, tileCoordinates);
+                AddSomething(rocksPrefabs, tileCoordinates, preventSpawnRocksAtPosition, preventSpawnPosition);
             }
         }
         existingTilesCoordinates.Add(tileCoordinates);
@@ -117,7 +122,7 @@ public class Froguelike_MapBehaviour : MonoBehaviour
                 Vector2Int tileCoordinates = centralTileCoordinates + x * Vector2Int.right + y * Vector2Int.up;
                 if (!DoesTileExist(tileCoordinates))
                 {
-                    AddTile(tileCoordinates);
+                    AddTile(tileCoordinates, true, position);
                 }
             }
         }

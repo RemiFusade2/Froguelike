@@ -4,9 +4,9 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class Froguelike_UIManager : MonoBehaviour
+public class UIManager : MonoBehaviour
 {
-    public static Froguelike_UIManager instance;
+    public static UIManager instance;
 
     [Header("Title")]
     public GameObject titleScreen;
@@ -75,8 +75,8 @@ public class Froguelike_UIManager : MonoBehaviour
     public Color maxLevelColor;
 
     [Header("Sound")]
-    public Froguelike_SoundManager soundManager;
-    public Froguelike_MusicManager musicManager;
+    public SoundManager soundManager;
+    public MusicManager musicManager;
 
     private void Awake()
     {

@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Froguelike_MusicManager : MonoBehaviour
+public class MusicManager : MonoBehaviour
 {
-    public static Froguelike_MusicManager instance;
+    public static MusicManager instance;
 
     [Header("Music")]
     public AudioClip titleMusic;
