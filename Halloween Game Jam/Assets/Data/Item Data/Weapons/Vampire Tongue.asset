@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bab5c4d08998688428d312a1f380e8d2, type: 3}
-  m_Name: RandoTongue
+  m_Name: Vampire Tongue
   m_EditorClassIdentifier: 
-  itemName: Rando-Tongue
+  itemName: Vampi-Tongue
   icon: {fileID: 0}
   levels:
   - level: 1
-    description: Unpredictable
+    description: Eating flies restore your life
     recoverHealth: 0
     extraScore: 0
     walkSpeedBoost: 0
@@ -49,7 +49,7 @@ MonoBehaviour:
     weaponChangeSpeedDurationBoost: 0
     weaponExtraWeapon: 0
   - level: 2
-    description: DMG +50% ; SPEED +30%
+    description: Speed +10%
     recoverHealth: 0
     extraScore: 0
     walkSpeedBoost: 0
@@ -69,8 +69,8 @@ MonoBehaviour:
     attackMaxFliesBoost: 0
     attackSpecialStrengthBoost: 0
     attackSpecialDurationBoost: 0
-    weaponDamageBoost: 2
-    weaponSpeedBoost: 0.2
+    weaponDamageBoost: 0
+    weaponSpeedBoost: 0.1
     weaponCooldownBoost: 0
     weaponRangeBoost: 0
     weaponMaxFliesBoost: 0
@@ -82,7 +82,7 @@ MonoBehaviour:
     weaponChangeSpeedDurationBoost: 0
     weaponExtraWeapon: 0
   - level: 3
-    description: A chance to absorb health
+    description: DMG +1 and absorb more HP
     recoverHealth: 0
     extraScore: 0
     walkSpeedBoost: 0
@@ -102,20 +102,20 @@ MonoBehaviour:
     attackMaxFliesBoost: 0
     attackSpecialStrengthBoost: 0
     attackSpecialDurationBoost: 0
-    weaponDamageBoost: 0
+    weaponDamageBoost: 1
     weaponSpeedBoost: 0
     weaponCooldownBoost: 0
     weaponRangeBoost: 0
     weaponMaxFliesBoost: 0
-    weaponHealthAbsorbRatioBoost: 0.5
-    weaponHealthAbsorbMaxBoost: 5
+    weaponHealthAbsorbRatioBoost: 0.1
+    weaponHealthAbsorbMaxBoost: 1
     weaponPoisonDamageBoost: 0
     weaponPoisonDurationBoost: 0
     weaponChangeSpeedFactorBoost: 0
     weaponChangeSpeedDurationBoost: 0
     weaponExtraWeapon: 0
   - level: 4
-    description: Eat 5 flies max
+    description: Cooldown -20%
     recoverHealth: 0
     extraScore: 0
     walkSpeedBoost: 0
@@ -137,9 +137,9 @@ MonoBehaviour:
     attackSpecialDurationBoost: 0
     weaponDamageBoost: 0
     weaponSpeedBoost: 0
-    weaponCooldownBoost: 0
-    weaponRangeBoost: 0.5
-    weaponMaxFliesBoost: 3
+    weaponCooldownBoost: 0.5
+    weaponRangeBoost: 0
+    weaponMaxFliesBoost: 0
     weaponHealthAbsorbRatioBoost: 0
     weaponHealthAbsorbMaxBoost: 0
     weaponPoisonDamageBoost: 0
@@ -148,7 +148,7 @@ MonoBehaviour:
     weaponChangeSpeedDurationBoost: 0
     weaponExtraWeapon: 0
   - level: 5
-    description: One extra tongue
+    description: +1 Tongue
     recoverHealth: 0
     extraScore: 0
     walkSpeedBoost: 0
@@ -181,7 +181,40 @@ MonoBehaviour:
     weaponChangeSpeedDurationBoost: 0
     weaponExtraWeapon: 1
   - level: 6
-    description: A chance to poison
+    description: DMG +2 ; Range +50%
+    recoverHealth: 0
+    extraScore: 0
+    walkSpeedBoost: 0
+    swimSpeedBoost: 0
+    maxHealthBoost: 0
+    healthRecoveryBoost: 0
+    armorBoost: 0
+    experienceBoost: 0
+    goldBoost: 0
+    curseBoost: 0
+    revivalBoost: 0
+    rerollBoost: 0
+    attackDamageBoost: 0
+    attackSpeedBoost: 0
+    attackCooldownBoost: 0
+    attackRangeBoost: 0
+    attackMaxFliesBoost: 0
+    attackSpecialStrengthBoost: 0
+    attackSpecialDurationBoost: 0
+    weaponDamageBoost: 2
+    weaponSpeedBoost: 0
+    weaponCooldownBoost: 0
+    weaponRangeBoost: 0.5
+    weaponMaxFliesBoost: 2
+    weaponHealthAbsorbRatioBoost: 0
+    weaponHealthAbsorbMaxBoost: 0
+    weaponPoisonDamageBoost: 0
+    weaponPoisonDurationBoost: 0
+    weaponChangeSpeedFactorBoost: 0
+    weaponChangeSpeedDurationBoost: 0
+    weaponExtraWeapon: 0
+  - level: 7
+    description: Double Health Absorption
     recoverHealth: 0
     extraScore: 0
     walkSpeedBoost: 0
@@ -206,15 +239,15 @@ MonoBehaviour:
     weaponCooldownBoost: 0
     weaponRangeBoost: 0
     weaponMaxFliesBoost: 0
-    weaponHealthAbsorbRatioBoost: 0
-    weaponHealthAbsorbMaxBoost: 0
-    weaponPoisonDamageBoost: 1
-    weaponPoisonDurationBoost: 2
+    weaponHealthAbsorbRatioBoost: 0.2
+    weaponHealthAbsorbMaxBoost: 2
+    weaponPoisonDamageBoost: 0
+    weaponPoisonDurationBoost: 0
     weaponChangeSpeedFactorBoost: 0
     weaponChangeSpeedDurationBoost: 0
     weaponExtraWeapon: 0
-  - level: 7
-    description: Eat twice as many flies
+  - level: 8
+    description: Double Damage
     recoverHealth: 0
     extraScore: 0
     walkSpeedBoost: 0
@@ -238,7 +271,7 @@ MonoBehaviour:
     weaponSpeedBoost: 0
     weaponCooldownBoost: 0
     weaponRangeBoost: 0
-    weaponMaxFliesBoost: 5
+    weaponMaxFliesBoost: 2
     weaponHealthAbsorbRatioBoost: 0
     weaponHealthAbsorbMaxBoost: 0
     weaponPoisonDamageBoost: 0
@@ -246,8 +279,8 @@ MonoBehaviour:
     weaponChangeSpeedFactorBoost: 0
     weaponChangeSpeedDurationBoost: 0
     weaponExtraWeapon: 0
-  - level: 8
-    description: A chance to freeze, or be cursed!
+  - level: 9
+    description: No cooldown
     recoverHealth: 0
     extraScore: 0
     walkSpeedBoost: 0
@@ -269,40 +302,7 @@ MonoBehaviour:
     attackSpecialDurationBoost: 0
     weaponDamageBoost: 0
     weaponSpeedBoost: 0
-    weaponCooldownBoost: 0
-    weaponRangeBoost: 0
-    weaponMaxFliesBoost: 0
-    weaponHealthAbsorbRatioBoost: 0
-    weaponHealthAbsorbMaxBoost: 0
-    weaponPoisonDamageBoost: 0
-    weaponPoisonDurationBoost: 0
-    weaponChangeSpeedFactorBoost: 0.8
-    weaponChangeSpeedDurationBoost: 2
-    weaponExtraWeapon: 0
-  - level: 9
-    description: No cooldown ; Twice damage
-    recoverHealth: 0
-    extraScore: 0
-    walkSpeedBoost: 0
-    swimSpeedBoost: 0
-    maxHealthBoost: 0
-    healthRecoveryBoost: 0
-    armorBoost: 0
-    experienceBoost: 0
-    goldBoost: 0
-    curseBoost: 0
-    revivalBoost: 0
-    rerollBoost: 0
-    attackDamageBoost: 0
-    attackSpeedBoost: 0
-    attackCooldownBoost: 0
-    attackRangeBoost: 0
-    attackMaxFliesBoost: 0
-    attackSpecialStrengthBoost: 0
-    attackSpecialDurationBoost: 0
-    weaponDamageBoost: 15
-    weaponSpeedBoost: 0
-    weaponCooldownBoost: -0.5
+    weaponCooldownBoost: -3
     weaponRangeBoost: 0
     weaponMaxFliesBoost: 0
     weaponHealthAbsorbRatioBoost: 0
@@ -313,7 +313,7 @@ MonoBehaviour:
     weaponChangeSpeedDurationBoost: 0
     weaponExtraWeapon: 0
   - level: 10
-    description: +1 Extra tongue
+    description: All damage get converted to HP
     recoverHealth: 0
     extraScore: 0
     walkSpeedBoost: 0
@@ -338,25 +338,25 @@ MonoBehaviour:
     weaponCooldownBoost: 0
     weaponRangeBoost: 0
     weaponMaxFliesBoost: 0
-    weaponHealthAbsorbRatioBoost: 0
-    weaponHealthAbsorbMaxBoost: 0
+    weaponHealthAbsorbRatioBoost: 0.6
+    weaponHealthAbsorbMaxBoost: 6
     weaponPoisonDamageBoost: 0
     weaponPoisonDurationBoost: 0
     weaponChangeSpeedFactorBoost: 0
     weaponChangeSpeedDurationBoost: 0
-    weaponExtraWeapon: 1
+    weaponExtraWeapon: 0
   isWeapon: 1
   weaponData:
     weaponPrefab: {fileID: 3990334965163639182, guid: 4a710caa256322a4aa6bfb19109e4559, type: 3}
     startWidth: 0.1
-    weaponType: 8
+    weaponType: 4
     startCooldown: 1.5
-    startDamage: 2
-    startAttackSpeed: 0.8
-    startMaxFlies: 2
-    startRange: 3.5
-    startHealthAbsorbRatio: 0
-    startHealthAbsorbMax: 0
+    startDamage: 1
+    startAttackSpeed: 1.5
+    startMaxFlies: 1
+    startRange: 2
+    startHealthAbsorbRatio: 0.1
+    startHealthAbsorbMax: 1
     startPoisonDamage: 0
     startPoisonDuration: 0
     startChangeSpeedFactor: 0

@@ -3,12 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public enum WeaponDirection
+public enum WeaponType
 {
-    RANDOM,
-    NEAREST,
-    ROTATING,
-    ULTIMATE
+    CLASSIC, // target nearest, medium range, medium damage, no special
+    QUICK, // target nearest, shorter, super fast, low damage, low cooldown. Upgrade to zero cooldown and triple tongue.
+    WIDE, // target nearest, wider than usual, shorter, more damage
+    ROTATING, // rotates around, medium range, low damage, upgrade to double
+    VAMPIRE, // target nearest, medium range, low damage, heal when damage. RED
+    POISON, // target nearest, low range, medium damage, poison damage during a delay after hit. GREEN
+    FREEZE, // target nearest, high range, low damage, slow down enemies. BLUE
+    CURSED, // target nearest, medium range, high damage, high speed, make enemies faster. PURPLE OR ORANGE
+    RANDOM // target random direction, high range, high damage, medium speed. Random effect and random color
 }
 
 public class WeaponBehaviour : MonoBehaviour
@@ -17,13 +22,18 @@ public class WeaponBehaviour : MonoBehaviour
     public Transform outlineTransform;
     
     [Header("Settings - appearance")]
-    public Color tongueColor;
+    public Color defaultColor;
+    public Color vampireColor;
+    public Color poisonColor;
+    public Color freezeColor;
+    public Color cursedColor;
     public float tongueWidth = 1;
     public Color outlineColor;
     public float outlineWeight = 0.1f;
 
     [Header("Settings - base metrics")]
-    public WeaponDirection weaponDirection;
+    public WeaponType weaponType;
+    [Space]
     public float cooldown;
     public float damage;
     public float attackSpeed;
@@ -32,10 +42,10 @@ public class WeaponBehaviour : MonoBehaviour
 
     [Header("Settings - special metrics")]
     public float healthAbsorbRatio;
-    public float healthAbsorbMax;    
+    public float healthAbsorbMax;
     [Space]
     public float poisonDamage;
-    public float poisonDuration;    
+    public float poisonDuration;
     [Space]
     public float changeSpeedFactor;
     public float changeSpeedDuration;
@@ -43,6 +53,8 @@ public class WeaponBehaviour : MonoBehaviour
     [Header("Collision Layer")]
     public LayerMask foodLayer;
 
+
+    private Color tongueColor;
 
     private LineRenderer tongueLineRenderer;
     private LineRenderer outlineLineRenderer;
@@ -57,8 +69,9 @@ public class WeaponBehaviour : MonoBehaviour
 
     private bool isAttacking;
     
-    public void SetTongueColor()
+    public void SetTongueColor(Color color)
     {
+        tongueColor = color;
         if (tongueLineRenderer != null && outlineLineRenderer != null)
         {
             tongueLineRenderer.startColor = tongueColor;
@@ -70,6 +83,7 @@ public class WeaponBehaviour : MonoBehaviour
 
     public void SetTongueWidth(float width)
     {
+        tongueWidth = width;
         if (tongueLineRenderer != null && outlineLineRenderer != null)
         {
             tongueLineRenderer.startWidth = width;
@@ -107,7 +121,7 @@ public class WeaponBehaviour : MonoBehaviour
         this.transform.position = weaponStartPosition.position;
     }
 
-    public void Initialize()
+    public void ResetWeapon()
     {
         isAttacking = false;
         eatenFliesCount = 0;
@@ -116,6 +130,48 @@ public class WeaponBehaviour : MonoBehaviour
         SetTongueScale(0);
         tongueLineRenderer = GetComponent<LineRenderer>();
         outlineLineRenderer = outlineTransform.GetComponent<LineRenderer>();
+
+        switch (weaponType)
+        {
+            case WeaponType.VAMPIRE:
+                SetTongueColor(vampireColor);
+                break;
+            case WeaponType.POISON:
+                SetTongueColor(poisonColor);
+                break;
+            case WeaponType.FREEZE:
+                SetTongueColor(freezeColor);
+                break;
+            case WeaponType.CURSED:
+                SetTongueColor(cursedColor);
+                break;
+            default:
+                SetTongueColor(defaultColor);
+                break;
+        }
+    }
+
+    public void Initialize(WeaponData weaponData)
+    {
+        weaponType = weaponData.weaponType;
+        attackSpeed = weaponData.startAttackSpeed;
+        cooldown = weaponData.startCooldown;
+        damage = weaponData.startDamage;
+        range = weaponData.startRange;
+        maxFlies = weaponData.startMaxFlies;
+
+        changeSpeedFactor = weaponData.startChangeSpeedFactor;
+        changeSpeedDuration = weaponData.startChangeSpeedDuration;
+
+        healthAbsorbMax = weaponData.startHealthAbsorbMax;
+        healthAbsorbRatio = weaponData.startHealthAbsorbRatio;
+
+        poisonDamage = weaponData.startPoisonDamage;
+        poisonDuration = weaponData.startPoisonDuration;
+        
+        SetTongueWidth(weaponData.startWidth);
+
+        ResetWeapon();
     }
 
     public void CopyWeaponStats(WeaponBehaviour weapon)
@@ -126,15 +182,35 @@ public class WeaponBehaviour : MonoBehaviour
         maxFlies = weapon.maxFlies;
         range = weapon.range;
         tongueWidth = weapon.tongueWidth;
+
+        weaponType = weapon.weaponType;
+
+        healthAbsorbRatio = weapon.healthAbsorbRatio;
+        healthAbsorbMax = weapon.healthAbsorbMax;
+
+        poisonDamage = weapon.poisonDamage;
+        poisonDuration = weapon.poisonDuration;
+
+        changeSpeedFactor = weapon.changeSpeedFactor;
+        changeSpeedDuration = weapon.changeSpeedDuration;
     }
 
-    public void LevelUp(Froguelike_ItemLevel itemLevel)
+    public void LevelUp(ItemLevel itemLevel)
     {
         cooldown += itemLevel.weaponCooldownBoost;
         damage += itemLevel.weaponDamageBoost;
         attackSpeed += itemLevel.weaponSpeedBoost;
         maxFlies += itemLevel.weaponMaxFliesBoost;
         range += itemLevel.weaponRangeBoost;
+
+        healthAbsorbRatio += itemLevel.weaponHealthAbsorbRatioBoost;
+        healthAbsorbMax += itemLevel.weaponHealthAbsorbMaxBoost;
+
+        poisonDamage += itemLevel.weaponPoisonDamageBoost;
+        poisonDuration += itemLevel.weaponPoisonDurationBoost;
+
+        changeSpeedFactor += itemLevel.weaponChangeSpeedFactorBoost;
+        changeSpeedDuration += itemLevel.weaponChangeSpeedDurationBoost;
     }
 
     // Start is called before the first frame update
@@ -177,24 +253,54 @@ public class WeaponBehaviour : MonoBehaviour
         float actualCooldown = cooldown * (1 - GameManager.instance.player.attackCooldownBoost);
         if (!isAttacking && Time.time - lastAttackTime > actualCooldown)
         {
-            switch (weaponDirection)
+            switch (weaponType)
             {
-                case WeaponDirection.NEAREST:
-                    GameObject targetEnemy = GetNearestEnemy();
-                    if (targetEnemy != null)
+                // Attack random direction
+                case WeaponType.RANDOM:
                     {
-                        Attack(FliesManager.instance.GetEnemyInfo(targetEnemy.name));
+                        // Set random color
+                        List<Color> possibleColors = new List<Color>();
+                        possibleColors.Add(defaultColor);
+                        if (healthAbsorbMax > 0)
+                        {
+                            possibleColors.Add(vampireColor);
+                        }
+                        if (poisonDamage > 0)
+                        {
+                            possibleColors.Add(poisonColor);
+                        }
+                        if (changeSpeedFactor != 0)
+                        {
+                            possibleColors.Add(freezeColor);
+                            possibleColors.Add(cursedColor);
+                        }
+                        SetTongueColor(possibleColors[Random.Range(0, possibleColors.Count)]);
+                        Vector2 direction = Random.insideUnitCircle.normalized;
+                        Attack(direction);
                     }
                     break;
-                case WeaponDirection.RANDOM:
-                    Vector2 direction = Random.insideUnitCircle.normalized;
-                    Attack(direction);
-                    break;
-                case WeaponDirection.ROTATING:
+                // Attack rotating
+                case WeaponType.ROTATING:
                     AttackRotating();
                     break;
+                // Attack nearest enemy
+                case WeaponType.CLASSIC:
+                case WeaponType.CURSED:
+                case WeaponType.FREEZE:
+                case WeaponType.POISON:
+                case WeaponType.QUICK:
+                case WeaponType.VAMPIRE:
+                case WeaponType.WIDE:
+                default:
+                    {
+                        GameObject targetEnemy = GetNearestEnemy();
+                        if (targetEnemy != null)
+                        {
+                            Attack(FliesManager.instance.GetEnemyInfo(targetEnemy.name));
+                        }
+                    }
+                    break;
             }
-
         }
     }
 
@@ -299,19 +405,45 @@ public class WeaponBehaviour : MonoBehaviour
     {
         if (collision.CompareTag("Fly"))
         {
+            // default part, for any weapon
             string enemyName = collision.gameObject.name;
             float actualDamage = damage * (1 + GameManager.instance.player.attackDamageBoost);
             float actualMaxFiles = maxFlies + GameManager.instance.player.attackMaxFliesBoost;
             bool canKillEnemy = (eatenFliesCount < actualMaxFiles);
             bool enemyIsDead = FliesManager.instance.DamageEnemy(enemyName, actualDamage, canKillEnemy);
 
-            float healAmount = Mathf.Clamp(actualDamage * healthAbsorbRatio, 0, healthAbsorbMax);
-            GameManager.instance.player.Heal(healAmount);
+            // vampire part, absorb part of damage done
+            if (weaponType == WeaponType.VAMPIRE || (weaponType == WeaponType.RANDOM && tongueColor.Equals(vampireColor)))
+            {
+                float healAmount = Mathf.Clamp(actualDamage * healthAbsorbRatio, 0, healthAbsorbMax);
+                GameManager.instance.player.Heal(healAmount);
+            }
+
+            // poison part, add poison damage to enemy
+            if (weaponType == WeaponType.POISON || (weaponType == WeaponType.RANDOM && tongueColor.Equals(poisonColor)))
+            {
+                float actualPoisonDamage = poisonDamage * (1 + GameManager.instance.player.attackSpecialStrengthBoost);
+                float actualPoisonDuration = poisonDuration * (1 + GameManager.instance.player.attackSpecialDurationBoost);
+                FliesManager.instance.AddPoisonDamageToEnemy(enemyName, actualPoisonDamage, actualPoisonDuration);
+            }
+
+            // freeze part or curse part, change enemy speed
+            if (weaponType == WeaponType.CURSED || (weaponType == WeaponType.RANDOM && tongueColor.Equals(cursedColor)))
+            {
+                float actualAccelerateFactor = changeSpeedFactor * (1 + GameManager.instance.player.attackSpecialStrengthBoost);
+                float actualAccelerateDuration = changeSpeedDuration * (1 + GameManager.instance.player.attackSpecialDurationBoost);
+                FliesManager.instance.ChangeEnemySpeed(enemyName, actualAccelerateFactor, actualAccelerateDuration);
+            }
+            if (weaponType == WeaponType.FREEZE || (weaponType == WeaponType.RANDOM && tongueColor.Equals(freezeColor)))
+            {
+                float actualSlowDownFactor = -changeSpeedFactor * (1 + GameManager.instance.player.attackSpecialStrengthBoost);
+                float actualSlowDownDuration = changeSpeedDuration * (1 + GameManager.instance.player.attackSpecialDurationBoost);
+                FliesManager.instance.ChangeEnemySpeed(enemyName, actualSlowDownFactor, actualSlowDownDuration);
+            }
 
             if (enemyIsDead)
             {
-                collision.GetComponent<Animator>().SetBool("IsDead", true);
-                collision.enabled = false;
+                FliesManager.instance.SetEnemyDead(enemyName);
                 eatenFliesCount++;
                 CheckEatenFlyCount();
             }
@@ -323,16 +455,7 @@ public class WeaponBehaviour : MonoBehaviour
         float actualMaxFiles = maxFlies + GameManager.instance.player.attackMaxFliesBoost;
         if (eatenFliesCount >= actualMaxFiles)
         {
-            switch (weaponDirection)
-            {
-                case WeaponDirection.NEAREST:
-                case WeaponDirection.ROTATING:
-                case WeaponDirection.RANDOM:
-                    isTongueGoingOut = false;
-                    break;
-                default:
-                    break;
-            }
+            isTongueGoingOut = false;
         }
     }
 }

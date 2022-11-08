@@ -14,7 +14,7 @@ public class FriendInfo
     public Vector2 startPosition;
 }
 
-public class CharacterController : MonoBehaviour
+public class FrogCharacterController : MonoBehaviour
 {
     [Header("Player id")]
     public int playerID;
@@ -51,6 +51,9 @@ public class CharacterController : MonoBehaviour
     public float attackRangeBoost = 0;
     [Range(0, 1)]
     public float attackSpeedBoost = 0;
+
+    public float attackSpecialStrengthBoost = 0;
+    public float attackSpecialDurationBoost = 0;
 
     [Header("Settings - controls")]
     public string horizontalInputName;
@@ -155,11 +158,14 @@ public class CharacterController : MonoBehaviour
         attackMaxFliesBoost = 0;
         attackRangeBoost = 0;
         attackSpeedBoost = 0;
+
+        attackSpecialDurationBoost = 0;
+        attackSpecialStrengthBoost = 0;
         
         currentHealth = maxHealth;
     }
 
-    public void ResolvePickedItemLevel(Froguelike_ItemLevel itemLevelData)
+    public void ResolvePickedItemLevel(ItemLevel itemLevelData)
     {
         FliesManager.instance.curse += itemLevelData.curseBoost;
 
@@ -184,6 +190,9 @@ public class CharacterController : MonoBehaviour
         attackMaxFliesBoost += itemLevelData.attackMaxFliesBoost;
         attackRangeBoost += itemLevelData.attackRangeBoost;
         attackSpeedBoost += itemLevelData.attackSpeedBoost;
+
+        attackSpecialDurationBoost += itemLevelData.attackSpecialDurationBoost;
+        attackSpecialStrengthBoost += itemLevelData.attackSpecialStrengthBoost;
 
         if (itemLevelData.recoverHealth > 0)
         {
@@ -235,6 +244,16 @@ public class CharacterController : MonoBehaviour
         }
     }
 
+    public Vector2 GetMoveDirection()
+    {
+        Vector2 moveDirection = Vector2.zero;
+        if (playerRigidbody.velocity.magnitude > 0.1f)
+        {
+            moveDirection = playerRigidbody.velocity.normalized;
+        }
+        return moveDirection;
+    }
+
     public void ClearFriends()
     {
         foreach (FriendInfo friend in allFriends)
@@ -261,7 +280,7 @@ public class CharacterController : MonoBehaviour
             activeFriendsIndexList.Add(index);
             allFriends[index].friendGameObject.SetActive(true);
             allFriends[index].weapon.gameObject.SetActive(true);
-            allFriends[index].weapon.Initialize();
+            allFriends[index].weapon.ResetWeapon();
             allFriends[index].animator.SetInteger("Style", allFriends[index].style);
         }
     }

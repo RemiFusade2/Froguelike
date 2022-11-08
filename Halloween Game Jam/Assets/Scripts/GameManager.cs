@@ -134,7 +134,7 @@ public class GameManager : MonoBehaviour
     public static GameManager instance;
 
     [Header("References")]
-    public CharacterController player;
+    public FrogCharacterController player;
     public MapBehaviour map;
     public Transform fliesParent;
     public ParticleSystem levelUpParticleSystem;
@@ -300,13 +300,15 @@ public class GameManager : MonoBehaviour
     {
         if (weaponItem.item.isWeapon)
         {
-            GameObject weaponPrefab = weaponItem.item.weaponPrefab;
+            WeaponData weaponData = weaponItem.item.weaponData;
+            GameObject weaponPrefab = weaponItem.item.weaponData.weaponPrefab;
             GameObject weaponGo = Instantiate(weaponPrefab, player.weaponStartPoint.position, Quaternion.identity, player.weaponsParent);
             if (weaponItem.weaponsList.Count > 0)
             {
                 weaponGo.GetComponent<WeaponBehaviour>().CopyWeaponStats(weaponItem.weaponsList[0].GetComponent<WeaponBehaviour>());
             }
             weaponItem.weaponsList.Add(weaponGo);
+            weaponGo.GetComponent<WeaponBehaviour>().Initialize(weaponData);
         }
     }
 
@@ -630,7 +632,7 @@ public class GameManager : MonoBehaviour
         {
             if (tongue.GetComponent<WeaponBehaviour>() != null)
             {
-                tongue.GetComponent<WeaponBehaviour>().Initialize();
+                tongue.GetComponent<WeaponBehaviour>().ResetWeapon();
             }
         }
 

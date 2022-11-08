@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bab5c4d08998688428d312a1f380e8d2, type: 3}
-  m_Name: RandoTongue
+  m_Name: Poison Tongue
   m_EditorClassIdentifier: 
-  itemName: Rando-Tongue
+  itemName: Poisonous Tongue
   icon: {fileID: 0}
   levels:
   - level: 1
-    description: Unpredictable
+    description: Deal damage for a while
     recoverHealth: 0
     extraScore: 0
     walkSpeedBoost: 0
@@ -49,7 +49,7 @@ MonoBehaviour:
     weaponChangeSpeedDurationBoost: 0
     weaponExtraWeapon: 0
   - level: 2
-    description: DMG +50% ; SPEED +30%
+    description: Poison duration +50%
     recoverHealth: 0
     extraScore: 0
     walkSpeedBoost: 0
@@ -69,10 +69,43 @@ MonoBehaviour:
     attackMaxFliesBoost: 0
     attackSpecialStrengthBoost: 0
     attackSpecialDurationBoost: 0
-    weaponDamageBoost: 2
-    weaponSpeedBoost: 0.2
+    weaponDamageBoost: 0
+    weaponSpeedBoost: 0
     weaponCooldownBoost: 0
     weaponRangeBoost: 0
+    weaponMaxFliesBoost: 0
+    weaponHealthAbsorbRatioBoost: 0
+    weaponHealthAbsorbMaxBoost: 0
+    weaponPoisonDamageBoost: 0
+    weaponPoisonDurationBoost: 1
+    weaponChangeSpeedFactorBoost: 0
+    weaponChangeSpeedDurationBoost: 0
+    weaponExtraWeapon: 0
+  - level: 3
+    description: Range +10%
+    recoverHealth: 0
+    extraScore: 0
+    walkSpeedBoost: 0
+    swimSpeedBoost: 0
+    maxHealthBoost: 0
+    healthRecoveryBoost: 0
+    armorBoost: 0
+    experienceBoost: 0
+    goldBoost: 0
+    curseBoost: 0
+    revivalBoost: 0
+    rerollBoost: 0
+    attackDamageBoost: 0
+    attackSpeedBoost: 0
+    attackCooldownBoost: 0
+    attackRangeBoost: 0
+    attackMaxFliesBoost: 0
+    attackSpecialStrengthBoost: 0
+    attackSpecialDurationBoost: 0
+    weaponDamageBoost: 0
+    weaponSpeedBoost: 0
+    weaponCooldownBoost: 0
+    weaponRangeBoost: 0.2
     weaponMaxFliesBoost: 0
     weaponHealthAbsorbRatioBoost: 0
     weaponHealthAbsorbMaxBoost: 0
@@ -81,8 +114,8 @@ MonoBehaviour:
     weaponChangeSpeedFactorBoost: 0
     weaponChangeSpeedDurationBoost: 0
     weaponExtraWeapon: 0
-  - level: 3
-    description: A chance to absorb health
+  - level: 4
+    description: Cooldown -20%
     recoverHealth: 0
     extraScore: 0
     walkSpeedBoost: 0
@@ -104,42 +137,9 @@ MonoBehaviour:
     attackSpecialDurationBoost: 0
     weaponDamageBoost: 0
     weaponSpeedBoost: 0
-    weaponCooldownBoost: 0
+    weaponCooldownBoost: -0.4
     weaponRangeBoost: 0
     weaponMaxFliesBoost: 0
-    weaponHealthAbsorbRatioBoost: 0.5
-    weaponHealthAbsorbMaxBoost: 5
-    weaponPoisonDamageBoost: 0
-    weaponPoisonDurationBoost: 0
-    weaponChangeSpeedFactorBoost: 0
-    weaponChangeSpeedDurationBoost: 0
-    weaponExtraWeapon: 0
-  - level: 4
-    description: Eat 5 flies max
-    recoverHealth: 0
-    extraScore: 0
-    walkSpeedBoost: 0
-    swimSpeedBoost: 0
-    maxHealthBoost: 0
-    healthRecoveryBoost: 0
-    armorBoost: 0
-    experienceBoost: 0
-    goldBoost: 0
-    curseBoost: 0
-    revivalBoost: 0
-    rerollBoost: 0
-    attackDamageBoost: 0
-    attackSpeedBoost: 0
-    attackCooldownBoost: 0
-    attackRangeBoost: 0
-    attackMaxFliesBoost: 0
-    attackSpecialStrengthBoost: 0
-    attackSpecialDurationBoost: 0
-    weaponDamageBoost: 0
-    weaponSpeedBoost: 0
-    weaponCooldownBoost: 0
-    weaponRangeBoost: 0.5
-    weaponMaxFliesBoost: 3
     weaponHealthAbsorbRatioBoost: 0
     weaponHealthAbsorbMaxBoost: 0
     weaponPoisonDamageBoost: 0
@@ -148,40 +148,7 @@ MonoBehaviour:
     weaponChangeSpeedDurationBoost: 0
     weaponExtraWeapon: 0
   - level: 5
-    description: One extra tongue
-    recoverHealth: 0
-    extraScore: 0
-    walkSpeedBoost: 0
-    swimSpeedBoost: 0
-    maxHealthBoost: 0
-    healthRecoveryBoost: 0
-    armorBoost: 0
-    experienceBoost: 0
-    goldBoost: 0
-    curseBoost: 0
-    revivalBoost: 0
-    rerollBoost: 0
-    attackDamageBoost: 0
-    attackSpeedBoost: 0
-    attackCooldownBoost: 0
-    attackRangeBoost: 0
-    attackMaxFliesBoost: 0
-    attackSpecialStrengthBoost: 0
-    attackSpecialDurationBoost: 0
-    weaponDamageBoost: 0
-    weaponSpeedBoost: 0
-    weaponCooldownBoost: 0
-    weaponRangeBoost: 0
-    weaponMaxFliesBoost: 0
-    weaponHealthAbsorbRatioBoost: 0
-    weaponHealthAbsorbMaxBoost: 0
-    weaponPoisonDamageBoost: 0
-    weaponPoisonDurationBoost: 0
-    weaponChangeSpeedFactorBoost: 0
-    weaponChangeSpeedDurationBoost: 0
-    weaponExtraWeapon: 1
-  - level: 6
-    description: A chance to poison
+    description: Poison DMG +1
     recoverHealth: 0
     extraScore: 0
     walkSpeedBoost: 0
@@ -209,45 +176,12 @@ MonoBehaviour:
     weaponHealthAbsorbRatioBoost: 0
     weaponHealthAbsorbMaxBoost: 0
     weaponPoisonDamageBoost: 1
-    weaponPoisonDurationBoost: 2
-    weaponChangeSpeedFactorBoost: 0
-    weaponChangeSpeedDurationBoost: 0
-    weaponExtraWeapon: 0
-  - level: 7
-    description: Eat twice as many flies
-    recoverHealth: 0
-    extraScore: 0
-    walkSpeedBoost: 0
-    swimSpeedBoost: 0
-    maxHealthBoost: 0
-    healthRecoveryBoost: 0
-    armorBoost: 0
-    experienceBoost: 0
-    goldBoost: 0
-    curseBoost: 0
-    revivalBoost: 0
-    rerollBoost: 0
-    attackDamageBoost: 0
-    attackSpeedBoost: 0
-    attackCooldownBoost: 0
-    attackRangeBoost: 0
-    attackMaxFliesBoost: 0
-    attackSpecialStrengthBoost: 0
-    attackSpecialDurationBoost: 0
-    weaponDamageBoost: 5
-    weaponSpeedBoost: 0
-    weaponCooldownBoost: 0
-    weaponRangeBoost: 0
-    weaponMaxFliesBoost: 5
-    weaponHealthAbsorbRatioBoost: 0
-    weaponHealthAbsorbMaxBoost: 0
-    weaponPoisonDamageBoost: 0
     weaponPoisonDurationBoost: 0
     weaponChangeSpeedFactorBoost: 0
     weaponChangeSpeedDurationBoost: 0
     weaponExtraWeapon: 0
-  - level: 8
-    description: A chance to freeze, or be cursed!
+  - level: 6
+    description: Poison Duration +50%
     recoverHealth: 0
     extraScore: 0
     walkSpeedBoost: 0
@@ -275,12 +209,12 @@ MonoBehaviour:
     weaponHealthAbsorbRatioBoost: 0
     weaponHealthAbsorbMaxBoost: 0
     weaponPoisonDamageBoost: 0
-    weaponPoisonDurationBoost: 0
-    weaponChangeSpeedFactorBoost: 0.8
-    weaponChangeSpeedDurationBoost: 2
+    weaponPoisonDurationBoost: 1
+    weaponChangeSpeedFactorBoost: 0
+    weaponChangeSpeedDurationBoost: 0
     weaponExtraWeapon: 0
-  - level: 9
-    description: No cooldown ; Twice damage
+  - level: 7
+    description: Speed +50%
     recoverHealth: 0
     extraScore: 0
     walkSpeedBoost: 0
@@ -300,9 +234,75 @@ MonoBehaviour:
     attackMaxFliesBoost: 0
     attackSpecialStrengthBoost: 0
     attackSpecialDurationBoost: 0
-    weaponDamageBoost: 15
+    weaponDamageBoost: 0
+    weaponSpeedBoost: 0.5
+    weaponCooldownBoost: 0
+    weaponRangeBoost: 0
+    weaponMaxFliesBoost: 0
+    weaponHealthAbsorbRatioBoost: 0
+    weaponHealthAbsorbMaxBoost: 0
+    weaponPoisonDamageBoost: 0
+    weaponPoisonDurationBoost: 0
+    weaponChangeSpeedFactorBoost: 0
+    weaponChangeSpeedDurationBoost: 0
+    weaponExtraWeapon: 0
+  - level: 8
+    description: Double Poison DMG
+    recoverHealth: 0
+    extraScore: 0
+    walkSpeedBoost: 0
+    swimSpeedBoost: 0
+    maxHealthBoost: 0
+    healthRecoveryBoost: 0
+    armorBoost: 0
+    experienceBoost: 0
+    goldBoost: 0
+    curseBoost: 0
+    revivalBoost: 0
+    rerollBoost: 0
+    attackDamageBoost: 0
+    attackSpeedBoost: 0
+    attackCooldownBoost: 0
+    attackRangeBoost: 0
+    attackMaxFliesBoost: 0
+    attackSpecialStrengthBoost: 0
+    attackSpecialDurationBoost: 0
+    weaponDamageBoost: 0
     weaponSpeedBoost: 0
-    weaponCooldownBoost: -0.5
+    weaponCooldownBoost: 0
+    weaponRangeBoost: 0
+    weaponMaxFliesBoost: 0
+    weaponHealthAbsorbRatioBoost: 0
+    weaponHealthAbsorbMaxBoost: 0
+    weaponPoisonDamageBoost: 3
+    weaponPoisonDurationBoost: 0
+    weaponChangeSpeedFactorBoost: 0
+    weaponChangeSpeedDurationBoost: 0
+    weaponExtraWeapon: 0
+  - level: 9
+    description: No cooldown
+    recoverHealth: 0
+    extraScore: 0
+    walkSpeedBoost: 0
+    swimSpeedBoost: 0
+    maxHealthBoost: 0
+    healthRecoveryBoost: 0
+    armorBoost: 0
+    experienceBoost: 0
+    goldBoost: 0
+    curseBoost: 0
+    revivalBoost: 0
+    rerollBoost: 0
+    attackDamageBoost: 0
+    attackSpeedBoost: 0
+    attackCooldownBoost: 0
+    attackRangeBoost: 0
+    attackMaxFliesBoost: 0
+    attackSpecialStrengthBoost: 0
+    attackSpecialDurationBoost: 0
+    weaponDamageBoost: 0
+    weaponSpeedBoost: 0
+    weaponCooldownBoost: -3
     weaponRangeBoost: 0
     weaponMaxFliesBoost: 0
     weaponHealthAbsorbRatioBoost: 0
@@ -313,7 +313,7 @@ MonoBehaviour:
     weaponChangeSpeedDurationBoost: 0
     weaponExtraWeapon: 0
   - level: 10
-    description: +1 Extra tongue
+    description: Poison lasts forever
     recoverHealth: 0
     extraScore: 0
     walkSpeedBoost: 0
@@ -341,23 +341,23 @@ MonoBehaviour:
     weaponHealthAbsorbRatioBoost: 0
     weaponHealthAbsorbMaxBoost: 0
     weaponPoisonDamageBoost: 0
-    weaponPoisonDurationBoost: 0
+    weaponPoisonDurationBoost: 1000
     weaponChangeSpeedFactorBoost: 0
     weaponChangeSpeedDurationBoost: 0
-    weaponExtraWeapon: 1
+    weaponExtraWeapon: 0
   isWeapon: 1
   weaponData:
     weaponPrefab: {fileID: 3990334965163639182, guid: 4a710caa256322a4aa6bfb19109e4559, type: 3}
     startWidth: 0.1
-    weaponType: 8
-    startCooldown: 1.5
+    weaponType: 5
+    startCooldown: 2
     startDamage: 2
-    startAttackSpeed: 0.8
-    startMaxFlies: 2
-    startRange: 3.5
+    startAttackSpeed: 1
+    startMaxFlies: 1
+    startRange: 2
     startHealthAbsorbRatio: 0
     startHealthAbsorbMax: 0
-    startPoisonDamage: 0
-    startPoisonDuration: 0
+    startPoisonDamage: 1
+    startPoisonDuration: 2
     startChangeSpeedFactor: 0
     startChangeSpeedDuration: 0
