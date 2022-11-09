@@ -422,6 +422,7 @@ public class FliesManager : MonoBehaviour
             UpdateSpriteColor(enemyInstance);
         }
         float actualSpeed = GetEnemyDataFromName(enemyInstance.enemyTransform.name).moveSpeed * enemySpeedFactor * (1 + enemyInstance.changeSpeedFactor);
+        actualSpeed = Mathf.Clamp(actualSpeed, 0, GameManager.instance.player.landSpeed - 0.001f);
         enemyInstance.enemyRigidbody.velocity = enemyInstance.moveDirection * actualSpeed;
     }
 

@@ -185,7 +185,8 @@ public class WeaponBehaviour : MonoBehaviour
         attackSpeed = weapon.attackSpeed;
         maxFlies = weapon.maxFlies;
         range = weapon.range;
-        tongueWidth = weapon.tongueWidth;
+
+        SetTongueWidth(weapon.tongueWidth);
 
         weaponType = weapon.weaponType;
 
@@ -197,6 +198,10 @@ public class WeaponBehaviour : MonoBehaviour
 
         changeSpeedFactor = weapon.changeSpeedFactor;
         changeSpeedDuration = weapon.changeSpeedDuration;
+
+        comesBackAfterEatingFlies = weapon.comesBackAfterEatingFlies;
+
+        ResetWeapon();
     }
 
     public void LevelUp(ItemLevel itemLevel)

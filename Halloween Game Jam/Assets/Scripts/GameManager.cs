@@ -330,10 +330,15 @@ public class GameManager : MonoBehaviour
             GameObject weaponGo = Instantiate(weaponPrefab, player.weaponStartPoint.position, Quaternion.identity, player.weaponsParent);
             if (weaponItem.weaponsList.Count > 0)
             {
+                // weapon is not the first, we should copy the values from the previous ones
                 weaponGo.GetComponent<WeaponBehaviour>().CopyWeaponStats(weaponItem.weaponsList[0].GetComponent<WeaponBehaviour>());
             }
+            else
+            {
+                // weapon is the first, we should initialize it from the data we have
+                weaponGo.GetComponent<WeaponBehaviour>().Initialize(weaponData);
+            }
             weaponItem.weaponsList.Add(weaponGo);
-            weaponGo.GetComponent<WeaponBehaviour>().Initialize(weaponData);
         }
     }
 
