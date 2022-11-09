@@ -15,14 +15,23 @@ public class SaveData
 
     public int attempts;
     public int wins;
-    
+
+    public void InitializeCharacterWinsList()
+    {
+        wonTheGameWithCharacterIndexList = new List<int>();
+        for (int i = 0; i < 7; i++)
+        {
+            wonTheGameWithCharacterIndexList.Add(0);
+        }
+    }
+
     /// <summary>
     /// Constructor, initialize everything at zero
     /// </summary>
     public SaveData()
     {
         unlockedCharacterIndexList = new List<int>();
-        wonTheGameWithCharacterIndexList = new List<int>();
+        InitializeCharacterWinsList();
         deathCount = 0;
         bestScore = 0;
         cumulatedScore = 0;
@@ -86,6 +95,10 @@ public class SaveData
                 string jsonData = File.ReadAllText(saveFilePath);
                 saveDataObject = new SaveData();
                 saveDataObject.OverwriteFromJsonData(jsonData);
+                if (saveDataObject.wonTheGameWithCharacterIndexList.Count != 7)
+                {
+                    saveDataObject.InitializeCharacterWinsList();
+                }
                 success = true;
                 Debug.Log("Debug info - loaded successfully");
             }
@@ -129,6 +142,7 @@ public class PlayableCharacterInfo
     public CharacterData characterData;
     public bool unlocked;
 }
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
@@ -231,7 +245,6 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         InitializeStuff();
-        InitializeNewGame();
         UIManager.instance.UpdateXPSlider(0, nextLevelXp);
         InvokeRepeating("UpdateMap", 0.2f, 0.5f);
     }
@@ -271,30 +284,36 @@ public class GameManager : MonoBehaviour
 
         unlockedCharactersIndex = new List<int>();
 
+        currentSavedData.attempts++;
+        SaveDataToFile();
+
         ClearAllItems();
         TeleportToStart();
+    }
+
+    public void IncreaseXP(float moreXP)
+    {
+        xp += moreXP;
+        if (xp >= nextLevelXp)
+        {
+            LevelUP();
+            xp -= nextLevelXp;
+            nextLevelXp *= xpNeededForNextLevelFactor;
+        }
+        UIManager.instance.UpdateXPSlider(xp, nextLevelXp);
     }
 
     public void EatFly(float experiencePoints, bool instantlyEndChapter = false)
     {
         currentChapter.enemiesKilledCount++;
+        UIManager.instance.SetEatenCount(currentChapter.enemiesKilledCount);
         if (instantlyEndChapter)
         {
             EndChapter();
         }
         else
         {
-            xp += (experiencePoints * (1 + player.experienceBoost));
-            if (xp >= nextLevelXp)
-            {
-                LevelUP();
-                xp -= nextLevelXp;
-                nextLevelXp *= xpNeededForNextLevelFactor;
-            }
-
-            UIManager.instance.SetEatenCount(currentChapter.enemiesKilledCount);
-
-            UIManager.instance.UpdateXPSlider(xp, nextLevelXp);
+            IncreaseXP(experiencePoints * (1 + player.experienceBoost));
         }
     }
 
@@ -353,7 +372,6 @@ public class GameManager : MonoBehaviour
         {
             spawnWeapons = pickedItem.levels[level].weaponExtraWeapon;
         }
-        Debug.Log("Pick Item - " + pickedItem.itemName + " ; level = " + level + " ; spawnWeapons = " + spawnWeapons);
 
         if (itemIsNew && pickedItemInfo == null)
         {
@@ -485,26 +503,40 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        if (possibleItems.Count == 0)
+        int defaultItemIndex = 0;
+        while (possibleItems.Count < 3)
         {
-            foreach (ItemScriptableObject possibleItem in defaultItems)
-            {
-                possibleItems.Add(possibleItem);
-            }
+            possibleItems.Add(defaultItems[defaultItemIndex]);
+            defaultItemIndex++;
         }
 
         levelUpPossibleItems.Clear();
-        for (int i = 0; i < 3; i++)
-        {
-            if (possibleItems.Count == 0)
-            {
-                break;
-            }
 
-            int randomIndex = Random.Range(0, possibleItems.Count);
-            levelUpPossibleItems.Add(possibleItems[randomIndex]);
-            possibleItems.RemoveAt(randomIndex);
+        if (possibleItems.Count == 3)
+        {
+            // we want to keep the order
+            foreach (ItemScriptableObject item in possibleItems)
+            {
+                levelUpPossibleItems.Add(item);
+            }
+            possibleItems.Clear();
         }
+        else
+        {
+            // we want to choose 3 at random from the list
+            for (int i = 0; i < 3; i++)
+            {
+                if (possibleItems.Count == 0)
+                {
+                    break;
+                }
+
+                int randomIndex = Random.Range(0, possibleItems.Count);
+                levelUpPossibleItems.Add(possibleItems[randomIndex]);
+                possibleItems.RemoveAt(randomIndex);
+            }
+        }
+
 
         // Find levels for each of these items
         List<int> itemLevels = new List<int>();
@@ -555,8 +587,10 @@ public class GameManager : MonoBehaviour
     public void SelectCharacter(int index)
     {
         currentPlayedCharacter = playableCharactersList[index];
-        SelectNextPossibleChapters(3);
 
+        InitializeNewGame();
+
+        SelectNextPossibleChapters(3);
         chaptersPlayed = new List<ChapterInfo>();
         UIManager.instance.ShowChapterSelection(1, selectionOfNextChaptersList);
 
@@ -581,8 +615,12 @@ public class GameManager : MonoBehaviour
     {
         // Add current played chapter to the list
         chaptersPlayed.Add(currentChapter);
+
         // Check for possibly having unlocked characters
-        CheckForUnlockingCharacters();
+        if (CheckForUnlockingCharacters())
+        {
+            SaveDataToFile();
+        }
 
         // Stop time
         Time.timeScale = 0;
@@ -654,6 +692,12 @@ public class GameManager : MonoBehaviour
             FliesManager.instance.enemyXPFactor *= enemyXPIncreaseFactorPerChapter;
         }
 
+        // Spawn Start Wave
+        if (currentChapter.chapterData.startingWave != null)
+        {
+            FliesManager.instance.SpawnStartWave(currentChapter.chapterData.startingWave);
+        }
+
         // Set current wave to chapter wave
         FliesManager.instance.SetWave(currentChapter.chapterData.waves[0]);
 
@@ -721,50 +765,96 @@ public class GameManager : MonoBehaviour
         return possibleMorals[Random.Range(0, possibleMorals.Count)];
     }
 
-    private void CheckForUnlockingCharacters()
+    private bool UnlockCharacter(int index)
     {
-        // Ghost frog
-        if (!playableCharactersList[2].unlocked)
+        bool characterNewlyUnlocked = false;
+        if (!playableCharactersList[index].unlocked)
         {
-            if (currentSavedData.deathCount >= 15)
-            {
-                // Unlock ghost after dying 15 times
-                unlockedCharactersIndex.Add(2);
-                playableCharactersList[2].unlocked = true;
-            }
+            unlockedCharactersIndex.Add(index);
+            playableCharactersList[index].unlocked = true;
+            currentSavedData.unlockedCharacterIndexList.Add(index);
+            characterNewlyUnlocked = true;
+        }
+        return characterNewlyUnlocked;
+    }
+
+    private bool CheckForUnlockingCharacters()
+    {
+        bool characterUnlocked = false;
+        bool gameIsWon = chaptersPlayed.Count >= 6;
+
+        // Unlock TOAD?
+        // After winning one game
+        if (gameIsWon)
+        {
+            characterUnlocked |= UnlockCharacter(1);
         }
 
-        // Poisonous frog
-        if (chaptersPlayed.Count >= 6 && !playableCharactersList[3].unlocked)
+        // Unlock GHOST?
+        // After dying 15 times
+        if (currentSavedData.deathCount >= 15)
         {
+            characterUnlocked |= UnlockCharacter(2);
+        }
+
+        if (gameIsWon)
+        {
+            bool hasMaxedOutCurse = false;
+            bool hasMaxedOutCursedTongue = false;
+            bool hasMaxedOutPoisonousTongue = false;
             foreach (ItemInfo item in ownedItems)
             {
-                if (item.item.itemName.Equals("Vampire Tongue") && item.level >= item.item.levels.Count)
+                if (item.item.itemName.Equals("Curse") && item.level.Equals(item.item.levels.Count))
                 {
-                    // Unlock poisonous frog after wining a game (all 6 chapters) with a maxed out vampire tongue
-                    unlockedCharactersIndex.Add(3);
-                    playableCharactersList[3].unlocked = true;
-                    break;
+                    hasMaxedOutCurse = true;
                 }
+                if (item.item.itemName.Equals("Cursed Tongue") && item.level.Equals(item.item.levels.Count))
+                {
+                    hasMaxedOutCursedTongue = true;
+                }
+                if (item.item.itemName.Equals("Poisonous Tongue") && item.level.Equals(item.item.levels.Count))
+                {
+                    hasMaxedOutPoisonousTongue = true;
+                }
+            }
+
+            // Unlock SWIMMING FROG?
+            // After winning a game with all 3 hats
+            if (player.HasHat(1) && player.HasHat(2) && player.HasHat(3))
+            {
+                characterUnlocked |= UnlockCharacter(4);
+            }
+
+
+            // Unlock POISONOUS FROG?
+            // After winning a game with a maxed out poisonous tongue
+            if (hasMaxedOutPoisonousTongue)
+            {
+                characterUnlocked |= UnlockCharacter(3);
+            }
+
+            // Unlock TOMATO FROG?
+            // After winning a game with maxed out curse and maxed out cursed tongue
+            if (hasMaxedOutCurse && hasMaxedOutCursedTongue)
+            {
+                characterUnlocked |= UnlockCharacter(5);
+            }
+
+            // Unlock STANLEY?
+            // After winning a game with all 4 friends
+            if (player.HasActiveFriend(0) && player.HasActiveFriend(1) && player.HasActiveFriend(2) && player.HasActiveFriend(3))
+            {
+                characterUnlocked |= UnlockCharacter(6);
             }
         }
 
-        // Swimming frog
-        Debug.LogError("Unlock character is not implemented");
-
-        /*
-        - unlock swimming frog after staying a whole chapter in water
-        - unlock tomato frog after getting all the 4 pets and wining the game
-        - unlock Stanley after wining the game with tomato frog */
+        return characterUnlocked;
     }
 
     public void GiveUp()
     {
         // Add current played chapter to the list
         chaptersPlayed.Add(currentChapter);
-
-        // Maybe unlock some characters if conditions are met
-        CheckForUnlockingCharacters();
 
         // Show score screen
         ShowScores();
@@ -781,13 +871,35 @@ public class GameManager : MonoBehaviour
             unlockedCharacters.Add(playableCharactersList[unlockedCharacterIndex].characterData);
         }
 
+        if (chaptersPlayed.Count >= 6)
+        {
+            // Game is won!
+            currentSavedData.wins++;
+            currentSavedData.wonTheGameWithCharacterIndexList[playableCharactersList.IndexOf(currentPlayedCharacter)]++;
+        }
+
+        // Compute actual score
+        int currentScore = 0;
+        foreach (ChapterInfo chapter in chaptersPlayed)
+        {
+            currentScore += chapter.enemiesKilledCount;
+        }
+        if (currentScore > currentSavedData.bestScore)
+        {
+            currentSavedData.bestScore = currentScore;
+        }
+        currentSavedData.cumulatedScore += currentScore;
+
+        // Maybe unlock some characters if conditions are met, and save data too
+        CheckForUnlockingCharacters();
+        SaveDataToFile();
+
         UIManager.instance.ShowScoreScreen(chaptersPlayed, moral, ownedItems, unlockedCharacters);
     }
 
     public void BackToTitleScreen()
     {
         FliesManager.instance.ClearAllEnemies();
-        InitializeNewGame();
         UIManager.instance.ShowTitleScreen();
         hasGameStarted = false;
     }

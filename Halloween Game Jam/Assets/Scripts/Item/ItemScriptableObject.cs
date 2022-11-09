@@ -11,6 +11,7 @@ public class ItemLevel
     [Header("Character Heal & Score")]
     public float recoverHealth; // instantly heal x HP
     public int extraScore; // a few more points
+    public float extraXP; // a bunch of extra XP
 
     [Header("Character Boosts")]
     public float walkSpeedBoost; // move speed on land

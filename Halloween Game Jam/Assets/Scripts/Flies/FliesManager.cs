@@ -26,6 +26,8 @@ public class EnemyInstance
     public Animator enemyAnimator;
     public Collider2D enemyCollider;
 
+    public Transform lastWeaponHitTransform;
+
     public Color defaultSpriteColor;
 }
 
@@ -152,7 +154,7 @@ public class FliesManager : MonoBehaviour
         AddEnemy(newSpawn.transform, enemyData);
     }
 
-    public void SetWave(Wave wave)
+    public void SpawnStartWave(Wave wave)
     {
         currentWave = wave;
         lastSpawnTimesList.Clear();
@@ -161,8 +163,18 @@ public class FliesManager : MonoBehaviour
         {
             lastSpawnTimesList.Add(time);
         }
-
         TrySpawnCurrentWave();
+    }
+
+    public void SetWave(Wave wave)
+    {
+        currentWave = wave;
+        lastSpawnTimesList.Clear();
+        float time = Time.time;
+        foreach (float delay in currentWave.spawnDelays)
+        {
+            lastSpawnTimesList.Add(time);
+        }
     }
 
     public EnemyInstance GetEnemyInfo(int ID)
@@ -238,10 +250,12 @@ public class FliesManager : MonoBehaviour
         }
     }
 
-    public bool DamageEnemy(int enemyIndex, float damage, bool canKill)
+    public bool DamageEnemy(int enemyIndex, float damage, bool canKill, Transform weapon)
     {
         EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
         enemy.HP -= damage;
+
+        enemy.lastWeaponHitTransform = weapon;
 
         if (enemy.HP < 0.01f)
         {
@@ -268,10 +282,10 @@ public class FliesManager : MonoBehaviour
     }
 
     // Return true if enemy dieded
-    public bool DamageEnemy(string enemyGoName, float damage, bool canKill)
+    public bool DamageEnemy(string enemyGoName, float damage, bool canKill, Transform weapon)
     {
         int index = int.Parse(enemyGoName);
-        return DamageEnemy(index, damage, canKill);
+        return DamageEnemy(index, damage, canKill, weapon);
     }
 
     public void ClearAllEnemies()
@@ -312,10 +326,15 @@ public class FliesManager : MonoBehaviour
                         enemy.changeSpeedFactor = 0;
                         enemy.changeSpeedRemainingTime = 0;
                         UpdateSpriteColor(enemy);
-                        enemy.moveDirection = (playerTransform.position - enemy.enemyTransform.position).normalized;
+                        Vector3 frogPosition = playerTransform.position;
+                        if (enemy.lastWeaponHitTransform != null)
+                        {
+                            frogPosition = enemy.lastWeaponHitTransform.position;
+                        }
+                        enemy.moveDirection = (frogPosition - enemy.enemyTransform.position).normalized;
+                        float distanceWithFrog = Vector2.Distance(frogPosition, enemy.enemyTransform.position);
                         enemy.enemyRigidbody.velocity = 2 * enemy.moveDirection * GameManager.instance.player.landSpeed;
-                        float distanceWithPlayer = Vector2.Distance(playerTransform.position, enemy.enemyTransform.position);
-                        if (distanceWithPlayer < 1.5f)
+                        if (distanceWithFrog < 1.5f)
                         {
                             enemy.enemyRenderer.enabled = false;
                             enemy.active = false;
@@ -355,13 +374,8 @@ public class FliesManager : MonoBehaviour
                         {
                             if (Time.time - enemy.lastPoisonDamageTime > delayBetweenPoisonDamage)
                             {
-                                bool enemyIsDead = DamageEnemy(enemyInfo.Key, enemy.poisonDamage, false);
+                                bool enemyIsDead = DamageEnemy(enemyInfo.Key, enemy.poisonDamage, false, null);
                                 enemy.lastPoisonDamageTime = Time.time;
-                                /*if (enemyIsDead)
-                                {
-                                    SetEnemyDead(enemy);
-                                }*/
-                                //UpdateSpriteColor(enemy);
                             }
                         }
                     }

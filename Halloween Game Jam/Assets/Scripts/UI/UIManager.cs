@@ -17,6 +17,9 @@ public class UIManager : MonoBehaviour
     public List<Image> charactersImagesList;
     public List<Text> charactersNamesTextList;
     public List<Text> charactersDescriptionTextList;
+    [Space]
+    public Color charactersDefaultTextColor;
+    public Color charactersHintTextColor;
 
     [Header("In game UI")]
     public GameObject inGameUIPanel;
@@ -135,10 +138,11 @@ public class UIManager : MonoBehaviour
                 PlayableCharacterInfo characterInfo = playableCharactersList[i];
                 charactersButtonsList[i].interactable = characterInfo.unlocked;
                 charactersNamesTextList[i].text = (characterInfo.unlocked ? characterInfo.characterData.characterName : "???");
-                charactersImagesList[i].sprite = characterInfo.characterData.characterSprite;
+                charactersImagesList[i].sprite = characterInfo.characterData.characterSprite;                
                 string description = (characterInfo.unlocked ? characterInfo.characterData.characterDescription : ("UNLOCK: " + characterInfo.characterData.unlockHint));
                 description = description.Replace("\\n", "\n");
                 charactersDescriptionTextList[i].text = description;
+                charactersDescriptionTextList[i].color = characterInfo.unlocked ? charactersDefaultTextColor : charactersHintTextColor;
                 charactersImagesList[i].enabled = characterInfo.unlocked;
             }
         }

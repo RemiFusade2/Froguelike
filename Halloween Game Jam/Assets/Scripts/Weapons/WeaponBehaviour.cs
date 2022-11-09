@@ -414,7 +414,7 @@ public class WeaponBehaviour : MonoBehaviour
             float actualDamage = damage * (1 + GameManager.instance.player.attackDamageBoost);
             float actualMaxFiles = maxFlies + GameManager.instance.player.attackMaxFliesBoost;
             bool canKillEnemy = (eatenFliesCount < actualMaxFiles);
-            bool enemyIsDead = FliesManager.instance.DamageEnemy(enemyName, actualDamage, canKillEnemy);
+            bool enemyIsDead = FliesManager.instance.DamageEnemy(enemyName, actualDamage, canKillEnemy, this.transform);
 
             // vampire part, absorb part of damage done
             if (weaponType == WeaponType.VAMPIRE || (weaponType == WeaponType.RANDOM && tongueColor.Equals(vampireColor)))

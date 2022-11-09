@@ -3204,7 +3204,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 984273133fc75cc4dbf614471762adaf, type: 2}
   - {fileID: 11400000, guid: bc0829e9029b8be478d57eeb390cb209, type: 2}
   damageTextPrefab: {fileID: 4022214579611050533, guid: 19080e1cdd51db248be2fe8a417ce6f5, type: 3}
-  spawnDistanceFromPlayer: 25
+  minSpawnDistanceFromPlayer: 20
+  maxSpawnDistanceFromPlayer: 23
   enemyHPFactor: 1
   enemySpeedFactor: 1
   enemyDamageFactor: 1
@@ -4711,7 +4712,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &473319585
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6017,6 +6018,10 @@ MonoBehaviour:
   map: {fileID: 2141524313}
   fliesParent: {fileID: 372494532}
   levelUpParticleSystem: {fileID: 1573265719}
+  enemyDamageIncreaseFactorPerChapter: 1.5
+  enemyHPIncreaseFactorPerChapter: 3
+  enemySpeedIncreaseFactorPerChapter: 1.1
+  enemyXPIncreaseFactorPerChapter: 1.7
   destroyParticleEffectPrefab: {fileID: 5766076256110460918, guid: 867e943a86ac095478453c5eff1f065e, type: 3}
   allPlayableChaptersList:
   - {fileID: 11400000, guid: 1526109de40564e408a406867dbb2c02, type: 2}
@@ -6030,6 +6035,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 499ded45868a4dd41a1c76cacfd2665b, type: 2}
   - {fileID: 11400000, guid: 43f09859ce95d714c8b9c003903e217e, type: 2}
   - {fileID: 11400000, guid: 0ea004ce5d31b4d46bfe973435efb0dc, type: 2}
+  - {fileID: 11400000, guid: 044bb5b68c0ec704e893eb6d07548d11, type: 2}
   possibleMorals:
   - Everything is possible when you're a frog
   - Drugs are bad mkay
@@ -6039,7 +6045,7 @@ MonoBehaviour:
   - characterData: {fileID: 11400000, guid: e12bbdd99d50ae74ba6dbf789aa002a8, type: 2}
     unlocked: 1
   - characterData: {fileID: 11400000, guid: 48bf8a1f6fb11cd4aba4d9e2e54c2f11, type: 2}
-    unlocked: 1
+    unlocked: 0
   - characterData: {fileID: 11400000, guid: 2d0ffd1520e0bd243a6ee158e1719242, type: 2}
     unlocked: 0
   - characterData: {fileID: 11400000, guid: 8532a20df8a530548b6aa40feab1c90b, type: 2}
@@ -6077,6 +6083,7 @@ MonoBehaviour:
   defaultItems:
   - {fileID: 11400000, guid: 185688c9271f1d34ca7335496679d590, type: 2}
   - {fileID: 11400000, guid: 60c77be9f26edae4686e2c8496e3714a, type: 2}
+  - {fileID: 11400000, guid: 82de2c1739d3f444b8a13d12f093f19c, type: 2}
   maxWeaponCount: 4
   maxNonWeaponCount: 5
   finalChapter: {fileID: 11400000, guid: 6d2bc572c5e6dac46a6d83a4679f9a2d, type: 2}
@@ -7398,7 +7405,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3990334965163639183, guid: 4a710caa256322a4aa6bfb19109e4559, type: 3}
       propertyPath: m_RootOrder
-      value: 12
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 3990334965163639183, guid: 4a710caa256322a4aa6bfb19109e4559, type: 3}
       propertyPath: m_LocalPosition.x
@@ -7521,6 +7528,8 @@ MonoBehaviour:
   - {fileID: 1457186671}
   - {fileID: 219029075}
   - {fileID: 1587155201}
+  charactersDefaultTextColor: {r: 0.09411765, g: 0.09803922, b: 0.12156863, a: 1}
+  charactersHintTextColor: {r: 0.44705883, g: 0.5254902, b: 0.5921569, a: 1}
   inGameUIPanel: {fileID: 1160030069}
   xpSlider: {fileID: 2061677634}
   levelText: {fileID: 1158644428}
@@ -12468,7 +12477,7 @@ SpringJoint2D:
   m_AutoConfigureDistance: 0
   m_Distance: 1
   m_DampingRatio: 1
-  m_Frequency: 0.06
+  m_Frequency: 0.07
 --- !u!212 &1505592720
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -19576,7 +19585,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1819741221
 RectTransform:
   m_ObjectHideFlags: 0
@@ -19740,7 +19749,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1853500120
 RectTransform:
   m_ObjectHideFlags: 0

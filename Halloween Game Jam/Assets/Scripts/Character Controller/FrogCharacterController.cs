@@ -35,21 +35,14 @@ public class FrogCharacterController : MonoBehaviour
     public float maxHealth = 100;
     public float healthRecovery = 0.01f;
     [Space]
-    [Range(0, 0.5f)]
     public float armorBoost = 0;
-    [Range(0, 1)]
     public float experienceBoost = 0;
     public int revivals = 0;
     [Space]
-    [Range(0, 1)]
     public float attackCooldownBoost = 0;
-    [Range(0, 1)]
     public float attackDamageBoost = 0;
-    [Range(0, 1)]
     public float attackMaxFliesBoost = 0;
-    [Range(0, 1)]
     public float attackRangeBoost = 0;
-    [Range(0, 1)]
     public float attackSpeedBoost = 0;
 
     public float attackSpecialStrengthBoost = 0;
@@ -82,6 +75,14 @@ public class FrogCharacterController : MonoBehaviour
 
     private float invincibilityTime;
 
+    private List<int> currentHatsList;
+
+    private void Awake()
+    {
+        activeFriendsIndexList = new List<int>();
+        currentHatsList = new List<int>();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -89,7 +90,6 @@ public class FrogCharacterController : MonoBehaviour
         invincibilityTime = 0;
         rewiredPlayer = ReInput.players.GetPlayer(playerID);
         playerRigidbody = GetComponent<Rigidbody2D>();
-        activeFriendsIndexList = new List<int>();
         ClearFriends();
     }
 
@@ -180,6 +180,11 @@ public class FrogCharacterController : MonoBehaviour
 
         GameManager.instance.currentChapter.enemiesKilledCount += itemLevelData.extraScore;
         UIManager.instance.SetEatenCount(GameManager.instance.currentChapter.enemiesKilledCount);
+
+        if (itemLevelData.extraXP > 0)
+        {
+            GameManager.instance.IncreaseXP(itemLevelData.extraXP);
+        }
 
         landSpeed += itemLevelData.walkSpeedBoost;
         swimSpeed += itemLevelData.swimSpeedBoost;
@@ -287,6 +292,7 @@ public class FrogCharacterController : MonoBehaviour
 
     public void ClearHats()
     {
+        currentHatsList.Clear();
         foreach (SpriteRenderer hatRenderer in hatRenderersList)
         {
             hatRenderer.gameObject.SetActive(false);
@@ -295,6 +301,7 @@ public class FrogCharacterController : MonoBehaviour
 
     public void AddHat(int style)
     {
+        currentHatsList.Add(style);
         foreach (SpriteRenderer hatRenderer in hatRenderersList)
         {
             if (!hatRenderer.gameObject.activeInHierarchy)
@@ -304,6 +311,11 @@ public class FrogCharacterController : MonoBehaviour
                 break;
             }
         }
+    }
+
+    public bool HasHat(int style)
+    {
+        return currentHatsList.Contains(style);
     }
 
     #region Update Inputs
