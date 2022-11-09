@@ -89,7 +89,6 @@ public class FliesManager : MonoBehaviour
                 spawnPositionDotPlayerMoveDirection = 1;
             }
             triesCount++;
-            Debug.Log("triesCount = " + triesCount + " ; spawnPositionDotPlayerMoveDirection = " + spawnPositionDotPlayerMoveDirection);
         } while (spawnPositionDotPlayerMoveDirection < 0 && triesCount <= maxTries);
         return position;
     }

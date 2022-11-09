@@ -69,8 +69,10 @@ public class WeaponData
     public float startCooldown;
     public float startDamage;
     public float startAttackSpeed;
-    public float startMaxFlies;
     public float startRange;
+    [Space]
+    public bool comesBackAfterEatingFlies;
+    public float startMaxFlies;
 
     [Header("Special settings")]
     public float startHealthAbsorbRatio;

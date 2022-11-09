@@ -37,8 +37,10 @@ public class WeaponBehaviour : MonoBehaviour
     public float cooldown;
     public float damage;
     public float attackSpeed;
-    public float maxFlies;
     public float range;
+    [Space]
+    public bool comesBackAfterEatingFlies;
+    public float maxFlies;
 
     [Header("Settings - special metrics")]
     public float healthAbsorbRatio;
@@ -159,6 +161,8 @@ public class WeaponBehaviour : MonoBehaviour
         damage = weaponData.startDamage;
         range = weaponData.startRange;
         maxFlies = weaponData.startMaxFlies;
+
+        comesBackAfterEatingFlies = weaponData.comesBackAfterEatingFlies;
 
         changeSpeedFactor = weaponData.startChangeSpeedFactor;
         changeSpeedDuration = weaponData.startChangeSpeedDuration;
@@ -453,7 +457,7 @@ public class WeaponBehaviour : MonoBehaviour
     private void CheckEatenFlyCount()
     {
         float actualMaxFiles = maxFlies + GameManager.instance.player.attackMaxFliesBoost;
-        if (eatenFliesCount >= actualMaxFiles)
+        if (comesBackAfterEatingFlies && eatenFliesCount >= actualMaxFiles)
         {
             isTongueGoingOut = false;
         }

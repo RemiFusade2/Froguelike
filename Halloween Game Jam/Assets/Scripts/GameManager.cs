@@ -139,6 +139,12 @@ public class GameManager : MonoBehaviour
     public Transform fliesParent;
     public ParticleSystem levelUpParticleSystem;
 
+    [Header("Settings")]
+    public float enemyDamageIncreaseFactorPerChapter = 1.5f;
+    public float enemyHPIncreaseFactorPerChapter = 3;
+    public float enemySpeedIncreaseFactorPerChapter = 1.1f;
+    public float enemyXPIncreaseFactorPerChapter = 1.7f;
+
     [Header("Prefabs")]
     public GameObject destroyParticleEffectPrefab;
 
@@ -642,10 +648,10 @@ public class GameManager : MonoBehaviour
         // Increase enemies stats
         if (chapterCount > 1)
         {
-            FliesManager.instance.enemyDamageFactor *= 1.5f;
-            FliesManager.instance.enemyHPFactor *= 3;
-            FliesManager.instance.enemySpeedFactor *= 1.1f;
-            FliesManager.instance.enemyXPFactor *= 1.8f;
+            FliesManager.instance.enemyDamageFactor *= enemyDamageIncreaseFactorPerChapter;
+            FliesManager.instance.enemyHPFactor *= enemyHPIncreaseFactorPerChapter;
+            FliesManager.instance.enemySpeedFactor *= enemySpeedIncreaseFactorPerChapter;
+            FliesManager.instance.enemyXPFactor *= enemyXPIncreaseFactorPerChapter;
         }
 
         // Set current wave to chapter wave
@@ -667,7 +673,7 @@ public class GameManager : MonoBehaviour
         }
 
         // Wait for 1.5 seconds, real time
-        yield return new WaitForSecondsRealtime(1.5f);
+        yield return new WaitForSecondsRealtime(2.9f);
 
         Time.timeScale = 1;
 
@@ -679,7 +685,7 @@ public class GameManager : MonoBehaviour
         MusicManager.instance.PlayLevelMusic();
 
         // Wait for 1.5 seconds, real time
-        yield return new WaitForSecondsRealtime(1.5f);
+        yield return new WaitForSecondsRealtime(0.1f);
 
         // Show Game UI (hide chapter start screen)
         UIManager.instance.ShowGameUI();
