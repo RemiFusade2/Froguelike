@@ -35,6 +35,14 @@ public class UIManager : MonoBehaviour
     public string extraLivesPrefix;
     public Text extraLivesCountText;
 
+    [Header("Pause")]
+    public GameObject pausePanel;
+    public Animator pausePanelAnimator;
+
+    [Header("Confirmation")]
+    public GameObject backToTitleScreenConfirmationPanel;
+    public GameObject clearSaveFileConfirmationPanel;
+
     [Header("Chapter selection")]
     public GameObject chapterSelectionScreen;
     public Text chapterSelectionTopText;
@@ -99,7 +107,6 @@ public class UIManager : MonoBehaviour
         chapterSelectionScreen.SetActive(false);
         chapterStartScreen.SetActive(false);
         scoreScreen.SetActive(false);
-        //levelUpPanel.SetActive(false);
         inGameUIPanel.SetActive(false);
         gameOverPanel.SetActive(false);
     }
@@ -268,6 +275,7 @@ public class UIManager : MonoBehaviour
     public void ShowGameUI()
     {
         HideAllScreens();
+        HidePauseScreen();
         inGameUIPanel.SetActive(true);
     }
 
@@ -371,5 +379,27 @@ public class UIManager : MonoBehaviour
     public void PlaySlideBookSound()
     {
         soundManager.PlaySlideBookSound();
+    }
+
+    public void ShowPauseScreen()
+    {
+        musicManager.PauseMusic();
+        pausePanelAnimator.SetBool("Visible", true);
+    }
+
+    public void HidePauseScreen()
+    {
+        musicManager.UnpauseMusic();
+        pausePanelAnimator.SetBool("Visible", false);
+    }
+
+    public void ShowBackToTitleScreenConfirmationPanel(bool active)
+    {
+        backToTitleScreenConfirmationPanel.SetActive(active);
+    }
+
+    public void ShowClearSaveFileConfirmationPanel(bool active)
+    {
+        clearSaveFileConfirmationPanel.SetActive(active);
     }
 }

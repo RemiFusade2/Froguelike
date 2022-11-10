@@ -49,8 +49,9 @@ public class FrogCharacterController : MonoBehaviour
     public float attackSpecialDurationBoost = 0;
 
     [Header("Settings - controls")]
-    public string horizontalInputName;
-    public string verticalInputName;
+    public string horizontalInputName = "horizontal";
+    public string verticalInputName = "vertical";
+    public string pauseInputName = "pause";
 
     private Player rewiredPlayer;
 
@@ -77,6 +78,8 @@ public class FrogCharacterController : MonoBehaviour
 
     private List<int> currentHatsList;
 
+    #region Unity Callback Methods
+
     private void Awake()
     {
         activeFriendsIndexList = new List<int>();
@@ -98,6 +101,11 @@ public class FrogCharacterController : MonoBehaviour
     {
         if (GameManager.instance.isGameRunning)
         {
+            if (GetPauseInput())
+            {
+                GameManager.instance.TogglePause();
+            }
+
             foreach (Transform weaponTransform in weaponsParent)
             {
                 weaponTransform.GetComponent<WeaponBehaviour>().TryAttack();
@@ -117,6 +125,44 @@ public class FrogCharacterController : MonoBehaviour
             animator.SetFloat("Speed", speed);
         }
     }
+    
+    private void FixedUpdate()
+    {
+        UpdateHorizontalInput();
+        UpdateVerticalInput();
+
+        if (invincibilityTime > 0)
+        {
+            invincibilityTime -= Time.fixedDeltaTime;
+        }
+
+        float moveSpeed = isOnLand ? landSpeed : swimSpeed;
+        Vector2 moveInput = (((HorizontalInput * Vector2.right).normalized + (VerticalInput * Vector2.up).normalized)).normalized * moveSpeed;
+
+        if (!moveInput.Equals(Vector2.zero))
+        {
+            orientationAngle = 90 + 90 * Mathf.RoundToInt((Vector2.SignedAngle(moveInput, Vector2.right)) / 90);
+            transform.localRotation = Quaternion.Euler(0, 0, -orientationAngle);
+        }
+
+        playerRigidbody.velocity = moveInput;
+
+        foreach (Transform weaponTransform in weaponsParent)
+        {
+            weaponTransform.GetComponent<WeaponBehaviour>().SetTonguePosition(weaponStartPoint);
+        }
+
+        foreach (int friendIndex in activeFriendsIndexList)
+        {
+            FriendInfo friend = allFriends[friendIndex];
+            friend.weapon.TryAttack();
+            float friendOrientationAngle = 90 + 90 * Mathf.RoundToInt((Vector2.SignedAngle(friend.friendGameObject.GetComponent<Rigidbody2D>().velocity.normalized, Vector2.right)) / 90);
+            friend.friendGameObject.transform.localRotation = Quaternion.Euler(0, 0, -friendOrientationAngle);
+            friend.weapon.SetTonguePosition(friend.weaponPositionTransform);
+        }
+    }
+
+    #endregion
 
     public void ResetPosition()
     {
@@ -213,41 +259,6 @@ public class FrogCharacterController : MonoBehaviour
         invincibilityTime = 1;
     }
 
-    private void FixedUpdate()
-    {
-        UpdateHorizontalInput();
-        UpdateVerticalInput();
-
-        if (invincibilityTime > 0)
-        {
-            invincibilityTime -= Time.fixedDeltaTime;
-        }
-
-        float moveSpeed = isOnLand ? landSpeed : swimSpeed;
-        Vector2 moveInput = (((HorizontalInput * Vector2.right).normalized + (VerticalInput * Vector2.up).normalized)).normalized * moveSpeed;
-
-        if (!moveInput.Equals(Vector2.zero))
-        {
-            orientationAngle = 90 + 90 * Mathf.RoundToInt((Vector2.SignedAngle(moveInput, Vector2.right)) / 90);
-            transform.localRotation = Quaternion.Euler(0, 0, -orientationAngle);
-        }
-
-        playerRigidbody.velocity = moveInput;
-
-        foreach (Transform weaponTransform in weaponsParent)
-        {
-            weaponTransform.GetComponent<WeaponBehaviour>().SetTonguePosition(weaponStartPoint);
-        }
-
-        foreach (int friendIndex in activeFriendsIndexList)
-        {
-            FriendInfo friend = allFriends[friendIndex];
-            friend.weapon.TryAttack();
-            float friendOrientationAngle = 90 + 90 * Mathf.RoundToInt((Vector2.SignedAngle(friend.friendGameObject.GetComponent<Rigidbody2D>().velocity.normalized, Vector2.right)) / 90);
-            friend.friendGameObject.transform.localRotation = Quaternion.Euler(0, 0, -friendOrientationAngle);
-            friend.weapon.SetTonguePosition(friend.weaponPositionTransform);
-        }
-    }
 
     public Vector2 GetMoveDirection()
     {
@@ -328,6 +339,11 @@ public class FrogCharacterController : MonoBehaviour
     private void UpdateVerticalInput()
     {
         VerticalInput = rewiredPlayer.GetAxis(verticalInputName);
+    }
+
+    private bool GetPauseInput()
+    {
+        return rewiredPlayer.GetButtonDown(pauseInputName);
     }
 
     #endregion

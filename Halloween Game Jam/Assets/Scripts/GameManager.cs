@@ -267,6 +267,9 @@ public class GameManager : MonoBehaviour
         level = 1;
         xp = 0;
 
+        levelUpIsHappening = false;
+        Pause(false);
+
         nextLevelXp = startLevelXp;
         xpNeededForNextLevelFactor = startXpNeededForNextLevelFactor;
 
@@ -318,6 +321,8 @@ public class GameManager : MonoBehaviour
     }
 
     #region Level Up
+
+    private bool levelUpIsHappening;
 
     public List<ItemScriptableObject> levelUpPossibleItems;
 
@@ -412,6 +417,7 @@ public class GameManager : MonoBehaviour
         PickItem(pickedItem);
         UIManager.instance.HideLevelUpItemSelection();
         Time.timeScale = 1;
+        levelUpIsHappening = false;
     }
 
     private int GetLevelForItem(ItemScriptableObject item)
@@ -429,6 +435,7 @@ public class GameManager : MonoBehaviour
 
     public void LevelUP()
     {
+        levelUpIsHappening = true;
         level++;
         Time.timeScale = 0;
 
@@ -941,6 +948,10 @@ public class GameManager : MonoBehaviour
         TryLoadDataFromFile();
 
         List<int> unlockedCharacterIndexList = currentSavedData.unlockedCharacterIndexList;
+        for (int i = 1; i < playableCharactersList.Count; i++)
+        {
+            playableCharactersList[i].unlocked = false;
+        }
         foreach (int unlockedCharacter in currentSavedData.unlockedCharacterIndexList)
         {
             playableCharactersList[unlockedCharacter].unlocked = true;
@@ -952,5 +963,41 @@ public class GameManager : MonoBehaviour
     public void UpdateMap()
     {
         map.GenerateNewTilesAroundPosition(player.transform.position);
+    }
+
+    #region Pause
+
+    private bool gameIsPaused;
+
+    public void TogglePause()
+    {
+        Pause(!gameIsPaused);
+    }
+
+    public void Pause(bool pause)
+    {
+        gameIsPaused = pause;
+        if (!levelUpIsHappening)
+        {
+            Time.timeScale = pause ? 0 : 1;
+        }
+        if (pause)
+        {
+            UIManager.instance.ShowPauseScreen();
+        }
+        else
+        {
+            UIManager.instance.HidePauseScreen();
+        }
+    }
+
+    #endregion
+    
+    public void ClearSaveFile()
+    {
+        // Clear save file and update everything accordingly
+        currentSavedData = new SaveData();
+        SaveDataToFile();
+        InitializeStuff();
     }
 }

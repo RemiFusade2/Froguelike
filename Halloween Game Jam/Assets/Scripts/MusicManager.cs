@@ -22,7 +22,7 @@ public class MusicManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();
+        CheckAudioSource();
     }
 
     // Update is called once per frame
@@ -31,12 +31,17 @@ public class MusicManager : MonoBehaviour
 
     }
 
-    public void PlayTitleMusic()
+    private void CheckAudioSource()
     {
         if (audioSource == null)
         {
             audioSource = GetComponent<AudioSource>();
         }
+    }
+
+    public void PlayTitleMusic()
+    {
+        CheckAudioSource();
         audioSource.volume = titleMusicVolume;
         audioSource.clip = titleMusic;
         audioSource.Play();
@@ -44,12 +49,21 @@ public class MusicManager : MonoBehaviour
 
     public void PlayLevelMusic()
     {
-        if (audioSource == null)
-        {
-            audioSource = GetComponent<AudioSource>();
-        }
+        CheckAudioSource();
         audioSource.volume = levelMusicVolume;
         audioSource.clip = levelMusic;
         audioSource.Play();
+    }
+
+    public void PauseMusic()
+    {
+        CheckAudioSource();
+        audioSource.Pause();
+    }
+
+    public void UnpauseMusic()
+    {
+        CheckAudioSource();
+        audioSource.UnPause();
     }
 }
