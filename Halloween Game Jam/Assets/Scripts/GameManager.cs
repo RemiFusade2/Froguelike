@@ -155,9 +155,10 @@ public class GameManager : MonoBehaviour
 
     [Header("Settings")]
     public float enemyDamageIncreaseFactorPerChapter = 1.5f;
-    public float enemyHPIncreaseFactorPerChapter = 3;
+    public float enemyHPIncreaseFactorPerChapter = 2.5f;
     public float enemySpeedIncreaseFactorPerChapter = 1.1f;
     public float enemyXPIncreaseFactorPerChapter = 1.7f;
+    public float enemySpawnSpeedIncreaseFactorPerChapter = 1.7f;
 
     [Header("Prefabs")]
     public GameObject destroyParticleEffectPrefab;
@@ -267,7 +268,8 @@ public class GameManager : MonoBehaviour
         level = 1;
         xp = 0;
 
-        levelUpIsHappening = false;
+        levelUpChoiceIsVisible = false;
+        chapterChoiceIsVisible = false;
         Pause(false);
 
         nextLevelXp = startLevelXp;
@@ -283,6 +285,7 @@ public class GameManager : MonoBehaviour
         FliesManager.instance.enemyHPFactor = 1;
         FliesManager.instance.enemySpeedFactor = 1;
         FliesManager.instance.enemyXPFactor = 1;
+        FliesManager.instance.enemySpawnSpeedFactor = 1;
         FliesManager.instance.curse = 0;
 
         unlockedCharactersIndex = new List<int>();
@@ -322,7 +325,7 @@ public class GameManager : MonoBehaviour
 
     #region Level Up
 
-    private bool levelUpIsHappening;
+    public bool levelUpChoiceIsVisible;
 
     public List<ItemScriptableObject> levelUpPossibleItems;
 
@@ -417,7 +420,7 @@ public class GameManager : MonoBehaviour
         PickItem(pickedItem);
         UIManager.instance.HideLevelUpItemSelection();
         Time.timeScale = 1;
-        levelUpIsHappening = false;
+        levelUpChoiceIsVisible = false;
     }
 
     private int GetLevelForItem(ItemScriptableObject item)
@@ -435,7 +438,7 @@ public class GameManager : MonoBehaviour
 
     public void LevelUP()
     {
-        levelUpIsHappening = true;
+        levelUpChoiceIsVisible = true;
         level++;
         Time.timeScale = 0;
 
@@ -623,6 +626,8 @@ public class GameManager : MonoBehaviour
 
     #endregion
 
+    public bool chapterChoiceIsVisible;
+
     public void EndChapter()
     {
         // Add current played chapter to the list
@@ -659,6 +664,7 @@ public class GameManager : MonoBehaviour
         else
         {
             // This was a chapter before 5th, so we offer a choice between 3 chapters for the next one
+            chapterChoiceIsVisible = true;
             SelectNextPossibleChapters(3);
             UIManager.instance.ShowChapterSelection(chaptersPlayed.Count + 1, selectionOfNextChaptersList);
         }
@@ -702,6 +708,7 @@ public class GameManager : MonoBehaviour
             FliesManager.instance.enemyHPFactor *= enemyHPIncreaseFactorPerChapter;
             FliesManager.instance.enemySpeedFactor *= enemySpeedIncreaseFactorPerChapter;
             FliesManager.instance.enemyXPFactor *= enemyXPIncreaseFactorPerChapter;
+            FliesManager.instance.enemySpawnSpeedFactor *= enemySpawnSpeedIncreaseFactorPerChapter;
         }
 
         // Spawn Start Wave
@@ -750,6 +757,7 @@ public class GameManager : MonoBehaviour
         chapterRemainingTime = currentChapter.chapterData.chapterLengthInSeconds;
         hasGameStarted = true;
         isGameRunning = true;
+        chapterChoiceIsVisible = false;
     }
 
     public void TriggerGameOver()
@@ -865,6 +873,8 @@ public class GameManager : MonoBehaviour
 
     public void GiveUp()
     {
+        Pause(false);
+
         // Add current played chapter to the list
         chaptersPlayed.Add(currentChapter);
 
@@ -967,7 +977,7 @@ public class GameManager : MonoBehaviour
 
     #region Pause
 
-    private bool gameIsPaused;
+    public bool gameIsPaused;
 
     public void TogglePause()
     {
@@ -977,7 +987,7 @@ public class GameManager : MonoBehaviour
     public void Pause(bool pause)
     {
         gameIsPaused = pause;
-        if (!levelUpIsHappening)
+        if (!levelUpChoiceIsVisible && !chapterChoiceIsVisible)
         {
             Time.timeScale = pause ? 0 : 1;
         }

@@ -303,7 +303,6 @@ public class UIManager : MonoBehaviour
     public void HideLevelUpItemSelection()
     {
         levelUpPanelAnimator.SetBool("Visible", false);
-        //levelUpPanel.SetActive(false);
         PlaySlideBookSound();
     }
 

@@ -51,6 +51,7 @@ public class FliesManager : MonoBehaviour
     public float enemySpeedFactor = 1;
     public float enemyDamageFactor = 1;
     public float enemyXPFactor = 1;
+    public float enemySpawnSpeedFactor = 1;
     [Range(0,0.5f)]
     public float curse = 0;
     [Space]
@@ -99,7 +100,8 @@ public class FliesManager : MonoBehaviour
     {
         for (int i = 0; i < currentWave.spawnDelays.Count; i++)
         {
-            float delayBetweenSpawns = currentWave.spawnDelays[i] * (1 - curse);
+            float delayBetweenSpawns = currentWave.spawnDelays[i] * (1 - curse) * (1 / enemySpawnSpeedFactor);
+            delayBetweenSpawns = Mathf.Clamp(delayBetweenSpawns, 0.001f, float.MaxValue);
             SpawnPattern spawnPattern = currentWave.spawnPatterns[i];
             EnemyData enemyData = currentWave.spawnEnemies[i];
             float lastSpawnTime = lastSpawnTimesList[i];

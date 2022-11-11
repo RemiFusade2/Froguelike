@@ -339,8 +339,9 @@ public class WeaponBehaviour : MonoBehaviour
             if (t <= 1)
             {
                 SetTongueScale(t);
-                t += (Time.fixedDeltaTime * actualAttackSpeed);
+                t += Time.fixedDeltaTime;
             }
+            actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
             angle += (Time.fixedDeltaTime * actualAttackSpeed * 10);
             SetTongueDirection((Mathf.Cos(angle) * Vector2.right + Mathf.Sin(angle) * Vector2.up).normalized);
             yield return new WaitForFixedUpdate();
@@ -348,7 +349,7 @@ public class WeaponBehaviour : MonoBehaviour
         while (t > 0)
         {
             SetTongueScale(t);
-            t -= (Time.fixedDeltaTime * actualAttackSpeed);
+            t -= Time.fixedDeltaTime;
             angle += (Time.fixedDeltaTime * actualAttackSpeed * 10);
             SetTongueDirection((Mathf.Cos(angle) * Vector2.right + Mathf.Sin(angle) * Vector2.up).normalized);
             yield return new WaitForFixedUpdate();

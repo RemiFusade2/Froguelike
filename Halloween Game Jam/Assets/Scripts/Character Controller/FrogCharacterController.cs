@@ -119,7 +119,10 @@ public class FrogCharacterController : MonoBehaviour
                 friend.animator.SetFloat("Speed", friendSpeed);
             }
 
-            ChangeHealth(healthRecovery);
+            if (!GameManager.instance.gameIsPaused && !GameManager.instance.chapterChoiceIsVisible && !GameManager.instance.levelUpChoiceIsVisible)
+            {
+                ChangeHealth(healthRecovery);
+            }
 
             float speed = Mathf.Clamp(playerRigidbody.velocity.magnitude, 0, 10);
             animator.SetFloat("Speed", speed);
