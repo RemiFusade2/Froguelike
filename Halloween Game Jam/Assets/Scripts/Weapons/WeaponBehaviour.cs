@@ -71,6 +71,10 @@ public class WeaponBehaviour : MonoBehaviour
 
     private bool isAttacking;
     
+    public static float rotatingTongueCurrentAngle = 0;
+    public static int rotatingTongueCount = 0;
+    public int rotatingTongueIndex;
+
     public void SetTongueColor(Color color)
     {
         tongueColor = color;
@@ -175,6 +179,12 @@ public class WeaponBehaviour : MonoBehaviour
         
         SetTongueWidth(weaponData.startWidth);
 
+        if (weaponData.weaponType == WeaponType.ROTATING)
+        {
+            rotatingTongueIndex = rotatingTongueCount;
+            rotatingTongueCount++;
+        }
+
         ResetWeapon();
     }
 
@@ -189,6 +199,11 @@ public class WeaponBehaviour : MonoBehaviour
         SetTongueWidth(weapon.tongueWidth);
 
         weaponType = weapon.weaponType;
+        if (weaponType == WeaponType.ROTATING)
+        {
+            rotatingTongueIndex = rotatingTongueCount;
+            rotatingTongueCount++;
+        }
 
         healthAbsorbRatio = weapon.healthAbsorbRatio;
         healthAbsorbMax = weapon.healthAbsorbMax;
@@ -200,6 +215,7 @@ public class WeaponBehaviour : MonoBehaviour
         changeSpeedDuration = weapon.changeSpeedDuration;
 
         comesBackAfterEatingFlies = weapon.comesBackAfterEatingFlies;
+
 
         ResetWeapon();
     }
@@ -324,9 +340,6 @@ public class WeaponBehaviour : MonoBehaviour
         }
     }
 
-    public static float rotatingTongueStartAngle = 0;
-    //public static float rotatingTongueAngleOffset = 0;
-
     private IEnumerator SendTongueInDirectionRotating(Vector2 direction)
     {
         isAttacking = true;
@@ -336,8 +349,9 @@ public class WeaponBehaviour : MonoBehaviour
         tongueLineRenderer.enabled = true;
         outlineLineRenderer.enabled = true;
         tongueCollider.enabled = true;
-        float angle = rotatingTongueStartAngle; // + rotatingTongueAngleOffset;
-        rotatingTongueStartAngle += (Mathf.PI / 2);
+
+        float angle = rotatingTongueCurrentAngle + (rotatingTongueIndex * 2 * Mathf.PI / rotatingTongueCount);
+
         float actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
         while (isTongueGoingOut)
         {
@@ -346,8 +360,13 @@ public class WeaponBehaviour : MonoBehaviour
                 SetTongueScale(t);
                 t += Time.fixedDeltaTime;
             }
+
             actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
-            angle += (Time.fixedDeltaTime * actualAttackSpeed * 10);
+
+            rotatingTongueCurrentAngle += ((Time.fixedDeltaTime * actualAttackSpeed * 10) / rotatingTongueCount);
+
+            angle = rotatingTongueCurrentAngle + (rotatingTongueIndex * 2 * Mathf.PI / rotatingTongueCount);
+
             SetTongueDirection((Mathf.Cos(angle) * Vector2.right + Mathf.Sin(angle) * Vector2.up).normalized);
             yield return new WaitForFixedUpdate();
         }
@@ -355,7 +374,13 @@ public class WeaponBehaviour : MonoBehaviour
         {
             SetTongueScale(t);
             t -= Time.fixedDeltaTime;
-            angle += (Time.fixedDeltaTime * actualAttackSpeed * 10);
+
+            actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
+
+            rotatingTongueCurrentAngle += ((Time.fixedDeltaTime * actualAttackSpeed * 10) / rotatingTongueCount);
+
+            angle = rotatingTongueCurrentAngle + (rotatingTongueIndex * 2 * Mathf.PI / rotatingTongueCount);
+
             SetTongueDirection((Mathf.Cos(angle) * Vector2.right + Mathf.Sin(angle) * Vector2.up).normalized);
             yield return new WaitForFixedUpdate();
         }
