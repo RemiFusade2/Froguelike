@@ -383,6 +383,7 @@ public class UIManager : MonoBehaviour
     public void ShowPauseScreen()
     {
         musicManager.PauseMusic();
+        pausePanel.SetActive(true);
         pausePanelAnimator.SetBool("Visible", true);
     }
 
