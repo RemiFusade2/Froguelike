@@ -324,6 +324,9 @@ public class WeaponBehaviour : MonoBehaviour
         }
     }
 
+    public static float rotatingTongueStartAngle = 0;
+    //public static float rotatingTongueAngleOffset = 0;
+
     private IEnumerator SendTongueInDirectionRotating(Vector2 direction)
     {
         isAttacking = true;
@@ -332,7 +335,9 @@ public class WeaponBehaviour : MonoBehaviour
         isTongueGoingOut = true;
         tongueLineRenderer.enabled = true;
         outlineLineRenderer.enabled = true;
-        float angle = 0;
+        tongueCollider.enabled = true;
+        float angle = rotatingTongueStartAngle; // + rotatingTongueAngleOffset;
+        rotatingTongueStartAngle += (Mathf.PI / 2);
         float actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
         while (isTongueGoingOut)
         {
@@ -356,6 +361,7 @@ public class WeaponBehaviour : MonoBehaviour
         }
         tongueLineRenderer.enabled = false;
         outlineLineRenderer.enabled = false;
+        tongueCollider.enabled = false;
         lastAttackTime = Time.time;
         isAttacking = false;
     }
@@ -388,6 +394,7 @@ public class WeaponBehaviour : MonoBehaviour
         isTongueGoingOut = true;
         tongueLineRenderer.enabled = true;
         outlineLineRenderer.enabled = true;
+        tongueCollider.enabled = true;
         float actualAttackSpeed = attackSpeed * (1+GameManager.instance.player.attackSpeedBoost);
         while (isTongueGoingOut)
         {
@@ -407,6 +414,7 @@ public class WeaponBehaviour : MonoBehaviour
         }
         tongueLineRenderer.enabled = false;
         outlineLineRenderer.enabled = false;
+        tongueCollider.enabled = false;
         lastAttackTime = Time.time;
         isAttacking = false;
     }
