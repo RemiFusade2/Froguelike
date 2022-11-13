@@ -288,6 +288,8 @@ public class GameManager : MonoBehaviour
         FliesManager.instance.enemySpawnSpeedFactor = 1;
         FliesManager.instance.curse = 0;
 
+        WeaponBehaviour.rotatingTongueCount = 0;
+
         unlockedCharactersIndex = new List<int>();
 
         currentSavedData.attempts++;

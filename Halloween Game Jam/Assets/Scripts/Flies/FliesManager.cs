@@ -85,14 +85,14 @@ public class FliesManager : MonoBehaviour
             position = GameManager.instance.player.transform.position + onUnitCircle.x * Vector3.right + onUnitCircle.y * Vector3.up;
             if (!playerMoveDirection.Equals(Vector2.zero))
             {
-                spawnPositionDotPlayerMoveDirection = Vector3.Dot((position-playerPosition), playerMoveDirection);
+                spawnPositionDotPlayerMoveDirection = Vector3.Dot((position-playerPosition).normalized, playerMoveDirection.normalized);
             }
             else
             {
                 spawnPositionDotPlayerMoveDirection = 1;
             }
             triesCount++;
-        } while (spawnPositionDotPlayerMoveDirection < 0 && triesCount <= maxTries);
+        } while (spawnPositionDotPlayerMoveDirection < 0.5f && triesCount <= maxTries);
         return position;
     }
 

@@ -75,6 +75,8 @@ public class WeaponBehaviour : MonoBehaviour
     public static int rotatingTongueCount = 0;
     public int rotatingTongueIndex;
 
+    private Coroutine computeRotatingAngleCoroutine;
+
     public void SetTongueColor(Color color)
     {
         tongueColor = color;
@@ -183,7 +185,17 @@ public class WeaponBehaviour : MonoBehaviour
         {
             rotatingTongueIndex = rotatingTongueCount;
             rotatingTongueCount++;
+            if (rotatingTongueIndex == 0)
+            {
+                if (computeRotatingAngleCoroutine != null)
+                {
+                    StopCoroutine(computeRotatingAngleCoroutine);
+                    computeRotatingAngleCoroutine = null;
+                }
+                computeRotatingAngleCoroutine = StartCoroutine(ComputeRotatingTongueAngle());
+            }
         }
+
 
         ResetWeapon();
     }
@@ -340,6 +352,16 @@ public class WeaponBehaviour : MonoBehaviour
         }
     }
 
+    private IEnumerator ComputeRotatingTongueAngle()
+    {
+        while (true)
+        {
+            float actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
+            rotatingTongueCurrentAngle += (Time.fixedDeltaTime * actualAttackSpeed * 10);
+            yield return new WaitForFixedUpdate();
+        }
+    }
+
     private IEnumerator SendTongueInDirectionRotating(Vector2 direction)
     {
         isAttacking = true;
@@ -363,8 +385,6 @@ public class WeaponBehaviour : MonoBehaviour
 
             actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
 
-            rotatingTongueCurrentAngle += ((Time.fixedDeltaTime * actualAttackSpeed * 10) / rotatingTongueCount);
-
             angle = rotatingTongueCurrentAngle + (rotatingTongueIndex * 2 * Mathf.PI / rotatingTongueCount);
 
             SetTongueDirection((Mathf.Cos(angle) * Vector2.right + Mathf.Sin(angle) * Vector2.up).normalized);
@@ -376,8 +396,6 @@ public class WeaponBehaviour : MonoBehaviour
             t -= Time.fixedDeltaTime;
 
             actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
-
-            rotatingTongueCurrentAngle += ((Time.fixedDeltaTime * actualAttackSpeed * 10) / rotatingTongueCount);
 
             angle = rotatingTongueCurrentAngle + (rotatingTongueIndex * 2 * Mathf.PI / rotatingTongueCount);
 
