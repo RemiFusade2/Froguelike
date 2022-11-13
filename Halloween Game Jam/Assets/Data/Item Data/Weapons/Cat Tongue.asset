@@ -19,6 +19,7 @@ MonoBehaviour:
     description: Cute but deadly
     recoverHealth: 0
     extraScore: 0
+    extraXP: 0
     walkSpeedBoost: 0
     swimSpeedBoost: 0
     maxHealthBoost: 0
@@ -49,9 +50,10 @@ MonoBehaviour:
     weaponChangeSpeedDurationBoost: 0
     weaponExtraWeapon: 0
   - level: 2
-    description: DMG +5
+    description: DAMAGE +5
     recoverHealth: 0
     extraScore: 0
+    extraXP: 0
     walkSpeedBoost: 0
     swimSpeedBoost: 0
     maxHealthBoost: 0
@@ -73,7 +75,7 @@ MonoBehaviour:
     weaponSpeedBoost: 0
     weaponCooldownBoost: 0
     weaponRangeBoost: 0
-    weaponMaxFliesBoost: 0
+    weaponMaxFliesBoost: 5
     weaponHealthAbsorbRatioBoost: 0
     weaponHealthAbsorbMaxBoost: 0
     weaponPoisonDamageBoost: 0
@@ -82,42 +84,10 @@ MonoBehaviour:
     weaponChangeSpeedDurationBoost: 0
     weaponExtraWeapon: 0
   - level: 3
-    description: Speed +10%
+    description: RANGE +0.5
     recoverHealth: 0
     extraScore: 0
-    walkSpeedBoost: 0
-    swimSpeedBoost: 0
-    maxHealthBoost: 0
-    healthRecoveryBoost: 0
-    armorBoost: 0
-    experienceBoost: 0
-    goldBoost: 0
-    curseBoost: 0
-    revivalBoost: 0
-    rerollBoost: 0
-    attackDamageBoost: 0
-    attackSpeedBoost: 0
-    attackCooldownBoost: 0
-    attackRangeBoost: 0
-    attackMaxFliesBoost: 0
-    attackSpecialStrengthBoost: 0
-    attackSpecialDurationBoost: 0
-    weaponDamageBoost: 0
-    weaponSpeedBoost: 0.1
-    weaponCooldownBoost: 0
-    weaponRangeBoost: 0
-    weaponMaxFliesBoost: 0
-    weaponHealthAbsorbRatioBoost: 0
-    weaponHealthAbsorbMaxBoost: 0
-    weaponPoisonDamageBoost: 0
-    weaponPoisonDurationBoost: 0
-    weaponChangeSpeedFactorBoost: 0
-    weaponChangeSpeedDurationBoost: 0
-    weaponExtraWeapon: 0
-  - level: 4
-    description: Cooldown -20%
-    recoverHealth: 0
-    extraScore: 0
+    extraXP: 0
     walkSpeedBoost: 0
     swimSpeedBoost: 0
     maxHealthBoost: 0
@@ -137,7 +107,41 @@ MonoBehaviour:
     attackSpecialDurationBoost: 0
     weaponDamageBoost: 0
     weaponSpeedBoost: 0
-    weaponCooldownBoost: -0.4
+    weaponCooldownBoost: 0
+    weaponRangeBoost: 0.5
+    weaponMaxFliesBoost: 0
+    weaponHealthAbsorbRatioBoost: 0
+    weaponHealthAbsorbMaxBoost: 0
+    weaponPoisonDamageBoost: 0
+    weaponPoisonDurationBoost: 0
+    weaponChangeSpeedFactorBoost: 0
+    weaponChangeSpeedDurationBoost: 0
+    weaponExtraWeapon: 0
+  - level: 4
+    description: Cooldown -0.5
+    recoverHealth: 0
+    extraScore: 0
+    extraXP: 0
+    walkSpeedBoost: 0
+    swimSpeedBoost: 0
+    maxHealthBoost: 0
+    healthRecoveryBoost: 0
+    armorBoost: 0
+    experienceBoost: 0
+    goldBoost: 0
+    curseBoost: 0
+    revivalBoost: 0
+    rerollBoost: 0
+    attackDamageBoost: 0
+    attackSpeedBoost: 0
+    attackCooldownBoost: 0
+    attackRangeBoost: 0
+    attackMaxFliesBoost: 0
+    attackSpecialStrengthBoost: 0
+    attackSpecialDurationBoost: 0
+    weaponDamageBoost: 0
+    weaponSpeedBoost: 0
+    weaponCooldownBoost: -0.5
     weaponRangeBoost: 0
     weaponMaxFliesBoost: 0
     weaponHealthAbsorbRatioBoost: 0
@@ -148,108 +152,10 @@ MonoBehaviour:
     weaponChangeSpeedDurationBoost: 0
     weaponExtraWeapon: 0
   - level: 5
-    description: DMG +10
+    description: DAMAGE +20
     recoverHealth: 0
     extraScore: 0
-    walkSpeedBoost: 0
-    swimSpeedBoost: 0
-    maxHealthBoost: 0
-    healthRecoveryBoost: 0
-    armorBoost: 0
-    experienceBoost: 0
-    goldBoost: 0
-    curseBoost: 0
-    revivalBoost: 0
-    rerollBoost: 0
-    attackDamageBoost: 0
-    attackSpeedBoost: 0
-    attackCooldownBoost: 0
-    attackRangeBoost: 0
-    attackMaxFliesBoost: 0
-    attackSpecialStrengthBoost: 0
-    attackSpecialDurationBoost: 0
-    weaponDamageBoost: 10
-    weaponSpeedBoost: 0
-    weaponCooldownBoost: 0
-    weaponRangeBoost: 0
-    weaponMaxFliesBoost: 5
-    weaponHealthAbsorbRatioBoost: 0
-    weaponHealthAbsorbMaxBoost: 0
-    weaponPoisonDamageBoost: 0
-    weaponPoisonDurationBoost: 0
-    weaponChangeSpeedFactorBoost: 0
-    weaponChangeSpeedDurationBoost: 0
-    weaponExtraWeapon: 0
-  - level: 6
-    description: Cooldown -20%
-    recoverHealth: 0
-    extraScore: 0
-    walkSpeedBoost: 0
-    swimSpeedBoost: 0
-    maxHealthBoost: 0
-    healthRecoveryBoost: 0
-    armorBoost: 0
-    experienceBoost: 0
-    goldBoost: 0
-    curseBoost: 0
-    revivalBoost: 0
-    rerollBoost: 0
-    attackDamageBoost: 0
-    attackSpeedBoost: 0
-    attackCooldownBoost: 0
-    attackRangeBoost: 0
-    attackMaxFliesBoost: 0
-    attackSpecialStrengthBoost: 0
-    attackSpecialDurationBoost: 0
-    weaponDamageBoost: 0
-    weaponSpeedBoost: 0
-    weaponCooldownBoost: -0.4
-    weaponRangeBoost: 0
-    weaponMaxFliesBoost: 0
-    weaponHealthAbsorbRatioBoost: 0
-    weaponHealthAbsorbMaxBoost: 0
-    weaponPoisonDamageBoost: 0
-    weaponPoisonDurationBoost: 0
-    weaponChangeSpeedFactorBoost: 0
-    weaponChangeSpeedDurationBoost: 0
-    weaponExtraWeapon: 0
-  - level: 7
-    description: No limit to number of flies eaten
-    recoverHealth: 0
-    extraScore: 0
-    walkSpeedBoost: 0
-    swimSpeedBoost: 0
-    maxHealthBoost: 0
-    healthRecoveryBoost: 0
-    armorBoost: 0
-    experienceBoost: 0
-    goldBoost: 0
-    curseBoost: 0
-    revivalBoost: 0
-    rerollBoost: 0
-    attackDamageBoost: 0
-    attackSpeedBoost: 0
-    attackCooldownBoost: 0
-    attackRangeBoost: 0
-    attackMaxFliesBoost: 0
-    attackSpecialStrengthBoost: 0
-    attackSpecialDurationBoost: 0
-    weaponDamageBoost: 0
-    weaponSpeedBoost: 0
-    weaponCooldownBoost: 0
-    weaponRangeBoost: 0
-    weaponMaxFliesBoost: 2000
-    weaponHealthAbsorbRatioBoost: 0
-    weaponHealthAbsorbMaxBoost: 0
-    weaponPoisonDamageBoost: 0
-    weaponPoisonDurationBoost: 0
-    weaponChangeSpeedFactorBoost: 0
-    weaponChangeSpeedDurationBoost: 0
-    weaponExtraWeapon: 0
-  - level: 8
-    description: DMG +20
-    recoverHealth: 0
-    extraScore: 0
+    extraXP: 0
     walkSpeedBoost: 0
     swimSpeedBoost: 0
     maxHealthBoost: 0
@@ -271,7 +177,7 @@ MonoBehaviour:
     weaponSpeedBoost: 0
     weaponCooldownBoost: 0
     weaponRangeBoost: 0
-    weaponMaxFliesBoost: 0
+    weaponMaxFliesBoost: 10
     weaponHealthAbsorbRatioBoost: 0
     weaponHealthAbsorbMaxBoost: 0
     weaponPoisonDamageBoost: 0
@@ -279,10 +185,45 @@ MonoBehaviour:
     weaponChangeSpeedFactorBoost: 0
     weaponChangeSpeedDurationBoost: 0
     weaponExtraWeapon: 0
-  - level: 9
-    description: Cooldown -20%
+  - level: 6
+    description: DAMAGE +20
     recoverHealth: 0
     extraScore: 0
+    extraXP: 0
+    walkSpeedBoost: 0
+    swimSpeedBoost: 0
+    maxHealthBoost: 0
+    healthRecoveryBoost: 0
+    armorBoost: 0
+    experienceBoost: 0
+    goldBoost: 0
+    curseBoost: 0
+    revivalBoost: 0
+    rerollBoost: 0
+    attackDamageBoost: 0
+    attackSpeedBoost: 0
+    attackCooldownBoost: 0
+    attackRangeBoost: 0
+    attackMaxFliesBoost: 0
+    attackSpecialStrengthBoost: 0
+    attackSpecialDurationBoost: 0
+    weaponDamageBoost: 20
+    weaponSpeedBoost: 0
+    weaponCooldownBoost: 0
+    weaponRangeBoost: 0
+    weaponMaxFliesBoost: 10
+    weaponHealthAbsorbRatioBoost: 0
+    weaponHealthAbsorbMaxBoost: 0
+    weaponPoisonDamageBoost: 0
+    weaponPoisonDurationBoost: 0
+    weaponChangeSpeedFactorBoost: 0
+    weaponChangeSpeedDurationBoost: 0
+    weaponExtraWeapon: 0
+  - level: 7
+    description: COOLDOWN -0.5
+    recoverHealth: 0
+    extraScore: 0
+    extraXP: 0
     walkSpeedBoost: 0
     swimSpeedBoost: 0
     maxHealthBoost: 0
@@ -302,7 +243,7 @@ MonoBehaviour:
     attackSpecialDurationBoost: 0
     weaponDamageBoost: 0
     weaponSpeedBoost: 0
-    weaponCooldownBoost: -0.4
+    weaponCooldownBoost: -0.5
     weaponRangeBoost: 0
     weaponMaxFliesBoost: 0
     weaponHealthAbsorbRatioBoost: 0
@@ -312,10 +253,45 @@ MonoBehaviour:
     weaponChangeSpeedFactorBoost: 0
     weaponChangeSpeedDurationBoost: 0
     weaponExtraWeapon: 0
-  - level: 10
-    description: Twice DMG
+  - level: 8
+    description: RANGE +0.5
     recoverHealth: 0
     extraScore: 0
+    extraXP: 0
+    walkSpeedBoost: 0
+    swimSpeedBoost: 0
+    maxHealthBoost: 0
+    healthRecoveryBoost: 0
+    armorBoost: 0
+    experienceBoost: 0
+    goldBoost: 0
+    curseBoost: 0
+    revivalBoost: 0
+    rerollBoost: 0
+    attackDamageBoost: 0
+    attackSpeedBoost: 0
+    attackCooldownBoost: 0
+    attackRangeBoost: 0
+    attackMaxFliesBoost: 0
+    attackSpecialStrengthBoost: 0
+    attackSpecialDurationBoost: 0
+    weaponDamageBoost: 0
+    weaponSpeedBoost: 0
+    weaponCooldownBoost: 0
+    weaponRangeBoost: 0.5
+    weaponMaxFliesBoost: 0
+    weaponHealthAbsorbRatioBoost: 0
+    weaponHealthAbsorbMaxBoost: 0
+    weaponPoisonDamageBoost: 0
+    weaponPoisonDurationBoost: 0
+    weaponChangeSpeedFactorBoost: 0
+    weaponChangeSpeedDurationBoost: 0
+    weaponExtraWeapon: 0
+  - level: 9
+    description: DAMAGE +50
+    recoverHealth: 0
+    extraScore: 0
+    extraXP: 0
     walkSpeedBoost: 0
     swimSpeedBoost: 0
     maxHealthBoost: 0
@@ -337,7 +313,41 @@ MonoBehaviour:
     weaponSpeedBoost: 0
     weaponCooldownBoost: 0
     weaponRangeBoost: 0
-    weaponMaxFliesBoost: 0
+    weaponMaxFliesBoost: 20
+    weaponHealthAbsorbRatioBoost: 0
+    weaponHealthAbsorbMaxBoost: 0
+    weaponPoisonDamageBoost: 0
+    weaponPoisonDurationBoost: 0
+    weaponChangeSpeedFactorBoost: 0
+    weaponChangeSpeedDurationBoost: 0
+    weaponExtraWeapon: 0
+  - level: 10
+    description: DAMAGE +100
+    recoverHealth: 0
+    extraScore: 0
+    extraXP: 0
+    walkSpeedBoost: 0
+    swimSpeedBoost: 0
+    maxHealthBoost: 0
+    healthRecoveryBoost: 0
+    armorBoost: 0
+    experienceBoost: 0
+    goldBoost: 0
+    curseBoost: 0
+    revivalBoost: 0
+    rerollBoost: 0
+    attackDamageBoost: 0
+    attackSpeedBoost: 0
+    attackCooldownBoost: 0
+    attackRangeBoost: 0
+    attackMaxFliesBoost: 0
+    attackSpecialStrengthBoost: 0
+    attackSpecialDurationBoost: 0
+    weaponDamageBoost: 100
+    weaponSpeedBoost: 0
+    weaponCooldownBoost: 0
+    weaponRangeBoost: 0
+    weaponMaxFliesBoost: 50
     weaponHealthAbsorbRatioBoost: 0
     weaponHealthAbsorbMaxBoost: 0
     weaponPoisonDamageBoost: 0
@@ -349,13 +359,13 @@ MonoBehaviour:
   weaponData:
     weaponPrefab: {fileID: 3990334965163639182, guid: 4a710caa256322a4aa6bfb19109e4559, type: 3}
     startWidth: 0.5
-    weaponType: 2
+    weaponType: 9
     startCooldown: 2
-    startDamage: 10
-    startAttackSpeed: 1.5
-    startRange: 0.9
+    startDamage: 5
+    startAttackSpeed: 1
+    startRange: 1
     comesBackAfterEatingFlies: 1
-    startMaxFlies: 10
+    startMaxFlies: 5
     startHealthAbsorbRatio: 0
     startHealthAbsorbMax: 0
     startPoisonDamage: 0

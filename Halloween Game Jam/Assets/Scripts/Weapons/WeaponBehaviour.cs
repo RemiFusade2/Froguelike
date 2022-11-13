@@ -13,7 +13,8 @@ public enum WeaponType
     POISON, // target nearest, low range, medium damage, poison damage during a delay after hit. GREEN
     FREEZE, // target nearest, high range, low damage, slow down enemies. BLUE
     CURSED, // target nearest, medium range, high damage, high speed, make enemies faster. PURPLE OR ORANGE
-    RANDOM // target random direction, high range, high damage, medium speed. Random effect and random color
+    RANDOM, // target random direction, high range, high damage, medium speed. Random effect and random color
+    CAT // target nearest, SUPER WIDE, shorter, TONS OF DAMAGE
 }
 
 public class WeaponBehaviour : MonoBehaviour
@@ -328,6 +329,7 @@ public class WeaponBehaviour : MonoBehaviour
                 case WeaponType.QUICK:
                 case WeaponType.VAMPIRE:
                 case WeaponType.WIDE:
+                case WeaponType.CAT:
                 default:
                     {
                         GameObject targetEnemy = GetNearestEnemy();
