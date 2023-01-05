@@ -10,6 +10,7 @@ public class UIManager : MonoBehaviour
 
     [Header("Title")]
     public GameObject titleScreen;
+    public Text titleScreenCurrencyText;
 
     [Header("Character Selection")]
     public GameObject characterSelectionScreen;
@@ -132,6 +133,11 @@ public class UIManager : MonoBehaviour
         musicManager.PlayTitleMusic();
         HideAllScreens();
         titleScreen.SetActive(true);
+    }
+
+    public void UpdateTitleScreenCurrencyText(long currencyValue)
+    {
+        titleScreenCurrencyText.text = Tools.FormatCurrency(currencyValue);
     }
 
     public void ShowCharacterSelection(List<PlayableCharacterInfo> playableCharactersList)

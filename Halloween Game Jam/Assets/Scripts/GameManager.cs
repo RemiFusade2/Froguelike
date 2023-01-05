@@ -16,6 +16,9 @@ public class SaveData
     public int attempts;
     public int wins;
 
+    public long availableCurrency;
+    public long totalSpentCurrency;
+
     public void InitializeCharacterWinsList()
     {
         wonTheGameWithCharacterIndexList = new List<int>();
@@ -37,6 +40,8 @@ public class SaveData
         cumulatedScore = 0;
         attempts = 0;
         wins = 0;
+        availableCurrency = 0;
+        totalSpentCurrency = 0;
     }
 
     /// <summary>
@@ -186,8 +191,11 @@ public class GameManager : MonoBehaviour
 
     [Header("Save")]
     public string saveFileName;
-    
-    [Header("Runtime")]
+
+    [Header("Runtime - meta data")]
+    public long availableCurrency;
+
+    [Header("Runtime - one run data")]
     public bool hasGameStarted;
     public bool isGameRunning;
     [Space]
@@ -204,6 +212,8 @@ public class GameManager : MonoBehaviour
     [Space]
     private List<ChapterData> currentPlayableChaptersList;
     public ChapterInfo currentChapter;
+    [Space]
+    public long currentCollectedCurrency;
 
     private float nextLevelXp = 5;
     private float xpNeededForNextLevelFactor = 1.5f;
@@ -248,6 +258,7 @@ public class GameManager : MonoBehaviour
         InitializeStuff();
         UIManager.instance.UpdateXPSlider(0, nextLevelXp);
         InvokeRepeating("UpdateMap", 0.2f, 0.5f);
+        BackToTitleScreen();
     }
 
     private void Update()
@@ -267,6 +278,7 @@ public class GameManager : MonoBehaviour
     {
         level = 1;
         xp = 0;
+        currentCollectedCurrency = 0;
 
         levelUpChoiceIsVisible = false;
         chapterChoiceIsVisible = false;
@@ -914,6 +926,11 @@ public class GameManager : MonoBehaviour
         }
         currentSavedData.cumulatedScore += currentScore;
 
+        // Collect currency for good
+        availableCurrency += currentCollectedCurrency;
+        currentCollectedCurrency = 0;
+        currentSavedData.availableCurrency = availableCurrency;
+
         // Maybe unlock some characters if conditions are met, and save data too
         CheckForUnlockingCharacters();
         SaveDataToFile();
@@ -924,6 +941,7 @@ public class GameManager : MonoBehaviour
     public void BackToTitleScreen()
     {
         FliesManager.instance.ClearAllEnemies();
+        UIManager.instance.UpdateTitleScreenCurrencyText(availableCurrency);
         UIManager.instance.ShowTitleScreen();
         hasGameStarted = false;
     }
@@ -969,6 +987,8 @@ public class GameManager : MonoBehaviour
             playableCharactersList[unlockedCharacter].unlocked = true;
         }
 
+        availableCurrency = currentSavedData.availableCurrency;
+
         ReinitializeChaptersList();
     }
 
@@ -1011,5 +1031,6 @@ public class GameManager : MonoBehaviour
         currentSavedData = new SaveData();
         SaveDataToFile();
         InitializeStuff();
+        BackToTitleScreen();
     }
 }
