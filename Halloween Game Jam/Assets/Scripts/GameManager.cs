@@ -279,6 +279,7 @@ public class GameManager : MonoBehaviour
         level = 1;
         xp = 0;
         currentCollectedCurrency = 0;
+        UIManager.instance.UpdateInGameCurrencyText(currentCollectedCurrency);
 
         levelUpChoiceIsVisible = false;
         chapterChoiceIsVisible = false;
@@ -303,7 +304,7 @@ public class GameManager : MonoBehaviour
         WeaponBehaviour.rotatingTongueCount = 0;
 
         unlockedCharactersIndex = new List<int>();
-
+        
         currentSavedData.attempts++;
         SaveDataToFile();
 
@@ -316,11 +317,13 @@ public class GameManager : MonoBehaviour
         xp += moreXP;
         if (xp >= nextLevelXp)
         {
+            // Trigger Level Up Screen!
             LevelUP();
+
             xp -= nextLevelXp;
             nextLevelXp *= xpNeededForNextLevelFactor;
+            UIManager.instance.UpdateXPSlider(xp, nextLevelXp);
         }
-        UIManager.instance.UpdateXPSlider(xp, nextLevelXp);
     }
 
     public void EatFly(float experiencePoints, bool instantlyEndChapter = false)
@@ -435,6 +438,8 @@ public class GameManager : MonoBehaviour
         UIManager.instance.HideLevelUpItemSelection();
         Time.timeScale = 1;
         levelUpChoiceIsVisible = false;
+
+        IncreaseXP(0);
     }
 
     private int GetLevelForItem(ItemScriptableObject item)
@@ -565,7 +570,6 @@ public class GameManager : MonoBehaviour
                 possibleItems.RemoveAt(randomIndex);
             }
         }
-
 
         // Find levels for each of these items
         List<int> itemLevels = new List<int>();
@@ -1025,6 +1029,32 @@ public class GameManager : MonoBehaviour
 
     #endregion
     
+    public void CollectCollectible(string collectibleName)
+    {
+        if (collectibleName.Contains("Currency"))
+        {
+            if (int.TryParse(collectibleName.Split("+")[1], out int currency))
+            {
+                currentCollectedCurrency += currency;
+                UIManager.instance.UpdateInGameCurrencyText(currentCollectedCurrency);
+            }
+        }
+        else if (collectibleName.Contains("XP"))
+        {
+            if (int.TryParse(collectibleName.Split("+")[1], out int xpBonus))
+            {
+                IncreaseXP(xpBonus);
+            }
+        }
+        else if (collectibleName.Contains("HP"))
+        {
+            if (int.TryParse(collectibleName.Split("+")[1], out int hpBonus))
+            {
+                player.Heal(hpBonus);
+            }
+        }
+    }
+
     public void ClearSaveFile()
     {
         // Clear save file and update everything accordingly

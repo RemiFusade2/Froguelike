@@ -98,6 +98,28 @@ public class MapBehaviour : MonoBehaviour
                 AddSomething(rocksPrefabs, tileCoordinates, preventSpawnRocksAtPosition, preventSpawnPosition);
             }
         }
+        // generate collectibles
+        int collectibleCount = Random.Range(0, 10);
+        for (int i=0; i<collectibleCount; i++)
+        {
+            Vector2 randomVector = Random.insideUnitCircle;
+            Vector2 position = GetWorldPositionOfTile(tileCoordinates) + randomVector * (tileSize / 2.0f);
+
+            float randomCollectibleType = Random.Range(0, 1.0f);
+            if (randomCollectibleType < 0.1f)
+            {
+                CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.XP_BONUS, 20);
+            }
+            else if (randomCollectibleType < 0.3f)
+            {
+                CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.HEALTH, 50);
+            }
+            else
+            {
+                CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.CURRENCY, 5);
+            }
+
+        }
         existingTilesCoordinates.Add(tileCoordinates);
     }
 

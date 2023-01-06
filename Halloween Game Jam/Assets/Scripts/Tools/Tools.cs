@@ -5,9 +5,7 @@ using UnityEngine;
 
 public static class Tools
 {
-    public static string currencySymbol = "₣";
-
-    public static string FormatCurrency(long num)
+    public static string FormatCurrency(long num, string currencySymbol)
     {
         string result = "";
 

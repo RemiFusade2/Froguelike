@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -26,6 +26,8 @@ public class UIManager : MonoBehaviour
     public GameObject inGameUIPanel;
     public Slider xpSlider;
     public Text levelText;
+    [Space]
+    public Text currencyText;
     [Space]
     public string timerPrefix;
     public Text timerText;
@@ -90,6 +92,9 @@ public class UIManager : MonoBehaviour
     public SoundManager soundManager;
     public MusicManager musicManager;
 
+    [Header("Currency symbol")]
+    public string currencySymbol = "₣";
+
     private void Awake()
     {
         instance = this;
@@ -135,9 +140,14 @@ public class UIManager : MonoBehaviour
         titleScreen.SetActive(true);
     }
 
+    public void UpdateInGameCurrencyText(long currencyValue)
+    {
+        currencyText.text = Tools.FormatCurrency(currencyValue, currencySymbol);
+    }
+
     public void UpdateTitleScreenCurrencyText(long currencyValue)
     {
-        titleScreenCurrencyText.text = Tools.FormatCurrency(currencyValue);
+        titleScreenCurrencyText.text = Tools.FormatCurrency(currencyValue, currencySymbol);
     }
 
     public void ShowCharacterSelection(List<PlayableCharacterInfo> playableCharactersList)

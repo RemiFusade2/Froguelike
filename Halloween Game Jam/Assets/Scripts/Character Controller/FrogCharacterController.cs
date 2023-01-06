@@ -351,6 +351,7 @@ public class FrogCharacterController : MonoBehaviour
 
     #endregion
 
+
     private void OnTriggerStay2D(Collider2D collision)
     {
         if (collision.CompareTag("Water"))
