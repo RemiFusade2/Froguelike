@@ -315,6 +315,11 @@ public class GameManager : MonoBehaviour
     public void IncreaseXP(float moreXP)
     {
         xp += moreXP;
+
+        // Update XP and Level BEFORE the level up happens
+        UIManager.instance.UpdateXPSlider(xp, nextLevelXp);
+        UIManager.instance.UpdateLevel(level);
+
         if (xp >= nextLevelXp)
         {
             // Trigger Level Up Screen!
@@ -322,7 +327,6 @@ public class GameManager : MonoBehaviour
 
             xp -= nextLevelXp;
             nextLevelXp *= xpNeededForNextLevelFactor;
-            UIManager.instance.UpdateXPSlider(xp, nextLevelXp);
         }
     }
 
@@ -580,7 +584,6 @@ public class GameManager : MonoBehaviour
 
         // Show Update level UI
         UIManager.instance.ShowLevelUpItemSelection(levelUpPossibleItems, itemLevels);
-        UIManager.instance.UpdateLevel(level);
     }
 
     #endregion
