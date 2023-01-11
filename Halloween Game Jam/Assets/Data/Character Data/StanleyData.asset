@@ -13,14 +13,15 @@ MonoBehaviour:
   m_Name: StanleyData
   m_EditorClassIdentifier: 
   characterName: Stanley
-  characterSprite: {fileID: 1615740818, guid: 36baa98bb76bb594fa0ca2f4ed86155e, type: 3}
   characterDescription: Such a cute frog!
   unlockHint: I dunno...
+  characterSprite: {fileID: 1615740818, guid: 36baa98bb76bb594fa0ca2f4ed86155e, type: 3}
   characterAnimatorValue: 6
-  startingLandSpeed: 6.5
-  startingSwimSpeed: 2
-  startingMaxHealth: 300
-  startingHealthRecovery: 0
-  startingArmor: 0
-  startingRevivals: 9
+  startingStatsList:
+  - stat: 0
+    value: 50
+  - stat: 8
+    value: 9
+  - stat: 7
+    value: -0.5
   startingWeapon: {fileID: 11400000, guid: eb8ccf20c46d4d342bb6deb517e635fb, type: 2}

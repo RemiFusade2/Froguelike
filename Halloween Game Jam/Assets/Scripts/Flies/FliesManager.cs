@@ -52,8 +52,6 @@ public class FliesManager : MonoBehaviour
     public float enemyDamageFactor = 1;
     public float enemyXPFactor = 1;
     public float enemySpawnSpeedFactor = 1;
-    [Range(0,0.5f)]
-    public float curse = 0;
     [Space]
     public float updateAllEnemiesDelay = 0.1f;
     [Space]
@@ -100,8 +98,8 @@ public class FliesManager : MonoBehaviour
     {
         for (int i = 0; i < currentWave.spawnDelays.Count; i++)
         {
-            float delayBetweenSpawns = currentWave.spawnDelays[i] * (1 - curse) * (1 / enemySpawnSpeedFactor);
-            delayBetweenSpawns = Mathf.Clamp(delayBetweenSpawns, 0.001f, float.MaxValue);
+            double delayBetweenSpawns = currentWave.spawnDelays[i] * (1 - GameManager.instance.player.curse) * (1 / enemySpawnSpeedFactor);
+            delayBetweenSpawns = System.Math.Clamp(delayBetweenSpawns, 0.001, double.MaxValue);
             SpawnPattern spawnPattern = currentWave.spawnPatterns[i];
             EnemyData enemyData = currentWave.spawnEnemies[i];
             float lastSpawnTime = lastSpawnTimesList[i];
@@ -233,7 +231,7 @@ public class FliesManager : MonoBehaviour
         newEnemy.EnemyDataID = enemyData.ID;
         newEnemy.enemyRenderer = enemyTransform.GetComponent<SpriteRenderer>();
         newEnemy.enemyTransform = enemyTransform;
-        newEnemy.HP = enemyData.maxHP * (enemyHPFactor + curse);
+        newEnemy.HP = enemyData.maxHP * (enemyHPFactor + GameManager.instance.player.curse);
         newEnemy.enemyRigidbody = enemyTransform.GetComponent<Rigidbody2D>();
         newEnemy.enemyAnimator = enemyTransform.GetComponent<Animator>();
         newEnemy.enemyCollider = enemyTransform.GetComponent<Collider2D>();
@@ -335,12 +333,12 @@ public class FliesManager : MonoBehaviour
                         }
                         enemy.moveDirection = (frogPosition - enemy.enemyTransform.position).normalized;
                         float distanceWithFrog = Vector2.Distance(frogPosition, enemy.enemyTransform.position);
-                        enemy.enemyRigidbody.velocity = 2 * enemy.moveDirection * GameManager.instance.player.landSpeed;
+                        enemy.enemyRigidbody.velocity = 2 * enemy.moveDirection * GameManager.instance.player.walkSpeed;
                         if (distanceWithFrog < 1.5f)
                         {
                             enemy.enemyRenderer.enabled = false;
                             enemy.active = false;
-                            GameManager.instance.EatFly(enemyData.xPBonus * (enemyXPFactor + curse), enemyData.instantlyEndChapter);
+                            GameManager.instance.EatFly(enemyData.xPBonus * (enemyXPFactor + GameManager.instance.player.curse), enemyData.instantlyEndChapter);
                             enemiesToDestroyIDList.Add(enemyInfo.Key);
                         }
                     }
@@ -424,7 +422,7 @@ public class FliesManager : MonoBehaviour
             UpdateSpriteColor(enemyInstance);
         }
         float actualSpeed = GetEnemyDataFromName(enemyInstance.enemyTransform.name).moveSpeed * enemySpeedFactor * (1 + enemyInstance.changeSpeedFactor);
-        actualSpeed = Mathf.Clamp(actualSpeed, 0, GameManager.instance.player.landSpeed - 0.001f);
+        actualSpeed = Mathf.Clamp(actualSpeed, 0, GameManager.instance.player.walkSpeed - 0.001f);
         enemyInstance.enemyRigidbody.velocity = enemyInstance.moveDirection * actualSpeed;
     }
 

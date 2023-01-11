@@ -13,14 +13,19 @@ MonoBehaviour:
   m_Name: ToadData
   m_EditorClassIdentifier: 
   characterName: Toad
-  characterSprite: {fileID: 1621524326, guid: 9f6cd02d65e73694baf4d3a9d289f954, type: 3}
   characterDescription: A chunky boi
   unlockHint: Win one game
+  characterSprite: {fileID: 1621524326, guid: 9f6cd02d65e73694baf4d3a9d289f954, type: 3}
   characterAnimatorValue: 1
-  startingLandSpeed: 5.5
-  startingSwimSpeed: 4
-  startingMaxHealth: 500
-  startingHealthRecovery: 0.005
-  startingArmor: 0.2
-  startingRevivals: 1
+  startingStatsList:
+  - stat: 0
+    value: 250
+  - stat: 1
+    value: 1
+  - stat: 6
+    value: -0.3
+  - stat: 7
+    value: -0.3
+  - stat: 13
+    value: -0.1
   startingWeapon: {fileID: 11400000, guid: 025912a11c563394e9b7c8cd7ddbef8a, type: 2}

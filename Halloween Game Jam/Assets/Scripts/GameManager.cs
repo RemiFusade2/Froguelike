@@ -1,129 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 
 
-public class SaveData
-{
-    public List<int> unlockedCharacterIndexList;
-    public List<int> wonTheGameWithCharacterIndexList;
-
-    public int deathCount;
-    public int bestScore;
-    public int cumulatedScore;
-
-    public int attempts;
-    public int wins;
-
-    public long availableCurrency;
-    public long totalSpentCurrency;
-
-    public void InitializeCharacterWinsList()
-    {
-        wonTheGameWithCharacterIndexList = new List<int>();
-        for (int i = 0; i < 7; i++)
-        {
-            wonTheGameWithCharacterIndexList.Add(0);
-        }
-    }
-
-    /// <summary>
-    /// Constructor, initialize everything at zero
-    /// </summary>
-    public SaveData()
-    {
-        unlockedCharacterIndexList = new List<int>();
-        InitializeCharacterWinsList();
-        deathCount = 0;
-        bestScore = 0;
-        cumulatedScore = 0;
-        attempts = 0;
-        wins = 0;
-        availableCurrency = 0;
-        totalSpentCurrency = 0;
-    }
-
-    /// <summary>
-    /// Try to save data into a save file from a SaveData object.
-    /// </summary>
-    /// <param name="saveFileName"></param>
-    /// <param name="saveDataObject"></param>
-    /// <returns>true if file was saved correctly</returns>
-    public static bool Save(string saveFileName, SaveData saveDataObject)
-    {
-        return saveDataObject.Save(saveFileName);
-    }
-
-    public bool Save(string saveFileName)
-    {
-        string saveFilePath = GetFilePath(saveFileName);
-        Debug.Log("Debug info - Saving at: " + saveFilePath);
-        bool result = false;
-        try
-        {
-            string jsonData = JsonUtility.ToJson(this);
-            File.WriteAllText(saveFilePath, jsonData);
-            result = true;
-            Debug.Log("Debug info - Saved successfully");
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogWarning("Exception in Save(): " + ex.Message);
-        }
-        return result;
-    }
-
-
-
-    private void OverwriteFromJsonData(string savedData)
-    {
-        JsonUtility.FromJsonOverwrite(savedData, this);
-    }
-
-    /// <summary>
-    /// Try to load a save file and create a SaveData object assuming the save file exists and contains valid JSON info.
-    /// </summary>
-    /// <param name="saveFileName"></param>
-    /// <param name="saveDataObject"></param>
-    /// <returns>true if success, false if failed</returns>
-    public static bool Load(string saveFileName, out SaveData saveDataObject)
-    {
-        bool success = false;
-        string saveFilePath = GetFilePath(saveFileName);
-        Debug.Log("Debug info - Loading: " + saveFilePath);
-        saveDataObject = null;
-        try
-        {
-            if (File.Exists(saveFilePath))
-            {
-                string jsonData = File.ReadAllText(saveFilePath);
-                saveDataObject = new SaveData();
-                saveDataObject.OverwriteFromJsonData(jsonData);
-                if (saveDataObject.wonTheGameWithCharacterIndexList.Count != 7)
-                {
-                    saveDataObject.InitializeCharacterWinsList();
-                }
-                success = true;
-                Debug.Log("Debug info - loaded successfully");
-            }
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogWarning("Exception in Load(): " + ex.Message);
-        }
-        if (!success)
-        {
-            saveDataObject = null;
-        }
-        return success;
-    }
-
-    private static string GetFilePath(string saveFileName)
-    {
-        return Application.persistentDataPath + "/" + saveFileName + ".json";
-    }
-}
 
 [System.Serializable]
 public class ItemInfo
@@ -234,11 +113,20 @@ public class GameManager : MonoBehaviour
         SaveData loadedData;
         if (SaveData.Load(saveFileName, out loadedData))
         {
+            // Load saved data
             currentSavedData = loadedData;
         }
         else
         {
+            // If there's no save file, create a new save file and save it immediately
             currentSavedData = new SaveData();
+
+            // Fill the save file with all starting stats of characters
+            for (int i=0; i< playableCharactersList.Count; i++)
+            {
+                currentSavedData.startingStatsForCharactersList[i].statsList = playableCharactersList[i].characterData.startingStatsList;
+            }
+
             SaveDataToFile();
         }
     }
@@ -299,7 +187,6 @@ public class GameManager : MonoBehaviour
         FliesManager.instance.enemySpeedFactor = 1;
         FliesManager.instance.enemyXPFactor = 1;
         FliesManager.instance.enemySpawnSpeedFactor = 1;
-        FliesManager.instance.curse = 0;
 
         WeaponBehaviour.rotatingTongueCount = 0;
 
@@ -982,8 +869,10 @@ public class GameManager : MonoBehaviour
 
     public void InitializeStuff()
     {
+        // Load save file
         TryLoadDataFromFile();
 
+        // Update unlocked characters
         List<int> unlockedCharacterIndexList = currentSavedData.unlockedCharacterIndexList;
         for (int i = 1; i < playableCharactersList.Count; i++)
         {
@@ -994,6 +883,16 @@ public class GameManager : MonoBehaviour
             playableCharactersList[unlockedCharacter].unlocked = true;
         }
 
+        // Replace the starting stats of characters with data from save file
+        for (int i = 0; i < playableCharactersList.Count; i++)
+        {
+            playableCharactersList[i].characterData.startingStatsList = currentSavedData.startingStatsForCharactersList[i].statsList;
+        }
+
+        // Update shop stats with data from save file
+        ShopManager.instance.statsBonuses = currentSavedData.statBonusesFromShop;
+
+        // Update available currency
         availableCurrency = currentSavedData.availableCurrency;
 
         ReinitializeChaptersList();

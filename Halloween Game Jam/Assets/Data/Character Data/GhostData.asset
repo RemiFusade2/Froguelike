@@ -13,14 +13,19 @@ MonoBehaviour:
   m_Name: GhostData
   m_EditorClassIdentifier: 
   characterName: Ghost
-  characterSprite: {fileID: -1288500145, guid: 6794494c49cd4a54e9b208f553921536, type: 3}
   characterDescription: The ghost of a frog
   unlockHint: Die 15 times
+  characterSprite: {fileID: -1288500145, guid: 6794494c49cd4a54e9b208f553921536, type: 3}
   characterAnimatorValue: 2
-  startingLandSpeed: 7
-  startingSwimSpeed: 7
-  startingMaxHealth: 100
-  startingHealthRecovery: 0.003
-  startingArmor: 0
-  startingRevivals: 5
+  startingStatsList:
+  - stat: 0
+    value: 50
+  - stat: 6
+    value: 0.5
+  - stat: 7
+    value: 1
+  - stat: 8
+    value: 1
+  - stat: 1
+    value: 1
   startingWeapon: {fileID: 11400000, guid: f1e4b3ec6b292464694ccda6accd44d9, type: 2}

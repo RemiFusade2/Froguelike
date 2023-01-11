@@ -13,14 +13,17 @@ MonoBehaviour:
   m_Name: KermitData
   m_EditorClassIdentifier: 
   characterName: Kermit
-  characterSprite: {fileID: 1775229520, guid: ba4822aebdc2394438d079bb808c3f56, type: 3}
   characterDescription: The best swimmer
   unlockHint: Wear all the hats
+  characterSprite: {fileID: 1775229520, guid: ba4822aebdc2394438d079bb808c3f56, type: 3}
   characterAnimatorValue: 4
-  startingLandSpeed: 4.5
-  startingSwimSpeed: 7
-  startingMaxHealth: 300
-  startingHealthRecovery: 0.002
-  startingArmor: 0
-  startingRevivals: 1
+  startingStatsList:
+  - stat: 0
+    value: 120
+  - stat: 7
+    value: 1
+  - stat: 13
+    value: 0.2
+  - stat: 15
+    value: 0.1
   startingWeapon: {fileID: 11400000, guid: cf4c2accdc312844194dc06c437915ff, type: 2}

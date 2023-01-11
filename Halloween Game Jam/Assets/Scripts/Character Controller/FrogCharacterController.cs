@@ -27,22 +27,33 @@ public class FrogCharacterController : MonoBehaviour
     public List<SpriteRenderer> hatRenderersList;
     public List<Sprite> hatSpritesList;
 
+    [Header("Character default stats values")]
+    public float defaultHealthRecovery = 0.001f;
+    public float defaultWalkSpeed = 6;
+    public float defaultSwimSpeed = 4;
+
     [Header("Character data")]
-    public float landSpeed;
+    public float walkSpeed;
     public float swimSpeed;
     [Space]
     public float currentHealth = 100;
     public float maxHealth = 100;
     public float healthRecovery = 0.01f;
     [Space]
-    public float armorBoost = 0;
+    public float armor = 0;
     public float experienceBoost = 0;
+    public float currencyBoost = 0;
+    public float curse = 0;
     public int revivals = 0;
+    public int rerolls = 0;
+    public int banishs = 0;
+    public int skips = 0;
     [Space]
     public float attackCooldownBoost = 0;
     public float attackDamageBoost = 0;
     public float attackMaxFliesBoost = 0;
     public float attackRangeBoost = 0;
+    public float attackAreaBoost = 0;
     public float attackSpeedBoost = 0;
 
     public float attackSpecialStrengthBoost = 0;
@@ -128,7 +139,7 @@ public class FrogCharacterController : MonoBehaviour
             animator.SetFloat("Speed", speed);
         }
     }
-    
+
     private void FixedUpdate()
     {
         UpdateHorizontalInput();
@@ -139,7 +150,7 @@ public class FrogCharacterController : MonoBehaviour
             invincibilityTime -= Time.fixedDeltaTime;
         }
 
-        float moveSpeed = isOnLand ? landSpeed : swimSpeed;
+        float moveSpeed = isOnLand ? walkSpeed : swimSpeed;
         Vector2 moveInput = (((HorizontalInput * Vector2.right).normalized + (VerticalInput * Vector2.up).normalized)).normalized * moveSpeed;
 
         if (!moveInput.Equals(Vector2.zero))
@@ -191,35 +202,160 @@ public class FrogCharacterController : MonoBehaviour
     {
         SetAnimatorCharacterValue(characterData.characterAnimatorValue);
 
-        healthRecovery = characterData.startingHealthRecovery;
+        // Starting Stats for this character
 
-        landSpeed = characterData.startingLandSpeed;
-        swimSpeed = characterData.startingSwimSpeed;
-        maxHealth = characterData.startingMaxHealth;
+        // MAX HP should always be defined for any character
+        maxHealth = 0;
+        if (characterData.GetValueForStat(STAT.MAX_HEALTH, out float startingMaxHP))
+        {
+            maxHealth = startingMaxHP;
+        }
+        else
+        {
+            Debug.LogError("Max Health was not defined for this character");
+        }
 
-        armorBoost = characterData.startingArmor;
+        // HP Recovery
+        healthRecovery = defaultHealthRecovery;
+        if (characterData.GetValueForStat(STAT.HEALTH_RECOVERY_BOOST, out float startingHPRecoveryBoost))
+        {
+            healthRecovery *= (1 + startingHPRecoveryBoost);
+        }
+
+        // Armor
+        armor = 0;
+        if (characterData.GetValueForStat(STAT.ARMOR, out float startingArmor))
+        {
+            armor = startingArmor;
+        }
+
+        // Experience boost
         experienceBoost = 0;
-        revivals = characterData.startingRevivals;
+        if (characterData.GetValueForStat(STAT.XP_BOOST, out float startingXPBoost))
+        {
+            experienceBoost = startingXPBoost;
+        }
+
+        // Currency boost
+        currencyBoost = 0;
+        if (characterData.GetValueForStat(STAT.CURRENCY_BOOST, out float startingCurrencyBoost))
+        {
+            currencyBoost = startingCurrencyBoost;
+        }
+
+        // Curse boost
+        curse = 0;
+        if (characterData.GetValueForStat(STAT.CURSE, out float startingCurse))
+        {
+            curse = startingCurse;
+        }
+
+        // Walk speed
+        walkSpeed = defaultWalkSpeed;
+        if (characterData.GetValueForStat(STAT.WALK_SPEED_BOOST, out float startingWalkSpeedBoost))
+        {
+            walkSpeed *= (1 + startingWalkSpeedBoost);
+        }
+
+        // Swim speed
+        swimSpeed = defaultSwimSpeed;
+        if (characterData.GetValueForStat(STAT.SWIM_SPEED_BOOST, out float startingSwimSpeedBoost))
+        {
+            swimSpeed *= (1 + startingSwimSpeedBoost);
+        }
+
+        // Revivals
+        revivals = 0;
+        if (characterData.GetValueForStat(STAT.REVIVAL, out float startingRevivals))
+        {
+            revivals = Mathf.FloorToInt(startingRevivals);
+        }
+
+        // Rerolls
+        rerolls = 0;
+        if (characterData.GetValueForStat(STAT.REROLL, out float startingRerolls))
+        {
+            rerolls = Mathf.FloorToInt(startingRerolls);
+        }
+
+        // Banishs
+        banishs = 0;
+        if (characterData.GetValueForStat(STAT.BANISH, out float startingBanishs))
+        {
+            banishs = Mathf.FloorToInt(startingBanishs);
+        }
+
+        // Skips
+        skips = 0;
+        if (characterData.GetValueForStat(STAT.SKIP, out float startingSkips))
+        {
+            skips = Mathf.FloorToInt(startingSkips);
+        }
+
+        // Atk Damage Boost
+        attackDamageBoost = 0;
+        if (characterData.GetValueForStat(STAT.ATK_DAMAGE_BOOST, out float startingAtkDmgBoost))
+        {
+            attackDamageBoost = startingAtkDmgBoost;
+        }
+
+        // Atk Speed Boost
+        attackSpeedBoost = 0;
+        if (characterData.GetValueForStat(STAT.ATK_SPEED_BOOST, out float startingAtkSpeedBoost))
+        {
+            attackSpeedBoost = startingAtkSpeedBoost;
+        }
+
+        // Atk Cooldown Boost
+        attackCooldownBoost = 0;
+        if (characterData.GetValueForStat(STAT.ATK_COOLDOWN_BOOST, out float startingAtkCooldownBoost))
+        {
+            attackCooldownBoost = startingAtkCooldownBoost;
+        }
+
+        // Atk Range Boost
+        attackRangeBoost = 0;
+        if (characterData.GetValueForStat(STAT.ATK_RANGE_BOOST, out float startingAtkRangeBoost))
+        {
+            attackRangeBoost = startingAtkRangeBoost;
+        }
+
+        // Atk Area Boost
+        attackAreaBoost = 0;
+        if (characterData.GetValueForStat(STAT.ATK_AREA_BOOST, out float startingAtkAreaBoost))
+        {
+            attackAreaBoost = startingAtkAreaBoost;
+        }
+
+        // Atk Special Strength Boost
+        attackSpecialStrengthBoost = 0;
+        if (characterData.GetValueForStat(STAT.ATK_SPECIAL_STRENGTH_BOOST, out float startingAtkSpecStrengthBoost))
+        {
+            attackSpecialStrengthBoost = startingAtkSpecStrengthBoost;
+        }
+
+        // Atk Special Strength Boost
+        attackSpecialDurationBoost = 0;
+        if (characterData.GetValueForStat(STAT.ATK_SPECIAL_DURATION_BOOST, out float startingAtkSpecDurationBoost))
+        {
+            attackSpecialDurationBoost = startingAtkSpecDurationBoost;
+        }
+
+        // Magnet Range
+        // TO DO
+
+
         UIManager.instance.SetExtraLives(revivals);
 
-        attackCooldownBoost = 0;
-        attackDamageBoost = 0;
-        attackMaxFliesBoost = 0;
-        attackRangeBoost = 0;
-        attackSpeedBoost = 0;
-
-        attackSpecialDurationBoost = 0;
-        attackSpecialStrengthBoost = 0;
-        
         currentHealth = maxHealth;
     }
 
     public void ResolvePickedItemLevel(ItemLevel itemLevelData)
     {
-        FliesManager.instance.curse += itemLevelData.curseBoost;
+        curse += itemLevelData.curseBoost;
 
         // character stats
-        armorBoost += itemLevelData.armorBoost;
+        armor += itemLevelData.armorBoost;
         experienceBoost += itemLevelData.experienceBoost;
         healthRecovery += itemLevelData.healthRecoveryBoost;
         maxHealth += itemLevelData.maxHealthBoost;
@@ -235,7 +371,7 @@ public class FrogCharacterController : MonoBehaviour
             GameManager.instance.IncreaseXP(itemLevelData.extraXP);
         }
 
-        landSpeed += itemLevelData.walkSpeedBoost;
+        walkSpeed += itemLevelData.walkSpeedBoost;
         swimSpeed += itemLevelData.swimSpeedBoost;
 
         // attack stuff
@@ -250,7 +386,7 @@ public class FrogCharacterController : MonoBehaviour
 
         if (itemLevelData.recoverHealth > 0)
         {
-            currentHealth += Mathf.Clamp(currentHealth + itemLevelData.recoverHealth, 0, maxHealth);
+            currentHealth += System.Math.Clamp(currentHealth + itemLevelData.recoverHealth, 0, maxHealth);
         }
     }
 
@@ -372,7 +508,8 @@ public class FrogCharacterController : MonoBehaviour
         if (collision.collider.CompareTag("Fly") && GameManager.instance.isGameRunning && invincibilityTime <= 0)
         {
             float damage = FliesManager.instance.GetEnemyDataFromName(collision.gameObject.name).damage * FliesManager.instance.enemyDamageFactor;
-            damage = damage * (1 - armorBoost);
+
+            damage = Mathf.Clamp(damage - armor, 0.1f, float.MaxValue);
             ChangeHealth(-damage);
         }
     }

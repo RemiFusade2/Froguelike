@@ -13,14 +13,17 @@ MonoBehaviour:
   m_Name: RibbitData
   m_EditorClassIdentifier: 
   characterName: Ribbit
-  characterSprite: {fileID: -2112742750, guid: 05058eebe0d5df247a15ec53851c13e3, type: 3}
   characterDescription: A poisonous frog\nDon't eat him!
   unlockHint: Win a game with a very poisonous tongue
+  characterSprite: {fileID: -2112742750, guid: 05058eebe0d5df247a15ec53851c13e3, type: 3}
   characterAnimatorValue: 3
-  startingLandSpeed: 5.5
-  startingSwimSpeed: 4
-  startingMaxHealth: 200
-  startingHealthRecovery: 0.005
-  startingArmor: 0
-  startingRevivals: 1
+  startingStatsList:
+  - stat: 0
+    value: 120
+  - stat: 17
+    value: 0.5
+  - stat: 18
+    value: 0.5
+  - stat: 2
+    value: 1
   startingWeapon: {fileID: 11400000, guid: 273e271fa0f728747a2038593110ad89, type: 2}

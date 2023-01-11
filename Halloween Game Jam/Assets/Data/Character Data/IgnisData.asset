@@ -13,14 +13,15 @@ MonoBehaviour:
   m_Name: IgnisData
   m_EditorClassIdentifier: 
   characterName: Thomas
-  characterSprite: {fileID: 1222460833, guid: 4b29de11d99eea540a46ec4beb04e6e1, type: 3}
   characterDescription: Looks like a tomato
   unlockHint: Win a game while being super cursed
+  characterSprite: {fileID: 1222460833, guid: 4b29de11d99eea540a46ec4beb04e6e1, type: 3}
   characterAnimatorValue: 5
-  startingLandSpeed: 5.5
-  startingSwimSpeed: 4.5
-  startingMaxHealth: 400
-  startingHealthRecovery: 0.003
-  startingArmor: 0.05
-  startingRevivals: 1
+  startingStatsList:
+  - stat: 0
+    value: 200
+  - stat: 12
+    value: 0.1
+  - stat: 5
+    value: 0.1
   startingWeapon: {fileID: 11400000, guid: 94582d8b2fba6684188f4ab32d5520ce, type: 2}
