@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 
 
@@ -24,7 +25,23 @@ public class ChapterInfo
 public class PlayableCharacterInfo
 {
     public CharacterData characterData;
+
+    public StatsWrapper characterStartingStats;
+
     public bool unlocked;
+    
+    // Stat must be in the list
+    public bool GetValueForStat(STAT stat, out float value)
+    {
+        value = 0;
+        StatValue statValue = characterStartingStats.GetStatValue(stat);
+        bool statExists = (statValue != null);
+        if (statExists)
+        {
+            value = (float)statValue.value;
+        }
+        return statExists;
+    }
 }
 
 public class GameManager : MonoBehaviour
@@ -46,6 +63,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Prefabs")]
     public GameObject destroyParticleEffectPrefab;
+    public float destroyParticleEffectTimespan = 1.0f;
 
     [Header("Chapters data")]
     public List<ChapterData> allPlayableChaptersList;
@@ -124,7 +142,10 @@ public class GameManager : MonoBehaviour
             // Fill the save file with all starting stats of characters
             for (int i=0; i< playableCharactersList.Count; i++)
             {
-                currentSavedData.startingStatsForCharactersList[i].statsList = playableCharactersList[i].characterData.startingStatsList;
+                foreach (StatValue statValue in playableCharactersList[i].characterData.startingStatsList)
+                {
+                    currentSavedData.startingStatsForCharactersList[i].statsList.Add(new StatValue(statValue));
+                }
             }
 
             // Fill the save file with all starting stats of shop items
@@ -132,6 +153,11 @@ public class GameManager : MonoBehaviour
 
             SaveDataToFile();
         }
+    }
+
+    public bool EraseSaveFile()
+    {
+        return SaveData.EraseSaveFile(saveFileName);
     }
 
     #endregion
@@ -520,7 +546,7 @@ public class GameManager : MonoBehaviour
         chaptersPlayed = new List<ChapterInfo>();
         UIManager.instance.ShowChapterSelection(1, selectionOfNextChaptersList);
 
-        player.InitializeCharacter(currentPlayedCharacter.characterData);
+        player.InitializeCharacter(currentPlayedCharacter);
         PickItem(currentPlayedCharacter.characterData.startingWeapon);
     }
 
@@ -583,7 +609,8 @@ public class GameManager : MonoBehaviour
 
     public void SpawnDestroyParticleEffect(Vector2 position)
     {
-        Instantiate(destroyParticleEffectPrefab, position, Quaternion.identity);
+        GameObject particleEffectGo = Instantiate(destroyParticleEffectPrefab, position, Quaternion.identity);
+        Destroy(particleEffectGo, destroyParticleEffectTimespan);
     }
 
     public IEnumerator StartChapter(int chapterCount)
@@ -824,9 +851,8 @@ public class GameManager : MonoBehaviour
         currentSavedData.cumulatedScore += currentScore;
 
         // Collect currency for good
-        availableCurrency += currentCollectedCurrency;
+        ChangeAvailableCurrency(currentCollectedCurrency, false);
         currentCollectedCurrency = 0;
-        currentSavedData.availableCurrency = availableCurrency;
 
         // Maybe unlock some characters if conditions are met, and save data too
         CheckForUnlockingCharacters();
@@ -838,7 +864,6 @@ public class GameManager : MonoBehaviour
     public void BackToTitleScreen()
     {
         FliesManager.instance.ClearAllEnemies();
-        UIManager.instance.UpdateTitleScreenCurrencyText(availableCurrency);
         UIManager.instance.ShowTitleScreen();
         hasGameStarted = false;
     }
@@ -882,17 +907,17 @@ public class GameManager : MonoBehaviour
         List<int> unlockedCharacterIndexList = currentSavedData.unlockedCharacterIndexList;
         for (int i = 1; i < playableCharactersList.Count; i++)
         {
-            playableCharactersList[i].unlocked = false;
+            playableCharactersList[i].unlocked = false; // lock every character by default
         }
         foreach (int unlockedCharacter in currentSavedData.unlockedCharacterIndexList)
         {
-            playableCharactersList[unlockedCharacter].unlocked = true;
+            playableCharactersList[unlockedCharacter].unlocked = true; // unlock only the ones that are in the save file
         }
 
         // Replace the starting stats of characters with data from save file
         for (int i = 0; i < playableCharactersList.Count; i++)
         {
-            playableCharactersList[i].characterData.startingStatsList = currentSavedData.startingStatsForCharactersList[i].statsList;
+            playableCharactersList[i].characterStartingStats.statsList = currentSavedData.startingStatsForCharactersList[i].statsList;
         }
 
         // Update shop items with data from save file
@@ -901,12 +926,6 @@ public class GameManager : MonoBehaviour
 
         // Update available currency
         availableCurrency = currentSavedData.availableCurrency;
-
-
-        // TEMPORARY
-        ShopManager.instance.DisplayShop();
-        // END TEMPORARY
-
 
         ReinitializeChaptersList();
     }
@@ -950,7 +969,7 @@ public class GameManager : MonoBehaviour
         {
             if (int.TryParse(collectibleName.Split("+")[1], out int currency))
             {
-                currentCollectedCurrency += currency;
+                currentCollectedCurrency += Mathf.RoundToInt(currency * ( 1 + player.currencyBoost));
                 UIManager.instance.UpdateInGameCurrencyText(currentCollectedCurrency);
             }
         }
@@ -972,9 +991,18 @@ public class GameManager : MonoBehaviour
 
     public void ClearSaveFile()
     {
+        // Clear the shop
+        ShopManager.instance.RefundAll();
+        ShopManager.instance.currencySpentInTheShop = 0;
+        availableCurrency = 0;
+
         // Clear save file and update everything accordingly
-        currentSavedData = new SaveData();
-        SaveDataToFile();
+        bool fileErased = EraseSaveFile();
+        if (fileErased)
+        {
+            TryLoadDataFromFile();
+        }
+
         InitializeStuff();
         BackToTitleScreen();
     }
@@ -984,5 +1012,15 @@ public class GameManager : MonoBehaviour
         currentSavedData.shopItems = ShopManager.instance.availableItemsList;
         currentSavedData.currencySpentInShop = ShopManager.instance.currencySpentInTheShop;
         SaveDataToFile();
+    }
+
+    public void ChangeAvailableCurrency(long currencyChange, bool saveData = true)
+    {
+        availableCurrency += currencyChange;
+        currentSavedData.availableCurrency = availableCurrency;
+        if (saveData)
+        {
+            SaveDataToFile();
+        }
     }
 }

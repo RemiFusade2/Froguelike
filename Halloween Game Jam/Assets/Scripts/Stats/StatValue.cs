@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 [System.Serializable]
 public enum STAT
@@ -56,4 +57,88 @@ public class StatValue : IEquatable<StatValue>
 public class StatsWrapper
 {
     public List<StatValue> statsList;
+
+    public StatsWrapper()
+    {
+        statsList = new List<StatValue>();
+    }
+
+    public StatValue GetStatValue(STAT statType)
+    {
+        StatValue statValue = statsList.FirstOrDefault(x => x.stat.Equals(statType));
+        return statValue;
+    }
+
+    public bool GetValueForStat(STAT statType, out float value)
+    {
+        StatValue statValue = GetStatValue(statType);
+        value = 0;
+        bool statValueIsDefined = (statValue != null);
+        if (statValueIsDefined)
+        {
+            value = (float)statValue.value;
+        }
+        return statValueIsDefined;
+    }
+
+    /// <summary>
+    /// Static method to merge two lists.
+    /// Remove stat duplicates (only one stat of each type max).
+    /// </summary>
+    /// <param name="statsWrapper1"></param>
+    /// <param name="statsWrapper2"></param>
+    /// <returns></returns>
+    public static StatsWrapper JoinLists(StatsWrapper statsWrapper1, StatsWrapper statsWrapper2)
+    {
+        return StatsWrapper.JoinLists(statsWrapper1.statsList, statsWrapper2.statsList);
+    }
+
+    /// <summary>
+    /// Static method to merge two lists.
+    /// Remove stat duplicates (only one stat of each type max).
+    /// </summary>
+    /// <param name="statsWrapper1"></param>
+    /// <param name="statsList2"></param>
+    /// <returns></returns>
+    public static StatsWrapper JoinLists(StatsWrapper statsWrapper1, List<StatValue> statsList2)
+    {
+        return StatsWrapper.JoinLists(statsWrapper1.statsList, statsList2);
+    }
+
+    /// <summary>
+    /// Static method to merge two lists.
+    /// Remove stat duplicates (only one stat of each type max).
+    /// </summary>
+    /// <param name="statsList1"></param>
+    /// <param name="statsList2"></param>
+    /// <returns></returns>
+    public static StatsWrapper JoinLists(List<StatValue> statsList1, List<StatValue> statsList2)
+    {
+        StatsWrapper result = new StatsWrapper();
+
+        // Copy values from list 1 to result list
+        foreach (StatValue statValue in statsList1)
+        {
+            result.statsList.Add(new StatValue(statValue));
+        }
+
+        // Copy values from list 2 to result list
+        // Merge values if needed
+        foreach (StatValue statValue in statsList2)
+        {
+            StatValue statValueInResultList = result.statsList.FirstOrDefault(x => x.stat.Equals(statValue.stat));
+            if (statValueInResultList != null)
+            {
+                // The list already contains a value for this stat, we must add them together
+                statValueInResultList.value += statValue.value;
+            }
+            else
+            {
+                // The list doesn't contain a value for this stat, we must add that stat to the list
+                result.statsList.Add(new StatValue(statValue));
+            }
+        }
+
+        return result;
+    }
 }

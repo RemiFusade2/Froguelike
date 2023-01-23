@@ -32,8 +32,10 @@ public class ShopManager : MonoBehaviour
     public List<ShopItemData> availableItemDataList;
 
     [Header("UI Reference")]
+    public RectTransform shopPanelContainer;
     public Transform shopPanel;
-    public Text availableCurrency;
+    public Text availableCurrencyText;
+    public Button refundButton;
 
     [Header("UI Prefab")]
     public GameObject availableShopItemPanelPrefab;
@@ -81,11 +83,17 @@ public class ShopManager : MonoBehaviour
     {
         if (item.currentLevel < item.maxLevel)
         {
-            currencySpentInTheShop += item.data.costForEachLevel[item.currentLevel];
-            item.currentLevel++;
-            ComputeStatsBonuses();
-            DisplayShop();
-            GameManager.instance.UpdateShopInfoInCurrentSave();
+            int itemCost = item.data.costForEachLevel[item.currentLevel];
+            if (GameManager.instance.availableCurrency >= itemCost)
+            {
+                // Can buy!
+                currencySpentInTheShop += itemCost;
+                GameManager.instance.ChangeAvailableCurrency(-itemCost, false);
+                item.currentLevel++;
+                ComputeStatsBonuses();
+                DisplayShop();
+                GameManager.instance.UpdateShopInfoInCurrentSave();
+            }
         }
     }
 
@@ -147,8 +155,11 @@ public class ShopManager : MonoBehaviour
 
     public void DisplayShop()
     {
+        // Update Refund Button availability
+        refundButton.interactable = (currencySpentInTheShop > 0);
+
         // Update available currency
-        availableCurrency.text = Tools.FormatCurrency(GameManager.instance.availableCurrency, UIManager.instance.currencySymbol);
+        availableCurrencyText.text = Tools.FormatCurrency(GameManager.instance.availableCurrency, UIManager.instance.currencySymbol);
 
         // Remove previous buttons
         foreach (Transform child in shopPanel)
@@ -156,6 +167,7 @@ public class ShopManager : MonoBehaviour
             Destroy(child.gameObject);
         }
         // Create new buttons
+        int buttonCount = 0;
         foreach (ShopItem item in availableItemsList)
         {
             bool itemIsLocked = (item.maxLevel == -1);
@@ -164,17 +176,46 @@ public class ShopManager : MonoBehaviour
             bool itemIsMaxedOut = (item.maxLevel > 0 && item.currentLevel == item.maxLevel);
             if ( itemIsAvailable )
             {
+                bool canBuy = false;
+                if (item.currentLevel < item.data.costForEachLevel.Count)
+                {
+                    int itemCost = item.data.costForEachLevel[item.currentLevel];
+                    canBuy = GameManager.instance.availableCurrency >= itemCost;
+                }
+
                 GameObject shopItemButtonGo = Instantiate(availableShopItemPanelPrefab, shopPanel);
                 ShopItemButton shopItemButton = shopItemButtonGo.GetComponent<ShopItemButton>();
                 shopItemButton.buyButton.onClick.AddListener(delegate { BuyItem(item); });
-                shopItemButton.Initialize(item, itemIsAvailable);
+                shopItemButton.Initialize(item, itemIsAvailable && canBuy);
+                buttonCount++;
             }
             else if (displaySoldOutItems && (itemIsOutOfStock || itemIsMaxedOut))
             {
                 GameObject shopItemButtonGo = Instantiate(soldOutShopItemPanelPrefab, shopPanel);
                 ShopItemButton shopItemButton = shopItemButtonGo.GetComponent<ShopItemButton>();
                 shopItemButton.Initialize(item, false);
+                buttonCount++;
             }
         }
+
+        // Set size of container panel
+        float buttonHeight = shopPanel.GetComponent<GridLayoutGroup>().cellSize.y + shopPanel.GetComponent<GridLayoutGroup>().spacing.y;
+        float padding = shopPanel.GetComponent<GridLayoutGroup>().padding.top + shopPanel.GetComponent<GridLayoutGroup>().padding.bottom;
+        shopPanelContainer.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ( (buttonCount+1) / 2) * buttonHeight + padding);
+    }
+
+    public void RefundAll()
+    {
+        GameManager.instance.ChangeAvailableCurrency(currencySpentInTheShop, false);
+        currencySpentInTheShop = 0;
+
+        foreach (ShopItem item in availableItemsList)
+        {
+            item.currentLevel = 0;
+        }
+
+        ComputeStatsBonuses();
+        DisplayShop();
+        GameManager.instance.UpdateShopInfoInCurrentSave();
     }
 }

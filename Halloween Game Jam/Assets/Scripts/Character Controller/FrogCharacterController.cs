@@ -199,18 +199,18 @@ public class FrogCharacterController : MonoBehaviour
         animator.SetInteger("character", isGhost ? 2 : animatorCharacterValue);
     }
 
-    public void InitializeCharacter(CharacterData characterData)
-    {
-        SetAnimatorCharacterValue(characterData.characterAnimatorValue);
+    public void InitializeCharacter(PlayableCharacterInfo characterInfo)
+    {        
+        SetAnimatorCharacterValue(characterInfo.characterData.characterAnimatorValue);
 
         // Starting Stats for this character
+        StatsWrapper allStartingStatsWrapper = StatsWrapper.JoinLists(characterInfo.characterStartingStats, ShopManager.instance.statsBonuses);
 
         // MAX HP should always be defined for any character
         maxHealth = 0;
-        if (characterData.GetValueForStat(STAT.MAX_HEALTH, out float startingMaxHP))
+        if (allStartingStatsWrapper.GetValueForStat(STAT.MAX_HEALTH, out float startingMaxHP))
         {
-            maxHealth = startingMaxHP + ShopManager.instance.GetStatBonus(STAT.MAX_HEALTH);
-            // TODO: maintenant la meme chose pour les autres stats!
+            maxHealth = startingMaxHP;
         }
         else
         {
@@ -219,126 +219,129 @@ public class FrogCharacterController : MonoBehaviour
 
         // HP Recovery
         healthRecovery = defaultHealthRecovery;
-        if (characterData.GetValueForStat(STAT.HEALTH_RECOVERY_BOOST, out float startingHPRecoveryBoost))
+        if (allStartingStatsWrapper.GetValueForStat(STAT.HEALTH_RECOVERY_BOOST, out float startingHPRecoveryBoost))
         {
             healthRecovery *= (1 + startingHPRecoveryBoost);
         }
 
         // Armor
         armor = 0;
-        if (characterData.GetValueForStat(STAT.ARMOR, out float startingArmor))
+        if (allStartingStatsWrapper.GetValueForStat(STAT.ARMOR, out float startingArmor))
         {
             armor = startingArmor;
         }
 
         // Experience boost
         experienceBoost = 0;
-        if (characterData.GetValueForStat(STAT.XP_BOOST, out float startingXPBoost))
+        if (allStartingStatsWrapper.GetValueForStat(STAT.XP_BOOST, out float startingXPBoost))
         {
             experienceBoost = startingXPBoost;
         }
 
         // Currency boost
         currencyBoost = 0;
-        if (characterData.GetValueForStat(STAT.CURRENCY_BOOST, out float startingCurrencyBoost))
+        if (allStartingStatsWrapper.GetValueForStat(STAT.CURRENCY_BOOST, out float startingCurrencyBoost))
         {
             currencyBoost = startingCurrencyBoost;
         }
 
         // Curse boost
         curse = 0;
-        if (characterData.GetValueForStat(STAT.CURSE, out float startingCurse))
+        if (allStartingStatsWrapper.GetValueForStat(STAT.CURSE, out float startingCurse))
         {
             curse = startingCurse;
         }
 
         // Walk speed
         walkSpeed = defaultWalkSpeed;
-        if (characterData.GetValueForStat(STAT.WALK_SPEED_BOOST, out float startingWalkSpeedBoost))
+        if (allStartingStatsWrapper.GetValueForStat(STAT.WALK_SPEED_BOOST, out float startingWalkSpeedBoost))
         {
             walkSpeed *= (1 + startingWalkSpeedBoost);
         }
 
         // Swim speed
         swimSpeed = defaultSwimSpeed;
-        if (characterData.GetValueForStat(STAT.SWIM_SPEED_BOOST, out float startingSwimSpeedBoost))
+        if (allStartingStatsWrapper.GetValueForStat(STAT.SWIM_SPEED_BOOST, out float startingSwimSpeedBoost))
         {
             swimSpeed *= (1 + startingSwimSpeedBoost);
         }
 
         // Revivals
         revivals = 0;
-        if (characterData.GetValueForStat(STAT.REVIVAL, out float startingRevivals))
+        if (allStartingStatsWrapper.GetValueForStat(STAT.REVIVAL, out float startingRevivals))
         {
             revivals = Mathf.FloorToInt(startingRevivals);
         }
 
         // Rerolls
         rerolls = 0;
-        if (characterData.GetValueForStat(STAT.REROLL, out float startingRerolls))
+        if (allStartingStatsWrapper.GetValueForStat(STAT.REROLL, out float startingRerolls))
         {
             rerolls = Mathf.FloorToInt(startingRerolls);
         }
 
         // Banishs
         banishs = 0;
-        if (characterData.GetValueForStat(STAT.BANISH, out float startingBanishs))
+        if (allStartingStatsWrapper.GetValueForStat(STAT.BANISH, out float startingBanishs))
         {
             banishs = Mathf.FloorToInt(startingBanishs);
         }
 
         // Skips
         skips = 0;
-        if (characterData.GetValueForStat(STAT.SKIP, out float startingSkips))
+        if (allStartingStatsWrapper.GetValueForStat(STAT.SKIP, out float startingSkips))
         {
             skips = Mathf.FloorToInt(startingSkips);
         }
 
+        // Deprecated: Atk max flies boost
+        attackMaxFliesBoost = 0;
+
         // Atk Damage Boost
         attackDamageBoost = 0;
-        if (characterData.GetValueForStat(STAT.ATK_DAMAGE_BOOST, out float startingAtkDmgBoost))
+        if (allStartingStatsWrapper.GetValueForStat(STAT.ATK_DAMAGE_BOOST, out float startingAtkDmgBoost))
         {
             attackDamageBoost = startingAtkDmgBoost;
         }
 
         // Atk Speed Boost
         attackSpeedBoost = 0;
-        if (characterData.GetValueForStat(STAT.ATK_SPEED_BOOST, out float startingAtkSpeedBoost))
+        if (allStartingStatsWrapper.GetValueForStat(STAT.ATK_SPEED_BOOST, out float startingAtkSpeedBoost))
         {
             attackSpeedBoost = startingAtkSpeedBoost;
         }
 
         // Atk Cooldown Boost
         attackCooldownBoost = 0;
-        if (characterData.GetValueForStat(STAT.ATK_COOLDOWN_BOOST, out float startingAtkCooldownBoost))
+        if (allStartingStatsWrapper.GetValueForStat(STAT.ATK_COOLDOWN_BOOST, out float startingAtkCooldownBoost))
         {
             attackCooldownBoost = startingAtkCooldownBoost;
         }
 
         // Atk Range Boost
         attackRangeBoost = 0;
-        if (characterData.GetValueForStat(STAT.ATK_RANGE_BOOST, out float startingAtkRangeBoost))
+        if (allStartingStatsWrapper.GetValueForStat(STAT.ATK_RANGE_BOOST, out float startingAtkRangeBoost))
         {
             attackRangeBoost = startingAtkRangeBoost;
         }
 
         // Atk Area Boost
         attackAreaBoost = 0;
-        if (characterData.GetValueForStat(STAT.ATK_AREA_BOOST, out float startingAtkAreaBoost))
+        if (allStartingStatsWrapper.GetValueForStat(STAT.ATK_AREA_BOOST, out float startingAtkAreaBoost))
         {
             attackAreaBoost = startingAtkAreaBoost;
         }
 
         // Atk Special Strength Boost
         attackSpecialStrengthBoost = 0;
-        if (characterData.GetValueForStat(STAT.ATK_SPECIAL_STRENGTH_BOOST, out float startingAtkSpecStrengthBoost))
+        if (allStartingStatsWrapper.GetValueForStat(STAT.ATK_SPECIAL_STRENGTH_BOOST, out float startingAtkSpecStrengthBoost))
         {
             attackSpecialStrengthBoost = startingAtkSpecStrengthBoost;
         }
 
         // Atk Special Strength Boost
         attackSpecialDurationBoost = 0;
-        if (characterData.GetValueForStat(STAT.ATK_SPECIAL_DURATION_BOOST, out float startingAtkSpecDurationBoost))
+        if (allStartingStatsWrapper.GetValueForStat(STAT.ATK_SPECIAL_DURATION_BOOST, out float startingAtkSpecDurationBoost))
         {
             attackSpecialDurationBoost = startingAtkSpecDurationBoost;
         }

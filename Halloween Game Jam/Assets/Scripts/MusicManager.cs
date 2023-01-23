@@ -43,8 +43,11 @@ public class MusicManager : MonoBehaviour
     {
         CheckAudioSource();
         audioSource.volume = titleMusicVolume;
-        audioSource.clip = titleMusic;
-        audioSource.Play();
+        if (audioSource == null || audioSource.clip == null || !audioSource.clip.Equals(titleMusic) || !audioSource.isPlaying)
+        {
+            audioSource.clip = titleMusic;
+            audioSource.Play();
+        }
     }
 
     public void PlayLevelMusic()

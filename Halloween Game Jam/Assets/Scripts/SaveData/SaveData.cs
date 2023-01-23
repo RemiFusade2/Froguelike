@@ -37,6 +37,29 @@ public class SaveData
     }
 
     /// <summary>
+    /// Delete save file permanently. Returns true if succeeded.
+    /// </summary>
+    /// <param name="saveFileName"></param>
+    /// <returns></returns>
+    public static bool EraseSaveFile(string saveFileName)
+    {
+        string saveFilePath = GetFilePath(saveFileName);
+        Debug.Log("Debug info - Erasing file: " + saveFilePath);
+        bool result = false;
+        try
+        {
+            File.Delete(saveFilePath);
+            result = true;
+            Debug.Log("Debug info - Save file erased successfully");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning("Exception in EraseSaveFile(): " + ex.Message);
+        }
+        return result;
+    }
+
+    /// <summary>
     /// Constructor, initialize everything at zero
     /// </summary>
     public SaveData()

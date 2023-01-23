@@ -18,6 +18,7 @@ public class ShopItemButton : MonoBehaviour
     public void Initialize(ShopItem item, bool itemIsAvailable)
     {
         buyButton.interactable = itemIsAvailable;
+        buyButton.gameObject.SetActive(true);
 
         itemNameText.text = item.itemName;
         itemDescriptionText.text = item.data.description;

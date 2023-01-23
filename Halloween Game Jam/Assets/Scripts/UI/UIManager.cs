@@ -4,13 +4,21 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+/// <summary>
+/// UIManager deals with navigation in the menus, as well as in-game UI.
+/// </summary>
 public class UIManager : MonoBehaviour
 {
     public static UIManager instance;
 
+    #region Title Screen / Start Game
+
     [Header("Title")]
     public GameObject titleScreen;
     public Text titleScreenCurrencyText;
+
+    [Header("Shop")]
+    public GameObject shopScreen;
 
     [Header("Character Selection")]
     public GameObject characterSelectionScreen;
@@ -21,6 +29,21 @@ public class UIManager : MonoBehaviour
     [Space]
     public Color charactersDefaultTextColor;
     public Color charactersHintTextColor;
+
+    #endregion
+
+    #region In Game
+
+    [Header("Chapter selection")]
+    public GameObject chapterSelectionScreen;
+    public Text chapterSelectionTopText;
+    public List<Text> chapterTitleTextsList;
+    public List<Text> chapterDescriptionTextsList;
+
+    [Header("Chapter Start")]
+    public GameObject chapterStartScreen;
+    public Text chapterStartTopText;
+    public Text chapterStartBottomText;
 
     [Header("In game UI")]
     public GameObject inGameUIPanel;
@@ -38,24 +61,26 @@ public class UIManager : MonoBehaviour
     public string extraLivesPrefix;
     public Text extraLivesCountText;
 
+    [Header("Level UP Panel")]
+    public GameObject levelUpPanel;
+    public Animator levelUpPanelAnimator;
+    [Space]
+    public List<GameObject> levelUpChoicesPanels;
+    public List<Text> levelUpChoicesTitles;
+    public List<Text> levelUpChoicesLevels;
+    public List<Text> levelUpChoicesDescriptions;
+    [Space]
+    public Color defaultUIColor;
+    public Color newItemColor;
+    public Color maxLevelColor;
+
     [Header("Pause")]
     public GameObject pausePanel;
     public Animator pausePanelAnimator;
 
-    [Header("Confirmation")]
-    public GameObject backToTitleScreenConfirmationPanel;
-    public GameObject clearSaveFileConfirmationPanel;
+    #endregion
 
-    [Header("Chapter selection")]
-    public GameObject chapterSelectionScreen;
-    public Text chapterSelectionTopText;
-    public List<Text> chapterTitleTextsList;
-    public List<Text> chapterDescriptionTextsList;
-
-    [Header("Chapter Start")]
-    public GameObject chapterStartScreen;
-    public Text chapterStartTopText;
-    public Text chapterStartBottomText;
+    #region End Game
 
     [Header("Game over Screen")]
     public GameObject gameOverPanel;
@@ -75,18 +100,11 @@ public class UIManager : MonoBehaviour
     public Text unlockedCharacterName;
     public Image unlockedCharacterImage;
 
-    [Header("Level UP Panel")]
-    public GameObject levelUpPanel;
-    public Animator levelUpPanelAnimator;
-    [Space]
-    public List<GameObject> levelUpChoicesPanels;
-    public List<Text> levelUpChoicesTitles;
-    public List<Text> levelUpChoicesLevels;
-    public List<Text> levelUpChoicesDescriptions;
-    [Space]
-    public Color defaultUIColor;
-    public Color newItemColor;
-    public Color maxLevelColor;
+    #endregion
+
+    [Header("Confirmation panels")]
+    public GameObject backToTitleScreenConfirmationPanel;
+    public GameObject clearSaveFileConfirmationPanel;
 
     [Header("Sound")]
     public SoundManager soundManager;
@@ -94,6 +112,7 @@ public class UIManager : MonoBehaviour
 
     [Header("Currency symbol")]
     public string currencySymbol = "₣";
+
 
     private void Awake()
     {
@@ -115,6 +134,7 @@ public class UIManager : MonoBehaviour
         scoreScreen.SetActive(false);
         inGameUIPanel.SetActive(false);
         gameOverPanel.SetActive(false);
+        shopScreen.SetActive(false);
     }
 
     public void SetTimer(float remainingTime)
@@ -137,6 +157,7 @@ public class UIManager : MonoBehaviour
     {
         musicManager.PlayTitleMusic();
         HideAllScreens();
+        UpdateTitleScreenCurrencyText(GameManager.instance.availableCurrency);
         titleScreen.SetActive(true);
     }
 
@@ -145,7 +166,7 @@ public class UIManager : MonoBehaviour
         currencyText.text = Tools.FormatCurrency(currencyValue, currencySymbol);
     }
 
-    public void UpdateTitleScreenCurrencyText(long currencyValue)
+    private void UpdateTitleScreenCurrencyText(long currencyValue)
     {
         titleScreenCurrencyText.text = Tools.FormatCurrency(currencyValue, currencySymbol);
     }
@@ -409,6 +430,16 @@ public class UIManager : MonoBehaviour
         pausePanelAnimator.SetBool("Visible", false);
     }
 
+    public void ShowShop()
+    {
+        HideAllScreens();
+        ShopManager.instance.DisplayShop();
+        titleScreen.SetActive(true);
+        shopScreen.SetActive(true);
+    }
+
+    #region Confirmation Panels
+
     public void ShowBackToTitleScreenConfirmationPanel(bool active)
     {
         backToTitleScreenConfirmationPanel.SetActive(active);
@@ -418,4 +449,6 @@ public class UIManager : MonoBehaviour
     {
         clearSaveFileConfirmationPanel.SetActive(active);
     }
+
+    #endregion
 }
