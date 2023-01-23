@@ -1,11 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 [System.Serializable]
-public enum SHOP_ITEM
+public class ShopItem
 {
-    MAXHP_UPGRADE
+    [System.NonSerialized]
+    public ShopItemData data;
+
+    // Defined at runtime, using ShopItemData
+    [HideInInspector]
+    public string itemName;
+
+    public int currentLevel;
+    public int maxLevel; // maxLevel = 0 means the item is displayed but out of stock. maxLevel = -1 means the item is locked and won't be displayed in the shop.
 }
 
 /// <summary>
@@ -17,20 +27,154 @@ public class ShopManager : MonoBehaviour
 {
     public static ShopManager instance;
 
-    public List<StatValue> statsBonuses;
+    [Header("Item data")]
+    [Tooltip("Scriptable objects containing data for each item")]
+    public List<ShopItemData> availableItemDataList;
+
+    [Header("UI Reference")]
+    public Transform shopPanel;
+    public Text availableCurrency;
+
+    [Header("UI Prefab")]
+    public GameObject availableShopItemPanelPrefab;
+    public GameObject soldOutShopItemPanelPrefab;
+
+    [Header("Settings")]
+    public bool displaySoldOutItems = true;
+
+    [Header("Runtime")]
+    public List<ShopItem> availableItemsList;
+    public List<StatValue> statsBonuses; // This is computed from the items bought
+    public long currencySpentInTheShop;
 
     private void Awake()
     {
         instance = this;
     }
 
-    public void ResetShop()
+    public float GetStatBonus(STAT stat)
     {
-        statsBonuses.Clear();
+        double bonus = 0;
+        StatValue statValue = statsBonuses.FirstOrDefault(x => x.stat.Equals(stat));
+        if (statValue != null)
+        {
+            bonus = statValue.value;
+        }
+        return (float)bonus;
     }
 
-    public void BuyItem(ShopItemData item)
+    public void ReplaceAvailableItemsList(List<ShopItem> newItemsList)
     {
-        Debug.Log("Buying an item");
+        foreach(ShopItem item in availableItemsList)
+        {
+            ShopItem newItem = newItemsList.FirstOrDefault(x => x.itemName == item.itemName);
+            if (newItem != null)
+            {
+                item.currentLevel = newItem.currentLevel;
+                item.maxLevel = newItem.maxLevel;
+            }
+        }
+        ComputeStatsBonuses();
+    }
+
+    public void BuyItem(ShopItem item)
+    {
+        if (item.currentLevel < item.maxLevel)
+        {
+            currencySpentInTheShop += item.data.costForEachLevel[item.currentLevel];
+            item.currentLevel++;
+            ComputeStatsBonuses();
+            DisplayShop();
+            GameManager.instance.UpdateShopInfoInCurrentSave();
+        }
+    }
+
+    public void ComputeStatsBonuses()
+    {
+        statsBonuses.Clear();
+        foreach (ShopItem item in availableItemsList)
+        {
+            for (int level = 0; level < item.currentLevel; level++)
+            {
+                foreach (StatValue statIncrease in item.data.statIncreaseList)
+                {
+                    if (statsBonuses.Contains(statIncrease))
+                    {
+                        statsBonuses.First(x => x.stat == statIncrease.stat).value += statIncrease.value;
+                    }
+                    else
+                    {
+                        statsBonuses.Add(new StatValue(statIncrease));
+                    }
+                }                
+            }
+        }
+    }
+
+    /// <summary>
+    /// Remove all bought upgrades. Hard reset means setting everything back to start game values. Soft reset means setting current levels to zero.
+    /// Will return the amount of currency spent in the shop.
+    /// </summary>
+    /// <param name="hardReset"></param>
+    public long ResetShop(bool hardReset = false)
+    {
+        long returnedCurrency = currencySpentInTheShop;
+
+        // In any case, the stats upgrades are reset
+        statsBonuses.Clear();
+
+        if (hardReset)
+        {
+            // A hard reset will also remove unlocked items and reset everything to the start game values
+            availableItemsList.Clear();
+            foreach (ShopItemData itemData in availableItemDataList)
+            {
+                availableItemsList.Add(new ShopItem() { data = itemData, currentLevel = 0, maxLevel = itemData.maxLevelAtStart, itemName = itemData.itemName });
+            }
+        }
+        else
+        {
+            // A soft reset will keep all the items max level but set their current level to zero
+            foreach (ShopItem item in availableItemsList)
+            {
+                item.currentLevel = 0;
+            }
+        }
+
+        currencySpentInTheShop = 0;
+        return returnedCurrency;
+    }
+
+    public void DisplayShop()
+    {
+        // Update available currency
+        availableCurrency.text = Tools.FormatCurrency(GameManager.instance.availableCurrency, UIManager.instance.currencySymbol);
+
+        // Remove previous buttons
+        foreach (Transform child in shopPanel)
+        {
+            Destroy(child.gameObject);
+        }
+        // Create new buttons
+        foreach (ShopItem item in availableItemsList)
+        {
+            bool itemIsLocked = (item.maxLevel == -1);
+            bool itemIsOutOfStock = (item.maxLevel == 0);
+            bool itemIsAvailable = (item.maxLevel > 0 && item.currentLevel < item.maxLevel);
+            bool itemIsMaxedOut = (item.maxLevel > 0 && item.currentLevel == item.maxLevel);
+            if ( itemIsAvailable )
+            {
+                GameObject shopItemButtonGo = Instantiate(availableShopItemPanelPrefab, shopPanel);
+                ShopItemButton shopItemButton = shopItemButtonGo.GetComponent<ShopItemButton>();
+                shopItemButton.buyButton.onClick.AddListener(delegate { BuyItem(item); });
+                shopItemButton.Initialize(item, itemIsAvailable);
+            }
+            else if (displaySoldOutItems && (itemIsOutOfStock || itemIsMaxedOut))
+            {
+                GameObject shopItemButtonGo = Instantiate(soldOutShopItemPanelPrefab, shopPanel);
+                ShopItemButton shopItemButton = shopItemButtonGo.GetComponent<ShopItemButton>();
+                shopItemButton.Initialize(item, false);
+            }
+        }
     }
 }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Rewired;
+using System.Linq;
 
 [System.Serializable]
 public class FriendInfo
@@ -208,7 +209,8 @@ public class FrogCharacterController : MonoBehaviour
         maxHealth = 0;
         if (characterData.GetValueForStat(STAT.MAX_HEALTH, out float startingMaxHP))
         {
-            maxHealth = startingMaxHP;
+            maxHealth = startingMaxHP + ShopManager.instance.GetStatBonus(STAT.MAX_HEALTH);
+            // TODO: maintenant la meme chose pour les autres stats!
         }
         else
         {

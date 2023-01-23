@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -33,10 +34,22 @@ public enum STAT
 }
 
 [System.Serializable]
-public class StatValue
+public class StatValue : IEquatable<StatValue>
 {
     public STAT stat;
     public double value;
+
+    public StatValue(StatValue origin)
+    {
+        stat = origin.stat;
+        value = origin.value;
+    }
+
+    // Two StatValue are considered equal if they have the same stat type
+    public bool Equals(StatValue other)
+    {
+        return this.stat == other.stat;
+    }
 }
 
 [System.Serializable]

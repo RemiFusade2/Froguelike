@@ -127,6 +127,9 @@ public class GameManager : MonoBehaviour
                 currentSavedData.startingStatsForCharactersList[i].statsList = playableCharactersList[i].characterData.startingStatsList;
             }
 
+            // Fill the save file with all starting stats of shop items
+            currentSavedData.shopItems = ShopManager.instance.availableItemsList;
+
             SaveDataToFile();
         }
     }
@@ -477,7 +480,7 @@ public class GameManager : MonoBehaviour
 
     public void OpenCharacterSelection()
     {
-        UIManager.instance.ShowCharacterSelection(playableCharactersList);
+        UIManager.instance.ShowCharacterSelection(playableCharactersList, ShopManager.instance.statsBonuses);
     }
 
     #region Level Up
@@ -869,6 +872,9 @@ public class GameManager : MonoBehaviour
 
     public void InitializeStuff()
     {
+        // Setup the shop manager
+        ShopManager.instance.ResetShop(true);
+
         // Load save file
         TryLoadDataFromFile();
 
@@ -889,11 +895,18 @@ public class GameManager : MonoBehaviour
             playableCharactersList[i].characterData.startingStatsList = currentSavedData.startingStatsForCharactersList[i].statsList;
         }
 
-        // Update shop stats with data from save file
-        ShopManager.instance.statsBonuses = currentSavedData.statBonusesFromShop;
+        // Update shop items with data from save file
+        ShopManager.instance.ReplaceAvailableItemsList(currentSavedData.shopItems);
+        ShopManager.instance.currencySpentInTheShop = currentSavedData.currencySpentInShop;
 
         // Update available currency
         availableCurrency = currentSavedData.availableCurrency;
+
+
+        // TEMPORARY
+        ShopManager.instance.DisplayShop();
+        // END TEMPORARY
+
 
         ReinitializeChaptersList();
     }
@@ -964,5 +977,12 @@ public class GameManager : MonoBehaviour
         SaveDataToFile();
         InitializeStuff();
         BackToTitleScreen();
+    }
+
+    public void UpdateShopInfoInCurrentSave()
+    {
+        currentSavedData.shopItems = ShopManager.instance.availableItemsList;
+        currentSavedData.currencySpentInShop = ShopManager.instance.currencySpentInTheShop;
+        SaveDataToFile();
     }
 }

@@ -11,7 +11,8 @@ public class SaveData
 
     public List<StatsWrapper> startingStatsForCharactersList;
 
-    public List<StatValue> statBonusesFromShop;
+    public List<ShopItem> shopItems;
+    public long currencySpentInShop;
 
     public int deathCount;
     public int bestScore;
@@ -41,7 +42,7 @@ public class SaveData
     public SaveData()
     {
         unlockedCharacterIndexList = new List<int>();
-        statBonusesFromShop = new List<StatValue>();
+        shopItems = new List<ShopItem>();
         InitializeCharacterLists();
         deathCount = 0;
         bestScore = 0;
@@ -50,6 +51,7 @@ public class SaveData
         wins = 0;
         availableCurrency = 0;
         totalSpentCurrency = 0;
+        currencySpentInShop = 0;
     }
 
     /// <summary>

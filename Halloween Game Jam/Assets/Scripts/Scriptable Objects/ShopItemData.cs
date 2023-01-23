@@ -10,8 +10,10 @@ public class ShopItemData : ScriptableObject
     public string description;
 
     public Sprite icon;
-    
-    public int maxLevel;
+
+    public int maxLevelAtStart; // How many of those items can you buy at the start of the game?
 
     public List<StatValue> statIncreaseList;
+
+    public List<int> costForEachLevel;
 }

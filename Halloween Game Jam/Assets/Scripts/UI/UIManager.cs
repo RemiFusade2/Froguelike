@@ -150,7 +150,7 @@ public class UIManager : MonoBehaviour
         titleScreenCurrencyText.text = Tools.FormatCurrency(currencyValue, currencySymbol);
     }
 
-    public void ShowCharacterSelection(List<PlayableCharacterInfo> playableCharactersList)
+    public void ShowCharacterSelection(List<PlayableCharacterInfo> playableCharactersList, List<StatValue> statBonusesFromShop)
     {
         HideAllScreens();
 
