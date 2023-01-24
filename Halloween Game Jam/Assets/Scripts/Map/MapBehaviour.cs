@@ -22,6 +22,12 @@ public class MapBehaviour : MonoBehaviour
     public int maxWaterCount = 13;
     [Space]
     public float minDistanceWithPlayer = 2;
+    [Space]
+    public int minCollectiblesPerTile = 1;
+    public int maxCollectiblesPerTile = 4;
+    public float collectibleLevelUpSpawnLikelihood = 0.01f;
+    public float collectibleCurrencySpawnLikelihood = 1.0f;
+    public float collectibleHealthSpawnLikelihood = 0.01f;
 
 
     private List<Vector2Int> existingTilesCoordinates;
@@ -98,27 +104,29 @@ public class MapBehaviour : MonoBehaviour
                 AddSomething(rocksPrefabs, tileCoordinates, preventSpawnRocksAtPosition, preventSpawnPosition);
             }
         }
+
         // generate collectibles
-        int collectibleCount = Random.Range(0, 10);
+        int collectibleCount = Random.Range(minCollectiblesPerTile, maxCollectiblesPerTile+1);
         for (int i=0; i<collectibleCount; i++)
         {
             Vector2 randomVector = Random.insideUnitCircle;
             Vector2 position = GetWorldPositionOfTile(tileCoordinates) + randomVector * (tileSize / 2.0f);
 
-            float randomCollectibleType = Random.Range(0, 1.0f);
-            if (randomCollectibleType < 0.1f)
+            int chapterMultiplicator = 1 + GameManager.instance.chaptersPlayed.Count;
+            float randomCollectibleType = Random.Range(0, collectibleLevelUpSpawnLikelihood + collectibleCurrencySpawnLikelihood + collectibleHealthSpawnLikelihood);
+            if (randomCollectibleType < collectibleLevelUpSpawnLikelihood)
             {
-                CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.XP_BONUS, 20);
+                CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.LEVEL_UP, 1);
             }
-            else if (randomCollectibleType < 0.3f)
+            else if (randomCollectibleType < collectibleLevelUpSpawnLikelihood + collectibleHealthSpawnLikelihood)
             {
-                CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.HEALTH, 50);
+                CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.HEALTH, 200);
             }
             else
             {
-                CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.CURRENCY, 5);
+                int bonusValue = chapterMultiplicator * 10;
+                CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.CURRENCY, bonusValue);
             }
-
         }
         existingTilesCoordinates.Add(tileCoordinates);
     }

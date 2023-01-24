@@ -33,7 +33,7 @@ public class ItemLevel
     public float attackSpeedBoost; // attack speed boost to all attacks
     public float attackCooldownBoost; // cooldown boost to all attacks
     public float attackRangeBoost; // range boost to all attacks
-    public float attackMaxFliesBoost; // max flies boost to all attacks
+    //public float attackMaxFliesBoost; // max flies boost to all attacks
     [Space]
     public float attackSpecialStrengthBoost; // special attack such as poison or freeze are more efficient
     public float attackSpecialDurationBoost; // special attack such as poison or freeze last longer
@@ -43,7 +43,7 @@ public class ItemLevel
     public float weaponSpeedBoost;
     public float weaponCooldownBoost;
     public float weaponRangeBoost;
-    public float weaponMaxFliesBoost;
+    //public float weaponMaxFliesBoost;
     [Space]
     public float weaponHealthAbsorbRatioBoost;
     public float weaponHealthAbsorbMaxBoost;
@@ -73,7 +73,7 @@ public class WeaponData
     public float startRange;
     [Space]
     public bool comesBackAfterEatingFlies;
-    public float startMaxFlies;
+    //public float startMaxFlies;
 
     [Header("Special settings")]
     public float startHealthAbsorbRatio;

@@ -382,7 +382,7 @@ public class FrogCharacterController : MonoBehaviour
         // attack stuff
         attackCooldownBoost += itemLevelData.attackCooldownBoost;
         attackDamageBoost += itemLevelData.attackDamageBoost;
-        attackMaxFliesBoost += itemLevelData.attackMaxFliesBoost;
+        //attackMaxFliesBoost += itemLevelData.attackMaxFliesBoost;
         attackRangeBoost += itemLevelData.attackRangeBoost;
         attackSpeedBoost += itemLevelData.attackSpeedBoost;
 

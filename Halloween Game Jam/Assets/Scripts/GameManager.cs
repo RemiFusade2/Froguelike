@@ -969,9 +969,13 @@ public class GameManager : MonoBehaviour
         {
             if (int.TryParse(collectibleName.Split("+")[1], out int currency))
             {
-                currentCollectedCurrency += Mathf.RoundToInt(currency * ( 1 + player.currencyBoost));
+                currentCollectedCurrency += Mathf.RoundToInt(currency * (1 + player.currencyBoost));
                 UIManager.instance.UpdateInGameCurrencyText(currentCollectedCurrency);
             }
+        }
+        else if (collectibleName.Contains("LevelUp"))
+        {
+            IncreaseXP(nextLevelXp - xp);
         }
         else if (collectibleName.Contains("XP"))
         {

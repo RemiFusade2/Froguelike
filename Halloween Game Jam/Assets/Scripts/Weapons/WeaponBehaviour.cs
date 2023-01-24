@@ -39,9 +39,11 @@ public class WeaponBehaviour : MonoBehaviour
     public float damage;
     public float attackSpeed;
     public float range;
-    [Space]
+    /*
+     * [Space]
     public bool comesBackAfterEatingFlies;
     public float maxFlies;
+    */
 
     [Header("Settings - special metrics")]
     public float healthAbsorbRatio;
@@ -167,9 +169,9 @@ public class WeaponBehaviour : MonoBehaviour
         cooldown = weaponData.startCooldown;
         damage = weaponData.startDamage;
         range = weaponData.startRange;
-        maxFlies = weaponData.startMaxFlies;
+        //maxFlies = weaponData.startMaxFlies;
 
-        comesBackAfterEatingFlies = weaponData.comesBackAfterEatingFlies;
+        //comesBackAfterEatingFlies = weaponData.comesBackAfterEatingFlies;
 
         changeSpeedFactor = weaponData.startChangeSpeedFactor;
         changeSpeedDuration = weaponData.startChangeSpeedDuration;
@@ -206,7 +208,7 @@ public class WeaponBehaviour : MonoBehaviour
         cooldown = weapon.cooldown;
         damage = weapon.damage;
         attackSpeed = weapon.attackSpeed;
-        maxFlies = weapon.maxFlies;
+        //maxFlies = weapon.maxFlies;
         range = weapon.range;
 
         SetTongueWidth(weapon.tongueWidth);
@@ -227,7 +229,7 @@ public class WeaponBehaviour : MonoBehaviour
         changeSpeedFactor = weapon.changeSpeedFactor;
         changeSpeedDuration = weapon.changeSpeedDuration;
 
-        comesBackAfterEatingFlies = weapon.comesBackAfterEatingFlies;
+        //comesBackAfterEatingFlies = weapon.comesBackAfterEatingFlies;
 
 
         ResetWeapon();
@@ -238,7 +240,7 @@ public class WeaponBehaviour : MonoBehaviour
         cooldown += itemLevel.weaponCooldownBoost;
         damage += itemLevel.weaponDamageBoost;
         attackSpeed += itemLevel.weaponSpeedBoost;
-        maxFlies += itemLevel.weaponMaxFliesBoost;
+        //maxFlies += itemLevel.weaponMaxFliesBoost;
         range += itemLevel.weaponRangeBoost;
 
         healthAbsorbRatio += itemLevel.weaponHealthAbsorbRatioBoost;
@@ -384,6 +386,10 @@ public class WeaponBehaviour : MonoBehaviour
                 SetTongueScale(t);
                 t += Time.fixedDeltaTime;
             }
+            else
+            {
+                SetTongueScale(1);
+            }
 
             actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
 
@@ -471,8 +477,14 @@ public class WeaponBehaviour : MonoBehaviour
             // default part, for any weapon
             string enemyName = collision.gameObject.name;
             float actualDamage = damage * (1 + GameManager.instance.player.attackDamageBoost);
-            float actualMaxFiles = maxFlies + GameManager.instance.player.attackMaxFliesBoost;
+            //float actualMaxFiles = maxFlies + GameManager.instance.player.attackMaxFliesBoost;
+
+            /*
             bool canKillEnemy = (eatenFliesCount < actualMaxFiles);
+            */
+
+            bool canKillEnemy = true;
+
             bool enemyIsDead = FliesManager.instance.DamageEnemy(enemyName, actualDamage, canKillEnemy, this.transform);
 
             // vampire part, absorb part of damage done
@@ -515,10 +527,12 @@ public class WeaponBehaviour : MonoBehaviour
 
     private void CheckEatenFlyCount()
     {
+        /*
         float actualMaxFiles = maxFlies + GameManager.instance.player.attackMaxFliesBoost;
         if (comesBackAfterEatingFlies && eatenFliesCount >= actualMaxFiles)
         {
             isTongueGoingOut = false;
         }
+        */
     }
 }

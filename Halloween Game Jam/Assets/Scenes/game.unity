@@ -3890,6 +3890,11 @@ MonoBehaviour:
   damageTextPrefab: {fileID: 4022214579611050533, guid: 19080e1cdd51db248be2fe8a417ce6f5, type: 3}
   minSpawnDistanceFromPlayer: 20
   maxSpawnDistanceFromPlayer: 40
+  spawnCenterMinDistanceToPlayer: 10
+  spawnCenterMaxDistanceToPlayer: 20
+  spawnCircleRadius: 20
+  findSpawnPositionMaxAttempts: 10
+  maxDistanceBeforeUnspawn: 40
   enemyHPFactor: 1
   enemySpeedFactor: 1
   enemyDamageFactor: 1
@@ -7950,14 +7955,13 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ac731990ba6a5ef40a9a3a33abd675c5, type: 2}
   - {fileID: 11400000, guid: db5348d0c0460f841b318bc2dcbaa0a0, type: 2}
   - {fileID: 11400000, guid: 091c8715d22970c4aafb5e907b3c8fbe, type: 2}
-  - {fileID: 11400000, guid: fc94ec10eff756240966492ba68d6f54, type: 2}
+  - {fileID: 11400000, guid: 94582d8b2fba6684188f4ab32d5520ce, type: 2}
   - {fileID: 11400000, guid: 59fb3d546b847a0438aabf31f81e81c1, type: 2}
   - {fileID: 11400000, guid: eb6f60cc92443154ba06548975cda2d5, type: 2}
   - {fileID: 11400000, guid: 25b32af0c4e29504e8b3c58ad7d0db48, type: 2}
   - {fileID: 11400000, guid: eb8ccf20c46d4d342bb6deb517e635fb, type: 2}
   - {fileID: 11400000, guid: 273e271fa0f728747a2038593110ad89, type: 2}
   - {fileID: 11400000, guid: cf4c2accdc312844194dc06c437915ff, type: 2}
-  - {fileID: 11400000, guid: 94582d8b2fba6684188f4ab32d5520ce, type: 2}
   defaultItems:
   - {fileID: 11400000, guid: 185688c9271f1d34ca7335496679d590, type: 2}
   - {fileID: 11400000, guid: 60c77be9f26edae4686e2c8496e3714a, type: 2}
@@ -7966,7 +7970,7 @@ MonoBehaviour:
   maxNonWeaponCount: 5
   finalChapter: {fileID: 11400000, guid: 6d2bc572c5e6dac46a6d83a4679f9a2d, type: 2}
   startLevelXp: 10
-  startXpNeededForNextLevelFactor: 1.2
+  startXpNeededForNextLevelFactor: 1.13
   saveFileName: froguelikeSaveFile
   availableCurrency: 0
   hasGameStarted: 0
@@ -23382,7 +23386,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   collectiblePrefab: {fileID: 2308838969773596893, guid: 2af3cfbf96755494ca3053a8d58eafa4, type: 3}
   currencyCollectibleIcon: {fileID: 21300000, guid: 33db472c27805814a845fe5dd40282ee, type: 3}
+  superCurrencyCollectibleIcon: {fileID: 21300000, guid: d29a5b85d57d047429629782eee8b1ff, type: 3}
   xpCollectibleIcon: {fileID: 21300000, guid: cfd319fd0ad327c48b9994d470900f4d, type: 3}
+  levelUpCollectibleIcon: {fileID: 21300000, guid: 51e6115c02d369d4b890a578e8f5652b, type: 3}
   healthCollectibleIcon: {fileID: 21300000, guid: a9fff52a2b4006e488c5142311c6d3a4, type: 3}
   collectibleMovingSpeed: 7
   collectMinDistance: 1
@@ -28514,3 +28520,8 @@ MonoBehaviour:
   waterDensity: 0.2
   maxWaterCount: 30
   minDistanceWithPlayer: 2
+  minCollectiblesPerTile: 0
+  maxCollectiblesPerTile: 3
+  collectibleLevelUpSpawnLikelihood: 0.01
+  collectibleCurrencySpawnLikelihood: 1
+  collectibleHealthSpawnLikelihood: 0.01

@@ -6,6 +6,7 @@ public enum CollectibleType
 {
     CURRENCY,
     XP_BONUS,
+    LEVEL_UP,
     HEALTH
 }
 
@@ -23,7 +24,9 @@ public class CollectiblesManager : MonoBehaviour
     public GameObject collectiblePrefab;
     [Space]
     public Sprite currencyCollectibleIcon;
+    public Sprite superCurrencyCollectibleIcon;
     public Sprite xpCollectibleIcon;
+    public Sprite levelUpCollectibleIcon;
     public Sprite healthCollectibleIcon;
 
     [Header("Settings")]
@@ -66,12 +69,23 @@ public class CollectiblesManager : MonoBehaviour
         switch (collectibleType)
         {
             case CollectibleType.CURRENCY:
-                newCollectible.GetComponent<SpriteRenderer>().sprite = currencyCollectibleIcon;
+                if (bonusValue > 1)
+                {
+                    newCollectible.GetComponent<SpriteRenderer>().sprite = superCurrencyCollectibleIcon;
+                }
+                else
+                {
+                    newCollectible.GetComponent<SpriteRenderer>().sprite = currencyCollectibleIcon;
+                }
                 collectibleName = "Currency";
                 break;
             case CollectibleType.XP_BONUS:
                 newCollectible.GetComponent<SpriteRenderer>().sprite = xpCollectibleIcon;
                 collectibleName = "XP";
+                break;
+            case CollectibleType.LEVEL_UP:
+                newCollectible.GetComponent<SpriteRenderer>().sprite = levelUpCollectibleIcon;
+                collectibleName = "LevelUp";
                 break;
             case CollectibleType.HEALTH:
                 newCollectible.GetComponent<SpriteRenderer>().sprite = healthCollectibleIcon;

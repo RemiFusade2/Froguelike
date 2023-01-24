@@ -44,9 +44,19 @@ public class FliesManager : MonoBehaviour
     [Header("Prefabs")]
     public GameObject damageTextPrefab;
 
-    [Header("Settings")]
+    [Header("Settings - Spawn")]
     public float minSpawnDistanceFromPlayer = 15;
     public float maxSpawnDistanceFromPlayer = 17;
+    [Space]
+    public float spawnCenterMinDistanceToPlayer = 10; 
+    public float spawnCenterMaxDistanceToPlayer = 20; 
+    public float spawnCircleRadius = 20;
+    [Space]
+    public int findSpawnPositionMaxAttempts = 10;
+    [Space]
+    public float maxDistanceBeforeUnspawn = 40;
+
+    [Header("Settings")]
     public float enemyHPFactor = 1;
     public float enemySpeedFactor = 1;
     public float enemyDamageFactor = 1;
@@ -70,35 +80,48 @@ public class FliesManager : MonoBehaviour
     private Dictionary<string, EnemyData> enemiesDataDico;
     private Dictionary<int, EnemyInstance> allActiveEnemiesDico;
 
-    private Vector3 GetSpawnPosition(Vector3 playerPosition, Vector2 playerMoveDirection)
+    /// <summary>
+    /// Returns a random spawn position around the player and in the direction of its movement.
+    /// </summary>
+    /// <param name="playerPosition"></param>
+    /// <param name="playerMoveDirection">This vector is either zero (player doesn't move) or normalized</param>
+    /// <param name="spawnPosition">Out position, valid only if method returns true</param>
+    /// <returns>Returns true if it successfully found a spawn position</returns>
+    private bool GetSpawnPosition(Vector2 playerPosition, Vector2 playerMoveDirection, out Vector2 spawnPosition)
     {
-        Vector3 position;
-        Vector2 onUnitCircle;
-        float spawnPositionDotPlayerMoveDirection;
-        int triesCount = 0;
-        int maxTries = 10;
+        spawnPosition = Vector2.zero;
+        
+        // Will spawn in a circle around a position
+        // Compute the center of that circle (player position + move direction * a distance)
+        float spawnCenterDistanceToPlayer = (playerMoveDirection.Equals(Vector2.zero)) ? 0 : Random.Range(spawnCenterMinDistanceToPlayer, spawnCenterMaxDistanceToPlayer);
+        Vector2 spawnCenter = playerPosition + playerMoveDirection * spawnCenterDistanceToPlayer;
+
+        // Attemp to find a valid spawn point. Loop and try again until it works.
+        bool spawnPositionIsValid = false;
+        int loopAttemptCount = findSpawnPositionMaxAttempts;
         do
         {
-            onUnitCircle = Random.insideUnitCircle.normalized * Random.Range(minSpawnDistanceFromPlayer, maxSpawnDistanceFromPlayer);
-            position = GameManager.instance.player.transform.position + onUnitCircle.x * Vector3.right + onUnitCircle.y * Vector3.up;
-            if (!playerMoveDirection.Equals(Vector2.zero))
+            // Get a random point in the spawn circle
+            spawnPosition = spawnCenter;
+            spawnPosition += Random.insideUnitCircle * spawnCircleRadius;
+            loopAttemptCount--;
+            // Check if that random point is not in sight (you don't want to spawn an enemy where you can see it)
+            if (Vector2.Distance(spawnPosition, playerPosition) > minSpawnDistanceFromPlayer)
             {
-                spawnPositionDotPlayerMoveDirection = Vector3.Dot((position-playerPosition).normalized, playerMoveDirection.normalized);
+                spawnPositionIsValid = true;
             }
-            else
-            {
-                spawnPositionDotPlayerMoveDirection = 1;
-            }
-            triesCount++;
-        } while (spawnPositionDotPlayerMoveDirection < 0.5f && triesCount <= maxTries);
-        return position;
+        } while (!spawnPositionIsValid && loopAttemptCount > 0); // Redo until the random point is out of sight
+        
+        return spawnPositionIsValid;
     }
 
     public void TrySpawnCurrentWave()
     {
+        double curseDelayFactor = (1 - GameManager.instance.player.curse); // curse will affect the delay negatively (lower delay = more spawns)
+        double timeSinceChapterStartedFactor = 0.5 + 1.5 * (GameManager.instance.chapterRemainingTime / GameManager.instance.currentChapter.chapterData.chapterLengthInSeconds); // this factor will go from 1 to 0.5 (double spawns) near the end of chapter.
         for (int i = 0; i < currentWave.spawnDelays.Count; i++)
         {
-            double delayBetweenSpawns = currentWave.spawnDelays[i] * (1 - GameManager.instance.player.curse) * (1 / enemySpawnSpeedFactor);
+            double delayBetweenSpawns = currentWave.spawnDelays[i] * curseDelayFactor * timeSinceChapterStartedFactor * (1 / enemySpawnSpeedFactor);
             delayBetweenSpawns = System.Math.Clamp(delayBetweenSpawns, 0.001, double.MaxValue);
             SpawnPattern spawnPattern = currentWave.spawnPatterns[i];
             EnemyData enemyData = currentWave.spawnEnemies[i];
@@ -113,15 +136,17 @@ public class FliesManager : MonoBehaviour
 
                 int enemyCount = spawnPattern.spawnAmount;
 
-                Vector3 position;
+                Vector2 spawnPosition;
                 switch (patternType)
                 {
                     case SpawnPatternType.CHUNK:
                         // choose a position at a distance from the player and spawn a chunk of enemies
-                        position = GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection());
-                        for (int j = 0; j < enemyCount; j++)
+                        if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out spawnPosition))
                         {
-                            SpawnEnemy(enemyPrefab, position + Random.Range(-1.0f,1.0f) * Vector3.right + Random.Range(-1.0f, 1.0f) * Vector3.up, enemyData);
+                            for (int j = 0; j < enemyCount; j++)
+                            {
+                                SpawnEnemy(enemyPrefab, spawnPosition + Random.Range(-1.0f, 1.0f) * Vector2.right + Random.Range(-1.0f, 1.0f) * Vector2.up, enemyData);
+                            }
                         }
                         break;
                     case SpawnPatternType.CIRCLE:
@@ -130,16 +155,18 @@ public class FliesManager : MonoBehaviour
                         float spawnDistanceFromPlayer = minSpawnDistanceFromPlayer;
                         for (float angle = 0; angle < 360; angle += deltaAngle)
                         {
-                            position = GameManager.instance.player.transform.position + (Mathf.Cos(angle*Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(angle * Mathf.Deg2Rad) * Vector3.up) * spawnDistanceFromPlayer;
-                            SpawnEnemy(enemyPrefab, position, enemyData);
+                            spawnPosition = GameManager.instance.player.transform.position + (Mathf.Cos(angle*Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(angle * Mathf.Deg2Rad) * Vector3.up) * spawnDistanceFromPlayer;
+                            SpawnEnemy(enemyPrefab, spawnPosition, enemyData);
                         }
                         break;
                     case SpawnPatternType.RANDOM:
-                        // choose a position at a distance from the player and spawn enemies
+                        // Spawn enemies at random positions
                         for (int j = 0; j < enemyCount; j++)
                         {
-                            position = GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection());
-                            SpawnEnemy(enemyPrefab, position, enemyData);
+                            if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out spawnPosition))
+                            {
+                                SpawnEnemy(enemyPrefab, spawnPosition, enemyData);
+                            }
                         }
                         break;
                 }
@@ -250,6 +277,14 @@ public class FliesManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Inflict damage to the enemy with this index value. Set it to "dead" if its HP is lower than zero.
+    /// </summary>
+    /// <param name="enemyIndex"></param>
+    /// <param name="damage"></param>
+    /// <param name="canKill">Deprecated probably. An enemy can always die, even with poison.</param>
+    /// <param name="weapon"></param>
+    /// <returns></returns>
     public bool DamageEnemy(int enemyIndex, float damage, bool canKill, Transform weapon)
     {
         EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
@@ -267,12 +302,13 @@ public class FliesManager : MonoBehaviour
             }
             else
             {
-                // enemy can't die because of tongue limit
+                // Deprecated: now if an enemy can get eaten, it will die and spawn an XP collectible
+                // enemy can't die, so we leave it with very low health (it will be eaten next time it gets hit)
                 enemy.HP = 0.1f;
             }
         }
 
-        // if enemy didn't die, then display damage text
+        // If enemy didn't die, then display damage text
         Vector2 position = (Vector2)enemy.enemyTransform.position + 0.1f * Random.insideUnitCircle;
         GameObject damageText = Instantiate(damageTextPrefab, position, Quaternion.identity, null);
         damageText.GetComponent<TMPro.TextMeshPro>().text = Mathf.CeilToInt(damage).ToString();
@@ -317,6 +353,7 @@ public class FliesManager : MonoBehaviour
                 EnemyData enemyData = enemiesDataDico[enemy.EnemyDataID];
                 if (enemy.active)
                 {
+                    Vector3 frogPosition = playerTransform.position;
                     if (!enemy.alive)
                     {
                         // enemy is dead
@@ -326,7 +363,6 @@ public class FliesManager : MonoBehaviour
                         enemy.changeSpeedFactor = 0;
                         enemy.changeSpeedRemainingTime = 0;
                         UpdateSpriteColor(enemy);
-                        Vector3 frogPosition = playerTransform.position;
                         if (enemy.lastWeaponHitTransform != null)
                         {
                             frogPosition = enemy.lastWeaponHitTransform.position;
@@ -345,6 +381,15 @@ public class FliesManager : MonoBehaviour
                     else
                     {
                         // enemy is alive
+
+                        // Check distance (if enemy is too far, unspawn it)
+                        float distanceWithFrog = Vector2.Distance(frogPosition, enemy.enemyTransform.position);
+                        if (distanceWithFrog > maxDistanceBeforeUnspawn)
+                        {
+                            enemy.enemyRenderer.enabled = false;
+                            enemy.active = false;
+                            enemiesToDestroyIDList.Add(enemyInfo.Key);
+                        }
 
                         // Move
                         switch (enemyData.movePattern)
@@ -374,8 +419,14 @@ public class FliesManager : MonoBehaviour
                         {
                             if (Time.time - enemy.lastPoisonDamageTime > delayBetweenPoisonDamage)
                             {
-                                bool enemyIsDead = DamageEnemy(enemyInfo.Key, enemy.poisonDamage, false, null);
+                                bool enemyIsDead = DamageEnemy(enemyInfo.Key, enemy.poisonDamage, true, null);
                                 enemy.lastPoisonDamageTime = Time.time;
+
+                                if (enemyIsDead && !enemiesToDestroyIDList.Contains(enemyInfo.Key))
+                                {
+                                    enemiesToDestroyIDList.Add(enemyInfo.Key);
+                                    CollectiblesManager.instance.SpawnCollectible(enemy.enemyTransform.position, CollectibleType.XP_BONUS, enemyData.xPBonus);
+                                }
                             }
                         }
                     }
