@@ -161,6 +161,14 @@ public class UIManager : MonoBehaviour
         titleScreen.SetActive(true);
     }
 
+    public void UpdateCurrencyDisplay()
+    {
+        long currencyValue = GameManager.instance.availableCurrency;
+
+        UpdateTitleScreenCurrencyText(currencyValue);
+        ShopManager.instance.DisplayShop();
+    }
+
     public void UpdateInGameCurrencyText(long currencyValue)
     {
         currencyText.text = Tools.FormatCurrency(currencyValue, currencySymbol);

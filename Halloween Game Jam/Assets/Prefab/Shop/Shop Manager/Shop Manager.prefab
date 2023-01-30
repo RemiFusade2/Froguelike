@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4919826508944035816
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4919826508944035818}
+  - component: {fileID: 4919826508944035819}
+  m_Layer: 0
+  m_Name: Shop Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4919826508944035818
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4919826508944035816}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4919826508944035819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4919826508944035816}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f63f98141e8a1324f92c518fbf9aa696, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  availableItemDataList:
+  - {fileID: 11400000, guid: c08e73f599c19c94187441efbe825b7e, type: 2}
+  - {fileID: 11400000, guid: ae991f3aec64adf4a99b385a1e031cc8, type: 2}
+  - {fileID: 11400000, guid: 0fb84f013031bfa42a18c834e68cfee0, type: 2}
+  - {fileID: 11400000, guid: c48fd5c26e27c234a9d9ce26d4c2b0c9, type: 2}
+  - {fileID: 11400000, guid: c1ed4cb2716182d47a7973801f3f0fe7, type: 2}
+  - {fileID: 11400000, guid: 781230dbd2eded440bb2b9679389a942, type: 2}
+  - {fileID: 11400000, guid: e38d5abb39ead3f448140c4d6cf4463a, type: 2}
+  - {fileID: 11400000, guid: 86663a8d9ee170d428b056a09ac1acb9, type: 2}
+  - {fileID: 11400000, guid: e7bf5f66d6de9234bb39d2b15af8a653, type: 2}
+  - {fileID: 11400000, guid: 768f4845576647d4bb501addbf6b859a, type: 2}
+  - {fileID: 11400000, guid: 6c4dce488a69067438ea12d9a2567e5b, type: 2}
+  - {fileID: 11400000, guid: 2bdd8f3e6ea03cc4d913ce4489c9833d, type: 2}
+  - {fileID: 11400000, guid: e664452b7bd923648b920ec9dcb30d0e, type: 2}
+  - {fileID: 11400000, guid: caab077686b67d340959ee3dad7ad7fc, type: 2}
+  - {fileID: 11400000, guid: e3457d58f5c9df645aec6844e4fc9efc, type: 2}
+  - {fileID: 11400000, guid: d3c396a402e75134eaf22010e3a1876b, type: 2}
+  shopPanelContainer: {fileID: 0}
+  shopPanel: {fileID: 0}
+  availableCurrencyText: {fileID: 0}
+  refundButton: {fileID: 0}
+  availableShopItemPanelPrefab: {fileID: 7720094939957227554, guid: 6c39fbbad9e2e2745b660add6552290f, type: 3}
+  soldOutShopItemPanelPrefab: {fileID: 2021259105548133937, guid: a5034831856f81645a42841991440f3b, type: 3}
+  displaySoldOutItems: 1
+  availableItemsList: []
+  statsBonuses: []
+  currencySpentInTheShop: 0

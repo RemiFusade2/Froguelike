@@ -64,6 +64,7 @@ public class FrogCharacterController : MonoBehaviour
     public string horizontalInputName = "horizontal";
     public string verticalInputName = "vertical";
     public string pauseInputName = "pause";
+    public string cheatPlusInputName = "cheatplus";
 
     private Player rewiredPlayer;
 
@@ -111,8 +112,15 @@ public class FrogCharacterController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (GetCheatPlusInput())
+        {
+            GameManager.instance.ChangeAvailableCurrency(1000);
+            UIManager.instance.UpdateCurrencyDisplay();
+        }
+
         if (GameManager.instance.isGameRunning)
         {
+
             if (GetPauseInput())
             {
                 GameManager.instance.TogglePause();
@@ -488,6 +496,11 @@ public class FrogCharacterController : MonoBehaviour
     private bool GetPauseInput()
     {
         return rewiredPlayer.GetButtonDown(pauseInputName);
+    }
+
+    private bool GetCheatPlusInput()
+    {
+        return rewiredPlayer.GetButtonDown(cheatPlusInputName);
     }
 
     #endregion
