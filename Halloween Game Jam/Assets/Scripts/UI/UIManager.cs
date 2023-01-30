@@ -113,6 +113,8 @@ public class UIManager : MonoBehaviour
     [Header("Currency symbol")]
     public string currencySymbol = "₣";
 
+    [Header("Settings Screen")]
+    public GameObject settingsScreen;
 
     private void Awake()
     {
@@ -190,7 +192,7 @@ public class UIManager : MonoBehaviour
                 PlayableCharacterInfo characterInfo = playableCharactersList[i];
                 charactersButtonsList[i].interactable = characterInfo.unlocked;
                 charactersNamesTextList[i].text = (characterInfo.unlocked ? characterInfo.characterData.characterName : "???");
-                charactersImagesList[i].sprite = characterInfo.characterData.characterSprite;                
+                charactersImagesList[i].sprite = characterInfo.characterData.characterSprite;
                 string description = (characterInfo.unlocked ? characterInfo.characterData.characterDescription : ("UNLOCK: " + characterInfo.characterData.unlockHint));
                 description = description.Replace("\\n", "\n");
                 charactersDescriptionTextList[i].text = description;
@@ -310,7 +312,7 @@ public class UIManager : MonoBehaviour
             unlockedCharacterName.text = unlockedCharacter.characterName;
             unlockedCharacterImage.sprite = unlockedCharacter.characterSprite;
         }
-        
+
         // Display score screen
         inGameUIPanel.SetActive(true);
         scoreScreen.SetActive(true);
@@ -405,11 +407,16 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    #region Audio
+    // Audio
+
+    // Used for starting a chapter and end screen.
     public void PlayLongPageSound()
     {
         soundManager.PlayLongPageSound();
     }
 
+    // Ripping page.
     public void PlayDeathSound()
     {
         soundManager.PlayDeathSound();
@@ -420,10 +427,13 @@ public class UIManager : MonoBehaviour
         soundManager.PlayShortPageSound();
     }
 
+    // When showing level up book.
     public void PlaySlideBookSound()
     {
         soundManager.PlaySlideBookSound();
     }
+
+    #endregion Audio
 
     public void ShowPauseScreen()
     {
@@ -457,6 +467,16 @@ public class UIManager : MonoBehaviour
     {
         clearSaveFileConfirmationPanel.SetActive(active);
     }
-
     #endregion
+
+    public void ShowSettingsScreen()
+    {
+        settingsScreen.SetActive(true);
+    }
+
+    public void HideSettingsScreen()
+    {
+        settingsScreen.SetActive(false);
+    }
+
 }
