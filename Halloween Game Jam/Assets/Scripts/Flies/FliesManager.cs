@@ -206,7 +206,12 @@ public class FliesManager : MonoBehaviour
 
     public EnemyInstance GetEnemyInfo(int ID)
     {
-        return allActiveEnemiesDico[ID];
+        EnemyInstance result = null;
+        if (allActiveEnemiesDico.ContainsKey(ID))
+        {
+            result = allActiveEnemiesDico[ID];
+        }
+        return result;
     }
     public EnemyInstance GetEnemyInfo(string name)
     {
@@ -387,6 +392,7 @@ public class FliesManager : MonoBehaviour
                         if (distanceWithFrog > maxDistanceBeforeUnspawn)
                         {
                             enemy.enemyRenderer.enabled = false;
+                            enemy.enemyCollider.enabled = false;
                             enemy.active = false;
                             enemiesToDestroyIDList.Add(enemyInfo.Key);
                         }

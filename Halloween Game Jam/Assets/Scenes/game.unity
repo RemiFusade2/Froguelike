@@ -4849,7 +4849,7 @@ MonoBehaviour:
   maxSpawnDistanceFromPlayer: 40
   spawnCenterMinDistanceToPlayer: 10
   spawnCenterMaxDistanceToPlayer: 20
-  spawnCircleRadius: 20
+  spawnCircleRadius: 30
   findSpawnPositionMaxAttempts: 10
   maxDistanceBeforeUnspawn: 40
   enemyHPFactor: 1
@@ -9027,6 +9027,15 @@ MonoBehaviour:
       _behaviorId: 0
       _userAssignable: 1
       _categoryId: 0
+    - _id: 3
+      _name: cheatplus
+      _type: 1
+      _descriptiveName: cheatplus
+      _positiveDescriptiveName: 
+      _negativeDescriptiveName: 
+      _behaviorId: 0
+      _userAssignable: 1
+      _categoryId: 0
     actionCategories:
     - _name: Default
       _descriptiveName: Default
@@ -9036,7 +9045,7 @@ MonoBehaviour:
     actionCategoryMap:
       list:
       - categoryId: 0
-        actionIds: 000000000100000002000000
+        actionIds: 00000000010000000200000003000000
     inputBehaviors:
     - _id: 0
       _name: Default
@@ -9278,13 +9287,24 @@ MonoBehaviour:
         _modifierKey1: 0
         _modifierKey2: 0
         _modifierKey3: 0
+      - _actionCategoryId: 0
+        _actionId: 3
+        _elementType: 1
+        _elementIdentifierId: -1
+        _axisRange: 0
+        _invert: 0
+        _axisContribution: 0
+        _keyboardKeyCode: 270
+        _modifierKey1: 0
+        _modifierKey2: 0
+        _modifierKey3: 0
     mouseMaps: []
     customControllerMaps: []
     customControllers: []
     controllerMapLayoutManagerRuleSets: []
     controllerMapEnablerRuleSets: []
     playerIdCounter: 2
-    actionIdCounter: 3
+    actionIdCounter: 4
     actionCategoryIdCounter: 1
     inputBehaviorIdCounter: 2
     mapCategoryIdCounter: 1
@@ -25748,9 +25768,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   collectiblePrefab: {fileID: 2308838969773596893, guid: 2af3cfbf96755494ca3053a8d58eafa4, type: 3}
   currencyCollectibleIcon: {fileID: 21300000, guid: 33db472c27805814a845fe5dd40282ee, type: 3}
-  superCurrencyCollectibleIcon: {fileID: 0}
+  superCurrencyCollectibleIcon: {fileID: 21300000, guid: d29a5b85d57d047429629782eee8b1ff, type: 3}
   xpCollectibleIcon: {fileID: 21300000, guid: cfd319fd0ad327c48b9994d470900f4d, type: 3}
-  levelUpCollectibleIcon: {fileID: 0}
+  levelUpCollectibleIcon: {fileID: 21300000, guid: 51e6115c02d369d4b890a578e8f5652b, type: 3}
   healthCollectibleIcon: {fileID: 21300000, guid: a9fff52a2b4006e488c5142311c6d3a4, type: 3}
   collectibleMovingSpeed: 7
   collectMinDistance: 1

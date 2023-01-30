@@ -30,7 +30,8 @@ public class CollectiblesManager : MonoBehaviour
     public Sprite healthCollectibleIcon;
 
     [Header("Settings")]
-    public float collectibleMovingSpeed = 6;
+    public float collectibleMinMovingSpeed = 8;
+    public float collectibleMovingSpeedFactor = 1.5f;
     public float collectMinDistance = 1.5f;
     public float updateAllCollectiblesDelay = 0.1f;
 
@@ -168,6 +169,8 @@ public class CollectiblesManager : MonoBehaviour
                 else
                 {
                     collectibleRb = collectible.GetComponent<Rigidbody2D>();
+                    float collectibleMovingSpeed = collectibleMovingSpeedFactor * GameManager.instance.player.walkSpeed;
+                    collectibleMovingSpeed = Mathf.Clamp(collectibleMovingSpeed, collectibleMinMovingSpeed, 100.0f);
                     collectibleRb.velocity = moveDirection * collectibleMovingSpeed;
                 }
             }

@@ -268,7 +268,7 @@ public class WeaponBehaviour : MonoBehaviour
         GameObject enemy = null;
         Vector2 playerPosition = GameManager.instance.player.transform.position;
         float actualRange = range * (1 + GameManager.instance.player.attackRangeBoost);
-        Collider2D[] allColliders = Physics2D.OverlapCircleAll(playerPosition, actualRange * 2.0f * 3.0f, foodLayer);
+        Collider2D[] allColliders = Physics2D.OverlapCircleAll(playerPosition, actualRange * 1.5f, foodLayer);
         if (allColliders.Length > 0)
         {
             float shortestDistance = float.MaxValue;
@@ -277,7 +277,7 @@ public class WeaponBehaviour : MonoBehaviour
             {
                 EnemyInstance enemyInfo = FliesManager.instance.GetEnemyInfo(col.gameObject.name);
                 float distanceWithPlayer = Vector2.Distance(col.transform.position, playerPosition);
-                if (distanceWithPlayer < shortestDistance && enemyInfo.active)
+                if (distanceWithPlayer < shortestDistance && enemyInfo != null && enemyInfo.active)
                 {
                     shortestDistance = distanceWithPlayer;
                     nearestEnemy = col;
