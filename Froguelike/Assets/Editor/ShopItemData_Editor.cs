@@ -1,36 +1,28 @@
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 
-public class ShopItemData_Editor : EditorWindow
+/// <summary>
+/// Custom Inspector for ShopItemData scriptable objects.
+/// </summary>
+[CustomEditor(typeof(ShopItemData))]
+public class ShopItemData_Editor : Editor
 {
-    [MenuItem("Window/UI Toolkit/ShopItemData_Editor")]
-    public static void ShowExample()
+    // XML file containing the UI info for the custom inspector
+    public VisualTreeAsset inspectorXML;
+
+    public override VisualElement CreateInspectorGUI()
     {
-        ShopItemData_Editor wnd = GetWindow<ShopItemData_Editor>();
-        wnd.titleContent = new GUIContent("ShopItemData_Editor");
-    }
+        // Create a new VisualElement to be the root of our inspector UI
+        VisualElement root = new VisualElement();
 
-    public void CreateGUI()
-    {
-        // Each editor window contains a root VisualElement object
-        VisualElement root = rootVisualElement;
+        // Load and clone a visual tree from UXML
+        inspectorXML.CloneTree(root);
 
-        // VisualElements objects can contain other VisualElement following a tree hierarchy.
-        //VisualElement label = new Label("Hello World! From C#");
-        //root.Add(label);
+        // Draw the default inspector as a foldout menu
+        VisualElement inspectorFoldout = root.Q("Default_Inspector");
+        InspectorElement.FillDefaultInspector(inspectorFoldout, serializedObject, this);
 
-        // Import UXML
-        //var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Editor/ShopItemData_Editor.uxml");
-        //VisualElement labelFromUXML = visualTree.Instantiate();
-        //root.Add(labelFromUXML);
-
-        // A stylesheet can be added to a VisualElement.
-        // The style will be applied to the VisualElement and all of its children.
-        //var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Editor/ShopItemData_Editor.uss");
-        //VisualElement labelWithStyle = new Label("Hello World! With Style");
-        //labelWithStyle.styleSheets.Add(styleSheet);
-        //root.Add(labelWithStyle);
+        return root;
     }
 }

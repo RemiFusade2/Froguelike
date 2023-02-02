@@ -159,13 +159,13 @@ public class UIManager : MonoBehaviour
     {
         musicManager.PlayTitleMusic();
         HideAllScreens();
-        UpdateTitleScreenCurrencyText(GameManager.instance.availableCurrency);
+        UpdateTitleScreenCurrencyText(GameManager.instance.gameData.availableCurrency);
         titleScreen.SetActive(true);
     }
 
     public void UpdateCurrencyDisplay()
     {
-        long currencyValue = GameManager.instance.availableCurrency;
+        long currencyValue = GameManager.instance.gameData.availableCurrency;
 
         UpdateTitleScreenCurrencyText(currencyValue);
         ShopManager.instance.DisplayShop();

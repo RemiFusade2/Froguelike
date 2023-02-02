@@ -12,6 +12,7 @@ public class ShopItemData : ScriptableObject
     public Sprite icon;
 
     public int maxLevelAtStart; // How many of those items can you buy at the start of the game?
+    public bool hiddenAtStart;
 
     public List<StatValue> statIncreaseList;
 

@@ -15,7 +15,35 @@ public class ShopItem
     public string itemName;
 
     public int currentLevel;
-    public int maxLevel; // maxLevel = 0 means the item is displayed but out of stock. maxLevel = -1 means the item is locked and won't be displayed in the shop.
+    public int maxLevel; // maxLevel = 0 means the item is displayed but out of stock.
+
+    public bool hidden; // is the item visible in the shop?
+}
+
+[System.Serializable]
+public class ShopSaveData : SaveData
+{
+    public List<ShopItem> shopItems;
+    public long currencySpentInShop;
+
+    public ShopSaveData()
+    {
+        Reset();
+    }
+
+    public override void Reset()
+    {
+        base.Reset();
+        shopItems = new List<ShopItem>();
+        currencySpentInShop = 0;
+    }
+
+    public override string ToString()
+    {
+        string result = "shopItems = " + shopItems.ToString() + " - ";
+        result += "currencySpentInShop = " + currencySpentInShop.ToString();
+        return result;
+    }
 }
 
 /// <summary>
@@ -25,19 +53,20 @@ public class ShopItem
 /// </summary>
 public class ShopManager : MonoBehaviour
 {
+    // Singleton
     public static ShopManager instance;
 
     [Header("Item data")]
     [Tooltip("Scriptable objects containing data for each item")]
     public List<ShopItemData> availableItemDataList;
 
-    [Header("UI Reference")]
+    [Header("UI References")]
     public RectTransform shopPanelContainer;
     public Transform shopPanel;
     public Text availableCurrencyText;
     public Button refundButton;
 
-    [Header("UI Prefab")]
+    [Header("UI Prefabs")]
     public GameObject availableShopItemPanelPrefab;
     public GameObject soldOutShopItemPanelPrefab;
 
@@ -45,9 +74,9 @@ public class ShopManager : MonoBehaviour
     public bool displaySoldOutItems = true;
 
     [Header("Runtime")]
-    public List<ShopItem> availableItemsList;
+    public ShopSaveData shopData; // Will be loaded and saved when needed
+
     public List<StatValue> statsBonuses; // This is computed from the items bought
-    public long currencySpentInTheShop;
 
     private void Awake()
     {
@@ -67,7 +96,7 @@ public class ShopManager : MonoBehaviour
 
     public void ReplaceAvailableItemsList(List<ShopItem> newItemsList)
     {
-        foreach(ShopItem item in availableItemsList)
+        foreach(ShopItem item in shopData.shopItems)
         {
             ShopItem newItem = newItemsList.FirstOrDefault(x => x.itemName == item.itemName);
             if (newItem != null)
@@ -76,6 +105,7 @@ public class ShopManager : MonoBehaviour
                 item.maxLevel = newItem.maxLevel;
             }
         }
+        SaveDataManager.instance.isSaveDataDirty = true;
         ComputeStatsBonuses();
     }
 
@@ -84,15 +114,15 @@ public class ShopManager : MonoBehaviour
         if (item.currentLevel < item.maxLevel)
         {
             int itemCost = item.data.costForEachLevel[item.currentLevel];
-            if (GameManager.instance.availableCurrency >= itemCost)
+            if (GameManager.instance.gameData.availableCurrency >= itemCost)
             {
                 // Can buy!
-                currencySpentInTheShop += itemCost;
-                GameManager.instance.ChangeAvailableCurrency(-itemCost, false);
+                shopData.currencySpentInShop += itemCost;
+                GameManager.instance.ChangeAvailableCurrency(-itemCost);
                 item.currentLevel++;
                 ComputeStatsBonuses();
                 DisplayShop();
-                GameManager.instance.UpdateShopInfoInCurrentSave();
+                SaveDataManager.instance.isSaveDataDirty = true;
             }
         }
     }
@@ -100,7 +130,7 @@ public class ShopManager : MonoBehaviour
     public void ComputeStatsBonuses()
     {
         statsBonuses.Clear();
-        foreach (ShopItem item in availableItemsList)
+        foreach (ShopItem item in shopData.shopItems)
         {
             for (int level = 0; level < item.currentLevel; level++)
             {
@@ -126,7 +156,7 @@ public class ShopManager : MonoBehaviour
     /// <param name="hardReset"></param>
     public long ResetShop(bool hardReset = false)
     {
-        long returnedCurrency = currencySpentInTheShop;
+        long returnedCurrency = shopData.currencySpentInShop;
 
         // In any case, the stats upgrades are reset
         statsBonuses.Clear();
@@ -134,33 +164,34 @@ public class ShopManager : MonoBehaviour
         if (hardReset)
         {
             // A hard reset will also remove unlocked items and reset everything to the start game values
-            availableItemsList.Clear();
+            shopData.shopItems.Clear();
             foreach (ShopItemData itemData in availableItemDataList)
             {
-                availableItemsList.Add(new ShopItem() { data = itemData, currentLevel = 0, maxLevel = itemData.maxLevelAtStart, itemName = itemData.itemName });
+                shopData.shopItems.Add(new ShopItem() { data = itemData, currentLevel = 0, maxLevel = itemData.maxLevelAtStart, itemName = itemData.itemName });
             }
         }
         else
         {
             // A soft reset will keep all the items max level but set their current level to zero
-            foreach (ShopItem item in availableItemsList)
+            foreach (ShopItem item in shopData.shopItems)
             {
                 item.currentLevel = 0;
             }
         }
 
-        currencySpentInTheShop = 0;
+        shopData.currencySpentInShop = 0;
+        SaveDataManager.instance.isSaveDataDirty = true;
         return returnedCurrency;
     }
 
     public void DisplayShop()
     {
         // Update Refund Button availability
-        refundButton.interactable = (currencySpentInTheShop > 0);
-
+        refundButton.interactable = (shopData.currencySpentInShop > 0);
+        
         // Update available currency
-        availableCurrencyText.text = Tools.FormatCurrency(GameManager.instance.availableCurrency, UIManager.instance.currencySymbol);
-
+        availableCurrencyText.text = Tools.FormatCurrency(GameManager.instance.gameData.availableCurrency, UIManager.instance.currencySymbol);
+        
         // Remove previous buttons
         foreach (Transform child in shopPanel)
         {
@@ -168,7 +199,7 @@ public class ShopManager : MonoBehaviour
         }
         // Create new buttons
         int buttonCount = 0;
-        foreach (ShopItem item in availableItemsList)
+        foreach (ShopItem item in shopData.shopItems)
         {
             bool itemIsLocked = (item.maxLevel == -1);
             bool itemIsOutOfStock = (item.maxLevel == 0);
@@ -180,9 +211,9 @@ public class ShopManager : MonoBehaviour
                 if (item.currentLevel < item.data.costForEachLevel.Count)
                 {
                     int itemCost = item.data.costForEachLevel[item.currentLevel];
-                    canBuy = GameManager.instance.availableCurrency >= itemCost;
+                    canBuy = GameManager.instance.gameData.availableCurrency >= itemCost;
                 }
-
+                
                 GameObject shopItemButtonGo = Instantiate(availableShopItemPanelPrefab, shopPanel);
                 ShopItemButton shopItemButton = shopItemButtonGo.GetComponent<ShopItemButton>();
                 shopItemButton.buyButton.onClick.AddListener(delegate { BuyItem(item); });
@@ -197,7 +228,7 @@ public class ShopManager : MonoBehaviour
                 buttonCount++;
             }
         }
-
+        
         // Set size of container panel
         float buttonHeight = shopPanel.GetComponent<GridLayoutGroup>().cellSize.y + shopPanel.GetComponent<GridLayoutGroup>().spacing.y;
         float padding = shopPanel.GetComponent<GridLayoutGroup>().padding.top + shopPanel.GetComponent<GridLayoutGroup>().padding.bottom;
@@ -206,16 +237,33 @@ public class ShopManager : MonoBehaviour
 
     public void RefundAll()
     {
-        GameManager.instance.ChangeAvailableCurrency(currencySpentInTheShop, false);
-        currencySpentInTheShop = 0;
+        GameManager.instance.ChangeAvailableCurrency(shopData.currencySpentInShop);
+        shopData.currencySpentInShop = 0;
 
-        foreach (ShopItem item in availableItemsList)
+        foreach (ShopItem item in shopData.shopItems)
         {
             item.currentLevel = 0;
         }
 
         ComputeStatsBonuses();
         DisplayShop();
-        GameManager.instance.UpdateShopInfoInCurrentSave();
+        SaveDataManager.instance.isSaveDataDirty = true;
+    }
+
+    public void SetShopData(ShopSaveData saveData)
+    {
+        shopData.currencySpentInShop = saveData.currencySpentInShop;
+        foreach (ShopItem item in shopData.shopItems)
+        {
+            ShopItem itemFromSave = saveData.shopItems.First(x => x.itemName.Equals(item.itemName));
+            if (itemFromSave != null)
+            {
+                item.currentLevel = itemFromSave.currentLevel;
+                item.hidden = itemFromSave.hidden;
+                item.maxLevel = itemFromSave.maxLevel;
+            }
+        }
+        ComputeStatsBonuses();
+        DisplayShop();
     }
 }
