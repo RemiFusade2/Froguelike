@@ -35,7 +35,7 @@ public enum STAT
 }
 
 [System.Serializable]
-public class StatValue : IEquatable<StatValue>
+public class StatValue : IEquatable<StatValue>, ICloneable
 {
     public STAT stat;
     public double value;
@@ -44,6 +44,11 @@ public class StatValue : IEquatable<StatValue>
     {
         stat = origin.stat;
         value = origin.value;
+    }
+
+    public object Clone()
+    {
+        return new StatValue(this);
     }
 
     // Two StatValue are considered equal if they have the same stat type
@@ -61,6 +66,11 @@ public class StatsWrapper
     public StatsWrapper()
     {
         statsList = new List<StatValue>();
+    }
+
+    public StatsWrapper(List<StatValue> statValuesList)
+    {
+        statsList = new List<StatValue>(statValuesList);
     }
 
     public StatValue GetStatValue(STAT statType)

@@ -62,7 +62,7 @@ public class SaveDataManager : MonoBehaviour
 
     private IEnumerator AttemptSavingAsync()
     {
-        yield return new WaitForSeconds(saveFileAttemptDelay);
+        yield return new WaitForSecondsRealtime(saveFileAttemptDelay);
         if (isSaveDataDirty)
         {
             Save();
@@ -139,16 +139,22 @@ public class SaveDataManager : MonoBehaviour
             {
                 case SaveMethod.JSON:
                     // Save the data in JSON format (readable and editable)
+                    if (debugInfo)
+                    {
+                        Debug.Log("Debug info - Save in JSON");
+                    }
                     string jsonData = JsonUtility.ToJson(allSaveData);
                     File.WriteAllText(saveFilePath, jsonData);
                     break;
                 case SaveMethod.BINARY:
                     // Save the data in Binary format (unreadable)
+                    if (debugInfo)
+                    {
+                        Debug.Log("Debug info - Save in Binary");
+                    }
                     FileStream dataStream = new FileStream(saveFilePath, FileMode.Create);
-
                     BinaryFormatter converter = new BinaryFormatter();
                     converter.Serialize(dataStream, allSaveData);
-
                     dataStream.Close();
                     break;
             }
@@ -192,10 +198,6 @@ public class SaveDataManager : MonoBehaviour
         {
             if (File.Exists(saveFilePath))
             {
-                if (debugInfo)
-                {
-                    Debug.Log("Debug info - File exists");
-                }
                 CombinedSaveData loadedData = null;
                 switch (saveMethod)
                 {
@@ -206,27 +208,19 @@ public class SaveDataManager : MonoBehaviour
                             Debug.Log("Debug info - Load in JSON");
                         }
                         string jsonData = File.ReadAllText(saveFilePath);
-                        if (debugInfo)
-                        {
-                            Debug.Log("Debug info - jsonData = " + jsonData);
-                        }
                         loadedData = JsonUtility.FromJson<CombinedSaveData>(jsonData);
-                        if (debugInfo)
-                        {
-                            Debug.Log("Debug info - loadedData = " + loadedData);
-                        }
                         break;
                     case SaveMethod.BINARY:
                         // Load the data in Binary format (unreadable)
+                        if (debugInfo)
+                        {
+                            Debug.Log("Debug info - Load in Binary");
+                        }
                         FileStream dataStream = new FileStream(saveFilePath, FileMode.Open);
                         BinaryFormatter converter = new BinaryFormatter();
                         loadedData = converter.Deserialize(dataStream) as CombinedSaveData;
                         dataStream.Close();
                         break;
-                }
-                if (debugInfo)
-                {
-                    Debug.Log("Debug info - calling SetAllSaveData()");
                 }
                 CombinedSaveData.SetAllSaveData(loadedData);
                 success = true;
@@ -252,6 +246,8 @@ public class SaveDataManager : MonoBehaviour
     {
         ShopManager.instance.shopData.Reset();
         ShopManager.instance.ResetShop(true);
+
+        CharacterManager.instance.ResetCharacters(true);
 
         GameManager.instance.gameData.Reset();
 

@@ -4,6 +4,15 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// ShopItem describes an item in the shop in its current state.
+/// It has a reference to ShopItemData, the scriptable object that describes the item. This is not serialized with the rest.
+/// It keeps the itemName there for serialization. When saving/loading this item from a save file, the name will be used to retrieve the right item in the program.
+/// The information that can change at runtime are:
+/// - currentLevel, is the number of times this item has been bought. Is reset to zero when reseting the shop.
+/// - maxLevel, is the number of times this can be bought at max. Can be "upgraded" through an achievement.
+/// - hidden, is the status of the item. Is it visible in the shop? This value can change when the item is unlocked through an achievement.
+/// </summary>
 [System.Serializable]
 public class ShopItem
 {
@@ -20,6 +29,11 @@ public class ShopItem
     public bool hidden; // is the item visible in the shop?
 }
 
+/// <summary>
+/// ShopSaveData contains all information that must be saved about the Shop.
+/// - shopItems is the list of items in their current state
+/// - currencySpentInShop is the amount of money that has been spent in the Shop (can be refunded when Shop is reset)
+/// </summary>
 [System.Serializable]
 public class ShopSaveData : SaveData
 {
@@ -37,19 +51,13 @@ public class ShopSaveData : SaveData
         shopItems = new List<ShopItem>();
         currencySpentInShop = 0;
     }
-
-    public override string ToString()
-    {
-        string result = "shopItems = " + shopItems.ToString() + " - ";
-        result += "currencySpentInShop = " + currencySpentInShop.ToString();
-        return result;
-    }
 }
 
 /// <summary>
 /// ShopManager is a singleton class that deals with the shop elements.
-/// It stores the current stats increases from shop items.
+/// It stores the current stats increases from shop items. This stats increases are computed at runtime, depending on the items.
 /// It stores all available shop items and their current level.
+/// It display a screen with all shop information and possibility to buy items in the shop.
 /// </summary>
 public class ShopManager : MonoBehaviour
 {
@@ -75,14 +83,26 @@ public class ShopManager : MonoBehaviour
 
     [Header("Runtime")]
     public ShopSaveData shopData; // Will be loaded and saved when needed
-
     public List<StatValue> statsBonuses; // This is computed from the items bought
 
     private void Awake()
     {
-        instance = this;
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(this);
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
     }
 
+    /// <summary>
+    /// A handy method to get the starting bonus from the Shop for a specific STAT
+    /// </summary>
+    /// <param name="stat"></param>
+    /// <returns></returns>
     public float GetStatBonus(STAT stat)
     {
         double bonus = 0;
@@ -94,54 +114,85 @@ public class ShopManager : MonoBehaviour
         return (float)bonus;
     }
 
+    /// <summary>
+    /// Update status of every item in the shop from a list of ShopItem
+    /// </summary>
+    /// <param name="newItemsList"></param>
     public void ReplaceAvailableItemsList(List<ShopItem> newItemsList)
     {
+        // Go through every item currently in the list
         foreach(ShopItem item in shopData.shopItems)
         {
+            // Get the item with the same name in the new item list
             ShopItem newItem = newItemsList.FirstOrDefault(x => x.itemName == item.itemName);
             if (newItem != null)
             {
+                // Update all item information
                 item.currentLevel = newItem.currentLevel;
                 item.maxLevel = newItem.maxLevel;
+                item.hidden = newItem.hidden;
             }
         }
-        SaveDataManager.instance.isSaveDataDirty = true;
+        // Compute all starting stats bonuses from the item values
         ComputeStatsBonuses();
+        // Signal the SaveDataManager that information from the shop have been updated and should be saved when possible
+        SaveDataManager.instance.isSaveDataDirty = true;
     }
 
+    /// <summary>
+    /// Attempt to buy an item.
+    /// Spend the currency if available and upgrade the item to its next level.
+    /// </summary>
+    /// <param name="item"></param>
     public void BuyItem(ShopItem item)
     {
+        // Need to check if item current level is below its max level
         if (item.currentLevel < item.maxLevel)
         {
+            // Get the cost of that upgrade
             int itemCost = item.data.costForEachLevel[item.currentLevel];
             if (GameManager.instance.gameData.availableCurrency >= itemCost)
             {
-                // Can buy!
+                // There's enough available currency, so buy the item!
+                // Increase currency spend in shop
                 shopData.currencySpentInShop += itemCost;
-                GameManager.instance.ChangeAvailableCurrency(-itemCost);
-                item.currentLevel++;
-                ComputeStatsBonuses();
-                DisplayShop();
+                // Remove that amount from available currency
+                GameManager.instance.ChangeAvailableCurrency(-itemCost); 
+                // Upgrade item
+                item.currentLevel++; 
+                // Compute new starting stats bonuses
+                ComputeStatsBonuses(); 
+                // Update the shop display
+                DisplayShop(); 
+                // Signal the SaveDataManager that information from the shop have been updated and should be saved when possible
                 SaveDataManager.instance.isSaveDataDirty = true;
             }
         }
     }
 
+    /// <summary>
+    /// Update the list of Stat bonuses using the current state of shop items.
+    /// </summary>
     public void ComputeStatsBonuses()
     {
+        // Remove all previous bonuses
         statsBonuses.Clear();
         foreach (ShopItem item in shopData.shopItems)
         {
+            // For each item...
             for (int level = 0; level < item.currentLevel; level++)
             {
+                // Apply its bonus once for each level
                 foreach (StatValue statIncrease in item.data.statIncreaseList)
                 {
                     if (statsBonuses.Contains(statIncrease))
                     {
+                        // There was a bonus for this stat already, so we increase this bonus (don't duplicate that stat)
                         statsBonuses.First(x => x.stat == statIncrease.stat).value += statIncrease.value;
                     }
                     else
                     {
+                        // This is the first bonus for this stat, so add the stat bonus as a new element in the list
                         statsBonuses.Add(new StatValue(statIncrease));
                     }
                 }                
@@ -184,6 +235,10 @@ public class ShopManager : MonoBehaviour
         return returnedCurrency;
     }
 
+    /// <summary>
+    /// Update the UI of the Shop.
+    /// Will update both the available currency and redraw the buttons for each item using updated values.
+    /// </summary>
     public void DisplayShop()
     {
         // Update Refund Button availability
@@ -235,6 +290,10 @@ public class ShopManager : MonoBehaviour
         shopPanelContainer.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ( (buttonCount+1) / 2) * buttonHeight + padding);
     }
 
+    /// <summary>
+    /// Reset all item levels and refund spent currency.
+    /// Will keep max levels and unlocks untouched.
+    /// </summary>
     public void RefundAll()
     {
         GameManager.instance.ChangeAvailableCurrency(shopData.currencySpentInShop);
@@ -245,11 +304,18 @@ public class ShopManager : MonoBehaviour
             item.currentLevel = 0;
         }
 
+        // Compute new starting stats bonuses
         ComputeStatsBonuses();
+        // Update the shop display
         DisplayShop();
+        // Signal the SaveDataManager that information from the shop have been updated and should be saved when possible
         SaveDataManager.instance.isSaveDataDirty = true;
     }
 
+    /// <summary>
+    /// Update the shop data using a ShopSaveData object, that was probably loaded from a file by the SaveDataManager.
+    /// </summary>
+    /// <param name="saveData"></param>
     public void SetShopData(ShopSaveData saveData)
     {
         shopData.currencySpentInShop = saveData.currencySpentInShop;
@@ -259,11 +325,13 @@ public class ShopManager : MonoBehaviour
             if (itemFromSave != null)
             {
                 item.currentLevel = itemFromSave.currentLevel;
-                item.hidden = itemFromSave.hidden;
                 item.maxLevel = itemFromSave.maxLevel;
+                item.hidden = itemFromSave.hidden;
             }
         }
+        // Compute new starting stats bonuses
         ComputeStatsBonuses();
+        // Update the shop display
         DisplayShop();
     }
 }

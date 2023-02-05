@@ -148,8 +148,6 @@ public class CollectiblesManager : MonoBehaviour
     {
         if (GameManager.instance.isGameRunning)
         {
-            Debug.Log("Collectibles Update");
-
             // Update velocity of all capture collectibles + collect the ones that are close enough to the character
             Transform playerTransform = GameManager.instance.player.transform;
             Rigidbody2D collectibleRb = null;

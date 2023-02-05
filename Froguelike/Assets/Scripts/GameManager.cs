@@ -22,29 +22,6 @@ public class ChapterInfo
 }
 
 [System.Serializable]
-public class PlayableCharacterInfo
-{
-    public CharacterData characterData;
-
-    public StatsWrapper characterStartingStats;
-
-    public bool unlocked;
-    
-    // Stat must be in the list
-    public bool GetValueForStat(STAT stat, out float value)
-    {
-        value = 0;
-        StatValue statValue = characterStartingStats.GetStatValue(stat);
-        bool statExists = (statValue != null);
-        if (statExists)
-        {
-            value = (float)statValue.value;
-        }
-        return statExists;
-    }
-}
-
-[System.Serializable]
 public class GameSaveData : SaveData
 {
     public int deathCount;
@@ -110,9 +87,6 @@ public class GameManager : MonoBehaviour
     [Space]
     public List<string> possibleMorals;
 
-    [Header("Characters data")]
-    public List<PlayableCharacterInfo> playableCharactersList;
-
     [Header("Items data")]
     public List<ItemScriptableObject> availableItems;
     public List<ItemScriptableObject> defaultItems;
@@ -142,7 +116,7 @@ public class GameManager : MonoBehaviour
     [Space]
     public List<ItemInfo> ownedItems;
     [Space]
-    public PlayableCharacterInfo currentPlayedCharacter;
+    public PlayableCharacter currentPlayedCharacter;
     [Space]
     private List<ChapterData> currentPlayableChaptersList;
     public ChapterInfo currentChapter;
@@ -151,51 +125,7 @@ public class GameManager : MonoBehaviour
 
     private float nextLevelXp = 5;
     private float xpNeededForNextLevelFactor = 1.5f;
-
-    private List<int> unlockedCharactersIndex;
-
-    /*
-    #region Save
-
-    public void TryLoadDataFromFile()
-    {
-        bool loadedSuccessfully = SaveDataManager.instance.Load();
-
-
-        SaveData loadedData;
-        if (SaveData.Load(saveFileName, out loadedData))
-        {
-            // Load saved data
-            currentSavedData = loadedData;
-        }
-        else
-        {
-            // If there's no save file, create a new save file and save it immediately
-            currentSavedData = new SaveData();
-
-            // Fill the save file with all starting stats of characters
-            for (int i=0; i< playableCharactersList.Count; i++)
-            {
-                foreach (StatValue statValue in playableCharactersList[i].characterData.startingStatsList)
-                {
-                    currentSavedData.startingStatsForCharactersList[i].statsList.Add(new StatValue(statValue));
-                }
-            }
-
-            // Fill the save file with all starting stats of shop items
-            currentSavedData.shopItems = ShopManager.instance.availableItemsList;
-
-            SaveDataToFile();
-        }
-    }
-
-    public bool EraseSaveFile()
-    {
-        return SaveDataManager.instance.EraseSaveFile(true);
-    }
-
-    #endregion
-    */
+    
     private void Awake()
     {
         instance = this;
@@ -252,8 +182,6 @@ public class GameManager : MonoBehaviour
         FliesManager.instance.enemySpawnSpeedFactor = 1;
 
         WeaponBehaviour.rotatingTongueCount = 0;
-
-        unlockedCharactersIndex = new List<int>();
 
         gameData.attempts++;
         SaveDataManager.instance.Save();
@@ -540,7 +468,7 @@ public class GameManager : MonoBehaviour
 
     public void OpenCharacterSelection()
     {
-        UIManager.instance.ShowCharacterSelection(playableCharactersList, ShopManager.instance.statsBonuses);
+        UIManager.instance.ShowCharacterSelectionScreen();
     }
 
     #region Level Up
@@ -570,20 +498,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void SelectCharacter(int index)
-    {
-        currentPlayedCharacter = playableCharactersList[index];
-
-        InitializeNewGame();
-
-        SelectNextPossibleChapters(3);
-        chaptersPlayed = new List<ChapterInfo>();
-        UIManager.instance.ShowChapterSelection(1, selectionOfNextChaptersList);
-
-        player.InitializeCharacter(currentPlayedCharacter);
-        PickItem(currentPlayedCharacter.characterData.startingWeapon);
-    }
-
     public void SelectChapter(int index)
     {
         ChapterInfo chapterInfo = new ChapterInfo();
@@ -593,6 +507,31 @@ public class GameManager : MonoBehaviour
 
         currentChapter = chapterInfo;
         StartCoroutine(StartChapter(chapterInfo.chapterCount));
+    }
+
+    public void StartRunWithCharacter(PlayableCharacter character)
+    {
+        // Save current played characters
+        currentPlayedCharacter = character;
+
+        // Initialize a new Run
+        // TODO: Have a RunManager dealing with that part
+        InitializeNewGame();
+
+        // Show a chapter selection prompt
+        // TODO: Have a ChapterManager dealing with that part
+        SelectNextPossibleChapters(3);
+        chaptersPlayed = new List<ChapterInfo>();
+        UIManager.instance.ShowChapterSelection(1, selectionOfNextChaptersList);
+
+        // Setup the player controller using the player data that we have
+        player.InitializeCharacter(currentPlayedCharacter);
+        // Pick all the items this character starts with
+        foreach (ItemScriptableObject item in currentPlayedCharacter.characterData.startingItems)
+        {
+            PickItem(item);
+        }
+
     }
 
     #endregion
@@ -605,10 +544,7 @@ public class GameManager : MonoBehaviour
         chaptersPlayed.Add(currentChapter);
 
         // Check for possibly having unlocked characters
-        if (CheckForUnlockingCharacters())
-        {
-            //SaveDataToFile();
-        }
+        CheckForUnlockingCharacters();
 
         // Stop time
         Time.timeScale = 0;
@@ -739,7 +675,7 @@ public class GameManager : MonoBehaviour
         UIManager.instance.ShowGameOver((player.revivals > 0));
         gameData.deathCount++;
         CheckForUnlockingCharacters();
-        SaveDataManager.instance.Save();
+        SaveDataManager.instance.isSaveDataDirty = true;
     }
 
     public void Respawn()
@@ -757,37 +693,21 @@ public class GameManager : MonoBehaviour
         return possibleMorals[Random.Range(0, possibleMorals.Count)];
     }
 
-    /*
-    private bool UnlockCharacter(int index)
-    {
-        bool characterNewlyUnlocked = false;
-        if (!playableCharactersList[index].unlocked)
-        {
-            unlockedCharactersIndex.Add(index);
-            playableCharactersList[index].unlocked = true;
-            currentSavedData.unlockedCharacterIndexList.Add(index);
-            characterNewlyUnlocked = true;
-        }
-        return characterNewlyUnlocked;
-    }*/
-
     private bool CheckForUnlockingCharacters()
     {
         bool characterUnlocked = false;
         bool gameIsWon = chaptersPlayed.Count >= 6;
-
-        // Unlock TOAD?
+        
         // After winning one game
         if (gameIsWon)
         {
-            //characterUnlocked |= UnlockCharacter(1);
+            characterUnlocked |= CharacterManager.instance.UnlockCharacter("Toad");
         }
-
-        // Unlock GHOST?
+        
         // After dying 15 times
         if (gameData.deathCount >= 15)
         {
-            //characterUnlocked |= UnlockCharacter(2);
+            characterUnlocked |= CharacterManager.instance.UnlockCharacter("Ghost");
         }
 
         if (gameIsWon)
@@ -810,34 +730,29 @@ public class GameManager : MonoBehaviour
                     hasMaxedOutPoisonousTongue = true;
                 }
             }
-
-            // Unlock SWIMMING FROG?
-            // After winning a game with all 3 hats
-            if (player.HasHat(1) && player.HasHat(2) && player.HasHat(3))
-            {
-                //characterUnlocked |= UnlockCharacter(4);
-            }
-
-
-            // Unlock POISONOUS FROG?
+            
             // After winning a game with a maxed out poisonous tongue
             if (hasMaxedOutPoisonousTongue)
             {
-                //characterUnlocked |= UnlockCharacter(3);
+                characterUnlocked |= CharacterManager.instance.UnlockCharacter("Ribbit");
             }
-
-            // Unlock TOMATO FROG?
+            
+            // After winning a game with all 3 hats
+            if (player.HasHat(1) && player.HasHat(2) && player.HasHat(3))
+            {
+                characterUnlocked |= CharacterManager.instance.UnlockCharacter("Kermit");
+            }
+            
             // After winning a game with maxed out curse and maxed out cursed tongue
             if (hasMaxedOutCurse && hasMaxedOutCursedTongue)
             {
-                //characterUnlocked |= UnlockCharacter(5);
+                characterUnlocked |= CharacterManager.instance.UnlockCharacter("Thomas");
             }
-
-            // Unlock STANLEY?
+            
             // After winning a game with all 4 friends
             if (player.HasActiveFriend(0) && player.HasActiveFriend(1) && player.HasActiveFriend(2) && player.HasActiveFriend(3))
             {
-                //characterUnlocked |= UnlockCharacter(6);
+                characterUnlocked |= CharacterManager.instance.UnlockCharacter("Stanley");
             }
         }
 
@@ -860,17 +775,11 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0;
         string moral = GetRandomMoral();
 
-        List<CharacterData> unlockedCharacters = new List<CharacterData>();
-        foreach (int unlockedCharacterIndex in unlockedCharactersIndex)
-        {
-            unlockedCharacters.Add(playableCharactersList[unlockedCharacterIndex].characterData);
-        }
-
         if (chaptersPlayed.Count >= 6)
         {
             // Game is won!
             gameData.wins++;
-            //currentSavedData.wonTheGameWithCharacterIndexList[playableCharactersList.IndexOf(currentPlayedCharacter)]++;
+            CharacterManager.instance.WonTheGameWithCharacter(currentPlayedCharacter);
         }
 
         // Compute actual score
@@ -891,9 +800,9 @@ public class GameManager : MonoBehaviour
 
         // Maybe unlock some characters if conditions are met, and save data too
         CheckForUnlockingCharacters();
-        SaveDataManager.instance.Save();
+        SaveDataManager.instance.isSaveDataDirty = true;
 
-        UIManager.instance.ShowScoreScreen(chaptersPlayed, moral, ownedItems, unlockedCharacters);
+        UIManager.instance.ShowScoreScreen(chaptersPlayed, moral, ownedItems);
     }
 
     public void BackToTitleScreen()
@@ -935,36 +844,15 @@ public class GameManager : MonoBehaviour
         // Setup the shop manager
         ShopManager.instance.ResetShop(true);
 
+        // Setup the character manager
+        CharacterManager.instance.ResetCharacters(true);
+
         // Load save file
         bool fileLoaded = SaveDataManager.instance.Load();
         if (!fileLoaded)
         {
             SaveDataManager.instance.CreateEmptySaveFile();
         }
-
-        // Update unlocked characters
-        /*
-        List<int> unlockedCharacterIndexList = currentSavedData.unlockedCharacterIndexList;
-        for (int i = 1; i < playableCharactersList.Count; i++)
-        {
-            playableCharactersList[i].unlocked = false; // lock every character by default
-        }
-        foreach (int unlockedCharacter in currentSavedData.unlockedCharacterIndexList)
-        {
-            playableCharactersList[unlockedCharacter].unlocked = true; // unlock only the ones that are in the save file
-        }*/
-
-        // Replace the starting stats of characters with data from save file
-        /*
-        for (int i = 0; i < playableCharactersList.Count; i++)
-        {
-            playableCharactersList[i].characterStartingStats.statsList = currentSavedData.startingStatsForCharactersList[i].statsList;
-        }*/
-
-        // Update shop items with data from save file
-        /*
-        ShopManager.instance.ReplaceAvailableItemsList(currentSavedData.shopItems);
-        ShopManager.instance.currencySpentInTheShop = currentSavedData.currencySpentInShop;*/
         
         ReinitializeChaptersList();
     }

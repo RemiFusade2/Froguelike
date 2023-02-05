@@ -22,13 +22,6 @@ public class UIManager : MonoBehaviour
 
     [Header("Character Selection")]
     public GameObject characterSelectionScreen;
-    public List<Button> charactersButtonsList;
-    public List<Image> charactersImagesList;
-    public List<Text> charactersNamesTextList;
-    public List<Text> charactersDescriptionTextList;
-    [Space]
-    public Color charactersDefaultTextColor;
-    public Color charactersHintTextColor;
 
     #endregion
 
@@ -181,25 +174,11 @@ public class UIManager : MonoBehaviour
         titleScreenCurrencyText.text = Tools.FormatCurrency(currencyValue, currencySymbol);
     }
 
-    public void ShowCharacterSelection(List<PlayableCharacterInfo> playableCharactersList, List<StatValue> statBonusesFromShop)
+    public void ShowCharacterSelectionScreen()
     {
         HideAllScreens();
 
-        for (int i = 0; i < playableCharactersList.Count; i++)
-        {
-            if (i < charactersButtonsList.Count)
-            {
-                PlayableCharacterInfo characterInfo = playableCharactersList[i];
-                charactersButtonsList[i].interactable = characterInfo.unlocked;
-                charactersNamesTextList[i].text = (characterInfo.unlocked ? characterInfo.characterData.characterName : "???");
-                charactersImagesList[i].sprite = characterInfo.characterData.characterSprite;
-                string description = (characterInfo.unlocked ? characterInfo.characterData.characterDescription : ("UNLOCK: " + characterInfo.characterData.unlockHint));
-                description = description.Replace("\\n", "\n");
-                charactersDescriptionTextList[i].text = description;
-                charactersDescriptionTextList[i].color = characterInfo.unlocked ? charactersDefaultTextColor : charactersHintTextColor;
-                charactersImagesList[i].enabled = characterInfo.unlocked;
-            }
-        }
+        CharacterManager.instance.UpdateCharacterSelectionScreen();
 
         titleScreen.SetActive(true);
         characterSelectionScreen.SetActive(true);
@@ -241,7 +220,7 @@ public class UIManager : MonoBehaviour
         PlayLongPageSound();
     }
 
-    public void ShowScoreScreen(List<ChapterInfo> chaptersInfoList, string moral, List<ItemInfo> itemsInfoList, List<CharacterData> unlockedCharacters)
+    public void ShowScoreScreen(List<ChapterInfo> chaptersInfoList, string moral, List<ItemInfo> itemsInfoList)
     {
         HideAllScreens();
 
@@ -305,13 +284,6 @@ public class UIManager : MonoBehaviour
 
         // Display unlocked character info
         unlockPanel.SetActive(false);
-        if (unlockedCharacters.Count > 0)
-        {
-            CharacterData unlockedCharacter = unlockedCharacters[0];
-            unlockPanel.SetActive(true);
-            unlockedCharacterName.text = unlockedCharacter.characterName;
-            unlockedCharacterImage.sprite = unlockedCharacter.characterSprite;
-        }
 
         // Display score screen
         inGameUIPanel.SetActive(true);
