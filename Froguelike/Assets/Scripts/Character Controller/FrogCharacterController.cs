@@ -207,7 +207,7 @@ public class FrogCharacterController : MonoBehaviour
         animator.SetInteger("character", isGhost ? 2 : animatorCharacterValue);
     }
 
-    public void InitializeCharacter(PlayableCharacterInfo characterInfo)
+    public void InitializeCharacter(PlayableCharacter characterInfo)
     {        
         SetAnimatorCharacterValue(characterInfo.characterData.characterAnimatorValue);
 
