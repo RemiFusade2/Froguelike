@@ -21,7 +21,6 @@ public class PlayableCharacter
     public CharacterData characterData;
 
     // Defined at runtime, using CharacterData
-    [HideInInspector]
     public string characterName;
 
     // All information about current state of the character
@@ -173,7 +172,7 @@ public class CharacterManager : MonoBehaviour
             charactersData.charactersList.Clear();
             foreach (CharacterData characterData in charactersScriptableObjectsList)
             {
-                PlayableCharacter newCharacter = new PlayableCharacter() { characterData = characterData, characterName = characterData.name, unlocked = characterData.startingUnlockState, wonWith = 0 };
+                PlayableCharacter newCharacter = new PlayableCharacter() { characterData = characterData, characterName = characterData.characterName, unlocked = characterData.startingUnlockState, wonWith = 0 };
                 newCharacter.characterStartingStats = new StatsWrapper(characterData.startingStatsList);
                 charactersData.charactersList.Add(newCharacter);
             }
