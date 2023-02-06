@@ -24,6 +24,7 @@ public class CharacterData : ScriptableObject
     [Header("Starting Stats")]
     public List<StatValue> startingStatsList; // all omitted stat will be set to default value
     public bool startingUnlockState; // a character may be unlocked from the start
+    public bool startingHiddenState; // a character may be hidden from the start
 
     [Header("Starting Items")]
     public List<ItemScriptableObject> startingItems;
