@@ -26,6 +26,7 @@ public class PlayableCharacter
     // All information about current state of the character
     public StatsWrapper characterStartingStats;
     public bool unlocked;
+    public bool hidden;
     public int wonWith;
 
     public bool GetValueForStat(STAT stat, out float value)
@@ -75,19 +76,20 @@ public class CharacterManager : MonoBehaviour
 
     [Header("Characters scriptable objects data")]
     public List<CharacterData> charactersScriptableObjectsList;
-       
-    [Header("UI")]
-    // TODO: Update that part to have a dynamic amount of characters displayed on screen (using prefabs)
-    public List<Button> charactersButtonsList;
-    public List<Image> charactersImagesList;
-    public List<Text> charactersNamesTextList;
-    public List<Text> charactersDescriptionTextList;
+
+    [Header("UI References")]
+    public Button startButton;
     [Space]
-    public Color charactersDefaultTextColor;
-    public Color charactersHintTextColor;
+    public RectTransform characterListContent;
+    public RectTransform characterListContainerParent;
+    public ScrollRect characterListScrollRect;
+
+    [Header("UI Prefab")]
+    public GameObject characterPanelPrefab;
 
     [Header("Runtime")]
     public CharactersSaveData charactersData; // Will be loaded and saved when needed
+    public PlayableCharacter currentSelectedCharacter;
 
     private void Awake()
     {
@@ -104,38 +106,82 @@ public class CharacterManager : MonoBehaviour
 
     #region UI
     
+    /// <summary>
+    /// Create buttons for each character and set the appropriate size for the scroll list
+    /// </summary>
     public void UpdateCharacterSelectionScreen()
     {
-        // These are two handy methods to get the stat bonuses from the SHOP, in case you want to display that too with the character stats.
+        currentSelectedCharacter = null;
+
+        // Remove previous buttons
+        foreach (Transform child in characterListContainerParent)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // Instantiate a button for each character (unless this character is hidden)
+        int buttonCount = 0;
+        for (int i = 0; i < charactersData.charactersList.Count; i++)
+        {
+            PlayableCharacter characterInfo = charactersData.charactersList[i];
+            if (!characterInfo.hidden)
+            {
+                GameObject newCharacterPanel = Instantiate(characterPanelPrefab, characterListContainerParent);
+                newCharacterPanel.GetComponent<CharacterSelectionButton>().Initialize(characterInfo);
+                buttonCount++;
+            }
+        }
+
+        // Set size of container panel
+        GridLayoutGroup characterListContainerParentGridLayout = characterListContainerParent.GetComponent<GridLayoutGroup>();
+        float buttonHeight = characterListContainerParentGridLayout.cellSize.y + characterListContainerParentGridLayout.spacing.y;
+        float padding = characterListContainerParentGridLayout.padding.top + characterListContainerParentGridLayout.padding.bottom;
+        characterListContent.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, buttonCount * buttonHeight + padding);
+        
+        // Select first character by default
+        // SelectCharacter(charactersData.charactersList[0]);
+
+        // Scroll to the top of the list
+        characterListScrollRect.normalizedPosition = new Vector2(0, 1);
+
+        // Display the Start button if possible
+        startButton.interactable = (currentSelectedCharacter != null);
+    }
+
+    #endregion
+
+    /// <summary>
+    /// Display stats and Start Run button
+    /// </summary>
+    /// <param name="selectedCharacter"></param>
+    public void SelectCharacter(PlayableCharacter selectedCharacter)
+    {
+        // Unselect all characters and select the one that was clicked
+        foreach (Transform childCharacterButton in characterListContainerParent)
+        {
+            CharacterSelectionButton characterButton = childCharacterButton.GetComponent<CharacterSelectionButton>();
+            if (characterButton != null)
+            {
+                characterButton.SetSelected(characterButton.character.Equals(selectedCharacter));
+            }
+        }
+
+        // Display stats of this character and Start Run button
+        currentSelectedCharacter = selectedCharacter;
+
+        // These are two handy methods to get the stat bonuses from the Shop.
         /*
         List<StatValue> statBonusesFromShop = ShopManager.instance.statsBonuses;
         ShopManager.instance.GetStatBonus(STAT.MAX_HEALTH);
         */
 
-        for (int i = 0; i < charactersData.charactersList.Count; i++)
-        {
-            if (i < charactersButtonsList.Count)
-            {
-                PlayableCharacter characterInfo = charactersData.charactersList[i];
-                charactersButtonsList[i].interactable = characterInfo.unlocked;
-                charactersNamesTextList[i].text = (characterInfo.unlocked ? characterInfo.characterData.characterName : "???");
-                charactersImagesList[i].sprite = characterInfo.characterData.characterSprite;
-                string description = (characterInfo.unlocked ? characterInfo.characterData.characterDescription : ("UNLOCK: " + characterInfo.characterData.unlockHint));
-                description = description.Replace("\\n", "\n");
-                charactersDescriptionTextList[i].text = description;
-                charactersDescriptionTextList[i].color = characterInfo.unlocked ? charactersDefaultTextColor : charactersHintTextColor;
-                charactersImagesList[i].enabled = characterInfo.unlocked;
-            }
-        }
+        // Display the Start button if possible
+        startButton.interactable = (currentSelectedCharacter != null);
     }
 
-    #endregion
-
-    
-    public void SelectCharacter(int index)
+    public void StartRun()
     {
-        PlayableCharacter selectedCharacter = charactersData.charactersList[index];
-        GameManager.instance.StartRunWithCharacter(selectedCharacter);
+        GameManager.instance.StartRunWithCharacter(currentSelectedCharacter);
     }
 
     /// <summary>
@@ -150,6 +196,7 @@ public class CharacterManager : MonoBehaviour
             if (characterFromSave != null)
             {
                 character.unlocked = characterFromSave.unlocked;
+                character.hidden = characterFromSave.hidden;
                 character.wonWith = characterFromSave.wonWith;
                 character.characterStartingStats = characterFromSave.characterStartingStats;
             }
@@ -172,7 +219,7 @@ public class CharacterManager : MonoBehaviour
             charactersData.charactersList.Clear();
             foreach (CharacterData characterData in charactersScriptableObjectsList)
             {
-                PlayableCharacter newCharacter = new PlayableCharacter() { characterData = characterData, characterName = characterData.characterName, unlocked = characterData.startingUnlockState, wonWith = 0 };
+                PlayableCharacter newCharacter = new PlayableCharacter() { characterData = characterData, characterName = characterData.characterName, unlocked = characterData.startingUnlockState, hidden = characterData.startingHiddenState, wonWith = 0 };
                 newCharacter.characterStartingStats = new StatsWrapper(characterData.startingStatsList);
                 charactersData.charactersList.Add(newCharacter);
             }
@@ -202,6 +249,7 @@ public class CharacterManager : MonoBehaviour
         if (unlockedCharacter != null && !unlockedCharacter.unlocked)
         {
             unlockedCharacter.unlocked = true;
+            unlockedCharacter.hidden = false;
             characterNewlyUnlocked = true;
             SaveDataManager.instance.isSaveDataDirty = true;
         }
