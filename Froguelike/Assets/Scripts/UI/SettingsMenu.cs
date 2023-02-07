@@ -14,6 +14,7 @@ public class SettingsMenu : MonoBehaviour
 
     private Resolution[] resolutions;
     private List<Vector2> allowedResolutions;
+    private Vector2 currentResolution;
 
     int gameWidth;
     int gameHeight;
@@ -26,11 +27,17 @@ public class SettingsMenu : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // Set the fullsccreen toggle to match the fullscreen mode.
-        fullscreenToggle.isOn = Screen.fullScreen;
 
+        // Set the fullsccreen toggle to match the current fullscreen mode.
+        fullscreenToggle.isOn = Screen.fullScreen;
+        resolutionDropdown.interactable = !Screen.fullScreen;
+
+        // Get the intended reolution of the game.
         gameWidth = pixelPerfectCamera.refResolutionX;
         gameHeight = pixelPerfectCamera.refResolutionY;
+
+        // Save the resolution at start.
+        currentResolution = new Vector2(Screen.currentResolution.width, Screen.currentResolution.height);
 
         FindAllowedResolutions();
 
@@ -54,9 +61,6 @@ public class SettingsMenu : MonoBehaviour
 
         List<string> options = new List<string>();
 
-        // Used to pick the dropdowns marker to match the current reolution.
-        currentResolutionIndex = 0;
-
         for (int scale = 1; scale <= maxGameScale; scale++)
         {
             // Add this resolution.
@@ -65,12 +69,26 @@ public class SettingsMenu : MonoBehaviour
             allowedResolutions.Add(thisResolution);
 
             // If this resolution matches the current one, update the current resolution index.
-            if (thisResolution.x == Screen.currentResolution.width && thisResolution.y == Screen.currentResolution.height)
+
+            currentResolutionIndex = allowedResolutions.IndexOf(currentResolution);
+
+
+            if (currentResolutionIndex < 0)
             {
-                currentResolutionIndex = options.Count - 1;
                 // TODO probably need some kind of fallback for if no resolution matched?
+                if (Screen.fullScreen)
+                {
+                    currentResolutionIndex = allowedResolutions.Count - 1;
+                }
+                else
+                {
+                    currentResolutionIndex = Mathf.Max(allowedResolutions.Count - 2, 0);
+                }
+
+                currentResolution = allowedResolutions[currentResolutionIndex];
             }
         }
+
 
         UpdateDropdown(options);
     }
@@ -79,9 +97,13 @@ public class SettingsMenu : MonoBehaviour
     // Update the resolution dropdown and set the marker to the current reolution (without setting a resolution).
     private void UpdateDropdown(List<string> options)
     {
+        isUpdatingDropdown = true;
+
         resolutionDropdown.ClearOptions();
         resolutionDropdown.AddOptions(options);
-        resolutionDropdown.SetValueWithoutNotify(currentResolutionIndex);
+        SetDropdownValue(currentResolutionIndex);
+
+        isUpdatingDropdown = false;
     }
 
     private void SetDropdownValue(int value)
@@ -94,11 +116,11 @@ public class SettingsMenu : MonoBehaviour
     {
         Debug.Log("Number of allowed reolutions: " + allowedResolutions.Count);
         Debug.Log("Current resolution index: " + currentResolutionIndex);
-        if (allowedResolutions[currentResolutionIndex].x != Screen.currentResolution.width && allowedResolutions[currentResolutionIndex].y != Screen.currentResolution.height)
+        if (allowedResolutions[currentResolutionIndex].x != currentResolution.x && allowedResolutions[currentResolutionIndex].y != currentResolution.y)
         {
             currentResolutionIndex = allowedResolutions.IndexOf(new Vector2(Screen.currentResolution.width, Screen.currentResolution.height));
             SetDropdownValue(currentResolutionIndex);
-            SetResolution(currentResolutionIndex);
+            //            SetResolution(currentResolutionIndex);
         }
 
         if (currentResolutionIndex < 0)
@@ -109,7 +131,7 @@ public class SettingsMenu : MonoBehaviour
 
     public void SetFullscreen(bool isFullscreen)
     {
-        if (isFullscreen && startUpDone)
+        if (isFullscreen)
         {
             SetResolution(allowedResolutions.Count - 1);
         }
@@ -130,9 +152,11 @@ public class SettingsMenu : MonoBehaviour
 
     public void SetResolution(int wantedResolutionIndex)
     {
-        if (startUpDone)
+        if (startUpDone && !isUpdatingDropdown)
         {
+            Debug.Log("Set resolution to index: " + wantedResolutionIndex);
             currentResolutionIndex = wantedResolutionIndex;
+            currentResolution = allowedResolutions[currentResolutionIndex];
             Screen.SetResolution(Mathf.RoundToInt(allowedResolutions[currentResolutionIndex].x), Mathf.RoundToInt(allowedResolutions[currentResolutionIndex].y), Screen.fullScreen);
         }
     }
