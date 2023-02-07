@@ -31,6 +31,7 @@ public class ChapterData : ScriptableObject
 
     // In case we want to display more and more lore about this chapter as we go
     public string chapterDescription;
+    public List<string> chapterLore;
 
     public float chapterLengthInSeconds;
     [Space]
