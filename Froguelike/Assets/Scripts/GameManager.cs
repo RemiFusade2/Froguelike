@@ -13,13 +13,6 @@ public class ItemInfo
     public int level;
 }
 
-[System.Serializable]
-public class ChapterInfo
-{
-    public ChapterData chapterData;
-    public int chapterCount;
-    public int enemiesKilledCount;
-}
 
 [System.Serializable]
 public class GameSaveData : SaveData
