@@ -130,6 +130,7 @@ public class UIManager : MonoBehaviour
         inGameUIPanel.SetActive(false);
         gameOverPanel.SetActive(false);
         shopScreen.SetActive(false);
+        settingsScreen.SetActive(false);
     }
 
     public void SetTimer(float remainingTime)
