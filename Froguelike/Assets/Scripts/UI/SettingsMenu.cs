@@ -11,8 +11,7 @@ public class SettingsMenu : MonoBehaviour
     public TMP_Dropdown resolutionDropdown;
     public PixelPerfectCamera pixelPerfectCamera;
 
-
-    private Resolution[] resolutions;
+    private Vector2 biggestResolutionForThisScreen;
     private List<Vector2> allowedResolutions;
     // private Vector2 currentResolution;
 
@@ -24,6 +23,7 @@ public class SettingsMenu : MonoBehaviour
 
     bool startUpDone = false;
     bool isUpdatingDropdownValue = false; // ?? TODO
+    bool isChangingFullscreen = false;
 
     CanvasScaler canvasScaler;
 
@@ -50,13 +50,13 @@ public class SettingsMenu : MonoBehaviour
         allowedResolutions = new List<Vector2>();
         Resolution[] availableResolutions = Screen.resolutions;        // (Last one is biggest)
 
-        Vector2 biggestScreenResolution = new Vector2(availableResolutions[availableResolutions.Length - 1].width, availableResolutions[availableResolutions.Length - 1].height);
+        biggestResolutionForThisScreen = new Vector2(availableResolutions[availableResolutions.Length - 1].width, availableResolutions[availableResolutions.Length - 1].height);
 
         int maxWidthScale = 0;
         int maxHeigthScale = 0;
 
-        while (biggestScreenResolution.x - gameWidth * maxWidthScale > 0) maxWidthScale++;
-        while (biggestScreenResolution.y - gameHeight * maxHeigthScale > 0) maxHeigthScale++;
+        while (biggestResolutionForThisScreen.x - gameWidth * (maxWidthScale + 1) >= 0) maxWidthScale++;
+        while (biggestResolutionForThisScreen.y - gameHeight * (maxHeigthScale + 1) >= 0) maxHeigthScale++;
 
         int maxGameScale = Mathf.Min(maxWidthScale, maxHeigthScale);
 
@@ -89,6 +89,8 @@ public class SettingsMenu : MonoBehaviour
                 currentResolutionIndex = Mathf.Max(allowedResolutions.Count - 2, 0);
             }
         }
+
+        allowedResolutions.Add(biggestResolutionForThisScreen);
 
         UpdateDropdown(options);
     }
@@ -126,9 +128,27 @@ public class SettingsMenu : MonoBehaviour
         }
         */
 
-        if (resolutionDropdown.value != currentResolutionIndex)
+        // Detect if the biggest available resolution changed and if so set new reolution options.
+        if (biggestResolutionForThisScreen.x != Screen.resolutions[Screen.resolutions.Length - 1].width || biggestResolutionForThisScreen.y != Screen.resolutions[Screen.resolutions.Length - 1].height)
         {
+            Debug.Log("Redo resolution options");
+            FindAllowedResolutions();
+        }
 
+
+        if (Screen.fullScreen && !fullscreenToggle.isOn)
+        {
+            if (!isChangingFullscreen)
+            {
+                fullscreenToggle.isOn = true;
+            }
+        }
+        else if (!Screen.fullScreen && fullscreenToggle.isOn)
+        {
+            if (!isChangingFullscreen)
+            {
+                fullscreenToggle.isOn = false;
+            }
         }
 
         if (canvasScaler.scaleFactor != pixelPerfectCamera.pixelRatio * 2)
@@ -136,17 +156,41 @@ public class SettingsMenu : MonoBehaviour
             ResizeCanvas();
             SetDropdownValue(pixelPerfectCamera.pixelRatio - 1);
         }
+
+
+    }
+
+    private void LateUpdate()
+    {
+        if (isChangingFullscreen)
+        {
+            isChangingFullscreen = false;
+        }
     }
 
     public void SetFullscreen(bool wantFullscreen)
     {
+        isChangingFullscreen = true;
+
         if (wantFullscreen)
         {
-            SetResolution(Mathf.Max(allowedResolutions.Count - 1, 0));
+            SetWindowResolution(allowedResolutions.Count - 1);
+            currentResolutionIndex = allowedResolutions.Count - 2;
+            SetDropdownValue(currentResolutionIndex);
         }
         else if (startUpDone)
         {
-            SetResolution(Mathf.Max(allowedResolutions.Count - 2, 0));
+            // would be nice to use the biggest one that doesnt fill the whole sreen, now I'm using the second biggest one.
+
+            if (allowedResolutions[allowedResolutions.Count - 1] == allowedResolutions[allowedResolutions.Count - 2])
+            {
+                SetWindowResolution(Mathf.Max(allowedResolutions.Count - 3, 0));
+
+            }
+            else
+            {
+                SetWindowResolution(Mathf.Max(allowedResolutions.Count - 2, 0));
+            }
         }
 
         Screen.fullScreen = wantFullscreen;
@@ -154,7 +198,7 @@ public class SettingsMenu : MonoBehaviour
         SetDropdownValue(currentResolutionIndex);
     }
 
-    public void SetResolution(int wantedResolutionIndex)
+    public void SetWindowResolution(int wantedResolutionIndex)
     {
         if (startUpDone && !isUpdatingDropdownValue)
         {
