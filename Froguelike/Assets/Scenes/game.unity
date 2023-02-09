@@ -9253,6 +9253,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8849750606966859271, guid: 1d71f7b2e639636439365693be76928f, type: 3}
   m_PrefabInstance: {fileID: 756847017}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &759443635 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7549840755234960392, guid: dc1640719ca88da43a9cfcb7845f1f4c, type: 3}
+  m_PrefabInstance: {fileID: 818835333}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &787337310
 GameObject:
   m_ObjectHideFlags: 0
@@ -9618,7 +9629,7 @@ MonoBehaviour:
   clearSaveFileConfirmationPanel: {fileID: 1125400464}
   soundManager: {fileID: 464157710}
   musicManager: {fileID: 2059129339}
-  currencySymbol: "\u20A3"
+  currencySymbol: ' FC'
   settingsScreen: {fileID: 526218496}
 --- !u!4 &813424182
 Transform:
@@ -9861,17 +9872,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &818835335 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5645697973410733991, guid: dc1640719ca88da43a9cfcb7845f1f4c, type: 3}
-  m_PrefabInstance: {fileID: 818835333}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!224 &818835336 stripped
@@ -12679,7 +12679,7 @@ PrefabInstance:
     - target: {fileID: 4919826508944035819, guid: abeb0f41db396bd45a4db2a535d395f8, type: 3}
       propertyPath: availableCurrencyText
       value: 
-      objectReference: {fileID: 818835335}
+      objectReference: {fileID: 759443635}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: abeb0f41db396bd45a4db2a535d395f8, type: 3}
 --- !u!114 &1063019153 stripped
@@ -29299,7 +29299,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2009587069}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c88f5cead0c0b2a4eb05b5900433f8d1, type: 3}
   m_Name: 
@@ -29308,7 +29308,7 @@ MonoBehaviour:
   m_AssetsPPU: 16
   m_RefResolutionX: 640
   m_RefResolutionY: 360
-  m_CropFrame: 3
+  m_CropFrame: 0
   m_GridSnapping: 1
   m_UpscaleRT: 0
   m_PixelSnapping: 0

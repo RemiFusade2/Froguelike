@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class CharacterSelectionButton : MonoBehaviour
 {
@@ -10,8 +11,8 @@ public class CharacterSelectionButton : MonoBehaviour
     [Space]
     public Image characterBackgroundImage;
     [Space]
-    public Text characterNameText;
-    public Text characterDescriptionText;
+    public TextMeshProUGUI characterNameText;
+    public TextMeshProUGUI characterDescriptionText;
     public Image characterIconImage;
 
     [Header("UI")]
@@ -52,7 +53,7 @@ public class CharacterSelectionButton : MonoBehaviour
                 characterNameText.text = character.characterName;
                 characterDescriptionText.color = charactersDefaultTextColor;
                 characterDescriptionText.text = character.characterData.characterDescription.Replace("\\n", "\n");
-                characterIconImage.sprite = character.characterData.characterSprite;                
+                characterIconImage.sprite = character.characterData.characterSprite;
             }
             else
             {

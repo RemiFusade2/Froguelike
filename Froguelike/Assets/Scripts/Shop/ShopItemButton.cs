@@ -2,18 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class ShopItemButton : MonoBehaviour
 {
     [Header("References")]
-    public Text itemNameText;
-    public Text itemDescriptionText;
+    public TextMeshProUGUI itemNameText;
+    public TextMeshProUGUI itemDescriptionText;
     public Image itemIconImage;
     [Space]
     public Transform levelPanelParent;
     [Space]
     public Button buyButton;
-    public Text priceText;
+    public TextMeshProUGUI priceText;
 
     public void Initialize(ShopItem item, bool itemIsAvailable)
     {
@@ -25,7 +26,7 @@ public class ShopItemButton : MonoBehaviour
         itemIconImage.sprite = item.data.icon;
 
         int level = 0;
-        foreach(Transform levelChild in levelPanelParent)
+        foreach (Transform levelChild in levelPanelParent)
         {
             bool levelIsActive = (level < item.currentLevel);
             bool levelExists = (level < item.maxLevel);

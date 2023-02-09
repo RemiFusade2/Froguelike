@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
 /// ShopItem describes an item in the shop in its current state.
@@ -71,7 +72,7 @@ public class ShopManager : MonoBehaviour
     [Header("UI References")]
     public RectTransform shopPanelContainer;
     public Transform shopPanel;
-    public Text availableCurrencyText;
+    public TextMeshProUGUI availableCurrencyText;
     public Button refundButton;
 
     [Header("UI Prefabs")]
@@ -121,7 +122,7 @@ public class ShopManager : MonoBehaviour
     public void ReplaceAvailableItemsList(List<ShopItem> newItemsList)
     {
         // Go through every item currently in the list
-        foreach(ShopItem item in shopData.shopItems)
+        foreach (ShopItem item in shopData.shopItems)
         {
             // Get the item with the same name in the new item list
             ShopItem newItem = newItemsList.FirstOrDefault(x => x.itemName == item.itemName);
@@ -157,13 +158,13 @@ public class ShopManager : MonoBehaviour
                 // Increase currency spend in shop
                 shopData.currencySpentInShop += itemCost;
                 // Remove that amount from available currency
-                GameManager.instance.ChangeAvailableCurrency(-itemCost); 
+                GameManager.instance.ChangeAvailableCurrency(-itemCost);
                 // Upgrade item
-                item.currentLevel++; 
+                item.currentLevel++;
                 // Compute new starting stats bonuses
-                ComputeStatsBonuses(); 
+                ComputeStatsBonuses();
                 // Update the shop display
-                DisplayShop(); 
+                DisplayShop();
                 // Signal the SaveDataManager that information from the shop have been updated and should be saved when possible
                 SaveDataManager.instance.isSaveDataDirty = true;
             }
@@ -195,7 +196,7 @@ public class ShopManager : MonoBehaviour
                         // This is the first bonus for this stat, so add the stat bonus as a new element in the list
                         statsBonuses.Add(new StatValue(statIncrease));
                     }
-                }                
+                }
             }
         }
     }
@@ -243,10 +244,10 @@ public class ShopManager : MonoBehaviour
     {
         // Update Refund Button availability
         refundButton.interactable = (shopData.currencySpentInShop > 0);
-        
+
         // Update available currency
         availableCurrencyText.text = Tools.FormatCurrency(GameManager.instance.gameData.availableCurrency, UIManager.instance.currencySymbol);
-        
+
         // Remove previous buttons
         foreach (Transform child in shopPanel)
         {
@@ -260,7 +261,7 @@ public class ShopManager : MonoBehaviour
             bool itemIsOutOfStock = (item.maxLevel == 0);
             bool itemIsAvailable = (item.maxLevel > 0 && item.currentLevel < item.maxLevel);
             bool itemIsMaxedOut = (item.maxLevel > 0 && item.currentLevel == item.maxLevel);
-            if ( itemIsAvailable )
+            if (itemIsAvailable)
             {
                 bool canBuy = false;
                 if (item.currentLevel < item.data.costForEachLevel.Count)
@@ -268,7 +269,7 @@ public class ShopManager : MonoBehaviour
                     int itemCost = item.data.costForEachLevel[item.currentLevel];
                     canBuy = GameManager.instance.gameData.availableCurrency >= itemCost;
                 }
-                
+
                 GameObject shopItemButtonGo = Instantiate(availableShopItemPanelPrefab, shopPanel);
                 ShopItemButton shopItemButton = shopItemButtonGo.GetComponent<ShopItemButton>();
                 shopItemButton.buyButton.onClick.AddListener(delegate { BuyItem(item); });
@@ -283,11 +284,11 @@ public class ShopManager : MonoBehaviour
                 buttonCount++;
             }
         }
-        
+
         // Set size of container panel
         float buttonHeight = shopPanel.GetComponent<GridLayoutGroup>().cellSize.y + shopPanel.GetComponent<GridLayoutGroup>().spacing.y;
         float padding = shopPanel.GetComponent<GridLayoutGroup>().padding.top + shopPanel.GetComponent<GridLayoutGroup>().padding.bottom;
-        shopPanelContainer.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ( (buttonCount+1) / 2) * buttonHeight + padding);
+        shopPanelContainer.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ((buttonCount + 1) / 2) * buttonHeight + padding);
     }
 
     /// <summary>
