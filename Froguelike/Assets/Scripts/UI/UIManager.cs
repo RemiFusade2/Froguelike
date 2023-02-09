@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
 /// UIManager deals with navigation in the menus, as well as in-game UI.
@@ -15,7 +16,7 @@ public class UIManager : MonoBehaviour
 
     [Header("Title")]
     public GameObject titleScreen;
-    public Text titleScreenCurrencyText;
+    public TextMeshProUGUI titleScreenCurrencyText;
 
     [Header("Shop")]
     public GameObject shopScreen;
@@ -29,39 +30,39 @@ public class UIManager : MonoBehaviour
 
     [Header("Chapter selection")]
     public GameObject chapterSelectionScreen;
-    public Text chapterSelectionTopText;
-    public List<Text> chapterTitleTextsList;
-    public List<Text> chapterDescriptionTextsList;
+    public TextMeshProUGUI chapterSelectionTopText;
+    public List<TextMeshProUGUI> chapterTitleTextsList;
+    public List<TextMeshProUGUI> chapterDescriptionTextsList;
 
     [Header("Chapter Start")]
     public GameObject chapterStartScreen;
-    public Text chapterStartTopText;
-    public Text chapterStartBottomText;
+    public TextMeshProUGUI chapterStartTopText;
+    public TextMeshProUGUI chapterStartBottomText;
 
     [Header("In game UI")]
     public GameObject inGameUIPanel;
     public Slider xpSlider;
-    public Text levelText;
+    public TextMeshProUGUI levelText;
     [Space]
-    public Text currencyText;
+    public TextMeshProUGUI currencyText;
     [Space]
     public string timerPrefix;
-    public Text timerText;
+    public TextMeshProUGUI timerText;
     [Space]
     public string killCountPrefix;
-    public Text killCountText;
+    public TextMeshProUGUI killCountText;
     [Space]
     public string extraLivesPrefix;
-    public Text extraLivesCountText;
+    public TextMeshProUGUI extraLivesCountText;
 
     [Header("Level UP Panel")]
     public GameObject levelUpPanel;
     public Animator levelUpPanelAnimator;
     [Space]
     public List<GameObject> levelUpChoicesPanels;
-    public List<Text> levelUpChoicesTitles;
-    public List<Text> levelUpChoicesLevels;
-    public List<Text> levelUpChoicesDescriptions;
+    public List<TextMeshProUGUI> levelUpChoicesTitles;
+    public List<TextMeshProUGUI> levelUpChoicesLevels;
+    public List<TextMeshProUGUI> levelUpChoicesDescriptions;
     [Space]
     public Color defaultUIColor;
     public Color newItemColor;
@@ -82,15 +83,15 @@ public class UIManager : MonoBehaviour
 
     [Header("Score Screen")]
     public GameObject scoreScreen;
-    public List<Text> chaptersTextList;
-    public List<Text> chaptersScoreTextList;
-    public Text totalScoreText;
-    public Text moralText;
+    public List<TextMeshProUGUI> chaptersTextList;
+    public List<TextMeshProUGUI> chaptersScoreTextList;
+    public TextMeshProUGUI totalScoreText;
+    public TextMeshProUGUI moralText;
     [Space]
-    public Text upgradesText;
-    public Text upgradesLevelsText;
+    public TextMeshProUGUI upgradesText;
+    public TextMeshProUGUI upgradesLevelsText;
     public GameObject unlockPanel;
-    public Text unlockedCharacterName;
+    public TextMeshProUGUI unlockedCharacterName;
     public Image unlockedCharacterImage;
 
     #endregion
@@ -226,7 +227,7 @@ public class UIManager : MonoBehaviour
         HideAllScreens();
 
         // Hide all chapters texts
-        foreach (Text chapterTextParent in chaptersTextList)
+        foreach (TextMeshProUGUI chapterTextParent in chaptersTextList)
         {
             chapterTextParent.gameObject.SetActive(false);
         }
