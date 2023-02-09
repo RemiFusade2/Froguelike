@@ -22,10 +22,12 @@ public class SettingsMenu : MonoBehaviour
     int gameScaler;
 
     bool startUpDone = false;
-    bool isUpdatingDropdownValue = false; // ?? TODO
+    bool isUpdatingDropdownValue = false;
     bool isChangingFullscreen = false;
 
     CanvasScaler canvasScaler;
+
+    public TextMeshProUGUI currentMaxRes;
 
     // Start is called before the first frame update
     void Start()
@@ -48,9 +50,10 @@ public class SettingsMenu : MonoBehaviour
     private void FindAllowedResolutions()
     {
         allowedResolutions = new List<Vector2>();
-        Resolution[] availableResolutions = Screen.resolutions;        // (Last one is biggest)
+        List<Resolution> availableResolutions = new List<Resolution>();        // (Last one is biggest)
+        availableResolutions.AddRange(Screen.resolutions);
 
-        biggestResolutionForThisScreen = new Vector2(availableResolutions[availableResolutions.Length - 1].width, availableResolutions[availableResolutions.Length - 1].height);
+        biggestResolutionForThisScreen = new Vector2(availableResolutions[availableResolutions.Count - 1].width, availableResolutions[availableResolutions.Count - 1].height);
 
         int maxWidthScale = 0;
         int maxHeigthScale = 0;
@@ -118,15 +121,8 @@ public class SettingsMenu : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        /*
-        // Check if resolution changed
-        if (allowedResolutions[currentResolutionIndex].x != Screen.width && allowedResolutions[currentResolutionIndex].y != Screen.height)
-        {
-            currentResolutionIndex = allowedResolutions.IndexOf(new Vector2(Screen.width, Screen.height));
-            SetDropdownValue(currentResolutionIndex);
-            SetResolution(currentResolutionIndex);
-        }
-        */
+        // For debugging resolution settings
+        // currentMaxRes.SetText(Screen.resolutions[Screen.resolutions.Length - 1].width + "x" + Screen.resolutions[Screen.resolutions.Length - 1].height);
 
         // Detect if the biggest available resolution changed and if so set new reolution options.
         if (biggestResolutionForThisScreen.x != Screen.resolutions[Screen.resolutions.Length - 1].width || biggestResolutionForThisScreen.y != Screen.resolutions[Screen.resolutions.Length - 1].height)
