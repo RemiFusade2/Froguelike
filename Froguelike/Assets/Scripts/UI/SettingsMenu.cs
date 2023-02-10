@@ -124,6 +124,7 @@ public class SettingsMenu : MonoBehaviour
         // For debugging resolution settings
         // currentMaxRes.SetText(Screen.resolutions[Screen.resolutions.Length - 1].width + "x" + Screen.resolutions[Screen.resolutions.Length - 1].height);
 
+
         // Detect if the biggest available resolution changed and if so set new reolution options.
         if (biggestResolutionForThisScreen.x != Screen.resolutions[Screen.resolutions.Length - 1].width || biggestResolutionForThisScreen.y != Screen.resolutions[Screen.resolutions.Length - 1].height)
         {
