@@ -242,7 +242,7 @@ public class FrogCharacterController : MonoBehaviour
         healthRecovery = defaultHealthRecovery;
         if (allStartingStatsWrapper.GetValueForStat(STAT.HEALTH_RECOVERY_BOOST, out float startingHPRecoveryBoost))
         {
-            healthRecovery *= (1 + startingHPRecoveryBoost);
+            healthRecovery += startingHPRecoveryBoost;
         }
         timeSinceLastHPRecovery = Time.time;
 
