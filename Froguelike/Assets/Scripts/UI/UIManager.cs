@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
 /// UIManager deals with navigation in the menus, as well as in-game UI.
@@ -15,7 +16,7 @@ public class UIManager : MonoBehaviour
 
     [Header("Title")]
     public GameObject titleScreen;
-    public Text titleScreenCurrencyText;
+    public TextMeshProUGUI titleScreenCurrencyText;
 
     [Header("Shop")]
     public GameObject shopScreen;
@@ -35,8 +36,7 @@ public class UIManager : MonoBehaviour
 
     [Header("In game UI")]
     public GameObject inGameUIPanel;
-
-
+   
     [Header("Level UP Panel")]
     public GameObject levelUpPanel;
     public Animator levelUpPanelAnimator;
@@ -95,6 +95,7 @@ public class UIManager : MonoBehaviour
         inGameUIPanel.SetActive(false);
         gameOverPanel.SetActive(false);
         shopScreen.SetActive(false);
+        settingsScreen.SetActive(false);
     }
 
     public void ShowTitleScreen()
@@ -148,6 +149,8 @@ public class UIManager : MonoBehaviour
     public void ShowScoreScreen()
     {
         HideAllScreens();
+
+        // Display score screen
         inGameUIPanel.SetActive(true);
         scoreScreen.SetActive(true);
         SoundManager.instance.PlayLongPageSound();
@@ -167,8 +170,9 @@ public class UIManager : MonoBehaviour
         gameOverPanel.SetActive(true);
         gameOverRespawnButton.SetActive(respawnAvailable);
         gameOverGiveUpButton.SetActive(!respawnAvailable);
-
         SoundManager.instance.PlayDeathSound();
+
+        
     }
 
     public void ShowPauseScreen()

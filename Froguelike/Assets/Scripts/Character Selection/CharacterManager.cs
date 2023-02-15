@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-
+using TMPro;
+using System;
 
 /// <summary>
 /// PlayableCharacter describes a character in its current state.
@@ -83,6 +84,9 @@ public class CharacterManager : MonoBehaviour
     public RectTransform characterListContent;
     public RectTransform characterListContainerParent;
     public ScrollRect characterListScrollRect;
+    public TextMeshProUGUI characterStatValues;
+    public TextMeshProUGUI shopStatValues;
+    public TextMeshProUGUI totalStatValues;
 
     [Header("UI Prefab")]
     public GameObject characterPanelPrefab;
@@ -128,7 +132,7 @@ public class CharacterManager : MonoBehaviour
     #region UI
 
     /// <summary>
-    /// Create buttons for each character and set the appropriate size for the scroll list
+    /// Create buttons for each character, set the appropriate size for the scroll list and display the stats from the shop.
     /// </summary>
     public void UpdateCharacterSelectionScreen()
     {
@@ -158,7 +162,7 @@ public class CharacterManager : MonoBehaviour
         float buttonHeight = characterListContainerParentGridLayout.cellSize.y + characterListContainerParentGridLayout.spacing.y;
         float padding = characterListContainerParentGridLayout.padding.top + characterListContainerParentGridLayout.padding.bottom;
         characterListContent.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, buttonCount * buttonHeight + padding);
-        
+
         // Select first character by default
         // SelectCharacter(charactersData.charactersList[0]);
 
@@ -167,12 +171,19 @@ public class CharacterManager : MonoBehaviour
 
         // Display the Start button if possible
         startButton.interactable = (currentSelectedCharacter != null);
+
+        // Display character, shop and total stat values.
+        List<StatValue> statBonusesFromShop = ShopManager.instance.statsBonuses;
+        List<StatValue> emptyCharacterStatList = new List<StatValue>();
+        shopStatValues.SetText(MakeStringFromStats(statBonusesFromShop, false));
+        characterStatValues.SetText(MakeStringFromStats(emptyCharacterStatList, false));
+        totalStatValues.SetText(MakeStringFromStats(statBonusesFromShop, true));
     }
 
     #endregion
 
     /// <summary>
-    /// Display stats and Start Run button
+    /// Display character stats, total stats and Start Run button
     /// </summary>
     /// <param name="selectedCharacter"></param>
     public void SelectCharacter(PlayableCharacter selectedCharacter)
@@ -190,14 +201,142 @@ public class CharacterManager : MonoBehaviour
         // Display stats of this character and Start Run button
         currentSelectedCharacter = selectedCharacter;
 
-        // These are two handy methods to get the stat bonuses from the Shop.
-        /*
+        // All values for stats.
         List<StatValue> statBonusesFromShop = ShopManager.instance.statsBonuses;
-        ShopManager.instance.GetStatBonus(STAT.MAX_HEALTH);
-        */
+        List<StatValue> currentCharacterStatList = currentSelectedCharacter.characterStartingStats.statsList;
+        List<StatValue> totalStatList = StatsWrapper.JoinLists(currentCharacterStatList, statBonusesFromShop).statsList;
+
+        // Set text for character stats and total stats (shop stats are set from UpdateCharacterSelectionScreen())
+        characterStatValues.SetText(MakeStringFromStats(currentCharacterStatList, false));
+        totalStatValues.SetText(MakeStringFromStats(totalStatList, true));
 
         // Display the Start button if possible
         startButton.interactable = (currentSelectedCharacter != null);
+    }
+
+    /// <summary>
+    /// Takes a list of stat values and returns one string with the value or a "-" for all stats and formats the values properly.
+    /// </summary>
+    /// <param name="statList"></param>
+    /// <param name="isListForTotals"></param>
+    /// <returns></returns>
+    private string MakeStringFromStats(List<StatValue> statList, bool isListForTotals)
+    {
+        string valueText = "";
+
+        // An array for all stats where all the available values from the stat list is stored.
+        StatValue[] statValues = new StatValue[Enum.GetValues(typeof(STAT)).Length];
+        for (int i = 0; i < statList.Count; i++)
+        {
+            statValues[(int)statList[i].stat] = statList[i];
+        }
+
+        // Make the string from the available values.
+        for (int i = 0; i < statValues.Length; i++)
+        {
+            STAT thisStat = (STAT)i;
+
+            // Checks if there is a value to add to the string.
+            if (statValues[i] == null)
+            {
+                // Some should be 
+                switch (thisStat)
+                {
+                    case STAT.REVIVAL:
+                    case STAT.REROLL:
+                    case STAT.BANISH:
+                    case STAT.SKIP:
+                        if (isListForTotals)
+                        {
+                            valueText += "0";
+                        }
+                        else
+                        {
+                            valueText += "-";
+                        }
+                        break;
+                    default:
+                        valueText += "-";
+                        break;
+                }
+            }
+            else
+            {
+                double thisValue = statValues[i].value;
+
+                // Checks what kind of value that is going to be added to the string.
+                switch (thisStat)
+                {
+                    // These values are a number.
+                    case STAT.MAX_HEALTH: // 0 // TODO: Display HP unit in total column
+                    case STAT.REVIVAL: // 8
+                    case STAT.REROLL: // 9
+                    case STAT.BANISH: // 10
+                    case STAT.SKIP: // 11
+                        // Sign depending on negative or positiv number. Only added when the list is not for the total value.
+                        if (!isListForTotals)
+                        {
+                            if (thisValue < 0)
+                            {
+                                valueText += "-";
+                            }
+                            else if (thisValue > 0)
+                            {
+                                valueText += "+";
+                            }
+                        }
+                        valueText += thisValue.ToString();
+                        break;
+
+                    case STAT.HEALTH_RECOVERY_BOOST: // 1
+                        if (thisValue <= 0)
+                        {
+                            valueText += "-";
+                        }
+                        else if (thisValue > 0)
+                        {
+                            valueText += "+";
+                        }
+                        valueText += thisValue.ToString() + "/s"; // TODO: only display unit in total column
+                        break;
+
+                    // These values are in percentage.
+                    case STAT.ARMOR: // 2
+                    case STAT.XP_BOOST: // 3
+                    case STAT.CURRENCY_BOOST: // 4
+                    case STAT.CURSE: // 5
+                    case STAT.WALK_SPEED_BOOST: // 6
+                    case STAT.SWIM_SPEED_BOOST: // 7
+                    case STAT.ATK_DAMAGE_BOOST: // 12
+                    case STAT.ATK_SPEED_BOOST: // 13
+                    case STAT.ATK_COOLDOWN_BOOST: // 14
+                    case STAT.ATK_RANGE_BOOST: // 15
+                    case STAT.ATK_AREA_BOOST: // 16
+                    case STAT.ATK_SPECIAL_STRENGTH_BOOST: // 17
+                    case STAT.ATK_SPECIAL_DURATION_BOOST: // 18
+                    case STAT.MAGNET_RANGE_BOOST: // 19
+                        if (thisValue < 0)
+                        {
+                            valueText += "-";
+                        }
+                        else if (thisValue > 0)
+                        {
+                            valueText += "+";
+                        }
+
+                        valueText += Mathf.FloorToInt((float)thisValue * 100).ToString() + "%";
+                        //TODO : thisValue.ToString("0.0%"); or something like that
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+
+            valueText += "\n";
+        }
+
+        return valueText;
     }
 
     public void StartRun()
@@ -253,7 +392,7 @@ public class CharacterManager : MonoBehaviour
                 character.characterStartingStats = new StatsWrapper(character.characterData.startingStatsList);
             }
         }
-        
+
         SaveDataManager.instance.isSaveDataDirty = true;
     }
 

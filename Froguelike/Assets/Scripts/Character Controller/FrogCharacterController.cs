@@ -373,6 +373,7 @@ public class FrogCharacterController : MonoBehaviour
         RunManager.instance.SetExtraLives(revivals);
 
         currentHealth = maxHealth;
+        UpdateHealthBar();
     }
 
     public void ResolvePickedConsumableItem(RunConsumableItemData consumableData)
@@ -414,6 +415,8 @@ public class FrogCharacterController : MonoBehaviour
 
         attackSpecialStrengthBoost += (float)itemLevelData.statUpgrades.GetStatValue(STAT.ATK_SPECIAL_STRENGTH_BOOST).value;
         attackSpecialDurationBoost += (float)itemLevelData.statUpgrades.GetStatValue(STAT.ATK_SPECIAL_DURATION_BOOST).value;
+
+        UpdateHealthBar();
     }
 
 

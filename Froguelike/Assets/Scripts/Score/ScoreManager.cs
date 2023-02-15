@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,15 +17,15 @@ public class ScoreManager : MonoBehaviour
     public List<string> possibleMorals;
 
     [Header("UI")]
-    public List<Text> chaptersTextList;
-    public List<Text> chaptersScoreTextList;
-    public Text totalScoreText;
-    public Text moralText;
+    public List<TextMeshProUGUI> chaptersTextList;
+    public List<TextMeshProUGUI> chaptersScoreTextList;
+    public TextMeshProUGUI totalScoreText;
+    public TextMeshProUGUI moralText;
     [Space]
-    public Text upgradesText;
-    public Text upgradesLevelsText;
+    public TextMeshProUGUI upgradesText;
+    public TextMeshProUGUI upgradesLevelsText;
     public GameObject unlockPanel;
-    public Text unlockedCharacterName;
+    public TextMeshProUGUI unlockedCharacterName;
     public Image unlockedCharacterImage;
 
     private void Awake()
@@ -55,7 +56,7 @@ public class ScoreManager : MonoBehaviour
     public void ShowScores(List<Chapter> chaptersPlayed, PlayableCharacter playedCharacter, List<RunItemInfo> ownedItems, List<string> unlockedCharacters)
     {
         // Hide all chapters texts
-        foreach (Text chapterTextParent in chaptersTextList)
+        foreach (TextMeshProUGUI chapterTextParent in chaptersTextList)
         {
             chapterTextParent.gameObject.SetActive(false);
         }

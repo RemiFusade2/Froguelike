@@ -9,87 +9,204 @@ public class SettingsMenu : MonoBehaviour
 {
     public Toggle fullscreenToggle;
     public TMP_Dropdown resolutionDropdown;
-    public Camera pixelPerfectCamera;
-    private Resolution[] resolutions;
-    private List<int[]> allowedResolutions;
+    public PixelPerfectCamera pixelPerfectCamera;
 
+    private Vector2 biggestResolutionForThisScreen;
+    private List<Vector2> allowedResolutions;
+    // private Vector2 currentResolution;
+
+    int gameWidth;
+    int gameHeight;
+
+    int currentResolutionIndex;
+    int gameScaler;
+
+    bool startUpDone = false;
+    bool isUpdatingDropdownValue = false;
+    bool isChangingFullscreen = false;
+
+    CanvasScaler canvasScaler;
+
+    public TextMeshProUGUI currentMaxRes;
 
     // Start is called before the first frame update
     void Start()
     {
-        // Set the fullsccreen toggle to match the fullscreen mode.
+        canvasScaler = gameObject.GetComponent<CanvasScaler>();
+
+        // Set the fullsccreen toggle to match the current fullscreen mode.
         fullscreenToggle.isOn = Screen.fullScreen;
+        resolutionDropdown.interactable = !Screen.fullScreen;
 
-        // set resolution
+        // Get the intended reolution of the game.
+        gameWidth = pixelPerfectCamera.refResolutionX;
+        gameHeight = pixelPerfectCamera.refResolutionY;
 
-        resolutions = Screen.resolutions;
-        resolutionDropdown.ClearOptions();
+        FindAllowedResolutions();
 
-        int nativeWidth = pixelPerfectCamera.GetComponent<PixelPerfectCamera>().refResolutionX;
-        int nativeHeight = pixelPerfectCamera.GetComponent<PixelPerfectCamera>().refResolutionY;
+        startUpDone = true;
+    }
+
+    private void FindAllowedResolutions()
+    {
+        allowedResolutions = new List<Vector2>();
+        List<Resolution> availableResolutions = new List<Resolution>();        // (Last one is biggest)
+        availableResolutions.AddRange(Screen.resolutions);
+
+        biggestResolutionForThisScreen = new Vector2(availableResolutions[availableResolutions.Count - 1].width, availableResolutions[availableResolutions.Count - 1].height);
+
+        int maxWidthScale = 0;
+        int maxHeigthScale = 0;
+
+        while (biggestResolutionForThisScreen.x - gameWidth * (maxWidthScale + 1) >= 0) maxWidthScale++;
+        while (biggestResolutionForThisScreen.y - gameHeight * (maxHeigthScale + 1) >= 0) maxHeigthScale++;
+
+        int maxGameScale = Mathf.Min(maxWidthScale, maxHeigthScale);
 
         List<string> options = new List<string>();
-        allowedResolutions = new List<int[]>();
-        allowedResolutions.Add(new int[] { 640, 360 });
-        options.Add(allowedResolutions[0][0] + "x" + allowedResolutions[0][1]);
-        /*
-        allowedResolutions.Add(new int[] { 640 * 2, 360 * 2 });
-        allowedResolutions.Add(new int[] { 640 * 3, 360 * 3 });
-        */
-        Resolution currentResolution = Screen.currentResolution;
-        int currentResolutionIndex = 0;
 
-
-        for (int i = 1; i < resolutions.Length; i++)
+        for (int scale = 1; scale <= maxGameScale; scale++)
         {
-            Resolution resolution = resolutions[i];
-            if ((resolution.width % nativeWidth) == 0 && (resolution.height % nativeHeight) == 0)
+            // Add this resolution.
+            Vector2 thisResolution = new Vector2(gameWidth * scale, gameHeight * scale);
+            options.Add(thisResolution.x + "x" + thisResolution.y);
+            allowedResolutions.Add(thisResolution);
+
+            // If this is the current resolution, set the current resolution index.
+            if (thisResolution.x == Screen.width && thisResolution.y == Screen.height)
             {
-                string option = resolutions[i].width + "x" + resolutions[i].height;
-                options.Add(option);
-                int[] thisOption = new int[] { resolutions[i].width, resolutions[i].height };
-                allowedResolutions.Add(thisOption);
-
-
-                if (currentResolution.width == resolution.width && currentResolution.height == resolution.height)
-                {
-                    currentResolutionIndex = options.Count - 1;
-                }
-
+                currentResolutionIndex = allowedResolutions.Count - 1;
             }
         }
 
+        // If no reolution matched, make sure there still is a resolution index.
+        if (currentResolutionIndex < 0)
+        {
+            // If the game is in fullscreen pick the biggest one, otherwise pick the second biggest one.
+            if (Screen.fullScreen)
+            {
+                currentResolutionIndex = Mathf.Max(allowedResolutions.Count - 1, 0);
+            }
+            else
+            {
+                currentResolutionIndex = Mathf.Max(allowedResolutions.Count - 2, 0);
+            }
+        }
+
+        allowedResolutions.Add(biggestResolutionForThisScreen);
+
+        UpdateDropdown(options);
+    }
+
+
+    // Update the resolution dropdown and set the marker to the current reolution (without setting a resolution).
+    private void UpdateDropdown(List<string> options)
+    {
+        isUpdatingDropdownValue = true;
+
+        resolutionDropdown.ClearOptions();
         resolutionDropdown.AddOptions(options);
-        resolutionDropdown.value = currentResolutionIndex;
-        resolutionDropdown.RefreshShownValue();
+        SetDropdownValue(currentResolutionIndex);
+    }
+
+    private void SetDropdownValue(int value)
+    {
+        isUpdatingDropdownValue = true;
+
+        resolutionDropdown.SetValueWithoutNotify(value);
+
+        isUpdatingDropdownValue = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Screen.fullScreen && resolutionDropdown.interactable)
+        // For debugging resolution settings
+        // currentMaxRes.SetText(Screen.resolutions[Screen.resolutions.Length - 1].width + "x" + Screen.resolutions[Screen.resolutions.Length - 1].height);
+
+
+        // Detect if the biggest available resolution changed and if so set new reolution options.
+        if (biggestResolutionForThisScreen.x != Screen.resolutions[Screen.resolutions.Length - 1].width || biggestResolutionForThisScreen.y != Screen.resolutions[Screen.resolutions.Length - 1].height)
         {
-            resolutionDropdown.interactable = false;
+            Debug.Log("Redo resolution options");
+            FindAllowedResolutions();
         }
-        else if (!Screen.fullScreen && !resolutionDropdown.interactable)
+
+
+        if (Screen.fullScreen && !fullscreenToggle.isOn)
         {
-            resolutionDropdown.interactable = true;
+            if (!isChangingFullscreen)
+            {
+                fullscreenToggle.isOn = true;
+            }
+        }
+        else if (!Screen.fullScreen && fullscreenToggle.isOn)
+        {
+            if (!isChangingFullscreen)
+            {
+                fullscreenToggle.isOn = false;
+            }
+        }
+
+        if (canvasScaler.scaleFactor != pixelPerfectCamera.pixelRatio * 2)
+        {
+            ResizeCanvas();
+            SetDropdownValue(pixelPerfectCamera.pixelRatio - 1);
+        }
+
+
+    }
+
+    private void LateUpdate()
+    {
+        if (isChangingFullscreen)
+        {
+            isChangingFullscreen = false;
         }
     }
 
-    public void SetFullscreen(bool isFullscreen)
+    public void SetFullscreen(bool wantFullscreen)
     {
-        if (isFullscreen)
-        {
-            SetResolution(allowedResolutions.Count - 1);
-        }
-        Screen.fullScreen = isFullscreen;
+        isChangingFullscreen = true;
 
+        if (wantFullscreen)
+        {
+            SetWindowResolution(allowedResolutions.Count - 1);
+            currentResolutionIndex = allowedResolutions.Count - 2;
+            SetDropdownValue(currentResolutionIndex);
+        }
+        else if (startUpDone)
+        {
+            // would be nice to use the biggest one that doesnt fill the whole sreen, now I'm using the second biggest one.
+
+            if (allowedResolutions[allowedResolutions.Count - 1] == allowedResolutions[allowedResolutions.Count - 2])
+            {
+                SetWindowResolution(Mathf.Max(allowedResolutions.Count - 3, 0));
+
+            }
+            else
+            {
+                SetWindowResolution(Mathf.Max(allowedResolutions.Count - 2, 0));
+            }
+        }
+
+        Screen.fullScreen = wantFullscreen;
+        resolutionDropdown.interactable = !wantFullscreen;
+        SetDropdownValue(currentResolutionIndex);
     }
 
-    public void SetResolution(int wantedResolutionIndex)
+    public void SetWindowResolution(int wantedResolutionIndex)
     {
-        int[] wantedResolution = allowedResolutions[wantedResolutionIndex];
-        Screen.SetResolution(wantedResolution[0], wantedResolution[1], Screen.fullScreen);
+        if (startUpDone && !isUpdatingDropdownValue)
+        {
+            currentResolutionIndex = wantedResolutionIndex;
+            Screen.SetResolution(Mathf.RoundToInt(allowedResolutions[currentResolutionIndex].x), Mathf.RoundToInt(allowedResolutions[currentResolutionIndex].y), Screen.fullScreen);
+            SetDropdownValue(currentResolutionIndex);
+        }
+    }
+
+    private void ResizeCanvas()
+    {
+        canvasScaler.scaleFactor = pixelPerfectCamera.pixelRatio * 2; // later when UI is redrawn the * 2 is not needed TODO
     }
 }

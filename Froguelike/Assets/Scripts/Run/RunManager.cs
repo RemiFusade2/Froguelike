@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -16,23 +17,23 @@ public class RunManager : MonoBehaviour
     
     [Header("References - UI")]
     public Slider xpSlider;
-    public Text levelText;
+    public TextMeshProUGUI levelText;
     [Space]
-    public Text currencyText;
+    public TextMeshProUGUI currencyText;
     [Space]
     public string timerPrefix;
-    public Text timerText;
+    public TextMeshProUGUI timerText;
     [Space]
     public string killCountPrefix;
-    public Text killCountText;
+    public TextMeshProUGUI killCountText;
     [Space]
     public string extraLivesPrefix;
-    public Text extraLivesCountText;
+    public TextMeshProUGUI extraLivesCountText;
     [Space]
     public List<GameObject> levelUpChoicesPanels;
-    public List<Text> levelUpChoicesTitles;
-    public List<Text> levelUpChoicesLevels;
-    public List<Text> levelUpChoicesDescriptions;
+    public List<TextMeshProUGUI> levelUpChoicesTitles;
+    public List<TextMeshProUGUI> levelUpChoicesLevels;
+    public List<TextMeshProUGUI> levelUpChoicesDescriptions;
     [Space]
     public Color defaultUIColor;
     public Color newItemColor;

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -56,13 +57,13 @@ public class ChapterManager : MonoBehaviour
     public ChapterData finalChapterData;
 
     [Header("UI - Chapter Selection")]
-    public Text chapterSelectionTopText;
-    public List<Text> chapterTitleTextsList;
-    public List<Text> chapterDescriptionTextsList;
+    public TextMeshProUGUI chapterSelectionTopText;
+    public List<TextMeshProUGUI> chapterTitleTextsList;
+    public List<TextMeshProUGUI> chapterDescriptionTextsList;
 
     [Header("UI - Chapter Start")]
-    public Text chapterStartTopText;
-    public Text chapterStartBottomText;
+    public TextMeshProUGUI chapterStartTopText;
+    public TextMeshProUGUI chapterStartBottomText;
 
     
     [Header("Runtime")]
