@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class MapBehaviour : MonoBehaviour
 {
+    public static MapBehaviour instance;
+
     [Header("References")]
     public Transform mapTilesParent;
 
@@ -14,12 +16,8 @@ public class MapBehaviour : MonoBehaviour
 
     [Header("Settings")]
     public Vector2 tileSize = new Vector2(40, 22.5f);
-    [Range(0,1)]
-    public float rockDensity = 0.2f;
-    public int maxRockCount = 13;
-    [Range(0, 1)]
-    public float waterDensity = 0.2f;
-    public int maxWaterCount = 13;
+    public Vector2 rockMinMax;
+    public Vector2 waterMinMax;
     [Space]
     public float minDistanceWithPlayer = 2;
     [Space]
@@ -31,6 +29,20 @@ public class MapBehaviour : MonoBehaviour
 
 
     private List<Vector2Int> existingTilesCoordinates;
+
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(this);
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -72,11 +84,12 @@ public class MapBehaviour : MonoBehaviour
     private void AddSomething(List<GameObject> prefabs, Vector2Int tileCoordinates, bool preventSpawnAtPosition, Vector2 preventSpawnPosition)
     {
         int randomIndex = Random.Range(0, prefabs.Count);
-        Vector2 randomVector = Random.insideUnitCircle;
-        Vector2 position = GetWorldPositionOfTile(tileCoordinates) + randomVector * (tileSize / 2.0f);
-        if (!preventSpawnAtPosition || Vector2.Distance(position, preventSpawnPosition) > minDistanceWithPlayer)
+
+        Vector2 randomPositionOnTile = GetWorldPositionOfTile(tileCoordinates) + Random.Range(-tileSize.x/2, tileSize.x/2) * Vector2.right + Random.Range(-tileSize.y/2, tileSize.y/2) * Vector2.up;
+
+        if (!preventSpawnAtPosition || Vector2.Distance(randomPositionOnTile, preventSpawnPosition) > minDistanceWithPlayer)
         {
-            Instantiate(prefabs[randomIndex], position, Quaternion.identity, mapTilesParent);
+            Instantiate(prefabs[randomIndex], randomPositionOnTile, Quaternion.identity, mapTilesParent);
         }
     }
 
@@ -88,21 +101,21 @@ public class MapBehaviour : MonoBehaviour
     {
         Vector2 tileWorldPosition = tileCoordinates * tileSize;
         Instantiate(backgroundTilePrefab, tileWorldPosition, Quaternion.identity, mapTilesParent);
+
         // generate water
-        for (int i = 0; i < waterDensity * maxWaterCount; i++)
+        float waterProba = Random.Range(waterMinMax.x, waterMinMax.y);
+        float waterAmount = Mathf.Floor(waterProba) + ((Random.Range(Mathf.Floor(waterProba), Mathf.Ceil(waterProba)) < waterProba) ? 1 : 0);
+        for (int i = 0; i < waterAmount; i++)
         {
-            if (Random.Range(0, 3) != 0)
-            {
-                AddSomething(watersPrefabs, tileCoordinates, false, preventSpawnPosition);
-            }
+            AddSomething(watersPrefabs, tileCoordinates, false, preventSpawnPosition);
         }
+
         // generate rocks
-        for (int i = 0; i < rockDensity * maxRockCount; i++)
+        float rockProba = Random.Range(rockMinMax.x, rockMinMax.y);
+        float rockAmount = Mathf.Floor(rockProba) + ((Random.Range(Mathf.Floor(rockProba), Mathf.Ceil(rockProba)) < rockProba) ? 1 : 0);
+        for (int i = 0; i < rockAmount; i++)
         {
-            if (Random.Range(0,3) != 0)
-            {
-                AddSomething(rocksPrefabs, tileCoordinates, preventSpawnRocksAtPosition, preventSpawnPosition);
-            }
+            AddSomething(rocksPrefabs, tileCoordinates, preventSpawnRocksAtPosition, preventSpawnPosition);
         }
 
         // generate collectibles
@@ -111,8 +124,8 @@ public class MapBehaviour : MonoBehaviour
         {
             Vector2 randomVector = Random.insideUnitCircle;
             Vector2 position = GetWorldPositionOfTile(tileCoordinates) + randomVector * (tileSize / 2.0f);
-
-            int chapterMultiplicator = 1 + GameManager.instance.chaptersPlayed.Count;
+            
+            int chapterMultiplicator = RunManager.instance.completedChaptersList.Count + 1;
             float randomCollectibleType = Random.Range(0, collectibleLevelUpSpawnLikelihood + collectibleCurrencySpawnLikelihood + collectibleHealthSpawnLikelihood);
             if (randomCollectibleType < collectibleLevelUpSpawnLikelihood)
             {

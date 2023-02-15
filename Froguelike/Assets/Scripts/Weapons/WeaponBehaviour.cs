@@ -2,20 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
-public enum WeaponType
-{
-    CLASSIC, // target nearest, medium range, medium damage, no special
-    QUICK, // target nearest, shorter, super fast, low damage, low cooldown. Upgrade to zero cooldown and triple tongue.
-    WIDE, // target nearest, wider than usual, shorter, more damage
-    ROTATING, // rotates around, medium range, low damage, upgrade to double
-    VAMPIRE, // target nearest, medium range, low damage, heal when damage. RED
-    POISON, // target nearest, low range, medium damage, poison damage during a delay after hit. GREEN
-    FREEZE, // target nearest, high range, low damage, slow down enemies. BLUE
-    CURSED, // target nearest, medium range, high damage, high speed, make enemies faster. PURPLE OR ORANGE
-    RANDOM, // target random direction, high range, high damage, medium speed. Random effect and random color
-    CAT // target nearest, SUPER WIDE, shorter, TONS OF DAMAGE
-}
 
 public class WeaponBehaviour : MonoBehaviour
 {
@@ -23,11 +9,6 @@ public class WeaponBehaviour : MonoBehaviour
     public Transform outlineTransform;
     
     [Header("Settings - appearance")]
-    public Color defaultColor;
-    public Color vampireColor;
-    public Color poisonColor;
-    public Color freezeColor;
-    public Color cursedColor;
     public float tongueWidth = 1;
     public Color outlineColor;
     public float outlineWeight = 0.1f;
@@ -39,21 +20,20 @@ public class WeaponBehaviour : MonoBehaviour
     public float damage;
     public float attackSpeed;
     public float range;
-    /*
-     * [Space]
-    public bool comesBackAfterEatingFlies;
-    public float maxFlies;
-    */
+    [Space]
+    public bool comesBackAfterEatingFlies; // not sure we need that
 
     [Header("Settings - special metrics")]
     public float healthAbsorbRatio;
-    public float healthAbsorbMax;
     [Space]
     public float poisonDamage;
     public float poisonDuration;
     [Space]
-    public float changeSpeedFactor;
-    public float changeSpeedDuration;
+    public float freezeFactor;
+    public float freezeDuration;
+    [Space]
+    public float curseFactor;
+    public float curseDuration;
 
     [Header("Collision Layer")]
     public LayerMask foodLayer;
@@ -79,6 +59,12 @@ public class WeaponBehaviour : MonoBehaviour
     public int rotatingTongueIndex;
 
     private Coroutine computeRotatingAngleCoroutine;
+
+    public static void ResetStaticValues()
+    {
+        rotatingTongueCurrentAngle = 0;
+        rotatingTongueCount = 0;
+    }
 
     public void SetTongueColor(Color color)
     {
@@ -145,44 +131,45 @@ public class WeaponBehaviour : MonoBehaviour
         switch (weaponType)
         {
             case WeaponType.VAMPIRE:
-                SetTongueColor(vampireColor);
+                SetTongueColor(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.VAMPIRE));
                 break;
             case WeaponType.POISON:
-                SetTongueColor(poisonColor);
+                SetTongueColor(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.POISON));
                 break;
             case WeaponType.FREEZE:
-                SetTongueColor(freezeColor);
+                SetTongueColor(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.FREEZE));
                 break;
             case WeaponType.CURSED:
-                SetTongueColor(cursedColor);
+                SetTongueColor(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.CURSE));
                 break;
             default:
-                SetTongueColor(defaultColor);
+                SetTongueColor(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.NONE));
                 break;
         }
     }
 
-    public void Initialize(WeaponData weaponData)
+    public void Initialize(RunWeaponData weaponData)
     {
         weaponType = weaponData.weaponType;
-        attackSpeed = weaponData.startAttackSpeed;
-        cooldown = weaponData.startCooldown;
-        damage = weaponData.startDamage;
-        range = weaponData.startRange;
-        //maxFlies = weaponData.startMaxFlies;
-
-        //comesBackAfterEatingFlies = weaponData.comesBackAfterEatingFlies;
-
-        changeSpeedFactor = weaponData.startChangeSpeedFactor;
-        changeSpeedDuration = weaponData.startChangeSpeedDuration;
-
-        healthAbsorbMax = weaponData.startHealthAbsorbMax;
-        healthAbsorbRatio = weaponData.startHealthAbsorbRatio;
-
-        poisonDamage = weaponData.startPoisonDamage;
-        poisonDuration = weaponData.startPoisonDuration;
+        attackSpeed = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.SPEED).value;
+        cooldown = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.COOLDOWN).value;
+        damage = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.DAMAGE).value;
+        range = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.RANGE).value;
         
-        SetTongueWidth(weaponData.startWidth);
+        comesBackAfterEatingFlies = weaponData.comesBackAfterEatingFlies; // not sure it's needed
+
+        freezeFactor = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.FREEZE_RATIO).value;
+        freezeDuration = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.FREEZE_DURATION).value;
+
+        curseFactor = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.CURSE_RATIO).value;
+        curseDuration = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.CURSE_DURATION).value;
+
+        healthAbsorbRatio = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.VAMPIRE_RATIO).value;
+
+        poisonDamage = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.POISON_DAMAGE).value;
+        poisonDuration = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.POISON_DURATION).value;
+        
+        SetTongueWidth((float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.WIDTH).value);
 
         if (weaponData.weaponType == WeaponType.ROTATING)
         {
@@ -199,7 +186,6 @@ public class WeaponBehaviour : MonoBehaviour
             }
         }
 
-
         ResetWeapon();
     }
 
@@ -208,7 +194,6 @@ public class WeaponBehaviour : MonoBehaviour
         cooldown = weapon.cooldown;
         damage = weapon.damage;
         attackSpeed = weapon.attackSpeed;
-        //maxFlies = weapon.maxFlies;
         range = weapon.range;
 
         SetTongueWidth(weapon.tongueWidth);
@@ -221,36 +206,84 @@ public class WeaponBehaviour : MonoBehaviour
         }
 
         healthAbsorbRatio = weapon.healthAbsorbRatio;
-        healthAbsorbMax = weapon.healthAbsorbMax;
 
         poisonDamage = weapon.poisonDamage;
         poisonDuration = weapon.poisonDuration;
 
-        changeSpeedFactor = weapon.changeSpeedFactor;
-        changeSpeedDuration = weapon.changeSpeedDuration;
+        freezeFactor = weapon.freezeFactor;
+        freezeDuration = weapon.freezeDuration;
 
-        //comesBackAfterEatingFlies = weapon.comesBackAfterEatingFlies;
+        curseFactor = weapon.curseFactor;
+        curseDuration = weapon.curseDuration;
 
+        comesBackAfterEatingFlies = weapon.comesBackAfterEatingFlies;
 
         ResetWeapon();
     }
 
-    public void LevelUp(ItemLevel itemLevel)
+    public void LevelUp(RunWeaponItemLevel weaponItemLevel)
     {
-        cooldown += itemLevel.weaponCooldownBoost;
-        damage += itemLevel.weaponDamageBoost;
-        attackSpeed += itemLevel.weaponSpeedBoost;
-        //maxFlies += itemLevel.weaponMaxFliesBoost;
-        range += itemLevel.weaponRangeBoost;
+        // Damage is additive
+        damage += (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.DAMAGE).value;
 
-        healthAbsorbRatio += itemLevel.weaponHealthAbsorbRatioBoost;
-        healthAbsorbMax += itemLevel.weaponHealthAbsorbMaxBoost;
+        // Cooldown is multiplicative and negative
+        cooldown *= (1+(float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.COOLDOWN).value);
+        
+        attackSpeed *= (1+(float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.SPEED).value);
+        range *= (1+(float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.RANGE).value);
 
-        poisonDamage += itemLevel.weaponPoisonDamageBoost;
-        poisonDuration += itemLevel.weaponPoisonDurationBoost;
+        // Width
+        float newTongueWidth = tongueWidth * (1 + (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.WIDTH).value);
+        SetTongueWidth(newTongueWidth);
 
-        changeSpeedFactor += itemLevel.weaponChangeSpeedFactorBoost;
-        changeSpeedDuration += itemLevel.weaponChangeSpeedDurationBoost;
+        // Special attack: Vampire
+        if (healthAbsorbRatio == 0)
+        {
+            // First time we add a Vampire effect
+            healthAbsorbRatio = (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.VAMPIRE_RATIO).value;
+        }
+        else
+        {
+            healthAbsorbRatio *= (1 + (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.VAMPIRE_RATIO).value);
+        }
+
+        // Special attack: Poison
+        if (poisonDamage == 0)
+        {
+            // First time we add a Poison effect
+            poisonDuration = (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.POISON_DURATION).value;
+        }
+        else
+        {
+            poisonDuration *= (1 + (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.POISON_DURATION).value);
+        }
+        poisonDamage += (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.POISON_DAMAGE).value;
+
+        // Special attack: Freeze
+        if (freezeFactor == 0)
+        {
+            // First time we add a Freeze effect
+            freezeFactor = (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.FREEZE_RATIO).value;
+            freezeDuration = (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.FREEZE_DURATION).value;
+        }
+        else
+        {
+            freezeFactor *= (1 + (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.FREEZE_RATIO).value);
+            freezeDuration *= (1 + (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.FREEZE_DURATION).value);
+        }
+
+        // Special attack: Curse
+        if (curseFactor == 0)
+        {
+            // First time we add a Curse effect
+            curseFactor = (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.CURSE_RATIO).value;
+            curseDuration = (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.CURSE_DURATION).value;
+        }
+        else
+        {
+            curseFactor *= (1 + (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.CURSE_RATIO).value);
+            curseDuration *= (1 + (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.CURSE_DURATION).value);
+        }
     }
 
     // Start is called before the first frame update
@@ -275,7 +308,7 @@ public class WeaponBehaviour : MonoBehaviour
             Collider2D nearestEnemy = null;
             foreach (Collider2D col in allColliders)
             {
-                EnemyInstance enemyInfo = FliesManager.instance.GetEnemyInfo(col.gameObject.name);
+                EnemyInstance enemyInfo = EnemiesManager.instance.GetEnemyInfo(col.gameObject.name);
                 float distanceWithPlayer = Vector2.Distance(col.transform.position, playerPosition);
                 if (distanceWithPlayer < shortestDistance && enemyInfo != null && enemyInfo.active)
                 {
@@ -290,34 +323,37 @@ public class WeaponBehaviour : MonoBehaviour
 
     public void TryAttack()
     {
-        float actualCooldown = cooldown * (1 - GameManager.instance.player.attackCooldownBoost);
+        float actualCooldown = cooldown * (1 + GameManager.instance.player.attackCooldownBoost);
         if (!isAttacking && Time.time - lastAttackTime > actualCooldown)
         {
             switch (weaponType)
             {
                 // Attack random direction
                 case WeaponType.RANDOM:
+                    
+                    // Set random color
+                    List<Color> possibleColors = new List<Color>();
+                    possibleColors.Add(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.NONE));
+                    if (healthAbsorbRatio > 0)
                     {
-                        // Set random color
-                        List<Color> possibleColors = new List<Color>();
-                        possibleColors.Add(defaultColor);
-                        if (healthAbsorbMax > 0)
-                        {
-                            possibleColors.Add(vampireColor);
-                        }
-                        if (poisonDamage > 0)
-                        {
-                            possibleColors.Add(poisonColor);
-                        }
-                        if (changeSpeedFactor != 0)
-                        {
-                            possibleColors.Add(freezeColor);
-                            possibleColors.Add(cursedColor);
-                        }
-                        SetTongueColor(possibleColors[Random.Range(0, possibleColors.Count)]);
-                        Vector2 direction = Random.insideUnitCircle.normalized;
-                        Attack(direction);
+                        possibleColors.Add(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.VAMPIRE));
                     }
+                    if (poisonDamage > 0)
+                    {
+                        possibleColors.Add(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.POISON));
+                    }
+                    if (freezeFactor > 0)
+                    {
+                        possibleColors.Add(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.FREEZE));
+                    }
+                    if (curseFactor > 0)
+                    {
+                        possibleColors.Add(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.CURSE));
+                    }
+                    SetTongueColor(possibleColors[Random.Range(0, possibleColors.Count)]);
+                    Vector2 direction = Random.insideUnitCircle.normalized;
+                    Attack(direction);
+                    
                     break;
                 // Attack rotating
                 case WeaponType.ROTATING:
@@ -333,13 +369,13 @@ public class WeaponBehaviour : MonoBehaviour
                 case WeaponType.WIDE:
                 case WeaponType.CAT:
                 default:
+                    
+                    GameObject targetEnemy = GetNearestEnemy();
+                    if (targetEnemy != null)
                     {
-                        GameObject targetEnemy = GetNearestEnemy();
-                        if (targetEnemy != null)
-                        {
-                            Attack(FliesManager.instance.GetEnemyInfo(targetEnemy.name));
-                        }
+                        Attack(EnemiesManager.instance.GetEnemyInfo(targetEnemy.name));
                     }
+                    
                     break;
             }
         }
@@ -477,48 +513,61 @@ public class WeaponBehaviour : MonoBehaviour
             // default part, for any weapon
             string enemyName = collision.gameObject.name;
             float actualDamage = damage * (1 + GameManager.instance.player.attackDamageBoost);
-            //float actualMaxFiles = maxFlies + GameManager.instance.player.attackMaxFliesBoost;
 
-            /*
-            bool canKillEnemy = (eatenFliesCount < actualMaxFiles);
-            */
+            // curse part, increase enemy speed
+            bool isCursed = false;
+            if (weaponType == WeaponType.CURSED || (weaponType == WeaponType.RANDOM && tongueColor.Equals(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.CURSE))))
+            {
+                // Apply curseFactor as a probability of curse
+                float curseProbability = curseFactor * (1 + GameManager.instance.player.attackSpecialStrengthBoost);
+                if (Random.Range(0.0f, 1.0f) < curseProbability)
+                {
+                    isCursed = true;
+                    actualDamage = 0;
+                }
+            }
 
-            bool canKillEnemy = true;
+            bool canKillEnemy = true; //  (eatenFliesCount < actualMaxFiles);
 
-            bool enemyIsDead = FliesManager.instance.DamageEnemy(enemyName, actualDamage, canKillEnemy, this.transform);
+            bool enemyIsDead = EnemiesManager.instance.DamageEnemy(enemyName, actualDamage, canKillEnemy, this.transform);
 
             // vampire part, absorb part of damage done
-            if (weaponType == WeaponType.VAMPIRE || (weaponType == WeaponType.RANDOM && tongueColor.Equals(vampireColor)))
+            if (weaponType == WeaponType.VAMPIRE || (weaponType == WeaponType.RANDOM && tongueColor.Equals(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.VAMPIRE))))
             {
-                float healAmount = Mathf.Clamp(actualDamage * healthAbsorbRatio, 0, healthAbsorbMax);
+                float healAmount = actualDamage * healthAbsorbRatio;
                 GameManager.instance.player.Heal(healAmount);
             }
 
             // poison part, add poison damage to enemy
-            if (weaponType == WeaponType.POISON || (weaponType == WeaponType.RANDOM && tongueColor.Equals(poisonColor)))
+            if (weaponType == WeaponType.POISON || (weaponType == WeaponType.RANDOM && tongueColor.Equals(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.POISON))))
             {
                 float actualPoisonDamage = poisonDamage * (1 + GameManager.instance.player.attackSpecialStrengthBoost);
                 float actualPoisonDuration = poisonDuration * (1 + GameManager.instance.player.attackSpecialDurationBoost);
-                FliesManager.instance.AddPoisonDamageToEnemy(enemyName, actualPoisonDamage, actualPoisonDuration);
+                EnemiesManager.instance.AddPoisonDamageToEnemy(enemyName, actualPoisonDamage, actualPoisonDuration);
             }
 
-            // freeze part or curse part, change enemy speed
-            if (weaponType == WeaponType.CURSED || (weaponType == WeaponType.RANDOM && tongueColor.Equals(cursedColor)))
+            float enemySpeedChangeFactor = 0; // a factor of -1 will stop the movement, a factor of 1 will double the speed
+            float enemySpeedChangeDuration = 0;
+            // freeze part, diminish enemy speed
+            if (weaponType == WeaponType.FREEZE || (weaponType == WeaponType.RANDOM && tongueColor.Equals(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.FREEZE))))
             {
-                float actualAccelerateFactor = changeSpeedFactor * (1 + GameManager.instance.player.attackSpecialStrengthBoost);
-                float actualAccelerateDuration = changeSpeedDuration * (1 + GameManager.instance.player.attackSpecialDurationBoost);
-                FliesManager.instance.ChangeEnemySpeed(enemyName, actualAccelerateFactor, actualAccelerateDuration);
+                enemySpeedChangeFactor = -freezeFactor * (1 + GameManager.instance.player.attackSpecialStrengthBoost);
+                enemySpeedChangeDuration = freezeDuration * (1 + GameManager.instance.player.attackSpecialDurationBoost);
             }
-            if (weaponType == WeaponType.FREEZE || (weaponType == WeaponType.RANDOM && tongueColor.Equals(freezeColor)))
+            if (isCursed)
             {
-                float actualSlowDownFactor = -changeSpeedFactor * (1 + GameManager.instance.player.attackSpecialStrengthBoost);
-                float actualSlowDownDuration = changeSpeedDuration * (1 + GameManager.instance.player.attackSpecialDurationBoost);
-                FliesManager.instance.ChangeEnemySpeed(enemyName, actualSlowDownFactor, actualSlowDownDuration);
+                enemySpeedChangeFactor = 1;
+                enemySpeedChangeDuration = curseDuration * (1 + GameManager.instance.player.attackSpecialDurationBoost);
+            }
+
+            if (enemySpeedChangeFactor != 0)
+            {
+                EnemiesManager.instance.ChangeEnemySpeed(enemyName, enemySpeedChangeFactor, enemySpeedChangeDuration);
             }
 
             if (enemyIsDead)
             {
-                FliesManager.instance.SetEnemyDead(enemyName);
+                EnemiesManager.instance.SetEnemyDead(enemyName);
                 eatenFliesCount++;
                 CheckEatenFlyCount();
             }

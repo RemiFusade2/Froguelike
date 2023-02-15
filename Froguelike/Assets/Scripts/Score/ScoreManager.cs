@@ -1,0 +1,138 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+/// <summary>
+/// The ScoreManager class deals with the score screen and display all relevant information about a Run.
+/// These information are provided by the RunManager.
+/// </summary>
+public class ScoreManager : MonoBehaviour
+{
+    // Singleton
+    public static ScoreManager instance;
+
+    [Header("Morals")]
+    public List<string> possibleMorals;
+
+    [Header("UI")]
+    public List<Text> chaptersTextList;
+    public List<Text> chaptersScoreTextList;
+    public Text totalScoreText;
+    public Text moralText;
+    [Space]
+    public Text upgradesText;
+    public Text upgradesLevelsText;
+    public GameObject unlockPanel;
+    public Text unlockedCharacterName;
+    public Image unlockedCharacterImage;
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(this);
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
+    }
+
+
+    private string GetRandomMoral()
+    {
+        return possibleMorals[Random.Range(0, possibleMorals.Count)];
+    }
+
+    /// <summary>
+    /// Display the score screen with all information about a Run (provided as parameters)
+    /// </summary>
+    /// <param name="chaptersPlayed"></param>
+    /// <param name="playedCharacter"></param>
+    /// <param name="ownedItems"></param>
+    public void ShowScores(List<Chapter> chaptersPlayed, PlayableCharacter playedCharacter, List<RunItemInfo> ownedItems, List<string> unlockedCharacters)
+    {
+        // Hide all chapters texts
+        foreach (Text chapterTextParent in chaptersTextList)
+        {
+            chapterTextParent.gameObject.SetActive(false);
+        }
+        // Display every played chapter and its kill count
+        int totalScore = 0;
+        for (int i = 0; i < chaptersPlayed.Count; i++)
+        {
+            if (i < chaptersTextList.Count && i < chaptersScoreTextList.Count)
+            {
+                Chapter chapter = chaptersPlayed[i];
+                chaptersTextList[i].gameObject.SetActive(true);
+                chaptersTextList[i].text = "Chapter " + (i+1) + "\n\t" + chapter.chapterData.chapterTitle;
+                chaptersScoreTextList[i].text = chapter.enemiesKilledCount.ToString();
+                totalScore += chapter.enemiesKilledCount;
+            }
+        }
+        // Display total kill count
+        totalScoreText.text = totalScore.ToString();
+
+        // Pick a random moral to display
+        string moral = GetRandomMoral();
+        moralText.text = moral;
+
+        // Display all weapons used during this run and their levels
+        string allItemsNames = "";
+        string allItemsLevels = "";
+        foreach (RunItemInfo itemInfo in ownedItems)
+        {
+            if (itemInfo is RunWeaponInfo)
+            {
+                RunWeaponInfo weaponInfo = (itemInfo as RunWeaponInfo);
+                allItemsNames += weaponInfo.weaponItemData.itemName + "\n";
+                allItemsLevels += "LVL " + weaponInfo.level + "\n";
+            }
+        }
+        allItemsNames += "\n";
+        allItemsLevels += "\n";
+
+        // Display all items used during this run and their levels
+        foreach (RunItemInfo itemInfo in ownedItems)
+        {
+            if (itemInfo is RunStatItemInfo)
+            {
+                RunStatItemInfo statItemInfo = (itemInfo as RunStatItemInfo);
+                allItemsNames += statItemInfo.itemData.itemName + "\n";
+                allItemsLevels += "LVL " + statItemInfo.level + "\n";
+            }
+        }
+        allItemsNames += "\n";
+        allItemsLevels += "\n";
+
+        // Display all consumables used during this run
+        // TODO? : Display the consumables items that were taken during this Run
+        /*
+        foreach (RunItemInfo itemInfo in itemsInfoList)
+        {
+            if (!itemInfo.item.isWeapon && itemInfo.item.levels.Count == 1)
+            {
+                allItemsNames += itemInfo.item.itemName + "\n";
+                allItemsLevels += "x" + itemInfo.level + "\n";
+            }
+        }*/
+
+        upgradesText.text = allItemsNames;
+        upgradesLevelsText.text = allItemsLevels;
+
+        // Display unlocked characters (achievements)
+        unlockPanel.SetActive(false);
+        if (unlockedCharacters.Count > 0)
+        {
+            unlockPanel.SetActive(true);
+            CharacterData firstUnlockedCharacter = CharacterManager.instance.GetCharacterData(unlockedCharacters[0]);
+            unlockedCharacterName.text = firstUnlockedCharacter.characterName;
+            unlockedCharacterImage.sprite = firstUnlockedCharacter.characterSprite;
+        }
+
+        // Show the score screen
+        UIManager.instance.ShowScoreScreen();
+    }
+}

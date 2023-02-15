@@ -91,6 +91,8 @@ public class CharacterManager : MonoBehaviour
     public CharactersSaveData charactersData; // Will be loaded and saved when needed
     public PlayableCharacter currentSelectedCharacter;
 
+    private Dictionary<string, CharacterData> charactersDataFromNameDico;
+
     private void Awake()
     {
         if (instance == null)
@@ -104,8 +106,27 @@ public class CharacterManager : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        charactersDataFromNameDico = new Dictionary<string, CharacterData>();
+        foreach (CharacterData character in charactersScriptableObjectsList)
+        {
+            charactersDataFromNameDico.Add(character.characterName, character);
+        }
+    }
+
+    public CharacterData GetCharacterData(string characterName)
+    {
+        CharacterData result = null;
+        if (charactersDataFromNameDico.ContainsKey(characterName))
+        {
+            result = charactersDataFromNameDico[characterName];
+        }
+        return result;
+    }
+
     #region UI
-    
+
     /// <summary>
     /// Create buttons for each character and set the appropriate size for the scroll list
     /// </summary>

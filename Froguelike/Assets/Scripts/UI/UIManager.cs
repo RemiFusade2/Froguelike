@@ -29,43 +29,17 @@ public class UIManager : MonoBehaviour
 
     [Header("Chapter selection")]
     public GameObject chapterSelectionScreen;
-    public Text chapterSelectionTopText;
-    public List<Text> chapterTitleTextsList;
-    public List<Text> chapterDescriptionTextsList;
 
     [Header("Chapter Start")]
     public GameObject chapterStartScreen;
-    public Text chapterStartTopText;
-    public Text chapterStartBottomText;
 
     [Header("In game UI")]
     public GameObject inGameUIPanel;
-    public Slider xpSlider;
-    public Text levelText;
-    [Space]
-    public Text currencyText;
-    [Space]
-    public string timerPrefix;
-    public Text timerText;
-    [Space]
-    public string killCountPrefix;
-    public Text killCountText;
-    [Space]
-    public string extraLivesPrefix;
-    public Text extraLivesCountText;
+
 
     [Header("Level UP Panel")]
     public GameObject levelUpPanel;
     public Animator levelUpPanelAnimator;
-    [Space]
-    public List<GameObject> levelUpChoicesPanels;
-    public List<Text> levelUpChoicesTitles;
-    public List<Text> levelUpChoicesLevels;
-    public List<Text> levelUpChoicesDescriptions;
-    [Space]
-    public Color defaultUIColor;
-    public Color newItemColor;
-    public Color maxLevelColor;
 
     [Header("Pause")]
     public GameObject pausePanel;
@@ -82,16 +56,6 @@ public class UIManager : MonoBehaviour
 
     [Header("Score Screen")]
     public GameObject scoreScreen;
-    public List<Text> chaptersTextList;
-    public List<Text> chaptersScoreTextList;
-    public Text totalScoreText;
-    public Text moralText;
-    [Space]
-    public Text upgradesText;
-    public Text upgradesLevelsText;
-    public GameObject unlockPanel;
-    public Text unlockedCharacterName;
-    public Image unlockedCharacterImage;
 
     #endregion
 
@@ -99,19 +63,20 @@ public class UIManager : MonoBehaviour
     public GameObject backToTitleScreenConfirmationPanel;
     public GameObject clearSaveFileConfirmationPanel;
 
-    [Header("Sound")]
-    public SoundManager soundManager;
-    public MusicManager musicManager;
-
-    [Header("Currency symbol")]
-    public string currencySymbol = "₣";
-
     [Header("Settings Screen")]
     public GameObject settingsScreen;
 
     private void Awake()
     {
-        instance = this;
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(this);
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
     }
 
     private void Start()
@@ -132,25 +97,9 @@ public class UIManager : MonoBehaviour
         shopScreen.SetActive(false);
     }
 
-    public void SetTimer(float remainingTime)
-    {
-        System.TimeSpan time = new System.TimeSpan(0, 0, Mathf.RoundToInt(remainingTime));
-        timerText.text = timerPrefix + time.ToString("m\\:ss");
-    }
-
-    public void SetEatenCount(int eatenBugs)
-    {
-        killCountText.text = killCountPrefix + eatenBugs.ToString();
-    }
-
-    public void SetExtraLives(int reviveCount)
-    {
-        extraLivesCountText.text = extraLivesPrefix + reviveCount.ToString();
-    }
-
     public void ShowTitleScreen()
     {
-        musicManager.PlayTitleMusic();
+        MusicManager.instance.PlayTitleMusic();
         HideAllScreens();
         UpdateTitleScreenCurrencyText(GameManager.instance.gameData.availableCurrency);
         titleScreen.SetActive(true);
@@ -164,14 +113,9 @@ public class UIManager : MonoBehaviour
         ShopManager.instance.DisplayShop();
     }
 
-    public void UpdateInGameCurrencyText(long currencyValue)
-    {
-        currencyText.text = Tools.FormatCurrency(currencyValue, currencySymbol);
-    }
-
     private void UpdateTitleScreenCurrencyText(long currencyValue)
     {
-        titleScreenCurrencyText.text = Tools.FormatCurrency(currencyValue, currencySymbol);
+        titleScreenCurrencyText.text = Tools.FormatCurrency(currencyValue, DataManager.instance.currencySymbol);
     }
 
     public void ShowCharacterSelectionScreen()
@@ -184,111 +128,29 @@ public class UIManager : MonoBehaviour
         characterSelectionScreen.SetActive(true);
     }
 
-    public void ShowChapterSelection(int chapterCount, List<ChapterData> chapters)
+    public void ShowChapterSelectionScreen(bool forceTitleScreen = false)
     {
         HideAllScreens();
-        string chapterIntro = "";
-        if (chapterCount == 1)
+        if (forceTitleScreen)
         {
             titleScreen.SetActive(true);
-            chapterIntro = "How does the story start?";
-        }
-        else if (chapterCount == 5)
-        {
-            chapterIntro = "How does that story end?";
-        }
-        else
-        {
-            chapterIntro = "What happens in chapter " + chapterCount.ToString() + "?";
-        }
-        chapterSelectionTopText.text = chapterIntro;
-        for (int i = 0; i < chapters.Count; i++)
-        {
-            ChapterData chapter = chapters[i];
-            chapterTitleTextsList[i].text = chapter.chapterTitle;
-            chapterDescriptionTextsList[i].text = chapter.chapterDescription;
         }
         chapterSelectionScreen.SetActive(true);
     }
 
-    public void ShowChapterStart(int chapterCount, string chapterTitle)
+    public void ShowChapterStart()
     {
         HideAllScreens();
         chapterStartScreen.SetActive(true);
-        chapterStartTopText.text = "Chapter " + chapterCount.ToString();
-        chapterStartBottomText.text = chapterTitle;
-        PlayLongPageSound();
+        SoundManager.instance.PlayLongPageSound();
     }
 
-    public void ShowScoreScreen(List<ChapterInfo> chaptersInfoList, string moral, List<ItemInfo> itemsInfoList)
+    public void ShowScoreScreen()
     {
         HideAllScreens();
-
-        // Hide all chapters texts
-        foreach (Text chapterTextParent in chaptersTextList)
-        {
-            chapterTextParent.gameObject.SetActive(false);
-        }
-
-        // Display the relevant ones
-        int totalScore = 0;
-        for (int i = 0; i < chaptersInfoList.Count; i++)
-        {
-            if (i < chaptersTextList.Count && i < chaptersScoreTextList.Count)
-            {
-                ChapterInfo chapterInfo = chaptersInfoList[i];
-                chaptersTextList[i].gameObject.SetActive(true);
-                chaptersTextList[i].text = "Chapter " + chapterInfo.chapterCount + "\n\t" + chapterInfo.chapterData.chapterTitle;
-                chaptersScoreTextList[i].text = chapterInfo.enemiesKilledCount.ToString();
-                totalScore += chapterInfo.enemiesKilledCount;
-            }
-        }
-        totalScoreText.text = totalScore.ToString();
-
-        // Display random moral
-        moralText.text = moral;
-
-        // Display all items and their level
-        string allItemsNames = "";
-        string allItemsLevels = "";
-        foreach (ItemInfo itemInfo in itemsInfoList)
-        {
-            if (itemInfo.item.isWeapon)
-            {
-                allItemsNames += itemInfo.item.itemName + "\n";
-                allItemsLevels += "LVL " + itemInfo.level + "\n";
-            }
-        }
-        allItemsNames += "\n";
-        allItemsLevels += "\n";
-        foreach (ItemInfo itemInfo in itemsInfoList)
-        {
-            if (!itemInfo.item.isWeapon && itemInfo.item.levels.Count > 1)
-            {
-                allItemsNames += itemInfo.item.itemName + "\n";
-                allItemsLevels += "LVL " + itemInfo.level + "\n";
-            }
-        }
-        allItemsNames += "\n";
-        allItemsLevels += "\n";
-        foreach (ItemInfo itemInfo in itemsInfoList)
-        {
-            if (!itemInfo.item.isWeapon && itemInfo.item.levels.Count == 1)
-            {
-                allItemsNames += itemInfo.item.itemName + "\n";
-                allItemsLevels += "x" + itemInfo.level + "\n";
-            }
-        }
-        upgradesText.text = allItemsNames;
-        upgradesLevelsText.text = allItemsLevels;
-
-        // Display unlocked character info
-        unlockPanel.SetActive(false);
-
-        // Display score screen
         inGameUIPanel.SetActive(true);
         scoreScreen.SetActive(true);
-        PlayLongPageSound();
+        SoundManager.instance.PlayLongPageSound();
     }
 
     public void ShowGameUI()
@@ -305,118 +167,20 @@ public class UIManager : MonoBehaviour
         gameOverPanel.SetActive(true);
         gameOverRespawnButton.SetActive(respawnAvailable);
         gameOverGiveUpButton.SetActive(!respawnAvailable);
-        PlayDeathSound();
+
+        SoundManager.instance.PlayDeathSound();
     }
-
-    public void UpdateXPSlider(float xp, float maxXp)
-    {
-        xpSlider.maxValue = maxXp;
-        xpSlider.value = xp;
-    }
-
-    public void UpdateLevel(int level)
-    {
-        levelText.text = "LVL " + level.ToString();
-    }
-
-    public void HideLevelUpItemSelection()
-    {
-        levelUpPanelAnimator.SetBool("Visible", false);
-        PlaySlideBookSound();
-    }
-
-    public void ShowLevelUpItemSelection(List<ItemScriptableObject> possibleItems, List<int> itemLevels)
-    {
-        EventSystem.current.SetSelectedGameObject(null);
-        PlaySlideBookSound();
-        levelUpPanel.SetActive(true);
-        levelUpPanelAnimator.SetBool("Visible", true);
-        foreach (GameObject panel in levelUpChoicesPanels)
-        {
-            panel.SetActive(false);
-        }
-
-        int index = 0;
-        foreach (ItemScriptableObject item in possibleItems)
-        {
-            levelUpChoicesPanels[index].SetActive(true);
-            levelUpChoicesTitles[index].text = item.itemName;
-            if (item.levels.Count == 1)
-            {
-                // item without levels
-                levelUpChoicesLevels[index].color = defaultUIColor;
-                levelUpChoicesLevels[index].text = "";
-                levelUpChoicesDescriptions[index].text = item.levels[0].description;
-            }
-            else
-            {
-                int level = itemLevels[index];
-                if (level == 1)
-                {
-                    // new item!
-                    levelUpChoicesLevels[index].color = newItemColor;
-                    levelUpChoicesLevels[index].text = "New!";
-                }
-                else if (level >= item.levels.Count)
-                {
-                    // max level
-                    levelUpChoicesLevels[index].color = maxLevelColor;
-                    levelUpChoicesLevels[index].text = "LVL MAX";
-                }
-                else
-                {
-                    levelUpChoicesLevels[index].color = defaultUIColor;
-                    levelUpChoicesLevels[index].text = "LVL " + level.ToString();
-                }
-                string description = "Better I guess...";
-                if ((level - 1) < item.levels.Count)
-                {
-                    description = item.levels[level - 1].description;
-                }
-                levelUpChoicesDescriptions[index].text = description;
-            }
-            index++;
-        }
-    }
-
-    #region Audio
-    // Audio
-
-    // Used for starting a chapter and end screen.
-    public void PlayLongPageSound()
-    {
-        soundManager.PlayLongPageSound();
-    }
-
-    // Ripping page.
-    public void PlayDeathSound()
-    {
-        soundManager.PlayDeathSound();
-    }
-
-    public void PlayShortPageSound()
-    {
-        soundManager.PlayShortPageSound();
-    }
-
-    // When showing level up book.
-    public void PlaySlideBookSound()
-    {
-        soundManager.PlaySlideBookSound();
-    }
-
-    #endregion Audio
 
     public void ShowPauseScreen()
     {
-        musicManager.PauseMusic();
+        MusicManager.instance.PauseMusic();
         pausePanel.SetActive(true);
         pausePanelAnimator.SetBool("Visible", true);
     }
 
     public void HidePauseScreen()
     {
-        musicManager.UnpauseMusic();
+        MusicManager.instance.UnpauseMusic();
         pausePanelAnimator.SetBool("Visible", false);
     }
 

@@ -11,7 +11,8 @@ public class FriendInfo
     public Transform weaponPositionTransform;
     public WeaponBehaviour weapon;
     public Animator animator;
-    public int style;
+    public FriendType friendType;
+    public int style; // for animator
     public Vector2 startPosition;
 }
 
@@ -29,17 +30,18 @@ public class FrogCharacterController : MonoBehaviour
     public List<Sprite> hatSpritesList;
 
     [Header("Character default stats values")]
-    public float defaultHealthRecovery = 0.001f;
+    public float defaultHealthRecovery = 0.1f;
     public float defaultWalkSpeed = 6;
     public float defaultSwimSpeed = 4;
 
     [Header("Character data")]
-    public float walkSpeed;
-    public float swimSpeed;
+    public float walkSpeedBoost;
+    public float swimSpeedBoost;
     [Space]
     public float currentHealth = 100;
     public float maxHealth = 100;
-    public float healthRecovery = 0.01f;
+    public float healthRecovery;
+    public float hpRecoveryDelay = 1.0f;
     [Space]
     public float armor = 0;
     public float experienceBoost = 0;
@@ -77,7 +79,7 @@ public class FrogCharacterController : MonoBehaviour
     [Header("Friend Frog")]
     public List<FriendInfo> allFriends;
 
-    private List<int> activeFriendsIndexList;
+    private List<FriendType> activeFriendsList;
 
     private int animatorCharacterValue;
 
@@ -89,14 +91,16 @@ public class FrogCharacterController : MonoBehaviour
 
     private float invincibilityTime;
 
-    private List<int> currentHatsList;
+    private List<HatType> currentHatsList;
+
+    private float timeSinceLastHPRecovery;
 
     #region Unity Callback Methods
 
     private void Awake()
     {
-        activeFriendsIndexList = new List<int>();
-        currentHatsList = new List<int>();
+        activeFriendsList = new List<FriendType>();
+        currentHatsList = new List<HatType>();
     }
 
     // Start is called before the first frame update
@@ -131,17 +135,22 @@ public class FrogCharacterController : MonoBehaviour
                 weaponTransform.GetComponent<WeaponBehaviour>().TryAttack();
             }
 
-            foreach (int friendIndex in activeFriendsIndexList)
+            // Make friends attack!
+            foreach (FriendInfo friend in allFriends)
             {
-                FriendInfo friend = allFriends[friendIndex];
-                friend.weapon.TryAttack();
-                float friendSpeed = Mathf.Clamp(friend.friendGameObject.GetComponent<Rigidbody2D>().velocity.magnitude, 0, 3);
-                friend.animator.SetFloat("Speed", friendSpeed);
+                if (activeFriendsList.Contains(friend.friendType))
+                {
+                    // this friend is active!
+                    friend.weapon.TryAttack();
+                    float friendSpeed = Mathf.Clamp(friend.friendGameObject.GetComponent<Rigidbody2D>().velocity.magnitude, 0, 3);
+                    friend.animator.SetFloat("Speed", friendSpeed);
+                }
             }
 
-            if (!GameManager.instance.gameIsPaused && !GameManager.instance.chapterChoiceIsVisible && !GameManager.instance.levelUpChoiceIsVisible)
+            if (!GameManager.instance.gameIsPaused && !ChapterManager.instance.chapterChoiceIsVisible && !RunManager.instance.levelUpChoiceIsVisible && (Time.time - timeSinceLastHPRecovery) > hpRecoveryDelay)
             {
                 ChangeHealth(healthRecovery);
+                timeSinceLastHPRecovery = Time.time;
             }
 
             float speed = Mathf.Clamp(playerRigidbody.velocity.magnitude, 0, 10);
@@ -159,7 +168,7 @@ public class FrogCharacterController : MonoBehaviour
             invincibilityTime -= Time.fixedDeltaTime;
         }
 
-        float moveSpeed = isOnLand ? walkSpeed : swimSpeed;
+        float moveSpeed = isOnLand ? (defaultWalkSpeed * (1+walkSpeedBoost)) : (defaultSwimSpeed * (1 + swimSpeedBoost));
         Vector2 moveInput = (((HorizontalInput * Vector2.right).normalized + (VerticalInput * Vector2.up).normalized)).normalized * moveSpeed;
 
         if (!moveInput.Equals(Vector2.zero))
@@ -175,13 +184,17 @@ public class FrogCharacterController : MonoBehaviour
             weaponTransform.GetComponent<WeaponBehaviour>().SetTonguePosition(weaponStartPoint);
         }
 
-        foreach (int friendIndex in activeFriendsIndexList)
+        // Make friends move
+        foreach (FriendInfo friend in allFriends)
         {
-            FriendInfo friend = allFriends[friendIndex];
-            friend.weapon.TryAttack();
-            float friendOrientationAngle = 90 + 90 * Mathf.RoundToInt((Vector2.SignedAngle(friend.friendGameObject.GetComponent<Rigidbody2D>().velocity.normalized, Vector2.right)) / 90);
-            friend.friendGameObject.transform.localRotation = Quaternion.Euler(0, 0, -friendOrientationAngle);
-            friend.weapon.SetTonguePosition(friend.weaponPositionTransform);
+            if (activeFriendsList.Contains(friend.friendType))
+            {
+                // this friend is active!
+                friend.weapon.TryAttack();
+                float friendOrientationAngle = 90 + 90 * Mathf.RoundToInt((Vector2.SignedAngle(friend.friendGameObject.GetComponent<Rigidbody2D>().velocity.normalized, Vector2.right)) / 90);
+                friend.friendGameObject.transform.localRotation = Quaternion.Euler(0, 0, -friendOrientationAngle);
+                friend.weapon.SetTonguePosition(friend.weaponPositionTransform);
+            }
         }
     }
 
@@ -231,6 +244,7 @@ public class FrogCharacterController : MonoBehaviour
         {
             healthRecovery *= (1 + startingHPRecoveryBoost);
         }
+        timeSinceLastHPRecovery = Time.time;
 
         // Armor
         armor = 0;
@@ -261,17 +275,15 @@ public class FrogCharacterController : MonoBehaviour
         }
 
         // Walk speed
-        walkSpeed = defaultWalkSpeed;
         if (allStartingStatsWrapper.GetValueForStat(STAT.WALK_SPEED_BOOST, out float startingWalkSpeedBoost))
         {
-            walkSpeed *= (1 + startingWalkSpeedBoost);
+            walkSpeedBoost = startingWalkSpeedBoost;
         }
 
         // Swim speed
-        swimSpeed = defaultSwimSpeed;
         if (allStartingStatsWrapper.GetValueForStat(STAT.SWIM_SPEED_BOOST, out float startingSwimSpeedBoost))
         {
-            swimSpeed *= (1 + startingSwimSpeedBoost);
+            swimSpeedBoost = startingSwimSpeedBoost;
         }
 
         // Revivals
@@ -358,49 +370,50 @@ public class FrogCharacterController : MonoBehaviour
         // TO DO
 
 
-        UIManager.instance.SetExtraLives(revivals);
+        RunManager.instance.SetExtraLives(revivals);
 
         currentHealth = maxHealth;
     }
 
-    public void ResolvePickedItemLevel(ItemLevel itemLevelData)
+    public void ResolvePickedConsumableItem(RunConsumableItemData consumableData)
     {
-        curse += itemLevelData.curseBoost;
+        RunManager.instance.currentCollectedCurrency += consumableData.effect.currencyBonus; // TODO: Use a method to increase currency and update UI
+
+        //RunManager.instance.enemiesKilledCount += consumableData.effect.scoreBonus; // TODO: Store somewhere the current kill count for this chapter
+        // UIManager.instance.SetEatenCount(RunManager.instance.currentChapter.enemiesKilledCount);
+
+        RunManager.instance.IncreaseXP(consumableData.effect.xpBonus);
+
+        Heal(consumableData.effect.healthBonus);        
+    }
+    
+    public void ResolvePickedStatItemLevel(RunStatItemLevel itemLevelData)
+    {
+        // All of these stats could probably be stored in a better way 
+        // TODO: Use a list<StatValue> instead, or the Wrapper
+        curse += (float)itemLevelData.statUpgrades.GetStatValue(STAT.CURSE).value;
 
         // character stats
-        armor += itemLevelData.armorBoost;
-        experienceBoost += itemLevelData.experienceBoost;
-        healthRecovery += itemLevelData.healthRecoveryBoost;
-        maxHealth += itemLevelData.maxHealthBoost;
-        revivals += itemLevelData.revivalBoost;
+        armor += (float)itemLevelData.statUpgrades.GetStatValue(STAT.ARMOR).value;
+        experienceBoost += (float)itemLevelData.statUpgrades.GetStatValue(STAT.XP_BOOST).value;
+        currencyBoost += (float)itemLevelData.statUpgrades.GetStatValue(STAT.CURRENCY_BOOST).value;
+        healthRecovery += (float)itemLevelData.statUpgrades.GetStatValue(STAT.HEALTH_RECOVERY_BOOST).value;
+        maxHealth += (float)itemLevelData.statUpgrades.GetStatValue(STAT.MAX_HEALTH).value;
+        revivals += (int)itemLevelData.statUpgrades.GetStatValue(STAT.REVIVAL).value;
 
-        UIManager.instance.SetExtraLives(revivals);
+        RunManager.instance.SetExtraLives(revivals);
 
-        GameManager.instance.currentChapter.enemiesKilledCount += itemLevelData.extraScore;
-        UIManager.instance.SetEatenCount(GameManager.instance.currentChapter.enemiesKilledCount);
-
-        if (itemLevelData.extraXP > 0)
-        {
-            GameManager.instance.IncreaseXP(itemLevelData.extraXP);
-        }
-
-        walkSpeed += itemLevelData.walkSpeedBoost;
-        swimSpeed += itemLevelData.swimSpeedBoost;
+        walkSpeedBoost += (float)itemLevelData.statUpgrades.GetStatValue(STAT.WALK_SPEED_BOOST).value;
+        swimSpeedBoost += (float)itemLevelData.statUpgrades.GetStatValue(STAT.SWIM_SPEED_BOOST).value;
 
         // attack stuff
-        attackCooldownBoost += itemLevelData.attackCooldownBoost;
-        attackDamageBoost += itemLevelData.attackDamageBoost;
-        //attackMaxFliesBoost += itemLevelData.attackMaxFliesBoost;
-        attackRangeBoost += itemLevelData.attackRangeBoost;
-        attackSpeedBoost += itemLevelData.attackSpeedBoost;
+        attackCooldownBoost += (float)itemLevelData.statUpgrades.GetStatValue(STAT.ATK_COOLDOWN_BOOST).value;
+        attackDamageBoost += (float)itemLevelData.statUpgrades.GetStatValue(STAT.ATK_DAMAGE_BOOST).value;
+        attackRangeBoost += (float)itemLevelData.statUpgrades.GetStatValue(STAT.ATK_RANGE_BOOST).value;
+        attackSpeedBoost += (float)itemLevelData.statUpgrades.GetStatValue(STAT.ATK_SPEED_BOOST).value;
 
-        attackSpecialDurationBoost += itemLevelData.attackSpecialDurationBoost;
-        attackSpecialStrengthBoost += itemLevelData.attackSpecialStrengthBoost;
-
-        if (itemLevelData.recoverHealth > 0)
-        {
-            currentHealth += System.Math.Clamp(currentHealth + itemLevelData.recoverHealth, 0, maxHealth);
-        }
+        attackSpecialStrengthBoost += (float)itemLevelData.statUpgrades.GetStatValue(STAT.ATK_SPECIAL_STRENGTH_BOOST).value;
+        attackSpecialDurationBoost += (float)itemLevelData.statUpgrades.GetStatValue(STAT.ATK_SPECIAL_DURATION_BOOST).value;
     }
 
 
@@ -429,27 +442,33 @@ public class FrogCharacterController : MonoBehaviour
             friend.friendGameObject.SetActive(false);
             friend.weapon.gameObject.SetActive(false);
         }
-        if (activeFriendsIndexList == null)
+        if (activeFriendsList == null)
         {
-            activeFriendsIndexList = new List<int>();
+            activeFriendsList = new List<FriendType>();
         }
-        activeFriendsIndexList.Clear();
+        activeFriendsList.Clear();
     }
 
-    public bool HasActiveFriend(int index)
+    public bool HasActiveFriend(FriendType friendType)
     {
-        return activeFriendsIndexList.Contains(index);
+        return activeFriendsList.Contains(friendType);
     }
 
-    public void AddActiveFriend(int index)
+    public void AddActiveFriend(FriendType friendType)
     {
-        if (!HasActiveFriend(index))
+        if (!HasActiveFriend(friendType))
         {
-            activeFriendsIndexList.Add(index);
-            allFriends[index].friendGameObject.SetActive(true);
-            allFriends[index].weapon.gameObject.SetActive(true);
-            allFriends[index].weapon.ResetWeapon();
-            allFriends[index].animator.SetInteger("Style", allFriends[index].style);
+            activeFriendsList.Add(friendType);
+            foreach (FriendInfo friend in allFriends)
+            {
+                if (friend.friendType.Equals(friendType))
+                {
+                    friend.friendGameObject.SetActive(true);
+                    friend.weapon.gameObject.SetActive(true);
+                    friend.weapon.ResetWeapon();
+                    friend.animator.SetInteger("Style", friend.style);
+                }
+            }
         }
     }
 
@@ -462,23 +481,34 @@ public class FrogCharacterController : MonoBehaviour
         }
     }
 
-    public void AddHat(int style)
+    public void AddHat(HatType hatType)
     {
-        currentHatsList.Add(style);
+        currentHatsList.Add(hatType);
         foreach (SpriteRenderer hatRenderer in hatRenderersList)
         {
             if (!hatRenderer.gameObject.activeInHierarchy)
             {
                 hatRenderer.gameObject.SetActive(true);
-                hatRenderer.sprite = hatSpritesList[((style - 1) % hatSpritesList.Count)];
+                switch (hatType)
+                {
+                    case HatType.FANCY_HAT:
+                        hatRenderer.sprite = hatSpritesList[0 % hatSpritesList.Count];
+                        break;
+                    case HatType.FASHION_HAT:
+                        hatRenderer.sprite = hatSpritesList[2 % hatSpritesList.Count];
+                        break;
+                    case HatType.SUN_HAT:
+                        hatRenderer.sprite = hatSpritesList[1 % hatSpritesList.Count];
+                        break;
+                }
                 break;
             }
         }
     }
 
-    public bool HasHat(int style)
+    public bool HasHat(HatType hatType)
     {
-        return currentHatsList.Contains(style);
+        return currentHatsList.Contains(hatType);
     }
 
     #region Update Inputs
@@ -525,7 +555,7 @@ public class FrogCharacterController : MonoBehaviour
     {
         if (collision.collider.CompareTag("Fly") && GameManager.instance.isGameRunning && invincibilityTime <= 0)
         {
-            float damage = FliesManager.instance.GetEnemyDataFromName(collision.gameObject.name).damage * FliesManager.instance.enemyDamageFactor;
+            float damage = EnemiesManager.instance.GetEnemyDataFromName(collision.gameObject.name).damage * EnemiesManager.instance.enemyDamageFactor;
 
             damage = Mathf.Clamp(damage - armor, 0.1f, float.MaxValue);
             ChangeHealth(-damage);

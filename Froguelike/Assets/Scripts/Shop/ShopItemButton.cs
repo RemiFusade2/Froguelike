@@ -36,7 +36,7 @@ public class ShopItemButton : MonoBehaviour
 
         if (item.currentLevel < item.data.costForEachLevel.Count)
         {
-            priceText.text = Tools.FormatCurrency(item.data.costForEachLevel[item.currentLevel], UIManager.instance.currencySymbol);
+            priceText.text = Tools.FormatCurrency(item.data.costForEachLevel[item.currentLevel], DataManager.instance.currencySymbol);
         }
     }
 }

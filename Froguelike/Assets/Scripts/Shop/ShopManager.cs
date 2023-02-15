@@ -245,7 +245,7 @@ public class ShopManager : MonoBehaviour
         refundButton.interactable = (shopData.currencySpentInShop > 0);
         
         // Update available currency
-        availableCurrencyText.text = Tools.FormatCurrency(GameManager.instance.gameData.availableCurrency, UIManager.instance.currencySymbol);
+        availableCurrencyText.text = Tools.FormatCurrency(GameManager.instance.gameData.availableCurrency, DataManager.instance.currencySymbol);
         
         // Remove previous buttons
         foreach (Transform child in shopPanel)

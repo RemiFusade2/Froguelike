@@ -27,5 +27,5 @@ public class CharacterData : ScriptableObject
     public bool startingHiddenState; // a character may be hidden from the start
 
     [Header("Starting Items")]
-    public List<ItemScriptableObject> startingItems;
+    public List<RunItemData> startingItems;
 }

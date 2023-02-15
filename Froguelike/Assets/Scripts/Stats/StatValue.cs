@@ -40,6 +40,12 @@ public class StatValue : IEquatable<StatValue>, ICloneable
     public STAT stat;
     public double value;
 
+    public StatValue(STAT s, double v)
+    {
+        stat = s;
+        value = v;
+    }
+
     public StatValue(StatValue origin)
     {
         stat = origin.stat;
@@ -54,7 +60,7 @@ public class StatValue : IEquatable<StatValue>, ICloneable
     // Two StatValue are considered equal if they have the same stat type
     public bool Equals(StatValue other)
     {
-        return this.stat == other.stat;
+        return (other != null && this.stat == other.stat);
     }
 }
 
@@ -76,6 +82,10 @@ public class StatsWrapper
     public StatValue GetStatValue(STAT statType)
     {
         StatValue statValue = statsList.FirstOrDefault(x => x.stat.Equals(statType));
+        if (statValue == null)
+        {
+            statValue = new StatValue(statType, 0);
+        }
         return statValue;
     }
 

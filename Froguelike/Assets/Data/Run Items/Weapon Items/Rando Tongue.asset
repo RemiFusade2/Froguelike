@@ -1,0 +1,105 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a3e6f35f2243724ab20b25b57def90b, type: 3}
+  m_Name: Rando Tongue
+  m_EditorClassIdentifier: 
+  itemName: Rando-tongue
+  icon: {fileID: 0}
+  unlockedFromStart: 0
+  weaponData:
+    weaponName: Rando-tongue
+    description: An unpredictable organ for eating
+    weaponPrefab: {fileID: 3990334965163639182, guid: 4a710caa256322a4aa6bfb19109e4559, type: 3}
+    weaponType: 8
+    comesBackAfterEatingFlies: 1
+    weaponBaseStats:
+      statsList:
+      - stat: 0
+        value: 2
+      - stat: 1
+        value: 1
+      - stat: 2
+        value: 1
+      - stat: 3
+        value: 3
+      - stat: 4
+        value: 0.1
+      - stat: 6
+        value: 1
+  weaponBoostLevels:
+  - description: Add a chance to slow enemies down
+    weaponStatUpgrades:
+      statsList:
+      - stat: 10
+        value: 0.5
+      - stat: 11
+        value: 3
+  - description: Damage +3\nRange +25%
+    weaponStatUpgrades:
+      statsList:
+      - stat: 0
+        value: 3
+      - stat: 3
+        value: 0.25
+  - description: Add a risk to make enemies stronger
+    weaponStatUpgrades:
+      statsList:
+      - stat: 12
+        value: 1
+      - stat: 13
+        value: 3
+  - description: Extra tongue!
+    weaponStatUpgrades:
+      statsList:
+      - stat: 6
+        value: 1
+  - description: Add a chance to absorb life
+    weaponStatUpgrades:
+      statsList:
+      - stat: 7
+        value: 0.1
+  - description: Damage +5\nSpeed +50%
+    weaponStatUpgrades:
+      statsList:
+      - stat: 0
+        value: 5
+      - stat: 1
+        value: 0.5
+  - description: Add a chance to poison enemies
+    weaponStatUpgrades:
+      statsList:
+      - stat: 8
+        value: 3
+      - stat: 9
+        value: 3
+  - description: Cooldown -25%\nRange +25%
+    weaponStatUpgrades:
+      statsList:
+      - stat: 2
+        value: -0.25
+      - stat: 3
+        value: 0.25
+  - description: Increase randomness
+    weaponStatUpgrades:
+      statsList:
+      - stat: 7
+        value: 1
+      - stat: 8
+        value: 2
+      - stat: 9
+        value: 0.67
+      - stat: 10
+        value: 1
+      - stat: 11
+        value: 0.67
+      - stat: 13
+        value: 2.33

@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class SoundManager : MonoBehaviour
 {
+    public static SoundManager instance;
+
     [Header("Audio Clips")]
     public AudioClip buttonSound;
     [Range(0, 1)] public float buttonVolume = 1;
@@ -18,6 +20,19 @@ public class SoundManager : MonoBehaviour
     [Range(0, 1)] public float slideBookVolume = 1;
 
     private AudioSource audioSource;
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(this);
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
+    }
 
     // Start is called before the first frame update
     void Start()

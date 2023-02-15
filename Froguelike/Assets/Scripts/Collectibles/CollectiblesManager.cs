@@ -167,7 +167,8 @@ public class CollectiblesManager : MonoBehaviour
                 else
                 {
                     collectibleRb = collectible.GetComponent<Rigidbody2D>();
-                    float collectibleMovingSpeed = collectibleMovingSpeedFactor * GameManager.instance.player.walkSpeed;
+                    float walkSpeed = GameManager.instance.player.defaultWalkSpeed * (1 + GameManager.instance.player.walkSpeedBoost);
+                    float collectibleMovingSpeed = collectibleMovingSpeedFactor * walkSpeed;
                     collectibleMovingSpeed = Mathf.Clamp(collectibleMovingSpeed, collectibleMinMovingSpeed, 100.0f);
                     collectibleRb.velocity = moveDirection * collectibleMovingSpeed;
                 }
@@ -177,7 +178,7 @@ public class CollectiblesManager : MonoBehaviour
             foreach (Transform collectible in collectedCollectibles)
             {
                 string collectibleName = CollectCollectible(collectible);
-                GameManager.instance.CollectCollectible(collectibleName);
+                RunManager.instance.CollectCollectible(collectibleName);
             }
         }
     }
