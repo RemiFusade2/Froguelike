@@ -104,7 +104,7 @@ public class ShopManager : MonoBehaviour
     /// </summary>
     /// <param name="stat"></param>
     /// <returns></returns>
-    public float GetStatBonus(STAT stat)
+    public float GetStatBonus(CharacterStat stat)
     {
         double bonus = 0;
         StatValue statValue = statsBonuses.FirstOrDefault(x => x.stat.Equals(stat));

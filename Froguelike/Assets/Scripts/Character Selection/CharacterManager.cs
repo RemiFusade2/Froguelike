@@ -30,7 +30,7 @@ public class PlayableCharacter
     public bool hidden;
     public int wonWith;
 
-    public bool GetValueForStat(STAT stat, out float value)
+    public bool GetValueForStat(CharacterStat stat, out float value)
     {
         value = 0;
         StatValue statValue = characterStartingStats.GetStatValue(stat);
@@ -225,7 +225,7 @@ public class CharacterManager : MonoBehaviour
         string valueText = "";
 
         // An array for all stats where all the available values from the stat list is stored.
-        StatValue[] statValues = new StatValue[Enum.GetValues(typeof(STAT)).Length];
+        StatValue[] statValues = new StatValue[Enum.GetValues(typeof(CharacterStat)).Length];
         for (int i = 0; i < statList.Count; i++)
         {
             statValues[(int)statList[i].stat] = statList[i];
@@ -234,7 +234,7 @@ public class CharacterManager : MonoBehaviour
         // Make the string from the available values.
         for (int i = 0; i < statValues.Length; i++)
         {
-            STAT thisStat = (STAT)i;
+            CharacterStat thisStat = (CharacterStat)i;
 
             // Checks if there is a value to add to the string.
             if (statValues[i] == null)
@@ -242,10 +242,10 @@ public class CharacterManager : MonoBehaviour
                 // Some should be 
                 switch (thisStat)
                 {
-                    case STAT.REVIVAL:
-                    case STAT.REROLL:
-                    case STAT.BANISH:
-                    case STAT.SKIP:
+                    case CharacterStat.REVIVAL:
+                    case CharacterStat.REROLL:
+                    case CharacterStat.BANISH:
+                    case CharacterStat.SKIP:
                         if (isListForTotals)
                         {
                             valueText += "0";
@@ -268,11 +268,11 @@ public class CharacterManager : MonoBehaviour
                 switch (thisStat)
                 {
                     // These values are a number.
-                    case STAT.MAX_HEALTH: // 0 // TODO: Display HP unit in total column
-                    case STAT.REVIVAL: // 8
-                    case STAT.REROLL: // 9
-                    case STAT.BANISH: // 10
-                    case STAT.SKIP: // 11
+                    case CharacterStat.MAX_HEALTH: // 0 // TODO: Display HP unit in total column
+                    case CharacterStat.REVIVAL: // 8
+                    case CharacterStat.REROLL: // 9
+                    case CharacterStat.BANISH: // 10
+                    case CharacterStat.SKIP: // 11
                         // Sign depending on negative or positiv number. Only added when the list is not for the total value.
                         if (!isListForTotals)
                         {
@@ -288,7 +288,7 @@ public class CharacterManager : MonoBehaviour
                         valueText += thisValue.ToString();
                         break;
 
-                    case STAT.HEALTH_RECOVERY_BOOST: // 1
+                    case CharacterStat.HEALTH_RECOVERY_BOOST: // 1
                         if (thisValue <= 0)
                         {
                             valueText += "-";
@@ -301,20 +301,20 @@ public class CharacterManager : MonoBehaviour
                         break;
 
                     // These values are in percentage.
-                    case STAT.ARMOR: // 2
-                    case STAT.XP_BOOST: // 3
-                    case STAT.CURRENCY_BOOST: // 4
-                    case STAT.CURSE: // 5
-                    case STAT.WALK_SPEED_BOOST: // 6
-                    case STAT.SWIM_SPEED_BOOST: // 7
-                    case STAT.ATK_DAMAGE_BOOST: // 12
-                    case STAT.ATK_SPEED_BOOST: // 13
-                    case STAT.ATK_COOLDOWN_BOOST: // 14
-                    case STAT.ATK_RANGE_BOOST: // 15
-                    case STAT.ATK_AREA_BOOST: // 16
-                    case STAT.ATK_SPECIAL_STRENGTH_BOOST: // 17
-                    case STAT.ATK_SPECIAL_DURATION_BOOST: // 18
-                    case STAT.MAGNET_RANGE_BOOST: // 19
+                    case CharacterStat.ARMOR: // 2
+                    case CharacterStat.XP_BOOST: // 3
+                    case CharacterStat.CURRENCY_BOOST: // 4
+                    case CharacterStat.CURSE: // 5
+                    case CharacterStat.WALK_SPEED_BOOST: // 6
+                    case CharacterStat.SWIM_SPEED_BOOST: // 7
+                    case CharacterStat.ATK_DAMAGE_BOOST: // 12
+                    case CharacterStat.ATK_SPEED_BOOST: // 13
+                    case CharacterStat.ATK_COOLDOWN_BOOST: // 14
+                    case CharacterStat.ATK_RANGE_BOOST: // 15
+                    case CharacterStat.ATK_AREA_BOOST: // 16
+                    case CharacterStat.ATK_SPECIAL_STRENGTH_BOOST: // 17
+                    case CharacterStat.ATK_SPECIAL_DURATION_BOOST: // 18
+                    case CharacterStat.MAGNET_RANGE_BOOST: // 19
                         if (thisValue < 0)
                         {
                             valueText += "-";

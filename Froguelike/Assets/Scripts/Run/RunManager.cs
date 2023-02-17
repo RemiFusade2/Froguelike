@@ -40,15 +40,16 @@ public class RunManager : MonoBehaviour
     public Color maxLevelColor;
 
     [Header("Settings - XP")]
-    public float startLevelXp = 5;
-    public float startXpNeededForNextLevelFactor = 1.5f;
+    public float startLevelXp = 5; // XP needed to go from level 1 to level 2
+    public float xpNeededForNextLevelMinFactor = 1.1f; // min factor applied on XP needed after each level
+    public float xpNeededForNextLevelMaxFactor = 1.5f; // max factor applied on XP needed after each level
+    [Space]
+    [Tooltip("This curve will be applied on the xp needed factor. 1 means multiply by the max factor. 0 means multiply by the min factor")]
+    public AnimationCurve xpNeededForEachLevelCurve; // curve applied on the xp needed factor
 
     [Header("Runtime - XP")]
     public float xp;
     public int level;
-
-    private float nextLevelXp = 5;
-    private float xpNeededForNextLevelFactor = 1.5f;
 
     [Header("Runtime - Current played character")]
     public PlayableCharacter currentPlayedCharacter;
@@ -67,6 +68,8 @@ public class RunManager : MonoBehaviour
     [Header("Runtime - Leveling Up")]
     public List<RunItemData> selectionOfPossibleRunItemsList;
     public bool levelUpChoiceIsVisible;
+    
+    private float nextLevelXp;
 
     public List<RunWeaponInfo> GetOwnedWeapons()
     {
@@ -130,11 +133,16 @@ public class RunManager : MonoBehaviour
         ChapterManager.instance.ShowChapterSelection(completedChaptersList);
     }
 
-    public void UpdateInGameCurrencyText(long currencyValue)
+    private void UpdateInGameCurrencyText(long currencyValue)
     {
         currencyText.text = Tools.FormatCurrency(currencyValue, DataManager.instance.currencySymbol);
     }
 
+    public void IncreaseCollectedCurrency(long currencyValue)
+    {
+        currentCollectedCurrency += currencyValue;
+        UpdateInGameCurrencyText(currentCollectedCurrency);
+    }
 
     public void InitializeNewRun()
     {
@@ -152,10 +160,9 @@ public class RunManager : MonoBehaviour
         level = 1;
         xp = 0;
         nextLevelXp = startLevelXp;
-        xpNeededForNextLevelFactor = startXpNeededForNextLevelFactor;
         // In-game UI
         UpdateLevelText(level);
-        UpdateXPSlider(xp, xpNeededForNextLevelFactor);
+        UpdateXPSlider(xp, nextLevelXp);
 
         // Reset EnemiesManager
         EnemiesManager.instance.ResetFactors();
@@ -208,7 +215,10 @@ public class RunManager : MonoBehaviour
             LevelUP();
 
             xp -= nextLevelXp;
-            nextLevelXp *= xpNeededForNextLevelFactor;
+
+            float levelOn100Ratio = Mathf.Clamp(level / 100.0f, 0, 1);
+            float nextLevelFactor = xpNeededForNextLevelMinFactor + (xpNeededForNextLevelMaxFactor - xpNeededForNextLevelMinFactor) * xpNeededForEachLevelCurve.Evaluate(levelOn100Ratio);
+            nextLevelXp *= nextLevelFactor;
         }
     }
     
@@ -228,7 +238,7 @@ public class RunManager : MonoBehaviour
         extraLivesCountText.text = extraLivesPrefix + reviveCount.ToString();
     }
 
-    private void IncreaseKillCount(int kills)
+    public void IncreaseKillCount(int kills)
     {
         currentChapter.enemiesKilledCount += kills;
         SetEatenCount(currentChapter.enemiesKilledCount);

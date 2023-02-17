@@ -461,7 +461,32 @@ MonoBehaviour:
   newItemColor: {r: 1, g: 0.74509805, b: 0.20392159, a: 1}
   maxLevelColor: {r: 0.7960785, g: 0.25882354, b: 0.31764707, a: 1}
   startLevelXp: 5
-  startXpNeededForNextLevelFactor: 1.17
+  xpNeededForNextLevelMinFactor: 1.1
+  xpNeededForNextLevelMaxFactor: 1.4
+  xpNeededForEachLevelCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: -0.63983387
+      outSlope: -0.63983387
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.02948718
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   xp: 0
   level: 0
   currentPlayedCharacter:
@@ -11958,6 +11983,10 @@ PrefabInstance:
       propertyPath: availableCurrencyText
       value: 
       objectReference: {fileID: 759443635}
+    - target: {fileID: 4919826508944035819, guid: abeb0f41db396bd45a4db2a535d395f8, type: 3}
+      propertyPath: availableItemDataList.Array.data[0]
+      value: 
+      objectReference: {fileID: 11400000, guid: 6972a9781aec88b4f82d60e2e23ade21, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: abeb0f41db396bd45a4db2a535d395f8, type: 3}
 --- !u!114 &1063019153 stripped

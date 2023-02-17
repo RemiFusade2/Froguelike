@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+/// <summary>
+/// WeaponStat is a list of all the stats describing a weapon.
+/// </summary>
 [System.Serializable]
 public enum WeaponStat
 {
@@ -27,51 +30,91 @@ public enum WeaponStat
     CURSE_DURATION // duration of the curse status
 }
 
+/// <summary>
+/// WeaponStatValue is a handy class storing a WeaponStat with its value.
+/// Storing a list of WeaponStatValue should be enough to describe a weapon.
+/// </summary>
 [System.Serializable]
 public class WeaponStatValue : IEquatable<WeaponStatValue>, ICloneable
 {
+    [Tooltip("What kind of stat are we talking about? Damage? Cooldown? Range?")]
     public WeaponStat stat;
+    [Tooltip("What is the value of this stat?")]
     public double value;
 
+    /// <summary>
+    /// Constructor that just create a default stat (value is zero)
+    /// </summary>
+    /// <param name="s"></param>
     public WeaponStatValue(WeaponStat s)
     {
         stat = s;
         value = 0;
     }
 
+    /// <summary>
+    /// Constructor that copies a WeaponStatValue
+    /// </summary>
+    /// <param name="origin"></param>
     public WeaponStatValue(WeaponStatValue origin)
     {
         stat = origin.stat;
         value = origin.value;
     }
 
+    /// <summary>
+    /// Will clone a WeaponStatValue to be sure to not have multiple references pointing to the same object!
+    /// </summary>
+    /// <returns></returns>
     public object Clone()
     {
         return new WeaponStatValue(this);
     }
-
-    // Two StatValue are considered equal if they have the same stat type
+    
+    /// <summary>
+    /// Two WeaponStatValue are considered equal if they have the same stat type
+    /// </summary>
+    /// <param name="other"></param>
+    /// <returns></returns>
     public bool Equals(WeaponStatValue other)
     {
         return (other != null && this.stat == other.stat);
     }
 }
 
+/// <summary>
+/// WeaponStatsWrapper is a handy class to store a bunch of WeaponStatValue. 
+/// It is mostly used to be able to serialize a list of WeaponStatValue (useful for saving/loading data).
+/// </summary>
 [System.Serializable]
 public class WeaponStatsWrapper
 {
+    [Tooltip("A list of weapon stats and their values")]
     public List<WeaponStatValue> statsList;
 
+    /// <summary>
+    /// Default constructor that initialize the list
+    /// </summary>
     public WeaponStatsWrapper()
     {
         statsList = new List<WeaponStatValue>();
     }
 
+    /// <summary>
+    /// Constructor that create a new WeaponStatsWrapper with all the stats and values from a given list.
+    /// </summary>
+    /// <param name="statValuesList"></param>
     public WeaponStatsWrapper(List<WeaponStatValue> statValuesList)
     {
         statsList = new List<WeaponStatValue>(statValuesList);
     }
 
+    /// <summary>
+    /// Handy method that returns the WeaponStatValue object for a given weapon stat type.
+    /// Would return a default one (with value of zero) if the list doesn't contain any information for that weapon stat type.
+    /// </summary>
+    /// <param name="statType"></param>
+    /// <returns></returns>
     public WeaponStatValue GetStatValue(WeaponStat statType)
     {
         WeaponStatValue statValue = statsList.FirstOrDefault(x => x.stat.Equals(statType));
@@ -82,16 +125,19 @@ public class WeaponStatsWrapper
         return statValue;
     }
 
+    /// <summary>
+    /// Will attempt to get a value for the given weapon stat type.
+    /// If the stat is not defined or its value is zero, the method will return false.
+    /// If the stat is defined and has a non-zero value, the method will return true.
+    /// </summary>
+    /// <param name="statType"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
     public bool GetValueForStat(WeaponStat statType, out float value)
     {
         WeaponStatValue statValue = GetStatValue(statType);
-        value = 0;
-        bool statValueIsDefined = (statValue != null);
-        if (statValueIsDefined)
-        {
-            value = (float)statValue.value;
-        }
-        return statValueIsDefined;
+        value = (float)statValue.value; // value can be zero
+        return (statValue.value != 0);
     }
 
     /// <summary>

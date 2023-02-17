@@ -20,8 +20,6 @@ public class WeaponBehaviour : MonoBehaviour
     public float damage;
     public float attackSpeed;
     public float range;
-    [Space]
-    public bool comesBackAfterEatingFlies; // not sure we need that
 
     [Header("Settings - special metrics")]
     public float healthAbsorbRatio;
@@ -155,8 +153,6 @@ public class WeaponBehaviour : MonoBehaviour
         cooldown = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.COOLDOWN).value;
         damage = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.DAMAGE).value;
         range = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.RANGE).value;
-        
-        comesBackAfterEatingFlies = weaponData.comesBackAfterEatingFlies; // not sure it's needed
 
         freezeFactor = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.FREEZE_RATIO).value;
         freezeDuration = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.FREEZE_DURATION).value;
@@ -215,8 +211,6 @@ public class WeaponBehaviour : MonoBehaviour
 
         curseFactor = weapon.curseFactor;
         curseDuration = weapon.curseDuration;
-
-        comesBackAfterEatingFlies = weapon.comesBackAfterEatingFlies;
 
         ResetWeapon();
     }

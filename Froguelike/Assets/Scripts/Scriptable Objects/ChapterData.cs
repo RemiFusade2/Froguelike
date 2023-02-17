@@ -21,6 +21,9 @@ public enum ChapterIconType
     HOURGLASS_MINUS
 }*/
 
+/// <summary>
+/// A chapter can add a Hat on the frog. Here are the different style of hats available.
+/// </summary>
 [System.Serializable]
 public enum HatType
 {
@@ -30,6 +33,9 @@ public enum HatType
     SUN_HAT
 }
 
+/// <summary>
+/// A chapter can add a Friend helping you. Here are the different friends available.
+/// </summary>
 [System.Serializable]
 public enum FriendType
 {
@@ -40,6 +46,9 @@ public enum FriendType
     POISONOUS
 }
 
+/// <summary>
+/// A chapter can change the environment you're playing in. Here are the different environment available.
+/// </summary>
 [System.Serializable]
 public enum EnvironmentType
 {
@@ -47,6 +56,9 @@ public enum EnvironmentType
     SWAMP
 }
 
+/// <summary>
+/// A chapter can change the style of the main character. Here are the different possibilities.
+/// </summary>
 [System.Serializable]
 public enum CharacterStyleType
 {
@@ -54,11 +66,25 @@ public enum CharacterStyleType
     GHOST
 }
 
+/// <summary>
+/// ChapterData describes all information we need to know about a Chapter:
+/// - Title & Description (or lore)
+/// - Length
+/// - Is it unlocked from the start?
+/// - Frequency of obstacles and collectibles
+/// - Unique changes (environment, character style, friend, hat)
+/// - A list of Waves
+/// TODO for later:
+/// - Add duration for each wave
+/// - Add temporary stat changes 
+/// - Add icons
+/// </summary>
 [System.Serializable]
 [CreateAssetMenu(fileName = "Chapter Data", menuName = "ScriptableObjects/Froguelike/Chapter Data", order = 1)]
 public class ChapterData : ScriptableObject
 {
     // Unique identifier (no two chapters with same titel)
+    [Tooltip("Chapter title, must be unique")]
     public string chapterTitle;
 
     // In case we want to display more and more lore about this chapter as we go
@@ -69,35 +95,46 @@ public class ChapterData : ScriptableObject
     /*[Tooltip("Use 3 icons in that list. Icons can repeat.")]
     public List<ChapterIconType> icons;*/
 
-    // Used for the timer when starting this chapter
+    // Used to set the timer when starting this chapter
+    [Tooltip("The length of this chapter")]
     public float chapterLengthInSeconds = 300;
 
-    // Is the chapter unlocked from the start of the game?
+    [Tooltip("Is this chapter available from the start or should it be unlocked later")]
     public bool startingUnlockState = true;
 
     /*
     // Any stat change when playing this chapter
     public StatsWrapper startingStatBonuses;*/
 
-    // Can this chapter still show up even after having been played once during this run?
+    [Tooltip("Can this chapter still show up even after having been played once during this run?")]
     public bool canBePlayedMultipleTimesInOneRun = false;
 
     [Header("Obstacles settings")]
-    public Vector2 amountOfRocksPerTile_minmax; // the amount of rocks on a tile will be between these two values
-    public Vector2 amountOfPondsPerTile_minmax; // the amount of ponds on a tile will be between these two values
+    [Tooltip("The amount of rocks on a tile will be between these two values")]
+    public Vector2 amountOfRocksPerTile_minmax;
+    [Tooltip("The amount of ponds on a tile will be between these two values")]
+    public Vector2 amountOfPondsPerTile_minmax;
 
     [Header("Collectibles settings")]
-    public Vector2 amountOfCoinsPerTile_minmax; // the amount of collectible coins on a tile will be between these two values
-    public Vector2 amountOfHealthPerTile_minmax; // the amount of collectible health on a tile will be between these two values
-    public Vector2 amountOfLevelUpPerTile_minmax; // the amount of collectible levelUp on a tile will be between these two values
+    [Tooltip("The amount of collectible coins on a tile will be between these two values")]
+    public Vector2 amountOfCoinsPerTile_minmax;
+    [Tooltip("The amount of collectible health on a tile will be between these two values")]
+    public Vector2 amountOfHealthPerTile_minmax;
+    [Tooltip("The amount of collectible levelUp on a tile will be between these two values")]
+    public Vector2 amountOfLevelUpPerTile_minmax;
 
     [Header("Unique overrides")]
+    [Tooltip("Does playing this chapter change the environment")]
     public EnvironmentType environmentChange = EnvironmentType.NO_CHANGE;
+    [Tooltip("Does playing this chapter change the character style")]
     public CharacterStyleType characterStyleChange = CharacterStyleType.NO_CHANGE;
+    [Tooltip("Does playing this chapter adds a hat on your head")]
     public HatType addHat = HatType.NONE;
+    [Tooltip("Does playing this chapter adds a friend by your side")]
     public FriendType addFriend = FriendType.NONE;
 
     [Header("Waves of enemies")]
-    public List<Wave> waves; // a series of waves happening during this chapter
+    [Tooltip("A series of waves happening during this chapter")]
+    public List<Wave> waves;
 }
 
