@@ -28,7 +28,7 @@ public class SaveDataManager : MonoBehaviour
 
     [Header("Settings")]
     public SaveMethod saveMethod = SaveMethod.BINARY;
-    public bool debugInfo = false;
+    public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
     [Space]
     public bool createBackup = true;
     [Space]
@@ -89,7 +89,7 @@ public class SaveDataManager : MonoBehaviour
     private bool EraseSaveFile(string fileName)
     {
         string saveFilePath = GetFilePath(fileName);
-        if (debugInfo)
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
             Debug.Log("Debug info - Erasing file: " + saveFilePath);
         }
@@ -98,7 +98,7 @@ public class SaveDataManager : MonoBehaviour
         {
             File.Delete(saveFilePath);
             result = true;
-            if (debugInfo)
+            if (logsVerboseLevel != VerboseLevel.NONE)
             {
                 Debug.Log("Debug info - Save file erased successfully");
             }
@@ -127,7 +127,7 @@ public class SaveDataManager : MonoBehaviour
     private bool Save(string fileName)
     {
         string saveFilePath = GetFilePath(fileName);
-        if (debugInfo)
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
             Debug.Log("Debug info - Saving at: " + saveFilePath);
         }
@@ -139,7 +139,7 @@ public class SaveDataManager : MonoBehaviour
             {
                 case SaveMethod.JSON:
                     // Save the data in JSON format (readable and editable)
-                    if (debugInfo)
+                    if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                     {
                         Debug.Log("Debug info - Save in JSON");
                     }
@@ -148,7 +148,7 @@ public class SaveDataManager : MonoBehaviour
                     break;
                 case SaveMethod.BINARY:
                     // Save the data in Binary format (unreadable)
-                    if (debugInfo)
+                    if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                     {
                         Debug.Log("Debug info - Save in Binary");
                     }
@@ -160,9 +160,9 @@ public class SaveDataManager : MonoBehaviour
             }
             result = true;
             isSaveDataDirty = false;
-            if (debugInfo)
+            if (logsVerboseLevel != VerboseLevel.NONE)
             {
-                Debug.Log("Debug info - Saved successfully");
+                Debug.Log("File " + fileName + " saved successfully");
             }
         }
         catch (System.Exception ex)
@@ -190,7 +190,7 @@ public class SaveDataManager : MonoBehaviour
     {
         bool success = false;
         string saveFilePath = GetFilePath(fileName);
-        if (debugInfo)
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
             Debug.Log("Debug info - Loading: " + saveFilePath);
         }
@@ -203,7 +203,7 @@ public class SaveDataManager : MonoBehaviour
                 {
                     case SaveMethod.JSON:
                         // Load the data in JSON format (readable and editable)
-                        if (debugInfo)
+                        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                         {
                             Debug.Log("Debug info - Load in JSON");
                         }
@@ -212,7 +212,7 @@ public class SaveDataManager : MonoBehaviour
                         break;
                     case SaveMethod.BINARY:
                         // Load the data in Binary format (unreadable)
-                        if (debugInfo)
+                        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                         {
                             Debug.Log("Debug info - Load in Binary");
                         }
@@ -225,9 +225,9 @@ public class SaveDataManager : MonoBehaviour
                 CombinedSaveData.SetAllSaveData(loadedData);
                 success = true;
                 isSaveDataDirty = false;
-                if (debugInfo)
+                if (logsVerboseLevel != VerboseLevel.NONE)
                 {
-                    Debug.Log("Debug info - loaded successfully");
+                    Debug.Log("File " + fileName + " loaded successfully");
                 }
             }
         }
@@ -248,6 +248,8 @@ public class SaveDataManager : MonoBehaviour
         ShopManager.instance.ResetShop(true);
 
         CharacterManager.instance.ResetCharacters(true);
+
+        EnemiesManager.instance.ResetEnemies();
 
         GameManager.instance.gameData.Reset();
 

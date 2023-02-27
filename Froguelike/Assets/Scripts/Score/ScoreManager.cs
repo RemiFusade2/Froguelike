@@ -27,6 +27,9 @@ public class ScoreManager : MonoBehaviour
     public GameObject unlockPanel;
     public TextMeshProUGUI unlockedCharacterName;
     public Image unlockedCharacterImage;
+    
+    [Header("Settings")]
+    public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
 
     private void Awake()
     {
@@ -55,6 +58,8 @@ public class ScoreManager : MonoBehaviour
     /// <param name="ownedItems"></param>
     public void ShowScores(List<Chapter> chaptersPlayed, PlayableCharacter playedCharacter, List<RunItemInfo> ownedItems, List<string> unlockedCharacters)
     {
+        string scoreLog = "";
+
         // Hide all chapters texts
         foreach (TextMeshProUGUI chapterTextParent in chaptersTextList)
         {
@@ -71,18 +76,23 @@ public class ScoreManager : MonoBehaviour
                 chaptersTextList[i].text = "Chapter " + (i+1) + "\n\t" + chapter.chapterData.chapterTitle;
                 chaptersScoreTextList[i].text = chapter.enemiesKilledCount.ToString();
                 totalScore += chapter.enemiesKilledCount;
+
+                scoreLog += $"Chapter {i} - {chapter.chapterTitle} - Kills: {chapter.enemiesKilledCount}\n";
             }
         }
         // Display total kill count
+        scoreLog += $"-> Total score: {totalScore}\n";
         totalScoreText.text = totalScore.ToString();
 
         // Pick a random moral to display
         string moral = GetRandomMoral();
         moralText.text = moral;
+        scoreLog += $"-> Moral is: {moral}\n";
 
         // Display all weapons used during this run and their levels
         string allItemsNames = "";
         string allItemsLevels = "";
+        scoreLog += $"Weapons:\n";
         foreach (RunItemInfo itemInfo in ownedItems)
         {
             if (itemInfo is RunWeaponInfo)
@@ -90,12 +100,14 @@ public class ScoreManager : MonoBehaviour
                 RunWeaponInfo weaponInfo = (itemInfo as RunWeaponInfo);
                 allItemsNames += weaponInfo.weaponItemData.itemName + "\n";
                 allItemsLevels += "LVL " + weaponInfo.level + "\n";
+                scoreLog += $"-> {weaponInfo.weaponItemData.itemName} Lvl {weaponInfo.level} - ate a total of {weaponInfo.killCount.ToString("0.00")} bugs\n";
             }
         }
         allItemsNames += "\n";
         allItemsLevels += "\n";
 
         // Display all items used during this run and their levels
+        scoreLog += $"Stat items:\n";
         foreach (RunItemInfo itemInfo in ownedItems)
         {
             if (itemInfo is RunStatItemInfo)
@@ -103,6 +115,7 @@ public class ScoreManager : MonoBehaviour
                 RunStatItemInfo statItemInfo = (itemInfo as RunStatItemInfo);
                 allItemsNames += statItemInfo.itemData.itemName + "\n";
                 allItemsLevels += "LVL " + statItemInfo.level + "\n";
+                scoreLog += $"-> {statItemInfo.itemData.itemName} Lvl {statItemInfo.level}\n";
             }
         }
         allItemsNames += "\n";
@@ -135,5 +148,10 @@ public class ScoreManager : MonoBehaviour
 
         // Show the score screen
         UIManager.instance.ShowScoreScreen();
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("Score screen - " + scoreLog);
+        }
     }
 }

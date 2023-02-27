@@ -81,6 +81,8 @@ public class ShopManager : MonoBehaviour
 
     [Header("Settings")]
     public bool displaySoldOutItems = true;
+    [Space]
+    public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
 
     [Header("Runtime")]
     public ShopSaveData shopData; // Will be loaded and saved when needed
@@ -167,6 +169,11 @@ public class ShopManager : MonoBehaviour
                 DisplayShop();
                 // Signal the SaveDataManager that information from the shop have been updated and should be saved when possible
                 SaveDataManager.instance.isSaveDataDirty = true;
+
+                if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                {
+                    Debug.Log("Shop - Buy item " + item.itemName + " to level " + item.currentLevel + " for a cost of " + itemCost + " Froins. Remaining available currency is " + GameManager.instance.gameData.availableCurrency + " Froins");
+                }
             }
         }
     }
@@ -298,6 +305,12 @@ public class ShopManager : MonoBehaviour
     public void RefundAll()
     {
         GameManager.instance.ChangeAvailableCurrency(shopData.currencySpentInShop);
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("Shop - Refund all - Got " + shopData.currencySpentInShop + " Froins back. Remaining available currency is " + GameManager.instance.gameData.availableCurrency + " Froins");
+        }
+
         shopData.currencySpentInShop = 0;
 
         foreach (ShopItem item in shopData.shopItems)

@@ -39,6 +39,8 @@ public class RunWeaponInfo : RunItemInfo
     public RunWeaponItemData weaponItemData;
 
     public List<GameObject> activeWeaponsList; // current active weapons
+
+    public int killCount;
 }
 
 /// <summary>

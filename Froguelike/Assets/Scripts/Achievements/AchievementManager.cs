@@ -6,6 +6,9 @@ public class AchievementManager : MonoBehaviour
 {
     public static AchievementManager instance;
 
+    [Header("Settings")]
+    public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
+
     private void Awake()
     {
         if (instance == null)
@@ -116,6 +119,24 @@ public class AchievementManager : MonoBehaviour
                     unlockedCharacterNames.Add(characterName);
                 }
             }
+        }
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            string unlockLog = "";
+            if (unlockedCharacterNames.Count == 0)
+            {
+                unlockLog = "Achievements - No character unlocked";
+            }
+            else
+            {
+                unlockLog = "Achievements - ";
+                foreach (string name in unlockedCharacterNames)
+                {
+                    unlockLog += name + " has been unlocked; ";
+                }
+            }
+            Debug.Log(unlockLog);
         }
 
         return unlockedCharacterNames;

@@ -12,11 +12,15 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager instance;
 
+    [Header("Settings")]
+    public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
+
     #region Title Screen / Start Game
 
     [Header("Title")]
     public GameObject titleScreen;
     public TextMeshProUGUI titleScreenCurrencyText;
+    public List<TextMeshProUGUI> titleScreenSaveLocationTextsList;
 
     [Header("Shop")]
     public GameObject shopScreen;
@@ -104,6 +108,15 @@ public class UIManager : MonoBehaviour
         HideAllScreens();
         UpdateTitleScreenCurrencyText(GameManager.instance.gameData.availableCurrency);
         titleScreen.SetActive(true);
+        foreach (TextMeshProUGUI saveLocationText in titleScreenSaveLocationTextsList)
+        {
+            saveLocationText.text = Application.persistentDataPath;
+        }
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("UI - Display Title screen");
+        }
     }
 
     public void UpdateCurrencyDisplay()
@@ -127,6 +140,11 @@ public class UIManager : MonoBehaviour
 
         titleScreen.SetActive(true);
         characterSelectionScreen.SetActive(true);
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("UI - Display Character selection screen");
+        }
     }
 
     public void ShowChapterSelectionScreen(bool forceTitleScreen = false)
@@ -137,6 +155,11 @@ public class UIManager : MonoBehaviour
             titleScreen.SetActive(true);
         }
         chapterSelectionScreen.SetActive(true);
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("UI - Display Chapter selection screen");
+        }
     }
 
     public void ShowChapterStart()
@@ -144,6 +167,11 @@ public class UIManager : MonoBehaviour
         HideAllScreens();
         chapterStartScreen.SetActive(true);
         SoundManager.instance.PlayLongPageSound();
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("UI - Display Chapter start screen");
+        }
     }
 
     public void ShowScoreScreen()
@@ -154,6 +182,11 @@ public class UIManager : MonoBehaviour
         inGameUIPanel.SetActive(true);
         scoreScreen.SetActive(true);
         SoundManager.instance.PlayLongPageSound();
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("UI - Display Score screen");
+        }
     }
 
     public void ShowGameUI()
@@ -171,8 +204,11 @@ public class UIManager : MonoBehaviour
         gameOverRespawnButton.SetActive(respawnAvailable);
         gameOverGiveUpButton.SetActive(!respawnAvailable);
         SoundManager.instance.PlayDeathSound();
-
         
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("UI - Display Game over screen");
+        }
     }
 
     public void ShowPauseScreen()
@@ -180,12 +216,25 @@ public class UIManager : MonoBehaviour
         MusicManager.instance.PauseMusic();
         pausePanel.SetActive(true);
         pausePanelAnimator.SetBool("Visible", true);
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("UI - Display Pause screen");
+        }
     }
 
     public void HidePauseScreen()
     {
         MusicManager.instance.UnpauseMusic();
-        pausePanelAnimator.SetBool("Visible", false);
+        if (pausePanel.activeInHierarchy)
+        {
+            pausePanelAnimator.SetBool("Visible", false);
+        }
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("UI - Hide Pause screen");
+        }
     }
 
     public void ShowShop()
@@ -194,6 +243,11 @@ public class UIManager : MonoBehaviour
         ShopManager.instance.DisplayShop();
         titleScreen.SetActive(true);
         shopScreen.SetActive(true);
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("UI - Display Shop screen");
+        }
     }
 
     #region Confirmation Panels
@@ -201,22 +255,42 @@ public class UIManager : MonoBehaviour
     public void ShowBackToTitleScreenConfirmationPanel(bool active)
     {
         backToTitleScreenConfirmationPanel.SetActive(active);
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("UI - Display Go back to Title confirmation screen");
+        }
     }
 
     public void ShowClearSaveFileConfirmationPanel(bool active)
     {
         clearSaveFileConfirmationPanel.SetActive(active);
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("UI - Display Clear save file confirmation screen");
+        }
     }
     #endregion
 
     public void ShowSettingsScreen()
     {
         settingsScreen.SetActive(true);
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("UI - Display Settings screen");
+        }
     }
 
     public void HideSettingsScreen()
     {
         settingsScreen.SetActive(false);
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("UI - Hide Settings screen");
+        }
     }
 
 }

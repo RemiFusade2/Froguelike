@@ -302,7 +302,7 @@ public class WeaponBehaviour : MonoBehaviour
             Collider2D nearestEnemy = null;
             foreach (Collider2D col in allColliders)
             {
-                EnemyInstance enemyInfo = EnemiesManager.instance.GetEnemyInfo(col.gameObject.name);
+                EnemyInstance enemyInfo = EnemiesManager.instance.GetEnemyInstanceFromGameObjectName(col.gameObject.name);
                 float distanceWithPlayer = Vector2.Distance(col.transform.position, playerPosition);
                 if (distanceWithPlayer < shortestDistance && enemyInfo != null && enemyInfo.active)
                 {
@@ -367,7 +367,7 @@ public class WeaponBehaviour : MonoBehaviour
                     GameObject targetEnemy = GetNearestEnemy();
                     if (targetEnemy != null)
                     {
-                        Attack(EnemiesManager.instance.GetEnemyInfo(targetEnemy.name));
+                        Attack(EnemiesManager.instance.GetEnemyInstanceFromGameObjectName(targetEnemy.name));
                     }
                     
                     break;
@@ -502,7 +502,7 @@ public class WeaponBehaviour : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Fly"))
+        if (collision.CompareTag("Enemy"))
         {
             // default part, for any weapon
             string enemyName = collision.gameObject.name;
@@ -521,9 +521,7 @@ public class WeaponBehaviour : MonoBehaviour
                 }
             }
 
-            bool canKillEnemy = true; //  (eatenFliesCount < actualMaxFiles);
-
-            bool enemyIsDead = EnemiesManager.instance.DamageEnemy(enemyName, actualDamage, canKillEnemy, this.transform);
+            bool enemyIsDead = EnemiesManager.instance.DamageEnemy(enemyName, actualDamage, this.transform);
 
             // vampire part, absorb part of damage done
             if (weaponType == WeaponType.VAMPIRE || (weaponType == WeaponType.RANDOM && tongueColor.Equals(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.VAMPIRE))))
@@ -561,21 +559,17 @@ public class WeaponBehaviour : MonoBehaviour
 
             if (enemyIsDead)
             {
-                EnemiesManager.instance.SetEnemyDead(enemyName);
+                //EnemiesManager.instance.SetEnemyDead(enemyName);
                 eatenFliesCount++;
-                CheckEatenFlyCount();
+
+                foreach (RunWeaponInfo weaponInfo in RunManager.instance.GetOwnedWeapons())
+                {
+                    if (weaponInfo.weaponItemData.weaponData.weaponType == weaponType)
+                    {
+                        weaponInfo.killCount++;
+                    }
+                }
             }
         }
-    }
-
-    private void CheckEatenFlyCount()
-    {
-        /*
-        float actualMaxFiles = maxFlies + GameManager.instance.player.attackMaxFliesBoost;
-        if (comesBackAfterEatingFlies && eatenFliesCount >= actualMaxFiles)
-        {
-            isTongueGoingOut = false;
-        }
-        */
     }
 }

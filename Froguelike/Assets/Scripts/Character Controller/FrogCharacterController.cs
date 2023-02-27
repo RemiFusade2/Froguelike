@@ -62,6 +62,9 @@ public class FrogCharacterController : MonoBehaviour
     public float attackSpecialStrengthBoost = 0;
     public float attackSpecialDurationBoost = 0;
 
+    [Header("Settings - Logs")]
+    public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
+
     [Header("Settings - controls")]
     public string horizontalInputName = "horizontal";
     public string verticalInputName = "vertical";
@@ -149,7 +152,7 @@ public class FrogCharacterController : MonoBehaviour
 
             if (!GameManager.instance.gameIsPaused && !ChapterManager.instance.chapterChoiceIsVisible && !RunManager.instance.levelUpChoiceIsVisible && (Time.time - timeSinceLastHPRecovery) > hpRecoveryDelay)
             {
-                ChangeHealth(healthRecovery);
+                Heal(healthRecovery);
                 timeSinceLastHPRecovery = Time.time;
             }
 
@@ -221,11 +224,16 @@ public class FrogCharacterController : MonoBehaviour
     }
 
     public void InitializeCharacter(PlayableCharacter characterInfo)
-    {        
+    {
         SetAnimatorCharacterValue(characterInfo.characterData.characterAnimatorValue);
 
         // Starting Stats for this character
         StatsWrapper allStartingStatsWrapper = StatsWrapper.JoinLists(characterInfo.characterStartingStats, ShopManager.instance.statsBonuses);
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("Player - Initialize character with stats " + allStartingStatsWrapper.ToString());
+        }
 
         // MAX HP should always be defined for any character
         maxHealth = 0;
@@ -240,7 +248,7 @@ public class FrogCharacterController : MonoBehaviour
 
         // HP Recovery
         healthRecovery = defaultHealthRecovery;
-        if (allStartingStatsWrapper.GetValueForStat(CharacterStat.HEALTH_RECOVERY_BOOST, out float startingHPRecoveryBoost))
+        if (allStartingStatsWrapper.GetValueForStat(CharacterStat.HEALTH_RECOVERY, out float startingHPRecoveryBoost))
         {
             healthRecovery += startingHPRecoveryBoost;
         }
@@ -397,7 +405,7 @@ public class FrogCharacterController : MonoBehaviour
         armor += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ARMOR).value;
         experienceBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.XP_BOOST).value;
         currencyBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.CURRENCY_BOOST).value;
-        healthRecovery += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.HEALTH_RECOVERY_BOOST).value;
+        healthRecovery += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.HEALTH_RECOVERY).value;
         maxHealth += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.MAX_HEALTH).value;
         revivals += (int)itemLevelData.statUpgrades.GetStatValue(CharacterStat.REVIVAL).value;
 
@@ -418,14 +426,17 @@ public class FrogCharacterController : MonoBehaviour
         UpdateHealthBar();
     }
 
-
     public void Respawn()
     {
         currentHealth = maxHealth;
         UpdateHealthBar();
         invincibilityTime = 1;
-    }
 
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("Player - Respawn");
+        }
+    }
 
     public Vector2 GetMoveDirection()
     {
@@ -469,6 +480,10 @@ public class FrogCharacterController : MonoBehaviour
                     friend.weapon.gameObject.SetActive(true);
                     friend.weapon.ResetWeapon();
                     friend.animator.SetInteger("Style", friend.style);
+                    if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                    {
+                        Debug.Log("Player - Add Friend: " + friend.friendType.ToString());
+                    }
                 }
             }
         }
@@ -495,12 +510,24 @@ public class FrogCharacterController : MonoBehaviour
                 {
                     case HatType.FANCY_HAT:
                         hatRenderer.sprite = hatSpritesList[0 % hatSpritesList.Count];
+                        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                        {
+                            Debug.Log("Player - Add Fancy Hat");
+                        }
                         break;
                     case HatType.FASHION_HAT:
                         hatRenderer.sprite = hatSpritesList[2 % hatSpritesList.Count];
+                        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                        {
+                            Debug.Log("Player - Add Fashion Hat");
+                        }
                         break;
                     case HatType.SUN_HAT:
                         hatRenderer.sprite = hatSpritesList[1 % hatSpritesList.Count];
+                        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                        {
+                            Debug.Log("Player - Add Sun Hat");
+                        }
                         break;
                 }
                 break;
@@ -537,12 +564,34 @@ public class FrogCharacterController : MonoBehaviour
 
     #endregion
 
-
-    private void OnTriggerStay2D(Collider2D collision)
+    // This method is called every physics frame when colliders are touching or player collider is in enemy trigger
+    private void DealWithEnemyCollision(Collider2D collider)
     {
-        if (collision.CompareTag("Water"))
+        // Get data about attacking enemy
+        EnemyData enemyData = EnemiesManager.instance.GetEnemyDataFromGameObjectName(collider.gameObject.name);
+
+        // Compute actual damage during this frame
+        float damagePerSecond = Mathf.Clamp(enemyData.damage - armor, 0.1f, float.MaxValue);
+
+        float damage = damagePerSecond * Time.fixedDeltaTime;
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("Player - Take damage from " + enemyData.enemyName + ": " + damage.ToString("0.00") + " HP. Current health was: " + currentHealth.ToString("0.00") + " HP; new health is: " + (currentHealth - damage).ToString("0.00") + " HP");
+        }
+
+        ChangeHealth(-damage);
+    }
+
+    private void OnTriggerStay2D(Collider2D collider)
+    {
+        if (collider.CompareTag("Water"))
         {
             isOnLand = false;
+        }
+        if (collider.CompareTag("Enemy") && GameManager.instance.isGameRunning && invincibilityTime <= 0)
+        {
+            DealWithEnemyCollision(collider);
         }
     }
     private void OnTriggerExit2D(Collider2D collision)
@@ -555,18 +604,19 @@ public class FrogCharacterController : MonoBehaviour
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (collision.collider.CompareTag("Fly") && GameManager.instance.isGameRunning && invincibilityTime <= 0)
+        if (collision.collider.CompareTag("Enemy") && GameManager.instance.isGameRunning && invincibilityTime <= 0)
         {
-            float damage = EnemiesManager.instance.GetEnemyDataFromName(collision.gameObject.name).damage * EnemiesManager.instance.enemyDamageFactor;
-
-            damage = Mathf.Clamp(damage - armor, 0.1f, float.MaxValue);
-            ChangeHealth(-damage);
+            DealWithEnemyCollision(collision.collider);
         }
     }
 
     public void Heal(float healAmount)
     {
         ChangeHealth((healAmount > 0) ? healAmount : 0);
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("Player - Healing: +" + healAmount + "HP. Current HP is " + currentHealth.ToString("0.00") + " HP, max HP is " + maxHealth.ToString("0.00") + " HP.");
+        }
     }
 
     private void ChangeHealth(float change)

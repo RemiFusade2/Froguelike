@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -75,6 +75,9 @@ public class CharacterManager : MonoBehaviour
     // Singleton
     public static CharacterManager instance;
 
+    [Header("Settings")]
+    public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
+
     [Header("Characters scriptable objects data")]
     public List<CharacterData> charactersScriptableObjectsList;
 
@@ -146,6 +149,7 @@ public class CharacterManager : MonoBehaviour
 
         // Instantiate a button for each character (unless this character is hidden)
         int buttonCount = 0;
+        string characterLog = "";
         for (int i = 0; i < charactersData.charactersList.Count; i++)
         {
             PlayableCharacter characterInfo = charactersData.charactersList[i];
@@ -154,7 +158,13 @@ public class CharacterManager : MonoBehaviour
                 GameObject newCharacterPanel = Instantiate(characterPanelPrefab, characterListContainerParent);
                 newCharacterPanel.GetComponent<CharacterSelectionButton>().Initialize(characterInfo);
                 buttonCount++;
+                characterLog += $" {characterInfo.characterName} is " + (characterInfo.unlocked ? "unlocked" : "locked") + " ;";
             }
+        }
+        characterLog = "Display " + buttonCount + " buttons\n" + characterLog;
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("Character selection - " + characterLog);
         }
 
         // Set size of container panel
@@ -205,6 +215,14 @@ public class CharacterManager : MonoBehaviour
         List<StatValue> statBonusesFromShop = ShopManager.instance.statsBonuses;
         List<StatValue> currentCharacterStatList = currentSelectedCharacter.characterStartingStats.statsList;
         List<StatValue> totalStatList = StatsWrapper.JoinLists(currentCharacterStatList, statBonusesFromShop).statsList;
+        
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            string log = "Character selection - Select " + currentSelectedCharacter.characterName + "\n";
+            log += "-> Display Character stats: " + StatsWrapper.StatsListToString(currentCharacterStatList) + "\n";
+            log += "-> Display Shop stats: " + StatsWrapper.StatsListToString(statBonusesFromShop);
+            Debug.Log(log);
+        }
 
         // Set text for character stats and total stats (shop stats are set from UpdateCharacterSelectionScreen())
         characterStatValues.SetText(MakeStringFromStats(currentCharacterStatList, false));
@@ -264,44 +282,46 @@ public class CharacterManager : MonoBehaviour
             {
                 double thisValue = statValues[i].value;
 
+                // Some values need a unit only for the total list
+                string unit = "";
+                if (isListForTotals)
+                {
+                    switch (thisStat)
+                    {
+                        case CharacterStat.MAX_HEALTH: // 0
+                            unit = "HP";
+                            break;
+                        case CharacterStat.HEALTH_RECOVERY: // 1
+                            unit = "HP/s";
+                            break;
+                        case CharacterStat.ARMOR: // 2
+                            unit = "HP";
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
                 // Checks what kind of value that is going to be added to the string.
                 switch (thisStat)
                 {
                     // These values are a number.
-                    case CharacterStat.MAX_HEALTH: // 0 // TODO: Display HP unit in total column
+                    case CharacterStat.MAX_HEALTH: // 0
+                    case CharacterStat.HEALTH_RECOVERY: // 1
+                    case CharacterStat.ARMOR: // 2
                     case CharacterStat.REVIVAL: // 8
                     case CharacterStat.REROLL: // 9
                     case CharacterStat.BANISH: // 10
                     case CharacterStat.SKIP: // 11
-                        // Sign depending on negative or positiv number. Only added when the list is not for the total value.
-                        if (!isListForTotals)
-                        {
-                            if (thisValue < 0)
-                            {
-                                valueText += "-";
-                            }
-                            else if (thisValue > 0)
-                            {
-                                valueText += "+";
-                            }
-                        }
-                        valueText += thisValue.ToString();
-                        break;
-
-                    case CharacterStat.HEALTH_RECOVERY_BOOST: // 1
-                        if (thisValue <= 0)
-                        {
-                            valueText += "-";
-                        }
-                        else if (thisValue > 0)
+                        // Sign depending on negative or positive number. Only added when the list is not for the total value.
+                        if (!isListForTotals && thisValue > 0)
                         {
                             valueText += "+";
                         }
-                        valueText += thisValue.ToString() + "/s"; // TODO: only display unit in total column
+                        valueText += thisValue.ToString() + unit;
                         break;
 
                     // These values are in percentage.
-                    case CharacterStat.ARMOR: // 2
                     case CharacterStat.XP_BOOST: // 3
                     case CharacterStat.CURRENCY_BOOST: // 4
                     case CharacterStat.CURSE: // 5
@@ -315,16 +335,13 @@ public class CharacterManager : MonoBehaviour
                     case CharacterStat.ATK_SPECIAL_STRENGTH_BOOST: // 17
                     case CharacterStat.ATK_SPECIAL_DURATION_BOOST: // 18
                     case CharacterStat.MAGNET_RANGE_BOOST: // 19
-                        if (thisValue < 0)
-                        {
-                            valueText += "-";
-                        }
-                        else if (thisValue > 0)
+                        if (thisValue > 0)
                         {
                             valueText += "+";
                         }
 
-                        valueText += Mathf.FloorToInt((float)thisValue * 100).ToString() + "%";
+                        valueText += thisValue.ToString("P0").Replace(" ٪", "%"); // replace the shitty percentage symbol by a proper one and remove the space in front of it
+                        //valueText += Mathf.FloorToInt((float)thisValue * 100).ToString() + "%";
                         //TODO : thisValue.ToString("0.0%"); or something like that
                         break;
 

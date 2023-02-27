@@ -65,7 +65,9 @@ public class ChapterManager : MonoBehaviour
     public TextMeshProUGUI chapterStartTopText;
     public TextMeshProUGUI chapterStartBottomText;
 
-    
+    [Header("Settings")]
+    public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
+
     [Header("Runtime")]
     public Chapter finalChapter;
 
@@ -108,6 +110,8 @@ public class ChapterManager : MonoBehaviour
     {
         selectionOfNextChaptersList = new List<ChapterData>();
 
+        string log = "Chapter selection - ";
+
         while (selectionOfNextChaptersList.Count < chapterCount)
         {
             if (currentPlayableChaptersList.Count < 1)
@@ -128,6 +132,13 @@ public class ChapterManager : MonoBehaviour
 
             currentPlayableChaptersList.Remove(selectedChapter);
             selectionOfNextChaptersList.Add(selectedChapter.chapterData);
+
+            log += selectedChapter.chapterTitle + ", ";
+        }
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log(log);
         }
     }
 
@@ -149,7 +160,7 @@ public class ChapterManager : MonoBehaviour
         }
         else
         {
-            chapterIntro = "What happens in chapter " + chapterCount.ToString() + "?";
+            chapterIntro = "What happens in chapter " + (chapterCount+1).ToString() + "?";
         }
         chapterSelectionTopText.text = chapterIntro;
         for (int i = 0; i < selectionOfNextChaptersList.Count; i++)
@@ -168,6 +179,11 @@ public class ChapterManager : MonoBehaviour
         UIManager.instance.ShowChapterStart();
         chapterStartTopText.text = "Chapter " + chapterCount.ToString();
         chapterStartBottomText.text = chapterTitle;
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("Chapter - Start screen - " + chapterTitle);
+        }
     }
 
     public void ReinitializeChaptersList()
@@ -186,6 +202,11 @@ public class ChapterManager : MonoBehaviour
         chapterInfo.chapterData = selectionOfNextChaptersList[index];
         chapterInfo.chapterTitle = chapterInfo.chapterData.chapterTitle;
         chapterInfo.enemiesKilledCount = 0;
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("Chapter - Select " + chapterInfo.chapterData.chapterTitle);
+        }
 
         RunManager.instance.StartChapter(chapterInfo);
     }

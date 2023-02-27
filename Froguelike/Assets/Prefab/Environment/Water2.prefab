@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 100493605006729313}
   - component: {fileID: 3551084635350230861}
-  - component: {fileID: 8654384876541572795}
   m_Layer: 0
   m_Name: Water2
   m_TagString: Water
@@ -29,7 +28,9 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 4731907368016913741}
+  - {fileID: 7924011529910391547}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -85,13 +86,128 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!60 &8654384876541572795
+--- !u!1 &951210910855818329
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7924011529910391547}
+  - component: {fileID: 4775944393369012138}
+  m_Layer: 26
+  m_Name: Water Collider
+  m_TagString: Water
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7924011529910391547
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 951210910855818329}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 100493605006729313}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!60 &4775944393369012138
 PolygonCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 171689312821892867}
+  m_GameObject: {fileID: 951210910855818329}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 6200000, guid: 1a351c56b46d6784fb17068fd72d8fe6, type: 2}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.4923077}
+    oldSize: {x: 10.5, y: 4.0625}
+    newSize: {x: 16.8, y: 6.5}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: 5.357224, y: -0.3584219}
+      - {x: 4.795921, y: 0.33936954}
+      - {x: 4.2087526, y: 0.8554832}
+      - {x: 2.897325, y: 1.4254048}
+      - {x: 1.978606, y: 1.8285775}
+      - {x: 0.8631077, y: 2.091185}
+      - {x: 0.7590766, y: 2.115642}
+      - {x: 0.67120564, y: 2.1112404}
+      - {x: -1.6797781, y: 2.0104246}
+      - {x: -2.569659, y: 1.7539061}
+      - {x: -3.271504, y: 1.8720311}
+      - {x: -4.087091, y: 1.7472285}
+      - {x: -4.9170685, y: 1.8588893}
+      - {x: -5.2910414, y: 1.6565796}
+      - {x: -5.297508, y: 1.2868167}
+      - {x: -4.752287, y: 0.8755731}
+      - {x: -4.485555, y: 0.4311863}
+      - {x: -4.1419253, y: 0.053453654}
+      - {x: -2.6182766, y: -0.7583176}
+      - {x: -1.4513328, y: -1.8827153}
+      - {x: -0.535288, y: -2.0298839}
+      - {x: 1.4035532, y: -2.0116105}
+      - {x: 1.5095546, y: -1.9975243}
+      - {x: 2.4793582, y: -1.8140208}
+      - {x: 3.0440316, y: -1.2262365}
+      - {x: 5.164847, y: -0.67136675}
+--- !u!1 &5037790958104717150
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4731907368016913741}
+  - component: {fileID: 8453120087522531783}
+  m_Layer: 27
+  m_Name: Water Trigger
+  m_TagString: Water
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4731907368016913741
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5037790958104717150}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 100493605006729313}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!60 &8453120087522531783
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5037790958104717150}
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
@@ -101,7 +217,7 @@ PolygonCollider2D:
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 0.5, y: 0.4923077}
     oldSize: {x: 10.5, y: 4.0625}
     newSize: {x: 16.8, y: 6.5}
     adaptiveTilingThreshold: 0.5

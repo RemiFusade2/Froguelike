@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/*
 [System.Serializable]
 public enum ChapterIconType
 {
@@ -19,7 +18,7 @@ public enum ChapterIconType
     PLANT,
     HOURGLASS_PLUS,
     HOURGLASS_MINUS
-}*/
+}
 
 /// <summary>
 /// A chapter can add a Hat on the frog. Here are the different style of hats available.
@@ -92,8 +91,8 @@ public class ChapterData : ScriptableObject
     public List<string> chapterLore;
 
     // Should be a list of 3 icons (they can repeat)
-    /*[Tooltip("Use 3 icons in that list. Icons can repeat.")]
-    public List<ChapterIconType> icons;*/
+    [Tooltip("Use 3 icons in that list. Icons can repeat.")]
+    public List<ChapterIconType> icons;
 
     // Used to set the timer when starting this chapter
     [Tooltip("The length of this chapter")]
@@ -101,10 +100,9 @@ public class ChapterData : ScriptableObject
 
     [Tooltip("Is this chapter available from the start or should it be unlocked later")]
     public bool startingUnlockState = true;
-
-    /*
+    
     // Any stat change when playing this chapter
-    public StatsWrapper startingStatBonuses;*/
+    public StatsWrapper startingStatBonuses;
 
     [Tooltip("Can this chapter still show up even after having been played once during this run?")]
     public bool canBePlayedMultipleTimesInOneRun = false;

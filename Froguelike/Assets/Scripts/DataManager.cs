@@ -5,6 +5,16 @@ using UnityEngine;
 // This file is used to declare most Enum types
 
 /// <summary>
+/// Describe the level of debug logs you want from a class
+/// </summary>
+public enum VerboseLevel
+{
+    NONE,
+    MINIMAL,
+    MAXIMAL
+}
+
+/// <summary>
 /// WeaponEffect will be used as a mask, as a weapon could have multiple of these effects at the same time.
 /// </summary>
 [System.Serializable]

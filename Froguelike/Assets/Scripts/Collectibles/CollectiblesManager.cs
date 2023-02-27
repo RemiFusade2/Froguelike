@@ -62,7 +62,7 @@ public class CollectiblesManager : MonoBehaviour
         updateCollectiblesCoroutine = StartCoroutine(UpdateAllCollectiblesAsync(updateAllCollectiblesDelay));
     }
 
-    public void SpawnCollectible(Vector2 position, CollectibleType collectibleType, int bonusValue)
+    public void SpawnCollectible(Vector2 position, CollectibleType collectibleType, float bonusValue)
     {
         GameObject newCollectible = Instantiate(collectiblePrefab, position, Quaternion.identity, this.transform);
 
@@ -107,7 +107,6 @@ public class CollectiblesManager : MonoBehaviour
     /// <param name="collectible"></param>
     public void CaptureCollectible(Transform collectible)
     {
-        Debug.Log("Capture collectible");
         if (!allCapturedCollectiblesList.Contains(collectible))
         {
             allCapturedCollectiblesList.Add(collectible);
@@ -122,7 +121,6 @@ public class CollectiblesManager : MonoBehaviour
     /// <returns>Returns game object name, contains data on which type of collectible it was</returns>
     private string CollectCollectible(Transform collectible)
     {
-        Debug.Log("Collect collectible");
         string collectibleName = collectible.gameObject.name;
         if (allCapturedCollectiblesList.Contains(collectible))
         {

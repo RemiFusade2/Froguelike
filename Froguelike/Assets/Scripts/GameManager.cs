@@ -57,6 +57,9 @@ public class GameManager : MonoBehaviour
     // Singleton
     public static GameManager instance;
 
+    [Header("Settings")]
+    public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
+
     [Header("References")]
     public FrogCharacterController player;
 
@@ -157,6 +160,12 @@ public class GameManager : MonoBehaviour
     public void GiveUp()
     {
         Pause(false);
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("Game - Give Up current run");
+        }
+
         RunManager.instance.EndRun();
     }
 
@@ -187,6 +196,9 @@ public class GameManager : MonoBehaviour
 
         // Setup the character manager
         CharacterManager.instance.ResetCharacters(true);
+
+        // Setup the enemies manager
+        EnemiesManager.instance.ResetEnemies();
 
         // Load save file
         bool fileLoaded = SaveDataManager.instance.Load();
@@ -228,6 +240,11 @@ public class GameManager : MonoBehaviour
 
     public void ClearSaveFile()
     {
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("Game - Clear save file");
+        }
+
         // Clear save file and create a new one
         bool fileErased = SaveDataManager.instance.EraseSaveFile(true);
         SaveDataManager.instance.CreateEmptySaveFile();

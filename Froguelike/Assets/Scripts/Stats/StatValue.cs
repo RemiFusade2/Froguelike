@@ -11,8 +11,9 @@ using System.Linq;
 public enum CharacterStat
 {
     MAX_HEALTH, // max HP
-    HEALTH_RECOVERY_BOOST, // add a % on health recovery
-    ARMOR, // remove armor from every damage taken
+    HEALTH_RECOVERY, // add an amount of HP/s on health recovery
+    ARMOR, // remove the armor from every damage/s taken
+
 
     XP_BOOST, // add a % on each XP gain
     CURRENCY_BOOST, // add a % on each currency gain
@@ -222,5 +223,20 @@ public class StatsWrapper
         }
 
         return result;
+    }
+
+    public static string StatsListToString(List<StatValue> statsList)
+    {
+        string result = "";
+        foreach (StatValue statValue in statsList)
+        {
+            result += " || " + statValue.stat.ToString() + " = " + statValue.value.ToString("0.00");
+        }
+        return result;
+    }
+
+    public override string ToString()
+    {
+        return StatsWrapper.StatsListToString(this.statsList);
     }
 }

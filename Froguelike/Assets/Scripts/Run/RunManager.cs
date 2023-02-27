@@ -39,6 +39,9 @@ public class RunManager : MonoBehaviour
     public Color newItemColor;
     public Color maxLevelColor;
 
+    [Header("Settings - Logs")]
+    public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
+
     [Header("Settings - XP")]
     public float startLevelXp = 5; // XP needed to go from level 1 to level 2
     public float xpNeededForNextLevelMinFactor = 1.1f; // min factor applied on XP needed after each level
@@ -59,6 +62,10 @@ public class RunManager : MonoBehaviour
     public Chapter currentChapter;
     public float chapterRemainingTime; // in seconds
 
+    [Header("Runtime - Current played wave")]
+    public int currentWaveIndex;
+    public float waveRemainingTime; // in seconds
+
     [Header("Runtime - Collected currency")]
     public long currentCollectedCurrency;
 
@@ -70,6 +77,14 @@ public class RunManager : MonoBehaviour
     public bool levelUpChoiceIsVisible;
     
     private float nextLevelXp;
+
+    private float runPlayTime;
+    private float runTotalTime; // pause time included
+
+    public Wave GetCurrentWave()
+    {
+        return currentChapter.chapterData.waves[currentWaveIndex];        
+    }
 
     public List<RunWeaponInfo> GetOwnedWeapons()
     {
@@ -114,9 +129,37 @@ public class RunManager : MonoBehaviour
     {
         InvokeRepeating("UpdateMap", 0.2f, 0.5f);
     }
-       
+
+    private void Update()
+    {
+        runPlayTime += Time.deltaTime;
+        runTotalTime += Time.unscaledDeltaTime;
+
+        if (GameManager.instance.isGameRunning && currentChapter != null && Time.timeScale > 0)
+        {
+            // Spawn current wave
+            EnemiesManager.instance.TrySpawnWave(GetCurrentWave());
+
+            // Wave remaining time decreases
+            waveRemainingTime -= Time.deltaTime;
+
+            if (waveRemainingTime < 0)
+            {
+                // When wave is finished, move on to the next one
+                currentWaveIndex = (currentWaveIndex + 1) % currentChapter.chapterData.waves.Count;
+                EnemiesManager.instance.InitializeWave(GetCurrentWave());
+                waveRemainingTime = GetCurrentWave().duration;
+            }
+        }
+    }
+
     public void StartNewRun(PlayableCharacter character)
     {
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("Run Manager - Start a new Run with character: " + character.characterName);
+        }
+
         InitializeNewRun();
 
         // Setup the player controller using the player data that we have
@@ -164,9 +207,6 @@ public class RunManager : MonoBehaviour
         UpdateLevelText(level);
         UpdateXPSlider(xp, nextLevelXp);
 
-        // Reset EnemiesManager
-        EnemiesManager.instance.ResetFactors();
-
         // Reset WeaponBehaviour static values
         WeaponBehaviour.ResetStaticValues();
         
@@ -179,7 +219,10 @@ public class RunManager : MonoBehaviour
 
         // Teleport player to starting position
         player.ResetPosition();
-    }
+
+        runPlayTime = 0;
+        runTotalTime = 0;
+}
 
     private void ClearAllItems()
     {
@@ -314,6 +357,12 @@ public class RunManager : MonoBehaviour
         // Game must be saved
         SaveDataManager.instance.isSaveDataDirty = true;
 
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"Run - Play time is {runPlayTime.ToString("0.00")} seconds. Total time (pause included) is {runTotalTime.ToString("0.00")} seconds");
+            Debug.Log("Run - Show scores. " + chapterRemainingTime.ToString("0.00") + " seconds left on the timer");
+        }
+
         // Display the score screen
         ScoreManager.instance.ShowScores(chaptersPlayed, currentPlayedCharacter, ownedItems, unlockedCharacters);
     }
@@ -359,9 +408,14 @@ public class RunManager : MonoBehaviour
         StartCoroutine(StartChapterAsync());
     }
 
+    public int GetChapterCount()
+    {
+        return completedChaptersList.Count + 1;
+    }
+
     private IEnumerator StartChapterAsync()
     {
-        int chapterCount = completedChaptersList.Count + 1;
+        int chapterCount = GetChapterCount();
 
         // Show chapter start screen
         ChapterManager.instance.ShowChapterStartScreen(chapterCount, currentChapter.chapterData.chapterTitle);
@@ -388,20 +442,11 @@ public class RunManager : MonoBehaviour
         // Remove all enemies on screen
         EnemiesManager.instance.ClearAllEnemies();
 
-        // Increase enemies stats
-        if (chapterCount > 1)
-        {
-            EnemiesManager.instance.IncreaseFactors();
-        }
-
-        // Spawn Start Wave
-        if (currentChapter.chapterData.waves.Count > 0)
-        {
-            EnemiesManager.instance.SpawnStartWave(currentChapter.chapterData.waves[0]);
-        }
-
-        // Set current wave to chapter wave
-        EnemiesManager.instance.SetWave(currentChapter.chapterData.waves[0]);
+        // Set current wave
+        currentWaveIndex = 0;
+        Wave currentWave = GetCurrentWave();
+        waveRemainingTime = currentWave.duration;
+        EnemiesManager.instance.InitializeWave(GetCurrentWave());
 
         // If character is ghost in that chapter, force it to ghost sprite
         player.ForceGhost(currentChapter.chapterData.characterStyleChange == CharacterStyleType.GHOST);
@@ -483,6 +528,8 @@ public class RunManager : MonoBehaviour
     
     private void PickRunItem(RunItemData pickedItemData)
     {
+        string log = "Run - Pick a Run item: " + pickedItemData.itemName;
+
         // Get Item Type (weapon, stat boost, or consumable)
         RunItemType pickedItemType = pickedItemData.GetItemType();
 
@@ -494,10 +541,12 @@ public class RunManager : MonoBehaviour
         {
             case RunItemType.CONSUMABLE:
                 // Resolve this consumable once
+                log += " > item is a consumable\n";
                 player.ResolvePickedConsumableItem(pickedItemData as RunConsumableItemData);
                 break;
             case RunItemType.STAT_BONUS:
                 // Add this item to the list or upgrade the corresponding item level
+                log += " > item is a stat bonus";
 
                 // Check if we already have this item
                 foreach (RunItemInfo ownedItem in ownedItems)
@@ -508,6 +557,7 @@ public class RunManager : MonoBehaviour
                         // We already own such an item
                         itemIsNew = false;
                         pickedItemInfo = ownedItem;
+                        log += " (already owned, level " + ownedItem.level +")";
                         ownedItem.level++;
                         level = ownedItem.level - 1;
                         break;
@@ -530,12 +580,15 @@ public class RunManager : MonoBehaviour
                 // resolve the item picked (according to its current level)
                 int levelIndex = pickedItemInfo.level - 1;
                 levelIndex = Mathf.Clamp(levelIndex, 0, pickedItemInfo.GetRunItemData().GetMaxLevelCount());
-                player.ResolvePickedStatItemLevel((pickedItemData as RunStatItemData).statBoostLevels[levelIndex]);
+                RunStatItemLevel levelUpgrades = (pickedItemData as RunStatItemData).statBoostLevels[levelIndex];
+                log += " Improve stats: " + levelUpgrades.statUpgrades.ToString();
+                player.ResolvePickedStatItemLevel(levelUpgrades);
 
                 break;
             case RunItemType.WEAPON:
                 // Add this weapon to the list or upgrade the corresponding weapon level
                 // Eventually spawn new weapon(s) if needed
+                log += " > item is a weapon";
 
                 // Check if we already have this weapon, and if we do, upgrade all active weapons with the new stats
                 List<RunWeaponInfo> ownedWeapons = GetOwnedWeapons();
@@ -547,7 +600,8 @@ public class RunManager : MonoBehaviour
                         itemIsNew = false;
                         pickedItemInfo = ownedWeapon;
                         level = ownedWeapon.level - 1;
-                        
+                        log += " (already owned, level " + ownedWeapon.level + ")";
+
                         // we need to upgrade all similar weapons
                         foreach (GameObject weaponGo in ownedWeapon.activeWeaponsList)
                         {
@@ -571,6 +625,7 @@ public class RunManager : MonoBehaviour
                     // If we didn't have that weapon, then create a new RunItemInfo object and store it for future use
                     // Create item info and add it to owned items
                     RunWeaponInfo newWeaponInfo = new RunWeaponInfo();
+                    newWeaponInfo.killCount = 0;
                     newWeaponInfo.level = 1;
                     newWeaponInfo.weaponItemData = pickedItemData as RunWeaponItemData;
                     newWeaponInfo.activeWeaponsList = new List<GameObject>();
@@ -588,6 +643,7 @@ public class RunManager : MonoBehaviour
                     }
                     for (int w = 0; w < firstSpawnCount; w++)
                     {
+                        log += " -> Spawn new weapon!";
                         SpawnWeapon(pickedItemInfo as RunWeaponInfo);
                     }
                 }
@@ -602,12 +658,18 @@ public class RunManager : MonoBehaviour
                         // Spawn as many weapons as needed
                         for (int w = 0; w < spawnWeapons; w++)
                         {
+                            log += " -> Spawn new weapon!";
                             SpawnWeapon(pickedItemInfo as RunWeaponInfo);
                         }
                     }
                 }
 
                 break;
+        }
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log(log);
         }
     }
 
@@ -663,6 +725,20 @@ public class RunManager : MonoBehaviour
         level++;
         GameManager.instance.SetTimeScale(0);
 
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("Run - Level Up!");
+
+            string weaponLog = "Summary of kill count per tongue:";
+            foreach (RunWeaponInfo weaponInfo in GetOwnedWeapons())
+            {
+                weaponLog += "\n -> " + weaponInfo.weaponItemData.weaponData.weaponName + " ate " + weaponInfo.killCount + " bugs";
+            }
+            Debug.Log(weaponLog);
+        }
+
+        string log = "New level is " + level + ". Selection of items is:";
+
         levelUpParticleSystem.Play();
 
         // Pick possible items from a pool
@@ -672,11 +748,18 @@ public class RunManager : MonoBehaviour
         List<int> itemLevels = new List<int>();
         foreach (RunItemData item in selectionOfPossibleRunItemsList)
         {
-            itemLevels.Add(GetLevelForItem(item));
+            int itemLevel = GetLevelForItem(item);
+            itemLevels.Add(itemLevel);
+            log += "\n-> " + item.itemName + " - next LVL: " + (itemLevel+1).ToString();
         }
 
-        // Show Update level Up
+        // Show item selection
         ShowLevelUpItemSelection(selectionOfPossibleRunItemsList, itemLevels);
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log(log);
+        }
     }
 
     #region UI
@@ -800,18 +883,34 @@ public class RunManager : MonoBehaviour
         {
             if (int.TryParse(collectibleName.Split("+")[1], out int currency))
             {
-                currentCollectedCurrency += Mathf.RoundToInt(currency * (1 + player.currencyBoost));
+                int collectedCurrency = Mathf.RoundToInt(currency * (1 + player.currencyBoost));
+                currentCollectedCurrency += collectedCurrency;
                 UpdateInGameCurrencyText(currentCollectedCurrency);
+
+                if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                {
+                    Debug.Log("Run - Collected " + collectedCurrency + " Froins. Current collected currency is: " + currentCollectedCurrency + " Froins");
+                }
             }
         }
         else if (collectibleName.Contains("LevelUp"))
         {
+            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log("Run - Collected a Level Up");
+            }
+
             IncreaseXP(nextLevelXp - xp);
         }
         else if (collectibleName.Contains("XP"))
         {
-            if (int.TryParse(collectibleName.Split("+")[1], out int xpBonus))
+            if (float.TryParse(collectibleName.Split("+")[1], out float xpBonus))
             {
+                if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                {
+                    Debug.Log("Run - Collected a XP Bonus: +" + xpBonus + "XP");
+                }
+
                 IncreaseXP(xpBonus);
             }
         }
@@ -819,6 +918,10 @@ public class RunManager : MonoBehaviour
         {
             if (int.TryParse(collectibleName.Split("+")[1], out int hpBonus))
             {
+                if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                {
+                    Debug.Log("Run - Collected some health. Healing: +" + hpBonus + "HP");
+                }
                 player.Heal(hpBonus);
             }
         }

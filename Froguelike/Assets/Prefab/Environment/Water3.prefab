@@ -1,5 +1,73 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1013813538968374654
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3088345258528185004}
+  - component: {fileID: 6779125759598683831}
+  m_Layer: 27
+  m_Name: Water Trigger
+  m_TagString: Water
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3088345258528185004
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1013813538968374654}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1290153323901382039}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!60 &6779125759598683831
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1013813538968374654}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 4.875, y: 4.25}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: 0.4080938, y: 2.1317124}
+      - {x: -1.2174343, y: 1.7511306}
+      - {x: -2.1747289, y: 1.1109688}
+      - {x: -2.3429608, y: 0.12970334}
+      - {x: -1.6931858, y: -0.8631921}
+      - {x: -0.643919, y: -1.5847034}
+      - {x: 0.75293, y: -1.9929852}
+      - {x: 1.4773238, y: -1.6384153}
+      - {x: 2.368752, y: -0.1462059}
+      - {x: 2.285623, y: 0.63430345}
+      - {x: 1.6646724, y: 1.2844439}
 --- !u!1 &1290153323901382038
 GameObject:
   m_ObjectHideFlags: 0
@@ -10,7 +78,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1290153323901382039}
   - component: {fileID: 1290153323901382025}
-  - component: {fileID: 1290153323901382024}
   m_Layer: 0
   m_Name: Water3
   m_TagString: Water
@@ -29,7 +96,9 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 3088345258528185004}
+  - {fileID: 4666392936320347351}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -85,17 +154,49 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!60 &1290153323901382024
+--- !u!1 &5624862561833710885
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4666392936320347351}
+  - component: {fileID: 6182347774051946442}
+  m_Layer: 26
+  m_Name: Water Collider
+  m_TagString: Water
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4666392936320347351
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5624862561833710885}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1290153323901382039}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!60 &6182347774051946442
 PolygonCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1290153323901382038}
+  m_GameObject: {fileID: 5624862561833710885}
   m_Enabled: 1
   m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_Material: {fileID: 6200000, guid: 1a351c56b46d6784fb17068fd72d8fe6, type: 2}
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -110,14 +211,15 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 0.4080938, y: 2.1317124}
-      - {x: -1.2174343, y: 1.7511306}
-      - {x: -2.1747289, y: 1.1109688}
-      - {x: -2.3429608, y: 0.12970334}
-      - {x: -1.6931858, y: -0.8631921}
-      - {x: -0.643919, y: -1.5847034}
-      - {x: 0.75293, y: -1.9929852}
-      - {x: 1.4773238, y: -1.6384153}
-      - {x: 2.368752, y: -0.1462059}
-      - {x: 2.285623, y: 0.63430345}
-      - {x: 1.6646724, y: 1.2844439}
+    - - {x: 1.5118164, y: 1.544164}
+      - {x: 0.39569902, y: 2.230756}
+      - {x: -1.279408, y: 1.949196}
+      - {x: -2.3482552, y: 1.2223009}
+      - {x: -2.5164866, y: 0.06769671}
+      - {x: -1.8791064, y: -0.7642486}
+      - {x: -0.7678662, y: -1.6714442}
+      - {x: 0.74053544, y: -2.240619}
+      - {x: 1.5640869, y: -1.6878906}
+      - {x: 2.5174887, y: -0.15850152}
+      - {x: 2.4095705, y: 0.6839002}
+      - {x: 1.76383, y: 1.3835516}
