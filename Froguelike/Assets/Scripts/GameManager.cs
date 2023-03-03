@@ -207,7 +207,9 @@ public class GameManager : MonoBehaviour
         bool fileLoaded = SaveDataManager.instance.Load();
         if (!fileLoaded)
         {
+            SaveDataManager.instance.EraseSaveFile(true);
             SaveDataManager.instance.CreateEmptySaveFile();
+            SaveDataManager.instance.isSaveDataDirty = true;
         }
     }
 

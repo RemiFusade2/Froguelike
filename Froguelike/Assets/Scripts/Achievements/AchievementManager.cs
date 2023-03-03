@@ -29,7 +29,7 @@ public class AchievementManager : MonoBehaviour
         bool gameIsWon = RunManager.instance.completedChaptersList.Count >= 6;
         
         FrogCharacterController player = GameManager.instance.player;
-
+        /*
         // After winning one game
         if (gameIsWon)
         {
@@ -38,8 +38,8 @@ public class AchievementManager : MonoBehaviour
             {
                 unlockedCharacterNames.Add(characterName);
             }
-        }
-
+        }*/
+        /*
         // After dying 15 times
         if (GameManager.instance.gameData.deathCount >= 15)
         {
@@ -48,10 +48,10 @@ public class AchievementManager : MonoBehaviour
             {
                 unlockedCharacterNames.Add(characterName);
             }
-        }
+        }*/
 
         if (gameIsWon)
-        {
+        {/*
             bool hasMaxedOutCurse = false;
             bool hasMaxedOutCursedTongue = false;
             bool hasMaxedOutPoisonousTongue = false;
@@ -108,7 +108,7 @@ public class AchievementManager : MonoBehaviour
                 {
                     unlockedCharacterNames.Add(characterName);
                 }
-            }
+            }*/
 
             // After winning a game with all 4 friends
             if (player.HasActiveFriend(FriendType.FROG) && player.HasActiveFriend(FriendType.TOAD) && player.HasActiveFriend(FriendType.GHOST) && player.HasActiveFriend(FriendType.POISONOUS))

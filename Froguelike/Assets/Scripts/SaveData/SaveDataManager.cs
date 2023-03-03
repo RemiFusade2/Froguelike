@@ -216,10 +216,21 @@ public class SaveDataManager : MonoBehaviour
                         {
                             Debug.Log("Debug info - Load in Binary");
                         }
-                        FileStream dataStream = new FileStream(saveFilePath, FileMode.Open);
-                        BinaryFormatter converter = new BinaryFormatter();
-                        loadedData = converter.Deserialize(dataStream) as CombinedSaveData;
-                        dataStream.Close();
+                        FileStream dataStream = null;
+                        try
+                        {
+                            dataStream = new FileStream(saveFilePath, FileMode.Open);
+                            BinaryFormatter converter = new BinaryFormatter();
+                            loadedData = converter.Deserialize(dataStream) as CombinedSaveData;
+                        }
+                        catch (System.Exception ex)
+                        {
+                            Debug.LogError("Exception in Load(): " + ex.Message);
+                        }
+                        finally
+                        {
+                            dataStream.Close();
+                        }
                         break;
                 }
                 CombinedSaveData.SetAllSaveData(loadedData);
