@@ -121,8 +121,15 @@ public class FrogCharacterController : MonoBehaviour
     {
         if (GetCheatPlusInput())
         {
-            GameManager.instance.ChangeAvailableCurrency(1000);
-            UIManager.instance.UpdateCurrencyDisplay();
+            if (GameManager.instance.isGameRunning)
+            {
+                RunManager.instance.chapterRemainingTime = 1;
+            }
+            else
+            {
+                GameManager.instance.ChangeAvailableCurrency(1000);
+                UIManager.instance.UpdateCurrencyDisplay();
+            }
         }
 
         if (GameManager.instance.isGameRunning)
@@ -205,6 +212,8 @@ public class FrogCharacterController : MonoBehaviour
 
     public void ResetPosition()
     {
+        isOnLand = true;
+        //playerRigidbody.MovePosition(Vector2.zero);
         transform.localPosition = Vector3.zero;
         foreach (FriendInfo friend in allFriends)
         {
@@ -467,7 +476,7 @@ public class FrogCharacterController : MonoBehaviour
         return activeFriendsList.Contains(friendType);
     }
 
-    public void AddActiveFriend(FriendType friendType)
+    public void AddActiveFriend(FriendType friendType, Vector2 friendPosition)
     {
         if (!HasActiveFriend(friendType))
         {
@@ -477,6 +486,7 @@ public class FrogCharacterController : MonoBehaviour
                 if (friend.friendType.Equals(friendType))
                 {
                     friend.friendGameObject.SetActive(true);
+                    friend.friendGameObject.transform.position = friendPosition;
                     friend.weapon.gameObject.SetActive(true);
                     friend.weapon.ResetWeapon();
                     friend.animator.SetInteger("Style", friend.style);

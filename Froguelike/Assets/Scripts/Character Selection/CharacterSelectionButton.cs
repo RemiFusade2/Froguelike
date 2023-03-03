@@ -50,7 +50,7 @@ public class CharacterSelectionButton : MonoBehaviour
                 // character is unlocked
                 characterBackgroundImage.sprite = isSelected ? characterSelectedSprite : characterAvailableSprite; // use the corresponding sprite if the character is selected
                 characterNameText.color = charactersDefaultTextColor;
-                characterNameText.text = character.characterName;
+                characterNameText.text = character.characterData.characterName;
                 characterDescriptionText.color = charactersDefaultTextColor;
                 characterDescriptionText.text = character.characterData.characterDescription.Replace("\\n", "\n");
                 characterIconImage.sprite = character.characterData.characterSprite;

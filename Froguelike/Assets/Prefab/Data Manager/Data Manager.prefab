@@ -1,0 +1,110 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1633024039481550883
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1633024039481550880}
+  - component: {fileID: 1633024039481550881}
+  m_Layer: 0
+  m_Name: Data Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1633024039481550880
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1633024039481550883}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1633024039481550881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1633024039481550883}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 076b37b59b0f42e44b3491f0fa15943c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  allWeaponEffectsDataList:
+  - effect: 0
+    color: {r: 0.91372555, g: 0.53333336, b: 0.8117648, a: 1}
+  - effect: 1
+    color: {r: 0.7960785, g: 0.25882354, b: 0.31764707, a: 1}
+  - effect: 2
+    color: {r: 0.3254902, g: 0.72156864, b: 0.14509805, a: 1}
+  - effect: 4
+    color: {r: 0.4039216, g: 0.78823537, b: 0.9058824, a: 1}
+  - effect: 8
+    color: {r: 0.6392157, g: 0.30588236, b: 0.654902, a: 1}
+  currencySymbol: FC
+  rocksSpawnProbabilities:
+  - frequency: 1
+    probability: {x: 0, y: 3}
+  - frequency: 2
+    probability: {x: 2, y: 5}
+  - frequency: 3
+    probability: {x: 7, y: 20}
+  pondsSpawnProbabilities:
+  - frequency: 1
+    probability: {x: 0, y: 2}
+  - frequency: 2
+    probability: {x: 2, y: 4}
+  - frequency: 3
+    probability: {x: 8, y: 16}
+  collectibleCurrencySpawnProbabilities:
+  - frequency: 1
+    probability: {x: 0, y: 0.5}
+  - frequency: 2
+    probability: {x: 0.1, y: 1}
+  - frequency: 3
+    probability: {x: 1, y: 4}
+  collectibleHealthSpawnProbabilities:
+  - frequency: 1
+    probability: {x: 0, y: 0.02}
+  - frequency: 2
+    probability: {x: 0.05, y: 0.3}
+  - frequency: 3
+    probability: {x: 0.5, y: 1}
+  collectibleLevelUpSpawnProbabilities:
+  - frequency: 1
+    probability: {x: 0, y: 0.01}
+  - frequency: 2
+    probability: {x: 0, y: 0.05}
+  - frequency: 3
+    probability: {x: 0.1, y: 0.4}
+  collectibleDefaultSprite: {fileID: 21300000, guid: d29a5b85d57d047429629782eee8b1ff, type: 3}
+  hatsSpritesList:
+  - hatType: 0
+    sprite: {fileID: 21300000, guid: e2476706cb932544ba6742e1ef9affd2, type: 3}
+  - hatType: 1
+    sprite: {fileID: 21300000, guid: 80ef4ef9c2cc9524c9bc2c09abc6f2db, type: 3}
+  - hatType: 2
+    sprite: {fileID: 21300000, guid: b3270297934ecb9458e1d7e2060cc88b, type: 3}
+  friendsSpritesList:
+  - friendType: 0
+    sprite: {fileID: -1082827359, guid: 24ccc3f90866df147bbccde54f0a3e85, type: 3}
+  - friendType: 1
+    sprite: {fileID: -1443578870, guid: 971eb5b595e22d1428aa7fdcbc4b47ad, type: 3}
+  - friendType: 2
+    sprite: {fileID: -1785899201, guid: a4b97357515fdea48a584e1a698c760b, type: 3}
+  - friendType: 3
+    sprite: {fileID: -1519977144, guid: aca36f440e2b27b4fb41540a5b21e22d, type: 3}

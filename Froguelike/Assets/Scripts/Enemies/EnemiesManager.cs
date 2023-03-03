@@ -142,6 +142,8 @@ public class EnemiesManager : MonoBehaviour
     public float maxDistanceBeforeUnspawn = 40;
 
     [Header("Settings")]
+    public VerboseLevel verbose;
+    [Space]
     public float updateAllEnemiesDelay = 0.1f;
     [Space]
     public Color poisonedSpriteColor;
@@ -291,8 +293,8 @@ public class EnemiesManager : MonoBehaviour
     {
         if (RunManager.instance.currentChapter != null && RunManager.instance.currentChapter.chapterData != null)
         {
-            double curseDelayFactor = (1 - GameManager.instance.player.curse); // curse will affect the delay negatively (lower delay = more spawns)
-            curseDelayFactor = System.Math.Clamp(curseDelayFactor, 0.25, 1.0);
+            double curseDelayFactor = (1 - GameManager.instance.player.curse / 2.0f); // curse will affect the delay negatively (lower delay = more spawns)
+            curseDelayFactor = System.Math.Clamp(curseDelayFactor, 0.5, 2.0); // maximum curse would be half delay (so twice the amount of enemies). Negative curse is possible
 
             int enemyIndex = 0;
             foreach (EnemySpawn enemySpawn in currentWave.enemies)
@@ -308,9 +310,14 @@ public class EnemiesManager : MonoBehaviour
 
                     // Get EnemyData & prefab according to relevant difficulty tier
                     int difficultyTier = GetTierFromFormulaAndChapterCount(enemySpawn.tierFormula, RunManager.instance.GetChapterCount());
-                    Debug.Log("Tier formula is " + enemySpawn.tierFormula + " ; chapter count is " + RunManager.instance.GetChapterCount().ToString() + " -> tier is " + difficultyTier.ToString());
                     EnemyData enemyData = GetEnemyDataFromTypeAndDifficultyTier(enemySpawn.enemyType, difficultyTier);
                     GameObject enemyPrefab = enemyData.prefab;
+
+                    if (verbose == VerboseLevel.MAXIMAL)
+                    {
+                        Debug.Log($"Spawning a {enemyData.enemyName}. Total amount of active enemies = {allActiveEnemiesDico.Count+1}");
+                    }
+
 
                     // Get spawn pattern info
                     SpawnPattern spawnPattern = enemySpawn.spawnPattern;

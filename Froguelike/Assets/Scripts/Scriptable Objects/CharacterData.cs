@@ -18,6 +18,9 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Character Data", menuName = "ScriptableObjects/Froguelike/Character Data", order = 1)]
 public class CharacterData : ScriptableObject
 {
+    [Tooltip("The unique identifier of this character")]
+    public string characterID = "[UNIQUE IDENTIFIER]";
+
     [Header("Lore Info")]
     [Tooltip("The name of this character")]
     public string characterName;

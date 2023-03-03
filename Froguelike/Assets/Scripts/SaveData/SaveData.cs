@@ -20,6 +20,7 @@ public class CombinedSaveData
     public ShopSaveData shopSaveData;
     public CharactersSaveData charactersSaveData;
     public EnemiesSaveData enemiesSaveData;
+    public ChaptersSaveData chaptersSaveData;
 
     public CombinedSaveData()
     {
@@ -27,6 +28,7 @@ public class CombinedSaveData
         shopSaveData = new ShopSaveData();
         charactersSaveData = new CharactersSaveData();
         enemiesSaveData = new EnemiesSaveData();
+        chaptersSaveData = new ChaptersSaveData();
     }
 
     public static CombinedSaveData GetAllSaveData()
@@ -36,6 +38,7 @@ public class CombinedSaveData
         saveData.shopSaveData = ShopManager.instance.shopData;
         saveData.charactersSaveData = CharacterManager.instance.charactersData;
         saveData.enemiesSaveData = EnemiesManager.instance.enemiesData;
+        saveData.chaptersSaveData = ChapterManager.instance.chaptersData;
 
         return saveData;
     }
@@ -46,5 +49,6 @@ public class CombinedSaveData
         ShopManager.instance.SetShopData(saveData.shopSaveData);
         CharacterManager.instance.SetCharactersData(saveData.charactersSaveData);
         EnemiesManager.instance.SetEnemiesData(saveData.enemiesSaveData);
+        ChapterManager.instance.SetChaptersData(saveData.chaptersSaveData);
     }
 }

@@ -200,14 +200,15 @@ public class GameManager : MonoBehaviour
         // Setup the enemies manager
         EnemiesManager.instance.ResetEnemies();
 
+        // Setup the chapters manager
+        ChapterManager.instance.ResetChapters(true);
+
         // Load save file
         bool fileLoaded = SaveDataManager.instance.Load();
         if (!fileLoaded)
         {
             SaveDataManager.instance.CreateEmptySaveFile();
         }
-        
-        ChapterManager.instance.ReinitializeChaptersList();
     }
 
     #region Pause

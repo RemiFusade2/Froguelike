@@ -59,6 +59,7 @@ public class RunManager : MonoBehaviour
 
     [Header("Runtime - Current played chapter")]
     public List<Chapter> completedChaptersList;
+    public int[] playedChaptersKillCounts;
     public Chapter currentChapter;
     public float chapterRemainingTime; // in seconds
 
@@ -157,7 +158,7 @@ public class RunManager : MonoBehaviour
     {
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
-            Debug.Log("Run Manager - Start a new Run with character: " + character.characterName);
+            Debug.Log("Run Manager - Start a new Run with character: " + character.characterID);
         }
 
         InitializeNewRun();
@@ -172,8 +173,11 @@ public class RunManager : MonoBehaviour
             PickRunItem(itemData);
         }
 
+        // Reset Chapters Weights
+        ChapterManager.instance.ResetChaptersWeights();
+
         // Show a selection of Chapters to pick from for the first chapter of the Run
-        ChapterManager.instance.ShowChapterSelection(completedChaptersList);
+        ChapterManager.instance.ShowChapterSelection(0);
     }
 
     private void UpdateInGameCurrencyText(long currencyValue)
@@ -213,8 +217,15 @@ public class RunManager : MonoBehaviour
         // Reset Items
         ClearAllItems();
 
+        // Reset kill counts
+        for (int i = 0; i < playedChaptersKillCounts.Length; i++)
+        {
+            playedChaptersKillCounts[i] = 0;
+        }
+
         // Reset chapters
         completedChaptersList.Clear();
+        playedChaptersKillCounts = new int[6];
         currentChapter = null;
 
         // Teleport player to starting position
@@ -283,8 +294,9 @@ public class RunManager : MonoBehaviour
 
     public void IncreaseKillCount(int kills)
     {
-        currentChapter.enemiesKilledCount += kills;
-        SetEatenCount(currentChapter.enemiesKilledCount);
+        int chapterCount = GetChapterCount();
+        playedChaptersKillCounts[chapterCount - 1] += kills;
+        SetEatenCount(playedChaptersKillCounts[chapterCount - 1]);
     }
     
     public void Respawn()
@@ -321,7 +333,7 @@ public class RunManager : MonoBehaviour
         MusicManager.instance.PauseMusic();
 
         // Check if this is a win
-        if (completedChaptersList.Count >= 6)
+        if (completedChaptersList.Count >= 5)
         {
             // Game is won!
             GameManager.instance.RegisterWin();
@@ -330,13 +342,9 @@ public class RunManager : MonoBehaviour
         
         // Compute actual score
         int currentScore = 0;
-        foreach (Chapter chapter in completedChaptersList)
+        foreach (int killCount in playedChaptersKillCounts)
         {
-            currentScore += chapter.enemiesKilledCount;
-        }
-        if (completedChaptersList.Count < 6 && currentChapter != null)
-        {
-            currentScore += currentChapter.enemiesKilledCount;
+            currentScore += killCount;
         }
         GameManager.instance.RegisterScore(currentScore);
 
@@ -349,7 +357,7 @@ public class RunManager : MonoBehaviour
 
         // Add the current chapter to the list (even if current chapter was not completed)
         List<Chapter> chaptersPlayed = new List<Chapter>(completedChaptersList);
-        if (currentChapter != null)
+        if (currentChapter != null && chaptersPlayed.Count > 0 && !chaptersPlayed[chaptersPlayed.Count-1].Equals(currentChapter))
         {
             chaptersPlayed.Add(currentChapter);
         }
@@ -364,7 +372,7 @@ public class RunManager : MonoBehaviour
         }
 
         // Display the score screen
-        ScoreManager.instance.ShowScores(chaptersPlayed, currentPlayedCharacter, ownedItems, unlockedCharacters);
+        ScoreManager.instance.ShowScores(chaptersPlayed, playedChaptersKillCounts, currentPlayedCharacter, ownedItems, unlockedCharacters);
     }
 
     public void EndChapter()
@@ -372,24 +380,22 @@ public class RunManager : MonoBehaviour
         // Add current played chapter to the list
         completedChaptersList.Add(currentChapter);
 
+        // Tell ChapterManager to register that the current character completed that chapter
+        ChapterManager.instance.CompleteChapter(currentChapter, currentPlayedCharacter);
+
         // Stop time
         GameManager.instance.SetTimeScale(0);
 
-        if (completedChaptersList.Count >= 6)
+        if (completedChaptersList.Count >= 5)
         {
             // This was the final chapter
             // Game must end now and display Score
             ComputeScore();
         }
-        else if (completedChaptersList.Count == 5)
-        {
-            // This was the chapter before the last, we must now start the last chapter (it is forced)
-            StartChapter(ChapterManager.instance.finalChapter);
-        }
         else
         {
             // This was a chapter before 5th, so we offer a choice for the next chapter
-            ChapterManager.instance.ShowChapterSelection(completedChaptersList);
+            ChapterManager.instance.ShowChapterSelection(GetChapterCount());
         }
     }
 
@@ -400,8 +406,6 @@ public class RunManager : MonoBehaviour
 
         // Remove enemies on screen
         EnemiesManager.instance.ClearAllEnemies();
-
-        chapter.enemiesKilledCount = 0;
 
         currentChapter = chapter;
         
@@ -418,14 +422,14 @@ public class RunManager : MonoBehaviour
         int chapterCount = GetChapterCount();
 
         // Show chapter start screen
-        ChapterManager.instance.ShowChapterStartScreen(chapterCount, currentChapter.chapterData.chapterTitle);
+        ChapterManager.instance.ShowChapterStartScreen(chapterCount, currentChapter);
+
+        // Clear all collectible
+        CollectiblesManager.instance.ClearCollectibles();
 
         // Teleport player to starting position
         player.ResetPosition();
-
-        // Set map info
-        MapBehaviour.instance.rockMinMax = currentChapter.chapterData.amountOfRocksPerTile_minmax;
-        MapBehaviour.instance.waterMinMax = currentChapter.chapterData.amountOfPondsPerTile_minmax;
+        
         // Update map
         MapBehaviour.instance.ClearMap();
         UpdateMap();
@@ -449,34 +453,26 @@ public class RunManager : MonoBehaviour
         EnemiesManager.instance.InitializeWave(GetCurrentWave());
 
         // If character is ghost in that chapter, force it to ghost sprite
-        player.ForceGhost(currentChapter.chapterData.characterStyleChange == CharacterStyleType.GHOST);
-
-        // Add hat if needed
-        if (currentChapter.chapterData.addHat != HatType.NONE)
-        {
-            player.AddHat(currentChapter.chapterData.addHat);
-        }
-
-        // If character has friend in this chapter, add it
-        if (currentChapter.chapterData.addFriend != FriendType.NONE)
-        {
-            player.AddActiveFriend(currentChapter.chapterData.addFriend);
-        }
+        player.ForceGhost(currentChapter.chapterData.characterStyleChange == CharacterStyle.GHOST);
         
         yield return new WaitForSecondsRealtime(2.9f);
 
         GameManager.instance.SetTimeScale(1);
 
         // Reset kill count
-        currentChapter.enemiesKilledCount = 0;
-        SetEatenCount(currentChapter.enemiesKilledCount);
+        SetEatenCount(0);
 
         // Play level music
         MusicManager.instance.PlayLevelMusic();
-        
+
+        // Fade out chapter start screen
+        float fadeOutDelay = 0.4f;
+        ChapterManager.instance.FadeOutChapterStartScreen(fadeOutDelay);
+
+        // Wait
         yield return new WaitForSecondsRealtime(0.1f);
 
-        // Show Game UI (hide chapter start screen)
+        // Show Game UI
         UIManager.instance.ShowGameUI();
 
         // Start game!
@@ -526,7 +522,7 @@ public class RunManager : MonoBehaviour
         weaponItem.activeWeaponsList.Add(weaponGo);
     }
     
-    private void PickRunItem(RunItemData pickedItemData)
+    public void PickRunItem(RunItemData pickedItemData)
     {
         string log = "Run - Pick a Run item: " + pickedItemData.itemName;
 

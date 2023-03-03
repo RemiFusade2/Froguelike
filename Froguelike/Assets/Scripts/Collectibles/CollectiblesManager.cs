@@ -21,24 +21,29 @@ public class CollectiblesManager : MonoBehaviour
     public static CollectiblesManager instance;
 
     [Header("Prefabs")]
-    public GameObject collectiblePrefab;
-    [Space]
+    public GameObject magnetCollectiblePrefab;
+    public GameObject superCollectiblePrefab;
+
+    [Header("Magnet collectibles icons")]
     public Sprite currencyCollectibleIcon;
     public Sprite superCurrencyCollectibleIcon;
     public Sprite xpCollectibleIcon;
     public Sprite levelUpCollectibleIcon;
     public Sprite healthCollectibleIcon;
 
-    [Header("Settings")]
+    [Header("Settings - Magnet")]
     public float collectibleMinMovingSpeed = 8;
     public float collectibleMovingSpeedFactor = 1.5f;
     public float collectMinDistance = 1.5f;
     public float updateAllCollectiblesDelay = 0.1f;
 
+
     private List<Transform> allCollectiblesList;
     private List<Transform> allCapturedCollectiblesList;
 
     private Coroutine updateCollectiblesCoroutine;
+
+    #region Unity Callback Methods
 
     // Start is called before the first frame update
     void Awake()
@@ -53,18 +58,29 @@ public class CollectiblesManager : MonoBehaviour
         ReinitializeUpdateCoroutine();
     }
 
-    private void ReinitializeUpdateCoroutine()
+    #endregion
+
+    public void ClearCollectibles()
     {
-        if (updateCollectiblesCoroutine != null)
+        foreach(Transform collectibleChild in this.transform)
         {
-            StopCoroutine(updateCollectiblesCoroutine);
+            Destroy(collectibleChild.gameObject, 0.05f);
         }
-        updateCollectiblesCoroutine = StartCoroutine(UpdateAllCollectiblesAsync(updateAllCollectiblesDelay));
+        allCollectiblesList.Clear();
+        allCapturedCollectiblesList.Clear();
+        ReinitializeUpdateCoroutine();
+    }
+
+    public void SpawnSuperCollectible(FixedCollectible collectible, Vector2 position)
+    {
+        GameObject newCollectible = Instantiate(superCollectiblePrefab, position, Quaternion.identity, this.transform);
+        newCollectible.GetComponent<SuperCollectibleBehaviour>().InitializeCollectible(collectible);
+        newCollectible.name = collectible.collectibleType.ToString();
     }
 
     public void SpawnCollectible(Vector2 position, CollectibleType collectibleType, float bonusValue)
     {
-        GameObject newCollectible = Instantiate(collectiblePrefab, position, Quaternion.identity, this.transform);
+        GameObject newCollectible = Instantiate(magnetCollectiblePrefab, position, Quaternion.identity, this.transform);
 
         string collectibleName = "";
         switch (collectibleType)
@@ -130,6 +146,37 @@ public class CollectiblesManager : MonoBehaviour
         return collectibleName;
     }
 
+    public void CollectSuperCollectible(FixedCollectible superCollectible)
+    {
+        switch (superCollectible.collectibleType)
+        {
+            case FixedCollectibleType.FRIEND:
+                GameManager.instance.player.AddActiveFriend(superCollectible.collectibleFriendType, GameManager.instance.player.transform.position);
+                break;
+            case FixedCollectibleType.HAT:
+                GameManager.instance.player.AddHat(superCollectible.collectibleHatType);
+                break;
+            case FixedCollectibleType.STATS_ITEM:
+                RunManager.instance.PickRunItem(superCollectible.collectibleStatItemData);
+                break;
+            case FixedCollectibleType.WEAPON_ITEM:
+                RunManager.instance.PickRunItem(superCollectible.collectibleWeaponItemData);
+                break;
+        }
+        Debug.Log("Collect: " + superCollectible.collectibleType.ToString());
+    }
+
+    #region Update Magnet Collectibles
+
+    private void ReinitializeUpdateCoroutine()
+    {
+        if (updateCollectiblesCoroutine != null)
+        {
+            StopCoroutine(updateCollectiblesCoroutine);
+        }
+        updateCollectiblesCoroutine = StartCoroutine(UpdateAllCollectiblesAsync(updateAllCollectiblesDelay));
+    }
+
     public IEnumerator UpdateAllCollectiblesAsync(float delay)
     {
         while (true)
@@ -180,4 +227,6 @@ public class CollectiblesManager : MonoBehaviour
             }
         }
     }
+
+    #endregion
 }

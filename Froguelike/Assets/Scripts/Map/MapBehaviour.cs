@@ -1,7 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
+/// <summary>
+/// MapBehaviour is the class that generates the map as the character moves.
+/// It's in charge of building the background, spawning the obstacles and collectibles.
+/// </summary>
 public class MapBehaviour : MonoBehaviour
 {
     public static MapBehaviour instance;
@@ -10,22 +15,15 @@ public class MapBehaviour : MonoBehaviour
     public Transform mapTilesParent;
 
     [Header("Prefabs")]
-    public GameObject backgroundTilePrefab;
+    public GameObject emptyTilePrefab;
+    public List<GameObject> treasureTilesPrefabsList;
+    [Space]
     public List<GameObject> rocksPrefabs;
     public List<GameObject> watersPrefabs;
 
     [Header("Settings")]
     public Vector2 tileSize = new Vector2(40, 22.5f);
-    public Vector2 rockMinMax;
-    public Vector2 waterMinMax;
-    [Space]
     public float minDistanceWithPlayer = 2;
-    [Space]
-    public int minCollectiblesPerTile = 1;
-    public int maxCollectiblesPerTile = 4;
-    public float collectibleLevelUpSpawnLikelihood = 0.01f;
-    public float collectibleCurrencySpawnLikelihood = 1.0f;
-    public float collectibleHealthSpawnLikelihood = 0.01f;
 
 
     private List<Vector2Int> existingTilesCoordinates;
@@ -73,7 +71,7 @@ public class MapBehaviour : MonoBehaviour
         }
     }
 
-    private void AddSomething(List<GameObject> prefabs, Vector2Int tileCoordinates, bool preventSpawnAtPosition, Vector2 preventSpawnPosition)
+    private void AddSomething(List<GameObject> prefabs, Vector2Int tileCoordinates, bool preventSpawnAtPosition, Vector2 preventSpawnPosition, Transform tileParent)
     {
         int randomIndex = Random.Range(0, prefabs.Count);
 
@@ -81,7 +79,7 @@ public class MapBehaviour : MonoBehaviour
 
         if (!preventSpawnAtPosition || Vector2.Distance(randomPositionOnTile, preventSpawnPosition) > minDistanceWithPlayer)
         {
-            Instantiate(prefabs[randomIndex], randomPositionOnTile, Quaternion.identity, mapTilesParent);
+            Instantiate(prefabs[randomIndex], randomPositionOnTile, Quaternion.identity, tileParent);
         }
     }
 
@@ -91,48 +89,88 @@ public class MapBehaviour : MonoBehaviour
     }
     private void AddTile(Vector2Int tileCoordinates, bool preventSpawnRocksAtPosition, Vector2 preventSpawnPosition)
     {
+        GameObject tilePrefab = emptyTilePrefab;
         Vector2 tileWorldPosition = tileCoordinates * tileSize;
-        Instantiate(backgroundTilePrefab, tileWorldPosition, Quaternion.identity, mapTilesParent);
 
-        // generate water
-        float waterProba = Random.Range(waterMinMax.x, waterMinMax.y);
-        float waterAmount = Mathf.Floor(waterProba) + ((Random.Range(Mathf.Floor(waterProba), Mathf.Ceil(waterProba)) < waterProba) ? 1 : 0);
-        for (int i = 0; i < waterAmount; i++)
+        Chapter currentPlayedChapter = RunManager.instance.currentChapter;
+        if (currentPlayedChapter == null || currentPlayedChapter.chapterData == null) return;
+        List<FixedCollectible> superCollectiblesList = currentPlayedChapter.chapterData.specialCollectiblesOnTheMap;
+        FixedCollectible superCollectibleOnCurrentTile = null;
+        if (superCollectiblesList != null)
         {
-            AddSomething(watersPrefabs, tileCoordinates, false, preventSpawnPosition);
+            superCollectibleOnCurrentTile = superCollectiblesList.FirstOrDefault(x => x.tileCoordinates.Equals(tileCoordinates));
         }
-
-        // generate rocks
-        float rockProba = Random.Range(rockMinMax.x, rockMinMax.y);
-        float rockAmount = Mathf.Floor(rockProba) + ((Random.Range(Mathf.Floor(rockProba), Mathf.Ceil(rockProba)) < rockProba) ? 1 : 0);
-        for (int i = 0; i < rockAmount; i++)
+        if (superCollectibleOnCurrentTile != null)
         {
-            AddSomething(rocksPrefabs, tileCoordinates, preventSpawnRocksAtPosition, preventSpawnPosition);
+            // Special case when there is a super collectible on the new tile to spawn
+            tilePrefab = treasureTilesPrefabsList[Random.Range(0, treasureTilesPrefabsList.Count)];
+            GameObject tile = Instantiate(tilePrefab, tileWorldPosition, Quaternion.identity, mapTilesParent);
+
+            // In that situation, we just spawn the super collectible and that's it
+            // Everything else is already on the treasure tile
+            CollectiblesManager.instance.SpawnSuperCollectible(superCollectibleOnCurrentTile, tileWorldPosition);
         }
-
-        // generate collectibles
-        int collectibleCount = Random.Range(minCollectiblesPerTile, maxCollectiblesPerTile+1);
-        for (int i=0; i<collectibleCount; i++)
+        else
         {
-            Vector2 randomVector = Random.insideUnitCircle;
-            Vector2 position = GetWorldPositionOfTile(tileCoordinates) + randomVector * (tileSize / 2.0f);
+            // If there's no collectible, then we spawn an empty tile and a bunch of random obstacles and collectbiles
+            tilePrefab = emptyTilePrefab;
+            GameObject tile = Instantiate(tilePrefab, tileWorldPosition, Quaternion.identity, mapTilesParent);
             
-            int chapterMultiplicator = RunManager.instance.completedChaptersList.Count + 1;
-            float randomCollectibleType = Random.Range(0, collectibleLevelUpSpawnLikelihood + collectibleCurrencySpawnLikelihood + collectibleHealthSpawnLikelihood);
-            if (randomCollectibleType < collectibleLevelUpSpawnLikelihood)
+            // generate water
+            Vector2 waterMinMax = DataManager.instance.GetSpawnProbability("pond", currentPlayedChapter.chapterData.pondsSpawnFrequency);
+            float waterProba = Random.Range(waterMinMax.x, waterMinMax.y);
+            float waterAmount = Mathf.Floor(waterProba) + ((Random.Range(Mathf.Floor(waterProba), Mathf.Ceil(waterProba)) < waterProba) ? 1 : 0);
+            for (int i = 0; i < waterAmount; i++)
             {
-                CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.LEVEL_UP, 1);
+                AddSomething(watersPrefabs, tileCoordinates, false, preventSpawnPosition, tile.transform);
             }
-            else if (randomCollectibleType < collectibleLevelUpSpawnLikelihood + collectibleHealthSpawnLikelihood)
+
+            // generate rocks
+            Vector2 rockMinMax = DataManager.instance.GetSpawnProbability("rock", currentPlayedChapter.chapterData.rocksSpawnFrequency);
+            float rockProba = Random.Range(rockMinMax.x, rockMinMax.y);
+            float rockAmount = Mathf.Floor(rockProba) + ((Random.Range(Mathf.Floor(rockProba), Mathf.Ceil(rockProba)) < rockProba) ? 1 : 0);
+            for (int i = 0; i < rockAmount; i++)
             {
-                CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.HEALTH, 200);
+                AddSomething(rocksPrefabs, tileCoordinates, preventSpawnRocksAtPosition, preventSpawnPosition, tile.transform);
             }
-            else
+
+            // generate currency collectibles
+            Vector2 currencyMinMax = DataManager.instance.GetSpawnProbability("currency", currentPlayedChapter.chapterData.coinsSpawnFrequency);
+            float currencyProba = Random.Range(currencyMinMax.x, currencyMinMax.y);
+            float currencyAmount = Mathf.Floor(currencyProba) + ((Random.Range(Mathf.Floor(currencyProba), Mathf.Ceil(currencyProba)) < currencyProba) ? 1 : 0);
+            for (int i = 0; i < currencyAmount; i++)
             {
+                Vector2 randomVector = Random.insideUnitCircle;
+                Vector2 position = GetWorldPositionOfTile(tileCoordinates) + randomVector * (tileSize / 2.0f);
+                int chapterMultiplicator = 1; // RunManager.instance.completedChaptersList.Count + 1;
                 int bonusValue = chapterMultiplicator * 10;
                 CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.CURRENCY, bonusValue);
             }
+
+            // generate health collectibles
+            Vector2 healthMinMax = DataManager.instance.GetSpawnProbability("health", currentPlayedChapter.chapterData.healthSpawnFrequency);
+            float healthProba = Random.Range(healthMinMax.x, healthMinMax.y);
+            float healthAmount = Mathf.Floor(healthProba) + ((Random.Range(Mathf.Floor(healthProba), Mathf.Ceil(healthProba)) < healthProba) ? 1 : 0);
+            for (int i = 0; i < healthAmount; i++)
+            {
+                Vector2 randomVector = Random.insideUnitCircle;
+                Vector2 position = GetWorldPositionOfTile(tileCoordinates) + randomVector * (tileSize / 2.0f);
+                CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.HEALTH, 200);
+            }
+
+            // generate level up collectibles
+            Vector2 levelUpMinMax = DataManager.instance.GetSpawnProbability("levelUp", currentPlayedChapter.chapterData.levelUpSpawnFrequency);
+            float levelUpProba = Random.Range(levelUpMinMax.x, levelUpMinMax.y);
+            float levelUpAmount = Mathf.Floor(levelUpProba) + ((Random.Range(Mathf.Floor(levelUpProba), Mathf.Ceil(levelUpProba)) < levelUpProba) ? 1 : 0);
+            for (int i = 0; i < levelUpAmount; i++)
+            {
+                Vector2 randomVector = Random.insideUnitCircle;
+                Vector2 position = GetWorldPositionOfTile(tileCoordinates) + randomVector * (tileSize / 2.0f);
+                CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.LEVEL_UP, 1);
+            }
         }
+
+        // We add that new tile in the list of existing tiles
         existingTilesCoordinates.Add(tileCoordinates);
     }
 

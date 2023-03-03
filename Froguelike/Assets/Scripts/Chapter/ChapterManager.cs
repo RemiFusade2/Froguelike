@@ -1,17 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
+/// CharacterCount associate a character name and a number.
+/// It is used to store the amount of attempts and completions in a List.
+/// </summary>
+[System.Serializable]
+public class CharacterCount
+{
+    public string characterIdentifier;
+    public int counter;
+}
+
+/// <summary>
 /// Chapter describes a chapter in its current state.
 /// It has a reference to ChapterData, the scriptable object that describes the chapter. This is not serialized with the rest.
-/// It keeps the chapterTitle there for serialization. When saving/loading this chapter from a save file, the title will be used to retrieve the right chapter in the program.
+/// It keeps the chapterID there for serialization. When saving/loading this chapter from a save file, the ID will be used to retrieve the right chapter in the program.
 /// The information that can change at runtime are:
-/// - unlocked, is the status of the chapter. Is it available to play during a Run? This value can change when the chapter is unlocked through an achievement.
-/// - currentLevel, is the number of times this item has been bought. Is reset to zero when reseting the shop.
-/// - maxLevel, is the number of times this can be bought at max. Can be "upgraded" through an achievement.
+/// - unlocked, is the status of the chapter. This value can change when the chapter is unlocked through an achievement.
+/// - attemptCountByCharacters is the amount of attempts from every character
+/// - completionCountByCharacters is the amount of completions from every character
 /// </summary>
 [System.Serializable]
 public class Chapter
@@ -19,68 +31,100 @@ public class Chapter
     [System.NonSerialized]
     public ChapterData chapterData;
 
-    // Defined at runtime, using ShopItemData
+    // Defined at runtime, using ChapterData
     [HideInInspector]
-    public string chapterTitle;
+    public string chapterID;
 
     public bool unlocked;
 
+    public List<CharacterCount> attemptCountByCharacters;
+    public List<CharacterCount> completionCountByCharacters;
+
     [System.NonSerialized]
-    public int enemiesKilledCount;
+    public float weight; // used to decide how likely it is that this chapter will show up in the selection
+    
+    public Chapter()
+    {
+        attemptCountByCharacters = new List<CharacterCount>();
+        completionCountByCharacters = new List<CharacterCount>();
+    }
+
+    public override bool Equals(object obj)
+    {
+        bool equal = false;
+        if (obj is Chapter)
+        {
+            equal = this.chapterID.Equals((obj as Chapter).chapterID);
+        }
+        return equal;
+    }
+
+    public override int GetHashCode()
+    {
+        return chapterID.GetHashCode();
+    }
 }
 
-/*
 /// <summary>
-/// A structure to link a ChapterIconType with its corresponding Sprite
+/// ChaptersSaveData contains all information that must be saved about the chapters.
+/// - chaptersList is the list of chapters in their current state
 /// </summary>
 [System.Serializable]
-public class ChapterIcon
+public class ChaptersSaveData : SaveData
 {
-    public ChapterIconType iconType;
-    public Sprite iconSprite;
-}*/
+    public List<Chapter> chaptersList;
 
+    public ChaptersSaveData()
+    {
+        Reset();
+    }
+
+    public override void Reset()
+    {
+        base.Reset();
+        chaptersList = new List<Chapter>();
+    }
+}
+
+/// <summary>
+/// ChapterManager keep all information about Chapters, including the current state of the Chapters deck during a Run.
+/// It also takes care of displaying the Chapter book from the menu, and the Chapter selection during a Run.
+/// </summary>
 public class ChapterManager : MonoBehaviour
 {
     public static ChapterManager instance;
 
-    /*
-     * // Code for later when we implement icons
-    [Header("Icons for chapters")]
-    public List<ChapterIcon> availableChapterIcons;
-    private Dictionary<ChapterIconType, Sprite> chapterIconsDictionary;*/
-
-    [Header("All Chapters Data")]
-    public List<ChapterData> allChaptersDataList;
-
-    [Header("Final Chapter")]
-    public ChapterData finalChapterData;
-
-    [Header("UI - Chapter Selection")]
-    public TextMeshProUGUI chapterSelectionTopText;
-    public List<TextMeshProUGUI> chapterTitleTextsList;
-    public List<TextMeshProUGUI> chapterDescriptionTextsList;
-
-    [Header("UI - Chapter Start")]
-    public TextMeshProUGUI chapterStartTopText;
-    public TextMeshProUGUI chapterStartBottomText;
-
-    [Header("Settings")]
+    [Header("Settings - Debug")]
     public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
 
-    [Header("Runtime")]
-    public Chapter finalChapter;
+    [Header("Data - Chapters scriptable objects")]
+    public List<ChapterData> chaptersScriptableObjectsList;
 
-    private List<ChapterData> selectionOfNextChaptersList;
-    /*
-    [Tooltip("Contains the current chapters that can be played. Will be reset at the start of a Run and updated during a Run.")]*/
-    private List<Chapter> currentPlayableChaptersList; // This serves as the deck of chapters where we pick the next chapters from
+    [Header("UI - Chapter Selection screen")]
+    public TextMeshProUGUI chapterSelectionTopText;
+    public List<GameObject> chapterButtonsList;
+    public List<TextMeshProUGUI> chapterTitleTextsList;
+    public List<TextMeshProUGUI> chapterDescriptionTextsList;
+    public List<Transform> chapterIconsParentList;
+
+    [Header("UI - Chapter Start screen")]
+    public Image chapterStartBackground;
+    public TextMeshProUGUI chapterStartTopText;
+    public TextMeshProUGUI chapterStartBottomText;
+    public List<Image> chapterStartIconsImageList;
     
-    // This dictionary is a handy way to get the Chapter object from its title (unique ID)
-    private Dictionary<string, Chapter> allChaptersDico;
+    [Header("Runtime - Save Data")]
+    public ChaptersSaveData chaptersData; // Will be loaded and saved when needed
 
+    [Header("Runtime - UI")]
     public bool chapterChoiceIsVisible;
 
+    [Header("Runtime - Chapter selection")]
+    public List<Chapter> selectionOfNextChaptersList; // The current selection of X chapters to choose from
+       
+    private Dictionary<string, Chapter> allChaptersDico; // This dictionary is a handy way to get the Chapter object from its ID
+
+    #region Unity Callback methods
 
     private void Awake()
     {
@@ -97,43 +141,148 @@ public class ChapterManager : MonoBehaviour
 
     private void Start()
     {
-        allChaptersDico = new Dictionary<string, Chapter>();
-        foreach (ChapterData chapterData in allChaptersDataList)
-        {
-            Chapter chapter = new Chapter() { chapterData = chapterData, chapterTitle = chapterData.chapterTitle, unlocked = chapterData.startingUnlockState };
-            allChaptersDico.Add(chapter.chapterTitle, chapter);
-        }
-        finalChapter = new Chapter() { chapterData = finalChapterData, chapterTitle = finalChapterData.chapterTitle, unlocked = finalChapterData.startingUnlockState };
+
     }
 
-    private void SelectNextPossibleChapters(int chapterCount)
+    #endregion
+
+    /// <summary>
+    /// Create the deck of Chapters using the current state of the game
+    /// </summary>
+    /// <returns></returns>
+    private List<Chapter> GetDeckOfChapters()
     {
-        selectionOfNextChaptersList = new List<ChapterData>();
+        List<Chapter> deckOfChapters = new List<Chapter>();
 
-        string log = "Chapter selection - ";
-
-        while (selectionOfNextChaptersList.Count < chapterCount)
+        List<Chapter> completedChapters = RunManager.instance.completedChaptersList;
+        foreach (KeyValuePair<string, Chapter> chapterKeyValue in allChaptersDico)
         {
-            if (currentPlayableChaptersList.Count < 1)
-            {
-                ReinitializeChaptersList();
-            }
-            
-            Chapter selectedChapter = currentPlayableChaptersList[Random.Range(0, currentPlayableChaptersList.Count)];
-            bool hasFriend = selectedChapter.chapterData.addFriend != FriendType.NONE;
+            Chapter currentChapter = chapterKeyValue.Value;
+            List<ChapterConditionsChunk> currentChapterConditionsChunksList = currentChapter.chapterData.conditions;
 
-            FrogCharacterController player = GameManager.instance.player;
-
-            if ((hasFriend && player.HasActiveFriend(0)) || selectionOfNextChaptersList.Contains(selectedChapter.chapterData))
+            if (!currentChapter.chapterData.canBePlayedMultipleTimesInOneRun && completedChapters.Contains(currentChapter))
             {
-                currentPlayableChaptersList.Remove(selectedChapter);
+                // This chapter has already been played and can't be played more than once
                 continue;
             }
 
-            currentPlayableChaptersList.Remove(selectedChapter);
-            selectionOfNextChaptersList.Add(selectedChapter.chapterData);
+            bool chapterConditionsAreMet = (currentChapterConditionsChunksList.Count == 0); // particular case if there are no conditions
 
-            log += selectedChapter.chapterTitle + ", ";
+            // Check each chunk of conditions, until at least one is valid (chunk valid = all conditions met)
+            foreach (ChapterConditionsChunk conditionChunk in currentChapterConditionsChunksList)
+            {
+                bool conditionChunkIsValid = true;
+                foreach (ChapterCondition condition in conditionChunk.conditionsList)
+                {
+                    switch (condition.conditionType)
+                    {
+                        case ChapterConditionType.CHAPTER_COUNT:
+                            int currentChapterCount = RunManager.instance.GetChapterCount();
+                            conditionChunkIsValid = (currentChapterCount >= condition.minChapterCount) && (currentChapterCount <= condition.maxChapterCount);
+                            break;
+                        case ChapterConditionType.CHARACTER:
+                            conditionChunkIsValid = (RunManager.instance.currentPlayedCharacter.characterID.Equals(condition.characterData.characterID));
+                            break;
+                        case ChapterConditionType.ENVIRONMENT:
+                            conditionChunkIsValid = true; // TODO: use condition.environmentType to compare to the current environment
+                            break;
+                        case ChapterConditionType.FRIEND:
+                            conditionChunkIsValid = GameManager.instance.player.HasActiveFriend(condition.friendType);
+                            break;
+                        case ChapterConditionType.HAT:
+                            conditionChunkIsValid = GameManager.instance.player.HasHat(condition.hatType);
+                            break;
+                        case ChapterConditionType.PLAYED_CHAPTER:
+                            Chapter c = completedChapters.FirstOrDefault(x => x.chapterData.Equals(condition.chapterData));
+                            conditionChunkIsValid = (c != null);
+                            break;
+                        case ChapterConditionType.RUN_ITEM:
+                            conditionChunkIsValid = (RunManager.instance.GetLevelForItem(condition.itemName) > 0);
+                            break;
+                        case ChapterConditionType.UNLOCKED:
+                            conditionChunkIsValid = currentChapter.unlocked;
+                            break;
+                    }
+                    conditionChunkIsValid = condition.not ? (!conditionChunkIsValid) : (conditionChunkIsValid); // apply a NOT if needed
+                    if (!conditionChunkIsValid)
+                    {
+                        break; // one condition was false so the whole chunk is invalid
+                    }
+                }
+                if (conditionChunkIsValid)
+                {
+                    chapterConditionsAreMet = true;
+                    break; // one chunk was true, it's enough for the chapter to be included in the deck
+                }
+            }
+
+            if (chapterConditionsAreMet && currentChapter.weight > 0)
+            {
+                // We add the chapter to the deck if the conditions are met and if its weight is positive
+                deckOfChapters.Add(currentChapter);
+            }
+        }
+        return deckOfChapters;
+    }
+
+    private Chapter GetRandomChapterFromDeck(List<Chapter> deckOfChapters)
+    {
+        // Compute the total sum of all weights
+        float sumWeights = 0;
+        foreach (Chapter chapter in deckOfChapters)
+        {
+            sumWeights += chapter.weight;
+        }
+
+        // Pick a random value between 0 and the weights sum
+        float randomValue = Random.Range(0, sumWeights);
+
+        // Find the Chapter from this random value
+        Chapter resultChapter = null;
+        foreach (Chapter chapter in deckOfChapters)
+        {
+            randomValue -= chapter.weight;
+            if (randomValue <= 0)
+            {
+                resultChapter = chapter;
+                break;
+            }
+        }
+
+        return resultChapter;
+    }
+
+    /// <summary>
+    /// Will compute the current deck of chapter then choose a certain amount (passed as parameter) from this deck.
+    /// </summary>
+    /// <param name="chapterCount"></param>
+    private void SelectNextPossibleChapters(int chapterCount)
+    {
+        string log = "Chapter selection - ";
+
+        // Create the deck of chapters to choose from
+        List<Chapter> deckOfChapters = GetDeckOfChapters();
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            log += "Deck of Chapters: ";
+            foreach (Chapter chapter in deckOfChapters)
+            {
+                log += chapter.chapterID + " (weight = " + chapter.weight.ToString("0.00") + "); ";
+            }
+            Debug.Log(log);
+        }
+
+        // Choose a number of chapters from the deck
+        // If there's not enough, just show the whole deck
+        selectionOfNextChaptersList = new List<Chapter>();
+        log = "Chapter selection - ";
+        int actualChapterCount = (deckOfChapters.Count < chapterCount) ? deckOfChapters.Count : chapterCount;
+        while (selectionOfNextChaptersList.Count < actualChapterCount)
+        {
+            Chapter selectedChapter = GetRandomChapterFromDeck(deckOfChapters);
+            deckOfChapters.Remove(selectedChapter);
+            selectionOfNextChaptersList.Add(selectedChapter);
+            log += selectedChapter.chapterID + ", ";
         }
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
@@ -142,13 +291,10 @@ public class ChapterManager : MonoBehaviour
         }
     }
 
-    public void ShowChapterSelection(List<Chapter> chaptersPlayed)
+    public void ShowChapterSelection(int currentChapterCount)
     {
-        // Choose 3 chapters from the list of available chapters
-        SelectNextPossibleChapters(3);
-
-        // Update the UI to show these 3 chapters
-        int chapterCount = chaptersPlayed.Count;
+        // Update the top text
+        int chapterCount = currentChapterCount;
         string chapterIntro = "";
         if (chapterCount == 0)
         {
@@ -160,54 +306,252 @@ public class ChapterManager : MonoBehaviour
         }
         else
         {
-            chapterIntro = "What happens in chapter " + (chapterCount+1).ToString() + "?";
+            chapterIntro = "What happens in chapter " + chapterCount.ToString() + "?";
         }
         chapterSelectionTopText.text = chapterIntro;
+
+        // Choose 3 chapters from the list of available chapters
+        SelectNextPossibleChapters(3);
+
+        // Show the 3 chapters selection
+        foreach (GameObject chapterButton in chapterButtonsList)
+        {
+            chapterButton.SetActive(false);
+        }
         for (int i = 0; i < selectionOfNextChaptersList.Count; i++)
         {
-            ChapterData chapter = selectionOfNextChaptersList[i];
-            chapterTitleTextsList[i].text = chapter.chapterTitle;
-            chapterDescriptionTextsList[i].text = chapter.chapterLore[0];
+            Chapter chapter = selectionOfNextChaptersList[i];
+            chapterButtonsList[i].SetActive(true);
+            chapterTitleTextsList[i].text = chapter.chapterData.chapterTitle;
+            chapterDescriptionTextsList[i].text = chapter.chapterData.chapterLore[0];
+
+            int iconCount = 0;
+            foreach (Transform iconChild in chapterIconsParentList[i])
+            {
+                Image iconImage = iconChild.GetComponent<Image>();
+                bool iconExists = (iconCount < chapter.chapterData.icons.Count && chapter.chapterData.icons[iconCount] != null);
+                iconImage.gameObject.SetActive(iconExists);
+                if (iconExists)
+                {
+                    iconImage.sprite = chapter.chapterData.icons[iconCount];
+                }
+                iconCount++;
+            }            
         }
 
         // Call the UIManager to display the chapter selection screen
         UIManager.instance.ShowChapterSelectionScreen((chapterCount == 0));
     }
 
-    public void ShowChapterStartScreen(int chapterCount, string chapterTitle)
-    {
-        UIManager.instance.ShowChapterStart();
-        chapterStartTopText.text = "Chapter " + chapterCount.ToString();
-        chapterStartBottomText.text = chapterTitle;
-
-        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
-        {
-            Debug.Log("Chapter - Start screen - " + chapterTitle);
-        }
-    }
-
-    public void ReinitializeChaptersList()
-    {
-        currentPlayableChaptersList = new List<Chapter>();
-
-        foreach (ChapterData chapterData in allChaptersDataList)
-        {
-            currentPlayableChaptersList.Add(new Chapter() { chapterData = chapterData, chapterTitle = chapterData.chapterTitle, enemiesKilledCount = 0, unlocked = chapterData.startingUnlockState });
-        }
-    }
-
+    /// <summary>
+    /// Select the Chapter in the selection list from its index.
+    /// This method is called by the Button pressed
+    /// </summary>
+    /// <param name="index"></param>
     public void SelectChapter(int index)
     {
-        Chapter chapterInfo = new Chapter();
-        chapterInfo.chapterData = selectionOfNextChaptersList[index];
-        chapterInfo.chapterTitle = chapterInfo.chapterData.chapterTitle;
-        chapterInfo.enemiesKilledCount = 0;
+        Chapter chapterInfo = selectionOfNextChaptersList[index];
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
-            Debug.Log("Chapter - Select " + chapterInfo.chapterData.chapterTitle);
+            Debug.Log("Chapter - Select " + chapterInfo.chapterID);
+        }
+        StartChapter(chapterInfo);
+    }
+
+    public void StartChapter(Chapter chapter)
+    {
+        // Save information about the current character attempting to play that chapter        
+        CharacterCount charCount = chapter.attemptCountByCharacters.FirstOrDefault(x => x.characterIdentifier.Equals(RunManager.instance.currentPlayedCharacter.characterID));
+        if (charCount == null)
+        {
+            // first time this character attempts this chapter
+            charCount = new CharacterCount() { characterIdentifier = RunManager.instance.currentPlayedCharacter.characterID, counter = 1 };
+            chapter.attemptCountByCharacters.Add(charCount);
+        }
+        else
+        {
+            charCount.counter++;
+        }
+        SaveDataManager.instance.isSaveDataDirty = true;
+
+        // Deal with all weight changes to other chapters
+        foreach(ChapterWeightChange weightChange in chapter.chapterData.weightChanges)
+        {
+            if (allChaptersDico.ContainsKey(weightChange.chapter.chapterID))
+            {
+                Chapter weightChangeChapter = allChaptersDico[weightChange.chapter.chapterID];
+                weightChangeChapter.weight += weightChange.weightChange;
+            }
+        }        
+
+        // Tell the RunManager to start that chapter
+        RunManager.instance.StartChapter(chapter);
+    }
+
+    public void CompleteChapter(Chapter chapter, PlayableCharacter playedCharacter)
+    {
+        // Save information about the current character completing that chapter        
+        CharacterCount charCount = chapter.completionCountByCharacters.FirstOrDefault(x => x.characterIdentifier.Equals(playedCharacter.characterID));
+        if (charCount == null)
+        {
+            // first time this character attempts this chapter
+            charCount = new CharacterCount() { characterIdentifier = playedCharacter.characterID, counter = 1 };
+            chapter.completionCountByCharacters.Add(charCount);
+        }
+        else
+        {
+            charCount.counter++;
+        }
+        SaveDataManager.instance.isSaveDataDirty = true;
+    }
+
+    #region Chapter Start Screen
+
+    /// <summary>
+    /// Display the chapter start screen, a black screen with the chapter main information.
+    /// Serves as a breather before the game starts.
+    /// </summary>
+    /// <param name="chapterCount"></param>
+    /// <param name="chapter"></param>
+    public void ShowChapterStartScreen(int chapterCount, Chapter chapter)
+    {
+        // Debug log
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("Chapter - Start screen - " + chapter.chapterID);
         }
 
-        RunManager.instance.StartChapter(chapterInfo);
+        // Set background color
+        chapterStartBackground.color = new Color(chapterStartBackground.color.r, chapterStartBackground.color.g, chapterStartBackground.color.b, 1);
+
+        // Display title
+        chapterStartTopText.text = "Chapter " + chapterCount.ToString();
+        chapterStartTopText.color = new Color(chapterStartTopText.color.r, chapterStartTopText.color.g, chapterStartTopText.color.b, 1);
+        chapterStartBottomText.text = chapter.chapterData.chapterTitle;
+        chapterStartBottomText.color = new Color(chapterStartBottomText.color.r, chapterStartBottomText.color.g, chapterStartBottomText.color.b, 1);
+
+        // Display icons        
+        for (int i = 0; i < chapterStartIconsImageList.Count; i++)
+        {
+            chapterStartIconsImageList[i].gameObject.SetActive(false);
+        }
+        for (int i = 0; i < chapter.chapterData.icons.Count; i++)
+        {
+            chapterStartIconsImageList[i].color = new Color(chapterStartIconsImageList[i].color.r, chapterStartIconsImageList[i].color.g, chapterStartIconsImageList[i].color.b, 1);
+            chapterStartIconsImageList[i].gameObject.SetActive(true);
+            chapterStartIconsImageList[i].sprite = chapter.chapterData.icons[i];
+        }
+
+        UIManager.instance.ShowChapterStart();
     }
+
+    public void FadeOutChapterStartScreen(float delay)
+    {
+        StartCoroutine(FadeOutChapterStartScreenAsync(delay));
+    }
+
+    private IEnumerator FadeOutChapterStartScreenAsync(float delay)
+    {
+        Color backgroundColor = new Color(chapterStartBackground.color.r, chapterStartBackground.color.g, chapterStartBackground.color.b, 1);
+        Color transparentBackgroundColor = new Color(chapterStartBackground.color.r, chapterStartBackground.color.g, chapterStartBackground.color.b, 0);
+
+        Color topTextColor = new Color(chapterStartTopText.color.r, chapterStartTopText.color.g, chapterStartTopText.color.b, 1);
+        Color transparentTopTextColor = new Color(chapterStartTopText.color.r, chapterStartTopText.color.g, chapterStartTopText.color.b, 0);
+
+        Color bottomTextColor = new Color(chapterStartBottomText.color.r, chapterStartBottomText.color.g, chapterStartBottomText.color.b, 1);
+        Color transparentBottomTextColor = new Color(chapterStartBottomText.color.r, chapterStartBottomText.color.g, chapterStartBottomText.color.b, 0);
+
+        Color iconColor = new Color(chapterStartIconsImageList[0].color.r, chapterStartIconsImageList[0].color.g, chapterStartIconsImageList[0].color.b, 1);
+        Color transparentIconColor = new Color(chapterStartIconsImageList[0].color.r, chapterStartIconsImageList[0].color.g, chapterStartIconsImageList[0].color.b, 0);
+
+        for (float alpha = 0; alpha <= 1; alpha += Time.deltaTime / delay)
+        {
+            chapterStartBackground.color = Color.Lerp(backgroundColor, transparentBackgroundColor, alpha);
+            chapterStartTopText.color = Color.Lerp(topTextColor, transparentTopTextColor, alpha);
+            chapterStartBottomText.color = Color.Lerp(bottomTextColor, transparentBottomTextColor, alpha);
+            foreach (Image iconImage in chapterStartIconsImageList)
+            {
+                iconImage.color = Color.Lerp(iconColor, transparentIconColor, alpha);
+            }
+
+            yield return new WaitForEndOfFrame();
+        }
+    }
+
+    #endregion
+
+    #region Reset Chapters
+
+    public void ResetChaptersWeights()
+    {
+        foreach (Chapter chapter in chaptersData.chaptersList)
+        {
+            chapter.weight = chapter.chapterData.startingWeight;
+        }
+    }
+
+    /// <summary>
+    /// Reset all chapters. Hard reset means setting everything back to start game values (locking chapters that were unlocked). 
+    /// Soft reset means setting only the character counters back to their original values.
+    /// </summary>
+    /// <param name="hardReset"></param>
+    public void ResetChapters(bool hardReset = false)
+    {
+        if (hardReset)
+        {
+            // A hard reset will reset everything to the start game values
+            chaptersData.chaptersList.Clear();
+            foreach (ChapterData chapterData in chaptersScriptableObjectsList)
+            {
+                Chapter newChapter = new Chapter() {
+                    chapterID = chapterData.chapterID,
+                    chapterData = chapterData,
+                    unlocked = chapterData.startingUnlockState,
+                    weight = chapterData.startingWeight };
+                chaptersData.chaptersList.Add(newChapter);
+            }
+        }
+        else
+        {
+            // A soft reset will not lock chapters that were unlocked, but it will reset their character counters to start game values
+            foreach (Chapter chapter in chaptersData.chaptersList)
+            {
+                chapter.weight = chapter.chapterData.startingWeight;
+                chapter.attemptCountByCharacters.Clear();
+                chapter.completionCountByCharacters.Clear();
+            }
+        }
+
+        // Re-initialize the dictionary
+        allChaptersDico = new Dictionary<string, Chapter>();
+        foreach (Chapter chapter in chaptersData.chaptersList)
+        {
+            allChaptersDico.Add(chapter.chapterID, chapter);
+        }
+    }
+
+    #endregion
+
+    #region Load Data
+
+    /// <summary>
+    /// Update the chapters data using a ChaptersSaveData object, that was probably loaded from a file by the SaveDataManager.
+    /// </summary>
+    /// <param name="saveData"></param>
+    public void SetChaptersData(ChaptersSaveData saveData)
+    {
+        foreach (Chapter chapter in chaptersData.chaptersList)
+        {
+            Chapter chapterFromSave = saveData.chaptersList.FirstOrDefault(x => x.chapterID.Equals(chapter.chapterID));
+            if (chapterFromSave != null)
+            {
+                chapter.unlocked = chapterFromSave.unlocked;
+                chapter.attemptCountByCharacters = new List<CharacterCount>(chapterFromSave.attemptCountByCharacters);
+                chapter.completionCountByCharacters = new List<CharacterCount>(chapterFromSave.completionCountByCharacters);
+            }
+        }
+    }
+
+    #endregion
 }

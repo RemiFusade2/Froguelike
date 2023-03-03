@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 // This file is used to declare most Enum types
@@ -7,6 +8,7 @@ using UnityEngine;
 /// <summary>
 /// Describe the level of debug logs you want from a class
 /// </summary>
+[System.Serializable]
 public enum VerboseLevel
 {
     NONE,
@@ -62,6 +64,27 @@ public enum WeaponType
     CAT // target nearest, SUPER WIDE, shorter, TONS OF DAMAGE
 }
 
+[System.Serializable]
+public class FriendSprite
+{
+    public FriendType friendType;
+    public Sprite sprite;
+}
+
+[System.Serializable]
+public class HatSprite
+{
+    public HatType hatType;
+    public Sprite sprite;
+}
+
+[System.Serializable]
+public class SpawnProbability
+{
+    public SpawnFrequency frequency;
+    public Vector2 probability;
+}
+
 /// <summary>
 /// DataManager is a class used to give access to handy methods to get relevant data for the game (weapon types, items, enemy types, etc.)
 /// </summary>
@@ -75,6 +98,24 @@ public class DataManager : MonoBehaviour
     
     [Header("Currency symbol")]
     public string currencySymbol = "FC";
+
+    [Header("Spawn probabilities")]
+    public List<SpawnProbability> rocksSpawnProbabilities;
+    public List<SpawnProbability> pondsSpawnProbabilities;
+    [Space]
+    public List<SpawnProbability> collectibleCurrencySpawnProbabilities;
+    public List<SpawnProbability> collectibleHealthSpawnProbabilities;
+    public List<SpawnProbability> collectibleLevelUpSpawnProbabilities;
+
+    [Header("Sprites")]
+    public Sprite collectibleDefaultSprite;
+
+    [Header("Sprites - Hats")]
+    public List<HatSprite> hatsSpritesList;
+
+    [Header("Sprites - Friends")]
+    public List<FriendSprite> friendsSpritesList;
+
 
     private Dictionary<WeaponEffect, Color> weaponEffectColorDico;
 
@@ -96,6 +137,39 @@ public class DataManager : MonoBehaviour
         InitializeData();
     }
 
+    public Vector2 GetSpawnProbability(string spawnable, SpawnFrequency frequency)
+    {
+        Vector2 probability = Vector2.zero;
+        SpawnProbability spawnProba = null;
+        switch (spawnable)
+        {
+            case "rock":
+                spawnProba = rocksSpawnProbabilities.FirstOrDefault(x => x.frequency == frequency);
+                probability = (spawnProba != null) ? spawnProba.probability : Vector2.zero; 
+                break;
+            case "pond":
+                spawnProba = pondsSpawnProbabilities.FirstOrDefault(x => x.frequency == frequency);
+                probability = (spawnProba != null) ? spawnProba.probability : Vector2.zero;
+                break;
+            case "currency":
+                spawnProba = collectibleCurrencySpawnProbabilities.FirstOrDefault(x => x.frequency == frequency);
+                probability = (spawnProba != null) ? spawnProba.probability : Vector2.zero;
+                break;
+            case "health":
+                spawnProba = collectibleHealthSpawnProbabilities.FirstOrDefault(x => x.frequency == frequency);
+                probability = (spawnProba != null) ? spawnProba.probability : Vector2.zero;
+                break;
+            case "levelUp":
+                spawnProba = collectibleLevelUpSpawnProbabilities.FirstOrDefault(x => x.frequency == frequency);
+                probability = (spawnProba != null) ? spawnProba.probability : Vector2.zero;
+                break;
+            default:
+                break;
+        }
+
+        return probability;
+    }
+
     public Color GetColorForWeaponEffect(WeaponEffect effect)
     {
         return weaponEffectColorDico[effect];
@@ -108,5 +182,58 @@ public class DataManager : MonoBehaviour
         {
             weaponEffectColorDico.Add(weaponEffectData.effect, weaponEffectData.color);
         }
+    }
+
+    public Sprite GetSpriteForFriend(FriendType friendType)
+    {
+        Sprite result = collectibleDefaultSprite;
+        FriendSprite friendSprite = friendsSpritesList.FirstOrDefault(x => x.friendType == friendType);
+        if (friendSprite != null)
+        {
+            result = friendSprite.sprite;
+        }
+        return result;
+    }
+
+    public Sprite GetSpriteForHat(HatType hatType)
+    {
+        Sprite result = collectibleDefaultSprite;
+        HatSprite hatSprite = hatsSpritesList.FirstOrDefault(x => x.hatType == hatType);
+        if (hatSprite != null)
+        {
+            result = hatSprite.sprite;
+        }
+        return result;
+    }
+
+    public Sprite GetSpriteForCollectible(FixedCollectible collectible)
+    {
+        Sprite resultSprite = collectibleDefaultSprite;
+        switch (collectible.collectibleType)
+        {
+            case FixedCollectibleType.FRIEND:
+                resultSprite = GetSpriteForFriend(collectible.collectibleFriendType);
+                break;
+            case FixedCollectibleType.HAT:
+                resultSprite = GetSpriteForHat(collectible.collectibleHatType);
+                break;
+            case FixedCollectibleType.STATS_ITEM:
+                RunStatItemData statItem = RunItemManager.instance.allRunStatsItems.FirstOrDefault(x => x.itemName.Equals(collectible.collectibleStatItemData.itemName));
+                if (statItem != null)
+                {
+                    resultSprite = statItem.icon;
+                }
+                break;
+            case FixedCollectibleType.WEAPON_ITEM:
+                RunWeaponItemData weaponItem = RunItemManager.instance.allRunWeaponsItems.FirstOrDefault(x => x.itemName.Equals(collectible.collectibleWeaponItemData.itemName));
+                if (weaponItem != null)
+                {
+                    resultSprite = weaponItem.icon;
+                }
+                break;
+            default:
+                break;
+        }
+        return resultSprite;
     }
 }

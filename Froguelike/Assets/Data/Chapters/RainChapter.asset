@@ -12,29 +12,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bad41dd93f187774b8bdbe4c23a9cc6f, type: 3}
   m_Name: RainChapter
   m_EditorClassIdentifier: 
+  chapterID: '[RAINING]'
   chapterTitle: Rain
   chapterLore:
-  - The weather was perfect
-  - By "perfect" I mean it was raining
-  - Coz I'm a frog!
-  icons: 
-  chapterLengthInSeconds: 300
-  startingUnlockState: 1
+  - It was raining a lot these past few days, meaning the whole swamp was full of
+    puddles!... and the plants were growing...
+  icons: []
   startingStatBonuses:
     statsList: []
+  chapterLengthInSeconds: 300
+  startingUnlockState: 1
+  startingWeight: 1
   canBePlayedMultipleTimesInOneRun: 1
-  amountOfRocksPerTile_minmax: {x: 0, y: 1}
-  amountOfPondsPerTile_minmax: {x: 6, y: 15}
-  amountOfCoinsPerTile_minmax: {x: 0, y: 0.5}
-  amountOfHealthPerTile_minmax: {x: 0, y: 0}
-  amountOfLevelUpPerTile_minmax: {x: 0, y: 0}
+  conditions: []
+  rocksSpawnFrequency: 1
+  pondsSpawnFrequency: 3
+  coinsSpawnFrequency: 0
+  healthSpawnFrequency: 1
+  levelUpSpawnFrequency: 1
+  specialCollectiblesOnTheMap: []
   environmentChange: 0
   characterStyleChange: 0
-  addHat: 0
-  addFriend: 0
   waves:
   - {fileID: 11400000, guid: 89b3aaff8f8b1254bbebbd51a685bbd6, type: 2}
   - {fileID: 11400000, guid: 461325af61c4f404a81c4d2a8862bf6a, type: 2}
   - {fileID: 11400000, guid: 29628bea3b3ba2143a72d14beedcfa67, type: 2}
   - {fileID: 11400000, guid: 89b3aaff8f8b1254bbebbd51a685bbd6, type: 2}
   - {fileID: 11400000, guid: 29628bea3b3ba2143a72d14beedcfa67, type: 2}
+  weightChanges:
+  - chapter: {fileID: 11400000}
+    weightChange: -0.8
+  - chapter: {fileID: 11400000, guid: b075f299f3bd6c741b07416a6923b610, type: 2}
+    weightChange: 0.2

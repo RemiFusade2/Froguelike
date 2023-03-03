@@ -12,29 +12,46 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bad41dd93f187774b8bdbe4c23a9cc6f, type: 3}
   m_Name: FashionChapter
   m_EditorClassIdentifier: 
-  chapterTitle: Fashion
+  chapterID: '[FASHION_HAT]'
+  chapterTitle: A new trend
   chapterLore:
-  - One frog's trash is another frog's treasure.
-  - This hat is trending right now
-  - I am a celebrity!
-  icons: 
-  chapterLengthInSeconds: 300
-  startingUnlockState: 1
+  - There was a new hat waiting for me when I woke up. I wonder who put it there...
+  icons: []
   startingStatBonuses:
     statsList: []
+  chapterLengthInSeconds: 300
+  startingUnlockState: 1
+  startingWeight: 1
   canBePlayedMultipleTimesInOneRun: 0
-  amountOfRocksPerTile_minmax: {x: 0, y: 2}
-  amountOfPondsPerTile_minmax: {x: 1, y: 5}
-  amountOfCoinsPerTile_minmax: {x: 0, y: 2}
-  amountOfHealthPerTile_minmax: {x: 0, y: 0.2}
-  amountOfLevelUpPerTile_minmax: {x: 0, y: 0.01}
+  conditions: []
+  rocksSpawnFrequency: 1
+  pondsSpawnFrequency: 3
+  coinsSpawnFrequency: 1
+  healthSpawnFrequency: 2
+  levelUpSpawnFrequency: 1
+  specialCollectiblesOnTheMap:
+  - tileCoordinates: {x: 1, y: 0}
+    collectibleType: 2
+    collectibleStatItemData: {fileID: 0}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 1
+    collectibleFriendType: 0
+  - tileCoordinates: {x: 15, y: 0}
+    collectibleType: 3
+    collectibleStatItemData: {fileID: 0}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 1
+    collectibleFriendType: 3
   environmentChange: 0
   characterStyleChange: 0
-  addHat: 2
-  addFriend: 0
   waves:
-  - {fileID: 11400000, guid: 89b3aaff8f8b1254bbebbd51a685bbd6, type: 2}
   - {fileID: 11400000, guid: cd578a05f4794194aac57f016ddeae63, type: 2}
-  - {fileID: 11400000, guid: 29628bea3b3ba2143a72d14beedcfa67, type: 2}
   - {fileID: 11400000, guid: 89b3aaff8f8b1254bbebbd51a685bbd6, type: 2}
+  - {fileID: 11400000, guid: 29628bea3b3ba2143a72d14beedcfa67, type: 2}
+  - {fileID: 11400000, guid: c205cd00d3998bb4bb1a6d64f5046a0e, type: 2}
   - {fileID: 11400000, guid: f536f5a2578cbe14ea2140b005acda2e, type: 2}
+  weightChanges:
+  - chapter: {fileID: 11400000, guid: 044bb5b68c0ec704e893eb6d07548d11, type: 2}
+    weightChange: 1
+  - chapter: {fileID: 11400000, guid: 454ca02cd75e6e449ad084161117c604, type: 2}
+    weightChange: 0.5

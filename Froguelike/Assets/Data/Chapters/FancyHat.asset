@@ -12,29 +12,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bad41dd93f187774b8bdbe4c23a9cc6f, type: 3}
   m_Name: FancyHat
   m_EditorClassIdentifier: 
+  chapterID: '[FANCY_HAT]'
   chapterTitle: Fancy Hat
   chapterLore:
-  - I feel rich now!
-  - This hat makes me feel big
-  - But it the end, the hat was cursed
-  icons: 
-  chapterLengthInSeconds: 300
-  startingUnlockState: 1
+  - I heard a rumor of a fancy piece to put on my head, hidden far in the North.
+    With this thing, I would look FABULOUS!
+  icons: []
   startingStatBonuses:
     statsList: []
+  chapterLengthInSeconds: 300
+  startingUnlockState: 1
+  startingWeight: 1
   canBePlayedMultipleTimesInOneRun: 0
-  amountOfRocksPerTile_minmax: {x: 0, y: 2}
-  amountOfPondsPerTile_minmax: {x: 0, y: 2}
-  amountOfCoinsPerTile_minmax: {x: 0, y: 1}
-  amountOfHealthPerTile_minmax: {x: 0, y: 0}
-  amountOfLevelUpPerTile_minmax: {x: 0, y: 0}
+  conditions: []
+  rocksSpawnFrequency: 2
+  pondsSpawnFrequency: 1
+  coinsSpawnFrequency: 2
+  healthSpawnFrequency: 1
+  levelUpSpawnFrequency: 1
+  specialCollectiblesOnTheMap:
+  - tileCoordinates: {x: 0, y: 15}
+    collectibleType: 2
+    collectibleStatItemData: {fileID: 0}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 0
   environmentChange: 0
   characterStyleChange: 0
-  addHat: 1
-  addFriend: 0
   waves:
   - {fileID: 11400000, guid: d0288a46eee007f4d82b65b23f311858, type: 2}
   - {fileID: 11400000, guid: 100b18420fe012d49ad035308863cc1f, type: 2}
   - {fileID: 11400000, guid: 486f2559e597bb64aa8d0d96cc4b4e9d, type: 2}
   - {fileID: 11400000, guid: 29628bea3b3ba2143a72d14beedcfa67, type: 2}
   - {fileID: 11400000, guid: 461325af61c4f404a81c4d2a8862bf6a, type: 2}
+  weightChanges:
+  - chapter: {fileID: 11400000, guid: 97b9d1a22266f654db1cd034da198323, type: 2}
+    weightChange: 1
+  - chapter: {fileID: 11400000, guid: 454ca02cd75e6e449ad084161117c604, type: 2}
+    weightChange: 0.5

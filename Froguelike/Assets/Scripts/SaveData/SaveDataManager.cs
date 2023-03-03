@@ -253,6 +253,8 @@ public class SaveDataManager : MonoBehaviour
 
         GameManager.instance.gameData.Reset();
 
+        ChapterManager.instance.ResetChapters(true);
+
         return Save();
     }
 

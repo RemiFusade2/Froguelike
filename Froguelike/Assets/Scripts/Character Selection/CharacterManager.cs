@@ -9,7 +9,7 @@ using System;
 /// <summary>
 /// PlayableCharacter describes a character in its current state.
 /// It has a reference to CharacterData, the scriptable object that describes the character. This is not serialized with the rest.
-/// It keeps the characterName there for serialization. When saving/loading this character from a save file, the name will be used to retrieve the right character in the program.
+/// It keeps the characterID there for serialization. When saving/loading this character from a save file, the name will be used to retrieve the right character in the program.
 /// The information that can change at runtime are:
 /// - characterStartingStats, is the stats of this character, they can increase through playing and are saved in the save file
 /// - unlocked, is the status of the character. Is it possible to play with? This value can change when the character is unlocked through an achievement.
@@ -22,7 +22,7 @@ public class PlayableCharacter
     public CharacterData characterData;
 
     // Defined at runtime, using CharacterData
-    public string characterName;
+    public string characterID;
 
     // All information about current state of the character
     public StatsWrapper characterStartingStats;
@@ -45,8 +45,7 @@ public class PlayableCharacter
 
 /// <summary>
 /// CharactersSaveData contains all information that must be saved about the characters.
-/// - shopItems is the list of items in their current state
-/// - currencySpentInShop is the amount of money that has been spent in the Shop (can be refunded when Shop is reset)
+/// - charactersList is the list of characters in their current state
 /// </summary>
 [System.Serializable]
 public class CharactersSaveData : SaveData
@@ -118,16 +117,16 @@ public class CharacterManager : MonoBehaviour
         charactersDataFromNameDico = new Dictionary<string, CharacterData>();
         foreach (CharacterData character in charactersScriptableObjectsList)
         {
-            charactersDataFromNameDico.Add(character.characterName, character);
+            charactersDataFromNameDico.Add(character.characterID, character);
         }
     }
 
-    public CharacterData GetCharacterData(string characterName)
+    public CharacterData GetCharacterData(string characterID)
     {
         CharacterData result = null;
-        if (charactersDataFromNameDico.ContainsKey(characterName))
+        if (charactersDataFromNameDico.ContainsKey(characterID))
         {
-            result = charactersDataFromNameDico[characterName];
+            result = charactersDataFromNameDico[characterID];
         }
         return result;
     }
@@ -158,7 +157,7 @@ public class CharacterManager : MonoBehaviour
                 GameObject newCharacterPanel = Instantiate(characterPanelPrefab, characterListContainerParent);
                 newCharacterPanel.GetComponent<CharacterSelectionButton>().Initialize(characterInfo);
                 buttonCount++;
-                characterLog += $" {characterInfo.characterName} is " + (characterInfo.unlocked ? "unlocked" : "locked") + " ;";
+                characterLog += $" {characterInfo.characterID} is " + (characterInfo.unlocked ? "unlocked" : "locked") + " ;";
             }
         }
         characterLog = "Display " + buttonCount + " buttons\n" + characterLog;
@@ -218,7 +217,7 @@ public class CharacterManager : MonoBehaviour
         
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
-            string log = "Character selection - Select " + currentSelectedCharacter.characterName + "\n";
+            string log = "Character selection - Select " + currentSelectedCharacter.characterID + "\n";
             log += "-> Display Character stats: " + StatsWrapper.StatsListToString(currentCharacterStatList) + "\n";
             log += "-> Display Shop stats: " + StatsWrapper.StatsListToString(statBonusesFromShop);
             Debug.Log(log);
@@ -369,7 +368,7 @@ public class CharacterManager : MonoBehaviour
     {
         foreach (PlayableCharacter character in charactersData.charactersList)
         {
-            PlayableCharacter characterFromSave = saveData.charactersList.First(x => x.characterName.Equals(character.characterName));
+            PlayableCharacter characterFromSave = saveData.charactersList.First(x => x.characterID.Equals(character.characterID));
             if (characterFromSave != null)
             {
                 character.unlocked = characterFromSave.unlocked;
@@ -396,7 +395,7 @@ public class CharacterManager : MonoBehaviour
             charactersData.charactersList.Clear();
             foreach (CharacterData characterData in charactersScriptableObjectsList)
             {
-                PlayableCharacter newCharacter = new PlayableCharacter() { characterData = characterData, characterName = characterData.characterName, unlocked = characterData.startingUnlockState, hidden = characterData.startingHiddenState, wonWith = 0 };
+                PlayableCharacter newCharacter = new PlayableCharacter() { characterData = characterData, characterID = characterData.characterID, unlocked = characterData.startingUnlockState, hidden = characterData.startingHiddenState, wonWith = 0 };
                 newCharacter.characterStartingStats = new StatsWrapper(characterData.startingStatsList);
                 charactersData.charactersList.Add(newCharacter);
             }
@@ -414,15 +413,15 @@ public class CharacterManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Try to unlock the character wearing this name. Do not do anything if this character does not exist or is already unlocked.
+    /// Try to unlock the character using its identifier. Do not do anything if this character does not exist or is already unlocked.
     /// Return true if a new character has been unlocked.
     /// </summary>
-    /// <param name="characterName"></param>
+    /// <param name="characterID"></param>
     /// <returns></returns>
-    public bool UnlockCharacter(string characterName)
+    public bool UnlockCharacter(string characterID)
     {
         bool characterNewlyUnlocked = false;
-        PlayableCharacter unlockedCharacter = charactersData.charactersList.FirstOrDefault(x => x.characterName.Equals(characterName));
+        PlayableCharacter unlockedCharacter = charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals(characterID));
         if (unlockedCharacter != null && !unlockedCharacter.unlocked)
         {
             unlockedCharacter.unlocked = true;
@@ -439,7 +438,7 @@ public class CharacterManager : MonoBehaviour
     /// <param name="character"></param>
     public void WonTheGameWithCharacter(PlayableCharacter character)
     {
-        PlayableCharacter characterInCurrentData = charactersData.charactersList.FirstOrDefault(x => x.characterName.Equals(character.characterName));
+        PlayableCharacter characterInCurrentData = charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals(character.characterID));
         characterInCurrentData.wonWith++;
         SaveDataManager.instance.isSaveDataDirty = true;
     }

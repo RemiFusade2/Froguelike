@@ -56,7 +56,7 @@ public class ScoreManager : MonoBehaviour
     /// <param name="chaptersPlayed"></param>
     /// <param name="playedCharacter"></param>
     /// <param name="ownedItems"></param>
-    public void ShowScores(List<Chapter> chaptersPlayed, PlayableCharacter playedCharacter, List<RunItemInfo> ownedItems, List<string> unlockedCharacters)
+    public void ShowScores(List<Chapter> chaptersPlayed, int[] chapterKillCounts, PlayableCharacter playedCharacter, List<RunItemInfo> ownedItems, List<string> unlockedCharacters)
     {
         string scoreLog = "";
 
@@ -72,12 +72,13 @@ public class ScoreManager : MonoBehaviour
             if (i < chaptersTextList.Count && i < chaptersScoreTextList.Count)
             {
                 Chapter chapter = chaptersPlayed[i];
+                int enemiesKilledCount = chapterKillCounts[i];
                 chaptersTextList[i].gameObject.SetActive(true);
                 chaptersTextList[i].text = "Chapter " + (i+1) + "\n\t" + chapter.chapterData.chapterTitle;
-                chaptersScoreTextList[i].text = chapter.enemiesKilledCount.ToString();
-                totalScore += chapter.enemiesKilledCount;
+                chaptersScoreTextList[i].text = enemiesKilledCount.ToString();
+                totalScore += enemiesKilledCount;
 
-                scoreLog += $"Chapter {i} - {chapter.chapterTitle} - Kills: {chapter.enemiesKilledCount}\n";
+                scoreLog += $"Chapter {i} - {chapter.chapterID} - Kills: {enemiesKilledCount}\n";
             }
         }
         // Display total kill count
