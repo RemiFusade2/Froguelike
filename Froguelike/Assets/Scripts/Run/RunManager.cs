@@ -357,7 +357,7 @@ public class RunManager : MonoBehaviour
 
         // Add the current chapter to the list (even if current chapter was not completed)
         List<Chapter> chaptersPlayed = new List<Chapter>(completedChaptersList);
-        if (currentChapter != null && chaptersPlayed.Count > 0 && !chaptersPlayed[chaptersPlayed.Count-1].Equals(currentChapter))
+        if (currentChapter != null && (chaptersPlayed.Count == 0 || (chaptersPlayed.Count > 0 && !chaptersPlayed[chaptersPlayed.Count-1].Equals(currentChapter))))
         {
             chaptersPlayed.Add(currentChapter);
         }
