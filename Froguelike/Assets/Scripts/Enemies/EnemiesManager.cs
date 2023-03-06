@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering.Universal;
 
 /// <summary>
 /// EnemyInfo describes an enemy in its current state.
@@ -89,6 +90,7 @@ public class EnemyInstance
     public float HP;
     public Vector2 moveDirection;
     public float lastChangeOfDirectionTime;
+    public int bounceCount;
 
     // Move pattern
     public EnemyMovePattern movePattern;
@@ -122,6 +124,7 @@ public class EnemiesManager : MonoBehaviour
     
     [Header("References")]
     public Transform enemiesParent;
+    public Transform damageTextsParent;
 
     [Header("Data")]
     public List<EnemyTypeData> enemiesTypesDataList;
@@ -140,6 +143,10 @@ public class EnemiesManager : MonoBehaviour
     public int findSpawnPositionMaxAttempts = 10;
     [Space]
     public float maxDistanceBeforeUnspawn = 40;
+
+    [Header("Settings - Pooling")]
+    public int maxDamageTexts = 300;
+    public int maxActiveEnemies = 2000;
 
     [Header("Settings")]
     public VerboseLevel verbose;
@@ -165,7 +172,76 @@ public class EnemiesManager : MonoBehaviour
     private Dictionary<EnemyType, List<EnemyData>> enemiesDataFromTypeDico;
 
     private Dictionary<int, EnemyInstance> allActiveEnemiesDico;
-    
+
+    private Queue<EnemyInstance> inactiveEnemiesPool;
+    private Queue<GameObject> damageTextsPool;
+
+    public Vector3 farAwayPosition;
+
+
+    #region Unity Callback Methods
+
+    private void Awake()
+    {
+        instance = this;
+        farAwayPosition = new Vector3(10000, 10000, 10000); // this should be far enough and always out of camera frustum
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        lastSpawnTimesList = new List<float>();
+
+        // Initialize dictionaries
+        enemiesDataFromNameDico = new Dictionary<string, EnemyData>();
+        enemiesDataFromTypeDico = new Dictionary<EnemyType, List<EnemyData>>();
+        foreach (EnemyTypeData enemyTypeData in enemiesTypesDataList)
+        {
+            enemiesDataFromTypeDico.Add(enemyTypeData.enemyType, enemyTypeData.enemiesList);
+            foreach (EnemyData enemyData in enemyTypeData.enemiesList)
+            {
+                enemiesDataFromNameDico.Add(enemyData.enemyName, enemyData);
+            }
+        }
+
+        lastKey = 1;
+
+        allActiveEnemiesDico = new Dictionary<int, EnemyInstance>();
+
+        // Instantiate all enemies in game and put them in the pool
+        inactiveEnemiesPool = new Queue<EnemyInstance>();
+        for (int i = 0; i < maxActiveEnemies; i++)
+        {
+            EnemyInstance newEnemy = new EnemyInstance();
+            newEnemy.active = false;
+            newEnemy.alive = false;
+
+            GameObject firstEnemyPrefab = enemiesTypesDataList[0].enemiesList[0].prefab;
+            GameObject enemyGameObject = Instantiate(firstEnemyPrefab, farAwayPosition, Quaternion.identity, enemiesParent);
+
+            newEnemy.enemyTransform = enemyGameObject.transform;
+            newEnemy.enemyRenderer = enemyGameObject.GetComponent<SpriteRenderer>();
+            newEnemy.enemyRigidbody = enemyGameObject.GetComponent<Rigidbody2D>();
+            newEnemy.enemyAnimator = enemyGameObject.GetComponent<Animator>();
+            newEnemy.enemyCollider = enemyGameObject.GetComponent<Collider2D>();
+
+            PutEnemyInThePool(newEnemy);
+        }
+
+        // Instantiate all damage text in game and put them in the pool
+        damageTextsPool = new Queue<GameObject>();
+        for (int i = 0; i < maxDamageTexts; i++)
+        {
+            GameObject damageText = Instantiate(damageTextPrefab, farAwayPosition, Quaternion.identity, damageTextsParent);
+            damageTextsPool.Enqueue(damageText);
+        }        
+
+        InvokeRepeating("UpdateAllEnemies", 0, updateAllEnemiesDelay);
+    }
+
+    #endregion
+
+
     /// <summary>
     /// Returns a random spawn position around the player and in the direction of its movement.
     /// </summary>
@@ -297,12 +373,17 @@ public class EnemiesManager : MonoBehaviour
             curseDelayFactor = System.Math.Clamp(curseDelayFactor, 0.5, 2.0); // maximum curse would be half delay (so twice the amount of enemies). Negative curse is possible
 
             int enemyIndex = 0;
-            foreach (EnemySpawn enemySpawn in currentWave.enemies)
+            for (int i = 0; i < currentWave.enemies.Count; i++)
             {
+                // Pick a random spawn
+                enemyIndex = Random.Range(0, currentWave.enemies.Count);
+
+                EnemySpawn enemySpawn = currentWave.enemies[enemyIndex];
+                float lastSpawnTime = lastSpawnTimesList[enemyIndex];
+            
                 // Get info about spawn delays
                 double delayBetweenSpawns = enemySpawn.spawnCooldown * curseDelayFactor;
-                delayBetweenSpawns = System.Math.Clamp(delayBetweenSpawns, 0.01, double.MaxValue);                
-                float lastSpawnTime = lastSpawnTimesList[enemyIndex];
+                delayBetweenSpawns = System.Math.Clamp(delayBetweenSpawns, 0.01, double.MaxValue);
 
                 if ((Time.time - lastSpawnTime) > delayBetweenSpawns)
                 {
@@ -312,12 +393,6 @@ public class EnemiesManager : MonoBehaviour
                     int difficultyTier = GetTierFromFormulaAndChapterCount(enemySpawn.tierFormula, RunManager.instance.GetChapterCount());
                     EnemyData enemyData = GetEnemyDataFromTypeAndDifficultyTier(enemySpawn.enemyType, difficultyTier);
                     GameObject enemyPrefab = enemyData.prefab;
-
-                    if (verbose == VerboseLevel.MAXIMAL)
-                    {
-                        Debug.Log($"Spawning a {enemyData.enemyName}. Total amount of active enemies = {allActiveEnemiesDico.Count+1}");
-                    }
-
 
                     // Get spawn pattern info
                     SpawnPattern spawnPattern = enemySpawn.spawnPattern;
@@ -387,8 +462,41 @@ public class EnemiesManager : MonoBehaviour
 
     public void SpawnEnemy(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern)
     {
-        GameObject newSpawn = Instantiate(prefab, position, Quaternion.identity, enemiesParent);
-        AddEnemy(newSpawn.transform, enemyData, movePattern);
+        // Get an enemy from the pool
+        EnemyInstance enemyFromPool = null;
+        if (inactiveEnemiesPool.TryDequeue(out enemyFromPool))
+        {
+            // Set all components values to prefab values
+            enemyFromPool.enemyTransform.localScale = prefab.GetComponent<Transform>().localScale;
+
+            enemyFromPool.enemyCollider.GetComponent<CircleCollider2D>().radius = prefab.GetComponent<CircleCollider2D>().radius;
+
+            enemyFromPool.enemyRigidbody.mass = prefab.GetComponent<Rigidbody2D>().mass;
+
+            enemyFromPool.enemyAnimator.runtimeAnimatorController = prefab.GetComponent<Animator>().runtimeAnimatorController;
+            enemyFromPool.enemyAnimator.SetBool("IsDead", false);
+
+            enemyFromPool.enemyRenderer.sprite = prefab.GetComponent<SpriteRenderer>().sprite;
+            enemyFromPool.enemyRenderer.color = prefab.GetComponent<SpriteRenderer>().color;
+            enemyFromPool.enemyRenderer.sortingOrder = prefab.GetComponent<SpriteRenderer>().sortingOrder;
+            enemyFromPool.enemyRenderer.sortingLayerID = prefab.GetComponent<SpriteRenderer>().sortingLayerID;
+
+            enemyFromPool.enemyTransform.gameObject.layer = prefab.gameObject.layer;
+
+            enemyFromPool.enemyAnimator.enabled = true;
+            enemyFromPool.enemyCollider.enabled = true;
+            enemyFromPool.enemyRenderer.enabled = true;
+            enemyFromPool.enemyRigidbody.simulated = true;
+
+            enemyFromPool.enemyTransform.position = position;
+
+            if (verbose == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log($"Spawning a {enemyData.enemyName} with move pattern {movePattern.movePatternType.ToString()}. Total amount of active enemies = {allActiveEnemiesDico.Count + 1}");
+            }
+
+            AddEnemy(enemyFromPool, enemyData, movePattern);
+        }
     }
 
     private IEnumerator SpawnEnemyAsync(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, float delay)
@@ -429,50 +537,13 @@ public class EnemiesManager : MonoBehaviour
         return enemiesDataFromNameDico[instance.enemyName];
     }
 
-    private void Awake()
+    public void AddEnemy(EnemyInstance newEnemy, EnemyData enemyData, EnemyMovePattern movePattern)
     {
-        instance = this;
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        lastSpawnTimesList = new List<float>();
-
-        // Initialize dictionaries
-        enemiesDataFromNameDico = new Dictionary<string, EnemyData>();
-        enemiesDataFromTypeDico = new Dictionary<EnemyType, List<EnemyData>>();
-        foreach (EnemyTypeData enemyTypeData in enemiesTypesDataList)
-        {
-            enemiesDataFromTypeDico.Add(enemyTypeData.enemyType, enemyTypeData.enemiesList);
-            foreach (EnemyData enemyData in enemyTypeData.enemiesList)
-            {
-                enemiesDataFromNameDico.Add(enemyData.enemyName, enemyData);
-            }
-        }
-
-        lastKey = 1;
-
-        allActiveEnemiesDico = new Dictionary<int, EnemyInstance>();
-        InvokeRepeating("UpdateAllEnemies", 0, updateAllEnemiesDelay);
-    }
-
-    public void AddEnemy(Transform enemyTransform, EnemyData enemyData, EnemyMovePattern movePattern)
-    {
-        EnemyInstance newEnemy = new EnemyInstance();
-
         // setup enemy - name
         newEnemy.enemyName = enemyData.enemyName;
         lastKey++;
-        enemyTransform.gameObject.name = lastKey.ToString();
-
-        // setup enemy - references
-        newEnemy.enemyTransform = enemyTransform;
-        newEnemy.enemyRenderer = enemyTransform.GetComponent<SpriteRenderer>();
-        newEnemy.enemyRigidbody = enemyTransform.GetComponent<Rigidbody2D>();
-        newEnemy.enemyAnimator = enemyTransform.GetComponent<Animator>();
-        newEnemy.enemyCollider = enemyTransform.GetComponent<Collider2D>();
-
+        newEnemy.enemyTransform.gameObject.name = lastKey.ToString();
+        
         // setup enemy - state
         newEnemy.HP = enemyData.maxHP * (1 + GameManager.instance.player.curse); // Max HP is affected by the curse
         newEnemy.active = true;
@@ -503,6 +574,7 @@ public class EnemiesManager : MonoBehaviour
                 newEnemy.enemyRenderer.sortingOrder = 1000;
                 // Always follow a diagonal
                 newEnemy.moveDirection = (new Vector2(Mathf.Sign(vectorTowardsPlayer.x), Mathf.Sign(vectorTowardsPlayer.y))).normalized;
+                newEnemy.bounceCount = movePattern.bouncecount;
                 break;
             case EnemyMovePatternType.DIRECTIONLESS: // starts static
             case EnemyMovePatternType.NO_MOVEMENT:
@@ -541,12 +613,25 @@ public class EnemiesManager : MonoBehaviour
         }
 
         // If enemy didn't die, then display damage text
-        Vector2 position = (Vector2)enemy.enemyTransform.position + 0.1f * Random.insideUnitCircle;
-        GameObject damageText = Instantiate(damageTextPrefab, position, Quaternion.identity, null);
-        damageText.GetComponent<TMPro.TextMeshPro>().text = Mathf.CeilToInt(damage).ToString();
-        Destroy(damageText, 1.0f);
+        GameObject damageText = null;
+        if (damageTextsPool.TryDequeue(out damageText))
+        {
+            Vector2 position = (Vector2)enemy.enemyTransform.position + 0.1f * Random.insideUnitCircle;
+            damageText.transform.position = position;
+            damageText.GetComponent<TMPro.TextMeshPro>().text = Mathf.RoundToInt(damage).ToString();
+            damageText.GetComponent<MeshRenderer>().enabled = true;
+            StartCoroutine(PutDamageTextIntoPool(damageText, 1.0f));
+        }
 
         return false;
+    }
+
+    private IEnumerator PutDamageTextIntoPool(GameObject damageText, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        damageText.GetComponent<MeshRenderer>().enabled = false;
+        damageText.transform.position = farAwayPosition;
+        damageTextsPool.Enqueue(damageText);
     }
 
     // Return true if enemy dieded
@@ -566,7 +651,9 @@ public class EnemiesManager : MonoBehaviour
         foreach (int id in enemiesToDestroyIDList)
         {
             GameManager.instance.SpawnDestroyParticleEffect(allActiveEnemiesDico[id].enemyTransform.position);
-            Destroy(allActiveEnemiesDico[id].enemyTransform.gameObject);
+
+            // do not destroy the enemy gameobject but instead deactivate it and put it back in the pool
+            PutEnemyInThePool(allActiveEnemiesDico[id]);
             allActiveEnemiesDico.Remove(id);
         }
         allActiveEnemiesDico.Clear();
@@ -640,28 +727,35 @@ public class EnemiesManager : MonoBehaviour
                                 SetEnemyVelocity(enemy);
                                 break;
                             case EnemyMovePatternType.BOUNCE_ON_EDGES:
-                                // detect if enemy current position is on an edge of the screen, bounce it in the right direction if it is
-                                Vector3 cameraBottomLeftCorner = Camera.main.ScreenToWorldPoint(20 * Vector3.right + 20 * Vector3.up);
-                                Vector3 cameraTopRightCorner = Camera.main.ScreenToWorldPoint((Screen.width-20) * Vector3.right + (Screen.height-50) * Vector3.up);
-                                if (enemy.moveDirection.x > 0 && (enemy.enemyTransform.position.x > cameraTopRightCorner.x))
+                                if (enemy.bounceCount > 0)
                                 {
-                                    // move to the left
-                                    enemy.moveDirection = (new Vector2(-Mathf.Abs(enemy.moveDirection.x), enemy.moveDirection.y)).normalized;
-                                }
-                                if (enemy.moveDirection.x < 0 && (enemy.enemyTransform.position.x < cameraBottomLeftCorner.x))
-                                {
-                                    // move to the right
-                                    enemy.moveDirection = (new Vector2(Mathf.Abs(enemy.moveDirection.x), enemy.moveDirection.y)).normalized;
-                                }
-                                if (enemy.moveDirection.y < 0 && (enemy.enemyTransform.position.y < cameraBottomLeftCorner.y))
-                                {
-                                    // move up
-                                    enemy.moveDirection = (new Vector2(enemy.moveDirection.x, Mathf.Abs(enemy.moveDirection.y))).normalized;
-                                }
-                                if (enemy.moveDirection.y > 0 && (enemy.enemyTransform.position.y > cameraTopRightCorner.y))
-                                {
-                                    // move down
-                                    enemy.moveDirection = (new Vector2(enemy.moveDirection.x, -Mathf.Abs(enemy.moveDirection.y))).normalized;
+                                    // detect if enemy current position is on an edge of the screen, bounce it in the right direction if it is                                
+                                    Vector3 cameraBottomLeftCorner = Camera.main.ScreenToWorldPoint(20 * Vector3.right + 20 * Vector3.up);
+                                    Vector3 cameraTopRightCorner = Camera.main.ScreenToWorldPoint((Camera.main.GetComponent<PixelPerfectCamera>().refResolutionX - 20) * Vector3.right + (Camera.main.GetComponent<PixelPerfectCamera>().refResolutionY - 50) * Vector3.up);
+                                    if (enemy.moveDirection.x > 0 && (enemy.enemyTransform.position.x > cameraTopRightCorner.x))
+                                    {
+                                        // move to the left
+                                        enemy.moveDirection = (new Vector2(-Mathf.Abs(enemy.moveDirection.x), enemy.moveDirection.y)).normalized;
+                                        enemy.bounceCount--;
+                                    }
+                                    if (enemy.moveDirection.x < 0 && (enemy.enemyTransform.position.x < cameraBottomLeftCorner.x))
+                                    {
+                                        // move to the right
+                                        enemy.moveDirection = (new Vector2(Mathf.Abs(enemy.moveDirection.x), enemy.moveDirection.y)).normalized;
+                                        enemy.bounceCount--;
+                                    }
+                                    if (enemy.moveDirection.y < 0 && (enemy.enemyTransform.position.y < cameraBottomLeftCorner.y))
+                                    {
+                                        // move up
+                                        enemy.moveDirection = (new Vector2(enemy.moveDirection.x, Mathf.Abs(enemy.moveDirection.y))).normalized;
+                                        enemy.bounceCount--;
+                                    }
+                                    if (enemy.moveDirection.y > 0 && (enemy.enemyTransform.position.y > cameraTopRightCorner.y))
+                                    {
+                                        // move down
+                                        enemy.moveDirection = (new Vector2(enemy.moveDirection.x, -Mathf.Abs(enemy.moveDirection.y))).normalized;
+                                        enemy.bounceCount--;
+                                    }
                                 }
                                 SetEnemyVelocity(enemy);
                                 break;
@@ -701,13 +795,29 @@ public class EnemiesManager : MonoBehaviour
                     }
                 }
             }
+            if (verbose == VerboseLevel.MAXIMAL && enemiesToDestroyIDList.Count > 0)
+            {
+                Debug.Log($"Destroying {enemiesToDestroyIDList.Count} enemies. Total amount of active enemies = {allActiveEnemiesDico.Count - enemiesToDestroyIDList.Count}");
+            }
             foreach (int enemyID in enemiesToDestroyIDList)
             {
                 EnemyInstance enemy = allActiveEnemiesDico[enemyID];
+                PutEnemyInThePool(enemy);
                 allActiveEnemiesDico.Remove(enemyID);
-                Destroy(enemy.enemyTransform.gameObject, 0.1f);
             }
         }
+    }
+
+    private void PutEnemyInThePool(EnemyInstance enemy)
+    {
+        inactiveEnemiesPool.Enqueue(enemy);
+        enemy.enemyTransform.name = "Pooled";
+        enemy.active = false;
+        enemy.enemyTransform.position = farAwayPosition;
+        enemy.enemyRenderer.enabled = false;
+        enemy.enemyRigidbody.simulated = false;
+        enemy.enemyAnimator.enabled = false;
+        enemy.enemyCollider.enabled = false;
     }
 
     public void AddPoisonDamageToEnemy(string enemyGoName, float poisonDamage, float poisonDuration)

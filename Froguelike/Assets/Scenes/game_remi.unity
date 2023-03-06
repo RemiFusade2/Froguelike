@@ -1876,7 +1876,7 @@ Transform:
   m_Children:
   - {fileID: 2046650979}
   m_Father: {fileID: 1377549577}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &153395736
 GameObject:
@@ -1913,7 +1913,7 @@ Transform:
   m_Children:
   - {fileID: 485857937}
   m_Father: {fileID: 1377549577}
-  m_RootOrder: 11
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!231 &153395738
 SpringJoint2D:
@@ -3748,6 +3748,37 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
+--- !u!1 &242681228
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 242681229}
+  m_Layer: 0
+  m_Name: Damage Texts
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &242681229
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 242681228}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1377549577}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &243201274
 GameObject:
   m_ObjectHideFlags: 0
@@ -4705,6 +4736,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemiesParent: {fileID: 372494532}
+  damageTextsParent: {fileID: 242681229}
   enemiesTypesDataList:
   - enemyType: 0
     enemiesList:
@@ -4759,8 +4791,10 @@ MonoBehaviour:
   spawnCircleRadius: 30
   findSpawnPositionMaxAttempts: 10
   maxDistanceBeforeUnspawn: 60
+  maxDamageTexts: 300
+  maxActiveEnemies: 1500
   verbose: 2
-  updateAllEnemiesDelay: 0.1
+  updateAllEnemiesDelay: 0.15
   poisonedSpriteColor: {r: 0.16862746, g: 0.5529412, b: 0.21960786, a: 1}
   frozenSpriteColor: {r: 0.4039216, g: 0.78823537, b: 0.9058824, a: 1}
   cursedSpriteColor: {r: 0.6392157, g: 0.30588236, b: 0.654902, a: 1}
@@ -4768,6 +4802,7 @@ MonoBehaviour:
   delayBetweenRandomChangeOfDirection: 1.5
   enemiesData:
     enemiesList: []
+  farAwayPosition: {x: 0, y: 0, z: 0}
 --- !u!1 &378687414
 GameObject:
   m_ObjectHideFlags: 0
@@ -5015,7 +5050,7 @@ Transform:
   m_Children:
   - {fileID: 7339838}
   m_Father: {fileID: 1377549577}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &402468672
 SpriteRenderer:
@@ -7443,7 +7478,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3990334965163639183, guid: 4a710caa256322a4aa6bfb19109e4559, type: 3}
       propertyPath: m_RootOrder
-      value: 8
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 3990334965163639183, guid: 4a710caa256322a4aa6bfb19109e4559, type: 3}
       propertyPath: m_LocalPosition.x
@@ -8335,6 +8370,50 @@ MonoBehaviour:
         _modifierKey1: 0
         _modifierKey2: 0
         _modifierKey3: 0
+      - _actionCategoryId: 0
+        _actionId: 1
+        _elementType: 1
+        _elementIdentifierId: 19
+        _axisRange: 0
+        _invert: 0
+        _axisContribution: 0
+        _keyboardKeyCode: 0
+        _modifierKey1: 0
+        _modifierKey2: 0
+        _modifierKey3: 0
+      - _actionCategoryId: 0
+        _actionId: 0
+        _elementType: 1
+        _elementIdentifierId: 20
+        _axisRange: 0
+        _invert: 0
+        _axisContribution: 0
+        _keyboardKeyCode: 0
+        _modifierKey1: 0
+        _modifierKey2: 0
+        _modifierKey3: 0
+      - _actionCategoryId: 0
+        _actionId: 1
+        _elementType: 1
+        _elementIdentifierId: 21
+        _axisRange: 0
+        _invert: 0
+        _axisContribution: 1
+        _keyboardKeyCode: 0
+        _modifierKey1: 0
+        _modifierKey2: 0
+        _modifierKey3: 0
+      - _actionCategoryId: 0
+        _actionId: 0
+        _elementType: 1
+        _elementIdentifierId: 22
+        _axisRange: 0
+        _invert: 0
+        _axisContribution: 1
+        _keyboardKeyCode: 0
+        _modifierKey1: 0
+        _modifierKey2: 0
+        _modifierKey3: 0
     keyboardMaps:
     - id: 0
       categoryId: 0
@@ -8927,7 +9006,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3990334965163639183, guid: 4a710caa256322a4aa6bfb19109e4559, type: 3}
       propertyPath: m_RootOrder
-      value: 10
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 3990334965163639183, guid: 4a710caa256322a4aa6bfb19109e4559, type: 3}
       propertyPath: m_LocalPosition.x
@@ -9460,7 +9539,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3990334965163639183, guid: 4a710caa256322a4aa6bfb19109e4559, type: 3}
       propertyPath: m_RootOrder
-      value: 12
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 3990334965163639183, guid: 4a710caa256322a4aa6bfb19109e4559, type: 3}
       propertyPath: m_LocalPosition.x
@@ -12858,7 +12937,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3990334965163639183, guid: 4a710caa256322a4aa6bfb19109e4559, type: 3}
       propertyPath: m_RootOrder
-      value: 6
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 3990334965163639183, guid: 4a710caa256322a4aa6bfb19109e4559, type: 3}
       propertyPath: m_LocalPosition.x
@@ -13396,6 +13475,7 @@ MonoBehaviour:
   verticalInputName: vertical
   pauseInputName: pause
   cheatPlusInputName: cheatplus
+  inputAxisDeadZone: 0.3
   animator: {fileID: 1127068951}
   allFriends:
   - friendGameObject: {fileID: 402468670}
@@ -17172,6 +17252,7 @@ Transform:
   - {fileID: 1127068949}
   - {fileID: 1612635252}
   - {fileID: 372494532}
+  - {fileID: 242681229}
   - {fileID: 1665346292}
   - {fileID: 402468671}
   - {fileID: 1091033927}
@@ -18680,7 +18761,7 @@ Transform:
   m_Children:
   - {fileID: 95129036}
   m_Father: {fileID: 1377549577}
-  m_RootOrder: 7
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!231 &1505592719
 SpringJoint2D:
@@ -25938,7 +26019,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1377549577}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1665346293
 MonoBehaviour:
@@ -31058,7 +31139,7 @@ PrefabInstance:
       objectReference: {fileID: 140735759}
     - target: {fileID: 4807140622076035636, guid: 89bc2e94c40a13947a6d6d5769df1c0d, type: 3}
       propertyPath: chaptersScriptableObjectsList.Array.size
-      value: 18
+      value: 19
       objectReference: {fileID: 0}
     - target: {fileID: 4807140622076035636, guid: 89bc2e94c40a13947a6d6d5769df1c0d, type: 3}
       propertyPath: chapterDescriptionTextsList.Array.data[0]
@@ -31144,6 +31225,10 @@ PrefabInstance:
       propertyPath: chaptersScriptableObjectsList.Array.data[17]
       value: 
       objectReference: {fileID: 11400000, guid: a6e8f62a6bc003d469e3fe70a4dbee28, type: 2}
+    - target: {fileID: 4807140622076035636, guid: 89bc2e94c40a13947a6d6d5769df1c0d, type: 3}
+      propertyPath: chaptersScriptableObjectsList.Array.data[18]
+      value: 
+      objectReference: {fileID: 11400000, guid: 1f5fd20e29e3cbf40805e1ed89356e34, type: 2}
     - target: {fileID: 4807140622076035637, guid: 89bc2e94c40a13947a6d6d5769df1c0d, type: 3}
       propertyPath: m_RootOrder
       value: 16

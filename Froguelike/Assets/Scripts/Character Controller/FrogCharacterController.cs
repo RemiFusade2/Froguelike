@@ -70,17 +70,20 @@ public class FrogCharacterController : MonoBehaviour
     public string verticalInputName = "vertical";
     public string pauseInputName = "pause";
     public string cheatPlusInputName = "cheatplus";
-
-    private Player rewiredPlayer;
-
-    public float HorizontalInput { get; private set; }
-    public float VerticalInput { get; private set; }
+    [Space]
+    public float inputAxisDeadZone = 0.3f;
 
     [Header("Animator")]
     public Animator animator;
 
     [Header("Friend Frog")]
     public List<FriendInfo> allFriends;
+
+
+
+    private Player rewiredPlayer;
+    public float HorizontalInput { get; private set; }
+    public float VerticalInput { get; private set; }
 
     private List<FriendType> activeFriendsList;
 
@@ -555,11 +558,19 @@ public class FrogCharacterController : MonoBehaviour
     private void UpdateHorizontalInput()
     {
         HorizontalInput = rewiredPlayer.GetAxis(horizontalInputName);
+        if (Mathf.Abs(HorizontalInput) < inputAxisDeadZone)
+        {
+            HorizontalInput = 0;
+        }
     }
 
     private void UpdateVerticalInput()
     {
         VerticalInput = rewiredPlayer.GetAxis(verticalInputName);
+        if (Mathf.Abs(VerticalInput) < inputAxisDeadZone)
+        {
+            VerticalInput = 0;
+        }
     }
 
     private bool GetPauseInput()

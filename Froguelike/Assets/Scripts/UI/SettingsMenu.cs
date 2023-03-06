@@ -28,7 +28,7 @@ public class SettingsMenu : MonoBehaviour
     CanvasScaler canvasScaler;
 
     public TextMeshProUGUI currentMaxRes;
-
+    
     // Start is called before the first frame update
     void Start()
     {

@@ -63,6 +63,8 @@ public class EnemyMovePattern
     public EnemyMovePatternType movePatternType;
     [Tooltip("The speed factor, applied to the enemy default speed")]
     public float speedFactor;
+    [Tooltip("In case of a bouncing pattern, how many times does it bounce before exiting the screen")]
+    public int bouncecount;
 }
 
 /// <summary>
