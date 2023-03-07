@@ -1,3 +1,4 @@
+using Steamworks;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -276,6 +277,15 @@ public class SaveDataManager : MonoBehaviour
     /// <returns></returns>
     private string GetFilePath(string fileName)
     {
+        /*
+        SteamAPI.Init();
+
+        SteamAPI.Shutdown();
+
+        CSteamID steamID = SteamUser.GetSteamID();
+        uint accountID = steamID.GetAccountID().m_AccountID;
+        Debug.Log("accountID = " + accountID);
+        */
         string dataPath = Application.persistentDataPath;
         string fileExtension = "";
         switch(saveMethod)
