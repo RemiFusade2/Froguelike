@@ -4792,14 +4792,15 @@ MonoBehaviour:
   findSpawnPositionMaxAttempts: 10
   maxDistanceBeforeUnspawn: 60
   maxDamageTexts: 300
-  maxActiveEnemies: 1500
+  maxActiveEnemies: 2000
   verbose: 2
-  updateAllEnemiesDelay: 0.15
+  updateAllEnemiesDelay: 0.01
   poisonedSpriteColor: {r: 0.16862746, g: 0.5529412, b: 0.21960786, a: 1}
   frozenSpriteColor: {r: 0.4039216, g: 0.78823537, b: 0.9058824, a: 1}
   cursedSpriteColor: {r: 0.6392157, g: 0.30588236, b: 0.654902, a: 1}
   delayBetweenPoisonDamage: 0.6
   delayBetweenRandomChangeOfDirection: 1.5
+  cooldownTimeBetweenHits: 1
   enemiesData:
     enemiesList: []
   farAwayPosition: {x: 0, y: 0, z: 0}
@@ -6423,6 +6424,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   logsVerboseLevel: 2
+  allAchievements:
+  - {fileID: 11400000, guid: 15a507f91e3767d409a0337823930556, type: 2}
+  achievementsData:
+    achievementsList: []
 --- !u!1 &526218496
 GameObject:
   m_ObjectHideFlags: 0
@@ -9523,6 +9528,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   logFileName: GameData_STARTTIME.log
   saveLogInFile: 1
+  readLogs: 0
+  readLogFileNames:
+  - GameData_2023_03_05_13_18_45.log
+  - GameData_2023_03_06_11_19_11.log
+  - GameData_2023_03_06_12_42_42.log
+  - GameData_2023_03_06_18_37_19.log
 --- !u!4 &770929204
 Transform:
   m_ObjectHideFlags: 0
@@ -9751,8 +9762,8 @@ MonoBehaviour:
   logsVerboseLevel: 2
   titleScreen: {fileID: 886136328}
   titleScreenCurrencyText: {fileID: 1564075483}
-  titleScreenSaveLocationTextsList:
-  - {fileID: 378687416}
+  titleScreenWelcomeMessageText: {fileID: 2041939042}
+  titleScreenSaveLocationText: {fileID: 378687416}
   shopScreen: {fileID: 818835338}
   characterSelectionScreen: {fileID: 1853500119}
   chapterSelectionScreen: {fileID: 157392834}
@@ -12900,6 +12911,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 759443635}
     - target: {fileID: 4919826508944035819, guid: abeb0f41db396bd45a4db2a535d395f8, type: 3}
+      propertyPath: availableItemDataList.Array.size
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 4919826508944035819, guid: abeb0f41db396bd45a4db2a535d395f8, type: 3}
       propertyPath: availableItemDataList.Array.data[0]
       value: 
       objectReference: {fileID: 11400000, guid: 6972a9781aec88b4f82d60e2e23ade21, type: 2}
@@ -13489,7 +13504,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: e2476706cb932544ba6742e1ef9affd2, type: 3}
   - {fileID: 21300000, guid: b3270297934ecb9458e1d7e2060cc88b, type: 3}
   - {fileID: 21300000, guid: 80ef4ef9c2cc9524c9bc2c09abc6f2db, type: 3}
-  defaultHealthRecovery: 0.2
+  defaultHealthRecovery: 0
   defaultWalkSpeed: 6
   defaultSwimSpeed: 4
   walkSpeedBoost: 0
@@ -29740,7 +29755,7 @@ GameObject:
   - component: {fileID: 2041939043}
   - component: {fileID: 2041939042}
   m_Layer: 5
-  m_Name: Message
+  m_Name: Welcome
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -31163,6 +31178,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Run Items Manager
       objectReference: {fileID: 0}
+    - target: {fileID: 673547082950043339, guid: b74aeccc4e8fb0b45bee3afaa11a3c1b, type: 3}
+      propertyPath: maxStatItemCount
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 673547082950043339, guid: b74aeccc4e8fb0b45bee3afaa11a3c1b, type: 3}
+      propertyPath: allRunStatsItems.Array.size
+      value: 12
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b74aeccc4e8fb0b45bee3afaa11a3c1b, type: 3}
 --- !u!1001 &1633024040675904638
@@ -31884,7 +31907,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7978220894028803650, guid: 59c67d09569c781419f4218687db094f, type: 3}
       propertyPath: saveMethod
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7978220894028803650, guid: 59c67d09569c781419f4218687db094f, type: 3}
       propertyPath: logsVerboseLevel

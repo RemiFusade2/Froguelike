@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-#region Property Drawers (custom inspector stuff)
-
 [CustomPropertyDrawer(typeof(ChapterCondition))]
 public class ChapterConditionDrawer : PropertyDrawer
 {
@@ -220,5 +218,3 @@ public class ChapterWeightChangeDrawer : PropertyDrawer
         return EditorGUIUtility.singleLineHeight;
     }
 }
-
-#endregion

@@ -252,6 +252,9 @@ public class GameManager : MonoBehaviour
         bool fileErased = SaveDataManager.instance.EraseSaveFile(true);
         SaveDataManager.instance.CreateEmptySaveFile();
 
+        // TODO: remove that
+        AchievementManager.instance.TestClearSteamAchievement();
+
         InitializeStuff();
         BackToTitleScreen();
     }

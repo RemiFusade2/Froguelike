@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
+using Steamworks;
 
 /// <summary>
 /// UIManager deals with navigation in the menus, as well as in-game UI.
@@ -20,7 +21,8 @@ public class UIManager : MonoBehaviour
     [Header("Title")]
     public GameObject titleScreen;
     public TextMeshProUGUI titleScreenCurrencyText;
-    public List<TextMeshProUGUI> titleScreenSaveLocationTextsList;
+    public TextMeshProUGUI titleScreenWelcomeMessageText;
+    public TextMeshProUGUI titleScreenSaveLocationText;
 
     [Header("Shop")]
     public GameObject shopScreen;
@@ -108,9 +110,11 @@ public class UIManager : MonoBehaviour
         HideAllScreens();
         UpdateTitleScreenCurrencyText(GameManager.instance.gameData.availableCurrency);
         titleScreen.SetActive(true);
-        foreach (TextMeshProUGUI saveLocationText in titleScreenSaveLocationTextsList)
+        titleScreenSaveLocationText.text = Application.persistentDataPath;
+        if (SteamManager.Initialized)
         {
-            saveLocationText.text = Application.persistentDataPath;
+            string steamName = SteamFriends.GetPersonaName();
+            titleScreenWelcomeMessageText.text = $"Welcome {steamName}! You are connected to Steam.";
         }
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)

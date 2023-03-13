@@ -475,6 +475,11 @@ public class RunManager : MonoBehaviour
         // Show Game UI
         UIManager.instance.ShowGameUI();
 
+        // Get achievement
+        AchievementManager.instance.TestCheckSteamAchievement();
+        AchievementManager.instance.TestSteamAchievement();
+        AchievementManager.instance.TestCheckSteamAchievement();
+
         // Start game!
         chapterRemainingTime = currentChapter.chapterData.chapterLengthInSeconds;
         GameManager.instance.hasGameStarted = true;
@@ -507,7 +512,8 @@ public class RunManager : MonoBehaviour
 
         // Instantiate weapon from prefab
         GameObject weaponGo = Instantiate(weaponPrefab, player.weaponStartPoint.position, Quaternion.identity, player.weaponsParent);
-        
+        weaponGo.name = $"{weaponData.weaponName}_{weaponItem.activeWeaponsList.Count+1}";
+
         if (weaponItem.activeWeaponsList.Count > 0)
         {
             // weapon is not the first, we should copy the values from the previous ones

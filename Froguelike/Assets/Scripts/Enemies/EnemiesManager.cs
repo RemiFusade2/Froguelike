@@ -81,6 +81,8 @@ public class EnemyInstance
     // Keyword that is used to find the EnemyData
     public string enemyName;
 
+    public float lastUpdateTime;
+
     // References to EnemyInfo
     public EnemyInfo enemyInfo;
 
@@ -91,6 +93,8 @@ public class EnemyInstance
     public Vector2 moveDirection;
     public float lastChangeOfDirectionTime;
     public int bounceCount;
+
+    public Dictionary<string,float> weaponLastHitTimeDico;
 
     // Move pattern
     public EnemyMovePattern movePattern;
@@ -116,6 +120,21 @@ public class EnemyInstance
 
     // The sprite color of that enemy when it spawned
     public Color defaultSpriteColor;
+
+    public EnemyInstance()
+    {
+        weaponLastHitTimeDico = new Dictionary<string, float>();
+    }
+
+    public float GetLastHitTime(string weaponInstanceID)
+    {
+        weaponLastHitTimeDico.TryGetValue(weaponInstanceID, out float lastHitTime);
+        return lastHitTime;
+    }
+    public void SetLastHitTime(string weaponInstanceID)
+    {
+        weaponLastHitTimeDico[weaponInstanceID] = Time.time;
+    }
 }
 
 public class EnemiesManager : MonoBehaviour
@@ -159,6 +178,8 @@ public class EnemiesManager : MonoBehaviour
     public float delayBetweenPoisonDamage = 0.6f;
     [Space]
     public float delayBetweenRandomChangeOfDirection = 1.5f;
+    [Space]
+    public float cooldownTimeBetweenHits = 1.0f;
 
     [Header("Runtime")]
     public static int lastKey;
@@ -213,6 +234,7 @@ public class EnemiesManager : MonoBehaviour
         for (int i = 0; i < maxActiveEnemies; i++)
         {
             EnemyInstance newEnemy = new EnemyInstance();
+            newEnemy.lastUpdateTime = Time.time;
             newEnemy.active = false;
             newEnemy.alive = false;
 
@@ -578,9 +600,11 @@ public class EnemiesManager : MonoBehaviour
                 break;
             case EnemyMovePatternType.DIRECTIONLESS: // starts static
             case EnemyMovePatternType.NO_MOVEMENT:
+                newEnemy.enemyCollider.isTrigger = false;
                 newEnemy.moveDirection = Vector2.zero;
                 break;
             case EnemyMovePatternType.FOLLOW_PLAYER:
+                newEnemy.enemyCollider.isTrigger = false;
                 newEnemy.moveDirection = vectorTowardsPlayer;
                 break;
             case EnemyMovePatternType.STRAIGHT_LINE: // but still moving towards player
@@ -603,18 +627,13 @@ public class EnemiesManager : MonoBehaviour
         EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
         enemy.HP -= damage;
 
+        enemy.SetLastHitTime(weapon.gameObject.name);
+
         enemy.lastWeaponHitTransform = weapon;
 
-        if (enemy.HP < 0.01f)
-        {
-            // enemy died, let's eat it now
-            SetEnemyDead(enemy);
-            return true;
-        }
-
-        // If enemy didn't die, then display damage text
+        // Display damage text
         GameObject damageText = null;
-        if (damageTextsPool.TryDequeue(out damageText))
+        if (Mathf.RoundToInt(damage) > 0 && damageTextsPool.TryDequeue(out damageText))
         {
             Vector2 position = (Vector2)enemy.enemyTransform.position + 0.1f * Random.insideUnitCircle;
             damageText.transform.position = position;
@@ -623,7 +642,15 @@ public class EnemiesManager : MonoBehaviour
             StartCoroutine(PutDamageTextIntoPool(damageText, 1.0f));
         }
 
-        return false;
+        bool enemyDied = false;
+        if (enemy.HP < 0.01f)
+        {
+            // enemy died, let's eat it now
+            SetEnemyDead(enemy);
+            enemyDied = true;
+        }
+
+        return enemyDied;
     }
 
     private IEnumerator PutDamageTextIntoPool(GameObject damageText, float delay)
@@ -660,15 +687,25 @@ public class EnemiesManager : MonoBehaviour
         lastKey = 0;
     }
 
+    /// <summary>
+    /// Update enemies
+    /// </summary>
     public void UpdateAllEnemies()
     {
         if (GameManager.instance.isGameRunning)
         {
             Transform playerTransform = GameManager.instance.player.transform;
+
+            List<KeyValuePair<int, EnemyInstance>> enemiesToUpdate = allActiveEnemiesDico.ToList();
+            enemiesToUpdate = enemiesToUpdate.OrderBy(x => x.Value.lastUpdateTime).Take(50).ToList();
+            
             List<int> enemiesToDestroyIDList = new List<int>();
-            foreach (KeyValuePair<int, EnemyInstance> enemyInfo in allActiveEnemiesDico)
+
+            //foreach (KeyValuePair<int, EnemyInstance> enemyInfo in allActiveEnemiesDico)
+            foreach (KeyValuePair<int, EnemyInstance> enemyInfo in enemiesToUpdate)
             {
                 EnemyInstance enemy = enemyInfo.Value;
+                enemy.lastUpdateTime = Time.time;
                 EnemyData enemyData = enemiesDataFromNameDico[enemy.enemyName];
                 EnemyMovePattern movePattern = enemy.movePattern;
                 if (enemy.active)
@@ -687,11 +724,12 @@ public class EnemiesManager : MonoBehaviour
                         {
                             frogPosition = enemy.lastWeaponHitTransform.position;
                         }
-                        enemy.moveDirection = (frogPosition - enemy.enemyTransform.position).normalized;
+                        float dot = Vector2.Dot(enemy.moveDirection, (frogPosition - enemy.enemyTransform.position).normalized);
                         float distanceWithFrog = Vector2.Distance(frogPosition, enemy.enemyTransform.position);
+                        enemy.moveDirection = (frogPosition - enemy.enemyTransform.position).normalized;
                         float walkSpeed = GameManager.instance.player.defaultWalkSpeed * (1 + GameManager.instance.player.walkSpeedBoost);
                         enemy.enemyRigidbody.velocity = 2 * enemy.moveDirection * walkSpeed;
-                        if (distanceWithFrog < 1.5f)
+                        if (dot < 0 || distanceWithFrog < 1.5f)
                         {
                             enemy.enemyRenderer.enabled = false;
                             enemy.active = false;
@@ -890,6 +928,7 @@ public class EnemiesManager : MonoBehaviour
 
         enemyInstance.HP = 0;
         enemyInstance.alive = false;
+
         enemyInstance.enemyAnimator.SetBool("IsDead", true);
         enemyInstance.enemyCollider.enabled = false;
         enemyInstance.enemyTransform.rotation = Quaternion.Euler(0, 0, 45);

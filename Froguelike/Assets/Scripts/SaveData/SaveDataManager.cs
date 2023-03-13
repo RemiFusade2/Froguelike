@@ -267,8 +267,19 @@ public class SaveDataManager : MonoBehaviour
 
         ChapterManager.instance.ResetChapters(true);
 
+        AchievementManager.instance.ResetAchievements();
+
         return Save();
     }
+
+    private void CreateDirectoryIfRequired(string directoryPath)
+    {
+        if (!Directory.Exists(directoryPath))
+        {
+            Directory.CreateDirectory(directoryPath);
+        }
+    }
+
 
     /// <summary>
     /// Get the path to the file
@@ -278,14 +289,13 @@ public class SaveDataManager : MonoBehaviour
     private string GetFilePath(string fileName)
     {
         /*
-        SteamAPI.Init();
+        string steamUserID = "000";
+        if (SteamManager.Initialized)
+        {
+            CSteamID steamID = SteamUser.GetSteamID();
+            steamUserID = steamID.m_SteamID.ToString();
+        }*/
 
-        SteamAPI.Shutdown();
-
-        CSteamID steamID = SteamUser.GetSteamID();
-        uint accountID = steamID.GetAccountID().m_AccountID;
-        Debug.Log("accountID = " + accountID);
-        */
         string dataPath = Application.persistentDataPath;
         string fileExtension = "";
         switch(saveMethod)
@@ -297,6 +307,17 @@ public class SaveDataManager : MonoBehaviour
                 fileExtension = "bin";
                 break;
         }
-        return $"{dataPath}/{fileName}.{fileExtension}";
+
+
+        string directoryPath = $"{dataPath}"; ///user{steamUserID}";
+        //CreateDirectoryIfRequired(directoryPath);
+
+        return $"{directoryPath}/{fileName}.{fileExtension}";
+    }
+
+    private void OnDestroy()
+    {
+        isSaveDataDirty = false;
+        Save();
     }
 }

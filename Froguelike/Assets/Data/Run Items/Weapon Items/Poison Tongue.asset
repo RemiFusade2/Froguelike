@@ -20,15 +20,14 @@ MonoBehaviour:
     description: Poisons everything it licks
     weaponPrefab: {fileID: 3990334965163639182, guid: 4a710caa256322a4aa6bfb19109e4559, type: 3}
     weaponType: 5
-    comesBackAfterEatingFlies: 1
     weaponBaseStats:
       statsList:
       - stat: 0
         value: 2
       - stat: 2
-        value: 1
+        value: 0.5
       - stat: 1
-        value: 1
+        value: 3
       - stat: 3
         value: 3
       - stat: 4
@@ -40,34 +39,34 @@ MonoBehaviour:
       - stat: 9
         value: 1
   weaponBoostLevels:
-  - description: Damage +1\nRange +20%
+  - description: Damage +1\nRange +10%
     weaponStatUpgrades:
       statsList:
       - stat: 0
         value: 1
       - stat: 3
+        value: 0.1
+  - description: Poison Damage +1\nPoison Duration +50%
+    weaponStatUpgrades:
+      statsList:
+      - stat: 8
+        value: 1
+      - stat: 9
+        value: 0.5
+  - description: Speed +20%\nRange +10%
+    weaponStatUpgrades:
+      statsList:
+      - stat: 1
         value: 0.2
-  - description: Poison Damage +1\nPoison Duration +50%
-    weaponStatUpgrades:
-      statsList:
-      - stat: 8
-        value: 1
-      - stat: 9
-        value: 0.5
-  - description: Poison Damage +1\nPoison Duration +50%
-    weaponStatUpgrades:
-      statsList:
-      - stat: 8
-        value: 1
-      - stat: 9
-        value: 0.5
-  - description: Cooldown -25%\nRange +20%
+      - stat: 3
+        value: 0.1
+  - description: Cooldown -25%\nRange +10%
     weaponStatUpgrades:
       statsList:
       - stat: 2
         value: -0.25
       - stat: 3
-        value: 0.2
+        value: 0.1
   - description: Poison Damage +1\nPoison Duration +50%
     weaponStatUpgrades:
       statsList:
@@ -80,13 +79,13 @@ MonoBehaviour:
       statsList:
       - stat: 6
         value: 1
-  - description: Damage +1\nRange +20%
+  - description: Damage +1\nRange +10%
     weaponStatUpgrades:
       statsList:
       - stat: 0
         value: 1
       - stat: 3
-        value: 0.2
+        value: 0.1
   - description: Poison Damage +1\nPoison Duration +50%
     weaponStatUpgrades:
       statsList:
@@ -94,8 +93,8 @@ MonoBehaviour:
         value: 1
       - stat: 9
         value: 0.5
-  - description: Poison lasts forever
+  - description: Poison duration +50%
     weaponStatUpgrades:
       statsList:
       - stat: 9
-        value: 1000000
+        value: 0.5
