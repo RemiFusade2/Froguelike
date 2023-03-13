@@ -165,7 +165,7 @@ public class AchievementManager : MonoBehaviour
     {
         List<Achievement> unlockedAchievementsList = new List<Achievement>();
         // Gather useful data about the current Run
-        bool runIsWon = RunManager.instance.IsCurrentRunWon();
+        //bool runIsWon = RunManager.instance.IsCurrentRunWon();
 
         foreach (Achievement achievement in achievementsData.achievementsList)
         {
