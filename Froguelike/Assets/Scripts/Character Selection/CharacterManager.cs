@@ -121,6 +121,11 @@ public class CharacterManager : MonoBehaviour
         }
     }
 
+    public int GetUnlockedCharacterCount()
+    {
+        return charactersData.charactersList.Count(x => x.unlocked);
+    }
+
     public CharacterData GetCharacterData(string characterID)
     {
         CharacterData result = null;
@@ -301,6 +306,12 @@ public class CharacterManager : MonoBehaviour
                     }
                 }
 
+                // TODO: Display those:
+                /*DataManager.instance.defaultMaxHP; // Max HP from frog stats is now added to default max HP
+                DataManager.instance.defaultHealthRecovery;
+                DataManager.instance.defaultStatItemSlotCount;
+                DataManager.instance.defaultWeaponSlotCount;*/
+
                 // Checks what kind of value that is going to be added to the string.
                 switch (thisStat)
                 {
@@ -330,7 +341,7 @@ public class CharacterManager : MonoBehaviour
                     case CharacterStat.ATK_SPEED_BOOST: // 13
                     case CharacterStat.ATK_COOLDOWN_BOOST: // 14
                     case CharacterStat.ATK_RANGE_BOOST: // 15
-                    case CharacterStat.ATK_AREA_BOOST: // 16
+                    case CharacterStat.ATK_SIZE_BOOST: // 16
                     case CharacterStat.ATK_SPECIAL_STRENGTH_BOOST: // 17
                     case CharacterStat.ATK_SPECIAL_DURATION_BOOST: // 18
                     case CharacterStat.MAGNET_RANGE_BOOST: // 19
@@ -341,7 +352,6 @@ public class CharacterManager : MonoBehaviour
 
                         valueText += thisValue.ToString("P0").Replace(" ٪", "%"); // replace the shitty percentage symbol by a proper one and remove the space in front of it
                         //valueText += Mathf.FloorToInt((float)thisValue * 100).ToString() + "%";
-                        //TODO : thisValue.ToString("0.0%"); or something like that
                         break;
 
                     default:
@@ -430,6 +440,17 @@ public class CharacterManager : MonoBehaviour
             SaveDataManager.instance.isSaveDataDirty = true;
         }
         return characterNewlyUnlocked;
+    }
+
+    public bool IsCharacterUnlocked(string characterID)
+    {
+        bool result = false;
+        PlayableCharacter unlockedCharacter = charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals(characterID));
+        if (unlockedCharacter != null && unlockedCharacter.unlocked)
+        {
+            result = true;
+        }
+        return result;
     }
 
     /// <summary>

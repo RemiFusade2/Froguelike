@@ -27,6 +27,9 @@ public class UIManager : MonoBehaviour
     [Header("Shop")]
     public GameObject shopScreen;
 
+    [Header("Achievements")]
+    public GameObject achievementsScreen;
+
     [Header("Character Selection")]
     public GameObject characterSelectionScreen;
 
@@ -101,6 +104,7 @@ public class UIManager : MonoBehaviour
         inGameUIPanel.SetActive(false);
         gameOverPanel.SetActive(false);
         shopScreen.SetActive(false);
+        achievementsScreen.SetActive(false);
         settingsScreen.SetActive(false);
     }
 
@@ -251,6 +255,19 @@ public class UIManager : MonoBehaviour
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
             Debug.Log("UI - Display Shop screen");
+        }
+    }
+
+    public void ShowAchievements()
+    {
+        HideAllScreens();
+        AchievementManager.instance.DisplayAchievementsScreen();
+        titleScreen.SetActive(true);
+        achievementsScreen.SetActive(true);
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("UI - Display Achievements screen");
         }
     }
 

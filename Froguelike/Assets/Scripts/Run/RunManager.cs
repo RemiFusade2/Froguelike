@@ -5,10 +5,72 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+[System.Serializable]
+public class RunItemInfo
+{
+    // Defined at runtime, using RunItemData
+    public string itemName;
+
+    [System.NonSerialized]
+    public int level; // current level, used only during a Run
+
+    public RunItemData GetRunItemData()
+    {
+        if (this is RunStatItemInfo)
+        {
+            return (this as RunStatItemInfo).itemData;
+        }
+        if (this is RunWeaponInfo)
+        {
+            return (this as RunWeaponInfo).weaponItemData;
+        }
+        return null;
+    }
+
+    public override bool Equals(object obj)
+    {
+        bool equ = false;
+        if (obj is RunItemInfo)
+        {
+            equ = (obj as RunItemInfo).itemName.Equals(this.itemName);
+        }
+        return equ;
+    }
+
+    public override int GetHashCode()
+    {
+        return itemName.GetHashCode();
+    }
+}
+
+[System.Serializable]
+public class RunStatItemInfo : RunItemInfo
+{
+    public RunStatItemData itemData;
+}
+
+[System.Serializable]
+public class RunWeaponInfo : RunItemInfo
+{
+    public RunWeaponItemData weaponItemData;
+
+    public List<GameObject> activeWeaponsList; // current active weapons
+
+    public int killCount;
+
+    public RunWeaponInfo()
+    {
+        activeWeaponsList = new List<GameObject>();
+    }
+}
+
 public class RunManager : MonoBehaviour
 {
     // Singleton
     public static RunManager instance;
+    
+    [Header("Settings - Logs")]
+    public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
 
     [Header("References")]
     public FrogCharacterController player;
@@ -39,8 +101,8 @@ public class RunManager : MonoBehaviour
     public Color newItemColor;
     public Color maxLevelColor;
 
-    [Header("Settings - Logs")]
-    public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
+    [Header("Settings - Chapter count")]
+    public int maxChaptersInARun = 5;
 
     [Header("Settings - XP")]
     public float startLevelXp = 5; // XP needed to go from level 1 to level 2
@@ -82,36 +144,8 @@ public class RunManager : MonoBehaviour
     private float runPlayTime;
     private float runTotalTime; // pause time included
 
-    public Wave GetCurrentWave()
-    {
-        return currentChapter.chapterData.waves[currentWaveIndex];        
-    }
 
-    public List<RunWeaponInfo> GetOwnedWeapons()
-    {
-        List<RunWeaponInfo> weapons = new List<RunWeaponInfo>();
-        foreach (RunItemInfo runItem in ownedItems)
-        {
-            if (runItem is RunWeaponInfo)
-            {
-                weapons.Add(runItem as RunWeaponInfo);
-            }
-        }
-        return weapons;
-    }
-
-    public List<RunStatItemInfo> GetOwnedStatItems()
-    {
-        List<RunStatItemInfo> statItems = new List<RunStatItemInfo>();
-        foreach (RunItemInfo runItem in ownedItems)
-        {
-            if (runItem is RunStatItemInfo)
-            {
-                statItems.Add(runItem as RunStatItemInfo);
-            }
-        }
-        return statItems;
-    }
+    #region Unity Callback Methods
 
     private void Awake()
     {
@@ -152,6 +186,45 @@ public class RunManager : MonoBehaviour
                 waveRemainingTime = GetCurrentWave().duration;
             }
         }
+    }
+
+    #endregion
+
+
+    public bool IsCurrentRunWon()
+    {
+        return completedChaptersList.Count >= maxChaptersInARun;
+    }
+
+    public Wave GetCurrentWave()
+    {
+        return currentChapter.chapterData.waves[currentWaveIndex];
+    }
+
+    public List<RunWeaponInfo> GetOwnedWeapons()
+    {
+        List<RunWeaponInfo> weapons = new List<RunWeaponInfo>();
+        foreach (RunItemInfo runItem in ownedItems)
+        {
+            if (runItem is RunWeaponInfo)
+            {
+                weapons.Add(runItem as RunWeaponInfo);
+            }
+        }
+        return weapons;
+    }
+
+    public List<RunStatItemInfo> GetOwnedStatItems()
+    {
+        List<RunStatItemInfo> statItems = new List<RunStatItemInfo>();
+        foreach (RunItemInfo runItem in ownedItems)
+        {
+            if (runItem is RunStatItemInfo)
+            {
+                statItems.Add(runItem as RunStatItemInfo);
+            }
+        }
+        return statItems;
     }
 
     public void StartNewRun(PlayableCharacter character)
@@ -333,7 +406,7 @@ public class RunManager : MonoBehaviour
         MusicManager.instance.PauseMusic();
 
         // Check if this is a win
-        if (completedChaptersList.Count >= 5)
+        if (IsCurrentRunWon())
         {
             // Game is won!
             GameManager.instance.RegisterWin();
@@ -353,7 +426,7 @@ public class RunManager : MonoBehaviour
         currentCollectedCurrency = 0;
 
         // Maybe unlock some characters if conditions are met
-        List<string> unlockedCharacters = AchievementManager.instance.CheckForUnlockingCharacters();
+        List<Achievement> unlockedAchievements = AchievementManager.instance.GetUnlockedAchievementsForCurrentRun();
 
         // Add the current chapter to the list (even if current chapter was not completed)
         List<Chapter> chaptersPlayed = new List<Chapter>(completedChaptersList);
@@ -372,7 +445,7 @@ public class RunManager : MonoBehaviour
         }
 
         // Display the score screen
-        ScoreManager.instance.ShowScores(chaptersPlayed, playedChaptersKillCounts, currentPlayedCharacter, ownedItems, unlockedCharacters);
+        ScoreManager.instance.ShowScores(chaptersPlayed, playedChaptersKillCounts, currentPlayedCharacter, ownedItems, unlockedAchievements);
     }
 
     public void EndChapter()
@@ -386,7 +459,7 @@ public class RunManager : MonoBehaviour
         // Stop time
         GameManager.instance.SetTimeScale(0);
 
-        if (completedChaptersList.Count >= 5)
+        if (completedChaptersList.Count >= maxChaptersInARun)
         {
             // This was the final chapter
             // Game must end now and display Score
@@ -474,11 +547,6 @@ public class RunManager : MonoBehaviour
 
         // Show Game UI
         UIManager.instance.ShowGameUI();
-
-        // Get achievement
-        AchievementManager.instance.TestCheckSteamAchievement();
-        AchievementManager.instance.TestSteamAchievement();
-        AchievementManager.instance.TestCheckSteamAchievement();
 
         // Start game!
         chapterRemainingTime = currentChapter.chapterData.chapterLengthInSeconds;
@@ -571,6 +639,7 @@ public class RunManager : MonoBehaviour
                 {
                     // Create item info and add it to owned items
                     RunStatItemInfo newStatItemInfo = new RunStatItemInfo();
+                    newStatItemInfo.itemName = pickedItemData.itemName;
                     newStatItemInfo.level = 1;
                     newStatItemInfo.itemData = pickedItemData as RunStatItemData;
 
@@ -627,10 +696,10 @@ public class RunManager : MonoBehaviour
                     // If we didn't have that weapon, then create a new RunItemInfo object and store it for future use
                     // Create item info and add it to owned items
                     RunWeaponInfo newWeaponInfo = new RunWeaponInfo();
+                    newWeaponInfo.itemName = pickedItemData.itemName;
                     newWeaponInfo.killCount = 0;
                     newWeaponInfo.level = 1;
                     newWeaponInfo.weaponItemData = pickedItemData as RunWeaponItemData;
-                    newWeaponInfo.activeWeaponsList = new List<GameObject>();
                     
                     pickedItemInfo = newWeaponInfo;
                     

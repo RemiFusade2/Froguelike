@@ -21,6 +21,7 @@ public class CombinedSaveData
     public CharactersSaveData charactersSaveData;
     public EnemiesSaveData enemiesSaveData;
     public ChaptersSaveData chaptersSaveData;
+    public RunItemsSaveData runItemsSaveData;
     public AchievementsSaveData achievementsSaveData;
 
     public CombinedSaveData()
@@ -30,6 +31,7 @@ public class CombinedSaveData
         charactersSaveData = new CharactersSaveData();
         enemiesSaveData = new EnemiesSaveData();
         chaptersSaveData = new ChaptersSaveData();
+        runItemsSaveData = new RunItemsSaveData();
         achievementsSaveData = new AchievementsSaveData();
     }
 
@@ -41,6 +43,7 @@ public class CombinedSaveData
         saveData.charactersSaveData = CharacterManager.instance.charactersData;
         saveData.enemiesSaveData = EnemiesManager.instance.enemiesData;
         saveData.chaptersSaveData = ChapterManager.instance.chaptersData;
+        saveData.runItemsSaveData = RunItemManager.instance.runItemsData;
         saveData.achievementsSaveData = AchievementManager.instance.achievementsData;
 
         return saveData;
@@ -53,6 +56,7 @@ public class CombinedSaveData
         CharacterManager.instance.SetCharactersData(saveData.charactersSaveData);
         EnemiesManager.instance.SetEnemiesData(saveData.enemiesSaveData);
         ChapterManager.instance.SetChaptersData(saveData.chaptersSaveData);
+        RunItemManager.instance.SetRunItemsData(saveData.runItemsSaveData);
         AchievementManager.instance.SetAchievementsData(saveData.achievementsSaveData);
     }
 }

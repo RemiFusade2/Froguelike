@@ -258,15 +258,11 @@ public class SaveDataManager : MonoBehaviour
     {
         ShopManager.instance.shopData.Reset();
         ShopManager.instance.ResetShop(true);
-
         CharacterManager.instance.ResetCharacters(true);
-
         EnemiesManager.instance.ResetEnemies();
-
         GameManager.instance.gameData.Reset();
-
         ChapterManager.instance.ResetChapters(true);
-
+        RunItemManager.instance.ResetRunItems();
         AchievementManager.instance.ResetAchievements();
 
         return Save();

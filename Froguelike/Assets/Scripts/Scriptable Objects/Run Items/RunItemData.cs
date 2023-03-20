@@ -55,7 +55,7 @@ public class RunItemData : ScriptableObject
     }
 
     #endregion
-    
+
     /// <summary>
     /// The starting level being 1, adding 1 to the number of levels it can gain would give the "max level" of this item.
     /// </summary>
@@ -103,6 +103,22 @@ public class RunItemData : ScriptableObject
         }
 
         return itemType;
+    }
+
+    public int GetOrder()
+    {
+        int order = GetMaxLevelCount() * 10;
+
+        if (this is RunStatItemData && (this as RunStatItemData).statBoostLevels.Count > 0 && (this as RunStatItemData).statBoostLevels[0].statUpgrades.statsList.Count > 0)
+        {
+            order = (int)(this as RunStatItemData).statBoostLevels[0].statUpgrades.statsList[0].stat;
+        }
+        if (this is RunWeaponItemData && (this as RunWeaponItemData).weaponBoostLevels.Count > 0 && (this as RunWeaponItemData).weaponBoostLevels[0].weaponStatUpgrades.statsList.Count > 0)
+        {
+            order = (int)(this as RunWeaponItemData).weaponBoostLevels[0].weaponStatUpgrades.statsList[0].stat;
+        }
+
+        return order;
     }
 }
 

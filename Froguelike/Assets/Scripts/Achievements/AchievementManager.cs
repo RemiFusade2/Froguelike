@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-
+using TMPro;
+using UnityEngine.UI;
 
 /// <summary>
 /// Achievement describes an achievement in its current state.
@@ -73,6 +74,13 @@ public class AchievementManager : MonoBehaviour
     [Header("Data")]
     public List<AchievementData> achievementsScriptableObjectsList;
 
+    [Header("UI")]
+    public TextMeshProUGUI achievementCountTextMesh;
+    public RectTransform achievementScrollContentPanel;
+    public Transform achievementScrollEntriesParent;
+    [Space]
+    public GameObject achievementEntryPrefab;        
+
     [Header("Runtime")]
     public AchievementsSaveData achievementsData; // Load from save file
 
@@ -124,178 +132,298 @@ public class AchievementManager : MonoBehaviour
         }
     }
 
+    #region Steam
 
-
-    public void TestClearSteamAchievement()
+    private bool ClearSteamAchievementIfPossible(string achievementSteamKey)
     {
+        bool achievementCleared = false;
         if (SteamManager.Initialized)
         {
-            Steamworks.SteamUserStats.ClearAchievement("ACH_PLAY_ONE_GAME");
-        }
-    }
-    public void TestSteamAchievement()
-    {
-        if (SteamManager.Initialized)
-        {
-            Steamworks.SteamUserStats.SetAchievement("ACH_PLAY_ONE_GAME");
-        }
-    }
-    public void TestCheckSteamAchievement()
-    {
-        if (SteamManager.Initialized)
-        {
-            if (Steamworks.SteamUserStats.GetAchievement("ACH_PLAY_ONE_GAME", out bool achieved))
+            string log = $"Achievement Manager - Achievement {achievementSteamKey} ";
+            if (Steamworks.SteamUserStats.ClearAchievement(achievementSteamKey))
             {
-                Debug.Log("Achievement exist and is achieved = " + achieved);
-            }
-            if (Steamworks.SteamUserStats.GetAchievement("ACH_PLAY_ONE_GAMEsdkjhflsdiqjgflj", out bool achieved2))
-            {
-                Debug.Log("Achievement exist and is achieved = " + achieved2);
+                achievementCleared = true;
+                log += "has just been reset on Steam!";
             }
             else
             {
-                Debug.Log("Achievement doesn't exist");
+                log += "couldn't be reset on Steam!";
+            }
+            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log(log);
             }
         }
+        return achievementCleared;
     }
 
+    private bool SetSteamAchievementIfPossible(string achievementSteamKey)
+    {
+        bool achievementUnlocked = false;
+        if (SteamManager.Initialized)
+        {
+            string log = $"Achievement Manager - Achievement {achievementSteamKey} ";
+            if (Steamworks.SteamUserStats.GetAchievement(achievementSteamKey, out bool achieved))
+            {
+                if (!achieved)
+                {
+                    if (Steamworks.SteamUserStats.SetAchievement(achievementSteamKey))
+                    {
+                        achievementUnlocked = true;
+                        log += "has just been unlocked on Steam!";
+                    }
+                    else
+                    {
+                        log += "couldn't be unlocked on Steam";
+                    }
+                }
+                else
+                {
+                    log += "exists but is already unlocked";
+                }
+            }
+            else
+            {
+                log += "doesn't exist on Steam";
+            }
+            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log(log);
+            }
+        }
+        return achievementUnlocked;
+    }
 
-
+    #endregion
+    
     public List<Achievement> GetUnlockedAchievementsForCurrentRun()
     {
         List<Achievement> unlockedAchievementsList = new List<Achievement>();
+
         // Gather useful data about the current Run
-        //bool runIsWon = RunManager.instance.IsCurrentRunWon();
+        bool runIsWon = RunManager.instance.IsCurrentRunWon();
+        int level = RunManager.instance.level;
+        List <RunItemInfo> allOwnedItems = RunManager.instance.ownedItems;
+        PlayableCharacter playedCharacter = RunManager.instance.currentPlayedCharacter;
+        int chapterCount = RunManager.instance.GetChapterCount();
+        FrogCharacterController player = GameManager.instance.player;
+
+        List<Achievement> metaAchievements = new List<Achievement>(); // achievements that depend on other achievements
 
         foreach (Achievement achievement in achievementsData.achievementsList)
         {
             if (!achievement.unlocked)
             {
                 // This achievement is not unlocked yet
+                bool conditionsAreMet = true;
+                foreach (AchievementCondition condition in achievement.achievementData.conditionsList)
+                {
+                    switch (condition.conditionType)
+                    {
+                        case AchievementConditionType.CHAPTERCOUNT:
+                            conditionsAreMet &= (chapterCount >= condition.chapterCount);
+                            break;
+                        case AchievementConditionType.CHARACTER:
+                            conditionsAreMet &= playedCharacter.characterID.Equals(condition.playedCharacter.characterID);
+                            break;
+                        case AchievementConditionType.FINISH_RUN:
+                            conditionsAreMet &= runIsWon;
+                            break;
+                        case AchievementConditionType.LEVEL:
+                            conditionsAreMet &= (level >= condition.reachLevel);
+                            break;
+                        case AchievementConditionType.RUNITEM:
+                            conditionsAreMet &= (allOwnedItems.FirstOrDefault(x => x.itemName.Equals(condition.runItem.itemName)) != null);
+                            break;
+                        case AchievementConditionType.RUNITEMLEVEL:
+                            RunItemInfo runItem = allOwnedItems.FirstOrDefault(x => x.itemName.Equals(condition.runItem.itemName));
+                            if (runItem != null)
+                            {
+                                conditionsAreMet &= (runItem.level >= condition.reachLevel);
+                            }
+                            else
+                            {
+                                conditionsAreMet &= false;
+                            }
+                            break;
+                        case AchievementConditionType.SPECIAL:
+                            switch(condition.specialKey)
+                            {
+                                case AchievementConditionSpecialKey.GET_100_FROINS:
+                                    conditionsAreMet &= (GameManager.instance.gameData.availableCurrency > 100);
+                                    break;
+                                case AchievementConditionSpecialKey.UNLOCK_A_CHARACTER:
+                                    conditionsAreMet &= (CharacterManager.instance.GetUnlockedCharacterCount() > 1);
+                                    break;
+                                case AchievementConditionSpecialKey.COMPLETE_10_ACHIEVEMENTS:
+                                    if (!metaAchievements.Contains(achievement))
+                                    {
+                                        metaAchievements.Add(achievement);
+                                    }
+                                    conditionsAreMet &= (achievementsData.achievementsList.Count(x => x.unlocked) >= 10);
+                                    break;
+                                case AchievementConditionSpecialKey.PLAY_GHOST_CHAPTER:
+                                    conditionsAreMet &= (RunManager.instance.completedChaptersList.FirstOrDefault(x => x.chapterID.Equals("[DEATH]")) != null);
+                                    break;
+                                case AchievementConditionSpecialKey.EAT_100000_BUGS:
+                                    conditionsAreMet &= (GameManager.instance.gameData.cumulatedScore >= 100000);
+                                    break;
+                                case AchievementConditionSpecialKey.GATHER_ALL_FRIENDS:
+                                    conditionsAreMet &= (player.HasActiveFriend(FriendType.FROG) && player.HasActiveFriend(FriendType.TOAD) && player.HasActiveFriend(FriendType.GHOST) && player.HasActiveFriend(FriendType.POISONOUS));
+                                    break;
+                            }
+                            break;
+                    }
+                    if (!conditionsAreMet)
+                    {
+                        break; // if one condition was false, there's no need to check the other ones, let's move on to the next achievement instead
+                    }
+                }
+
+                if (conditionsAreMet)
+                {
+                    // Conditions are met to unlock this Achievement!
+                    UnlockAchievement(achievement);
+                    unlockedAchievementsList.Add(achievement);
+                }
+            }
+        }
+
+        // Special case: there is one last achievement we want to "double check" after all other achievements were computed
+        foreach (Achievement achievement in metaAchievements)
+        {
+            if (!achievement.unlocked)
+            {
+                bool conditionsAreMet = true;
+                foreach (AchievementCondition condition in achievement.achievementData.conditionsList)
+                {
+                    if (condition.conditionType == AchievementConditionType.SPECIAL && condition.specialKey == AchievementConditionSpecialKey.COMPLETE_10_ACHIEVEMENTS)
+                    {
+                        conditionsAreMet &= (achievementsData.achievementsList.Count(x => x.unlocked) >= 10);
+                    }
+                }
+                if (conditionsAreMet)
+                {
+                    // Conditions are met to unlock this Achievement!
+                    UnlockAchievement(achievement);
+                    unlockedAchievementsList.Add(achievement);
+                }
             }
         }
 
         return unlockedAchievementsList;
     }
 
-
-    public List<string> CheckForUnlockingCharacters()
+    private void UnlockAchievement(Achievement achievement)
     {
-        List<string> unlockedCharacterNames = new List<string>();
+        string unlockLog = $"Achievements Manager - Unlocking {achievement.achievementID}: ";
 
-        bool gameIsWon = RunManager.instance.completedChaptersList.Count >= 5;
-        
-        FrogCharacterController player = GameManager.instance.player;
-        /*
-        // After winning one game
-        if (gameIsWon)
+        // unlock reward
+        AchievementReward reward = achievement.achievementData.reward;
+        switch (reward.rewardType)
         {
-            string characterName = "Toad";
-            if (CharacterManager.instance.UnlockCharacter(characterName))
-            {
-                unlockedCharacterNames.Add(characterName);
-            }
-        }*/
-        /*
-        // After dying 15 times
-        if (GameManager.instance.gameData.deathCount >= 15)
-        {
-            string characterName = "Ghost";
-            if (CharacterManager.instance.UnlockCharacter(characterName))
-            {
-                unlockedCharacterNames.Add(characterName);
-            }
-        }*/
-
-        if (gameIsWon)
-        {/*
-            bool hasMaxedOutCurse = false;
-            bool hasMaxedOutCursedTongue = false;
-            bool hasMaxedOutPoisonousTongue = false;
-            foreach (RunItemInfo item in RunManager.instance.ownedItems)
-            {
-                if (item is RunStatItemInfo)
-                {
-                    RunStatItemInfo statItem = (item as RunStatItemInfo);
-                    if (statItem.itemData.itemName.Equals("Curse") && statItem.level.Equals(statItem.itemData.statBoostLevels.Count))
-                    {
-                        hasMaxedOutCurse = true;
-                    }
-                }
-            }
-
-            List<RunWeaponInfo> ownedWeapons = RunManager.instance.GetOwnedWeapons();
-            foreach (RunWeaponInfo weapon in ownedWeapons)
-            {
-                if (weapon.weaponItemData.itemName.Equals("Cursed Tongue") && weapon.level.Equals(weapon.weaponItemData.weaponBoostLevels.Count))
-                {
-                    hasMaxedOutCursedTongue = true;
-                }
-                if (weapon.weaponItemData.itemName.Equals("Poisonous Tongue") && weapon.level.Equals(weapon.weaponItemData.weaponBoostLevels.Count))
-                {
-                    hasMaxedOutPoisonousTongue = true;
-                }
-            }
-
-            // After winning a game with a maxed out poisonous tongue
-            if (hasMaxedOutPoisonousTongue)
-            {
-                string characterName = "Ribbit";
-                if (CharacterManager.instance.UnlockCharacter(characterName))
-                {
-                    unlockedCharacterNames.Add(characterName);
-                }
-            }
-
-            // After winning a game with all 3 hats
-            if (player.HasHat(HatType.FANCY_HAT) && player.HasHat(HatType.FASHION_HAT) && player.HasHat(HatType.SUN_HAT))
-            {
-                string characterName = "Kermit";
-                if (CharacterManager.instance.UnlockCharacter(characterName))
-                {
-                    unlockedCharacterNames.Add(characterName);
-                }
-            }
-
-            // After winning a game with maxed out curse and maxed out cursed tongue
-            if (hasMaxedOutCurse && hasMaxedOutCursedTongue)
-            {
-                string characterName = "Thomas";
-                if (CharacterManager.instance.UnlockCharacter(characterName))
-                {
-                    unlockedCharacterNames.Add(characterName);
-                }
-            }*/
-
-            // After winning a game with all 4 friends
-            if (player.HasActiveFriend(FriendType.FROG) && player.HasActiveFriend(FriendType.TOAD) && player.HasActiveFriend(FriendType.GHOST) && player.HasActiveFriend(FriendType.POISONOUS))
-            {
-                string characterName = "Stanley";
-                if (CharacterManager.instance.UnlockCharacter(characterName))
-                {
-                    unlockedCharacterNames.Add(characterName);
-                }
-            }
+            case AchievementRewardType.CHAPTER:
+                ChapterManager.instance.UnlockChapter(reward.chapter);
+                unlockLog = $"Unlock chapter {reward.chapter.chapterID}";
+                break;
+            case AchievementRewardType.CHARACTER:
+                CharacterManager.instance.UnlockCharacter(reward.character.characterID);
+                unlockLog = $"Unlock character {reward.character.characterID}";
+                break;
+            case AchievementRewardType.CURRENCY:
+                GameManager.instance.ChangeAvailableCurrency(reward.currencyAmount);
+                unlockLog = $"Get {reward.currencyAmount} froins";
+                break;
+            case AchievementRewardType.FEATURE:
+                GameManager.instance.UnlockFeature(reward.featureID);
+                unlockLog = $"Unlock feature {reward.featureID}";
+                break;
+            case AchievementRewardType.RUN_ITEM:
+                RunItemManager.instance.UnlockRunItem(reward.runItem.itemName);
+                unlockLog = $"Unlock run item {reward.runItem.itemName}";
+                break;
+            case AchievementRewardType.SHOP_ITEM:
+                ShopManager.instance.RestockItem(reward.shopItem, reward.shopItemRestockCount);
+                unlockLog = $"Restock shop item {reward.shopItem.itemName}";
+                break;
         }
-
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
-            string unlockLog = "";
-            if (unlockedCharacterNames.Count == 0)
-            {
-                unlockLog = "Achievements - No character unlocked";
-            }
-            else
-            {
-                unlockLog = "Achievements - ";
-                foreach (string name in unlockedCharacterNames)
-                {
-                    unlockLog += name + " has been unlocked; ";
-                }
-            }
             Debug.Log(unlockLog);
         }
 
-        return unlockedCharacterNames;
+        // set achievement state to unlock
+        achievement.unlocked = true;
+
+        // get Steam achievement
+        SetSteamAchievementIfPossible(achievement.achievementData.achievementSteamID);
+    }
+
+    private bool IsAchievementAvailable(Achievement achievement)
+    {
+        bool conditionCanBeFulfilled = true;
+        foreach (AchievementCondition condition in achievement.achievementData.conditionsList)
+        {
+            if (condition.conditionType == AchievementConditionType.CHARACTER && condition.playedCharacter != null && !CharacterManager.instance.IsCharacterUnlocked(condition.playedCharacter.characterID))
+            {
+                conditionCanBeFulfilled = false;
+            }
+            if (!conditionCanBeFulfilled)
+            {
+                break;
+            }
+        }
+        return conditionCanBeFulfilled;
+    }
+
+    private List<Achievement> SortAchievementList(List<Achievement> achievements)
+    {
+        List<Achievement> result = achievements.OrderBy(x => x.achievementID).OrderByDescending(x => IsAchievementAvailable(x) && !x.achievementData.isSecret).ToList();
+        return result;
+    }
+
+    /// <summary>
+    /// Update the UI of the Achievements screen.
+    /// </summary>
+    public void DisplayAchievementsScreen()
+    {
+        List<Achievement> orderedAchievements = SortAchievementList(achievementsData.achievementsList);
+
+        int allAchievementsCount = orderedAchievements.Count;
+        int allUnlockedAchievementsCount = orderedAchievements.Count(x => x.unlocked == true);
+
+        achievementCountTextMesh.text = $"{allUnlockedAchievementsCount}/{allAchievementsCount} achieved";
+        
+        // Remove previous buttons except the first empty one
+        foreach (Transform child in achievementScrollEntriesParent)
+        {
+            if (!child.name.Contains("DO NOT DESTROY"))
+            {
+                Destroy(child.gameObject);
+            }
+        }
+        
+        // Create new entries
+        int entryCount = 1;
+        foreach (Achievement achievement in orderedAchievements)
+        {
+            bool achievementIsNotSetup = (achievement.achievementData.reward.rewardType == AchievementRewardType.RUN_ITEM && achievement.achievementData.reward.runItem == null)
+                || (achievement.achievementData.reward.rewardType == AchievementRewardType.SHOP_ITEM && achievement.achievementData.reward.shopItem == null);
+            if (!achievementIsNotSetup) // TODO: Remove
+            {
+                GameObject achievementEntryGo = Instantiate(achievementEntryPrefab, achievementScrollEntriesParent);
+                AchievementEntryPanelBehaviour achievementEntryScript = achievementEntryGo.GetComponent<AchievementEntryPanelBehaviour>();
+                bool darkerBkg = (entryCount / 2) % 2 == 0;
+                bool canAchieve = IsAchievementAvailable(achievement);
+                achievementEntryScript.Initialize(achievement, darkerBkg, !canAchieve || achievement.achievementData.isSecret);
+                entryCount++;
+            }
+        }
+
+        // Set size of container panel
+        GridLayoutGroup containerGridLayoutGroup = achievementScrollEntriesParent.GetComponent<GridLayoutGroup>();
+        float entryHeight = containerGridLayoutGroup.cellSize.y + containerGridLayoutGroup.spacing.y;
+        float padding = containerGridLayoutGroup.padding.top + containerGridLayoutGroup.padding.bottom;
+        achievementScrollContentPanel.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ((entryCount + 1) / 2) * entryHeight + padding);
     }
 }

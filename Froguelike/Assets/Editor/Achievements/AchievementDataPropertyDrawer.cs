@@ -63,21 +63,37 @@ public class AchievementConditionDrawer : PropertyDrawer
         }
         else if (conditionType.enumValueFlag == (int)AchievementConditionType.RUNITEM)
         {
-            // Choose Hat type
+            // Choose Run item
             float labelWidth = 40;
             Rect hatTypeLabelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
             Rect hatTypeRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
             EditorGUI.LabelField(hatTypeLabelRect, new GUIContent("Item:"));
             EditorGUI.PropertyField(hatTypeRect, property.FindPropertyRelative("runItem"), GUIContent.none);
         }
-        else if (conditionType.enumValueFlag == (int)AchievementConditionType.OTHER)
+        else if (conditionType.enumValueFlag == (int)AchievementConditionType.RUNITEMLEVEL)
         {
-            // Choose Friend type
+            // Choose Run item
+            float labelWidth = 60;
+            Rect hatTypeLabelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+            Rect hatTypeRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(hatTypeLabelRect, new GUIContent("Item:"));
+            EditorGUI.PropertyField(hatTypeRect, property.FindPropertyRelative("runItem"), GUIContent.none);
+
+            // Choose Run item level
+            position.y += EditorGUIUtility.singleLineHeight;
+            Rect environmentTypeLabelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+            Rect environmentTypeRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(environmentTypeLabelRect, new GUIContent("Level:"));
+            EditorGUI.PropertyField(environmentTypeRect, property.FindPropertyRelative("reachLevel"), GUIContent.none);
+        }
+        else if (conditionType.enumValueFlag == (int)AchievementConditionType.SPECIAL)
+        {
+            // Choose Special key
             float labelWidth = 40;
             Rect friendTypeLabelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
             Rect friendTypeRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
             EditorGUI.LabelField(friendTypeLabelRect, new GUIContent("Key:"));
-            EditorGUI.PropertyField(friendTypeRect, property.FindPropertyRelative("other_keyCode"), GUIContent.none);
+            EditorGUI.PropertyField(friendTypeRect, property.FindPropertyRelative("specialKey"), GUIContent.none);
         }
 
         EditorGUI.EndProperty();
@@ -91,6 +107,10 @@ public class AchievementConditionDrawer : PropertyDrawer
         if (conditionType.enumValueFlag == (int)AchievementConditionType.FINISH_RUN)
         {
             numberOfLines = 1;
+        }
+        else if (conditionType.enumValueFlag == (int)AchievementConditionType.RUNITEMLEVEL)
+        {
+            numberOfLines = 3;
         }
 
         return numberOfLines * EditorGUIUtility.singleLineHeight;
@@ -115,6 +135,11 @@ public class AchievementRewardDrawer : PropertyDrawer
         position.y += EditorGUIUtility.singleLineHeight;
         position.x += leftColumnWidth;
         position.width -= leftColumnWidth;
+
+        typeRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
+        EditorGUI.PropertyField(typeRect, property.FindPropertyRelative("rewardDescription"), GUIContent.none);
+                
+        position.y += EditorGUIUtility.singleLineHeight;
 
         var conditionType = property.FindPropertyRelative("rewardType");
         if (conditionType.enumValueFlag == (int)AchievementRewardType.CHARACTER)
@@ -184,12 +209,12 @@ public class AchievementRewardDrawer : PropertyDrawer
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
-        int numberOfLines = 2;
+        int numberOfLines = 3;
 
         var conditionType = property.FindPropertyRelative("rewardType");
         if (conditionType.enumValueFlag == (int)AchievementRewardType.SHOP_ITEM)
         {
-            numberOfLines = 3;
+            numberOfLines = 4;
         }
 
         return numberOfLines * EditorGUIUtility.singleLineHeight;

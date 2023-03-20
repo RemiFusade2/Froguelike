@@ -119,6 +119,11 @@ public class GameManager : MonoBehaviour
         UIManager.instance.ShowCharacterSelectionScreen();
     }
 
+    public void UnlockFeature(RewardFeatureType featureKey)
+    {
+        // TODO: Implement
+    }
+
     #region Chapters
 
 
@@ -203,6 +208,12 @@ public class GameManager : MonoBehaviour
         // Setup the chapters manager
         ChapterManager.instance.ResetChapters(true);
 
+        // Setup the run items manager
+        RunItemManager.instance.ResetRunItems();
+
+        // Setup the achievement manager
+        AchievementManager.instance.ResetAchievements();
+
         // Load save file
         bool fileLoaded = SaveDataManager.instance.Load();
         if (!fileLoaded)
@@ -251,9 +262,6 @@ public class GameManager : MonoBehaviour
         // Clear save file and create a new one
         bool fileErased = SaveDataManager.instance.EraseSaveFile(true);
         SaveDataManager.instance.CreateEmptySaveFile();
-
-        // TODO: remove that
-        AchievementManager.instance.TestClearSteamAchievement();
 
         InitializeStuff();
         BackToTitleScreen();

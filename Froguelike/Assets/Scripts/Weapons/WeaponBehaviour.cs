@@ -20,6 +20,7 @@ public class WeaponBehaviour : MonoBehaviour
     public float damage;
     public float attackSpeed;
     public float range;
+    public float duration;
 
     [Header("Settings - special metrics")]
     public float healthAbsorbRatio;
@@ -36,6 +37,8 @@ public class WeaponBehaviour : MonoBehaviour
     [Header("Collision Layer")]
     public LayerMask foodLayer;
 
+    [Header("Runtime")]
+    public float lastAttackTime;
 
     private Color tongueColor;
 
@@ -44,7 +47,6 @@ public class WeaponBehaviour : MonoBehaviour
 
     private Collider2D tongueCollider;
 
-    private float lastAttackTime;
 
     private bool isTongueGoingOut;
 
@@ -79,18 +81,20 @@ public class WeaponBehaviour : MonoBehaviour
     public void SetTongueWidth(float width)
     {
         tongueWidth = width;
+        float actualWidth = tongueWidth * (1 + GameManager.instance.player.attackSizeBoost);
         if (tongueLineRenderer != null && outlineLineRenderer != null)
         {
-            tongueLineRenderer.startWidth = width;
-            tongueLineRenderer.endWidth = width;
-            outlineLineRenderer.startWidth = width + outlineWeight * 2;
-            outlineLineRenderer.endWidth = width + outlineWeight * 2;
+            tongueLineRenderer.startWidth = actualWidth;
+            tongueLineRenderer.endWidth = actualWidth;
+            outlineLineRenderer.startWidth = actualWidth + outlineWeight * 2;
+            outlineLineRenderer.endWidth = actualWidth + outlineWeight * 2;
         }
     }
 
     private void SetTongueScale(float scale)
     {
         float actualRange = range * (1 + GameManager.instance.player.attackRangeBoost);
+        float actualWidth = tongueWidth * (1 + GameManager.instance.player.attackSizeBoost);
         if (scale <= 0)
         {
             this.transform.localScale = Vector3.zero;
@@ -98,7 +102,7 @@ public class WeaponBehaviour : MonoBehaviour
         }
         else
         {
-            this.transform.localScale = Vector3.forward + (tongueWidth * Vector3.up) + (scale * actualRange * Vector3.right);
+            this.transform.localScale = Vector3.forward + (actualWidth * Vector3.up) + (scale * actualRange * Vector3.right);
             outlineTransform.localPosition = (-outlineWeight / (scale * actualRange)) * Vector3.right;
             outlineTransform.localScale = Vector3.forward + Vector3.up + ((1 + ((outlineWeight*2)/(scale * actualRange))) * Vector3.right);
             SetTongueWidth(tongueWidth);
@@ -153,6 +157,7 @@ public class WeaponBehaviour : MonoBehaviour
         cooldown = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.COOLDOWN).value;
         damage = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.DAMAGE).value;
         range = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.RANGE).value;
+        duration = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.DURATION).value;
 
         freezeFactor = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.FREEZE_RATIO).value;
         freezeDuration = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.FREEZE_DURATION).value;
@@ -165,7 +170,7 @@ public class WeaponBehaviour : MonoBehaviour
         poisonDamage = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.POISON_DAMAGE).value;
         poisonDuration = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.POISON_DURATION).value;
         
-        SetTongueWidth((float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.WIDTH).value);
+        SetTongueWidth((float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.SIZE).value);
 
         if (weaponData.weaponType == WeaponType.ROTATING)
         {
@@ -191,6 +196,8 @@ public class WeaponBehaviour : MonoBehaviour
         damage = weapon.damage;
         attackSpeed = weapon.attackSpeed;
         range = weapon.range;
+        duration = weapon.duration;
+        lastAttackTime = weapon.lastAttackTime;
 
         SetTongueWidth(weapon.tongueWidth);
 
@@ -211,7 +218,7 @@ public class WeaponBehaviour : MonoBehaviour
 
         curseFactor = weapon.curseFactor;
         curseDuration = weapon.curseDuration;
-
+        
         ResetWeapon();
     }
 
@@ -226,8 +233,10 @@ public class WeaponBehaviour : MonoBehaviour
         attackSpeed *= (1+(float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.SPEED).value);
         range *= (1+(float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.RANGE).value);
 
+        duration *= (1 + (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.DURATION).value);
+
         // Width
-        float newTongueWidth = tongueWidth * (1 + (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.WIDTH).value);
+        float newTongueWidth = tongueWidth * (1 + (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.SIZE).value);
         SetTongueWidth(newTongueWidth);
 
         // Special attack: Vampire
@@ -406,6 +415,8 @@ public class WeaponBehaviour : MonoBehaviour
         outlineLineRenderer.enabled = true;
         tongueCollider.enabled = true;
 
+        float actualAttackDuration = duration * (1 + GameManager.instance.player.attackDurationBoost); // in seconds
+
         float angle = rotatingTongueCurrentAngle + (rotatingTongueIndex * 2 * Mathf.PI / rotatingTongueCount);
 
         float actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
@@ -419,6 +430,12 @@ public class WeaponBehaviour : MonoBehaviour
             else
             {
                 SetTongueScale(1);
+
+                actualAttackDuration -= Time.fixedDeltaTime;
+                if (actualAttackDuration < 0)
+                {
+                    isTongueGoingOut = false;
+                }
             }
 
             actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);

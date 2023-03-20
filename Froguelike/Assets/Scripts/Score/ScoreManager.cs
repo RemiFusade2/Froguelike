@@ -24,10 +24,9 @@ public class ScoreManager : MonoBehaviour
     [Space]
     public TextMeshProUGUI upgradesText;
     public TextMeshProUGUI upgradesLevelsText;
-    public GameObject unlockPanel;
-    public TextMeshProUGUI unlockedCharacterName;
-    public Image unlockedCharacterImage;
-    
+    [Space]
+    public AchievementsScrollRect achievementScrollRect;
+
     [Header("Settings")]
     public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
 
@@ -56,7 +55,7 @@ public class ScoreManager : MonoBehaviour
     /// <param name="chaptersPlayed"></param>
     /// <param name="playedCharacter"></param>
     /// <param name="ownedItems"></param>
-    public void ShowScores(List<Chapter> chaptersPlayed, int[] chapterKillCounts, PlayableCharacter playedCharacter, List<RunItemInfo> ownedItems, List<string> unlockedCharacters)
+    public void ShowScores(List<Chapter> chaptersPlayed, int[] chapterKillCounts, PlayableCharacter playedCharacter, List<RunItemInfo> ownedItems, List<Achievement> unlockedAchievements)
     {
         string scoreLog = "";
 
@@ -137,15 +136,9 @@ public class ScoreManager : MonoBehaviour
         upgradesText.text = allItemsNames;
         upgradesLevelsText.text = allItemsLevels;
 
-        // Display unlocked characters (achievements)
-        unlockPanel.SetActive(false);
-        if (unlockedCharacters.Count > 0)
-        {
-            unlockPanel.SetActive(true);
-            CharacterData firstUnlockedCharacter = CharacterManager.instance.GetCharacterData(unlockedCharacters[0]);
-            unlockedCharacterName.text = firstUnlockedCharacter.characterName;
-            unlockedCharacterImage.sprite = firstUnlockedCharacter.characterSprite;
-        }
+        // Display unlocked achievements
+        achievementScrollRect.Initialize(unlockedAchievements);
+        achievementScrollRect.transform.parent.gameObject.SetActive((unlockedAchievements.Count > 0));
 
         // Show the score screen
         UIManager.instance.ShowScoreScreen();

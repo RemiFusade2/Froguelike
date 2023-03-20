@@ -727,7 +727,7 @@ public class EnemiesManager : MonoBehaviour
                         float dot = Vector2.Dot(enemy.moveDirection, (frogPosition - enemy.enemyTransform.position).normalized);
                         float distanceWithFrog = Vector2.Distance(frogPosition, enemy.enemyTransform.position);
                         enemy.moveDirection = (frogPosition - enemy.enemyTransform.position).normalized;
-                        float walkSpeed = GameManager.instance.player.defaultWalkSpeed * (1 + GameManager.instance.player.walkSpeedBoost);
+                        float walkSpeed = DataManager.instance.defaultWalkSpeed * (1 + GameManager.instance.player.walkSpeedBoost);
                         enemy.enemyRigidbody.velocity = 2 * enemy.moveDirection * walkSpeed;
                         if (dot < 0 || distanceWithFrog < 1.5f)
                         {
@@ -890,7 +890,7 @@ public class EnemiesManager : MonoBehaviour
             UpdateSpriteColor(enemyInstance);
         }
         float actualSpeed = GetEnemyDataFromGameObjectName(enemyInstance.enemyTransform.name).moveSpeed * (1 + enemyInstance.changeSpeedFactor) * enemyInstance.movePattern.speedFactor;
-        float walkSpeed = GameManager.instance.player.defaultWalkSpeed * (1 + GameManager.instance.player.walkSpeedBoost);
+        float walkSpeed = DataManager.instance.defaultWalkSpeed * (1 + GameManager.instance.player.walkSpeedBoost);
         actualSpeed = Mathf.Clamp(actualSpeed, 0, 30);
         enemyInstance.enemyRigidbody.velocity = enemyInstance.moveDirection * actualSpeed;
     }

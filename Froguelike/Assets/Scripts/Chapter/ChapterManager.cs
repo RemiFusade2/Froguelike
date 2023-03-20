@@ -147,6 +147,15 @@ public class ChapterManager : MonoBehaviour
     #endregion
 
     /// <summary>
+    /// Unlock the given chapter.
+    /// </summary>
+    /// <param name="chapterData"></param>
+    public void UnlockChapter(ChapterData chapterData)
+    {
+        allChaptersDico[chapterData.chapterID].unlocked = true;
+    }
+
+    /// <summary>
     /// Create the deck of Chapters using the current state of the game
     /// </summary>
     /// <returns></returns>

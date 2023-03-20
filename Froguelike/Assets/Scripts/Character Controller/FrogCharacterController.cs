@@ -28,12 +28,9 @@ public class FrogCharacterController : MonoBehaviour
     [Space]
     public List<SpriteRenderer> hatRenderersList;
     public List<Sprite> hatSpritesList;
-
-    [Header("Character default stats values")]
-    public float defaultHealthRecovery = 0.1f;
-    public float defaultWalkSpeed = 6;
-    public float defaultSwimSpeed = 4;
-
+    [Space]
+    public CircleCollider2D magnetTrigger;
+    
     [Header("Character data")]
     public float walkSpeedBoost;
     public float swimSpeedBoost;
@@ -42,6 +39,8 @@ public class FrogCharacterController : MonoBehaviour
     public float maxHealth = 100;
     public float healthRecovery;
     public float hpRecoveryDelay = 1.0f;
+    [Space]
+    public float magnetRangeBoost = 0;
     [Space]
     public float armor = 0;
     public float experienceBoost = 0;
@@ -54,13 +53,15 @@ public class FrogCharacterController : MonoBehaviour
     [Space]
     public float attackCooldownBoost = 0;
     public float attackDamageBoost = 0;
-    public float attackMaxFliesBoost = 0;
     public float attackRangeBoost = 0;
-    public float attackAreaBoost = 0;
+    public float attackSizeBoost = 0;
     public float attackSpeedBoost = 0;
-
+    public float attackDurationBoost = 0;
     public float attackSpecialStrengthBoost = 0;
     public float attackSpecialDurationBoost = 0;
+    [Space]
+    public int statItemSlotsCount;
+    public int weaponSlotsCount;
 
     [Header("Settings - Logs")]
     public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
@@ -181,7 +182,7 @@ public class FrogCharacterController : MonoBehaviour
             invincibilityTime -= Time.fixedDeltaTime;
         }
 
-        float moveSpeed = isOnLand ? (defaultWalkSpeed * (1+walkSpeedBoost)) : (defaultSwimSpeed * (1 + swimSpeedBoost));
+        float moveSpeed = isOnLand ? (DataManager.instance.defaultWalkSpeed * (1+walkSpeedBoost)) : (DataManager.instance.defaultSwimSpeed * (1 + swimSpeedBoost));
         Vector2 moveInput = (((HorizontalInput * Vector2.right).normalized + (VerticalInput * Vector2.up).normalized)).normalized * moveSpeed;
 
         if (!moveInput.Equals(Vector2.zero))
@@ -235,6 +236,11 @@ public class FrogCharacterController : MonoBehaviour
         animator.SetInteger("character", isGhost ? 2 : animatorCharacterValue);
     }
 
+    private void UpdateMagnetRange()
+    {
+        magnetTrigger.radius = (DataManager.instance.defaultMagnetRange * (1 + magnetRangeBoost));
+    }
+
     public void InitializeCharacter(PlayableCharacter characterInfo)
     {
         SetAnimatorCharacterValue(characterInfo.characterData.characterAnimatorValue);
@@ -248,18 +254,14 @@ public class FrogCharacterController : MonoBehaviour
         }
 
         // MAX HP should always be defined for any character
-        maxHealth = 0;
-        if (allStartingStatsWrapper.GetValueForStat(CharacterStat.MAX_HEALTH, out float startingMaxHP))
+        maxHealth = DataManager.instance.defaultMaxHP;
+        if (allStartingStatsWrapper.GetValueForStat(CharacterStat.MAX_HEALTH, out float startingMaxHPBonus))
         {
-            maxHealth = startingMaxHP;
-        }
-        else
-        {
-            Debug.LogError("Max Health was not defined for this character");
+            maxHealth += startingMaxHPBonus;
         }
 
         // HP Recovery
-        healthRecovery = defaultHealthRecovery;
+        healthRecovery = DataManager.instance.defaultHealthRecovery;
         if (allStartingStatsWrapper.GetValueForStat(CharacterStat.HEALTH_RECOVERY, out float startingHPRecoveryBoost))
         {
             healthRecovery += startingHPRecoveryBoost;
@@ -334,9 +336,6 @@ public class FrogCharacterController : MonoBehaviour
             skips = Mathf.FloorToInt(startingSkips);
         }
 
-        // Deprecated: Atk max flies boost
-        attackMaxFliesBoost = 0;
-
         // Atk Damage Boost
         attackDamageBoost = 0;
         if (allStartingStatsWrapper.GetValueForStat(CharacterStat.ATK_DAMAGE_BOOST, out float startingAtkDmgBoost))
@@ -365,11 +364,18 @@ public class FrogCharacterController : MonoBehaviour
             attackRangeBoost = startingAtkRangeBoost;
         }
 
-        // Atk Area Boost
-        attackAreaBoost = 0;
-        if (allStartingStatsWrapper.GetValueForStat(CharacterStat.ATK_AREA_BOOST, out float startingAtkAreaBoost))
+        // Atk Size Boost
+        attackSizeBoost = 0;
+        if (allStartingStatsWrapper.GetValueForStat(CharacterStat.ATK_SIZE_BOOST, out float startingAtkSizeBoost))
         {
-            attackAreaBoost = startingAtkAreaBoost;
+            attackSizeBoost = startingAtkSizeBoost;
+        }
+
+        // Atk Duration Boost
+        attackDurationBoost = 0;
+        if (allStartingStatsWrapper.GetValueForStat(CharacterStat.ATK_DURATION_BOOST, out float startingAtkDurationBoost))
+        {
+            attackDurationBoost = startingAtkDurationBoost;
         }
 
         // Atk Special Strength Boost
@@ -387,8 +393,26 @@ public class FrogCharacterController : MonoBehaviour
         }
 
         // Magnet Range
-        // TO DO
+        magnetRangeBoost = 0;
+        if (allStartingStatsWrapper.GetValueForStat(CharacterStat.MAGNET_RANGE_BOOST, out float startingMagnetRangeBoost))
+        {
+            magnetRangeBoost = startingMagnetRangeBoost;
+        }
+        UpdateMagnetRange();
 
+        // Item slots
+        statItemSlotsCount = DataManager.instance.defaultStatItemSlotCount;
+        if (allStartingStatsWrapper.GetValueForStat(CharacterStat.ITEM_SLOT, out float statItemSlotsCountIncrease))
+        {
+            statItemSlotsCount += Mathf.RoundToInt(statItemSlotsCountIncrease);
+        }
+
+        // Weapon slots
+        weaponSlotsCount = DataManager.instance.defaultWeaponSlotCount;
+        if (allStartingStatsWrapper.GetValueForStat(CharacterStat.WEAPON_SLOT, out float weaponSlotsCountIncrease))
+        {
+            weaponSlotsCount += Mathf.RoundToInt(weaponSlotsCountIncrease);
+        }
 
         RunManager.instance.SetExtraLives(revivals);
 
@@ -419,9 +443,12 @@ public class FrogCharacterController : MonoBehaviour
         currencyBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.CURRENCY_BOOST).value;
         healthRecovery += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.HEALTH_RECOVERY).value;
         maxHealth += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.MAX_HEALTH).value;
-        revivals += (int)itemLevelData.statUpgrades.GetStatValue(CharacterStat.REVIVAL).value;
 
+        revivals += (int)itemLevelData.statUpgrades.GetStatValue(CharacterStat.REVIVAL).value;
         RunManager.instance.SetExtraLives(revivals);
+
+        magnetRangeBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.MAGNET_RANGE_BOOST).value;
+        UpdateMagnetRange();
 
         walkSpeedBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.WALK_SPEED_BOOST).value;
         swimSpeedBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.SWIM_SPEED_BOOST).value;
@@ -431,9 +458,15 @@ public class FrogCharacterController : MonoBehaviour
         attackDamageBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_DAMAGE_BOOST).value;
         attackRangeBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_RANGE_BOOST).value;
         attackSpeedBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_SPEED_BOOST).value;
+        attackSizeBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_SIZE_BOOST).value;
+        attackDurationBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_DURATION_BOOST).value;
 
         attackSpecialStrengthBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_SPECIAL_STRENGTH_BOOST).value;
         attackSpecialDurationBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_SPECIAL_DURATION_BOOST).value;
+
+        // item and weapon slots
+        statItemSlotsCount += (int)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ITEM_SLOT).value;
+        weaponSlotsCount += (int)itemLevelData.statUpgrades.GetStatValue(CharacterStat.WEAPON_SLOT).value;
 
         UpdateHealthBar();
     }

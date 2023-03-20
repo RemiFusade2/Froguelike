@@ -3,6 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
+public enum AchievementConditionSpecialKey
+{
+    GET_100_FROINS = 1,
+    UNLOCK_A_CHARACTER = 2,
+    COMPLETE_10_ACHIEVEMENTS = 3,
+    PLAY_GHOST_CHAPTER = 4,
+    EAT_100000_BUGS = 5,
+    GATHER_ALL_FRIENDS = 6
+}
+
 /// <summary>
 /// All different types of conditions for an Achievement
 /// </summary>
@@ -14,7 +24,8 @@ public enum AchievementConditionType
     LEVEL, // reach at least that level
     CHAPTERCOUNT, // complete that many chapters
     RUNITEM, // have a specific item (can be a weapon too)
-    OTHER, // specific condition, hardcoded and identified with a string key
+    SPECIAL, // specific condition, hardcoded and identified with a string key
+    RUNITEMLEVEL, // have a specific item (can be a weapon too) at a specific level
 
     /*
      * EVERYTHING UNDER HERE IS NOT IMPLEMENTED, AND MAYBE NOT NEEDED
@@ -25,8 +36,6 @@ public enum AchievementConditionType
     CHAPTER, // complete a specific chapter
     FRIEND, // find a specific friend
     FRIENDCOUNT, // find an amount of friends
-    RUNITEM, // have a specific item (can be a weapon too)
-    RUNITEMLEVEL, // have a specific item (can be a weapon too) at a specific level
     RUNSTATITEMCOUNT, // have an amount of stat items
     RUNWEAPONCOUNT, // have an amount of weapons
     SHOPITEM, // buy a specific item from the Shop
@@ -70,7 +79,7 @@ public class AchievementCondition
     public RunItemData runItem = null;
 
     [Tooltip("The key used in the code to check for a special condition")]
-    public string other_keyCode = "[CONDITION_KEY]";
+    public AchievementConditionSpecialKey specialKey;
 }
 
 /// <summary>
@@ -88,6 +97,17 @@ public enum AchievementRewardType
 }
 
 /// <summary>
+/// All different features you can get as a reward
+/// </summary>
+[System.Serializable]
+public enum RewardFeatureType
+{
+    SHOP, // Open the shop
+    CHARACTER_SELECTION, // Make it possible to select a character at the start of the game
+    ACHIEVEMENTS_LIST, // See a list of all achievements in the game
+}
+
+/// <summary>
 /// An AchievementReward is a reward that you get when fulfilling the conditions for an achievement.
 /// The reward is given at the end of a Run, when achievements are computed.
 /// </summary>
@@ -98,7 +118,7 @@ public class AchievementReward
     public AchievementRewardType rewardType;
 
     [Tooltip("A short description of that reward")]
-    public string rewardDescription;
+    public string rewardDescription; // it will replace some keywords with the name they refer to
 
     [Tooltip("Unlocked Character")]
     public CharacterData character = null;
@@ -117,8 +137,8 @@ public class AchievementReward
     [Tooltip("Amount of Froins")]
     public int currencyAmount = 0;
 
-    [Tooltip("A unique string to identify a feature (hardcoded)")]
-    public string featureID = "[FEATURE_IDENTIFIER]";
+    [Tooltip("A value to identify a feature")]
+    public RewardFeatureType featureID;
 }
 
 
@@ -133,13 +153,19 @@ public class AchievementData : ScriptableObject
     [Tooltip("Achievement ID, must be unique. Used only by the game")]
     public string achievementID = "[ACHIEVEMENT UNIQUE IDENTIFIER]";
 
+    [Header("Achievement settings")]
+    [Tooltip("Achievement is hidden until you get it")]
+    public bool isSecret = false;
+
     [Header("Achievement settings - display")]
     [Tooltip("Achievement title")]
     public string achievementTitle = "[Achievement title]";
     [Tooltip("A description of the achievement")]
     public string achievementDescription = "[Achievement description]";
-    [Tooltip("A visual representation of the achievement")]
-    public Sprite achievementIcon;
+    [Tooltip("A visual representation of the achievement when it is locked")]
+    public Sprite achievementLockedIcon;
+    [Tooltip("A visual representation of the achievement when it has been achieved")]
+    public Sprite achievementUnlockedIcon;
 
     [Header("Achievement settings - Steam")]
     [Tooltip("The key used by Steam to identify that achievement")]
@@ -151,5 +177,56 @@ public class AchievementData : ScriptableObject
 
     [Header("Reward")]
     [Tooltip("The reward you get when fulfilling these conditions")]
-    public AchievementReward reward;    
+    public AchievementReward reward;
+    
+    /*
+    /// <summary>
+    /// Get a value for ordering the achievements. Values can go from int.MinValue to int.MaxValue
+    /// Values depends on conditions and rewards, here is how it goes from lower to higher:
+    /// - Reward is a feature
+    /// - Find an item
+    /// - Reach a Chapter with a Character
+    /// - Reach a Level with a Character
+    /// - Finish a Run with a Character
+    /// - Other special conditions
+    /// </summary>
+    /// <returns></returns>
+    public int GetOrder()
+    {
+        int order = 0;
+
+        if (reward.rewardType == AchievementRewardType.FEATURE)
+        {
+            order -= 100000 + reward.featureID.Length;
+        }
+
+        foreach (AchievementCondition condition in conditionsList)
+        {
+            switch (condition.conditionType)
+            {
+                case AchievementConditionType.RUNITEM:
+                    order += condition.runItem.GetOrder();
+                    break;
+                case AchievementConditionType.CHARACTER:
+                    order += 10000 * condition.playedCharacter.GetOrder();
+                    break;
+                case AchievementConditionType.CHAPTERCOUNT:
+                    order += 100 * condition.chapterCount;
+                    break;
+                case AchievementConditionType.LEVEL:
+                    order += 1000 * condition.reachLevel;
+                    break;
+                case AchievementConditionType.FINISH_RUN:
+                    order += 10000000;
+                    break;
+                case AchievementConditionType.OTHER:
+                    order += 10000000 * condition.other_keyCode.Length;
+                    break;
+            }
+        }
+
+        Debug.Log($"{this.achievementID}, order is = {order}");
+
+        return order;
+    }*/
 }

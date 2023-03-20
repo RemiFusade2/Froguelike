@@ -48,4 +48,16 @@ public class CharacterData : ScriptableObject
     [Header("Starting Items")]
     [Tooltip("The items this character has at the start of a Run. Don't forget to give them at least one weapon.")]
     public List<RunItemData> startingItems;
+
+    public int GetOrder()
+    {
+        int order = 0;
+
+        if (CharacterManager.instance.charactersScriptableObjectsList.Contains(this))
+        {
+            order = CharacterManager.instance.charactersScriptableObjectsList.IndexOf(this) + 1;
+        }
+        
+        return order;
+    }
 }

@@ -5,42 +5,27 @@ using UnityEngine;
 
 
 [System.Serializable]
-public class RunItemInfo
+public class RunItemSaveInfo
 {
     // Defined at runtime, using RunItemData
     public string itemName;
 
-    [System.NonSerialized]
-    public int level; // current level, used only during a Run
+    public bool unlocked; // this is basically the only information we want to save in the save file
 
-    public RunItemData GetRunItemData()
+    public override bool Equals(object obj)
     {
-        if (this is RunStatItemInfo)
+        bool equ = false;
+        if (obj is RunItemInfo)
         {
-            return (this as RunStatItemInfo).itemData;
+            equ = (obj as RunItemInfo).itemName.Equals(this.itemName);
         }
-        if (this is RunWeaponInfo)
-        {
-            return (this as RunWeaponInfo).weaponItemData;
-        }
-        return null;
+        return equ;
     }
-}
 
-[System.Serializable]
-public class RunStatItemInfo : RunItemInfo
-{
-    public RunStatItemData itemData;
-}
-
-[System.Serializable]
-public class RunWeaponInfo : RunItemInfo
-{
-    public RunWeaponItemData weaponItemData;
-
-    public List<GameObject> activeWeaponsList; // current active weapons
-
-    public int killCount;
+    public override int GetHashCode()
+    {
+        return itemName.GetHashCode();
+    }
 }
 
 /// <summary>
@@ -49,11 +34,11 @@ public class RunWeaponInfo : RunItemInfo
 /// - currencySpentInShop is the amount of money that has been spent in the Shop (can be refunded when Shop is reset)
 /// </summary>
 [System.Serializable]
-public class RunItemSaveData : SaveData
+public class RunItemsSaveData : SaveData
 {
-    public List<RunItemInfo> runItemsList;
+    public List<RunItemSaveInfo> runItemsList;
 
-    public RunItemSaveData()
+    public RunItemsSaveData()
     {
         Reset();
     }
@@ -61,7 +46,7 @@ public class RunItemSaveData : SaveData
     public override void Reset()
     {
         base.Reset();
-        runItemsList = new List<RunItemInfo>();
+        runItemsList = new List<RunItemSaveInfo>();
     }
 }
 
@@ -74,18 +59,14 @@ public class RunItemManager : MonoBehaviour
     public static RunItemManager instance;
 
     [Header("Items data")]
-    public List<RunWeaponItemData> allRunWeaponsItems;
-    public List<RunStatItemData> allRunStatsItems;
-    public List<RunConsumableItemData> allConsumableRunItems;
+    public List<RunWeaponItemData> allRunWeaponsItemsScriptableObjects;
+    public List<RunStatItemData> allRunStatsItemsScriptableObjects;
+    public List<RunConsumableItemData> allConsumableRunItemsScriptableObjects;
 
-    [Header("Settings")]
-    public int maxWeaponCount = 4;
-    public int maxStatItemCount = 5;
-
-    /*
-     * Would be useful later when dealing with unlockable Run Items
     [Header("Runtime")]
-    public RunItemSaveData runItemsData; // Will be loaded and saved when needed*/
+    public RunItemsSaveData runItemsData; // Will be loaded and saved when needed
+
+    private Dictionary<string, RunItemData> runItemDataDictionary;
 
     private void Awake()
     {
@@ -100,49 +81,78 @@ public class RunItemManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Create a pool of items (stat items and weapons) to choose from.
+    /// An item can show up under certain conditions:
+    /// - if it is already owned and not maxed out
+    /// - if not, if it is unlocked and if there's room for it
+    /// </summary>
+    /// <param name="minimumItemCount">The minimum number of items we need in that pool</param>
+    /// <returns></returns>
     private List<RunItemData> GetListOfRunItems(int minimumItemCount)
     {
-        // Resulting list
-        List<RunItemData> allRunItems = new List<RunItemData>();
+        // Resulting pool
+        List<RunItemData> runItemsPool = new List<RunItemData>();
 
-        // Owned items count
-        int weaponItemsCount = RunManager.instance.GetOwnedWeapons().Count;
-        int statItemsCount = RunManager.instance.GetOwnedStatItems().Count;
+        // Owned items
+        List<RunWeaponInfo> ownedWeapons = RunManager.instance.GetOwnedWeapons();
+        List<RunStatItemInfo> ownedStatItems = RunManager.instance.GetOwnedStatItems();
 
-        foreach (RunWeaponItemData weaponItem in allRunWeaponsItems)
+        // Get a reference to PlayerController
+        FrogCharacterController player = GameManager.instance.player;
+
+        // For each item in saved data...
+        foreach (RunItemSaveInfo itemSaveInfo in runItemsData.runItemsList)
         {
-            int itemLevel = RunManager.instance.GetLevelForItem(weaponItem);
-            int maxItemLevel = weaponItem.GetMaxLevelCount()+1;
-            if ( (weaponItemsCount < maxWeaponCount && itemLevel == 0) || (itemLevel > 0 && itemLevel < maxItemLevel) )
+            // Get the corresponding data
+            RunItemData itemData = runItemDataDictionary[itemSaveInfo.itemName];
+            bool unlocked = itemSaveInfo.unlocked;
+
+            if (itemData is RunStatItemData)
             {
-                allRunItems.Add(weaponItem);
+                // stat item
+                RunStatItemData statItemData = (itemData as RunStatItemData);
+                int itemLevel = RunManager.instance.GetLevelForItem(statItemData);
+                int maxItemLevel = statItemData.GetMaxLevelCount();                
+
+                if ((itemLevel > 0 && itemLevel < maxItemLevel) // item is owned and not maxed out
+                   || (itemLevel == 0 && ownedStatItems.Count < player.statItemSlotsCount && unlocked) // item is not owned, item is unlocked and there's space for it
+                   )
+                {
+                    runItemsPool.Add(statItemData);
+                }
+            }
+            else if (itemData is RunWeaponItemData)
+            {
+                // weapon
+                RunWeaponItemData weaponItemData = (itemData as RunWeaponItemData);
+                int itemLevel = RunManager.instance.GetLevelForItem(weaponItemData);
+                int maxItemLevel = weaponItemData.GetMaxLevelCount() + 1;
+
+                if ( (itemLevel > 0 && itemLevel < maxItemLevel) // weapon is owned and not maxed out
+                   ||(itemLevel == 0 && ownedWeapons.Count < player.weaponSlotsCount && unlocked) // weapon is not owned, weapon is unlocked and there's space for it
+                   )
+                {
+                    runItemsPool.Add(weaponItemData);
+                }
             }
         }
-        foreach (RunStatItemData statItem in allRunStatsItems)
-        {
-            int itemLevel = RunManager.instance.GetLevelForItem(statItem);
-            int maxItemLevel = statItem.GetMaxLevelCount();
-            if ((statItemsCount < maxStatItemCount && itemLevel == 0) || (itemLevel > 0 && itemLevel < maxItemLevel))
-            {
-                allRunItems.Add(statItem);
-            }
-        }
-
-        bool atLeastOneConsumableItemAvailable = allConsumableRunItems.Count > 0;
-        while (allRunItems.Count < minimumItemCount && atLeastOneConsumableItemAvailable)
+        
+        bool atLeastOneConsumableItemAvailable = allConsumableRunItemsScriptableObjects.Count > 0;
+        while (runItemsPool.Count < minimumItemCount && atLeastOneConsumableItemAvailable)
         {
             atLeastOneConsumableItemAvailable = false;
-            foreach (RunConsumableItemData consumableItem in allConsumableRunItems)
+            foreach (RunConsumableItemData consumableItem in allConsumableRunItemsScriptableObjects)
             {
-                if (!allRunItems.Contains(consumableItem))
+                if (!runItemsPool.Contains(consumableItem))
                 {
-                    allRunItems.Add(consumableItem);
+                    runItemsPool.Add(consumableItem);
                     atLeastOneConsumableItemAvailable = true;
                     break;
                 }
             }
         }
-        return allRunItems;
+        return runItemsPool;
     }
 
     public List<RunItemData> PickARandomSelectionOfRunItems(int numberOfItems)
@@ -180,21 +190,44 @@ public class RunItemManager : MonoBehaviour
         return runItemsList;
     }
 
+    public void ResetRunItems()
+    {
+        runItemsData.runItemsList.Clear();
+        runItemDataDictionary = new Dictionary<string, RunItemData>();
+        // Add all weapons
+        foreach (RunWeaponItemData runItemData in allRunWeaponsItemsScriptableObjects)
+        {
+            RunItemSaveInfo newItemSaveInfo = new RunItemSaveInfo()
+            {
+                itemName = runItemData.itemName,
+                unlocked = runItemData.unlockedFromStart
+            };
+            runItemDataDictionary.Add(runItemData.itemName, runItemData);
+            runItemsData.runItemsList.Add(newItemSaveInfo);
+        }
 
+        // Add all stat items
+        foreach (RunStatItemData runItemData in allRunStatsItemsScriptableObjects)
+        {
+            RunItemSaveInfo newItemSaveInfo = new RunItemSaveInfo()
+            {
+                itemName = runItemData.itemName,
+                unlocked = runItemData.unlockedFromStart
+            };
+            runItemDataDictionary.Add(runItemData.itemName, runItemData);
+            runItemsData.runItemsList.Add(newItemSaveInfo);
+        }
+    }
 
-
-
-
-    /*
     /// <summary>
     /// Update the Run Items data using a RunItemSaveData object, that was probably loaded from a file by the SaveDataManager.
     /// </summary>
     /// <param name="saveData"></param>
-    public void SetRunItemsData(RunItemSaveData saveData)
+    public void SetRunItemsData(RunItemsSaveData saveData)
     {
-        foreach (RunItemInfo runItem in runItemsData.runItemsList)
+        foreach (RunItemSaveInfo runItem in runItemsData.runItemsList)
         {
-            RunItemInfo runItemFromSave = saveData.runItemsList.FirstOrDefault(x => x.itemName.Equals(runItem.itemName));
+            RunItemSaveInfo runItemFromSave = saveData.runItemsList.FirstOrDefault(x => x.itemName.Equals(runItem.itemName));
             if (runItemFromSave != null)
             {
                 runItem.unlocked = runItemFromSave.unlocked;
@@ -211,13 +244,12 @@ public class RunItemManager : MonoBehaviour
     public bool UnlockRunItem(string itemName)
     {
         bool itemNewlyUnlocked = false;
-        RunItemInfo unlockedRunItem = runItemsData.runItemsList.FirstOrDefault(x => x.itemName.Equals(itemName));
+        RunItemSaveInfo unlockedRunItem = runItemsData.runItemsList.FirstOrDefault(x => x.itemName.Equals(itemName));
         if (unlockedRunItem != null && !unlockedRunItem.unlocked)
         {
             unlockedRunItem.unlocked = true;
             itemNewlyUnlocked = true;
-            SaveDataManager.instance.isSaveDataDirty = true;
         }
         return itemNewlyUnlocked;
-    }*/
+    }
 }

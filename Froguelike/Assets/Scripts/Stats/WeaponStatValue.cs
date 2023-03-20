@@ -14,7 +14,7 @@ public enum WeaponStat
     SPEED, // Base attack speed
     COOLDOWN, // Base cooldown
     RANGE, // Base range
-    WIDTH, // Base Width
+    SIZE, // Base size
     AREA, // Base damage area
     COUNT, // Number of active weapons
 
@@ -27,7 +27,9 @@ public enum WeaponStat
     FREEZE_DURATION, // duration of frozen status
 
     CURSE_RATIO, // % of curse applied (the curse affects the enemy and boosts its speed and damage)
-    CURSE_DURATION // duration of the curse status
+    CURSE_DURATION, // duration of the curse status
+
+    DURATION // Time during which the tongue is out / the effect is active
 }
 
 /// <summary>

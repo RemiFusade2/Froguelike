@@ -179,6 +179,23 @@ public class ShopManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Restock the given item by a given amount.
+    /// Usually called from the AchievementManager.
+    /// </summary>
+    /// <param name="shopItemData"></param>
+    /// <param name="restockCount"></param>
+    public void RestockItem(ShopItemData shopItemData, int restockCount)
+    {
+        ShopItem item = shopData.shopItems.FirstOrDefault(x => x.itemName.Equals(shopItemData.itemName));
+        if (item != null)
+        {
+            item.maxLevel += restockCount;
+            item.hidden = false;
+        }
+    }
+
+
+    /// <summary>
     /// Update the list of Stat bonuses using the current state of shop items.
     /// </summary>
     public void ComputeStatsBonuses()
@@ -226,7 +243,7 @@ public class ShopManager : MonoBehaviour
             shopData.shopItems.Clear();
             foreach (ShopItemData itemData in availableItemDataList)
             {
-                shopData.shopItems.Add(new ShopItem() { data = itemData, currentLevel = 0, maxLevel = itemData.maxLevelAtStart, itemName = itemData.itemName });
+                shopData.shopItems.Add(new ShopItem() { data = itemData, currentLevel = 0, maxLevel = itemData.maxLevelAtStart, itemName = itemData.itemName, hidden = itemData.hiddenAtStart });
             }
         }
         else
@@ -264,31 +281,33 @@ public class ShopManager : MonoBehaviour
         int buttonCount = 0;
         foreach (ShopItem item in shopData.shopItems)
         {
-            bool itemIsLocked = (item.maxLevel == -1);
-            bool itemIsOutOfStock = (item.maxLevel == 0);
-            bool itemIsAvailable = (item.maxLevel > 0 && item.currentLevel < item.maxLevel);
-            bool itemIsMaxedOut = (item.maxLevel > 0 && item.currentLevel == item.maxLevel);
-            if (itemIsAvailable)
+            if (!item.hidden)
             {
-                bool canBuy = false;
-                if (item.currentLevel < item.data.costForEachLevel.Count)
+                bool itemIsOutOfStock = (item.maxLevel == 0);
+                bool itemIsAvailable = (item.maxLevel > 0 && item.currentLevel < item.maxLevel);
+                bool itemIsMaxedOut = (item.maxLevel > 0 && item.currentLevel == item.maxLevel);
+                if (itemIsAvailable)
                 {
-                    int itemCost = item.data.costForEachLevel[item.currentLevel];
-                    canBuy = GameManager.instance.gameData.availableCurrency >= itemCost;
-                }
+                    bool canBuy = false;
+                    if (item.currentLevel < item.data.costForEachLevel.Count)
+                    {
+                        int itemCost = item.data.costForEachLevel[item.currentLevel];
+                        canBuy = GameManager.instance.gameData.availableCurrency >= itemCost;
+                    }
 
-                GameObject shopItemButtonGo = Instantiate(availableShopItemPanelPrefab, shopPanel);
-                ShopItemButton shopItemButton = shopItemButtonGo.GetComponent<ShopItemButton>();
-                shopItemButton.buyButton.onClick.AddListener(delegate { BuyItem(item); });
-                shopItemButton.Initialize(item, itemIsAvailable && canBuy);
-                buttonCount++;
-            }
-            else if (displaySoldOutItems && (itemIsOutOfStock || itemIsMaxedOut))
-            {
-                GameObject shopItemButtonGo = Instantiate(soldOutShopItemPanelPrefab, shopPanel);
-                ShopItemButton shopItemButton = shopItemButtonGo.GetComponent<ShopItemButton>();
-                shopItemButton.Initialize(item, false);
-                buttonCount++;
+                    GameObject shopItemButtonGo = Instantiate(availableShopItemPanelPrefab, shopPanel);
+                    ShopItemButton shopItemButton = shopItemButtonGo.GetComponent<ShopItemButton>();
+                    shopItemButton.buyButton.onClick.AddListener(delegate { BuyItem(item); });
+                    shopItemButton.Initialize(item, itemIsAvailable && canBuy);
+                    buttonCount++;
+                }
+                else if (displaySoldOutItems && (itemIsOutOfStock || itemIsMaxedOut))
+                {
+                    GameObject shopItemButtonGo = Instantiate(soldOutShopItemPanelPrefab, shopPanel);
+                    ShopItemButton shopItemButton = shopItemButtonGo.GetComponent<ShopItemButton>();
+                    shopItemButton.Initialize(item, false);
+                    buttonCount++;
+                }
             }
         }
 

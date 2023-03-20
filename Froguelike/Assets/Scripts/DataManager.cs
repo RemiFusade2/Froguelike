@@ -93,6 +93,15 @@ public class DataManager : MonoBehaviour
     // Singleton
     public static DataManager instance;
 
+    [Header("Values")]
+    public float defaultMaxHP = 100;
+    public float defaultHealthRecovery = 0;
+    public float defaultWalkSpeed = 6;
+    public float defaultSwimSpeed = 4;
+    public float defaultMagnetRange = 3.0f;
+    public int defaultStatItemSlotCount = 4;
+    public int defaultWeaponSlotCount = 4;
+
     [Header("Weapon effects colors")]
     public List<WeaponEffectData> allWeaponEffectsDataList;
     
@@ -218,14 +227,14 @@ public class DataManager : MonoBehaviour
                 resultSprite = GetSpriteForHat(collectible.collectibleHatType);
                 break;
             case FixedCollectibleType.STATS_ITEM:
-                RunStatItemData statItem = RunItemManager.instance.allRunStatsItems.FirstOrDefault(x => x.itemName.Equals(collectible.collectibleStatItemData.itemName));
+                RunStatItemData statItem = RunItemManager.instance.allRunStatsItemsScriptableObjects.FirstOrDefault(x => x.itemName.Equals(collectible.collectibleStatItemData.itemName));
                 if (statItem != null)
                 {
                     resultSprite = statItem.icon;
                 }
                 break;
             case FixedCollectibleType.WEAPON_ITEM:
-                RunWeaponItemData weaponItem = RunItemManager.instance.allRunWeaponsItems.FirstOrDefault(x => x.itemName.Equals(collectible.collectibleWeaponItemData.itemName));
+                RunWeaponItemData weaponItem = RunItemManager.instance.allRunWeaponsItemsScriptableObjects.FirstOrDefault(x => x.itemName.Equals(collectible.collectibleWeaponItemData.itemName));
                 if (weaponItem != null)
                 {
                     resultSprite = weaponItem.icon;

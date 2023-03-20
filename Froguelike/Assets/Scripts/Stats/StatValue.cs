@@ -31,11 +31,15 @@ public enum CharacterStat
     ATK_SPEED_BOOST, // add a % on all weapons attack speed
     ATK_COOLDOWN_BOOST, // add a % on all weapons cooldown recovery speed
     ATK_RANGE_BOOST, // add a % on all weapons range
-    ATK_AREA_BOOST, // add a % on all weapons area of damage
+    ATK_SIZE_BOOST, // add a % on all weapons size
+    ATK_DURATION_BOOST, // add a % on all weapons duration
     ATK_SPECIAL_STRENGTH_BOOST, // add a % on all weapons special effect strength (speed bonus/malus, vampire, poison damage)
     ATK_SPECIAL_DURATION_BOOST, // add a % on all weapons special effect duration
 
-    MAGNET_RANGE_BOOST // add a % on the range of magnet (ie: radius of magnet collider)
+    MAGNET_RANGE_BOOST, // add a % on the range of magnet (ie: radius of magnet collider)
+
+    ITEM_SLOT, // the number of extra item slots
+    WEAPON_SLOT, // the number of extra weapon slots
 }
 
 /// <summary>
