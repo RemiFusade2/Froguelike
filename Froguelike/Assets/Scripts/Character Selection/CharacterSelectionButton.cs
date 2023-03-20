@@ -14,6 +14,7 @@ public class CharacterSelectionButton : MonoBehaviour
     public TextMeshProUGUI characterNameText;
     public TextMeshProUGUI characterDescriptionText;
     public Image characterIconImage;
+    public Image tongueIconImage;
 
     [Header("UI")]
     public Sprite characterLockedSprite;
@@ -45,6 +46,7 @@ public class CharacterSelectionButton : MonoBehaviour
         {
             characterButton.interactable = character.unlocked;
             characterIconImage.enabled = character.unlocked;
+            tongueIconImage.enabled = character.unlocked;
             if (character.unlocked)
             {
                 // character is unlocked
@@ -54,6 +56,7 @@ public class CharacterSelectionButton : MonoBehaviour
                 characterDescriptionText.color = charactersDefaultTextColor;
                 characterDescriptionText.text = character.characterData.characterDescription.Replace("\\n", "\n");
                 characterIconImage.sprite = character.characterData.characterSprite;
+                tongueIconImage.sprite = character.characterData.startingItems[0].icon;
             }
             else
             {

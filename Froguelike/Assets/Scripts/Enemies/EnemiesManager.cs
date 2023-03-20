@@ -94,7 +94,7 @@ public class EnemyInstance
     public float lastChangeOfDirectionTime;
     public int bounceCount;
 
-    public Dictionary<string,float> weaponLastHitTimeDico;
+    public Dictionary<string, float> weaponLastHitTimeDico;
 
     // Move pattern
     public EnemyMovePattern movePattern;
@@ -140,7 +140,7 @@ public class EnemyInstance
 public class EnemiesManager : MonoBehaviour
 {
     public static EnemiesManager instance;
-    
+
     [Header("References")]
     public Transform enemiesParent;
     public Transform damageTextsParent;
@@ -155,8 +155,8 @@ public class EnemiesManager : MonoBehaviour
     public float minSpawnDistanceFromPlayer = 15;
     public float maxSpawnDistanceFromPlayer = 17;
     [Space]
-    public float spawnCenterMinDistanceToPlayer = 10; 
-    public float spawnCenterMaxDistanceToPlayer = 20; 
+    public float spawnCenterMinDistanceToPlayer = 10;
+    public float spawnCenterMaxDistanceToPlayer = 20;
     public float spawnCircleRadius = 20;
     [Space]
     public int findSpawnPositionMaxAttempts = 10;
@@ -256,7 +256,7 @@ public class EnemiesManager : MonoBehaviour
         {
             GameObject damageText = Instantiate(damageTextPrefab, farAwayPosition, Quaternion.identity, damageTextsParent);
             damageTextsPool.Enqueue(damageText);
-        }        
+        }
 
         InvokeRepeating("UpdateAllEnemies", 0, updateAllEnemiesDelay);
     }
@@ -274,7 +274,7 @@ public class EnemiesManager : MonoBehaviour
     private bool GetSpawnPosition(Vector2 playerPosition, Vector2 playerMoveDirection, out Vector2 spawnPosition)
     {
         spawnPosition = Vector2.zero;
-        
+
         // Will spawn in a circle around a position
         // Compute the center of that circle (player position + move direction * a distance)
         float spawnCenterDistanceToPlayer = (playerMoveDirection.Equals(Vector2.zero)) ? 0 : Random.Range(spawnCenterMinDistanceToPlayer, spawnCenterMaxDistanceToPlayer);
@@ -295,7 +295,7 @@ public class EnemiesManager : MonoBehaviour
                 spawnPositionIsValid = true;
             }
         } while (!spawnPositionIsValid && loopAttemptCount > 0); // Redo until the random point is out of sight
-        
+
         return spawnPositionIsValid;
     }
 
@@ -381,7 +381,7 @@ public class EnemiesManager : MonoBehaviour
 
         if (enemiesDataFromTypeDico.ContainsKey(type) && difficultyTier >= 1 && difficultyTier <= enemiesDataFromTypeDico[type].Count)
         {
-            resultData = enemiesDataFromTypeDico[type][difficultyTier-1];
+            resultData = enemiesDataFromTypeDico[type][difficultyTier - 1];
         }
 
         return resultData;
@@ -402,7 +402,7 @@ public class EnemiesManager : MonoBehaviour
 
                 EnemySpawn enemySpawn = currentWave.enemies[enemyIndex];
                 float lastSpawnTime = lastSpawnTimesList[enemyIndex];
-            
+
                 // Get info about spawn delays
                 double delayBetweenSpawns = enemySpawn.spawnCooldown * curseDelayFactor;
                 delayBetweenSpawns = System.Math.Clamp(delayBetweenSpawns, 0.01, double.MaxValue);
@@ -565,7 +565,7 @@ public class EnemiesManager : MonoBehaviour
         newEnemy.enemyName = enemyData.enemyName;
         lastKey++;
         newEnemy.enemyTransform.gameObject.name = lastKey.ToString();
-        
+
         // setup enemy - state
         newEnemy.HP = enemyData.maxHP * (1 + GameManager.instance.player.curse); // Max HP is affected by the curse
         newEnemy.active = true;
@@ -585,7 +585,7 @@ public class EnemiesManager : MonoBehaviour
 
         // add enemy to dico
         allActiveEnemiesDico.Add(lastKey, newEnemy);
-        
+
         // Set starting velocity (depends on move pattern)
         Vector2 vectorTowardsPlayer = (GameManager.instance.player.transform.position - newEnemy.enemyTransform.position).normalized;
         switch (movePattern.movePatternType)
@@ -627,9 +627,13 @@ public class EnemiesManager : MonoBehaviour
         EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
         enemy.HP -= damage;
 
-        enemy.SetLastHitTime(weapon.gameObject.name);
+        if (weapon != null)
+        {
+            enemy.SetLastHitTime(weapon.gameObject.name);
 
-        enemy.lastWeaponHitTransform = weapon;
+            enemy.lastWeaponHitTransform = weapon;
+
+        }
 
         // Display damage text
         GameObject damageText = null;
@@ -698,7 +702,7 @@ public class EnemiesManager : MonoBehaviour
 
             List<KeyValuePair<int, EnemyInstance>> enemiesToUpdate = allActiveEnemiesDico.ToList();
             enemiesToUpdate = enemiesToUpdate.OrderBy(x => x.Value.lastUpdateTime).Take(50).ToList();
-            
+
             List<int> enemiesToDestroyIDList = new List<int>();
 
             //foreach (KeyValuePair<int, EnemyInstance> enemyInfo in allActiveEnemiesDico)
