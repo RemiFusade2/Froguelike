@@ -291,11 +291,12 @@ public class ShopManager : MonoBehaviour
                 buttonCount++;
             }
         }
-
+        /*
         // Set size of container panel
         float buttonHeight = shopPanel.GetComponent<GridLayoutGroup>().cellSize.y + shopPanel.GetComponent<GridLayoutGroup>().spacing.y;
         float padding = shopPanel.GetComponent<GridLayoutGroup>().padding.top + shopPanel.GetComponent<GridLayoutGroup>().padding.bottom;
         shopPanelContainer.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ((buttonCount + 1) / 2) * buttonHeight + padding);
+    */
     }
 
     /// <summary>

@@ -92,6 +92,7 @@ public class CharacterManager : MonoBehaviour
 
     [Header("UI Prefab")]
     public GameObject characterPanelPrefab;
+    public GameObject statLinePrefab;
 
     [Header("Runtime")]
     public CharactersSaveData charactersData; // Will be loaded and saved when needed
@@ -187,6 +188,22 @@ public class CharacterManager : MonoBehaviour
         shopStatValues.SetText(MakeStringFromStats(statBonusesFromShop, false));
         characterStatValues.SetText(MakeStringFromStats(emptyCharacterStatList, false));
         totalStatValues.SetText(MakeStringFromStats(statBonusesFromShop, true));
+
+        // Make a prefab for total, shop, frog and TODO
+    }
+
+    private void InstantiateStatLines()
+    {
+        // Instantiate a button for each character (unless this character is hidden)
+        int buttonCount = 0;
+        for (int i = 0; i < charactersData.charactersList.Count; i++)
+        {
+            PlayableCharacter characterInfo = charactersData.charactersList[i];
+
+            GameObject newCharacterPanel = Instantiate(characterPanelPrefab, characterListContainerParent);
+            newCharacterPanel.GetComponent<CharacterSelectionButton>().Initialize(characterInfo);
+            buttonCount++;
+        }
     }
 
     #endregion
@@ -214,7 +231,7 @@ public class CharacterManager : MonoBehaviour
         List<StatValue> statBonusesFromShop = ShopManager.instance.statsBonuses;
         List<StatValue> currentCharacterStatList = currentSelectedCharacter.characterStartingStats.statsList;
         List<StatValue> totalStatList = StatsWrapper.JoinLists(currentCharacterStatList, statBonusesFromShop).statsList;
-        
+
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
             string log = "Character selection - Select " + currentSelectedCharacter.characterID + "\n";

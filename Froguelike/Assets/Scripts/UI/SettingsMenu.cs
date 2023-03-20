@@ -4,12 +4,14 @@ using UnityEngine;
 using UnityEngine.Experimental.Rendering.Universal;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.Audio;
 
 public class SettingsMenu : MonoBehaviour
 {
     public Toggle fullscreenToggle;
     public TMP_Dropdown resolutionDropdown;
     public PixelPerfectCamera pixelPerfectCamera;
+    public AudioMixer audioMixer;
 
     private Vector2 biggestResolutionForThisScreen;
     private List<Vector2> allowedResolutions;
@@ -28,7 +30,18 @@ public class SettingsMenu : MonoBehaviour
     CanvasScaler canvasScaler;
 
     public TextMeshProUGUI currentMaxRes;
-    
+
+
+    // Sound.
+    public SoundManager soundManager;
+    public Toggle SFXToggle;
+    public Slider SFXSlider;
+    public Toggle musicToggle;
+    public Slider musicSlider;
+
+    private float previousSFXVolume;
+    private float previousMusicVolume;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -207,6 +220,137 @@ public class SettingsMenu : MonoBehaviour
 
     private void ResizeCanvas()
     {
-        canvasScaler.scaleFactor = pixelPerfectCamera.pixelRatio * 2; // later when UI is redrawn the * 2 is not needed TODO
+        canvasScaler.scaleFactor = pixelPerfectCamera.pixelRatio;
+    }
+
+
+
+
+    // Sound.
+
+    public void OnVolumeValueChange(Slider slider)
+    {
+        /*
+        float percentage = (slider.value / slider.maxValue) * 2; // Does this give the right kind of number? Should it be * 100?, give number between 0 and 2 now
+
+        soundManager.SetVolumeModifier(percentage);
+        */
+
+    }
+
+    // Turns sound on with true, turns sound of with false.
+    public void SFXOn(bool on)
+    {
+        if (on)
+        {
+            SetSFXVolume(previousSFXVolume);
+            SFXSlider.SetValueWithoutNotify(previousSFXVolume);
+        }
+        else if (!on)
+        {
+            if (SFXSlider.value == SFXSlider.minValue)
+            {
+                previousSFXVolume = 0;
+            }
+            else
+            {
+                previousSFXVolume = SFXSlider.value;
+                SFXSlider.SetValueWithoutNotify(SFXSlider.minValue);
+            }
+
+            Mute("volumeSFX");
+        }
+    }
+
+    public void MusicOn(bool on)
+    {
+        if (on)
+        {
+            SetMusicVolume(previousMusicVolume);
+            musicSlider.SetValueWithoutNotify(previousMusicVolume);
+        }
+        else if (!on)
+        {
+            if (musicSlider.value == musicSlider.minValue)
+            {
+                previousMusicVolume = 0;
+            }
+            else
+            {
+                previousMusicVolume = musicSlider.value;
+                musicSlider.SetValueWithoutNotify(musicSlider.minValue);
+            }
+
+            Mute("volumeMusic");
+        }
+    }
+
+
+
+    private void Mute(string audioGroupVolumeParameter)
+    {
+        audioMixer.SetFloat(audioGroupVolumeParameter, -80f);
+    }
+
+    public void SetSFXVolume(float volume)
+    {
+        float newVolume = volume;
+
+        if (newVolume < 0)
+        {
+            newVolume *= 3;
+        }
+
+        if (newVolume == -30)
+        {
+            if (SFXToggle.isOn)
+            {
+                SFXToggle.SetIsOnWithoutNotify(false);
+                SFXOn(false);
+            }
+        }
+        else if (newVolume > -30)
+        {
+            if (!SFXToggle.isOn)
+            {
+                SFXToggle.SetIsOnWithoutNotify(true);
+            }
+
+            audioMixer.SetFloat("volumeSFX", newVolume);
+        }
+    }
+
+    public void SetMusicVolume(float volume)
+    {
+        float newVolume = volume;
+
+        if (newVolume < 0)
+        {
+            newVolume *= 3;
+        }
+
+        if (newVolume == -30)
+        {
+            if (musicToggle.isOn)
+            {
+                musicToggle.SetIsOnWithoutNotify(false);
+                MusicOn(false);
+            }
+        }
+        else if (newVolume > -30)
+        {
+            if (!musicToggle.isOn)
+            {
+                musicToggle.SetIsOnWithoutNotify(true);
+            }
+
+            audioMixer.SetFloat("volumeMusic", newVolume);
+        }
+    }
+
+    private float ModifyVolume(float volume)
+    {
+        float newVolume = volume * 1;
+        return newVolume;
     }
 }

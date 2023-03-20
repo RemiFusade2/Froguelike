@@ -17,9 +17,13 @@ public class ScoreManager : MonoBehaviour
     public List<string> possibleMorals;
 
     [Header("UI")]
+    public List<GameObject> scoreLines;
     public List<TextMeshProUGUI> chaptersTextList;
     public List<TextMeshProUGUI> chaptersScoreTextList;
+    public List<TextMeshProUGUI> chaptersTimeTextList;
     public TextMeshProUGUI totalScoreText;
+    public TextMeshProUGUI totalTimeText;
+    public TextMeshProUGUI currencyCollectedText;
     public TextMeshProUGUI moralText;
     [Space]
     public TextMeshProUGUI upgradesText;
@@ -27,7 +31,7 @@ public class ScoreManager : MonoBehaviour
     public GameObject unlockPanel;
     public TextMeshProUGUI unlockedCharacterName;
     public Image unlockedCharacterImage;
-    
+
     [Header("Settings")]
     public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
 
@@ -56,27 +60,50 @@ public class ScoreManager : MonoBehaviour
     /// <param name="chaptersPlayed"></param>
     /// <param name="playedCharacter"></param>
     /// <param name="ownedItems"></param>
-    public void ShowScores(List<Chapter> chaptersPlayed, int[] chapterKillCounts, PlayableCharacter playedCharacter, List<RunItemInfo> ownedItems, List<string> unlockedCharacters)
+    public void ShowScores(List<Chapter> chaptersPlayed, int[] chapterKillCounts, PlayableCharacter playedCharacter, List<RunItemInfo> ownedItems, List<string> unlockedCharacters, int playedTimeLatestChapter, int currencyCollected)
     {
         string scoreLog = "";
 
         // Hide all chapters texts
-        foreach (TextMeshProUGUI chapterTextParent in chaptersTextList)
+        foreach (GameObject scoreLine in scoreLines)
         {
-            chapterTextParent.gameObject.SetActive(false);
+            scoreLine.SetActive(false);
         }
         // Display every played chapter and its kill count
         int totalScore = 0;
+        int totalTime = 0;
         for (int i = 0; i < chaptersPlayed.Count; i++)
         {
             if (i < chaptersTextList.Count && i < chaptersScoreTextList.Count)
             {
                 Chapter chapter = chaptersPlayed[i];
                 int enemiesKilledCount = chapterKillCounts[i];
-                chaptersTextList[i].gameObject.SetActive(true);
-                chaptersTextList[i].text = "Chapter " + (i+1) + "\n\t" + chapter.chapterData.chapterTitle;
+                int chapterTime = Mathf.FloorToInt(chapter.chapterData.chapterLengthInSeconds);
+                scoreLines[i].SetActive(true);
+
+                // Chapter number and name.
+                chaptersTextList[i].text = "Chapter " + (i + 1) + "\n\t" + chapter.chapterData.chapterTitle;
+
+                // Flies eaten.
                 chaptersScoreTextList[i].text = enemiesKilledCount.ToString();
                 totalScore += enemiesKilledCount;
+
+                // Chapter time.
+                if (i == chaptersPlayed.Count - 1 && playedTimeLatestChapter != chapterTime)
+                {
+                    // For the last chapter if the run was not won.
+                    int chapterMinutes = playedTimeLatestChapter / 60;
+                    int chapterSeconds = playedTimeLatestChapter % 60;
+                    chaptersTimeTextList[i].text = chapterMinutes.ToString("00") + ":" + chapterSeconds.ToString("00");
+                    totalTime += playedTimeLatestChapter;
+                }
+                else
+                {
+                    int chapterMinutes = chapterTime / 60;
+                    int chapterSeconds = chapterTime % 60;
+                    chaptersTimeTextList[i].text = chapterMinutes.ToString("00") + ":" + chapterSeconds.ToString("00");
+                    totalTime += chapterTime;
+                }
 
                 scoreLog += $"Chapter {i} - {chapter.chapterID} - Kills: {enemiesKilledCount}\n";
             }
@@ -84,6 +111,14 @@ public class ScoreManager : MonoBehaviour
         // Display total kill count
         scoreLog += $"-> Total score: {totalScore}\n";
         totalScoreText.text = totalScore.ToString();
+
+        // Display total time.
+        int totalMinutes = totalTime / 60;
+        int totalSeconds = totalTime % 60;
+        totalTimeText.text = totalMinutes.ToString("00") + ":" + totalSeconds.ToString("00");
+
+        // Display collected currency.
+        currencyCollectedText.text = Tools.FormatCurrency(currencyCollected, DataManager.instance.currencySymbol);
 
         // Pick a random moral to display
         string moral = GetRandomMoral();
