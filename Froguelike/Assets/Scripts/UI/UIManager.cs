@@ -45,7 +45,7 @@ public class UIManager : MonoBehaviour
 
     [Header("In game UI")]
     public GameObject inGameUIPanel;
-   
+
     [Header("Level UP Panel")]
     public GameObject levelUpPanel;
     public Animator levelUpPanelAnimator;
@@ -212,7 +212,7 @@ public class UIManager : MonoBehaviour
         gameOverRespawnButton.SetActive(respawnAvailable);
         gameOverGiveUpButton.SetActive(!respawnAvailable);
         SoundManager.instance.PlayDeathSound();
-        
+
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
             Debug.Log("UI - Display Game over screen");
@@ -221,7 +221,7 @@ public class UIManager : MonoBehaviour
 
     public void ShowPauseScreen()
     {
-        MusicManager.instance.PauseMusic();
+        // MusicManager.instance.PauseMusic();
         pausePanel.SetActive(true);
         pausePanelAnimator.SetBool("Visible", true);
 
@@ -233,7 +233,7 @@ public class UIManager : MonoBehaviour
 
     public void HidePauseScreen()
     {
-        MusicManager.instance.UnpauseMusic();
+        // MusicManager.instance.UnpauseMusic();
         if (pausePanel.activeInHierarchy)
         {
             pausePanelAnimator.SetBool("Visible", false);

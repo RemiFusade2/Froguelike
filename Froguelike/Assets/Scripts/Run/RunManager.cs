@@ -76,7 +76,7 @@ public class RunManager : MonoBehaviour
     public FrogCharacterController player;
     public Transform fliesParent;
     public ParticleSystem levelUpParticleSystem;
-    
+
     [Header("References - UI")]
     public Slider xpSlider;
     public TextMeshProUGUI levelText;
@@ -96,6 +96,7 @@ public class RunManager : MonoBehaviour
     public List<TextMeshProUGUI> levelUpChoicesTitles;
     public List<TextMeshProUGUI> levelUpChoicesLevels;
     public List<TextMeshProUGUI> levelUpChoicesDescriptions;
+    public List<Image> levelUpChoicesIcons;
     [Space]
     public Color defaultUIColor;
     public Color newItemColor;
@@ -134,11 +135,11 @@ public class RunManager : MonoBehaviour
 
     [Header("Runtime - Run Items")]
     public List<RunItemInfo> ownedItems;
-    
+
     [Header("Runtime - Leveling Up")]
     public List<RunItemData> selectionOfPossibleRunItemsList;
     public bool levelUpChoiceIsVisible;
-    
+
     private float nextLevelXp;
 
     private float runPlayTime;
@@ -271,7 +272,7 @@ public class RunManager : MonoBehaviour
 
         levelUpChoiceIsVisible = false;
         //Pause(false);
-        
+
         // Remove all friends and hats
         player.ClearFriends();
         player.ClearHats();
@@ -286,7 +287,7 @@ public class RunManager : MonoBehaviour
 
         // Reset WeaponBehaviour static values
         WeaponBehaviour.ResetStaticValues();
-        
+
         // Reset Items
         ClearAllItems();
 
@@ -306,7 +307,7 @@ public class RunManager : MonoBehaviour
 
         runPlayTime = 0;
         runTotalTime = 0;
-}
+    }
 
     private void ClearAllItems()
     {
@@ -348,7 +349,7 @@ public class RunManager : MonoBehaviour
             nextLevelXp *= nextLevelFactor;
         }
     }
-    
+
     private void SetTimer(float remainingTime)
     {
         System.TimeSpan time = new System.TimeSpan(0, 0, Mathf.RoundToInt(remainingTime));
@@ -371,7 +372,7 @@ public class RunManager : MonoBehaviour
         playedChaptersKillCounts[chapterCount - 1] += kills;
         SetEatenCount(playedChaptersKillCounts[chapterCount - 1]);
     }
-    
+
     public void Respawn()
     {
         GameManager.instance.SetTimeScale(1);
@@ -412,7 +413,7 @@ public class RunManager : MonoBehaviour
             GameManager.instance.RegisterWin();
             CharacterManager.instance.WonTheGameWithCharacter(currentPlayedCharacter);
         }
-        
+
         // Compute actual score
         int currentScore = 0;
         foreach (int killCount in playedChaptersKillCounts)
@@ -423,6 +424,7 @@ public class RunManager : MonoBehaviour
 
         // Collect currency for good
         GameManager.instance.ChangeAvailableCurrency(currentCollectedCurrency);
+        int currencyCollectedInThisRun = Mathf.RoundToInt(currentCollectedCurrency);
         currentCollectedCurrency = 0;
 
         // Maybe unlock some characters if conditions are met
@@ -430,7 +432,7 @@ public class RunManager : MonoBehaviour
 
         // Add the current chapter to the list (even if current chapter was not completed)
         List<Chapter> chaptersPlayed = new List<Chapter>(completedChaptersList);
-        if (currentChapter != null && (chaptersPlayed.Count == 0 || (chaptersPlayed.Count > 0 && !chaptersPlayed[chaptersPlayed.Count-1].Equals(currentChapter))))
+        if (currentChapter != null && (chaptersPlayed.Count == 0 || (chaptersPlayed.Count > 0 && !chaptersPlayed[chaptersPlayed.Count - 1].Equals(currentChapter))))
         {
             chaptersPlayed.Add(currentChapter);
         }
@@ -444,8 +446,11 @@ public class RunManager : MonoBehaviour
             Debug.Log("Run - Show scores. " + chapterRemainingTime.ToString("0.00") + " seconds left on the timer");
         }
 
+        int playedTimeThisChapter = Mathf.RoundToInt(currentChapter.chapterData.chapterLengthInSeconds - chapterRemainingTime);
+
+
         // Display the score screen
-        ScoreManager.instance.ShowScores(chaptersPlayed, playedChaptersKillCounts, currentPlayedCharacter, ownedItems, unlockedAchievements);
+        ScoreManager.instance.ShowScores(chaptersPlayed, playedChaptersKillCounts, currentPlayedCharacter, ownedItems, unlockedAchievements, playedTimeThisChapter, currencyCollectedInThisRun);
     }
 
     public void EndChapter()
@@ -481,7 +486,7 @@ public class RunManager : MonoBehaviour
         EnemiesManager.instance.ClearAllEnemies();
 
         currentChapter = chapter;
-        
+
         StartCoroutine(StartChapterAsync());
     }
 
@@ -502,7 +507,7 @@ public class RunManager : MonoBehaviour
 
         // Teleport player to starting position
         player.ResetPosition();
-        
+
         // Update map
         MapBehaviour.instance.ClearMap();
         UpdateMap();
@@ -527,7 +532,7 @@ public class RunManager : MonoBehaviour
 
         // If character is ghost in that chapter, force it to ghost sprite
         player.ForceGhost(currentChapter.chapterData.characterStyleChange == CharacterStyle.GHOST);
-        
+
         yield return new WaitForSecondsRealtime(2.9f);
 
         GameManager.instance.SetTimeScale(1);
@@ -580,7 +585,7 @@ public class RunManager : MonoBehaviour
 
         // Instantiate weapon from prefab
         GameObject weaponGo = Instantiate(weaponPrefab, player.weaponStartPoint.position, Quaternion.identity, player.weaponsParent);
-        weaponGo.name = $"{weaponData.weaponName}_{weaponItem.activeWeaponsList.Count+1}";
+        weaponGo.name = $"{weaponData.weaponName}_{weaponItem.activeWeaponsList.Count + 1}";
 
         if (weaponItem.activeWeaponsList.Count > 0)
         {
@@ -595,7 +600,7 @@ public class RunManager : MonoBehaviour
         // Add the new weapon to the list of active weapons for this RunItem
         weaponItem.activeWeaponsList.Add(weaponGo);
     }
-    
+
     public void PickRunItem(RunItemData pickedItemData)
     {
         string log = "Run - Pick a Run item: " + pickedItemData.itemName;
@@ -627,7 +632,7 @@ public class RunManager : MonoBehaviour
                         // We already own such an item
                         itemIsNew = false;
                         pickedItemInfo = ownedItem;
-                        log += " (already owned, level " + ownedItem.level +")";
+                        log += " (already owned, level " + ownedItem.level + ")";
                         ownedItem.level++;
                         level = ownedItem.level - 1;
                         break;
@@ -700,9 +705,9 @@ public class RunManager : MonoBehaviour
                     newWeaponInfo.killCount = 0;
                     newWeaponInfo.level = 1;
                     newWeaponInfo.weaponItemData = pickedItemData as RunWeaponItemData;
-                    
+
                     pickedItemInfo = newWeaponInfo;
-                    
+
                     ownedItems.Add(pickedItemInfo);
 
                     // Also spawn as many weapons as required
@@ -821,7 +826,7 @@ public class RunManager : MonoBehaviour
         {
             int itemLevel = GetLevelForItem(item);
             itemLevels.Add(itemLevel);
-            log += "\n-> " + item.itemName + " - next LVL: " + (itemLevel+1).ToString();
+            log += "\n-> " + item.itemName + " - next LVL: " + (itemLevel + 1).ToString();
         }
 
         // Show item selection
@@ -941,13 +946,15 @@ public class RunManager : MonoBehaviour
                     description = (item as RunStatItemData).statBoostLevels[level].description;
                 }
 
-                levelUpChoicesDescriptions[index].text = description.Replace("\\n","\n");
+                levelUpChoicesDescriptions[index].text = description.Replace("\\n", "\n");
             }
+
+            levelUpChoicesIcons[index].sprite = item.icon;
 
             index++;
         }
     }
-    
+
     public void CollectCollectible(string collectibleName)
     {
         if (collectibleName.Contains("Currency"))
