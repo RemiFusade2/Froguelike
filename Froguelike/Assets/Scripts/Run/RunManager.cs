@@ -455,6 +455,8 @@ public class RunManager : MonoBehaviour
 
     public void EndChapter()
     {
+        GameManager.instance.isGameRunning = false;
+
         // Add current played chapter to the list
         completedChaptersList.Add(currentChapter);
 
@@ -562,6 +564,8 @@ public class RunManager : MonoBehaviour
 
     public void EndRun()
     {
+        GameManager.instance.isGameRunning = false;
+
         // Show score screen
         ComputeScore();
     }

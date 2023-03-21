@@ -127,6 +127,7 @@ public class FrogCharacterController : MonoBehaviour
         {
             if (GameManager.instance.isGameRunning)
             {
+                RunManager.instance.IncreaseXP(10000);
                 RunManager.instance.chapterRemainingTime = 1;
             }
             else

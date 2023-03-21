@@ -19,13 +19,13 @@ public class ScoreAchievementPanelBehaviour : MonoBehaviour
         switch (achievement.achievementData.reward.rewardType)
         {
             case AchievementRewardType.CHARACTER:
-                rewardDescription.Replace("characterName", achievement.achievementData.reward.character.characterName);
+                rewardDescription = rewardDescription.Replace("characterName", achievement.achievementData.reward.character.characterName);
                 break;
             case AchievementRewardType.RUN_ITEM:
-                rewardDescription.Replace("itemName", achievement.achievementData.reward.runItem.itemName);
+                rewardDescription = rewardDescription.Replace("itemName", achievement.achievementData.reward.runItem.itemName);
                 break;
             case AchievementRewardType.SHOP_ITEM:
-                rewardDescription.Replace("itemName", achievement.achievementData.reward.shopItem.itemName);
+                rewardDescription = rewardDescription.Replace("itemName", achievement.achievementData.reward.shopItem.itemName);
                 break;
             default:
                 break;

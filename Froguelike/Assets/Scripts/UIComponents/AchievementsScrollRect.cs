@@ -9,6 +9,7 @@ public class AchievementsScrollRect : ScrollRect
 {
     [Header("Achievements References")]
     public TextMeshProUGUI achievementCountTextMesh;
+    public GridLayoutGroup achievementScrollViewContentGridLayoutGroup;
 
     [Header("Achievements Prefabs")]
     public GameObject achievementScorePrefab;
@@ -77,8 +78,8 @@ public class AchievementsScrollRect : ScrollRect
             numberOfAchievements++;
         }        
         currentDisplayedAchievement = 1;
-                
-        this.content.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, numberOfAchievements * achievementScorePrefab.GetComponent<RectTransform>().sizeDelta.x);
+        
+        this.content.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, numberOfAchievements * achievementScrollViewContentGridLayoutGroup.cellSize.x);
         UpdateScroll(false);
     }
 
@@ -95,31 +96,29 @@ public class AchievementsScrollRect : ScrollRect
         }
     }
 
-    public void MoveToPreviousAchievement()
+    private void ClampCurrentDisplayedAchievement()
     {
-        currentDisplayedAchievement = (currentDisplayedAchievement - 1);
         if (loopThrough)
         {
-            currentDisplayedAchievement = (currentDisplayedAchievement <= 0) ? numberOfAchievements : currentDisplayedAchievement;
+            currentDisplayedAchievement = (((currentDisplayedAchievement - 1) + numberOfAchievements) % numberOfAchievements) + 1;
         }
         else
         {
-            currentDisplayedAchievement = (currentDisplayedAchievement <= 0) ? 1 : currentDisplayedAchievement;
+            currentDisplayedAchievement = Mathf.Clamp(currentDisplayedAchievement, 1, numberOfAchievements);
         }
+    }
+
+    public void MoveToPreviousAchievement()
+    {
+        currentDisplayedAchievement = (currentDisplayedAchievement - 1);
+        ClampCurrentDisplayedAchievement();
         UpdateScroll(true);
     }
 
     public void MoveToNextAchievement()
     {
         currentDisplayedAchievement = (currentDisplayedAchievement + 1);
-        if (loopThrough)
-        {
-            currentDisplayedAchievement = (currentDisplayedAchievement > numberOfAchievements) ? 1 : currentDisplayedAchievement;
-        }
-        else
-        {
-            currentDisplayedAchievement = (currentDisplayedAchievement > numberOfAchievements) ? numberOfAchievements : currentDisplayedAchievement;
-        }
+        ClampCurrentDisplayedAchievement();
         UpdateScroll(true);
     }
 }
