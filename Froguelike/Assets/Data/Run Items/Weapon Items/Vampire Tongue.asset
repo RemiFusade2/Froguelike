@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: Vampire Tongue
   icon: {fileID: 21300000, guid: d5108081c023b2f468125e54c3b2d175, type: 3}
-  unlockedFromStart: 0
+  unlockedFromStart: 1
   weaponData:
     weaponName: Vampire Tongue
     description: Steals the lifeforce of anything it licks
@@ -26,74 +26,78 @@ MonoBehaviour:
         value: 1
       - stat: 2
         value: 0.5
+      - stat: 11
+        value: 1
       - stat: 1
         value: 3
       - stat: 3
         value: 3
       - stat: 4
         value: 0.1
+      - stat: 12
+        value: 3
       - stat: 6
         value: 1
       - stat: 7
         value: 0.05
   weaponBoostLevels:
-  - description: Damage +1\nSpeed +10%
+  - description: 
     weaponStatUpgrades:
       statsList:
       - stat: 0
         value: 1
       - stat: 1
         value: 0.1
-  - description: Vampire effect +50%\nRange +10%
+  - description: 
     weaponStatUpgrades:
       statsList:
       - stat: 3
         value: 0.1
       - stat: 7
         value: 0.5
-  - description: Cooldown -25%\nSpeed +10%
+  - description: 
     weaponStatUpgrades:
       statsList:
       - stat: 2
         value: -0.25
       - stat: 1
         value: 0.1
-  - description: Damage +1\nRange +10%
+  - description: 
     weaponStatUpgrades:
       statsList:
       - stat: 0
         value: 1
       - stat: 3
         value: 0.1
-  - description: Vampire effect +50%\nCooldown -25%
+  - description: 
     weaponStatUpgrades:
       statsList:
-      - stat: 7
-        value: 0.5
       - stat: 2
         value: -0.25
-  - description: Damage +1\nCooldown -25%
+      - stat: 7
+        value: 0.5
+  - description: 
     weaponStatUpgrades:
       statsList:
       - stat: 0
         value: 1
       - stat: 2
         value: -0.25
-  - description: Speed +10%\nRange +10%
+  - description: 
     weaponStatUpgrades:
       statsList:
       - stat: 1
         value: 0.1
       - stat: 3
         value: 0.1
-  - description: Vampire effect +50%\nCooldown -25%
+  - description: 
     weaponStatUpgrades:
       statsList:
-      - stat: 7
-        value: 0.5
       - stat: 2
         value: -0.25
-  - description: Damage +1\nSpeed +10%
+      - stat: 7
+        value: 0.5
+  - description: 
     weaponStatUpgrades:
       statsList:
       - stat: 0

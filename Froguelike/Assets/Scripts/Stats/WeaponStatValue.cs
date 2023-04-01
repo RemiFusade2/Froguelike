@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,16 +20,14 @@ public enum WeaponStat
 
     VAMPIRE_RATIO, // % of damage that is absorbed as health
 
-    POISON_DAMAGE, // damage done as poison status is active
-    POISON_DURATION, // duration of poison status
+    POISON_DAMAGE, // Damage done as poison status is active
 
-    FREEZE_RATIO, // % of speed removed when frozen
-    FREEZE_DURATION, // duration of frozen status
+    CURSE_EFFECT, // % of curse applied (the curse affects the enemy and boosts its speed and damage)
+    FREEZE_EFFECT, // Freeze effect (either 0 or 1)
 
-    CURSE_RATIO, // % of curse applied (the curse affects the enemy and boosts its speed and damage)
-    CURSE_DURATION, // duration of the curse status
+    DURATION, // Time during which the tongue is out / the effect is active
 
-    DURATION // Time during which the tongue is out / the effect is active
+    KNOCKBACK // Knockback force
 }
 
 /// <summary>
@@ -201,5 +199,30 @@ public class WeaponStatsWrapper
         }
 
         return result;
+    }
+
+    public static string GetDescription(List<WeaponStatValue> weaponStatsList)
+    {
+        string result = "";
+        foreach (WeaponStatValue statValue in weaponStatsList)
+        {
+            if (DataManager.instance.TryGetStatData(statValue.stat, out string shortName, out string longName, out string unit, out bool usePercent))
+            {
+                string statNameStr = longName;
+                string plusSign = (statValue.value < 0) ? "" : "+";
+                string statValueStr = statValue.value.ToString("0");
+                if (usePercent)
+                {
+                    statValueStr = statValue.value.ToString("P0").Replace(" ٪", "%");
+                }
+                result += $"{statNameStr} {plusSign}{statValueStr}\n";
+            }
+        }
+        return result;
+    }
+
+    public string GetDescription()
+    {
+        return GetDescription(statsList);
     }
 }

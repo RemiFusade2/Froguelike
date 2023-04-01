@@ -4,17 +4,6 @@ using UnityEngine;
 using Rewired;
 using System.Linq;
 
-[System.Serializable]
-public class FriendInfo
-{
-    public GameObject friendGameObject;
-    public Transform weaponPositionTransform;
-    public WeaponBehaviour weapon;
-    public Animator animator;
-    public FriendType friendType;
-    public int style; // for animator
-    public Vector2 startPosition;
-}
 
 public class FrogCharacterController : MonoBehaviour
 {
@@ -26,11 +15,15 @@ public class FrogCharacterController : MonoBehaviour
     public Transform weaponStartPoint;
     public Transform healthBar;
     [Space]
-    public List<SpriteRenderer> hatRenderersList;
-    public List<Sprite> hatSpritesList;
-    [Space]
     public CircleCollider2D magnetTrigger;
-    
+    [Space]
+    public Animator animator;
+
+    [Header("Hats")]
+    public Transform hatsParent;
+    public GameObject hatPrefab;
+    public int hatSortingOrder = 10;
+
     [Header("Character data")]
     public float walkSpeedBoost;
     public float swimSpeedBoost;
@@ -73,20 +66,14 @@ public class FrogCharacterController : MonoBehaviour
     public string cheatPlusInputName = "cheatplus";
     [Space]
     public float inputAxisDeadZone = 0.3f;
-
-    [Header("Animator")]
-    public Animator animator;
-
-    [Header("Friend Frog")]
-    public List<FriendInfo> allFriends;
-
+    
+    [Header("Friend Frogs")]
+    public Transform friendsParent;
 
 
     private Player rewiredPlayer;
     public float HorizontalInput { get; private set; }
     public float VerticalInput { get; private set; }
-
-    private List<FriendType> activeFriendsList;
 
     private int animatorCharacterValue;
 
@@ -98,18 +85,10 @@ public class FrogCharacterController : MonoBehaviour
 
     private float invincibilityTime;
 
-    private List<HatType> currentHatsList;
-
     private float timeSinceLastHPRecovery;
 
     #region Unity Callback Methods
-
-    private void Awake()
-    {
-        activeFriendsList = new List<FriendType>();
-        currentHatsList = new List<HatType>();
-    }
-
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -127,8 +106,7 @@ public class FrogCharacterController : MonoBehaviour
         {
             if (GameManager.instance.isGameRunning)
             {
-                RunManager.instance.IncreaseXP(10000);
-                RunManager.instance.chapterRemainingTime = 1;
+                RunManager.instance.IncreaseXP(RunManager.instance.nextLevelXp);
             }
             else
             {
@@ -151,15 +129,11 @@ public class FrogCharacterController : MonoBehaviour
             }
 
             // Make friends attack!
-            foreach (FriendInfo friend in allFriends)
+            foreach (Transform friend in friendsParent)
             {
-                if (activeFriendsList.Contains(friend.friendType))
-                {
-                    // this friend is active!
-                    friend.weapon.TryAttack();
-                    float friendSpeed = Mathf.Clamp(friend.friendGameObject.GetComponent<Rigidbody2D>().velocity.magnitude, 0, 3);
-                    friend.animator.SetFloat("Speed", friendSpeed);
-                }
+                FriendBehaviour friendScript = friend.GetComponent<FriendBehaviour>();
+                friendScript.TryAttack();
+                friendScript.ClampSpeed();
             }
 
             if (!GameManager.instance.gameIsPaused && !ChapterManager.instance.chapterChoiceIsVisible && !RunManager.instance.levelUpChoiceIsVisible && (Time.time - timeSinceLastHPRecovery) > hpRecoveryDelay)
@@ -200,29 +174,44 @@ public class FrogCharacterController : MonoBehaviour
         }
 
         // Make friends move
-        foreach (FriendInfo friend in allFriends)
+        foreach (Transform friend in friendsParent)
         {
-            if (activeFriendsList.Contains(friend.friendType))
-            {
-                // this friend is active!
-                friend.weapon.TryAttack();
-                float friendOrientationAngle = 90 + 90 * Mathf.RoundToInt((Vector2.SignedAngle(friend.friendGameObject.GetComponent<Rigidbody2D>().velocity.normalized, Vector2.right)) / 90);
-                friend.friendGameObject.transform.localRotation = Quaternion.Euler(0, 0, -friendOrientationAngle);
-                friend.weapon.SetTonguePosition(friend.weaponPositionTransform);
-            }
+            FriendBehaviour friendScript = friend.GetComponent<FriendBehaviour>();
+            friendScript.TryAttack();
+            friendScript.UpdateOrientation();
         }
     }
 
     #endregion
 
+    public Rigidbody2D GetRigidbody()
+    {
+        return playerRigidbody;
+    }
+
+    public Vector2 GetVelocity()
+    {
+        return new Vector2(HorizontalInput, VerticalInput);
+        // return playerRigidbody.velocity;
+    }
+
     public void ResetPosition()
     {
         isOnLand = true;
-        //playerRigidbody.MovePosition(Vector2.zero);
         transform.localPosition = Vector3.zero;
-        foreach (FriendInfo friend in allFriends)
+        int numberOfActiveFriends = friendsParent.childCount;
+        float deltaAngle = 0;
+        float distance = 2.5f;
+        if (numberOfActiveFriends > 0)
         {
-            friend.friendGameObject.transform.localPosition = friend.startPosition;
+            deltaAngle = (Mathf.PI * 2) / numberOfActiveFriends;
+        }
+        float angle = 0;
+        foreach (Transform friend in friendsParent)
+        {
+            FriendBehaviour friendScript = friend.GetComponent<FriendBehaviour>();
+            friendScript.SetPosition(distance * (Mathf.Cos(angle) * Vector2.right + Mathf.Sin(angle) * Vector2.up));
+            angle += deltaAngle;
         }
     }
 
@@ -415,7 +404,7 @@ public class FrogCharacterController : MonoBehaviour
             weaponSlotsCount += Mathf.RoundToInt(weaponSlotsCountIncrease);
         }
 
-        RunManager.instance.SetExtraLives(revivals);
+        RunManager.instance.SetExtraLives(revivals, false);
 
         currentHealth = maxHealth;
         UpdateHealthBar();
@@ -446,7 +435,7 @@ public class FrogCharacterController : MonoBehaviour
         maxHealth += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.MAX_HEALTH).value;
 
         revivals += (int)itemLevelData.statUpgrades.GetStatValue(CharacterStat.REVIVAL).value;
-        RunManager.instance.SetExtraLives(revivals);
+        RunManager.instance.SetExtraLives(revivals, true);
 
         magnetRangeBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.MAGNET_RANGE_BOOST).value;
         UpdateMagnetRange();
@@ -496,95 +485,81 @@ public class FrogCharacterController : MonoBehaviour
 
     public void ClearFriends()
     {
-        foreach (FriendInfo friend in allFriends)
+        foreach (Transform friend in friendsParent)
         {
-            friend.friendGameObject.SetActive(false);
-            friend.weapon.gameObject.SetActive(false);
+            Destroy(friend.gameObject);
         }
-        if (activeFriendsList == null)
-        {
-            activeFriendsList = new List<FriendType>();
-        }
-        activeFriendsList.Clear();
     }
 
     public bool HasActiveFriend(FriendType friendType)
     {
-        return activeFriendsList.Contains(friendType);
+        bool friendIsActive = false;
+        foreach (Transform friend in friendsParent)
+        {
+            FriendBehaviour friendScript = friend.GetComponent<FriendBehaviour>();
+            friendIsActive |= (friendScript.GetFriendType() == friendType);
+            if (friendIsActive) break;
+        }
+        return friendIsActive;
     }
 
     public void AddActiveFriend(FriendType friendType, Vector2 friendPosition)
     {
-        if (!HasActiveFriend(friendType))
+        FriendInfo friendInfo = DataManager.instance.GetInfoForFriend(friendType);
+
+        GameObject newFriend = Instantiate(friendInfo.prefab, friendsParent);
+        FriendBehaviour newFriendScript = newFriend.GetComponent<FriendBehaviour>();
+        newFriendScript.Initialize(friendInfo, friendPosition);
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
-            activeFriendsList.Add(friendType);
-            foreach (FriendInfo friend in allFriends)
-            {
-                if (friend.friendType.Equals(friendType))
-                {
-                    friend.friendGameObject.SetActive(true);
-                    friend.friendGameObject.transform.position = friendPosition;
-                    friend.weapon.gameObject.SetActive(true);
-                    friend.weapon.ResetWeapon();
-                    friend.animator.SetInteger("Style", friend.style);
-                    if (logsVerboseLevel == VerboseLevel.MAXIMAL)
-                    {
-                        Debug.Log("Player - Add Friend: " + friend.friendType.ToString());
-                    }
-                }
-            }
+            Debug.Log($"Player - Add Friend: {friendType.ToString()} at position {friendPosition.ToString()}");
         }
     }
 
     public void ClearHats()
     {
-        currentHatsList.Clear();
-        foreach (SpriteRenderer hatRenderer in hatRenderersList)
+        foreach (Transform child in hatsParent)
         {
-            hatRenderer.gameObject.SetActive(false);
+            Destroy(child.gameObject);
         }
     }
 
     public void AddHat(HatType hatType)
     {
-        currentHatsList.Add(hatType);
-        foreach (SpriteRenderer hatRenderer in hatRenderersList)
+        int hatCount = hatsParent.childCount;
+        Transform previousHatTransform = (hatCount <= 0) ? null : hatsParent.GetChild(hatCount - 1);
+        GameObject newHatGo = Instantiate(hatPrefab, hatsParent);
+        HatInfo hatInfo = DataManager.instance.GetInfoForHat(hatType);
+        int sortingOrder = hatSortingOrder;
+        if (previousHatTransform != null)
         {
-            if (!hatRenderer.gameObject.activeInHierarchy)
-            {
-                hatRenderer.gameObject.SetActive(true);
-                switch (hatType)
-                {
-                    case HatType.FANCY_HAT:
-                        hatRenderer.sprite = hatSpritesList[0 % hatSpritesList.Count];
-                        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
-                        {
-                            Debug.Log("Player - Add Fancy Hat");
-                        }
-                        break;
-                    case HatType.FASHION_HAT:
-                        hatRenderer.sprite = hatSpritesList[2 % hatSpritesList.Count];
-                        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
-                        {
-                            Debug.Log("Player - Add Fashion Hat");
-                        }
-                        break;
-                    case HatType.SUN_HAT:
-                        hatRenderer.sprite = hatSpritesList[1 % hatSpritesList.Count];
-                        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
-                        {
-                            Debug.Log("Player - Add Sun Hat");
-                        }
-                        break;
-                }
-                break;
-            }
+            // hat is not the first, we move it
+            float previousHatHeight = previousHatTransform.GetComponent<HatBehaviour>().GetHatHeight();
+            newHatGo.transform.localPosition = previousHatTransform.localPosition - previousHatHeight * Vector3.up;
+        }
+        sortingOrder += hatCount;
+        newHatGo.GetComponent<HatBehaviour>().Initialize(hatInfo);
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"Player - Add Hat:{hatType}");
         }
     }
 
     public bool HasHat(HatType hatType)
     {
-        return currentHatsList.Contains(hatType);
+        bool hasHat = false;
+        foreach (Transform hat in hatsParent)
+        {
+            HatBehaviour hatScript = hat.GetComponent<HatBehaviour>();
+            if (hatScript != null)
+            {
+                hasHat = (hatScript.GetHatType() == hatType);
+            }
+            if (hasHat) break;
+        }
+        return hasHat;
     }
 
     #region Update Inputs
@@ -623,19 +598,25 @@ public class FrogCharacterController : MonoBehaviour
     private void DealWithEnemyCollision(Collider2D collider)
     {
         // Get data about attacking enemy
-        EnemyData enemyData = EnemiesManager.instance.GetEnemyDataFromGameObjectName(collider.gameObject.name);
+        EnemyInstance enemy = EnemiesManager.instance.GetEnemyInstanceFromGameObjectName(collider.gameObject.name);
 
-        // Compute actual damage during this frame
-        float damagePerSecond = Mathf.Clamp(enemyData.damage - armor, 0.1f, float.MaxValue);
-
-        float damage = damagePerSecond * Time.fixedDeltaTime;
-
-        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        float damageCooldown = 1.0f;
+        if (Time.time - enemy.lastDamageInflictedTime >= damageCooldown)
         {
-            Debug.Log("Player - Take damage from " + enemyData.enemyName + ": " + damage.ToString("0.00") + " HP. Current health was: " + currentHealth.ToString("0.00") + " HP; new health is: " + (currentHealth - damage).ToString("0.00") + " HP");
-        }
+            // This enemy can inflict damage now
+            enemy.lastDamageInflictedTime = Time.time;
+            EnemyData enemyData = EnemiesManager.instance.GetEnemyDataFromGameObjectName(collider.gameObject.name);
 
-        ChangeHealth(-damage);
+            // Compute actual damage
+            float damage = Mathf.Clamp(enemyData.damage - armor, 0.1f, float.MaxValue);
+
+            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log("Player - Take damage from " + enemyData.enemyName + ": " + damage.ToString("0.00") + " HP. Current health was: " + currentHealth.ToString("0.00") + " HP; new health is: " + (currentHealth - damage).ToString("0.00") + " HP");
+            }
+
+            ChangeHealth(-damage);
+        }
     }
 
     private void OnTriggerStay2D(Collider2D collider)
@@ -676,6 +657,8 @@ public class FrogCharacterController : MonoBehaviour
 
     private void ChangeHealth(float change)
     {
+        bool deathImminent = (currentHealth < 5); 
+
         currentHealth += change;
         if (currentHealth >= maxHealth)
         {
@@ -683,8 +666,17 @@ public class FrogCharacterController : MonoBehaviour
         }
         if (currentHealth <= 0)
         {
-            // game over
-            GameManager.instance.TriggerGameOver();
+            if (deathImminent)
+            {
+                // If frog was low HP and took enough damage to die, then it's game over
+                GameManager.instance.TriggerGameOver();
+            }
+            else
+            {
+                // If frog had enough HP and took enough damage to die, then it's second chance time! 2s invicibility and 0.1 HP left!
+                currentHealth = 0.1f;
+                invincibilityTime = 2;
+            }
         }
         UpdateHealthBar();
     }

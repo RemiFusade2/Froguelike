@@ -20,8 +20,12 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
     public TextMeshProUGUI achievementRewardTextMesh;
     public TextMeshProUGUI achievementHintTextMesh;
     [Space]
-    public Image achievementIcon;
-    public Image unlockedIcon;
+    public Image achievementIconImage;
+    [Space]
+    public Image unlockedFrameIconImage;
+    public Image unlockedIconImage;
+    [Space]
+    public GameObject demoMessage;
 
     [Header("Settings")]
     public Color darkBkgColor;
@@ -30,75 +34,112 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
     public Color visibleTextColor;
     public Color hiddenTextColor;
     [Space]
+    public Sprite achievedFrameSprite;
     public Sprite achievedSprite;
+    public Sprite notAchievedFrameSprite;
     public Sprite notAchievedSprite;
-    public Sprite hiddenSprite;
     [Space]
     public Sprite hiddenAchievementIconSprite;
 
-    public void Initialize(Achievement achievement, bool darkerBkg, bool hidden = false)
+    private void SetTextColor(Color color)
+    {
+        achievementTitleTextMesh.color = color;
+        achievementRewardTextMesh.color = color;
+        achievementHintTextMesh.color = color;
+    }
+
+    private string GetAchievementRewardDescription(Achievement achievement)
+    {
+        string rewardDescription = achievement.achievementData.reward.rewardDescription;
+        switch (achievement.achievementData.reward.rewardType)
+        {
+            case AchievementRewardType.CHARACTER:
+                rewardDescription = rewardDescription.Replace("characterName", achievement.achievementData.reward.character.characterName);
+                break;
+            case AchievementRewardType.RUN_ITEM:
+                rewardDescription = rewardDescription.Replace("itemName", achievement.achievementData.reward.runItem.itemName);
+                break;
+            case AchievementRewardType.SHOP_ITEM:
+                rewardDescription = rewardDescription.Replace("itemName", achievement.achievementData.reward.shopItem.itemName);
+                break;
+            default:
+                break;
+        }
+        return rewardDescription;
+    }
+
+    private void SetAchievementIcon(Achievement achievement)
+    {
+        achievementIconImage.sprite = achievement.achievementData.achievementLockedIcon;
+        achievementIconImage.color = (achievement.achievementData.achievementLockedIcon == null) ? new Color(0, 0, 0, 0) : Color.white;
+    }
+
+    public void Initialize(Achievement achievement, bool darkerBkg, bool accessible)
     {
         background.color = darkerBkg ? darkBkgColor : lightBkgColor;
+        AchievementData achievementData = achievement.achievementData;
 
-        string achievementTitle = achievement.achievementData.achievementTitle;
+        //string achievementTitle = achievement.achievementData.achievementTitle;
 
-        if (hidden)
+        // If current build is Demo build and achievement is not part of demo
+        bool isDemoBuildAndAchievementIsNotPartOfDemo = (GameManager.instance.demoBuild && !achievement.achievementData.partOfDemo);
+        demoMessage.SetActive(isDemoBuildAndAchievementIsNotPartOfDemo);
+
+        if (achievement.unlocked)
         {
-            // this achievement is secret
-            // title is visible but description and reward are hidden
+            // The achievement has been unlocked already
+            SetTextColor(visibleTextColor);
+            achievementTitleTextMesh.text = achievement.achievementData.achievementTitle;
+            achievementRewardTextMesh.text = $"Reward: {GetAchievementRewardDescription(achievement)}";
+            achievementHintTextMesh.text = $"Hint: {achievement.achievementData.achievementDescription}";
+            unlockedFrameIconImage.gameObject.SetActive(true);
+            unlockedFrameIconImage.sprite = achievedFrameSprite;
+            unlockedIconImage.sprite = achievedSprite;
+            SetAchievementIcon(achievement);
+        }
+        else if (!accessible)
+        {
+            // The achievement can't be unlocked.
+            SetTextColor(hiddenTextColor);
+            achievementTitleTextMesh.text = "";
+            achievementRewardTextMesh.text = "*Complete other stuff first*"; ;
+            achievementHintTextMesh.text = "";
+
+            unlockedFrameIconImage.gameObject.SetActive(false);
+            achievementIconImage.sprite = hiddenAchievementIconSprite;
+        }
+        else if (achievement.achievementData.isSecret)
+        {
+            // The achievement is secret. Title is visible but description and reward are hidden
+            SetTextColor(hiddenTextColor);
             achievementTitleTextMesh.text = "*That's a secret*";
             achievementRewardTextMesh.text = "Reward: ???";
             achievementHintTextMesh.text = "";
             if (achievement.achievementData.isSecret)
             {
-                achievementHintTextMesh.text = $"Hint: {achievementTitle}";
+                achievementHintTextMesh.text = $"Hint: {achievement.achievementData.achievementTitle}";
             }
-
-            unlockedIcon.sprite = hiddenSprite;
-            achievementIcon.sprite = hiddenAchievementIconSprite;
-
-            achievementTitleTextMesh.color = hiddenTextColor;
-            achievementRewardTextMesh.color = hiddenTextColor;
-            achievementHintTextMesh.color = hiddenTextColor;
+            unlockedFrameIconImage.gameObject.SetActive(true);
+            unlockedFrameIconImage.sprite = notAchievedFrameSprite;
+            unlockedIconImage.sprite = notAchievedSprite;
+            achievementIconImage.sprite = hiddenAchievementIconSprite;
         }
         else
         {
-            // this achievement is visible
-            string rewardDescription = achievement.achievementData.reward.rewardDescription;
-            switch (achievement.achievementData.reward.rewardType)
-            {
-                case AchievementRewardType.CHARACTER:
-                    rewardDescription = rewardDescription.Replace("characterName", achievement.achievementData.reward.character.characterName);
-                    break;
-                case AchievementRewardType.RUN_ITEM:
-                    rewardDescription = rewardDescription.Replace("itemName", achievement.achievementData.reward.runItem.itemName);
-                    break;
-                case AchievementRewardType.SHOP_ITEM:
-                    rewardDescription = rewardDescription.Replace("itemName", achievement.achievementData.reward.shopItem.itemName);
-                    break;
-                default:
-                    break;
-            }
-            achievementRewardTextMesh.text = $"Reward: {rewardDescription}";            
-
-            achievementTitleTextMesh.text = achievementTitle;
+            // The achievement is not unlocked but is visible
+            SetTextColor(visibleTextColor);
+            achievementTitleTextMesh.text = achievement.achievementData.achievementTitle;
+            achievementRewardTextMesh.text = $"Reward: {GetAchievementRewardDescription(achievement)}";
             achievementHintTextMesh.text = $"Hint: {achievement.achievementData.achievementDescription}";
-
-            achievementTitleTextMesh.color = visibleTextColor;
-            achievementRewardTextMesh.color = visibleTextColor;
-            achievementHintTextMesh.color = visibleTextColor;
-
-            if (achievement.unlocked)
-            {
-                unlockedIcon.sprite = achievedSprite;
-                achievementIcon.sprite = achievement.achievementData.achievementUnlockedIcon;
-            }
-            else
-            {
-                unlockedIcon.sprite = notAchievedSprite;
-                achievementIcon.sprite = achievement.achievementData.achievementLockedIcon;
-            }
+            unlockedFrameIconImage.gameObject.SetActive(true);
+            unlockedFrameIconImage.sprite = notAchievedFrameSprite;
+            unlockedIconImage.sprite = notAchievedSprite;
+            SetAchievementIcon(achievement);
         }
+    }
 
+    public void ClickOnDemoButton()
+    {
+        Application.OpenURL("https://store.steampowered.com/app/2315020/Froguelike/");
     }
 }

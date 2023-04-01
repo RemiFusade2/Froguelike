@@ -40,6 +40,7 @@ public class ShopSaveData : SaveData
 {
     public List<ShopItem> shopItems;
     public long currencySpentInShop;
+    public bool shopUnlocked;
 
     public ShopSaveData()
     {
@@ -51,6 +52,7 @@ public class ShopSaveData : SaveData
         base.Reset();
         shopItems = new List<ShopItem>();
         currencySpentInShop = 0;
+        shopUnlocked = false;
     }
 }
 
@@ -99,6 +101,17 @@ public class ShopManager : MonoBehaviour
         {
             Destroy(this.gameObject);
         }
+    }
+
+    public bool IsShopUnlocked()
+    {
+        return shopData.shopUnlocked;
+    }
+
+    public void UnlockShop()
+    {
+        shopData.shopUnlocked = true;
+        SaveDataManager.instance.isSaveDataDirty = true;
     }
 
     /// <summary>
@@ -240,6 +253,7 @@ public class ShopManager : MonoBehaviour
         if (hardReset)
         {
             // A hard reset will also remove unlocked items and reset everything to the start game values
+            shopData.shopUnlocked = false;
             shopData.shopItems.Clear();
             foreach (ShopItemData itemData in availableItemDataList)
             {
@@ -281,11 +295,11 @@ public class ShopManager : MonoBehaviour
         int buttonCount = 0;
         foreach (ShopItem item in shopData.shopItems)
         {
-            if (!item.hidden)
+            bool itemHasNoLevel = (item.maxLevel == 0);
+            if (!item.hidden && !itemHasNoLevel)
             {
-                bool itemIsOutOfStock = (item.maxLevel == 0);
-                bool itemIsAvailable = (item.maxLevel > 0 && item.currentLevel < item.maxLevel);
-                bool itemIsMaxedOut = (item.maxLevel > 0 && item.currentLevel == item.maxLevel);
+                bool itemIsAvailable = item.currentLevel < item.maxLevel;
+                bool itemIsMaxedOut = item.currentLevel == item.maxLevel;
                 if (itemIsAvailable)
                 {
                     bool canBuy = false;
@@ -301,7 +315,7 @@ public class ShopManager : MonoBehaviour
                     shopItemButton.Initialize(item, itemIsAvailable && canBuy);
                     buttonCount++;
                 }
-                else if (displaySoldOutItems && (itemIsOutOfStock || itemIsMaxedOut))
+                else if (itemIsMaxedOut)
                 {
                     GameObject shopItemButtonGo = Instantiate(soldOutShopItemPanelPrefab, shopPanel);
                     ShopItemButton shopItemButton = shopItemButtonGo.GetComponent<ShopItemButton>();
@@ -310,12 +324,11 @@ public class ShopManager : MonoBehaviour
                 }
             }
         }
-        /*
+        
         // Set size of container panel
         float buttonHeight = shopPanel.GetComponent<GridLayoutGroup>().cellSize.y + shopPanel.GetComponent<GridLayoutGroup>().spacing.y;
         float padding = shopPanel.GetComponent<GridLayoutGroup>().padding.top + shopPanel.GetComponent<GridLayoutGroup>().padding.bottom;
-        shopPanelContainer.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ((buttonCount + 1) / 2) * buttonHeight + padding);
-    */
+        shopPanelContainer.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ((buttonCount + 1) / 2) * buttonHeight + padding);    
     }
 
     /// <summary>
@@ -353,6 +366,7 @@ public class ShopManager : MonoBehaviour
     public void SetShopData(ShopSaveData saveData)
     {
         shopData.currencySpentInShop = saveData.currencySpentInShop;
+        shopData.shopUnlocked = saveData.shopUnlocked;
         foreach (ShopItem item in shopData.shopItems)
         {
             ShopItem itemFromSave = saveData.shopItems.First(x => x.itemName.Equals(item.itemName));

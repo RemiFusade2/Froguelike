@@ -37,6 +37,9 @@ public class CollectiblesManager : MonoBehaviour
     public float collectMinDistance = 1.5f;
     public float updateAllCollectiblesDelay = 0.1f;
 
+    [Header("Settings - Logs")]
+    public VerboseLevel verboseLevel;
+
 
     private List<Transform> allCollectiblesList;
     private List<Transform> allCapturedCollectiblesList;
@@ -126,6 +129,10 @@ public class CollectiblesManager : MonoBehaviour
         if (!allCapturedCollectiblesList.Contains(collectible))
         {
             allCapturedCollectiblesList.Add(collectible);
+            if (verboseLevel == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log("Capture collectible: " + collectible.gameObject.name);
+            }
         }
     }
 
@@ -163,7 +170,10 @@ public class CollectiblesManager : MonoBehaviour
                 RunManager.instance.PickRunItem(superCollectible.collectibleWeaponItemData);
                 break;
         }
-        Debug.Log("Collect: " + superCollectible.collectibleType.ToString());
+        if (verboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("Collect super collectible: " + superCollectible.collectibleType.ToString());
+        }
     }
 
     #region Update Magnet Collectibles

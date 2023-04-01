@@ -52,6 +52,8 @@ public class AchievementsSaveData : SaveData
 {
     public List<Achievement> achievementsList;
 
+    public bool achievementsListUnlocked;
+
     public AchievementsSaveData()
     {
         Reset();
@@ -96,6 +98,17 @@ public class AchievementManager : MonoBehaviour
             Destroy(this.gameObject);
         }
     }
+    
+    public bool IsAchievementsListUnlocked()
+    {
+        return achievementsData.achievementsListUnlocked;
+    }
+
+    public void UnlockAchievementsList()
+    {
+        achievementsData.achievementsListUnlocked = true;
+        SaveDataManager.instance.isSaveDataDirty = true;
+    }
 
     #region Load Data
 
@@ -105,6 +118,7 @@ public class AchievementManager : MonoBehaviour
     /// <param name="saveData"></param>
     public void SetAchievementsData(AchievementsSaveData saveData)
     {
+        achievementsData.achievementsListUnlocked = saveData.achievementsListUnlocked;
         foreach (Achievement achievement in achievementsData.achievementsList)
         {
             Achievement achievementFromSave = saveData.achievementsList.FirstOrDefault(x => x.achievementID.Equals(achievement.achievementID));
@@ -120,6 +134,7 @@ public class AchievementManager : MonoBehaviour
     public void ResetAchievements()
     {
         achievementsData.achievementsList.Clear();
+        achievementsData.achievementsListUnlocked = false;
         foreach (AchievementData achievementData in achievementsScriptableObjectsList)
         {
             Achievement newAchievement = new Achievement()
@@ -206,20 +221,24 @@ public class AchievementManager : MonoBehaviour
         List <RunItemInfo> allOwnedItems = RunManager.instance.ownedItems;
         PlayableCharacter playedCharacter = RunManager.instance.currentPlayedCharacter;
         int chapterCount = RunManager.instance.GetChapterCount();
+        List<Chapter> completedChapters = RunManager.instance.completedChaptersList;
         FrogCharacterController player = GameManager.instance.player;
 
         List<Achievement> metaAchievements = new List<Achievement>(); // achievements that depend on other achievements
 
         foreach (Achievement achievement in achievementsData.achievementsList)
         {
-            if (!achievement.unlocked)
+            bool isDemoBuildAndAchievementIsNotPartOfDemo = IsAchievementLockedBehindDemo(achievement);
+            if (!achievement.unlocked && !isDemoBuildAndAchievementIsNotPartOfDemo)
             {
-                // This achievement is not unlocked yet
                 bool conditionsAreMet = true;
                 foreach (AchievementCondition condition in achievement.achievementData.conditionsList)
                 {
                     switch (condition.conditionType)
                     {
+                        case AchievementConditionType.CHAPTER:
+                            conditionsAreMet &= (completedChapters.FirstOrDefault(x => x.chapterID.Equals(condition.playedChapter.chapterID)) != null);
+                            break;
                         case AchievementConditionType.CHAPTERCOUNT:
                             conditionsAreMet &= (chapterCount >= condition.chapterCount);
                             break;
@@ -359,6 +378,11 @@ public class AchievementManager : MonoBehaviour
         SetSteamAchievementIfPossible(achievement.achievementData.achievementSteamID);
     }
 
+    private bool IsAchievementLockedBehindDemo(Achievement achievement)
+    {
+        return GameManager.instance.demoBuild && !achievement.achievementData.partOfDemo;
+    }
+
     private bool IsAchievementAvailable(Achievement achievement)
     {
         bool conditionCanBeFulfilled = true;
@@ -378,7 +402,7 @@ public class AchievementManager : MonoBehaviour
 
     private List<Achievement> SortAchievementList(List<Achievement> achievements)
     {
-        List<Achievement> result = achievements.OrderBy(x => x.achievementID).OrderByDescending(x => IsAchievementAvailable(x) && !x.achievementData.isSecret).ToList();
+        List<Achievement> result = achievements.OrderBy(x => x.achievementID).OrderBy(x => x.achievementData.isSecret).OrderByDescending(x => IsAchievementAvailable(x)).OrderBy(x => IsAchievementLockedBehindDemo(x)).ToList();
         return result;
     }
 
@@ -407,15 +431,16 @@ public class AchievementManager : MonoBehaviour
         int entryCount = 1;
         foreach (Achievement achievement in orderedAchievements)
         {
+            bool achievementIsLockedBehindDemo = IsAchievementLockedBehindDemo(achievement);
             bool achievementIsNotSetup = (achievement.achievementData.reward.rewardType == AchievementRewardType.RUN_ITEM && achievement.achievementData.reward.runItem == null)
                 || (achievement.achievementData.reward.rewardType == AchievementRewardType.SHOP_ITEM && achievement.achievementData.reward.shopItem == null);
-            if (!achievementIsNotSetup) // TODO: Remove
+            if (!achievementIsNotSetup && !achievementIsLockedBehindDemo)
             {
                 GameObject achievementEntryGo = Instantiate(achievementEntryPrefab, achievementScrollEntriesParent);
                 AchievementEntryPanelBehaviour achievementEntryScript = achievementEntryGo.GetComponent<AchievementEntryPanelBehaviour>();
                 bool darkerBkg = (entryCount / 2) % 2 == 0;
                 bool canAchieve = IsAchievementAvailable(achievement);
-                achievementEntryScript.Initialize(achievement, darkerBkg, !canAchieve || achievement.achievementData.isSecret);
+                achievementEntryScript.Initialize(achievement, darkerBkg, canAchieve);
                 entryCount++;
             }
         }

@@ -15,19 +15,19 @@ MonoBehaviour:
   duration: 10
   enemies:
   - enemyType: 0
-    tierFormula: 1
+    tierFormula: chapter+2
     movePattern:
       movePatternType: 2
-      speedFactor: 0.5
+      speedFactor: 1
       bouncecount: 0
     spawnPattern:
       spawnPatternType: 0
       spawnPatternShape: 0
-      spawnAmount: 10
+      spawnAmount: 1
       multipleSpawnDelay: 0
-    spawnCooldown: 0.1
-  - enemyType: 5
-    tierFormula: 1
+    spawnCooldown: 0.5
+  - enemyType: 1
+    tierFormula: chapter+2
     movePattern:
       movePatternType: 2
       speedFactor: 1
@@ -35,30 +35,18 @@ MonoBehaviour:
     spawnPattern:
       spawnPatternType: 2
       spawnPatternShape: 0
-      spawnAmount: 10
+      spawnAmount: 2
       multipleSpawnDelay: 0
-    spawnCooldown: 0.1
+    spawnCooldown: 0.5
   - enemyType: 2
-    tierFormula: 1
+    tierFormula: chapter+2
     movePattern:
       movePatternType: 0
-      speedFactor: 3
+      speedFactor: 1
       bouncecount: 0
     spawnPattern:
       spawnPatternType: 0
       spawnPatternShape: 0
-      spawnAmount: 10
+      spawnAmount: 1
       multipleSpawnDelay: 0
-    spawnCooldown: 0.1
-  - enemyType: 4
-    tierFormula: 1
-    movePattern:
-      movePatternType: 4
-      speedFactor: 3
-      bouncecount: 3
-    spawnPattern:
-      spawnPatternType: 0
-      spawnPatternShape: 0
-      spawnAmount: 2
-      multipleSpawnDelay: 0
-    spawnCooldown: 0.1
+    spawnCooldown: 1

@@ -84,11 +84,14 @@ public class CharacterManager : MonoBehaviour
     public Button startButton;
     [Space]
     public RectTransform characterListContent;
-    public RectTransform characterListContainerParent;
+    public RectTransform characterListGridLayoutGroup;
     public ScrollRect characterListScrollRect;
-    public TextMeshProUGUI characterStatValues;
-    public TextMeshProUGUI shopStatValues;
-    public TextMeshProUGUI totalStatValues;
+    public ScrollbarKeepCursorSizeBehaviour characterListScrollbar;
+    [Space]
+    public RectTransform statsListContent;
+    public RectTransform statsListGridLayoutGroup;
+    public ScrollRect statsListScrollRect;
+    public ScrollbarKeepCursorSizeBehaviour statListScrollbar;
 
     [Header("UI Prefab")]
     public GameObject characterPanelPrefab;
@@ -142,12 +145,13 @@ public class CharacterManager : MonoBehaviour
     /// <summary>
     /// Create buttons for each character, set the appropriate size for the scroll list and display the stats from the shop.
     /// </summary>
-    public void UpdateCharacterSelectionScreen()
+    public bool UpdateCharacterSelectionScreen()
     {
+        bool isCharacterSelectionScreen = true;
         currentSelectedCharacter = null;
 
         // Remove previous buttons
-        foreach (Transform child in characterListContainerParent)
+        foreach (Transform child in characterListGridLayoutGroup)
         {
             Destroy(child.gameObject);
         }
@@ -155,13 +159,18 @@ public class CharacterManager : MonoBehaviour
         // Instantiate a button for each character (unless this character is hidden)
         int buttonCount = 0;
         string characterLog = "";
+        PlayableCharacter defaultCharacter = null;
         for (int i = 0; i < charactersData.charactersList.Count; i++)
         {
             PlayableCharacter characterInfo = charactersData.charactersList[i];
-            if (!characterInfo.hidden)
+            if (characterInfo.unlocked)
             {
-                GameObject newCharacterPanel = Instantiate(characterPanelPrefab, characterListContainerParent);
+                GameObject newCharacterPanel = Instantiate(characterPanelPrefab, characterListGridLayoutGroup);
                 newCharacterPanel.GetComponent<CharacterSelectionButton>().Initialize(characterInfo);
+                if (buttonCount == 0)
+                {
+                    defaultCharacter = characterInfo;
+                }
                 buttonCount++;
                 characterLog += $" {characterInfo.characterID} is " + (characterInfo.unlocked ? "unlocked" : "locked") + " ;";
             }
@@ -173,28 +182,39 @@ public class CharacterManager : MonoBehaviour
         }
 
         // Set size of container panel
-        GridLayoutGroup characterListContainerParentGridLayout = characterListContainerParent.GetComponent<GridLayoutGroup>();
-        float buttonHeight = characterListContainerParentGridLayout.cellSize.y + characterListContainerParentGridLayout.spacing.y;
-        float padding = characterListContainerParentGridLayout.padding.top + characterListContainerParentGridLayout.padding.bottom;
+        GridLayoutGroup characterListGridLayoutGroupComponent = characterListGridLayoutGroup.GetComponent<GridLayoutGroup>();
+        float buttonHeight = characterListGridLayoutGroupComponent.cellSize.y + characterListGridLayoutGroupComponent.spacing.y;
+        float padding = characterListGridLayoutGroupComponent.padding.top + characterListGridLayoutGroupComponent.padding.bottom;
         characterListContent.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, buttonCount * buttonHeight + padding);
 
         // Select first character by default
-        // SelectCharacter(charactersData.charactersList[0]);
+        SelectCharacter(defaultCharacter);
 
-        // Scroll to the top of the list
+        if (buttonCount <= 3)
+        {
+            // Not enough buttons to have a scroll. Center the cursor on the scrollbar.
+            characterListScrollbar.SetCursorCentered(true);
+        }
+        else
+        {
+            // Enough buttons to scroll. Set the cursor up top.
+            characterListScrollRect.verticalScrollbar.value = 0;
+        }
+        statsListScrollRect.verticalScrollbar.value = 0; // Cursor up top on the stat list
+
+        // Scroll to the top of the lists
         characterListScrollRect.normalizedPosition = new Vector2(0, 1);
+        statsListScrollRect.normalizedPosition = new Vector2(0, 1);
+        
+        UpdateStatsList();
 
-        // Display the Start button if possible
-        startButton.interactable = (currentSelectedCharacter != null);
+        if (buttonCount == 1 && defaultCharacter != null)
+        {
+            currentSelectedCharacter = defaultCharacter;
+            isCharacterSelectionScreen = false;
+        }
 
-        // Display character, shop and total stat values.
-        List<StatValue> statBonusesFromShop = ShopManager.instance.statsBonuses;
-        List<StatValue> emptyCharacterStatList = new List<StatValue>();
-        shopStatValues.SetText(MakeStringFromStats(statBonusesFromShop, false));
-        characterStatValues.SetText(MakeStringFromStats(emptyCharacterStatList, false));
-        totalStatValues.SetText(MakeStringFromStats(statBonusesFromShop, true));
-
-        // Make a prefab for total, shop, frog and TODO
+        return isCharacterSelectionScreen;
     }
 
     private void InstantiateStatLines()
@@ -205,7 +225,7 @@ public class CharacterManager : MonoBehaviour
         {
             PlayableCharacter characterInfo = charactersData.charactersList[i];
 
-            GameObject newCharacterPanel = Instantiate(characterPanelPrefab, characterListContainerParent);
+            GameObject newCharacterPanel = Instantiate(characterPanelPrefab, characterListGridLayoutGroup);
             newCharacterPanel.GetComponent<CharacterSelectionButton>().Initialize(characterInfo);
             buttonCount++;
         }
@@ -220,7 +240,7 @@ public class CharacterManager : MonoBehaviour
     public void SelectCharacter(PlayableCharacter selectedCharacter)
     {
         // Unselect all characters and select the one that was clicked
-        foreach (Transform childCharacterButton in characterListContainerParent)
+        foreach (Transform childCharacterButton in characterListGridLayoutGroup)
         {
             CharacterSelectionButton characterButton = childCharacterButton.GetComponent<CharacterSelectionButton>();
             if (characterButton != null)
@@ -232,7 +252,16 @@ public class CharacterManager : MonoBehaviour
         // Display stats of this character and Start Run button
         currentSelectedCharacter = selectedCharacter;
 
-        // All values for stats.
+        // Update stats
+        UpdateStatsList();
+
+        // Display the Start button if possible
+        startButton.interactable = (currentSelectedCharacter != null);
+    }
+
+    private void UpdateStatsList()
+    {
+        // Get all values for stats.
         List<StatValue> statBonusesFromShop = ShopManager.instance.statsBonuses;
         List<StatValue> currentCharacterStatList = currentSelectedCharacter.characterStartingStats.statsList;
         List<StatValue> totalStatList = StatsWrapper.JoinLists(currentCharacterStatList, statBonusesFromShop).statsList;
@@ -245,13 +274,58 @@ public class CharacterManager : MonoBehaviour
             Debug.Log(log);
         }
 
-        // Set text for character stats and total stats (shop stats are set from UpdateCharacterSelectionScreen())
-        characterStatValues.SetText(MakeStringFromStats(currentCharacterStatList, false));
-        totalStatValues.SetText(MakeStringFromStats(totalStatList, true));
+        StatValue[] statValues = new StatValue[Enum.GetValues(typeof(CharacterStat)).Length];
+        foreach (Transform child in statsListGridLayoutGroup)
+        {
+            Destroy(child.gameObject);
+        }
+        int lineCount = 0;
+        for (int i = 0; i < statValues.Length; i++)
+        {
+            CharacterStat stat = (CharacterStat)i;
+            if (stat != CharacterStat.ATK_SPECIAL_DURATION_BOOST && stat != CharacterStat.ATK_SPECIAL_STRENGTH_BOOST && stat != CharacterStat.BANISH) // we don't show these stats anymore
+            {
+                GameObject statLineGo = Instantiate(statLinePrefab, statsListGridLayoutGroup);
+                CharacterStatLine statLineScript = statLineGo.GetComponent<CharacterStatLine>();
 
-        // Display the Start button if possible
-        startButton.interactable = (currentSelectedCharacter != null);
+                float totalValue = 0;
+                if (stat != CharacterStat.WALK_SPEED_BOOST && stat != CharacterStat.SWIM_SPEED_BOOST && stat != CharacterStat.MAGNET_RANGE_BOOST)
+                {
+                    totalValue = DataManager.instance.GetDefaultValueForStat(stat); // we show these stats with percentage instead of value
+                }
+                StatValue statValue = totalStatList.FirstOrDefault(x => x.stat == stat);
+                if (statValue != null)
+                {
+                    totalValue += (float)statValue.value;
+                }
+
+                float frogValue = 0;
+                statValue = currentCharacterStatList.FirstOrDefault(x => x.stat == stat);
+                if (statValue != null)
+                {
+                    frogValue += (float)statValue.value;
+                }
+
+                float shopValue = 0;
+                statValue = statBonusesFromShop.FirstOrDefault(x => x.stat == stat);
+                if (statValue != null)
+                {
+                    shopValue += (float)statValue.value;
+                }
+
+                statLineScript.Initialize(stat, totalValue, frogValue, shopValue);
+
+                lineCount++;
+            }
+        }
+
+        // Set size of container panel
+        GridLayoutGroup statsListGridLayoutGroupComponent = statsListGridLayoutGroup.GetComponent<GridLayoutGroup>();
+        float buttonHeight = statsListGridLayoutGroupComponent.cellSize.y + statsListGridLayoutGroupComponent.spacing.y;
+        float padding = statsListGridLayoutGroupComponent.padding.top + statsListGridLayoutGroupComponent.padding.bottom;
+        statsListContent.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, lineCount * buttonHeight + padding);        
     }
+    
 
     /// <summary>
     /// Takes a list of stat values and returns one string with the value or a "-" for all stats and formats the values properly.
@@ -322,13 +396,7 @@ public class CharacterManager : MonoBehaviour
                             break;
                     }
                 }
-
-                // TODO: Display those:
-                /*DataManager.instance.defaultMaxHP; // Max HP from frog stats is now added to default max HP
-                DataManager.instance.defaultHealthRecovery;
-                DataManager.instance.defaultStatItemSlotCount;
-                DataManager.instance.defaultWeaponSlotCount;*/
-
+                
                 // Checks what kind of value that is going to be added to the string.
                 switch (thisStat)
                 {

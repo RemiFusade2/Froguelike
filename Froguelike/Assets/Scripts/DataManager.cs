@@ -65,17 +65,26 @@ public enum WeaponType
 }
 
 [System.Serializable]
-public class FriendSprite
+public class FriendInfo
 {
     public FriendType friendType;
+
+    public GameObject prefab;
+
     public Sprite sprite;
+    public int style; // for animator
+
+    public Vector2 springDistanceMinMax;
+    public Vector2 springDampingMinMax;
+    public Vector2 springFrequencyMinMax;
 }
 
 [System.Serializable]
-public class HatSprite
+public class HatInfo
 {
     public HatType hatType;
-    public Sprite sprite;
+    public Sprite hatSprite;
+    public float hatHeight;
 }
 
 [System.Serializable]
@@ -83,6 +92,34 @@ public class SpawnProbability
 {
     public SpawnFrequency frequency;
     public Vector2 probability;
+}
+
+[System.Serializable]
+public class CharacterStatNameAndRelevantData
+{
+    public CharacterStat stat;
+    public string shortName;
+    public string longName;
+    public string unit;
+    public bool usePercent;
+    public Sprite icon;
+}
+
+[System.Serializable]
+public class WeaponStatNameAndRelevantData
+{
+    public WeaponStat stat;
+    public string shortName;
+    public string longName;
+    public string unit;
+    public bool usePercent;
+}
+
+[System.Serializable]
+public class ChapterIconData
+{
+    public Sprite iconSprite;
+    public string tooltip;
 }
 
 /// <summary>
@@ -104,7 +141,11 @@ public class DataManager : MonoBehaviour
 
     [Header("Weapon effects colors")]
     public List<WeaponEffectData> allWeaponEffectsDataList;
-    
+
+    [Header("Stats info")]
+    public List<CharacterStatNameAndRelevantData> characterStatsDataList;
+    public List<WeaponStatNameAndRelevantData> weaponStatsDataList;
+
     [Header("Currency symbol")]
     public string currencySymbol = "FC";
 
@@ -119,14 +160,20 @@ public class DataManager : MonoBehaviour
     [Header("Sprites")]
     public Sprite collectibleDefaultSprite;
 
-    [Header("Sprites - Hats")]
-    public List<HatSprite> hatsSpritesList;
+    [Header("Hats")]
+    public List<HatInfo> hatInfoList;
 
-    [Header("Sprites - Friends")]
-    public List<FriendSprite> friendsSpritesList;
+    [Header("Friends")]
+    public List<FriendInfo> friendInfoList;
+
+    [Header("Chapter Icons")]
+    public List<ChapterIconData> chapterIconsList;
 
 
     private Dictionary<WeaponEffect, Color> weaponEffectColorDico;
+    private Dictionary<HatType, HatInfo> hatsDictionary;
+    private Dictionary<FriendType, FriendInfo> friendsDictionary;
+    private Dictionary<Sprite, ChapterIconData> chapterIconsDictionary;
 
     private void Awake()
     {
@@ -144,6 +191,36 @@ public class DataManager : MonoBehaviour
     private void Start()
     {
         InitializeData();
+    }
+
+    public float GetDefaultValueForStat(CharacterStat stat)
+    {
+        float value = 0;
+        switch (stat)
+        {
+            case CharacterStat.MAX_HEALTH:
+                value = defaultMaxHP;
+                break;
+            case CharacterStat.HEALTH_RECOVERY:
+                value = defaultHealthRecovery;
+                break;
+            case CharacterStat.WALK_SPEED_BOOST:
+                value = defaultWalkSpeed;
+                break;
+            case CharacterStat.SWIM_SPEED_BOOST:
+                value = defaultSwimSpeed;
+                break;
+            case CharacterStat.MAGNET_RANGE_BOOST:
+                value = defaultMagnetRange;
+                break;
+            case CharacterStat.ITEM_SLOT:
+                value = defaultStatItemSlotCount;
+                break;
+            case CharacterStat.WEAPON_SLOT:
+                value = defaultWeaponSlotCount;
+                break;
+        }
+        return value;
     }
 
     public Vector2 GetSpawnProbability(string spawnable, SpawnFrequency frequency)
@@ -191,26 +268,72 @@ public class DataManager : MonoBehaviour
         {
             weaponEffectColorDico.Add(weaponEffectData.effect, weaponEffectData.color);
         }
+        hatsDictionary = new Dictionary<HatType, HatInfo>();
+        foreach (HatInfo hatInfo in hatInfoList)
+        {
+            hatsDictionary.Add(hatInfo.hatType, hatInfo);
+        }
+        friendsDictionary = new Dictionary<FriendType, FriendInfo>();
+        foreach (FriendInfo friendInfo in friendInfoList)
+        {
+            friendsDictionary.Add(friendInfo.friendType, friendInfo);
+        }
+        chapterIconsDictionary = new Dictionary<Sprite, ChapterIconData>();
+        foreach (ChapterIconData iconData in chapterIconsList)
+        {
+            chapterIconsDictionary.Add(iconData.iconSprite, iconData);
+        }
+    }
+
+    public string GetTooltipForChapterIcon(Sprite chapterIconSprite)
+    {
+        ChapterIconData info = null;
+        if (chapterIconsDictionary.ContainsKey(chapterIconSprite))
+        {
+            info = chapterIconsDictionary[chapterIconSprite];
+        }
+        return info.tooltip;
+    }
+
+    public FriendInfo GetInfoForFriend(FriendType friendType)
+    {
+        FriendInfo info = null;
+        if (friendsDictionary.ContainsKey(friendType))
+        {
+            info = friendsDictionary[friendType];
+        }
+        return info;
     }
 
     public Sprite GetSpriteForFriend(FriendType friendType)
     {
+        FriendInfo info = GetInfoForFriend(friendType);
         Sprite result = collectibleDefaultSprite;
-        FriendSprite friendSprite = friendsSpritesList.FirstOrDefault(x => x.friendType == friendType);
-        if (friendSprite != null)
+        if (info != null)
         {
-            result = friendSprite.sprite;
+            result = info.sprite;
         }
         return result;
     }
 
+    public HatInfo GetInfoForHat(HatType hatType)
+    {
+        HatInfo info = null;
+        if (hatsDictionary.ContainsKey(hatType))
+        {
+            info = hatsDictionary[hatType];
+        }
+        return info;
+    }
+
+
     public Sprite GetSpriteForHat(HatType hatType)
     {
+        HatInfo info = GetInfoForHat(hatType);
         Sprite result = collectibleDefaultSprite;
-        HatSprite hatSprite = hatsSpritesList.FirstOrDefault(x => x.hatType == hatType);
-        if (hatSprite != null)
+        if (info != null)
         {
-            result = hatSprite.sprite;
+            result = info.hatSprite;
         }
         return result;
     }
@@ -244,5 +367,38 @@ public class DataManager : MonoBehaviour
                 break;
         }
         return resultSprite;
+    }
+
+    public bool TryGetStatData(WeaponStat stat, out string shortName, out string longName, out string unit, out bool usePercent)
+    {
+        bool statDataExists = false;
+        WeaponStatNameAndRelevantData statData = weaponStatsDataList.FirstOrDefault(x => x.stat.Equals(stat));
+        shortName = ""; longName = ""; unit = ""; usePercent = false;
+        if (statData != null)
+        {
+            statDataExists = true;
+            shortName = statData.shortName;
+            longName = statData.longName;
+            unit = statData.unit;
+            usePercent = statData.usePercent;
+        }
+        return statDataExists;
+    }
+
+    public bool TryGetStatData(CharacterStat stat, out string shortName, out string longName, out string unit, out bool usePercent, out Sprite icon)
+    {
+        bool statDataExists = false;
+        CharacterStatNameAndRelevantData statData = characterStatsDataList.FirstOrDefault(x => x.stat.Equals(stat));
+        shortName = ""; longName = ""; unit = ""; usePercent = false; icon = null;
+        if (statData != null)
+        {
+            statDataExists = true;
+            icon = statData.icon;
+            shortName = statData.shortName;
+            longName = statData.longName;
+            unit = statData.unit;
+            usePercent = statData.usePercent;
+        }
+        return statDataExists;
     }
 }

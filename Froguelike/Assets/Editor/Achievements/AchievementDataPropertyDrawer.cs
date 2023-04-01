@@ -16,14 +16,6 @@ public class AchievementConditionDrawer : PropertyDrawer
         Rect typeRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
         EditorGUI.PropertyField(typeRect, property.FindPropertyRelative("conditionType"), GUIContent.none);
 
-        /*
-        FINISH_RUN, // complete the run (all chapters, no game over)
-        CHARACTER, // play as a specific character
-        LEVEL, // reach at least that level
-        CHAPTERCOUNT, // complete that many chapters
-        RUNITEM, // have a specific item (can be a weapon too)
-        OTHER, // specific condition, hardcoded and identified with a string key*/
-
         float leftColumnWidth = 60;
         position.y += EditorGUIUtility.singleLineHeight;
         position.x += leftColumnWidth;
@@ -51,6 +43,15 @@ public class AchievementConditionDrawer : PropertyDrawer
             Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
             EditorGUI.LabelField(labelRect, new GUIContent("Character:"));
             EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("playedCharacter"), GUIContent.none);
+        }
+        else if (conditionType.enumValueFlag == (int)AchievementConditionType.CHAPTER)
+        {
+            // Choose Chapter
+            float labelWidth = 75;
+            Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+            Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(labelRect, new GUIContent("Chapter:"));
+            EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("playedChapter"), GUIContent.none);
         }
         else if (conditionType.enumValueFlag == (int)AchievementConditionType.LEVEL)
         {

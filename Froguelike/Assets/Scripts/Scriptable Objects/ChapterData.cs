@@ -33,7 +33,10 @@ public enum HatType
 {
     FANCY_HAT,
     FASHION_HAT,
-    SUN_HAT
+    SUN_HAT,
+    BOW_BLUE,
+    BOW_RED,
+    BOW_PURPLE
 }
 
 /// <summary>
@@ -104,6 +107,9 @@ public class FixedCollectible
 {
     [Tooltip("The coordinates (integers, can be negative) of the Tile where this Collectible will appear")]
     public Vector2Int tileCoordinates;
+
+    [Tooltip("Prefab for the tile where the collectible will appear (in the center)")]
+    public GameObject tilePrefab;
 
     [Tooltip("The type of collectible")]
     public FixedCollectibleType collectibleType;

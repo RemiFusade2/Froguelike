@@ -26,6 +26,7 @@ public enum AchievementConditionType
     RUNITEM, // have a specific item (can be a weapon too)
     SPECIAL, // specific condition, hardcoded and identified with a string key
     RUNITEMLEVEL, // have a specific item (can be a weapon too) at a specific level
+    CHAPTER, // complete a specific chapter
 
     /*
      * EVERYTHING UNDER HERE IS NOT IMPLEMENTED, AND MAYBE NOT NEEDED
@@ -33,7 +34,6 @@ public enum AchievementConditionType
     PLAYTIME_MIN, // play the game for at least that specific amount of time
     PLAYTIME_MAX, // play the game for no more than that specific amount of time
     CHAPTERUNIQUECOUNT, // complete that many unique chapters
-    CHAPTER, // complete a specific chapter
     FRIEND, // find a specific friend
     FRIENDCOUNT, // find an amount of friends
     RUNSTATITEMCOUNT, // have an amount of stat items
@@ -68,6 +68,9 @@ public class AchievementCondition
 
     [Tooltip("The character you have to play as to unlock this achievement")]
     public CharacterData playedCharacter = null;
+
+    [Tooltip("The chapter you have to play to unlock this achievement")]
+    public ChapterData playedChapter = null;
 
     [Tooltip("The level you have to reach to unlock this achievement")]
     public int reachLevel = 0;
@@ -156,6 +159,8 @@ public class AchievementData : ScriptableObject
     [Header("Achievement settings")]
     [Tooltip("Achievement is hidden until you get it")]
     public bool isSecret = false;
+    [Tooltip("Achievement is available in the demo of the game")]
+    public bool partOfDemo = false;
 
     [Header("Achievement settings - display")]
     [Tooltip("Achievement title")]

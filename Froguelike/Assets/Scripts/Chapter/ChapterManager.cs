@@ -102,10 +102,13 @@ public class ChapterManager : MonoBehaviour
 
     [Header("UI - Chapter Selection screen")]
     public TextMeshProUGUI chapterSelectionTopText;
-    public List<GameObject> chapterButtonsList;
-    public List<TextMeshProUGUI> chapterTitleTextsList;
-    public List<TextMeshProUGUI> chapterDescriptionTextsList;
-    public List<Transform> chapterIconsParentList;
+    public List<ChapterButtonBehaviour> chapterButtonsList;
+
+    [Header("UI - Chapter Selection screen - Post its")]
+    public GameObject rerollInfinitePostIt;
+    public GameObject rerollPostIt;
+    public TextMeshProUGUI rerollPostItCountTextMesh;
+    public Button rerollPostItButton;
 
     [Header("UI - Chapter Start screen")]
     public Image chapterStartBackground;
@@ -118,6 +121,7 @@ public class ChapterManager : MonoBehaviour
 
     [Header("Runtime - UI")]
     public bool chapterChoiceIsVisible;
+    public bool isFirstChapter;
 
     [Header("Runtime - Chapter selection")]
     public List<Chapter> selectionOfNextChaptersList; // The current selection of X chapters to choose from
@@ -300,6 +304,50 @@ public class ChapterManager : MonoBehaviour
         }
     }
 
+    private void UpdateRerollPostit()
+    {
+        rerollInfinitePostIt.SetActive(isFirstChapter);
+        rerollPostIt.SetActive(!isFirstChapter);
+        rerollPostItCountTextMesh.SetText($"x{GameManager.instance.player.rerolls}");
+        rerollPostItButton.interactable = (GameManager.instance.player.rerolls > 0);
+    }
+
+    private void NewSelectionOfChapters()
+    {
+        int numberOfChaptersInSelection = RunManager.instance.chapterCountInSelection;
+
+        // Choose a number of chapters from the list of available chapters
+        SelectNextPossibleChapters(numberOfChaptersInSelection);
+
+        // Show the chapters selection
+        foreach (ChapterButtonBehaviour chapterButton in chapterButtonsList)
+        {
+            chapterButton.gameObject.SetActive(false);
+        }
+        for (int i = 0; i < selectionOfNextChaptersList.Count; i++)
+        {
+            Chapter chapter = selectionOfNextChaptersList[i];
+            ChapterButtonBehaviour chapterButton = chapterButtonsList[i];
+
+            chapterButton.gameObject.SetActive(true);
+            chapterButton.Initialize(chapter);
+        }
+    }
+
+    public void RerollChapterSelection()
+    {
+        if (isFirstChapter)
+        {
+            NewSelectionOfChapters();
+        }
+        else if (GameManager.instance.player.rerolls > 0)
+        {
+            GameManager.instance.player.rerolls--;
+            UpdateRerollPostit();
+            NewSelectionOfChapters();
+        }
+    }
+
     public void ShowChapterSelection(int currentChapterCount)
     {
         // Update the top text
@@ -319,34 +367,9 @@ public class ChapterManager : MonoBehaviour
         }
         chapterSelectionTopText.text = chapterIntro;
 
-        // Choose 3 chapters from the list of available chapters
-        SelectNextPossibleChapters(3);
-
-        // Show the 3 chapters selection
-        foreach (GameObject chapterButton in chapterButtonsList)
-        {
-            chapterButton.SetActive(false);
-        }
-        for (int i = 0; i < selectionOfNextChaptersList.Count; i++)
-        {
-            Chapter chapter = selectionOfNextChaptersList[i];
-            chapterButtonsList[i].SetActive(true);
-            chapterTitleTextsList[i].text = chapter.chapterData.chapterTitle;
-            chapterDescriptionTextsList[i].text = chapter.chapterData.chapterLore[0];
-
-            int iconCount = 0;
-            foreach (Transform iconChild in chapterIconsParentList[i])
-            {
-                Image iconImage = iconChild.GetComponent<Image>();
-                bool iconExists = (iconCount < chapter.chapterData.icons.Count && chapter.chapterData.icons[iconCount] != null);
-                iconImage.gameObject.SetActive(iconExists);
-                if (iconExists)
-                {
-                    iconImage.sprite = chapter.chapterData.icons[iconCount];
-                }
-                iconCount++;
-            }            
-        }
+        isFirstChapter = (currentChapterCount == 0);
+        UpdateRerollPostit();
+        NewSelectionOfChapters();
 
         // Call the UIManager to display the chapter selection screen
         UIManager.instance.ShowChapterSelectionScreen((chapterCount == 0));
