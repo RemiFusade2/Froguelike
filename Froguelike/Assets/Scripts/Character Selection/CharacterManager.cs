@@ -190,12 +190,8 @@ public class CharacterManager : MonoBehaviour
         // Select first character by default
         SelectCharacter(defaultCharacter);
 
-        if (buttonCount <= 3)
-        {
-            // Not enough buttons to have a scroll. Center the cursor on the scrollbar.
-            characterListScrollbar.SetCursorCentered(true);
-        }
-        else
+        characterListScrollbar.SetCursorCentered(buttonCount <= 3);
+        if (buttonCount > 3)
         {
             // Enough buttons to scroll. Set the cursor up top.
             characterListScrollRect.verticalScrollbar.value = 0;
@@ -525,6 +521,16 @@ public class CharacterManager : MonoBehaviour
             SaveDataManager.instance.isSaveDataDirty = true;
         }
         return characterNewlyUnlocked;
+    }
+
+    public void ChangeCharacterStats(string characterID, List<StatValue> changedStatsValues)
+    {
+        PlayableCharacter character = charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals(characterID));
+        if (character != null)
+        {
+            character.characterStartingStats = StatsWrapper.JoinLists(character.characterStartingStats, changedStatsValues);
+            SaveDataManager.instance.isSaveDataDirty = true;
+        }
     }
 
     public bool IsCharacterUnlocked(string characterID)

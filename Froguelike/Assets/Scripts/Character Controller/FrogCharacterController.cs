@@ -63,7 +63,8 @@ public class FrogCharacterController : MonoBehaviour
     public string horizontalInputName = "horizontal";
     public string verticalInputName = "vertical";
     public string pauseInputName = "pause";
-    public string cheatPlusInputName = "cheatplus";
+    public string cheatInputName = "cheat";
+    public string superCheatInputName = "supercheat";
     [Space]
     public float inputAxisDeadZone = 0.3f;
     
@@ -102,7 +103,7 @@ public class FrogCharacterController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (GetCheatPlusInput())
+        if (GetCheatInput())
         {
             if (GameManager.instance.isGameRunning)
             {
@@ -113,6 +114,10 @@ public class FrogCharacterController : MonoBehaviour
                 GameManager.instance.ChangeAvailableCurrency(1000);
                 UIManager.instance.UpdateCurrencyDisplay();
             }
+        }
+        if (GetSuperCheatInput())
+        {
+            AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true);
         }
 
         if (GameManager.instance.isGameRunning)
@@ -587,9 +592,14 @@ public class FrogCharacterController : MonoBehaviour
         return rewiredPlayer.GetButtonDown(pauseInputName);
     }
 
-    private bool GetCheatPlusInput()
+    private bool GetCheatInput()
     {
-        return rewiredPlayer.GetButtonDown(cheatPlusInputName);
+        return rewiredPlayer.GetButtonDown(cheatInputName);
+    }
+
+    private bool GetSuperCheatInput()
+    {
+        return rewiredPlayer.GetButtonDown(superCheatInputName);
     }
 
     #endregion

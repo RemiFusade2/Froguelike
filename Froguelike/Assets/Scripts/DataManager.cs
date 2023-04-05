@@ -351,14 +351,14 @@ public class DataManager : MonoBehaviour
                 break;
             case FixedCollectibleType.STATS_ITEM:
                 RunStatItemData statItem = RunItemManager.instance.allRunStatsItemsScriptableObjects.FirstOrDefault(x => x.itemName.Equals(collectible.collectibleStatItemData.itemName));
-                if (statItem != null)
+                if (statItem != null && statItem.icon != null)
                 {
                     resultSprite = statItem.icon;
                 }
                 break;
             case FixedCollectibleType.WEAPON_ITEM:
                 RunWeaponItemData weaponItem = RunItemManager.instance.allRunWeaponsItemsScriptableObjects.FirstOrDefault(x => x.itemName.Equals(collectible.collectibleWeaponItemData.itemName));
-                if (weaponItem != null)
+                if (weaponItem != null && weaponItem.icon != null)
                 {
                     resultSprite = weaponItem.icon;
                 }

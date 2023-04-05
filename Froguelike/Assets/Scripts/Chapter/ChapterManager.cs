@@ -74,6 +74,8 @@ public class ChaptersSaveData : SaveData
 {
     public List<Chapter> chaptersList;
 
+    public int chapterCountInSelection;
+
     public ChaptersSaveData()
     {
         Reset();
@@ -83,6 +85,7 @@ public class ChaptersSaveData : SaveData
     {
         base.Reset();
         chaptersList = new List<Chapter>();
+        chapterCountInSelection = 3;
     }
 }
 
@@ -103,6 +106,7 @@ public class ChapterManager : MonoBehaviour
     [Header("UI - Chapter Selection screen")]
     public TextMeshProUGUI chapterSelectionTopText;
     public List<ChapterButtonBehaviour> chapterButtonsList;
+    public Button backButton;
 
     [Header("UI - Chapter Selection screen - Post its")]
     public GameObject rerollInfinitePostIt;
@@ -157,6 +161,19 @@ public class ChapterManager : MonoBehaviour
     public void UnlockChapter(ChapterData chapterData)
     {
         allChaptersDico[chapterData.chapterID].unlocked = true;
+    }
+
+    public int GetUnlockedChaptersCount()
+    {
+        int unlockedCount = 0;
+        foreach (Chapter chapter in chaptersData.chaptersList)
+        {
+            if (!chapter.chapterData.startingUnlockState && chapter.unlocked)
+            {
+                unlockedCount++;
+            }
+        }
+        return unlockedCount;
     }
 
     /// <summary>
@@ -312,9 +329,15 @@ public class ChapterManager : MonoBehaviour
         rerollPostItButton.interactable = (GameManager.instance.player.rerolls > 0);
     }
 
-    private void NewSelectionOfChapters()
+    public void SetChapterCountInSelection(int newChapterCount)
     {
-        int numberOfChaptersInSelection = RunManager.instance.chapterCountInSelection;
+        chaptersData.chapterCountInSelection = newChapterCount;
+        SaveDataManager.instance.isSaveDataDirty = true;
+    }
+
+    private void NewSelectionOfChapters()
+    {        
+        int numberOfChaptersInSelection = chaptersData.chapterCountInSelection;
 
         // Choose a number of chapters from the list of available chapters
         SelectNextPossibleChapters(numberOfChaptersInSelection);
@@ -353,6 +376,7 @@ public class ChapterManager : MonoBehaviour
         // Update the top text
         int chapterCount = currentChapterCount;
         string chapterIntro = "";
+        backButton.gameObject.SetActive((chapterCount == 0));
         if (chapterCount == 0)
         {
             chapterIntro = "How does the story start?";
@@ -534,6 +558,7 @@ public class ChapterManager : MonoBehaviour
         {
             // A hard reset will reset everything to the start game values
             chaptersData.chaptersList.Clear();
+            chaptersData.chapterCountInSelection = 3;
             foreach (ChapterData chapterData in chaptersScriptableObjectsList)
             {
                 Chapter newChapter = new Chapter() {
@@ -573,6 +598,7 @@ public class ChapterManager : MonoBehaviour
     /// <param name="saveData"></param>
     public void SetChaptersData(ChaptersSaveData saveData)
     {
+        chaptersData.chapterCountInSelection = saveData.chapterCountInSelection;
         foreach (Chapter chapter in chaptersData.chaptersList)
         {
             Chapter chapterFromSave = saveData.chaptersList.FirstOrDefault(x => x.chapterID.Equals(chapter.chapterID));

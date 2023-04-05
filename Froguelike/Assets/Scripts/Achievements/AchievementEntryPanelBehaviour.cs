@@ -48,26 +48,6 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
         achievementHintTextMesh.color = color;
     }
 
-    private string GetAchievementRewardDescription(Achievement achievement)
-    {
-        string rewardDescription = achievement.achievementData.reward.rewardDescription;
-        switch (achievement.achievementData.reward.rewardType)
-        {
-            case AchievementRewardType.CHARACTER:
-                rewardDescription = rewardDescription.Replace("characterName", achievement.achievementData.reward.character.characterName);
-                break;
-            case AchievementRewardType.RUN_ITEM:
-                rewardDescription = rewardDescription.Replace("itemName", achievement.achievementData.reward.runItem.itemName);
-                break;
-            case AchievementRewardType.SHOP_ITEM:
-                rewardDescription = rewardDescription.Replace("itemName", achievement.achievementData.reward.shopItem.itemName);
-                break;
-            default:
-                break;
-        }
-        return rewardDescription;
-    }
-
     private void SetAchievementIcon(Achievement achievement)
     {
         achievementIconImage.sprite = achievement.achievementData.achievementLockedIcon;
@@ -89,9 +69,9 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
         {
             // The achievement has been unlocked already
             SetTextColor(visibleTextColor);
-            achievementTitleTextMesh.text = achievement.achievementData.achievementTitle;
-            achievementRewardTextMesh.text = $"Reward: {GetAchievementRewardDescription(achievement)}";
-            achievementHintTextMesh.text = $"Hint: {achievement.achievementData.achievementDescription}";
+            achievementTitleTextMesh.text = achievement.achievementData.achievementTitle;            
+            achievementRewardTextMesh.text = $"Reward: {achievement.GetRewardDescription()}";
+            achievementHintTextMesh.text = $"Hint: {achievement.GetAchievementDescription()}";
             unlockedFrameIconImage.gameObject.SetActive(true);
             unlockedFrameIconImage.sprite = achievedFrameSprite;
             unlockedIconImage.sprite = achievedSprite;
@@ -129,8 +109,8 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
             // The achievement is not unlocked but is visible
             SetTextColor(visibleTextColor);
             achievementTitleTextMesh.text = achievement.achievementData.achievementTitle;
-            achievementRewardTextMesh.text = $"Reward: {GetAchievementRewardDescription(achievement)}";
-            achievementHintTextMesh.text = $"Hint: {achievement.achievementData.achievementDescription}";
+            achievementRewardTextMesh.text = $"Reward: {achievement.GetRewardDescription()}";
+            achievementHintTextMesh.text = $"Hint: {achievement.GetAchievementDescription()}";
             unlockedFrameIconImage.gameObject.SetActive(true);
             unlockedFrameIconImage.sprite = notAchievedFrameSprite;
             unlockedIconImage.sprite = notAchievedSprite;

@@ -20,7 +20,7 @@ public class ChapterButtonBehaviour : MonoBehaviour
     public void Initialize(Chapter chapter)
     {
         titleTextMesh.SetText(chapter.chapterData.chapterTitle);
-        descriptionTextMesh.SetText(chapter.chapterData.chapterLore[0]);
+        descriptionTextMesh.SetText(chapter.chapterData.chapterLore[0].Replace("\\n", "\n"));
 
         bool isChapterNew = true;
         foreach (CharacterCount count in chapter.attemptCountByCharacters)

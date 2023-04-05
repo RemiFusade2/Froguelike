@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bad41dd93f187774b8bdbe4c23a9cc6f, type: 3}
+  m_Name: '[CH_STORY_RIBBIT_5]'
+  m_EditorClassIdentifier: 
+  chapterID: '[CH_STORY_RIBBIT_5]'
+  chapterTitle: The Hero
+  chapterLore:
+  - Ribbit began to eat the invasive plant. The plant was toxic, but they were immune
+    to its effects! Only Ribbit could save the garden, his toxicity was not a curse,
+    but a gift.
+  icons:
+  - {fileID: 21300000, guid: 68abefe47b6919f45b674f7fa1fc656e, type: 3}
+  - {fileID: 21300000, guid: 68abefe47b6919f45b674f7fa1fc656e, type: 3}
+  - {fileID: 21300000, guid: 68abefe47b6919f45b674f7fa1fc656e, type: 3}
+  startingStatBonuses:
+    statsList: []
+  chapterLengthInSeconds: 300
+  startingUnlockState: 1
+  startingWeight: 5
+  canBePlayedMultipleTimesInOneRun: 0
+  conditions:
+  - conditionsList:
+    - conditionType: 2
+      not: 0
+      chapterData: {fileID: 0}
+      minChapterCount: 5
+      maxChapterCount: 5
+      environmentType: 0
+      hatType: 0
+      friendType: 0
+      itemName: {fileID: 0}
+      characterData: {fileID: 0}
+    - conditionType: 7
+      not: 0
+      chapterData: {fileID: 0}
+      minChapterCount: 1
+      maxChapterCount: 1
+      environmentType: 0
+      hatType: 0
+      friendType: 0
+      itemName: {fileID: 0}
+      characterData: {fileID: 11400000, guid: 8532a20df8a530548b6aa40feab1c90b, type: 2}
+    - conditionType: 1
+      not: 0
+      chapterData: {fileID: 11400000, guid: c97c079fa8fb0f84cb3522fe6bca439d, type: 2}
+      minChapterCount: 1
+      maxChapterCount: 1
+      environmentType: 0
+      hatType: 0
+      friendType: 0
+      itemName: {fileID: 0}
+      characterData: {fileID: 11400000, guid: 8532a20df8a530548b6aa40feab1c90b, type: 2}
+  rocksSpawnFrequency: 0
+  pondsSpawnFrequency: 0
+  coinsSpawnFrequency: 0
+  healthSpawnFrequency: 0
+  levelUpSpawnFrequency: 0
+  specialCollectiblesOnTheMap: []
+  environmentChange: 0
+  characterStyleChange: 0
+  waves:
+  - {fileID: 11400000, guid: afe3a0e9f471f454894f4369f6f5f975, type: 2}
+  weightChanges:
+  - chapter: {fileID: 11400000, guid: 9e5fc620729d61d43b9bd67c200dc831, type: 2}
+    weightChange: 5

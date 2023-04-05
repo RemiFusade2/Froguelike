@@ -119,7 +119,6 @@ public class RunManager : MonoBehaviour
 
     [Header("Settings - Chapter count")]
     public int maxChaptersInARun = 5;
-    public int chapterCountInSelection = 5;
 
     [Header("Settings - XP")]
     public float startLevelXp = 5; // XP needed to go from level 1 to level 2
@@ -491,6 +490,11 @@ public class RunManager : MonoBehaviour
         else
         {
             IncreaseXP(experiencePoints * (1 + player.experienceBoost));
+            float probabilityOfCollectingCurrency = (0.1f * (1 + player.currencyBoost));            
+            if (Random.Range(0.0f,1.0f) < probabilityOfCollectingCurrency)
+            {
+                IncreaseCollectedCurrency(1);
+            }
         }
     }
 
@@ -603,6 +607,7 @@ public class RunManager : MonoBehaviour
 
         // Teleport player to starting position
         player.ResetPosition();
+        player.Heal(player.maxHealth);
 
         // Update map
         MapBehaviour.instance.ClearMap();

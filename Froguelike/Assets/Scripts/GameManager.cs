@@ -135,6 +135,18 @@ public class GameManager : MonoBehaviour
             case RewardFeatureType.SHOP:
                 ShopManager.instance.UnlockShop();
                 break;
+            case RewardFeatureType.CHAPTER_SELECTION_5:
+                ChapterManager.instance.SetChapterCountInSelection(5);
+                break;
+            case RewardFeatureType.GHOST_BUFF:
+                CharacterManager.instance.ChangeCharacterStats("GHOST", new List<StatValue>() { new StatValue(CharacterStat.MAX_HEALTH, 50) });
+                break;
+            case RewardFeatureType.RIBBIT_BUFF:
+                CharacterManager.instance.ChangeCharacterStats("POISONOUS_FROG", new List<StatValue>() { new StatValue(CharacterStat.ATK_DAMAGE_BOOST, 0.3) });
+                break;
+            case RewardFeatureType.STANLEY_BUFF:
+                CharacterManager.instance.ChangeCharacterStats("STANLEY", new List<StatValue>() { new StatValue(CharacterStat.REVIVAL, 8) });
+                break;
         }
     }
 

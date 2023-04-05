@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bad41dd93f187774b8bdbe4c23a9cc6f, type: 3}
+  m_Name: '[CH_ITEM_ABACUS_3]'
+  m_EditorClassIdentifier: 
+  chapterID: '[CH_ITEM_ABACUS_3]'
+  chapterTitle: Fortune and gold
+  chapterLore:
+  - I can't believe it! I knew I was on the right track! I only need to go a tiny
+    bit further and the legendary treasure should be there. I'm gonna be rich!
+  icons:
+  - {fileID: 21300000, guid: 68abefe47b6919f45b674f7fa1fc656e, type: 3}
+  - {fileID: 21300000, guid: 68abefe47b6919f45b674f7fa1fc656e, type: 3}
+  - {fileID: 21300000, guid: 68abefe47b6919f45b674f7fa1fc656e, type: 3}
+  startingStatBonuses:
+    statsList: []
+  chapterLengthInSeconds: 300
+  startingUnlockState: 1
+  startingWeight: 1
+  canBePlayedMultipleTimesInOneRun: 0
+  conditions:
+  - conditionsList:
+    - conditionType: 1
+      not: 0
+      chapterData: {fileID: 11400000, guid: 8b750f8a528f91d4f8e5259a1cba1b7d, type: 2}
+      minChapterCount: 0
+      maxChapterCount: 0
+      environmentType: 0
+      hatType: 0
+      friendType: 0
+      itemName: {fileID: 0}
+      characterData: {fileID: 0}
+    - conditionType: 2
+      not: 0
+      chapterData: {fileID: 11400000, guid: b874fa8e4f4f3af4fb96fd5f6abcca0d, type: 2}
+      minChapterCount: 3
+      maxChapterCount: 5
+      environmentType: 0
+      hatType: 0
+      friendType: 0
+      itemName: {fileID: 0}
+      characterData: {fileID: 0}
+  rocksSpawnFrequency: 0
+  pondsSpawnFrequency: 0
+  coinsSpawnFrequency: 0
+  healthSpawnFrequency: 0
+  levelUpSpawnFrequency: 0
+  specialCollectiblesOnTheMap:
+  - tileCoordinates: {x: -10, y: 0}
+    tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
+    collectibleType: 0
+    collectibleStatItemData: {fileID: 11400000, guid: 4719979f0ffab724bbfbff34b7416ba9, type: 2}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 0
+  environmentChange: 0
+  characterStyleChange: 0
+  waves:
+  - {fileID: 11400000, guid: afe3a0e9f471f454894f4369f6f5f975, type: 2}
+  weightChanges: []

@@ -10,7 +10,8 @@ public enum AchievementConditionSpecialKey
     COMPLETE_10_ACHIEVEMENTS = 3,
     PLAY_GHOST_CHAPTER = 4,
     EAT_100000_BUGS = 5,
-    GATHER_ALL_FRIENDS = 6
+    GATHER_ALL_FRIENDS = 6,
+    UNLOCK_10_CHAPTERS = 7
 }
 
 /// <summary>
@@ -108,6 +109,10 @@ public enum RewardFeatureType
     SHOP, // Open the shop
     CHARACTER_SELECTION, // Make it possible to select a character at the start of the game
     ACHIEVEMENTS_LIST, // See a list of all achievements in the game
+    CHAPTER_SELECTION_5, // Show 5 chapters instead of 3 when choosing a chapter
+    GHOST_BUFF, // Upgrade Ghost starting stats. Remove its HPMax debuff
+    RIBBIT_BUFF, // Upgrade Ribbit starting stats. Remove its damage debuff
+    STANLEY_BUFF // Upgrade Stanley starting stats. Starts with 9 lives
 }
 
 /// <summary>

@@ -72,6 +72,7 @@ public class ShopManager : MonoBehaviour
     public List<ShopItemData> availableItemDataList;
 
     [Header("UI References")]
+    public ScrollRect shopScrollRect;
     public RectTransform shopPanelContainer;
     public Transform shopPanel;
     public TextMeshProUGUI availableCurrencyText;
@@ -328,7 +329,10 @@ public class ShopManager : MonoBehaviour
         // Set size of container panel
         float buttonHeight = shopPanel.GetComponent<GridLayoutGroup>().cellSize.y + shopPanel.GetComponent<GridLayoutGroup>().spacing.y;
         float padding = shopPanel.GetComponent<GridLayoutGroup>().padding.top + shopPanel.GetComponent<GridLayoutGroup>().padding.bottom;
-        shopPanelContainer.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ((buttonCount + 1) / 2) * buttonHeight + padding);    
+        shopPanelContainer.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ((buttonCount + 1) / 2) * buttonHeight + padding);
+
+        // Set scroll view to top position
+        shopScrollRect.normalizedPosition = new Vector2(0, 1);
     }
 
     /// <summary>

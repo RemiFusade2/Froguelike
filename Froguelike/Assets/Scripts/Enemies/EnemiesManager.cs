@@ -684,8 +684,8 @@ public class EnemiesManager : MonoBehaviour
             if (!enemyDied && enemy.knockbackCooldown <= 0)
             {
                 Vector2 knockbackDirection = (enemy.enemyTransform.position - weapon.position).normalized;
-                //float knockbackStrengthMassRatio = Mathf.Clamp(Mathf.Log10(enemy.enemyRigidbody.mass), 1, 10);
-                float knockbackForce = weapon.GetComponent<WeaponBehaviour>().knockbackForce;
+                float knockbackStrengthMassRatio = Mathf.Clamp(enemy.enemyRigidbody.mass/8, 1, 20);
+                float knockbackForce = weapon.GetComponent<WeaponBehaviour>().knockbackForce / knockbackStrengthMassRatio;
 
                 enemy.Knockback(knockbackDirection, knockbackForce, knockbackDuration);
 
