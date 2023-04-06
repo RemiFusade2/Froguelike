@@ -151,7 +151,7 @@ public class UIManager : MonoBehaviour
         long currencyValue = GameManager.instance.gameData.availableCurrency;
 
         UpdateTitleScreenCurrencyText(currencyValue);
-        ShopManager.instance.DisplayShop();
+        ShopManager.instance.DisplayShop(false);
     }
 
     private void UpdateTitleScreenCurrencyText(long currencyValue)
@@ -276,7 +276,7 @@ public class UIManager : MonoBehaviour
     public void ShowShop()
     {
         HideAllScreens();
-        ShopManager.instance.DisplayShop();
+        ShopManager.instance.DisplayShop(true);
         titleScreen.SetActive(true);
         shopScreen.SetActive(true);
 

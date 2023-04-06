@@ -999,7 +999,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f239f83f081b504dbdad67c659122b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  logsVerboseLevel: 2
+  logsVerboseLevel: 0
   player: {fileID: 1127068952}
   fliesParent: {fileID: 372494532}
   levelUpParticleSystem: {fileID: 1573265719}
@@ -1049,7 +1049,7 @@ MonoBehaviour:
   maxChaptersInARun: 5
   startLevelXp: 5
   xpNeededForNextLevelMinFactor: 1.1
-  xpNeededForNextLevelMaxFactor: 1.3
+  xpNeededForNextLevelMaxFactor: 1.35
   xpNeededForEachLevelCurve:
     serializedVersion: 2
     m_Curve:
@@ -7270,7 +7270,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fbc61837b9123d448f448c6e7d1543f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  verbose: 2
+  verbose: 0
   enemiesParent: {fileID: 372494532}
   damageTextsParent: {fileID: 242681229}
   enemiesTypesDataList:
@@ -7327,6 +7327,7 @@ MonoBehaviour:
   spawnCircleRadius: 30
   findSpawnPositionMaxAttempts: 10
   maxDistanceBeforeUnspawn: 60
+  unspawnEnemiesThatGoTooFar: 0
   maxDamageTexts: 300
   maxActiveEnemies: 1500
   updateAllEnemiesCount: 1500
@@ -11067,6 +11068,10 @@ PrefabInstance:
       value: Achievement Manager
       objectReference: {fileID: 0}
     - target: {fileID: 8163245621343275615, guid: 2739f4850b1d3a148b0e31bfda809591, type: 3}
+      propertyPath: logsVerboseLevel
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8163245621343275615, guid: 2739f4850b1d3a148b0e31bfda809591, type: 3}
       propertyPath: achievementCountTextMesh
       value: 
       objectReference: {fileID: 1562078723}
@@ -12429,8 +12434,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59403bdc3bfc81449830aa29e832a621, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  logsVerboseLevel: 2
-  demoBuild: 0
+  logsVerboseLevel: 0
+  demoBuild: 1
   player: {fileID: 1127068952}
   destroyParticleEffectPrefab: {fileID: 5766076256110460918, guid: 867e943a86ac095478453c5eff1f065e, type: 3}
   destroyParticleEffectTimespan: 1
@@ -12856,18 +12861,36 @@ MonoBehaviour:
       _userAssignable: 1
       _categoryId: 0
     - _id: 3
-      _name: cheat
+      _name: levelupcheat
       _type: 1
-      _descriptiveName: cheat
+      _descriptiveName: levelupcheat
       _positiveDescriptiveName: 
       _negativeDescriptiveName: 
       _behaviorId: 0
       _userAssignable: 1
       _categoryId: 0
     - _id: 4
-      _name: supercheat
+      _name: froinscheat
       _type: 1
-      _descriptiveName: supercheat
+      _descriptiveName: froinscheat
+      _positiveDescriptiveName: 
+      _negativeDescriptiveName: 
+      _behaviorId: 0
+      _userAssignable: 1
+      _categoryId: 0
+    - _id: 5
+      _name: unlockallcheat
+      _type: 1
+      _descriptiveName: unlockallcheat
+      _positiveDescriptiveName: 
+      _negativeDescriptiveName: 
+      _behaviorId: 0
+      _userAssignable: 1
+      _categoryId: 0
+    - _id: 6
+      _name: skipchaptercheat
+      _type: 1
+      _descriptiveName: skipchaptercheat
       _positiveDescriptiveName: 
       _negativeDescriptiveName: 
       _behaviorId: 0
@@ -12882,7 +12905,7 @@ MonoBehaviour:
     actionCategoryMap:
       list:
       - categoryId: 0
-        actionIds: 0000000001000000020000000300000004000000
+        actionIds: 00000000010000000200000003000000040000000600000005000000
     inputBehaviors:
     - _id: 0
       _name: Default
@@ -13186,7 +13209,29 @@ MonoBehaviour:
         _axisRange: 0
         _invert: 0
         _axisContribution: 0
+        _keyboardKeyCode: 118
+        _modifierKey1: 0
+        _modifierKey2: 0
+        _modifierKey3: 0
+      - _actionCategoryId: 0
+        _actionId: 6
+        _elementType: 1
+        _elementIdentifierId: -1
+        _axisRange: 0
+        _invert: 0
+        _axisContribution: 0
         _keyboardKeyCode: 99
+        _modifierKey1: 1
+        _modifierKey2: 0
+        _modifierKey3: 0
+      - _actionCategoryId: 0
+        _actionId: 5
+        _elementType: 1
+        _elementIdentifierId: -1
+        _axisRange: 0
+        _invert: 0
+        _axisContribution: 0
+        _keyboardKeyCode: 118
         _modifierKey1: 1
         _modifierKey2: 0
         _modifierKey3: 0
@@ -13196,7 +13241,7 @@ MonoBehaviour:
     controllerMapLayoutManagerRuleSets: []
     controllerMapEnablerRuleSets: []
     playerIdCounter: 2
-    actionIdCounter: 5
+    actionIdCounter: 7
     actionCategoryIdCounter: 1
     inputBehaviorIdCounter: 2
     mapCategoryIdCounter: 1
@@ -14773,7 +14818,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 770929202}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3be859a01fdafe445ab3e745a15e54fb, type: 3}
   m_Name: 
@@ -15263,7 +15308,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 274cccadc40db344db85cdf34c3407f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  logsVerboseLevel: 2
+  logsVerboseLevel: 0
   titleScreen: {fileID: 886136328}
   titleScreenCurrencyText: {fileID: 1564075483}
   titleScreenWelcomeMessageText: {fileID: 2041939042}
@@ -20688,6 +20733,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 905985176}
     - target: {fileID: 4919826508944035819, guid: abeb0f41db396bd45a4db2a535d395f8, type: 3}
+      propertyPath: logsVerboseLevel
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4919826508944035819, guid: abeb0f41db396bd45a4db2a535d395f8, type: 3}
       propertyPath: shopPanelContainer
       value: 
       objectReference: {fileID: 818835337}
@@ -21460,11 +21509,14 @@ MonoBehaviour:
   attackSpecialDurationBoost: 0
   statItemSlotsCount: 0
   weaponSlotsCount: 0
-  logsVerboseLevel: 2
+  logsVerboseLevel: 0
   horizontalInputName: horizontal
   verticalInputName: vertical
   pauseInputName: pause
-  cheatPlusInputName: cheat
+  levelUpCheatInputName: levelupcheat
+  froinsCheatInputName: froinscheat
+  skipChapterCheatInputName: skipchaptercheat
+  unlockAllCheatInputName: unlockallcheat
   inputAxisDeadZone: 0.3
   friendsParent: {fileID: 115233407}
 --- !u!50 &1127068953
@@ -38351,7 +38403,7 @@ MonoBehaviour:
   collectibleMovingSpeedFactor: 1.5
   collectMinDistance: 1
   updateAllCollectiblesDelay: 0.1
-  verboseLevel: 2
+  verboseLevel: 0
 --- !u!1 &1681353837
 GameObject:
   m_ObjectHideFlags: 0
@@ -46501,6 +46553,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: defaultHealthRecovery
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
       propertyPath: collectibleDefaultSprite
       value: 
       objectReference: {fileID: 21300000, guid: 68abefe47b6919f45b674f7fa1fc656e, type: 3}
@@ -46573,6 +46629,10 @@ PrefabInstance:
       propertyPath: rerollPostIt
       value: 
       objectReference: {fileID: 1487405510}
+    - target: {fileID: 4807140622076035636, guid: 89bc2e94c40a13947a6d6d5769df1c0d, type: 3}
+      propertyPath: logsVerboseLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4807140622076035636, guid: 89bc2e94c40a13947a6d6d5769df1c0d, type: 3}
       propertyPath: rerollPostItButton
       value: 
@@ -47235,7 +47295,7 @@ PrefabInstance:
       objectReference: {fileID: 853043309}
     - target: {fileID: 7318119662831110506, guid: 31baea2ab7741fe428e37a3b64382181, type: 3}
       propertyPath: logsVerboseLevel
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7318119662831110506, guid: 31baea2ab7741fe428e37a3b64382181, type: 3}
       propertyPath: statsListContent
@@ -47408,11 +47468,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7978220894028803650, guid: 59c67d09569c781419f4218687db094f, type: 3}
       propertyPath: saveMethod
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7978220894028803650, guid: 59c67d09569c781419f4218687db094f, type: 3}
       propertyPath: logsVerboseLevel
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7978220894028803650, guid: 59c67d09569c781419f4218687db094f, type: 3}
       propertyPath: saveFileAttemptDelay

@@ -101,6 +101,9 @@ public class EnemyInstance
     // Move pattern
     public EnemyMovePattern movePattern;
 
+    // Origin wave
+    public Wave wave;
+
     // Current in-game state - knockback & cooldown
     public float knockbackCooldown;
 
@@ -178,6 +181,7 @@ public class EnemiesManager : MonoBehaviour
     public int findSpawnPositionMaxAttempts = 10;
     [Space]
     public float maxDistanceBeforeUnspawn = 40;
+    public bool unspawnEnemiesThatGoTooFar = false;
 
     [Header("Settings - Pooling")]
     public int maxDamageTexts = 300;
@@ -459,7 +463,7 @@ public class EnemiesManager : MonoBehaviour
                             {
                                 for (int j = 0; j < enemyCount; j++)
                                 {
-                                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition + Random.Range(-1.0f, 1.0f) * Vector2.right + Random.Range(-1.0f, 1.0f) * Vector2.up, enemyData, enemySpawn.movePattern, currentDelay));
+                                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition + Random.Range(-1.0f, 1.0f) * Vector2.right + Random.Range(-1.0f, 1.0f) * Vector2.up, enemyData, enemySpawn.movePattern, currentWave, currentDelay));
                                     currentDelay += delayBetweenSpawn;
                                 }
                             }
@@ -484,7 +488,7 @@ public class EnemiesManager : MonoBehaviour
                             for (float angle = 0; angle < arcAngle; angle += deltaAngle)
                             {
                                 spawnPosition = GameManager.instance.player.transform.position + (Mathf.Cos(angle * Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(angle * Mathf.Deg2Rad) * Vector3.up) * spawnDistanceFromPlayer;
-                                StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentDelay));
+                                StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, currentDelay));
                                 currentDelay += delayBetweenSpawn;
                             }
                             break;
@@ -495,7 +499,7 @@ public class EnemiesManager : MonoBehaviour
                             {
                                 if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out spawnPosition))
                                 {
-                                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentDelay));
+                                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, currentDelay));
                                     currentDelay += delayBetweenSpawn;
                                 }
                             }
@@ -509,7 +513,7 @@ public class EnemiesManager : MonoBehaviour
         }
     }
 
-    public void SpawnEnemy(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern)
+    public void SpawnEnemy(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, Wave originWave)
     {
         // Get an enemy from the pool
         EnemyInstance enemyFromPool = null;
@@ -540,6 +544,8 @@ public class EnemiesManager : MonoBehaviour
 
             enemyFromPool.enemyTransform.position = position;
 
+            enemyFromPool.wave = originWave;
+
             if (verbose == VerboseLevel.MAXIMAL)
             {
                 Debug.Log($"Spawning a {enemyData.enemyName} with move pattern {movePattern.movePatternType.ToString()}. Total amount of active enemies = {allActiveEnemiesDico.Count + 1}");
@@ -549,10 +555,10 @@ public class EnemiesManager : MonoBehaviour
         }
     }
 
-    private IEnumerator SpawnEnemyAsync(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, float delay)
+    private IEnumerator SpawnEnemyAsync(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, Wave originWave, float delay)
     {
         yield return new WaitForSeconds(delay);
-        SpawnEnemy(prefab, position, enemyData, movePattern);
+        SpawnEnemy(prefab, position, enemyData, movePattern, originWave);
     }
 
     public void InitializeWave(Wave wave)
@@ -788,11 +794,22 @@ public class EnemiesManager : MonoBehaviour
                         float distanceWithFrog = Vector2.Distance(frogPosition, enemy.enemyTransform.position);
                         if (distanceWithFrog > maxDistanceBeforeUnspawn)
                         {
-                            // Unspawn enemy
-                            enemy.enemyRenderer.enabled = false;
-                            enemy.enemyCollider.enabled = false;
-                            enemy.active = false;
-                            enemiesToDestroyIDList.Add(enemy.enemyID);
+                            if (unspawnEnemiesThatGoTooFar || !enemy.wave.Equals(RunManager.instance.GetCurrentWave()))
+                            {
+                                // Unspawn enemy
+                                enemy.enemyRenderer.enabled = false;
+                                enemy.enemyCollider.enabled = false;
+                                enemy.active = false;
+                                enemiesToDestroyIDList.Add(enemy.enemyID);
+                            }
+                            else
+                            {
+                                // Place enemy in front of frog (as if it was spawned again)
+                                if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out Vector2 spawnPosition))
+                                {
+                                    enemy.enemyTransform.position = spawnPosition;
+                                }
+                            }
                         }
                         else
                         {

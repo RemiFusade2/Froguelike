@@ -180,7 +180,7 @@ public class ShopManager : MonoBehaviour
                 // Compute new starting stats bonuses
                 ComputeStatsBonuses();
                 // Update the shop display
-                DisplayShop();
+                DisplayShop(false);
                 // Signal the SaveDataManager that information from the shop have been updated and should be saved when possible
                 SaveDataManager.instance.isSaveDataDirty = true;
 
@@ -279,7 +279,7 @@ public class ShopManager : MonoBehaviour
     /// Update the UI of the Shop.
     /// Will update both the available currency and redraw the buttons for each item using updated values.
     /// </summary>
-    public void DisplayShop()
+    public void DisplayShop(bool moveToTop)
     {
         // Update Refund Button availability
         refundButton.interactable = (shopData.currencySpentInShop > 0);
@@ -331,8 +331,11 @@ public class ShopManager : MonoBehaviour
         float padding = shopPanel.GetComponent<GridLayoutGroup>().padding.top + shopPanel.GetComponent<GridLayoutGroup>().padding.bottom;
         shopPanelContainer.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ((buttonCount + 1) / 2) * buttonHeight + padding);
 
-        // Set scroll view to top position
-        shopScrollRect.normalizedPosition = new Vector2(0, 1);
+        if (moveToTop)
+        {
+            // Set scroll view to top position
+            shopScrollRect.normalizedPosition = new Vector2(0, 1);
+        }
     }
 
     /// <summary>
@@ -358,7 +361,7 @@ public class ShopManager : MonoBehaviour
         // Compute new starting stats bonuses
         ComputeStatsBonuses();
         // Update the shop display
-        DisplayShop();
+        DisplayShop(false);
         // Signal the SaveDataManager that information from the shop have been updated and should be saved when possible
         SaveDataManager.instance.isSaveDataDirty = true;
     }
@@ -384,6 +387,6 @@ public class ShopManager : MonoBehaviour
         // Compute new starting stats bonuses
         ComputeStatsBonuses();
         // Update the shop display
-        DisplayShop();
+        DisplayShop(false);
     }
 }

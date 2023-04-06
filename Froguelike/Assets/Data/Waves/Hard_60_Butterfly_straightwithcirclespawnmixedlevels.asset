@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3dac8d5f33a52541b2181b63b7a8fe5, type: 3}
+  m_Name: Hard_60_Butterfly_straightwithcirclespawnmixedlevels
+  m_EditorClassIdentifier: 
+  duration: 60
+  enemies:
+  - enemyType: 1
+    tierFormula: chapter+1
+    movePattern:
+      movePatternType: 1
+      speedFactor: 2
+      bouncecount: 0
+    spawnPattern:
+      spawnPatternType: 1
+      spawnPatternShape: 2
+      spawnAmount: 20
+      multipleSpawnDelay: 0.02
+    spawnCooldown: 10
+  - enemyType: 1
+    tierFormula: chapter-1
+    movePattern:
+      movePatternType: 1
+      speedFactor: 2
+      bouncecount: 0
+    spawnPattern:
+      spawnPatternType: 1
+      spawnPatternShape: 1
+      spawnAmount: 45
+      multipleSpawnDelay: 0.01
+    spawnCooldown: 5
+  - enemyType: 1
+    tierFormula: 1
+    movePattern:
+      movePatternType: 1
+      speedFactor: 2.5
+      bouncecount: 0
+    spawnPattern:
+      spawnPatternType: 1
+      spawnPatternShape: 1
+      spawnAmount: 40
+      multipleSpawnDelay: 0.01
+    spawnCooldown: 10
+  - enemyType: 1
+    tierFormula: 5
+    movePattern:
+      movePatternType: 1
+      speedFactor: 1.5
+      bouncecount: 0
+    spawnPattern:
+      spawnPatternType: 1
+      spawnPatternShape: 2
+      spawnAmount: 15
+      multipleSpawnDelay: 0.01
+    spawnCooldown: 30
+  - enemyType: 1
+    tierFormula: chapter+2
+    movePattern:
+      movePatternType: 1
+      speedFactor: 1.5
+      bouncecount: 0
+    spawnPattern:
+      spawnPatternType: 1
+      spawnPatternShape: 1
+      spawnAmount: 31
+      multipleSpawnDelay: 0.005
+    spawnCooldown: 30

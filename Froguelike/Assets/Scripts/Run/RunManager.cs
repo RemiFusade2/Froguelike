@@ -490,10 +490,15 @@ public class RunManager : MonoBehaviour
         else
         {
             IncreaseXP(experiencePoints * (1 + player.experienceBoost));
-            float probabilityOfCollectingCurrency = (0.1f * (1 + player.currencyBoost));            
-            if (Random.Range(0.0f,1.0f) < probabilityOfCollectingCurrency)
+
+            // Also collect some currency when eating a bug
+            Vector2 currencyProbabilityMinMax = new Vector2(player.currencyBoost, (1 + player.currencyBoost));
+            float currencyProba = Random.Range(currencyProbabilityMinMax.x, currencyProbabilityMinMax.y);
+            float currencyAmount = Mathf.Floor(currencyProba) + ((Random.Range(Mathf.Floor(currencyProba), Mathf.Ceil(currencyProba)) < currencyProba) ? 1 : 0);
+            long currencyAmountLong = (long)Mathf.RoundToInt(currencyAmount);
+            if (currencyAmountLong > 0)
             {
-                IncreaseCollectedCurrency(1);
+                IncreaseCollectedCurrency(currencyAmountLong);
             }
         }
     }
@@ -563,6 +568,15 @@ public class RunManager : MonoBehaviour
 
         // Stop time
         GameManager.instance.SetTimeScale(0);
+
+        // Reset all tongues
+        foreach (RunWeaponInfo weaponInfo in GetOwnedWeapons())
+        {
+            foreach (GameObject activeWeapon in weaponInfo.activeWeaponsList)
+            {
+                activeWeapon.GetComponent<WeaponBehaviour>().ResetWeapon();
+            }            
+        }
 
         if (completedChaptersList.Count >= maxChaptersInARun)
         {

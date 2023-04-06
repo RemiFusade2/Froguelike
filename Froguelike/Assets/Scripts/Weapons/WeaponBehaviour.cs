@@ -58,6 +58,8 @@ public class WeaponBehaviour : MonoBehaviour
 
     private List<string> enemiesHitNamesList;
 
+    private Coroutine sendTongueCoroutine;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -67,6 +69,7 @@ public class WeaponBehaviour : MonoBehaviour
         tongueLineRenderer = GetComponent<LineRenderer>();
         outlineLineRenderer = outlineTransform.GetComponent<LineRenderer>();
         enemiesHitNamesList = new List<string>();
+        sendTongueCoroutine = null;
     }
 
     public void SetTongueColor(Color color)
@@ -128,9 +131,9 @@ public class WeaponBehaviour : MonoBehaviour
     public void ResetWeapon()
     {
         isAttacking = false;
-        eatenFliesCount = 0;
         isTongueGoingOut = false;
         lastAttackTime = Time.time;
+        preventAttack = false;
         SetTongueScale(0);
         tongueLineRenderer = GetComponent<LineRenderer>();
         outlineLineRenderer = outlineTransform.GetComponent<LineRenderer>();
@@ -152,6 +155,13 @@ public class WeaponBehaviour : MonoBehaviour
             default:
                 SetTongueColor(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.NONE));
                 break;
+        }
+        
+        eatenFliesCount = 0;
+
+        if (sendTongueCoroutine != null)
+        {
+            StopCoroutine(sendTongueCoroutine);
         }
     }
 
@@ -371,7 +381,11 @@ public class WeaponBehaviour : MonoBehaviour
         Vector2 direction = GameManager.instance.player.transform.up;
         if (tongueLineRenderer != null && outlineLineRenderer != null)
         {
-            StartCoroutine(SendTongueInDirectionRotating(direction));
+            if (sendTongueCoroutine != null)
+            {
+                StopCoroutine(sendTongueCoroutine);
+            }
+            sendTongueCoroutine = StartCoroutine(SendTongueInDirectionRotating(direction));
         }
     }
 
@@ -453,7 +467,12 @@ public class WeaponBehaviour : MonoBehaviour
 
         if (tongueLineRenderer != null && outlineLineRenderer != null)
         {
-            StartCoroutine(SendTongueInDirection(adjustedDirection.normalized));
+            lastAttackTime = Time.time;
+            if (sendTongueCoroutine != null)
+            {
+                StopCoroutine(sendTongueCoroutine);
+            }
+            sendTongueCoroutine = StartCoroutine(SendTongueInDirection(adjustedDirection.normalized));
         }
     }
 
@@ -463,7 +482,11 @@ public class WeaponBehaviour : MonoBehaviour
         if (enemy != null && tongueLineRenderer != null && outlineLineRenderer != null)
         {
             lastAttackTime = Time.time;
-            StartCoroutine(SendTongueInDirection((enemy.enemyTransform.position - this.transform.position).normalized));
+            if (sendTongueCoroutine != null)
+            {
+                StopCoroutine(sendTongueCoroutine);
+            }
+            sendTongueCoroutine = StartCoroutine(SendTongueInDirection((enemy.enemyTransform.position - this.transform.position).normalized));
         }
     }
 
@@ -505,6 +528,7 @@ public class WeaponBehaviour : MonoBehaviour
         {
             weapon.GetComponent<WeaponBehaviour>().lastAttackTime = lastAttackTime;
             weapon.GetComponent<WeaponBehaviour>().preventAttack = false;
+            weapon.GetComponent<WeaponBehaviour>().isAttacking = false;
         }
     }
 

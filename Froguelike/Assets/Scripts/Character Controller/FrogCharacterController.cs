@@ -63,8 +63,11 @@ public class FrogCharacterController : MonoBehaviour
     public string horizontalInputName = "horizontal";
     public string verticalInputName = "vertical";
     public string pauseInputName = "pause";
-    public string cheatInputName = "cheat";
-    public string superCheatInputName = "supercheat";
+    [Space]
+    public string levelUpCheatInputName = "levelupcheat";
+    public string froinsCheatInputName = "froinscheat";
+    public string skipChapterCheatInputName = "skipchaptercheat";
+    public string unlockAllCheatInputName = "unlockallcheat";
     [Space]
     public float inputAxisDeadZone = 0.3f;
     
@@ -103,19 +106,26 @@ public class FrogCharacterController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (GetCheatInput())
+        if (GetFroinsCheatInput())
+        {
+            GameManager.instance.ChangeAvailableCurrency(10000);
+            UIManager.instance.UpdateCurrencyDisplay();
+        }
+        if (GetLevelUpCheatInput())
         {
             if (GameManager.instance.isGameRunning)
             {
                 RunManager.instance.IncreaseXP(RunManager.instance.nextLevelXp);
             }
-            else
+        }
+        if (GetSkipChapterCheatInput())
+        {
+            if (GameManager.instance.isGameRunning)
             {
-                GameManager.instance.ChangeAvailableCurrency(1000);
-                UIManager.instance.UpdateCurrencyDisplay();
+                RunManager.instance.chapterRemainingTime = 0.1f;
             }
         }
-        if (GetSuperCheatInput())
+        if (GetUnlockAllCheatInput())
         {
             AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true);
         }
@@ -592,14 +602,24 @@ public class FrogCharacterController : MonoBehaviour
         return rewiredPlayer.GetButtonDown(pauseInputName);
     }
 
-    private bool GetCheatInput()
+    private bool GetLevelUpCheatInput()
     {
-        return rewiredPlayer.GetButtonDown(cheatInputName);
+        return rewiredPlayer.GetButtonDown(levelUpCheatInputName);
     }
 
-    private bool GetSuperCheatInput()
+    private bool GetFroinsCheatInput()
     {
-        return rewiredPlayer.GetButtonDown(superCheatInputName);
+        return rewiredPlayer.GetButtonDown(froinsCheatInputName);
+    }
+
+    private bool GetSkipChapterCheatInput()
+    {
+        return rewiredPlayer.GetButtonDown(skipChapterCheatInputName);
+    }
+
+    private bool GetUnlockAllCheatInput()
+    {
+        return rewiredPlayer.GetButtonDown(unlockAllCheatInputName);
     }
 
     #endregion
