@@ -77,6 +77,8 @@ public class GameManager : MonoBehaviour
     public bool hasGameStarted;
     public bool isGameRunning;
 
+    public bool gameIsPaused;
+
 
     private void Awake()
     {
@@ -174,6 +176,7 @@ public class GameManager : MonoBehaviour
     public void SetTimeScale(float timeScale)
     {
         Time.timeScale = timeScale;
+        gameIsPaused = (timeScale == 0);
     }
 
     public void TriggerGameOver()
@@ -251,8 +254,6 @@ public class GameManager : MonoBehaviour
     }
 
     #region Pause
-
-    public bool gameIsPaused;
 
     public void TogglePause()
     {

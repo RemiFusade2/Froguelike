@@ -20,7 +20,8 @@ public class SuperCollectibleBehaviour : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            CollectiblesManager.instance.CollectSuperCollectible(collectibleInfo);
+            FrogCharacterController player = collision.GetComponent<FrogCharacterController>();
+            CollectiblesManager.instance.CollectSuperCollectible(collectibleInfo, player);
             Destroy(this.gameObject);
         }
     }

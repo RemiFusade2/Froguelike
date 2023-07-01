@@ -88,6 +88,7 @@ public class FrogCharacterController : MonoBehaviour
     private float orientationAngle;
 
     private float invincibilityTime;
+    private bool lifesaver;
 
     private float timeSinceLastHPRecovery;
 
@@ -106,6 +107,7 @@ public class FrogCharacterController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        /*
         if (GetFroinsCheatInput())
         {
             GameManager.instance.ChangeAvailableCurrency(10000);
@@ -128,35 +130,40 @@ public class FrogCharacterController : MonoBehaviour
         if (GetUnlockAllCheatInput())
         {
             AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true);
-        }
+        }*/
 
         if (GameManager.instance.isGameRunning)
         {
-
             if (GetPauseInput())
             {
                 GameManager.instance.TogglePause();
             }
 
-            foreach (Transform weaponTransform in weaponsParent)
+            if (!GameManager.instance.gameIsPaused)
             {
-                weaponTransform.GetComponent<WeaponBehaviour>().TryAttack();
+                // Tongues attack
+                foreach (Transform weaponTransform in weaponsParent)
+                {
+                    weaponTransform.GetComponent<WeaponBehaviour>().TryAttack();
+                }
+
+                // Friends attack!
+                foreach (Transform friend in friendsParent)
+                {
+                    FriendBehaviour friendScript = friend.GetComponent<FriendBehaviour>();
+                    friendScript.TryAttack();
+                    friendScript.ClampSpeed();
+                }
+
+                // Health recovery
+                if (!ChapterManager.instance.chapterChoiceIsVisible && !RunManager.instance.levelUpChoiceIsVisible && (Time.time - timeSinceLastHPRecovery) > hpRecoveryDelay)
+                {
+                    Heal(healthRecovery);
+                    timeSinceLastHPRecovery = Time.time;
+                }
             }
 
-            // Make friends attack!
-            foreach (Transform friend in friendsParent)
-            {
-                FriendBehaviour friendScript = friend.GetComponent<FriendBehaviour>();
-                friendScript.TryAttack();
-                friendScript.ClampSpeed();
-            }
-
-            if (!GameManager.instance.gameIsPaused && !ChapterManager.instance.chapterChoiceIsVisible && !RunManager.instance.levelUpChoiceIsVisible && (Time.time - timeSinceLastHPRecovery) > hpRecoveryDelay)
-            {
-                Heal(healthRecovery);
-                timeSinceLastHPRecovery = Time.time;
-            }
-
+            // Set animation speed
             float speed = Mathf.Clamp(playerRigidbody.velocity.magnitude, 0, 10);
             animator.SetFloat("Speed", speed);
         }
@@ -164,36 +171,50 @@ public class FrogCharacterController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        UpdateHorizontalInput();
-        UpdateVerticalInput();
-
-        if (invincibilityTime > 0)
+        if (GameManager.instance.gameIsPaused)
         {
-            invincibilityTime -= Time.fixedDeltaTime;
+            // Set velocity to zero
+            playerRigidbody.velocity = Vector2.zero;
         }
+        else
+        { 
+            // Update inputs
+            UpdateHorizontalInput();
+            UpdateVerticalInput();
 
-        float moveSpeed = isOnLand ? (DataManager.instance.defaultWalkSpeed * (1+walkSpeedBoost)) : (DataManager.instance.defaultSwimSpeed * (1 + swimSpeedBoost));
-        Vector2 moveInput = (((HorizontalInput * Vector2.right).normalized + (VerticalInput * Vector2.up).normalized)).normalized * moveSpeed;
+            // Set invincibility time
+            if (invincibilityTime > 0)
+            {
+                invincibilityTime -= Time.fixedDeltaTime;
+            }
 
-        if (!moveInput.Equals(Vector2.zero))
-        {
-            orientationAngle = 90 + 90 * Mathf.RoundToInt((Vector2.SignedAngle(moveInput, Vector2.right)) / 90);
-            transform.localRotation = Quaternion.Euler(0, 0, -orientationAngle);
-        }
+            // Get move speed from inputs
+            float moveSpeed = isOnLand ? (DataManager.instance.defaultWalkSpeed * (1 + walkSpeedBoost)) : (DataManager.instance.defaultSwimSpeed * (1 + swimSpeedBoost));
+            Vector2 moveInput = (((HorizontalInput * Vector2.right).normalized + (VerticalInput * Vector2.up).normalized)).normalized * moveSpeed;
 
-        playerRigidbody.velocity = moveInput;
+            // Set new orientation
+            if (!moveInput.Equals(Vector2.zero))
+            {
+                orientationAngle = 90 + 90 * Mathf.RoundToInt((Vector2.SignedAngle(moveInput, Vector2.right)) / 90);
+                transform.localRotation = Quaternion.Euler(0, 0, -orientationAngle);
+            }
 
-        foreach (Transform weaponTransform in weaponsParent)
-        {
-            weaponTransform.GetComponent<WeaponBehaviour>().SetTonguePosition(weaponStartPoint);
-        }
+            // Set frog velocity from inputs
+            playerRigidbody.velocity = moveInput;
 
-        // Make friends move
-        foreach (Transform friend in friendsParent)
-        {
-            FriendBehaviour friendScript = friend.GetComponent<FriendBehaviour>();
-            friendScript.TryAttack();
-            friendScript.UpdateOrientation();
+            // Set weapons position
+            foreach (Transform weaponTransform in weaponsParent)
+            {
+                weaponTransform.GetComponent<WeaponBehaviour>().SetTonguePosition(weaponStartPoint);
+            }
+
+            // Make friends move
+            foreach (Transform friend in friendsParent)
+            {
+                FriendBehaviour friendScript = friend.GetComponent<FriendBehaviour>();
+                friendScript.TryAttack();
+                friendScript.UpdateOrientation();
+            }
         }
     }
 
@@ -422,6 +443,7 @@ public class FrogCharacterController : MonoBehaviour
         RunManager.instance.SetExtraLives(revivals, false);
 
         currentHealth = maxHealth;
+        lifesaver = true;
         UpdateHealthBar();
     }
 
@@ -481,6 +503,7 @@ public class FrogCharacterController : MonoBehaviour
         currentHealth = maxHealth;
         UpdateHealthBar();
         invincibilityTime = 1;
+        lifesaver = true;
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -687,25 +710,25 @@ public class FrogCharacterController : MonoBehaviour
 
     private void ChangeHealth(float change)
     {
-        bool deathImminent = (currentHealth < 5); 
-
         currentHealth += change;
         if (currentHealth >= maxHealth)
         {
             currentHealth = maxHealth;
+            lifesaver = true;
         }
         if (currentHealth <= 0)
         {
-            if (deathImminent)
+            if (!lifesaver)
             {
-                // If frog was low HP and took enough damage to die, then it's game over
+                // If frog took enough damage to die and doesn't have a lifesaver, then it's game over
                 GameManager.instance.TriggerGameOver();
             }
             else
             {
-                // If frog had enough HP and took enough damage to die, then it's second chance time! 2s invicibility and 0.1 HP left!
-                currentHealth = 0.1f;
+                // If frog had enough HP and took enough damage to die, then it's second chance time! 2s invicibility and 1 HP left!
+                currentHealth = 1;
                 invincibilityTime = 2;
+                lifesaver = false;
             }
         }
         UpdateHealthBar();

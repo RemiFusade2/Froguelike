@@ -813,100 +813,108 @@ public class EnemiesManager : MonoBehaviour
                         }
                         else
                         {
-                            // Move 
-                            if (enemy.knockbackCooldown > 0)
+                            if (GameManager.instance.gameIsPaused)
                             {
-                                // being knocked back
-                                enemy.knockbackCooldown -= enemyUpdateDeltaTime;
+                                // Stop enemy
+                                enemy.enemyRigidbody.velocity = Vector2.zero;
                             }
                             else
                             {
-                                // Knockback effect is over
-                                enemy.StopKnockback(); 
-                                enemy.knockbackCooldown = 0;
-
-                                // Freeze and Curse remaining time decreases
-                                enemy.freezeRemainingTime -= enemyUpdateDeltaTime;
-                                enemy.curseRemainingTime -= enemyUpdateDeltaTime;
-
-                                // Enemy get its color back (depending on current effect applied)
-                                UpdateSpriteColor(enemy);
-
-                                switch (movePattern.movePatternType)
+                                // Move 
+                                if (enemy.knockbackCooldown > 0)
                                 {
-                                    case EnemyMovePatternType.NO_MOVEMENT:
-                                        enemy.enemyRigidbody.velocity = Vector2.zero;
-                                        break;
-                                    case EnemyMovePatternType.STRAIGHT_LINE:
-                                        SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
-                                        break;
-                                    case EnemyMovePatternType.FOLLOW_PLAYER:
-                                        enemy.moveDirection = (playerTransform.position - enemy.enemyTransform.position).normalized;
-                                        SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
-                                        break;
-                                    case EnemyMovePatternType.BOUNCE_ON_EDGES:
-                                        if (enemy.bounceCount > 0)
-                                        {
-                                            // detect if enemy current position is on an edge of the screen, bounce it in the right direction if it is                                
-                                            Vector3 cameraBottomLeftCorner = Camera.main.ScreenToWorldPoint(20 * Vector3.right + 20 * Vector3.up);
-                                            Vector3 cameraTopRightCorner = Camera.main.ScreenToWorldPoint((Camera.main.GetComponent<PixelPerfectCamera>().refResolutionX - 20) * Vector3.right + (Camera.main.GetComponent<PixelPerfectCamera>().refResolutionY - 50) * Vector3.up);
-                                            if (enemy.moveDirection.x > 0 && (enemy.enemyTransform.position.x > cameraTopRightCorner.x))
-                                            {
-                                                // move to the left
-                                                enemy.moveDirection = (new Vector2(-Mathf.Abs(enemy.moveDirection.x), enemy.moveDirection.y)).normalized;
-                                                enemy.bounceCount--;
-                                            }
-                                            if (enemy.moveDirection.x < 0 && (enemy.enemyTransform.position.x < cameraBottomLeftCorner.x))
-                                            {
-                                                // move to the right
-                                                enemy.moveDirection = (new Vector2(Mathf.Abs(enemy.moveDirection.x), enemy.moveDirection.y)).normalized;
-                                                enemy.bounceCount--;
-                                            }
-                                            if (enemy.moveDirection.y < 0 && (enemy.enemyTransform.position.y < cameraBottomLeftCorner.y))
-                                            {
-                                                // move up
-                                                enemy.moveDirection = (new Vector2(enemy.moveDirection.x, Mathf.Abs(enemy.moveDirection.y))).normalized;
-                                                enemy.bounceCount--;
-                                            }
-                                            if (enemy.moveDirection.y > 0 && (enemy.enemyTransform.position.y > cameraTopRightCorner.y))
-                                            {
-                                                // move down
-                                                enemy.moveDirection = (new Vector2(enemy.moveDirection.x, -Mathf.Abs(enemy.moveDirection.y))).normalized;
-                                                enemy.bounceCount--;
-                                            }
-                                        }
-                                        SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
-                                        break;
-                                    case EnemyMovePatternType.DIRECTIONLESS:
-                                        if (Time.time - enemy.lastChangeOfDirectionTime > delayBetweenRandomChangeOfDirection)
-                                        {
-                                            enemy.moveDirection = Random.insideUnitCircle.normalized;
-                                            enemy.lastChangeOfDirectionTime = Time.time;
-                                        }
-                                        SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
-                                        break;
+                                    // being knocked back
+                                    enemy.knockbackCooldown -= enemyUpdateDeltaTime;
                                 }
-                            }
-
-                            // Poison Damage
-                            enemy.poisonRemainingTime -= enemyUpdateDeltaTime;
-                            if (enemy.poisonRemainingTime <= 0)
-                            {
-                                enemy.poisonRemainingTime = 0;
-                                enemy.poisonDamage = 0;
-                                enemy.lastPoisonDamageTime = float.MinValue;
-                                UpdateSpriteColor(enemy);
-                            }
-                            else if (Time.time - enemy.lastPoisonDamageTime > delayBetweenPoisonDamage)
-                            {
-                                bool enemyIsDead = DamageEnemy(enemy.enemyID, enemy.poisonDamage, null);
-                                enemy.lastPoisonDamageTime = Time.time;
-
-                                if (enemyIsDead && !enemiesToDestroyIDList.Contains(enemy.enemyID))
+                                else
                                 {
-                                    enemiesToDestroyIDList.Add(enemy.enemyID);
-                                    enemy.active = false;
-                                    CollectiblesManager.instance.SpawnCollectible(enemy.enemyTransform.position, CollectibleType.XP_BONUS, enemyData.xPBonus);
+                                    // Knockback effect is over
+                                    enemy.StopKnockback();
+                                    enemy.knockbackCooldown = 0;
+
+                                    // Freeze and Curse remaining time decreases
+                                    enemy.freezeRemainingTime -= enemyUpdateDeltaTime;
+                                    enemy.curseRemainingTime -= enemyUpdateDeltaTime;
+
+                                    // Enemy get its color back (depending on current effect applied)
+                                    UpdateSpriteColor(enemy);
+
+                                    switch (movePattern.movePatternType)
+                                    {
+                                        case EnemyMovePatternType.NO_MOVEMENT:
+                                            enemy.enemyRigidbody.velocity = Vector2.zero;
+                                            break;
+                                        case EnemyMovePatternType.STRAIGHT_LINE:
+                                            SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
+                                            break;
+                                        case EnemyMovePatternType.FOLLOW_PLAYER:
+                                            enemy.moveDirection = (playerTransform.position - enemy.enemyTransform.position).normalized;
+                                            SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
+                                            break;
+                                        case EnemyMovePatternType.BOUNCE_ON_EDGES:
+                                            if (enemy.bounceCount > 0)
+                                            {
+                                                // detect if enemy current position is on an edge of the screen, bounce it in the right direction if it is                                
+                                                Vector3 cameraBottomLeftCorner = Camera.main.ScreenToWorldPoint(20 * Vector3.right + 20 * Vector3.up);
+                                                Vector3 cameraTopRightCorner = Camera.main.ScreenToWorldPoint((Camera.main.GetComponent<PixelPerfectCamera>().refResolutionX - 20) * Vector3.right + (Camera.main.GetComponent<PixelPerfectCamera>().refResolutionY - 50) * Vector3.up);
+                                                if (enemy.moveDirection.x > 0 && (enemy.enemyTransform.position.x > cameraTopRightCorner.x))
+                                                {
+                                                    // move to the left
+                                                    enemy.moveDirection = (new Vector2(-Mathf.Abs(enemy.moveDirection.x), enemy.moveDirection.y)).normalized;
+                                                    enemy.bounceCount--;
+                                                }
+                                                if (enemy.moveDirection.x < 0 && (enemy.enemyTransform.position.x < cameraBottomLeftCorner.x))
+                                                {
+                                                    // move to the right
+                                                    enemy.moveDirection = (new Vector2(Mathf.Abs(enemy.moveDirection.x), enemy.moveDirection.y)).normalized;
+                                                    enemy.bounceCount--;
+                                                }
+                                                if (enemy.moveDirection.y < 0 && (enemy.enemyTransform.position.y < cameraBottomLeftCorner.y))
+                                                {
+                                                    // move up
+                                                    enemy.moveDirection = (new Vector2(enemy.moveDirection.x, Mathf.Abs(enemy.moveDirection.y))).normalized;
+                                                    enemy.bounceCount--;
+                                                }
+                                                if (enemy.moveDirection.y > 0 && (enemy.enemyTransform.position.y > cameraTopRightCorner.y))
+                                                {
+                                                    // move down
+                                                    enemy.moveDirection = (new Vector2(enemy.moveDirection.x, -Mathf.Abs(enemy.moveDirection.y))).normalized;
+                                                    enemy.bounceCount--;
+                                                }
+                                            }
+                                            SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
+                                            break;
+                                        case EnemyMovePatternType.DIRECTIONLESS:
+                                            if (Time.time - enemy.lastChangeOfDirectionTime > delayBetweenRandomChangeOfDirection)
+                                            {
+                                                enemy.moveDirection = Random.insideUnitCircle.normalized;
+                                                enemy.lastChangeOfDirectionTime = Time.time;
+                                            }
+                                            SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
+                                            break;
+                                    }
+                                }
+
+                                // Poison Damage
+                                enemy.poisonRemainingTime -= enemyUpdateDeltaTime;
+                                if (enemy.poisonRemainingTime <= 0)
+                                {
+                                    enemy.poisonRemainingTime = 0;
+                                    enemy.poisonDamage = 0;
+                                    enemy.lastPoisonDamageTime = float.MinValue;
+                                    UpdateSpriteColor(enemy);
+                                }
+                                else if (Time.time - enemy.lastPoisonDamageTime > delayBetweenPoisonDamage)
+                                {
+                                    bool enemyIsDead = DamageEnemy(enemy.enemyID, enemy.poisonDamage, null);
+                                    enemy.lastPoisonDamageTime = Time.time;
+
+                                    if (enemyIsDead && !enemiesToDestroyIDList.Contains(enemy.enemyID))
+                                    {
+                                        enemiesToDestroyIDList.Add(enemy.enemyID);
+                                        enemy.active = false;
+                                        CollectiblesManager.instance.SpawnCollectible(enemy.enemyTransform.position, CollectibleType.XP_BONUS, enemyData.xPBonus);
+                                    }
                                 }
                             }
                         }
@@ -927,6 +935,22 @@ public class EnemiesManager : MonoBehaviour
                 EnemyInstance enemy = allActiveEnemiesDico[enemyID];
                 PutEnemyInThePool(enemy);
                 allActiveEnemiesDico.Remove(enemyID);
+            }
+        }
+        else
+        {
+            // Stop enemies
+            int maxEnemiesToUpdateCount = updateAllEnemiesCount;
+            int enemiesToUpdateCount = Mathf.Min(maxEnemiesToUpdateCount, enemiesToUpdateQueue.Count);
+            for (int i = 0; i < enemiesToUpdateCount; i++)
+            {
+                EnemyInstance enemy = enemiesToUpdateQueue.Dequeue();
+                enemy.enemyRigidbody.velocity = Vector2.zero;
+                if (enemy.active)
+                {
+                    enemy.lastUpdateTime = Time.time;
+                    enemiesToUpdateQueue.Enqueue(enemy);
+                }
             }
         }
     }

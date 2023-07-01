@@ -1,0 +1,483 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3964490343674139609
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3964490343674139606}
+  - component: {fileID: 3964490343674139607}
+  - component: {fileID: 3964490343674139604}
+  - component: {fileID: 5144935172403693627}
+  m_Layer: 0
+  m_Name: Map
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3964490343674139606
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3964490343674139609}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3964490343674139607
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3964490343674139609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e030efb276891546a948b116a3fc68a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mapTilesParent: {fileID: 3964490343674139606}
+  emptyTilePrefab: {fileID: 4710829156714125620, guid: 3e19cc06160b0f9459ac09e4e7007b42, type: 3}
+  rocksPrefabs:
+  - {fileID: 8428636082550066138, guid: e72eef1efa50e064fae31c5087612213, type: 3}
+  - {fileID: 8849750606966859270, guid: 1d71f7b2e639636439365693be76928f, type: 3}
+  - {fileID: 2532240772172209980, guid: 81ac255a6eb373342987358dd757ffaa, type: 3}
+  watersPrefabs:
+  - {fileID: 1510525343093202459, guid: 3ddeb7e08834c974d8cd1098457130b6, type: 3}
+  - {fileID: 171689312821892867, guid: 4b70f17e3d9619a43ba2e8b5a9b26798, type: 3}
+  - {fileID: 1290153323901382038, guid: d3c109689492afb41a60f3177bd0c869, type: 3}
+  - {fileID: 1934876521066728434, guid: 8c6724c1bdaf74941b66d105670234cd, type: 3}
+  tileSize: {x: 40, y: 22.5}
+  minDistanceWithPlayer: 2
+--- !u!114 &3964490343674139604
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3964490343674139609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff62c046a053f416a8dc48ad6483a25e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnAuthorityGained:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStateAuthority:
+    m_PersistentCalls:
+      m_Calls: []
+  OnInputAuthority:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAuthorityLost:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStateRemote:
+    m_PersistentCalls:
+      m_Calls: []
+  OnInputRemote:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAuthorityTransferRejected:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAuthorityRequestRejected:
+    m_PersistentCalls:
+      m_Calls: []
+  OnConnectedEntityChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  OnInputSimulatorConnected:
+    m_PersistentCalls:
+      m_Calls: []
+  OnInputOwnerAssigned:
+    m_PersistentCalls:
+      m_Calls: []
+  archetype:
+    boundComponents:
+    - component: {fileID: 3964490343674139606}
+      lodStepsActive: 1
+    - component: {fileID: 3964490343674139607}
+      lodStepsActive: 1
+    lodLevels:
+    - distance: 0
+    archetypeName: Map_47cb5312f9d22b34095ab0d72bfecbcd
+    GeneratesArchetypeDefinition: 1
+  InterpolationLocation: 1
+  bakedScriptType: Coherence.Generated.CoherenceSyncMap, Assembly-CSharp
+  approveAuthorityTransferRequests: 1
+  simulationType: 3
+  authorityTransferType: 2
+  orphanedBehavior: 1
+  lifetimeType: 1
+  uniquenessType: 1
+  coherenceUUID: MapManager
+  destructionBehavior: 0
+  preserveChildren: 0
+  reflectionBindings: []
+  customBindings: []
+  bindings:
+  - rid: 798396445517676765
+  - rid: 798396445517676766
+  - rid: 798396445517676767
+  - rid: 798396445517676768
+  - rid: 798396445517676769
+  - rid: 798396445517676770
+  - rid: 798396445517676771
+  onNetworkedInstantiation:
+    m_PersistentCalls:
+      m_Calls: []
+  onBeforeNetworkedInstantiation:
+    m_PersistentCalls:
+      m_Calls: []
+  onNetworkedDestruction:
+    m_PersistentCalls:
+      m_Calls: []
+  remoteVersionPrefabName: Map
+  PrefabGuid: 47cb5312f9d22b34095ab0d72bfecbcd
+  selectedSynchronizedPrefabOption: 0
+  usingReflection: 0
+  coherenceTag: 
+  componentActions: []
+  floatingOriginMode: 0
+  floatingOriginParentedMode: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 798396445517676765
+      type: {class: PositionBinding, ns: Coherence.Toolkit.Bindings.TransformBindings, asm: Coherence.Toolkit}
+      data:
+        descriptor:
+          rid: 798396445517676772
+        routing: 0
+        isPredicted: 0
+        defaultInterpolationPath: 
+        guid: 641cf119-30b7-40a7-9c8b-6a18e4d55da3
+        archetypeData:
+          type: 7
+          minRange: 0
+          maxRange: 0
+          sampleRate: 20
+          floatCompression: 0
+          fields:
+          - type: 7
+            bits: 32
+            minRange: 0
+            maxRange: 0
+            precision: 0.001
+            floatCompression: 0
+          sharedBinding: {fileID: 0}
+        unityComponent: {fileID: 3964490343674139606}
+        coherenceSync: {fileID: 0}
+        interpolationSettings: {fileID: 11400000, guid: ae4419d1d9a8643709bf5f6b90c584a5, type: 2}
+    - rid: 798396445517676766
+      type: {class: BoolBinding, ns: Coherence.Toolkit.Bindings.ValueBindings, asm: Coherence.Toolkit}
+      data:
+        descriptor:
+          rid: 798396445517676773
+        routing: 0
+        isPredicted: 0
+        defaultInterpolationPath: 
+        guid: 70e0ee86-50fc-441d-8b51-706373de0725
+        archetypeData:
+          type: 3
+          minRange: 0
+          maxRange: 0
+          sampleRate: 20
+          floatCompression: 0
+          fields:
+          - type: 3
+            bits: 1
+            minRange: 0
+            maxRange: 0
+            precision: 0
+            floatCompression: 0
+          sharedBinding: {fileID: 0}
+        unityComponent: {fileID: 3964490343674139607}
+        coherenceSync: {fileID: 0}
+        interpolationSettings: {fileID: 11400000, guid: ae4419d1d9a8643709bf5f6b90c584a5, type: 2}
+    - rid: 798396445517676767
+      type: {class: FloatBinding, ns: Coherence.Toolkit.Bindings.ValueBindings, asm: Coherence.Toolkit}
+      data:
+        descriptor:
+          rid: 798396445517676774
+        routing: 0
+        isPredicted: 0
+        defaultInterpolationPath: 
+        guid: ca65b25b-85d9-4ee7-80ea-14bd3c410b37
+        archetypeData:
+          type: 4
+          minRange: 0
+          maxRange: 0
+          sampleRate: 20
+          floatCompression: 0
+          fields:
+          - type: 4
+            bits: 32
+            minRange: 0
+            maxRange: 0
+            precision: 0.001
+            floatCompression: 0
+          sharedBinding: {fileID: 0}
+        unityComponent: {fileID: 3964490343674139607}
+        coherenceSync: {fileID: 0}
+        interpolationSettings: {fileID: 11400000, guid: ae4419d1d9a8643709bf5f6b90c584a5, type: 2}
+    - rid: 798396445517676768
+      type: {class: ReferenceBinding, ns: Coherence.Toolkit.Bindings.ValueBindings, asm: Coherence.Toolkit}
+      data:
+        descriptor:
+          rid: 798396445517676775
+        routing: 0
+        isPredicted: 0
+        defaultInterpolationPath: 
+        guid: b4e68875-6efc-422b-85e0-2a50475d4836
+        archetypeData:
+          type: 9
+          minRange: 0
+          maxRange: 0
+          sampleRate: 20
+          floatCompression: 0
+          fields:
+          - type: 9
+            bits: 20
+            minRange: 0
+            maxRange: 0
+            precision: 0
+            floatCompression: 0
+          sharedBinding: {fileID: 0}
+        unityComponent: {fileID: 3964490343674139607}
+        coherenceSync: {fileID: 0}
+        interpolationSettings: {fileID: 11400000, guid: ae4419d1d9a8643709bf5f6b90c584a5, type: 2}
+    - rid: 798396445517676769
+      type: {class: CommandBinding, ns: Coherence.Toolkit.Bindings, asm: Coherence.Toolkit}
+      data:
+        descriptor:
+          rid: 798396445517676776
+        routing: 1
+        isPredicted: 0
+        defaultInterpolationPath: 
+        guid: fa461b82-7652-4711-a787-f1c1055bbbc2
+        archetypeData:
+          type: 0
+          minRange: 0
+          maxRange: 0
+          sampleRate: 0
+          floatCompression: 0
+          fields: []
+          sharedBinding: {fileID: 0}
+        unityComponent: {fileID: 3964490343674139607}
+        coherenceSync: {fileID: 0}
+        interpolationSettings: {fileID: 11400000, guid: ae4419d1d9a8643709bf5f6b90c584a5, type: 2}
+    - rid: 798396445517676770
+      type: {class: CommandBinding, ns: Coherence.Toolkit.Bindings, asm: Coherence.Toolkit}
+      data:
+        descriptor:
+          rid: 798396445517676777
+        routing: 1
+        isPredicted: 0
+        defaultInterpolationPath: 
+        guid: 6603062e-2cf3-4da8-b85d-fb71c91c4334
+        archetypeData:
+          type: 0
+          minRange: 0
+          maxRange: 0
+          sampleRate: 0
+          floatCompression: 0
+          fields: []
+          sharedBinding: {fileID: 0}
+        unityComponent: {fileID: 3964490343674139607}
+        coherenceSync: {fileID: 0}
+        interpolationSettings: {fileID: 11400000, guid: ae4419d1d9a8643709bf5f6b90c584a5, type: 2}
+    - rid: 798396445517676771
+      type: {class: CommandBinding, ns: Coherence.Toolkit.Bindings, asm: Coherence.Toolkit}
+      data:
+        descriptor:
+          rid: 798396445517676778
+        routing: 1
+        isPredicted: 0
+        defaultInterpolationPath: 
+        guid: 2dc0b920-65b2-4e81-a553-c89faf48edd2
+        archetypeData:
+          type: 0
+          minRange: 0
+          maxRange: 0
+          sampleRate: 0
+          floatCompression: 0
+          fields: []
+          sharedBinding: {fileID: 0}
+        unityComponent: {fileID: 3964490343674139607}
+        coherenceSync: {fileID: 0}
+        interpolationSettings: {fileID: 11400000, guid: ae4419d1d9a8643709bf5f6b90c584a5, type: 2}
+    - rid: 798396445517676772
+      type: {class: Descriptor, ns: Coherence.Toolkit.Bindings, asm: Coherence.Toolkit}
+      data:
+        name: position
+        monoAssemblyType: UnityEngine.Vector3, UnityEngine
+        required: 1
+        enforcesLODingWhenFieldsOverriden: 1
+        valueSyncCallbackName: 
+        memberType: 64
+        parameterAssemblyTypes: []
+        ownerType:
+          assemblyQualifiedName: UnityEngine.Transform, UnityEngine.CoreModule, Version=0.0.0.0,
+            Culture=neutral, PublicKeyToken=null
+        CustomData:
+          rid: -2
+        bindingType:
+          assemblyQualifiedName: Coherence.Toolkit.Bindings.TransformBindings.PositionBinding,
+            Coherence.Toolkit, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        oldName: 
+        oldParameterAssemblyTypes: []
+    - rid: 798396445517676773
+      type: {class: Descriptor, ns: Coherence.Toolkit.Bindings, asm: Coherence.Toolkit}
+      data:
+        name: enabled
+        monoAssemblyType: System.Boolean, mscorlib
+        required: 0
+        enforcesLODingWhenFieldsOverriden: 1
+        valueSyncCallbackName: 
+        memberType: 16
+        parameterAssemblyTypes: []
+        ownerType:
+          assemblyQualifiedName: MapBehaviour, Assembly-CSharp, Version=0.0.0.0,
+            Culture=neutral, PublicKeyToken=null
+        CustomData:
+          rid: -2
+        bindingType:
+          assemblyQualifiedName: Coherence.Toolkit.Bindings.ValueBindings.BoolBinding,
+            Coherence.Toolkit, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        oldName: 
+        oldParameterAssemblyTypes: []
+    - rid: 798396445517676774
+      type: {class: Descriptor, ns: Coherence.Toolkit.Bindings, asm: Coherence.Toolkit}
+      data:
+        name: minDistanceWithPlayer
+        monoAssemblyType: System.Single, mscorlib
+        required: 0
+        enforcesLODingWhenFieldsOverriden: 1
+        valueSyncCallbackName: 
+        memberType: 4
+        parameterAssemblyTypes: []
+        ownerType:
+          assemblyQualifiedName: MapBehaviour, Assembly-CSharp, Version=0.0.0.0,
+            Culture=neutral, PublicKeyToken=null
+        CustomData:
+          rid: -2
+        bindingType:
+          assemblyQualifiedName: Coherence.Toolkit.Bindings.ValueBindings.FloatBinding,
+            Coherence.Toolkit, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        oldName: 
+        oldParameterAssemblyTypes: []
+    - rid: 798396445517676775
+      type: {class: Descriptor, ns: Coherence.Toolkit.Bindings, asm: Coherence.Toolkit}
+      data:
+        name: mapTilesParent
+        monoAssemblyType: UnityEngine.Transform, UnityEngine
+        required: 0
+        enforcesLODingWhenFieldsOverriden: 1
+        valueSyncCallbackName: 
+        memberType: 4
+        parameterAssemblyTypes: []
+        ownerType:
+          assemblyQualifiedName: MapBehaviour, Assembly-CSharp, Version=0.0.0.0,
+            Culture=neutral, PublicKeyToken=null
+        CustomData:
+          rid: -2
+        bindingType:
+          assemblyQualifiedName: Coherence.Toolkit.Bindings.ValueBindings.ReferenceBinding,
+            Coherence.Toolkit, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        oldName: 
+        oldParameterAssemblyTypes: []
+    - rid: 798396445517676776
+      type: {class: Descriptor, ns: Coherence.Toolkit.Bindings, asm: Coherence.Toolkit}
+      data:
+        name: GenerateNewTilesAroundPosition
+        monoAssemblyType: 
+        required: 0
+        enforcesLODingWhenFieldsOverriden: 0
+        valueSyncCallbackName: 
+        memberType: 8
+        parameterAssemblyTypes:
+        - UnityEngine.Vector2, UnityEngine
+        ownerType:
+          assemblyQualifiedName: MapBehaviour, Assembly-CSharp, Version=0.0.0.0,
+            Culture=neutral, PublicKeyToken=null
+        CustomData:
+          rid: -2
+        bindingType:
+          assemblyQualifiedName: Coherence.Toolkit.Bindings.CommandBinding, Coherence.Toolkit,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        oldName: 
+        oldParameterAssemblyTypes: []
+    - rid: 798396445517676777
+      type: {class: Descriptor, ns: Coherence.Toolkit.Bindings, asm: Coherence.Toolkit}
+      data:
+        name: ClearRocks
+        monoAssemblyType: 
+        required: 0
+        enforcesLODingWhenFieldsOverriden: 0
+        valueSyncCallbackName: 
+        memberType: 8
+        parameterAssemblyTypes: []
+        ownerType:
+          assemblyQualifiedName: MapBehaviour, Assembly-CSharp, Version=0.0.0.0,
+            Culture=neutral, PublicKeyToken=null
+        CustomData:
+          rid: -2
+        bindingType:
+          assemblyQualifiedName: Coherence.Toolkit.Bindings.CommandBinding, Coherence.Toolkit,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        oldName: 
+        oldParameterAssemblyTypes: []
+    - rid: 798396445517676778
+      type: {class: Descriptor, ns: Coherence.Toolkit.Bindings, asm: Coherence.Toolkit}
+      data:
+        name: ClearMap
+        monoAssemblyType: 
+        required: 0
+        enforcesLODingWhenFieldsOverriden: 0
+        valueSyncCallbackName: 
+        memberType: 8
+        parameterAssemblyTypes: []
+        ownerType:
+          assemblyQualifiedName: MapBehaviour, Assembly-CSharp, Version=0.0.0.0,
+            Culture=neutral, PublicKeyToken=null
+        CustomData:
+          rid: -2
+        bindingType:
+          assemblyQualifiedName: Coherence.Toolkit.Bindings.CommandBinding, Coherence.Toolkit,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        oldName: 
+        oldParameterAssemblyTypes: []
+--- !u!114 &5144935172403693627
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3964490343674139609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4dc97a814921d461188a38ca20db6787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  InitialBufferSize: 32
+  InitialBufferDelay: 3
+  DisconnectOnTimeReset: 0
+  DestroyOnInputAuthorityDisconnected: 1
+  UseFixedSimulationFrames: 0
+  inputName: Map
+  fields: []

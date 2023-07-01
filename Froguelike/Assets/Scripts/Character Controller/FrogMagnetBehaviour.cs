@@ -8,7 +8,11 @@ public class FrogMagnetBehaviour : MonoBehaviour
     {
         if (collision.CompareTag("Collectible"))
         {
-            CollectiblesManager.instance.CaptureCollectible(collision.transform);
+            FrogCharacterController playerScript = this.transform.GetComponentInParent<FrogCharacterController>();
+            if (playerScript != null)
+            {
+                CollectiblesManager.instance.CaptureCollectible(collision.transform, playerScript);
+            }
         }
     }
 }

@@ -1,0 +1,178 @@
+component Character_FrogCharacterController_4441217298144173242
+  weaponStartPoint Entity [bits "20"]
+  attackCooldownBoost Float [compression "None"]
+  attackRangeBoost Float [compression "None"]
+  attackSizeBoost Float [compression "None"]
+  attackSpeedBoost Float [compression "None"]
+  attackDurationBoost Float [compression "None"]
+  attackSpecialStrengthBoost Float [compression "None"]
+  attackSpecialDurationBoost Float [compression "None"]
+
+component Character_UnityEngine__char_46_Animator_4441217298144173237
+  character Int [bits "32", range-min "-2147483648", range-max "2147483647"]
+  Speed Float [compression "None"]
+
+component Character_UnityEngine__char_46_Transform_4441217299098064662
+  position Vector3 [compression "None"]
+  rotation Quaternion [bits "32"]
+
+component Classic__char_32_Tongue_UnityEngine__char_46_LineRenderer_3990334963750023931
+  startWidth Float [compression "None"]
+  endWidth Float [compression "None"]
+  widthMultiplier Float [compression "None"]
+  enabled Bool [bits "1"]
+
+component Classic__char_32_Tongue_UnityEngine__char_46_LineRenderer_3990334965163639180
+  startWidth Float [compression "None"]
+  endWidth Float [compression "None"]
+  widthMultiplier Float [compression "None"]
+  startColor Color [bits "32"]
+  endColor Color [bits "32"]
+  enabled Bool [bits "1"]
+  sortingOrder Int [bits "32", range-min "-2147483648", range-max "2147483647"]
+
+component Classic__char_32_Tongue_UnityEngine__char_46_Transform_3990334963750023930
+  position Vector3 [compression "None"]
+  rotation Quaternion [bits "32"]
+  localScale Vector3 [compression "None"]
+
+component Classic__char_32_Tongue_WeaponBehaviour_3990334965163639178
+  tongueWidth Float [compression "None"]
+  outlineColor Color [bits "32"]
+  outlineWeight Float [compression "None"]
+  cooldown Float [compression "None"]
+  attackSpeed Float [compression "None"]
+  range Float [compression "None"]
+  duration Float [compression "None"]
+  knockbackForce Float [compression "None"]
+  damage Float [compression "None"]
+  healthAbsorbRatio Float [compression "None"]
+  poisonDamage Float [compression "None"]
+  freezeEffect Bool [bits "1"]
+  curseChance Float [compression "None"]
+  lastAttackTime Float [compression "None"]
+  isAttacking Bool [bits "1"]
+  preventAttack Bool [bits "1"]
+  tongueTypeIndex Int [bits "32", range-min "-2147483648", range-max "2147483647"]
+  tongueTypeCount Int [bits "32", range-min "-2147483648", range-max "2147483647"]
+  enabled Bool [bits "1"]
+
+component Map_MapBehaviour_3964490343674139607
+  enabled Bool [bits "1"]
+  minDistanceWithPlayer Float [compression "None"]
+  mapTilesParent Entity [bits "20"]
+
+command Map_MapBehaviour__char_46_ClearMap_2dc0b920_65b2_4e81_a553_c89faf48edd2 [routing "All"]
+
+command Map_MapBehaviour__char_46_ClearRocks_6603062e_2cf3_4da8_b85d_fb71c91c4334 [routing "All"]
+
+command Map_MapBehaviour__char_46_GenerateNewTilesAroundPosition_fa461b82_7652_4711_a787_f1c1055bbbc2 [routing "All"]
+  position Vector2 [compression "None"]
+
+archetype Character_ef7ce5f54c7d78b479854b7248d15c5a
+  lod 0
+    WorldPosition 
+      value [bits "29", compression "FixedPoint", precision "1E-05", range-min "-2000", range-max "2000"]
+    WorldOrientation 
+      value [bits "32"]
+    Character_FrogCharacterController_4441217298144173242 
+      value [bits "20"]
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+    Character_UnityEngine__char_46_Animator_4441217298144173237 
+      number [bits "32", range-min "-2147483648", range-max "2147483647"]
+      number [compression "None"]
+    Character_UnityEngine__char_46_Transform_4441217299098064662 
+      value [compression "None"]
+      value [bits "32"]
+  lod 1 [distance "10"]
+    WorldPosition 
+      value [bits "22", compression "FixedPoint", precision "0.001", range-min "-2000", range-max "2000"]
+    WorldOrientation 
+      value [bits "32"]
+    Character_FrogCharacterController_4441217298144173242 
+      value [bits "20"]
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+  lod 2 [distance "20"]
+    WorldPosition 
+      value [bits "16", compression "FixedPoint", precision "0.1", range-min "-2000", range-max "2000"]
+    WorldOrientation 
+      value [bits "32"]
+    Character_FrogCharacterController_4441217298144173242 
+      value [bits "20"]
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+
+archetype Classic__char_32_Tongue_4a710caa256322a4aa6bfb19109e4559
+  lod 0
+    WorldPosition 
+      value [compression "None"]
+    WorldOrientation 
+      value [bits "32"]
+    GenericScale 
+      value [compression "None"]
+    Classic__char_32_Tongue_UnityEngine__char_46_LineRenderer_3990334965163639180 
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+      value [bits "32"]
+      value [bits "32"]
+      number [bits "1"]
+      number [bits "32", range-min "-2147483648", range-max "2147483647"]
+    Classic__char_32_Tongue_WeaponBehaviour_3990334965163639178 
+      number [compression "None"]
+      value [bits "32"]
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+      number [bits "1"]
+      number [compression "None"]
+      number [compression "None"]
+      number [bits "1"]
+      number [bits "1"]
+      number [bits "32", range-min "-2147483648", range-max "2147483647"]
+      number [bits "32", range-min "-2147483648", range-max "2147483647"]
+      number [bits "1"]
+    Classic__char_32_Tongue_UnityEngine__char_46_Transform_3990334963750023930 
+      value [compression "None"]
+      value [bits "32"]
+      value [compression "None"]
+    Classic__char_32_Tongue_UnityEngine__char_46_LineRenderer_3990334963750023931 
+      number [compression "None"]
+      number [compression "None"]
+      number [compression "None"]
+      number [bits "1"]
+
+archetype Map_47cb5312f9d22b34095ab0d72bfecbcd
+  lod 0
+    WorldPosition 
+      value [compression "None"]
+    Map_MapBehaviour_3964490343674139607 
+      number [bits "1"]
+      number [compression "None"]
+      value [bits "20"]
+
+input Map
+

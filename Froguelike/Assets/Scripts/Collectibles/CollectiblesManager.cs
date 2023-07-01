@@ -124,7 +124,7 @@ public class CollectiblesManager : MonoBehaviour
     /// Only one call is required per collectible.
     /// </summary>
     /// <param name="collectible"></param>
-    public void CaptureCollectible(Transform collectible)
+    public void CaptureCollectible(Transform collectible, FrogCharacterController playerScript)
     {
         if (!allCapturedCollectiblesList.Contains(collectible))
         {
@@ -153,21 +153,27 @@ public class CollectiblesManager : MonoBehaviour
         return collectibleName;
     }
 
-    public void CollectSuperCollectible(FixedCollectible superCollectible)
+    public void CollectSuperCollectible(FixedCollectible superCollectible, FrogCharacterController player)
     {
         switch (superCollectible.collectibleType)
         {
             case FixedCollectibleType.FRIEND:
-                GameManager.instance.player.AddActiveFriend(superCollectible.collectibleFriendType, GameManager.instance.player.transform.position);
+                player.AddActiveFriend(superCollectible.collectibleFriendType, player.transform.position);
                 break;
             case FixedCollectibleType.HAT:
-                GameManager.instance.player.AddHat(superCollectible.collectibleHatType);
+                player.AddHat(superCollectible.collectibleHatType);
                 break;
             case FixedCollectibleType.STATS_ITEM:
-                RunManager.instance.PickRunItem(superCollectible.collectibleStatItemData);
+                if (player.Equals(GameManager.instance.player))
+                {
+                    RunManager.instance.PickRunItem(superCollectible.collectibleStatItemData);
+                }
                 break;
             case FixedCollectibleType.WEAPON_ITEM:
-                RunManager.instance.PickRunItem(superCollectible.collectibleWeaponItemData);
+                if (player.Equals(GameManager.instance.player))
+                {
+                    RunManager.instance.PickRunItem(superCollectible.collectibleWeaponItemData);
+                }
                 break;
         }
         if (verboseLevel == VerboseLevel.MAXIMAL)

@@ -191,7 +191,7 @@ public class RunManager : MonoBehaviour
         runPlayTime += Time.deltaTime;
         runTotalTime += Time.unscaledDeltaTime;
 
-        if (GameManager.instance.isGameRunning && currentChapter != null && Time.timeScale > 0)
+        if (GameManager.instance.isGameRunning && currentChapter != null && !GameManager.instance.gameIsPaused)
         {
             // Spawn current wave
             EnemiesManager.instance.TrySpawnWave(GetCurrentWave());
