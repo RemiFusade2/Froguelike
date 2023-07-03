@@ -52,19 +52,26 @@ MonoBehaviour:
       itemName: {fileID: 0}
       characterData: {fileID: 0}
   rocksSpawnFrequency: 2
-  pondsSpawnFrequency: 1
-  coinsSpawnFrequency: 1
-  healthSpawnFrequency: 1
-  levelUpSpawnFrequency: 1
-  specialCollectiblesOnTheMap: []
+  pondsSpawnFrequency: 0
+  coinsSpawnFrequency: 3
+  healthSpawnFrequency: 0
+  levelUpSpawnFrequency: 0
+  specialCollectiblesOnTheMap:
+  - tileCoordinates: {x: 10, y: 0}
+    tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
+    collectibleType: 0
+    collectibleStatItemData: {fileID: 11400000, guid: ad428bd83de1b694fa5807e637a4d6ae, type: 2}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 0
   environmentChange: 0
   characterStyleChange: 0
   waves:
-  - {fileID: 11400000, guid: dbe3f730e932d3946a1c16c6479fb198, type: 2}
-  - {fileID: 11400000, guid: 0d74991de3ac18c46b450e2e4ea113c0, type: 2}
-  - {fileID: 11400000, guid: c48bbc01cdb0cc1418a90ff4157f84a7, type: 2}
-  - {fileID: 11400000, guid: f56a7e9ca8a6f5f4babff1fc6db68349, type: 2}
-  - {fileID: 11400000, guid: a3d15b14ba2cf8d4baddb3be35fbcf60, type: 2}
+  - {fileID: 11400000, guid: 4c116b651ae44d540b48aea7ca40cb16, type: 2}
+  - {fileID: 11400000, guid: dcc1a79a8c8f27f499faad7c6bac5ea2, type: 2}
+  - {fileID: 11400000, guid: 9430a16e35bb06842b877d80c49e23cc, type: 2}
+  - {fileID: 11400000, guid: 17c87bd33fca722458968abb41b7f14d, type: 2}
+  - {fileID: 11400000, guid: a7fc696bccea7924692de0b4f9a3d4fe, type: 2}
   weightChanges:
   - chapter: {fileID: 11400000}
     weightChange: -0.3
