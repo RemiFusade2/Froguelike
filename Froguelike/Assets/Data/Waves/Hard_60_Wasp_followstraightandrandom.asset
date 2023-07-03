@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3dac8d5f33a52541b2181b63b7a8fe5, type: 3}
+  m_Name: Hard_60_Wasp_followstraightandrandom
+  m_EditorClassIdentifier: 
+  duration: 60
+  enemies:
+  - enemyType: 4
+    tierFormula: chapter
+    movePattern:
+      movePatternType: 2
+      speedFactor: 1
+      bouncecount: 0
+    spawnPattern:
+      spawnPatternType: 0
+      spawnPatternShape: 0
+      spawnAmount: 1
+      multipleSpawnDelay: 0
+    spawnCooldown: 0.3
+  - enemyType: 4
+    tierFormula: chapter+1
+    movePattern:
+      movePatternType: 3
+      speedFactor: 1
+      bouncecount: 0
+    spawnPattern:
+      spawnPatternType: 0
+      spawnPatternShape: 0
+      spawnAmount: 5
+      multipleSpawnDelay: 0
+    spawnCooldown: 3
+  - enemyType: 4
+    tierFormula: chapter-1
+    movePattern:
+      movePatternType: 1
+      speedFactor: 3
+      bouncecount: 0
+    spawnPattern:
+      spawnPatternType: 2
+      spawnPatternShape: 0
+      spawnAmount: 5
+      multipleSpawnDelay: 0
+    spawnCooldown: 1

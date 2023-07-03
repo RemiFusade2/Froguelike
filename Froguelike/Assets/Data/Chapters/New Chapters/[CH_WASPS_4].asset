@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: '[CH_WASPS_4]'
   m_EditorClassIdentifier: 
   chapterID: '[CH_WASPS_4]'
+  partOfDemo: 1
   chapterTitle: Bouncing stings
   chapterLore:
   - Today was the fateful day the wasps realized what they enjoyed above all was
@@ -49,18 +50,39 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 0}
-  rocksSpawnFrequency: 2
-  pondsSpawnFrequency: 1
-  coinsSpawnFrequency: 1
-  healthSpawnFrequency: 1
+  rocksSpawnFrequency: 3
+  pondsSpawnFrequency: 0
+  coinsSpawnFrequency: 2
+  healthSpawnFrequency: 0
   levelUpSpawnFrequency: 1
-  specialCollectiblesOnTheMap: []
+  specialCollectiblesOnTheMap:
+  - tileCoordinates: {x: 10, y: 0}
+    tilePrefab: {fileID: 2605690503437856400, guid: 0e64426fb7f518e4cb73888eba1c6545, type: 3}
+    collectibleType: 0
+    collectibleStatItemData: {fileID: 11400000, guid: 994785b8f00f93e4183c975adfcc2b86, type: 2}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 0
+  - tileCoordinates: {x: -6, y: 5}
+    tilePrefab: {fileID: 2605690503437856400, guid: 0e64426fb7f518e4cb73888eba1c6545, type: 3}
+    collectibleType: 0
+    collectibleStatItemData: {fileID: 11400000, guid: 994785b8f00f93e4183c975adfcc2b86, type: 2}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 0
+  - tileCoordinates: {x: -6, y: -5}
+    tilePrefab: {fileID: 2605690503437856400, guid: 0e64426fb7f518e4cb73888eba1c6545, type: 3}
+    collectibleType: 0
+    collectibleStatItemData: {fileID: 11400000, guid: 994785b8f00f93e4183c975adfcc2b86, type: 2}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 0
   environmentChange: 0
   characterStyleChange: 0
   waves:
-  - {fileID: 11400000, guid: dbe3f730e932d3946a1c16c6479fb198, type: 2}
-  - {fileID: 11400000, guid: 0d74991de3ac18c46b450e2e4ea113c0, type: 2}
-  - {fileID: 11400000, guid: c48bbc01cdb0cc1418a90ff4157f84a7, type: 2}
-  - {fileID: 11400000, guid: f56a7e9ca8a6f5f4babff1fc6db68349, type: 2}
-  - {fileID: 11400000, guid: a3d15b14ba2cf8d4baddb3be35fbcf60, type: 2}
+  - {fileID: 11400000, guid: 3d534481e91c740429e0eff83118322b, type: 2}
+  - {fileID: 11400000, guid: 6a56d5771839f5245b2f3a03ff3a5d30, type: 2}
+  - {fileID: 11400000, guid: 2d1d9e2de9090ee488da5ce83b18e308, type: 2}
+  - {fileID: 11400000, guid: e7526aceea1a39c4b976b4d08c6f25ee, type: 2}
+  - {fileID: 11400000, guid: 63e4f3646fd036b419a2bfd43724c77d, type: 2}
   weightChanges: []

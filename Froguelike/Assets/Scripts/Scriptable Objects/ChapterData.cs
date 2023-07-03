@@ -210,6 +210,9 @@ public class ChapterData : ScriptableObject
     [Tooltip("Chapter ID, must be unique")]
     public string chapterID = "[CHAPTER UNIQUE IDENTIFIER]";
 
+    [Header("Chapter settings - Demo")]
+    public bool partOfDemo = false;
+
     [Header("Chapter settings - display")]
     [Tooltip("Chapter title")]
     public string chapterTitle = "[Chapter title]";

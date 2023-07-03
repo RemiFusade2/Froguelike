@@ -246,9 +246,9 @@ public class ChapterManager : MonoBehaviour
                 }
             }
 
-            if (chapterConditionsAreMet && currentChapter.weight > 0)
+            if (chapterConditionsAreMet && currentChapter.weight > 0 && (!GameManager.instance.demoBuild || currentChapter.chapterData.partOfDemo))
             {
-                // We add the chapter to the deck if the conditions are met and if its weight is positive
+                // We add the chapter to the deck if the conditions are met, if its weight is positive, and either if it's part of the demo or we're not playing the demo
                 deckOfChapters.Add(currentChapter);
             }
         }
