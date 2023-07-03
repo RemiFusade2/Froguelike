@@ -33,4 +33,12 @@ public static class Tools
 
         return result + currencySymbol;
     }
+
+    public static Vector2 Rotate(Vector2 v, float angle)
+    {
+        return new Vector2(
+           v.x * Mathf.Cos(angle) - v.y * Mathf.Sin(angle),
+           v.x * Mathf.Sin(angle) + v.y * Mathf.Cos(angle)
+       );
+    }
 }

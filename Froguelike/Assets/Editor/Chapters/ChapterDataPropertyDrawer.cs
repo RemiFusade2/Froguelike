@@ -138,6 +138,16 @@ public class FixedCollectibleDrawer : PropertyDrawer
         }
         position.y += EditorGUIUtility.singleLineHeight;
 
+        // Tile prefab
+        {
+            float labelWidth = 100;
+            Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+            Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(labelRect, new GUIContent("Tile prefab:"));
+            EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("tilePrefab"), GUIContent.none);
+        }
+        position.y += EditorGUIUtility.singleLineHeight;
+
         // Then type of collectible
         {
             float labelWidth = 100;
@@ -147,7 +157,6 @@ public class FixedCollectibleDrawer : PropertyDrawer
             EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("collectibleType"), GUIContent.none);
         }
         position.y += EditorGUIUtility.singleLineHeight;
-
 
         // Then depending on type, feed the data for the right collectible type
         var collectibleType = property.FindPropertyRelative("collectibleType");
@@ -188,7 +197,7 @@ public class FixedCollectibleDrawer : PropertyDrawer
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
-        int numberOfLines = 3;
+        int numberOfLines = 4;
         return numberOfLines * EditorGUIUtility.singleLineHeight;
     }
 }

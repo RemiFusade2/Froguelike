@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   achievementID: ACH_REACH_LEVEL_WITH_CHARACTER_FROG_LEVEL_20_UNLOCK_CHARACTER_TOAD
   isSecret: 0
+  partOfDemo: 1
   achievementTitle: Level up!
   achievementDescription: Reach level 20 with Frog
   achievementLockedIcon: {fileID: 21300000, guid: f8338a49d20c76b4a94e3cd6666eb8e3, type: 3}
@@ -22,12 +23,14 @@ MonoBehaviour:
   conditionsList:
   - conditionType: 1
     playedCharacter: {fileID: 11400000, guid: e12bbdd99d50ae74ba6dbf789aa002a8, type: 2}
+    playedChapter: {fileID: 0}
     reachLevel: 0
     chapterCount: 0
     runItem: {fileID: 0}
     specialKey: 3
   - conditionType: 2
     playedCharacter: {fileID: 11400000, guid: e12bbdd99d50ae74ba6dbf789aa002a8, type: 2}
+    playedChapter: {fileID: 0}
     reachLevel: 20
     chapterCount: 0
     runItem: {fileID: 0}

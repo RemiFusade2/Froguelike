@@ -78,7 +78,7 @@ LineRenderer:
   - {x: 1, y: 0, z: 0}
   m_Parameters:
     serializedVersion: 3
-    widthMultiplier: 1
+    widthMultiplier: 0.1
     widthCurve:
       serializedVersion: 2
       m_Curve:
@@ -91,6 +91,15 @@ LineRenderer:
         weightedMode: 0
         inWeight: 0.33333334
         outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -226,6 +235,15 @@ LineRenderer:
         weightedMode: 0
         inWeight: 0.33333334
         outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.18365178
+        outWeight: 0.33333334
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -287,6 +305,8 @@ MonoBehaviour:
   damage: 1
   attackSpeed: 1.3
   range: 2.5
+  duration: 0
+  knockbackForce: 0
   healthAbsorbRatio: 0
   poisonDamage: 0
   poisonDuration: 0
@@ -297,7 +317,12 @@ MonoBehaviour:
   foodLayer:
     serializedVersion: 2
     m_Bits: 1792
-  rotatingTongueIndex: 0
+  lastAttackTime: 0
+  isAttacking: 0
+  preventAttack: 0
+  tongueTypeIndex: 0
+  tongueTypeCount: 0
+  activeWeaponsOfSameTypeList: []
 --- !u!50 &3990334965163639179
 Rigidbody2D:
   serializedVersion: 4

@@ -80,8 +80,7 @@ public class EnemyInstance
 {
     // Keyword that is used to find the EnemyData
     public string enemyName;
-
-    public float lastUpdateTime;
+    public int enemyID;
 
     // References to EnemyInfo
     public EnemyInfo enemyInfo;
@@ -91,22 +90,31 @@ public class EnemyInstance
     public bool alive;
     public float HP;
     public Vector2 moveDirection;
-    public float lastChangeOfDirectionTime;
-    public int bounceCount;
+    public float lastUpdateTime;
+    public float mass; // mass will change during knockback, freeze and curse and must be restored afterwards
 
-    public Dictionary<string, float> weaponLastHitTimeDico;
+    public float lastChangeOfDirectionTime; // for directionless enemies
+    public int bounceCount; // for enemies that bounce on screen edges
+
+    public float lastDamageInflictedTime; // last time this enemy inflicted damage to player
 
     // Move pattern
     public EnemyMovePattern movePattern;
+
+    // Origin wave
+    public Wave wave;
+
+    // Current in-game state - knockback & cooldown
+    public float knockbackCooldown;
 
     // Current in-game state - poison
     public float poisonDamage;
     public float poisonRemainingTime;
     public float lastPoisonDamageTime;
 
-    // Current in-game state - change speed
-    public float changeSpeedFactor;
-    public float changeSpeedRemainingTime;
+    // Current in-game state - curse
+    public float curseRemainingTime;
+    public float freezeRemainingTime;
 
     // References to Components
     public Transform enemyTransform;
@@ -118,28 +126,39 @@ public class EnemyInstance
     // A link to the last weapon that hit this enemy
     public Transform lastWeaponHitTransform;
 
-    // The sprite color of that enemy when it spawned
-    public Color defaultSpriteColor;
-
-    public EnemyInstance()
+    public void RemoveOverlay()
     {
-        weaponLastHitTimeDico = new Dictionary<string, float>();
+        enemyRenderer.material.SetInteger("_OverlayVisible", 0);
     }
 
-    public float GetLastHitTime(string weaponInstanceID)
+    public void SetOverlayColor(Color newColor)
     {
-        weaponLastHitTimeDico.TryGetValue(weaponInstanceID, out float lastHitTime);
-        return lastHitTime;
+        enemyRenderer.material.SetInteger("_OverlayVisible", 1);
+        enemyRenderer.material.SetColor("_Overlay", newColor);
     }
-    public void SetLastHitTime(string weaponInstanceID)
+
+    public void Knockback(Vector2 direction, float strength, float duration)
     {
-        weaponLastHitTimeDico[weaponInstanceID] = Time.time;
+        enemyRigidbody.mass = 1000;
+        enemyRigidbody.velocity = direction * strength;
+        knockbackCooldown = duration;
+    }
+
+    public void StopKnockback()
+    {
+        if (enemyRigidbody.mass == 1000)
+        {
+            enemyRigidbody.mass = mass;
+        }
     }
 }
 
 public class EnemiesManager : MonoBehaviour
 {
     public static EnemiesManager instance;
+
+    [Header("Settings - Logs")]
+    public VerboseLevel verbose;
 
     [Header("References")]
     public Transform enemiesParent;
@@ -162,24 +181,25 @@ public class EnemiesManager : MonoBehaviour
     public int findSpawnPositionMaxAttempts = 10;
     [Space]
     public float maxDistanceBeforeUnspawn = 40;
+    public bool unspawnEnemiesThatGoTooFar = false;
 
     [Header("Settings - Pooling")]
     public int maxDamageTexts = 300;
     public int maxActiveEnemies = 2000;
 
-    [Header("Settings")]
-    public VerboseLevel verbose;
-    [Space]
-    public float updateAllEnemiesDelay = 0.1f;
-    [Space]
+    [Header("Settings - Update")]
+    public int updateAllEnemiesCount = 500;
+
+    [Header("Settings - Effects (poison, frozen, etc.)")]
     public Color poisonedSpriteColor;
     public Color frozenSpriteColor;
     public Color cursedSpriteColor;
     public float delayBetweenPoisonDamage = 0.6f;
-    [Space]
+
+    [Header("Settings - Movement")]
     public float delayBetweenRandomChangeOfDirection = 1.5f;
     [Space]
-    public float cooldownTimeBetweenHits = 1.0f;
+    public float knockbackDuration = 0.2f;
 
     [Header("Runtime")]
     public static int lastKey;
@@ -193,6 +213,7 @@ public class EnemiesManager : MonoBehaviour
     private Dictionary<EnemyType, List<EnemyData>> enemiesDataFromTypeDico;
 
     private Dictionary<int, EnemyInstance> allActiveEnemiesDico;
+    private Queue<EnemyInstance> enemiesToUpdateQueue;
 
     private Queue<EnemyInstance> inactiveEnemiesPool;
     private Queue<GameObject> damageTextsPool;
@@ -228,13 +249,13 @@ public class EnemiesManager : MonoBehaviour
         lastKey = 1;
 
         allActiveEnemiesDico = new Dictionary<int, EnemyInstance>();
+        enemiesToUpdateQueue = new Queue<EnemyInstance>();
 
         // Instantiate all enemies in game and put them in the pool
         inactiveEnemiesPool = new Queue<EnemyInstance>();
         for (int i = 0; i < maxActiveEnemies; i++)
         {
             EnemyInstance newEnemy = new EnemyInstance();
-            newEnemy.lastUpdateTime = Time.time;
             newEnemy.active = false;
             newEnemy.alive = false;
 
@@ -257,8 +278,11 @@ public class EnemiesManager : MonoBehaviour
             GameObject damageText = Instantiate(damageTextPrefab, farAwayPosition, Quaternion.identity, damageTextsParent);
             damageTextsPool.Enqueue(damageText);
         }
+    }
 
-        InvokeRepeating("UpdateAllEnemies", 0, updateAllEnemiesDelay);
+    private void Update()
+    {
+        UpdateAllEnemies();
     }
 
     #endregion
@@ -266,6 +290,7 @@ public class EnemiesManager : MonoBehaviour
 
     /// <summary>
     /// Returns a random spawn position around the player and in the direction of its movement.
+    /// Prevent spawn on a rock or pond.
     /// </summary>
     /// <param name="playerPosition"></param>
     /// <param name="playerMoveDirection">This vector is either zero (player doesn't move) or normalized</param>
@@ -293,6 +318,12 @@ public class EnemiesManager : MonoBehaviour
             if (Vector2.Distance(spawnPosition, playerPosition) > minSpawnDistanceFromPlayer)
             {
                 spawnPositionIsValid = true;
+            }
+            // Check if that random point is on an obstacle
+            int layerMask = LayerMask.GetMask("Rock", "LakeCollider");
+            if (Physics2D.OverlapCircle(spawnPosition, 0.1f, layerMask) != null)
+            {
+                spawnPositionIsValid = false;
             }
         } while (!spawnPositionIsValid && loopAttemptCount > 0); // Redo until the random point is out of sight
 
@@ -432,7 +463,7 @@ public class EnemiesManager : MonoBehaviour
                             {
                                 for (int j = 0; j < enemyCount; j++)
                                 {
-                                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition + Random.Range(-1.0f, 1.0f) * Vector2.right + Random.Range(-1.0f, 1.0f) * Vector2.up, enemyData, enemySpawn.movePattern, currentDelay));
+                                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition + Random.Range(-1.0f, 1.0f) * Vector2.right + Random.Range(-1.0f, 1.0f) * Vector2.up, enemyData, enemySpawn.movePattern, currentWave, currentDelay));
                                     currentDelay += delayBetweenSpawn;
                                 }
                             }
@@ -457,7 +488,7 @@ public class EnemiesManager : MonoBehaviour
                             for (float angle = 0; angle < arcAngle; angle += deltaAngle)
                             {
                                 spawnPosition = GameManager.instance.player.transform.position + (Mathf.Cos(angle * Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(angle * Mathf.Deg2Rad) * Vector3.up) * spawnDistanceFromPlayer;
-                                StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentDelay));
+                                StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, currentDelay));
                                 currentDelay += delayBetweenSpawn;
                             }
                             break;
@@ -468,7 +499,7 @@ public class EnemiesManager : MonoBehaviour
                             {
                                 if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out spawnPosition))
                                 {
-                                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentDelay));
+                                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, currentDelay));
                                     currentDelay += delayBetweenSpawn;
                                 }
                             }
@@ -482,7 +513,7 @@ public class EnemiesManager : MonoBehaviour
         }
     }
 
-    public void SpawnEnemy(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern)
+    public void SpawnEnemy(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, Wave originWave)
     {
         // Get an enemy from the pool
         EnemyInstance enemyFromPool = null;
@@ -494,6 +525,7 @@ public class EnemiesManager : MonoBehaviour
             enemyFromPool.enemyCollider.GetComponent<CircleCollider2D>().radius = prefab.GetComponent<CircleCollider2D>().radius;
 
             enemyFromPool.enemyRigidbody.mass = prefab.GetComponent<Rigidbody2D>().mass;
+            enemyFromPool.mass = prefab.GetComponent<Rigidbody2D>().mass;
 
             enemyFromPool.enemyAnimator.runtimeAnimatorController = prefab.GetComponent<Animator>().runtimeAnimatorController;
             enemyFromPool.enemyAnimator.SetBool("IsDead", false);
@@ -512,6 +544,8 @@ public class EnemiesManager : MonoBehaviour
 
             enemyFromPool.enemyTransform.position = position;
 
+            enemyFromPool.wave = originWave;
+
             if (verbose == VerboseLevel.MAXIMAL)
             {
                 Debug.Log($"Spawning a {enemyData.enemyName} with move pattern {movePattern.movePatternType.ToString()}. Total amount of active enemies = {allActiveEnemiesDico.Count + 1}");
@@ -521,10 +555,10 @@ public class EnemiesManager : MonoBehaviour
         }
     }
 
-    private IEnumerator SpawnEnemyAsync(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, float delay)
+    private IEnumerator SpawnEnemyAsync(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, Wave originWave, float delay)
     {
         yield return new WaitForSeconds(delay);
-        SpawnEnemy(prefab, position, enemyData, movePattern);
+        SpawnEnemy(prefab, position, enemyData, movePattern, originWave);
     }
 
     public void InitializeWave(Wave wave)
@@ -572,7 +606,6 @@ public class EnemiesManager : MonoBehaviour
         newEnemy.alive = true;
 
         // setup enemy - misc
-        newEnemy.defaultSpriteColor = newEnemy.enemyRenderer.color;
         newEnemy.movePattern = movePattern;
 
         // setup enemy - enemy info
@@ -584,7 +617,11 @@ public class EnemiesManager : MonoBehaviour
         newEnemy.enemyInfo = enemyInfo;
 
         // add enemy to dico
+        newEnemy.enemyID = lastKey;
         allActiveEnemiesDico.Add(lastKey, newEnemy);
+
+        // add enemy to update queue
+        enemiesToUpdateQueue.Enqueue(newEnemy);
 
         // Set starting velocity (depends on move pattern)
         Vector2 vectorTowardsPlayer = (GameManager.instance.player.transform.position - newEnemy.enemyTransform.position).normalized;
@@ -612,7 +649,7 @@ public class EnemiesManager : MonoBehaviour
                 newEnemy.moveDirection = vectorTowardsPlayer;
                 break;
         }
-        SetEnemyVelocity(newEnemy);
+        SetEnemyVelocity(newEnemy, 0);
     }
 
     /// <summary>
@@ -626,14 +663,6 @@ public class EnemiesManager : MonoBehaviour
     {
         EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
         enemy.HP -= damage;
-
-        if (weapon != null)
-        {
-            enemy.SetLastHitTime(weapon.gameObject.name);
-
-            enemy.lastWeaponHitTransform = weapon;
-
-        }
 
         // Display damage text
         GameObject damageText = null;
@@ -652,6 +681,23 @@ public class EnemiesManager : MonoBehaviour
             // enemy died, let's eat it now
             SetEnemyDead(enemy);
             enemyDied = true;
+        }
+
+        if (weapon != null)
+        {
+            enemy.lastWeaponHitTransform = weapon;
+
+            if (!enemyDied && enemy.knockbackCooldown <= 0)
+            {
+                Vector2 knockbackDirection = (enemy.enemyTransform.position - weapon.position).normalized;
+                float knockbackStrengthMassRatio = Mathf.Clamp(enemy.enemyRigidbody.mass/8, 1, 20);
+                float knockbackForce = weapon.GetComponent<WeaponBehaviour>().knockbackForce / knockbackStrengthMassRatio;
+
+                enemy.Knockback(knockbackDirection, knockbackForce, knockbackDuration);
+
+                // Enemy will be white while it is knocked back
+                enemy.SetOverlayColor(Color.white);
+            }
         }
 
         return enemyDied;
@@ -687,6 +733,7 @@ public class EnemiesManager : MonoBehaviour
             PutEnemyInThePool(allActiveEnemiesDico[id]);
             allActiveEnemiesDico.Remove(id);
         }
+        enemiesToUpdateQueue.Clear();
         allActiveEnemiesDico.Clear();
         lastKey = 0;
     }
@@ -698,22 +745,20 @@ public class EnemiesManager : MonoBehaviour
     {
         if (GameManager.instance.isGameRunning)
         {
+            int maxEnemiesToUpdateCount = updateAllEnemiesCount;
             Transform playerTransform = GameManager.instance.player.transform;
-
-            List<KeyValuePair<int, EnemyInstance>> enemiesToUpdate = allActiveEnemiesDico.ToList();
-            enemiesToUpdate = enemiesToUpdate.OrderBy(x => x.Value.lastUpdateTime).Take(50).ToList();
 
             List<int> enemiesToDestroyIDList = new List<int>();
 
-            //foreach (KeyValuePair<int, EnemyInstance> enemyInfo in allActiveEnemiesDico)
-            foreach (KeyValuePair<int, EnemyInstance> enemyInfo in enemiesToUpdate)
+            int enemiesToUpdateCount = Mathf.Min(maxEnemiesToUpdateCount, enemiesToUpdateQueue.Count);
+            for (int i = 0; i < enemiesToUpdateCount; i++)
             {
-                EnemyInstance enemy = enemyInfo.Value;
-                enemy.lastUpdateTime = Time.time;
+                EnemyInstance enemy = enemiesToUpdateQueue.Dequeue();
                 EnemyData enemyData = enemiesDataFromNameDico[enemy.enemyName];
                 EnemyMovePattern movePattern = enemy.movePattern;
                 if (enemy.active)
                 {
+                    float enemyUpdateDeltaTime = (Time.time - enemy.lastUpdateTime);
                     Vector3 frogPosition = playerTransform.position;
                     if (!enemy.alive)
                     {
@@ -721,8 +766,8 @@ public class EnemiesManager : MonoBehaviour
                         enemy.poisonRemainingTime = 0;
                         enemy.poisonDamage = 0;
                         enemy.lastPoisonDamageTime = float.MinValue;
-                        enemy.changeSpeedFactor = 0;
-                        enemy.changeSpeedRemainingTime = 0;
+                        enemy.freezeRemainingTime = 0;
+                        enemy.curseRemainingTime = 0;
                         UpdateSpriteColor(enemy);
                         if (enemy.lastWeaponHitTransform != null)
                         {
@@ -738,7 +783,7 @@ public class EnemiesManager : MonoBehaviour
                             enemy.enemyRenderer.enabled = false;
                             enemy.active = false;
                             RunManager.instance.EatFly(enemyData.xPBonus * (1 + GameManager.instance.player.curse), enemyData.instantlyEndChapter);
-                            enemiesToDestroyIDList.Add(enemyInfo.Key);
+                            enemiesToDestroyIDList.Add(enemy.enemyID);
                         }
                     }
                     else
@@ -749,92 +794,128 @@ public class EnemiesManager : MonoBehaviour
                         float distanceWithFrog = Vector2.Distance(frogPosition, enemy.enemyTransform.position);
                         if (distanceWithFrog > maxDistanceBeforeUnspawn)
                         {
-                            enemy.enemyRenderer.enabled = false;
-                            enemy.enemyCollider.enabled = false;
-                            enemy.active = false;
-                            enemiesToDestroyIDList.Add(enemyInfo.Key);
-                        }
-
-                        // Move                        
-                        switch (movePattern.movePatternType)
-                        {
-                            case EnemyMovePatternType.NO_MOVEMENT:
-                                enemy.enemyRigidbody.velocity = Vector2.zero;
-                                break;
-                            case EnemyMovePatternType.STRAIGHT_LINE:
-                                SetEnemyVelocity(enemy);
-                                break;
-                            case EnemyMovePatternType.FOLLOW_PLAYER:
-                                enemy.moveDirection = (playerTransform.position - enemy.enemyTransform.position).normalized;
-                                SetEnemyVelocity(enemy);
-                                break;
-                            case EnemyMovePatternType.BOUNCE_ON_EDGES:
-                                if (enemy.bounceCount > 0)
+                            if (unspawnEnemiesThatGoTooFar || !enemy.wave.Equals(RunManager.instance.GetCurrentWave()))
+                            {
+                                // Unspawn enemy
+                                enemy.enemyRenderer.enabled = false;
+                                enemy.enemyCollider.enabled = false;
+                                enemy.active = false;
+                                enemiesToDestroyIDList.Add(enemy.enemyID);
+                            }
+                            else
+                            {
+                                // Place enemy in front of frog (as if it was spawned again)
+                                if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out Vector2 spawnPosition))
                                 {
-                                    // detect if enemy current position is on an edge of the screen, bounce it in the right direction if it is                                
-                                    Vector3 cameraBottomLeftCorner = Camera.main.ScreenToWorldPoint(20 * Vector3.right + 20 * Vector3.up);
-                                    Vector3 cameraTopRightCorner = Camera.main.ScreenToWorldPoint((Camera.main.GetComponent<PixelPerfectCamera>().refResolutionX - 20) * Vector3.right + (Camera.main.GetComponent<PixelPerfectCamera>().refResolutionY - 50) * Vector3.up);
-                                    if (enemy.moveDirection.x > 0 && (enemy.enemyTransform.position.x > cameraTopRightCorner.x))
-                                    {
-                                        // move to the left
-                                        enemy.moveDirection = (new Vector2(-Mathf.Abs(enemy.moveDirection.x), enemy.moveDirection.y)).normalized;
-                                        enemy.bounceCount--;
-                                    }
-                                    if (enemy.moveDirection.x < 0 && (enemy.enemyTransform.position.x < cameraBottomLeftCorner.x))
-                                    {
-                                        // move to the right
-                                        enemy.moveDirection = (new Vector2(Mathf.Abs(enemy.moveDirection.x), enemy.moveDirection.y)).normalized;
-                                        enemy.bounceCount--;
-                                    }
-                                    if (enemy.moveDirection.y < 0 && (enemy.enemyTransform.position.y < cameraBottomLeftCorner.y))
-                                    {
-                                        // move up
-                                        enemy.moveDirection = (new Vector2(enemy.moveDirection.x, Mathf.Abs(enemy.moveDirection.y))).normalized;
-                                        enemy.bounceCount--;
-                                    }
-                                    if (enemy.moveDirection.y > 0 && (enemy.enemyTransform.position.y > cameraTopRightCorner.y))
-                                    {
-                                        // move down
-                                        enemy.moveDirection = (new Vector2(enemy.moveDirection.x, -Mathf.Abs(enemy.moveDirection.y))).normalized;
-                                        enemy.bounceCount--;
-                                    }
+                                    enemy.enemyTransform.position = spawnPosition;
                                 }
-                                SetEnemyVelocity(enemy);
-                                break;
-                            case EnemyMovePatternType.DIRECTIONLESS:
-                                if (Time.time - enemy.lastChangeOfDirectionTime > delayBetweenRandomChangeOfDirection)
-                                {
-                                    enemy.moveDirection = Random.insideUnitCircle.normalized;
-                                    enemy.lastChangeOfDirectionTime = Time.time;
-                                }
-                                SetEnemyVelocity(enemy);
-                                break;
-                        }
-
-                        // Poison Damage
-                        enemy.poisonRemainingTime -= updateAllEnemiesDelay;
-                        if (enemy.poisonRemainingTime <= 0)
-                        {
-                            enemy.poisonRemainingTime = 0;
-                            enemy.poisonDamage = 0;
-                            enemy.lastPoisonDamageTime = float.MinValue;
-                            UpdateSpriteColor(enemy);
+                            }
                         }
                         else
                         {
-                            if (Time.time - enemy.lastPoisonDamageTime > delayBetweenPoisonDamage)
+                            // Move 
+                            if (enemy.knockbackCooldown > 0)
                             {
-                                bool enemyIsDead = DamageEnemy(enemyInfo.Key, enemy.poisonDamage, null);
+                                // being knocked back
+                                enemy.knockbackCooldown -= enemyUpdateDeltaTime;
+                            }
+                            else
+                            {
+                                // Knockback effect is over
+                                enemy.StopKnockback(); 
+                                enemy.knockbackCooldown = 0;
+
+                                // Freeze and Curse remaining time decreases
+                                enemy.freezeRemainingTime -= enemyUpdateDeltaTime;
+                                enemy.curseRemainingTime -= enemyUpdateDeltaTime;
+
+                                // Enemy get its color back (depending on current effect applied)
+                                UpdateSpriteColor(enemy);
+
+                                switch (movePattern.movePatternType)
+                                {
+                                    case EnemyMovePatternType.NO_MOVEMENT:
+                                        enemy.enemyRigidbody.velocity = Vector2.zero;
+                                        break;
+                                    case EnemyMovePatternType.STRAIGHT_LINE:
+                                        SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
+                                        break;
+                                    case EnemyMovePatternType.FOLLOW_PLAYER:
+                                        enemy.moveDirection = (playerTransform.position - enemy.enemyTransform.position).normalized;
+                                        SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
+                                        break;
+                                    case EnemyMovePatternType.BOUNCE_ON_EDGES:
+                                        if (enemy.bounceCount > 0)
+                                        {
+                                            // detect if enemy current position is on an edge of the screen, bounce it in the right direction if it is                                
+                                            Vector3 cameraBottomLeftCorner = Camera.main.ScreenToWorldPoint(20 * Vector3.right + 20 * Vector3.up);
+                                            Vector3 cameraTopRightCorner = Camera.main.ScreenToWorldPoint((Camera.main.GetComponent<PixelPerfectCamera>().refResolutionX - 20) * Vector3.right + (Camera.main.GetComponent<PixelPerfectCamera>().refResolutionY - 50) * Vector3.up);
+                                            if (enemy.moveDirection.x > 0 && (enemy.enemyTransform.position.x > cameraTopRightCorner.x))
+                                            {
+                                                // move to the left
+                                                enemy.moveDirection = (new Vector2(-Mathf.Abs(enemy.moveDirection.x), enemy.moveDirection.y)).normalized;
+                                                enemy.bounceCount--;
+                                            }
+                                            if (enemy.moveDirection.x < 0 && (enemy.enemyTransform.position.x < cameraBottomLeftCorner.x))
+                                            {
+                                                // move to the right
+                                                enemy.moveDirection = (new Vector2(Mathf.Abs(enemy.moveDirection.x), enemy.moveDirection.y)).normalized;
+                                                enemy.bounceCount--;
+                                            }
+                                            if (enemy.moveDirection.y < 0 && (enemy.enemyTransform.position.y < cameraBottomLeftCorner.y))
+                                            {
+                                                // move up
+                                                enemy.moveDirection = (new Vector2(enemy.moveDirection.x, Mathf.Abs(enemy.moveDirection.y))).normalized;
+                                                enemy.bounceCount--;
+                                            }
+                                            if (enemy.moveDirection.y > 0 && (enemy.enemyTransform.position.y > cameraTopRightCorner.y))
+                                            {
+                                                // move down
+                                                enemy.moveDirection = (new Vector2(enemy.moveDirection.x, -Mathf.Abs(enemy.moveDirection.y))).normalized;
+                                                enemy.bounceCount--;
+                                            }
+                                        }
+                                        SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
+                                        break;
+                                    case EnemyMovePatternType.DIRECTIONLESS:
+                                        if (Time.time - enemy.lastChangeOfDirectionTime > delayBetweenRandomChangeOfDirection)
+                                        {
+                                            enemy.moveDirection = Random.insideUnitCircle.normalized;
+                                            enemy.lastChangeOfDirectionTime = Time.time;
+                                        }
+                                        SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
+                                        break;
+                                }
+                            }
+
+                            // Poison Damage
+                            enemy.poisonRemainingTime -= enemyUpdateDeltaTime;
+                            if (enemy.poisonRemainingTime <= 0)
+                            {
+                                enemy.poisonRemainingTime = 0;
+                                enemy.poisonDamage = 0;
+                                enemy.lastPoisonDamageTime = float.MinValue;
+                                UpdateSpriteColor(enemy);
+                            }
+                            else if (Time.time - enemy.lastPoisonDamageTime > delayBetweenPoisonDamage)
+                            {
+                                bool enemyIsDead = DamageEnemy(enemy.enemyID, enemy.poisonDamage, null);
                                 enemy.lastPoisonDamageTime = Time.time;
 
-                                if (enemyIsDead && !enemiesToDestroyIDList.Contains(enemyInfo.Key))
+                                if (enemyIsDead && !enemiesToDestroyIDList.Contains(enemy.enemyID))
                                 {
-                                    enemiesToDestroyIDList.Add(enemyInfo.Key);
+                                    enemiesToDestroyIDList.Add(enemy.enemyID);
+                                    enemy.active = false;
                                     CollectiblesManager.instance.SpawnCollectible(enemy.enemyTransform.position, CollectibleType.XP_BONUS, enemyData.xPBonus);
                                 }
                             }
                         }
                     }
+                }
+                if (enemy.active)
+                {
+                    enemy.lastUpdateTime = Time.time;
+                    enemiesToUpdateQueue.Enqueue(enemy);
                 }
             }
             if (verbose == VerboseLevel.MAXIMAL && enemiesToDestroyIDList.Count > 0)
@@ -872,53 +953,70 @@ public class EnemiesManager : MonoBehaviour
         UpdateSpriteColor(enemy);
     }
 
-    public void ChangeEnemySpeed(string enemyGoName, float speedChangeFactor, float speedChangeDuration)
+    public void ApplyFreezeEffect(string enemyGoName, float duration)
     {
         int enemyIndex = int.Parse(enemyGoName);
         EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
-        enemy.changeSpeedFactor = speedChangeFactor;
-        enemy.changeSpeedRemainingTime = speedChangeDuration;
+        enemy.freezeRemainingTime = duration;
         UpdateSpriteColor(enemy);
     }
 
-    private void SetEnemyVelocity(EnemyInstance enemyInstance)
+    public void ApplyCurseEffect(string enemyGoName, float duration)
     {
-        float angle = -Vector2.SignedAngle(enemyInstance.moveDirection, Vector2.right);
+        int enemyIndex = int.Parse(enemyGoName);
+        EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
+        enemy.curseRemainingTime = duration;
+        UpdateSpriteColor(enemy);
+    }
+
+    private void SetEnemyVelocity(EnemyInstance enemy, float updateDeltaTime)
+    {
+        float angle = -Vector2.SignedAngle(enemy.moveDirection, Vector2.right);
         float roundedAngle = -90 + Mathf.RoundToInt(angle / 90) * 90;
-        enemyInstance.enemyTransform.rotation = Quaternion.Euler(0, 0, roundedAngle);
-        enemyInstance.changeSpeedRemainingTime -= updateAllEnemiesDelay;
-        if (enemyInstance.changeSpeedRemainingTime <= 0)
+        enemy.enemyTransform.rotation = Quaternion.Euler(0, 0, roundedAngle);
+
+        float changeSpeedFactor = 1;
+        if (enemy.freezeRemainingTime > 0)
         {
-            enemyInstance.changeSpeedRemainingTime = 0;
-            enemyInstance.changeSpeedFactor = 0;
-            UpdateSpriteColor(enemyInstance);
+            changeSpeedFactor = 0;
+            enemy.enemyRigidbody.mass = 10000;
         }
-        float actualSpeed = GetEnemyDataFromGameObjectName(enemyInstance.enemyTransform.name).moveSpeed * (1 + enemyInstance.changeSpeedFactor) * enemyInstance.movePattern.speedFactor;
+        else if (enemy.curseRemainingTime > 0)
+        {
+            changeSpeedFactor = 3;
+            enemy.enemyRigidbody.mass = 1000;
+        }
+
+        float actualSpeed = GetEnemyDataFromGameObjectName(enemy.enemyTransform.name).moveSpeed * changeSpeedFactor * enemy.movePattern.speedFactor;
         float walkSpeed = DataManager.instance.defaultWalkSpeed * (1 + GameManager.instance.player.walkSpeedBoost);
         actualSpeed = Mathf.Clamp(actualSpeed, 0, 30);
-        enemyInstance.enemyRigidbody.velocity = enemyInstance.moveDirection * actualSpeed;
+        enemy.enemyRigidbody.velocity = enemy.moveDirection * actualSpeed;
     }
 
     private void UpdateSpriteColor(EnemyInstance enemyInstance)
     {
-        if (enemyInstance.poisonRemainingTime > 0)
+        if (enemyInstance.knockbackCooldown > 0)
         {
-            enemyInstance.enemyRenderer.color = poisonedSpriteColor;
-        }
-        else if (enemyInstance.changeSpeedRemainingTime > 0)
-        {
-            if (enemyInstance.changeSpeedFactor > 0)
-            {
-                enemyInstance.enemyRenderer.color = cursedSpriteColor;
-            }
-            else if (enemyInstance.changeSpeedFactor < 0)
-            {
-                enemyInstance.enemyRenderer.color = frozenSpriteColor;
-            }
+            enemyInstance.SetOverlayColor(Color.white); // enemy being hit
         }
         else
         {
-            enemyInstance.enemyRenderer.color = enemyInstance.defaultSpriteColor;
+            if (enemyInstance.poisonRemainingTime > 0)
+            {
+                enemyInstance.SetOverlayColor(poisonedSpriteColor); // enemy is poisoned
+            }
+            else if (enemyInstance.curseRemainingTime > 0)
+            {
+                enemyInstance.SetOverlayColor(cursedSpriteColor); // enemy is cursed
+            }
+            else if (enemyInstance.freezeRemainingTime > 0)
+            {
+                enemyInstance.SetOverlayColor(frozenSpriteColor); // enemy is frozen
+            }
+            else
+            {
+                enemyInstance.RemoveOverlay(); // enemy is back to normal
+            }
         }
     }
 

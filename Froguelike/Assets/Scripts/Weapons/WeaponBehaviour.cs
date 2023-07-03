@@ -21,24 +21,29 @@ public class WeaponBehaviour : MonoBehaviour
     public float attackSpeed;
     public float range;
     public float duration;
+    [Space]
+    public float knockbackForce;
 
     [Header("Settings - special metrics")]
     public float healthAbsorbRatio;
     [Space]
     public float poisonDamage;
-    public float poisonDuration;
     [Space]
-    public float freezeFactor;
-    public float freezeDuration;
-    [Space]
-    public float curseFactor;
-    public float curseDuration;
+    public bool freezeEffect;
+    public float curseChance;
 
     [Header("Collision Layer")]
     public LayerMask foodLayer;
 
     [Header("Runtime")]
     public float lastAttackTime;
+    public bool isAttacking;
+    public bool preventAttack;
+    [Space]
+    public int tongueTypeIndex; // Index of this tongue
+    public int tongueTypeCount; // Number of tongues of the same type
+    [Space]
+    public List<GameObject> activeWeaponsOfSameTypeList;
 
     private Color tongueColor;
 
@@ -47,23 +52,24 @@ public class WeaponBehaviour : MonoBehaviour
 
     private Collider2D tongueCollider;
 
-
     private bool isTongueGoingOut;
 
     private int eatenFliesCount;
 
-    private bool isAttacking;
-    
-    public static float rotatingTongueCurrentAngle = 0;
-    public static int rotatingTongueCount = 0;
-    public int rotatingTongueIndex;
+    private List<string> enemiesHitNamesList;
 
-    private Coroutine computeRotatingAngleCoroutine;
+    private Coroutine sendTongueCoroutine;
 
-    public static void ResetStaticValues()
+    // Start is called before the first frame update
+    void Start()
     {
-        rotatingTongueCurrentAngle = 0;
-        rotatingTongueCount = 0;
+        SetTongueScale(0);
+        lastAttackTime = Time.time;
+        tongueCollider = GetComponent<Collider2D>();
+        tongueLineRenderer = GetComponent<LineRenderer>();
+        outlineLineRenderer = outlineTransform.GetComponent<LineRenderer>();
+        enemiesHitNamesList = new List<string>();
+        sendTongueCoroutine = null;
     }
 
     public void SetTongueColor(Color color)
@@ -84,10 +90,12 @@ public class WeaponBehaviour : MonoBehaviour
         float actualWidth = tongueWidth * (1 + GameManager.instance.player.attackSizeBoost);
         if (tongueLineRenderer != null && outlineLineRenderer != null)
         {
-            tongueLineRenderer.startWidth = actualWidth;
+            tongueLineRenderer.widthMultiplier = actualWidth;
+            outlineLineRenderer.widthMultiplier = actualWidth + outlineWeight * 2;
+            /*tongueLineRenderer.startWidth = actualWidth;
             tongueLineRenderer.endWidth = actualWidth;
             outlineLineRenderer.startWidth = actualWidth + outlineWeight * 2;
-            outlineLineRenderer.endWidth = actualWidth + outlineWeight * 2;
+            outlineLineRenderer.endWidth = actualWidth + outlineWeight * 2;*/
         }
     }
 
@@ -123,9 +131,9 @@ public class WeaponBehaviour : MonoBehaviour
     public void ResetWeapon()
     {
         isAttacking = false;
-        eatenFliesCount = 0;
         isTongueGoingOut = false;
         lastAttackTime = Time.time;
+        preventAttack = false;
         SetTongueScale(0);
         tongueLineRenderer = GetComponent<LineRenderer>();
         outlineLineRenderer = outlineTransform.GetComponent<LineRenderer>();
@@ -148,78 +156,76 @@ public class WeaponBehaviour : MonoBehaviour
                 SetTongueColor(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.NONE));
                 break;
         }
+        
+        eatenFliesCount = 0;
+
+        if (sendTongueCoroutine != null)
+        {
+            StopCoroutine(sendTongueCoroutine);
+        }
     }
 
-    public void Initialize(RunWeaponData weaponData)
+    public void Initialize(RunWeaponData tongueData, List<GameObject> activeWeapons)
     {
-        weaponType = weaponData.weaponType;
-        attackSpeed = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.SPEED).value;
-        cooldown = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.COOLDOWN).value;
-        damage = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.DAMAGE).value;
-        range = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.RANGE).value;
-        duration = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.DURATION).value;
+        weaponType = tongueData.weaponType;
+        attackSpeed = (float)tongueData.weaponBaseStats.GetStatValue(WeaponStat.SPEED).value;
+        cooldown = (float)tongueData.weaponBaseStats.GetStatValue(WeaponStat.COOLDOWN).value;
+        damage = (float)tongueData.weaponBaseStats.GetStatValue(WeaponStat.DAMAGE).value;
+        range = (float)tongueData.weaponBaseStats.GetStatValue(WeaponStat.RANGE).value;
+        duration = (float)tongueData.weaponBaseStats.GetStatValue(WeaponStat.DURATION).value;
 
-        freezeFactor = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.FREEZE_RATIO).value;
-        freezeDuration = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.FREEZE_DURATION).value;
+        knockbackForce = (float)tongueData.weaponBaseStats.GetStatValue(WeaponStat.KNOCKBACK).value;
 
-        curseFactor = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.CURSE_RATIO).value;
-        curseDuration = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.CURSE_DURATION).value;
+        healthAbsorbRatio = (float)tongueData.weaponBaseStats.GetStatValue(WeaponStat.VAMPIRE_RATIO).value;
+        poisonDamage = (float)tongueData.weaponBaseStats.GetStatValue(WeaponStat.POISON_DAMAGE).value;
+        freezeEffect = (float)tongueData.weaponBaseStats.GetStatValue(WeaponStat.FREEZE_EFFECT).value > 0;
+        curseChance = (float)tongueData.weaponBaseStats.GetStatValue(WeaponStat.CURSE_EFFECT).value;
 
-        healthAbsorbRatio = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.VAMPIRE_RATIO).value;
+        SetTongueWidth((float)tongueData.weaponBaseStats.GetStatValue(WeaponStat.SIZE).value);
 
-        poisonDamage = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.POISON_DAMAGE).value;
-        poisonDuration = (float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.POISON_DURATION).value;
-        
-        SetTongueWidth((float)weaponData.weaponBaseStats.GetStatValue(WeaponStat.SIZE).value);
-
-        if (weaponData.weaponType == WeaponType.ROTATING)
-        {
-            rotatingTongueIndex = rotatingTongueCount;
-            rotatingTongueCount++;
-            if (rotatingTongueIndex == 0)
-            {
-                if (computeRotatingAngleCoroutine != null)
-                {
-                    StopCoroutine(computeRotatingAngleCoroutine);
-                    computeRotatingAngleCoroutine = null;
-                }
-                computeRotatingAngleCoroutine = StartCoroutine(ComputeRotatingTongueAngle());
-            }
-        }
+        activeWeaponsOfSameTypeList = activeWeapons;
+        tongueTypeIndex = 0;
+        tongueTypeCount = 1;
 
         ResetWeapon();
     }
 
-    public void CopyWeaponStats(WeaponBehaviour weapon)
+    public void CopyWeaponStats(List<GameObject> otherWeaponsOfTheSameType)
     {
+        tongueTypeCount = otherWeaponsOfTheSameType.Count+1;
+        WeaponBehaviour weapon = null;
+        foreach (GameObject weaponGo in otherWeaponsOfTheSameType)
+        {
+            weapon = weaponGo.GetComponent<WeaponBehaviour>();
+            weapon.tongueTypeCount = tongueTypeCount;
+            weapon.activeWeaponsOfSameTypeList = otherWeaponsOfTheSameType;
+        }
+
         cooldown = weapon.cooldown;
         damage = weapon.damage;
         attackSpeed = weapon.attackSpeed;
         range = weapon.range;
         duration = weapon.duration;
-        lastAttackTime = weapon.lastAttackTime;
+
+        tongueTypeIndex = tongueTypeCount-1;
+        activeWeaponsOfSameTypeList = otherWeaponsOfTheSameType;
+
+        knockbackForce = weapon.knockbackForce;
+
+        lastAttackTime = float.MaxValue;
 
         SetTongueWidth(weapon.tongueWidth);
 
         weaponType = weapon.weaponType;
-        if (weaponType == WeaponType.ROTATING)
-        {
-            rotatingTongueIndex = rotatingTongueCount;
-            rotatingTongueCount++;
-        }
 
         healthAbsorbRatio = weapon.healthAbsorbRatio;
-
         poisonDamage = weapon.poisonDamage;
-        poisonDuration = weapon.poisonDuration;
+        freezeEffect = weapon.freezeEffect;
+        curseChance = weapon.curseChance;
 
-        freezeFactor = weapon.freezeFactor;
-        freezeDuration = weapon.freezeDuration;
-
-        curseFactor = weapon.curseFactor;
-        curseDuration = weapon.curseDuration;
-        
         ResetWeapon();
+
+        preventAttack = true; // so this new tongue will not attack before the previous one stops it attack first
     }
 
     public void LevelUp(RunWeaponItemLevel weaponItemLevel)
@@ -234,6 +240,8 @@ public class WeaponBehaviour : MonoBehaviour
         range *= (1+(float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.RANGE).value);
 
         duration *= (1 + (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.DURATION).value);
+
+        knockbackForce *= (1 + (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.KNOCKBACK).value);
 
         // Width
         float newTongueWidth = tongueWidth * (1 + (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.SIZE).value);
@@ -251,52 +259,25 @@ public class WeaponBehaviour : MonoBehaviour
         }
 
         // Special attack: Poison
-        if (poisonDamage == 0)
-        {
-            // First time we add a Poison effect
-            poisonDuration = (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.POISON_DURATION).value;
-        }
-        else
-        {
-            poisonDuration *= (1 + (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.POISON_DURATION).value);
-        }
         poisonDamage += (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.POISON_DAMAGE).value;
 
         // Special attack: Freeze
-        if (freezeFactor == 0)
+        if (!freezeEffect)
         {
             // First time we add a Freeze effect
-            freezeFactor = (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.FREEZE_RATIO).value;
-            freezeDuration = (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.FREEZE_DURATION).value;
-        }
-        else
-        {
-            freezeFactor *= (1 + (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.FREEZE_RATIO).value);
-            freezeDuration *= (1 + (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.FREEZE_DURATION).value);
+            freezeEffect = (weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.FREEZE_EFFECT).value > 0);
         }
 
-        // Special attack: Curse
-        if (curseFactor == 0)
+        // Special attack: Curse        
+        if (curseChance <= 0)
         {
             // First time we add a Curse effect
-            curseFactor = (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.CURSE_RATIO).value;
-            curseDuration = (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.CURSE_DURATION).value;
+            curseChance = (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.CURSE_EFFECT).value;
         }
         else
         {
-            curseFactor *= (1 + (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.CURSE_RATIO).value);
-            curseDuration *= (1 + (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.CURSE_DURATION).value);
+            curseChance *= (1 + (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(WeaponStat.CURSE_EFFECT).value);
         }
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        SetTongueScale(0);
-        lastAttackTime = Time.time;
-        tongueCollider = GetComponent<Collider2D>();
-        tongueLineRenderer = GetComponent<LineRenderer>();
-        outlineLineRenderer = outlineTransform.GetComponent<LineRenderer>();
     }
 
     private GameObject GetNearestEnemy()
@@ -327,7 +308,7 @@ public class WeaponBehaviour : MonoBehaviour
     public void TryAttack()
     {
         float actualCooldown = cooldown * (1 + GameManager.instance.player.attackCooldownBoost);
-        if (!isAttacking && Time.time - lastAttackTime > actualCooldown)
+        if (!preventAttack && !isAttacking && Time.time - lastAttackTime > actualCooldown)
         {
             switch (weaponType)
             {
@@ -336,7 +317,7 @@ public class WeaponBehaviour : MonoBehaviour
                     
                     // Set random color
                     List<Color> possibleColors = new List<Color>();
-                    possibleColors.Add(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.NONE));
+                    //possibleColors.Add(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.NONE)); // No effect, I was thinking maybe the rando-tongue should always have a special effect
                     if (healthAbsorbRatio > 0)
                     {
                         possibleColors.Add(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.VAMPIRE));
@@ -345,11 +326,11 @@ public class WeaponBehaviour : MonoBehaviour
                     {
                         possibleColors.Add(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.POISON));
                     }
-                    if (freezeFactor > 0)
+                    if (freezeEffect)
                     {
                         possibleColors.Add(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.FREEZE));
                     }
-                    if (curseFactor > 0)
+                    if (curseChance > 0)
                     {
                         possibleColors.Add(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.CURSE));
                     }
@@ -362,23 +343,32 @@ public class WeaponBehaviour : MonoBehaviour
                 case WeaponType.ROTATING:
                     AttackRotating();
                     break;
-                // Attack nearest enemy
+                // Attack in facing direction
                 case WeaponType.CLASSIC:
                 case WeaponType.CURSED:
                 case WeaponType.FREEZE:
                 case WeaponType.POISON:
-                case WeaponType.QUICK:
                 case WeaponType.VAMPIRE:
                 case WeaponType.WIDE:
                 case WeaponType.CAT:
-                default:
-                    
+                    Vector2 playerDirection = GameManager.instance.player.GetVelocity();
+                    if (playerDirection != Vector2.zero)
+                    {
+                        Attack(playerDirection.normalized);
+                    }
+                    else
+                    {
+                        Attack(GameManager.instance.player.transform.up);
+                    }
+                    break;
+                // Attack nearest enemy
+                case WeaponType.QUICK:
+                default:                    
                     GameObject targetEnemy = GetNearestEnemy();
                     if (targetEnemy != null)
                     {
                         Attack(EnemiesManager.instance.GetEnemyInstanceFromGameObjectName(targetEnemy.name));
-                    }
-                    
+                    }                    
                     break;
             }
         }
@@ -391,23 +381,18 @@ public class WeaponBehaviour : MonoBehaviour
         Vector2 direction = GameManager.instance.player.transform.up;
         if (tongueLineRenderer != null && outlineLineRenderer != null)
         {
-            StartCoroutine(SendTongueInDirectionRotating(direction));
-        }
-    }
-
-    private IEnumerator ComputeRotatingTongueAngle()
-    {
-        while (true)
-        {
-            float actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
-            rotatingTongueCurrentAngle += (Time.fixedDeltaTime * actualAttackSpeed * 10);
-            yield return new WaitForFixedUpdate();
+            if (sendTongueCoroutine != null)
+            {
+                StopCoroutine(sendTongueCoroutine);
+            }
+            sendTongueCoroutine = StartCoroutine(SendTongueInDirectionRotating(direction));
         }
     }
 
     private IEnumerator SendTongueInDirectionRotating(Vector2 direction)
     {
         isAttacking = true;
+        preventAttack = true;
         SetTongueDirection(direction);
         float t = 0;
         isTongueGoingOut = true;
@@ -416,10 +401,11 @@ public class WeaponBehaviour : MonoBehaviour
         tongueCollider.enabled = true;
 
         float actualAttackDuration = duration * (1 + GameManager.instance.player.attackDurationBoost); // in seconds
-
-        float angle = rotatingTongueCurrentAngle + (rotatingTongueIndex * 2 * Mathf.PI / rotatingTongueCount);
-
         float actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
+
+        float angle = Vector2.SignedAngle(Vector2.up, direction) * Mathf.Deg2Rad;
+        angle += (tongueTypeIndex * 2 * Mathf.PI / tongueTypeCount);
+
         while (isTongueGoingOut)
         {
             if (t <= 1)
@@ -430,7 +416,6 @@ public class WeaponBehaviour : MonoBehaviour
             else
             {
                 SetTongueScale(1);
-
                 actualAttackDuration -= Time.fixedDeltaTime;
                 if (actualAttackDuration < 0)
                 {
@@ -439,10 +424,10 @@ public class WeaponBehaviour : MonoBehaviour
             }
 
             actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
-
-            angle = rotatingTongueCurrentAngle + (rotatingTongueIndex * 2 * Mathf.PI / rotatingTongueCount);
+            angle += actualAttackSpeed * Time.fixedDeltaTime;
 
             SetTongueDirection((Mathf.Cos(angle) * Vector2.right + Mathf.Sin(angle) * Vector2.up).normalized);
+
             yield return new WaitForFixedUpdate();
         }
         while (t > 0)
@@ -451,8 +436,7 @@ public class WeaponBehaviour : MonoBehaviour
             t -= Time.fixedDeltaTime;
 
             actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
-
-            angle = rotatingTongueCurrentAngle + (rotatingTongueIndex * 2 * Mathf.PI / rotatingTongueCount);
+            angle += actualAttackSpeed * Time.fixedDeltaTime;
 
             SetTongueDirection((Mathf.Cos(angle) * Vector2.right + Mathf.Sin(angle) * Vector2.up).normalized);
             yield return new WaitForFixedUpdate();
@@ -460,17 +444,35 @@ public class WeaponBehaviour : MonoBehaviour
         tongueLineRenderer.enabled = false;
         outlineLineRenderer.enabled = false;
         tongueCollider.enabled = false;
-        lastAttackTime = Time.time;
         isAttacking = false;
+        lastAttackTime = Time.time;
+        preventAttack = false;
+
+        foreach (GameObject weapon in activeWeaponsOfSameTypeList)
+        {
+            weapon.GetComponent<WeaponBehaviour>().lastAttackTime = lastAttackTime;
+            weapon.GetComponent<WeaponBehaviour>().preventAttack = false;
+        }
     }
 
     public void Attack(Vector2 direction)
     {
         eatenFliesCount = 0;
         lastAttackTime = Time.time;
+
+        // Adjusted direction using index and count
+        float deltaAngle = (tongueTypeCount - 1) * 5 * Mathf.Deg2Rad;
+        float angle = -deltaAngle + tongueTypeIndex * 2 * deltaAngle / (tongueTypeCount == 1 ? 1 : tongueTypeCount - 1);
+        Vector2 adjustedDirection = Tools.Rotate(direction, angle);
+
         if (tongueLineRenderer != null && outlineLineRenderer != null)
         {
-            StartCoroutine(SendTongueInDirection(direction.normalized));
+            lastAttackTime = Time.time;
+            if (sendTongueCoroutine != null)
+            {
+                StopCoroutine(sendTongueCoroutine);
+            }
+            sendTongueCoroutine = StartCoroutine(SendTongueInDirection(adjustedDirection.normalized));
         }
     }
 
@@ -480,7 +482,11 @@ public class WeaponBehaviour : MonoBehaviour
         if (enemy != null && tongueLineRenderer != null && outlineLineRenderer != null)
         {
             lastAttackTime = Time.time;
-            StartCoroutine(SendTongueInDirection((enemy.enemyTransform.position - this.transform.position).normalized));
+            if (sendTongueCoroutine != null)
+            {
+                StopCoroutine(sendTongueCoroutine);
+            }
+            sendTongueCoroutine = StartCoroutine(SendTongueInDirection((enemy.enemyTransform.position - this.transform.position).normalized));
         }
     }
 
@@ -514,19 +520,40 @@ public class WeaponBehaviour : MonoBehaviour
         outlineLineRenderer.enabled = false;
         tongueCollider.enabled = false;
         lastAttackTime = Time.time;
-        isAttacking = false;
+        isAttacking = false;        
+        preventAttack = false;
+        enemiesHitNamesList.Clear();
+
+        foreach (GameObject weapon in activeWeaponsOfSameTypeList)
+        {
+            weapon.GetComponent<WeaponBehaviour>().lastAttackTime = lastAttackTime;
+            weapon.GetComponent<WeaponBehaviour>().preventAttack = false;
+            weapon.GetComponent<WeaponBehaviour>().isAttacking = false;
+        }
     }
 
-    private void OnTriggerStay2D(Collider2D collision)
+    private IEnumerator RemoveEnemyNameWithDelay(string enemyName, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        enemiesHitNamesList.Remove(enemyName);
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Enemy"))
         {
             // default part, for any weapon
             string enemyName = collision.gameObject.name;
-            EnemyInstance enemy = EnemiesManager.instance.GetEnemyInstanceFromGameObjectName(enemyName);
-            float timeSinceLastHit = Time.time - enemy.GetLastHitTime(this.name);
-            if (timeSinceLastHit > EnemiesManager.instance.cooldownTimeBetweenHits)
+            if (!enemiesHitNamesList.Contains(enemyName))
             {
+                enemiesHitNamesList.Add(enemyName); // to prevent a single tongue to hit the same enemy multiple times
+                if (weaponType == WeaponType.ROTATING)
+                {
+                    float actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
+                    StartCoroutine(RemoveEnemyNameWithDelay(enemyName, 1.0f / actualAttackSpeed));
+                }
+
+                EnemyInstance enemy = EnemiesManager.instance.GetEnemyInstanceFromGameObjectName(enemyName);
                 float actualDamage = damage * (1 + GameManager.instance.player.attackDamageBoost);
 
                 // curse part, increase enemy speed
@@ -534,7 +561,7 @@ public class WeaponBehaviour : MonoBehaviour
                 if (weaponType == WeaponType.CURSED || (weaponType == WeaponType.RANDOM && tongueColor.Equals(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.CURSE))))
                 {
                     // Apply curseFactor as a probability of curse
-                    float curseProbability = curseFactor * (1 + GameManager.instance.player.attackSpecialStrengthBoost);
+                    float curseProbability = curseChance * (1 + GameManager.instance.player.attackSpecialStrengthBoost);
                     if (Random.Range(0.0f, 1.0f) < curseProbability)
                     {
                         isCursed = true;
@@ -555,27 +582,20 @@ public class WeaponBehaviour : MonoBehaviour
                 if (weaponType == WeaponType.POISON || (weaponType == WeaponType.RANDOM && tongueColor.Equals(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.POISON))))
                 {
                     float actualPoisonDamage = poisonDamage * (1 + GameManager.instance.player.attackSpecialStrengthBoost);
-                    float actualPoisonDuration = poisonDuration * (1 + GameManager.instance.player.attackSpecialDurationBoost);
+                    float actualPoisonDuration = duration * (1 + GameManager.instance.player.attackSpecialDurationBoost);
                     EnemiesManager.instance.AddPoisonDamageToEnemy(enemyName, actualPoisonDamage, actualPoisonDuration);
                 }
-
-                float enemySpeedChangeFactor = 0; // a factor of -1 will stop the movement, a factor of 1 will double the speed
-                float enemySpeedChangeDuration = 0;
+                
                 // freeze part, diminish enemy speed
                 if (weaponType == WeaponType.FREEZE || (weaponType == WeaponType.RANDOM && tongueColor.Equals(DataManager.instance.GetColorForWeaponEffect(WeaponEffect.FREEZE))))
                 {
-                    enemySpeedChangeFactor = -freezeFactor * (1 + GameManager.instance.player.attackSpecialStrengthBoost);
-                    enemySpeedChangeDuration = freezeDuration * (1 + GameManager.instance.player.attackSpecialDurationBoost);
+                    float enemyFreezeDuration = duration * (1 + GameManager.instance.player.attackSpecialDurationBoost);
+                    EnemiesManager.instance.ApplyFreezeEffect(enemyName, enemyFreezeDuration);
                 }
                 if (isCursed)
                 {
-                    enemySpeedChangeFactor = 1;
-                    enemySpeedChangeDuration = curseDuration * (1 + GameManager.instance.player.attackSpecialDurationBoost);
-                }
-
-                if (enemySpeedChangeFactor != 0)
-                {
-                    EnemiesManager.instance.ChangeEnemySpeed(enemyName, enemySpeedChangeFactor, enemySpeedChangeDuration);
+                    float enemyCurseDuration = duration * (1 + GameManager.instance.player.attackSpecialDurationBoost);
+                    EnemiesManager.instance.ApplyCurseEffect(enemyName, enemyCurseDuration);
                 }
 
                 if (enemyIsDead)

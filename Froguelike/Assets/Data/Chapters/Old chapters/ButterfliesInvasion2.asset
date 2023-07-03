@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bad41dd93f187774b8bdbe4c23a9cc6f, type: 3}
+  m_Name: ButterfliesInvasion2
+  m_EditorClassIdentifier: 
+  chapterID: '[BUTTERFLIES_INVASION_END]'
+  chapterTitle: The revenge
+  chapterLore:
+  - The butterflies attacked us again! This time stronger, quicker, and better prepared.
+    But I'm prepared too...
+  icons:
+  - {fileID: 21300000, guid: 0e336c5291c94a94a865d17d8e53e1e3, type: 3}
+  - {fileID: 21300000, guid: 585e64491b67d454eb7b85538eeef18f, type: 3}
+  - {fileID: 21300000, guid: 89250ce266e457c42bfa2d269d01a6b7, type: 3}
+  startingStatBonuses:
+    statsList: []
+  chapterLengthInSeconds: 300
+  startingUnlockState: 1
+  startingWeight: 0
+  canBePlayedMultipleTimesInOneRun: 0
+  conditions:
+  - conditionsList:
+    - conditionType: 2
+      not: 0
+      chapterData: {fileID: 11400000, guid: 55fbb70df24edee48a4061fe0d585c3a, type: 2}
+      minChapterCount: 2
+      maxChapterCount: 5
+      environmentType: 0
+      hatType: 0
+      friendType: 0
+      itemName: {fileID: 0}
+      characterData: {fileID: 0}
+  rocksSpawnFrequency: 1
+  pondsSpawnFrequency: 2
+  coinsSpawnFrequency: 1
+  healthSpawnFrequency: 2
+  levelUpSpawnFrequency: 1
+  specialCollectiblesOnTheMap: []
+  environmentChange: 0
+  characterStyleChange: 0
+  waves:
+  - {fileID: 11400000, guid: c9d0026ede3348c4f9b12905592f64bd, type: 2}
+  - {fileID: 11400000, guid: 486f2559e597bb64aa8d0d96cc4b4e9d, type: 2}
+  - {fileID: 11400000, guid: c9d0026ede3348c4f9b12905592f64bd, type: 2}
+  - {fileID: 11400000, guid: 486f2559e597bb64aa8d0d96cc4b4e9d, type: 2}
+  - {fileID: 11400000, guid: c9d0026ede3348c4f9b12905592f64bd, type: 2}
+  weightChanges:
+  - chapter: {fileID: 11400000, guid: 55fbb70df24edee48a4061fe0d585c3a, type: 2}
+    weightChange: 1

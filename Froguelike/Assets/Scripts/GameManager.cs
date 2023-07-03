@@ -57,8 +57,11 @@ public class GameManager : MonoBehaviour
     // Singleton
     public static GameManager instance;
 
-    [Header("Settings")]
+    [Header("Settings - Log")]
     public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
+
+    [Header("Settings - Demo")]
+    public bool demoBuild = false;
 
     [Header("References")]
     public FrogCharacterController player;
@@ -116,12 +119,35 @@ public class GameManager : MonoBehaviour
 
     public void OpenCharacterSelection()
     {
-        UIManager.instance.ShowCharacterSelectionScreen();
+        UIManager.instance.ShowCharacterSelectionScreen(true);
     }
 
     public void UnlockFeature(RewardFeatureType featureKey)
     {
-        // TODO: Implement
+        switch (featureKey)
+        {
+            case RewardFeatureType.ACHIEVEMENTS_LIST:
+                AchievementManager.instance.UnlockAchievementsList();
+                break;
+            case RewardFeatureType.CHARACTER_SELECTION:
+                // not really needed to do anything, character selection will be unlocked automatically when another character is unlocked
+                break;
+            case RewardFeatureType.SHOP:
+                ShopManager.instance.UnlockShop();
+                break;
+            case RewardFeatureType.CHAPTER_SELECTION_5:
+                ChapterManager.instance.SetChapterCountInSelection(5);
+                break;
+            case RewardFeatureType.GHOST_BUFF:
+                CharacterManager.instance.ChangeCharacterStats("GHOST", new List<StatValue>() { new StatValue(CharacterStat.MAX_HEALTH, 50) });
+                break;
+            case RewardFeatureType.RIBBIT_BUFF:
+                CharacterManager.instance.ChangeCharacterStats("POISONOUS_FROG", new List<StatValue>() { new StatValue(CharacterStat.ATK_DAMAGE_BOOST, 0.3) });
+                break;
+            case RewardFeatureType.STANLEY_BUFF:
+                CharacterManager.instance.ChangeCharacterStats("STANLEY", new List<StatValue>() { new StatValue(CharacterStat.REVIVAL, 8) });
+                break;
+        }
     }
 
     #region Chapters

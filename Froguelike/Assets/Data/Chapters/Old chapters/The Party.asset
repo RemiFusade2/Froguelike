@@ -1,0 +1,101 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bad41dd93f187774b8bdbe4c23a9cc6f, type: 3}
+  m_Name: The Party
+  m_EditorClassIdentifier: 
+  chapterID: '[PARTY]'
+  chapterTitle: The Party
+  chapterLore:
+  - My homies and I were invited to a very fancy party. All the flies would be there!
+    We don't want to miss it!
+  icons:
+  - {fileID: 21300000, guid: 0e336c5291c94a94a865d17d8e53e1e3, type: 3}
+  - {fileID: 21300000, guid: 585e64491b67d454eb7b85538eeef18f, type: 3}
+  - {fileID: 21300000, guid: 89250ce266e457c42bfa2d269d01a6b7, type: 3}
+  startingStatBonuses:
+    statsList: []
+  chapterLengthInSeconds: 360
+  startingUnlockState: 1
+  startingWeight: 1
+  canBePlayedMultipleTimesInOneRun: 0
+  conditions:
+  - conditionsList:
+    - conditionType: 5
+      not: 0
+      chapterData: {fileID: 0}
+      minChapterCount: 0
+      maxChapterCount: 0
+      environmentType: 0
+      hatType: 0
+      friendType: 0
+      itemName: {fileID: 0}
+      characterData: {fileID: 0}
+    - conditionType: 5
+      not: 0
+      chapterData: {fileID: 0}
+      minChapterCount: 0
+      maxChapterCount: 0
+      environmentType: 0
+      hatType: 0
+      friendType: 1
+      itemName: {fileID: 0}
+      characterData: {fileID: 0}
+    - conditionType: 5
+      not: 0
+      chapterData: {fileID: 0}
+      minChapterCount: 0
+      maxChapterCount: 0
+      environmentType: 0
+      hatType: 0
+      friendType: 2
+      itemName: {fileID: 0}
+      characterData: {fileID: 0}
+    - conditionType: 5
+      not: 0
+      chapterData: {fileID: 0}
+      minChapterCount: 0
+      maxChapterCount: 0
+      environmentType: 0
+      hatType: 0
+      friendType: 3
+      itemName: {fileID: 0}
+      characterData: {fileID: 0}
+  rocksSpawnFrequency: 1
+  pondsSpawnFrequency: 1
+  coinsSpawnFrequency: 3
+  healthSpawnFrequency: 3
+  levelUpSpawnFrequency: 3
+  specialCollectiblesOnTheMap:
+  - tileCoordinates: {x: 5, y: 0}
+    tilePrefab: {fileID: 799068813537004447, guid: 3577fff562b74ae4cb6c4b7340b8b689, type: 3}
+    collectibleType: 2
+    collectibleStatItemData: {fileID: 0}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 0
+  - tileCoordinates: {x: -5, y: 0}
+    tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
+    collectibleType: 2
+    collectibleStatItemData: {fileID: 0}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 0
+  environmentChange: 0
+  characterStyleChange: 0
+  waves:
+  - {fileID: 11400000, guid: c9d0026ede3348c4f9b12905592f64bd, type: 2}
+  - {fileID: 11400000, guid: f536f5a2578cbe14ea2140b005acda2e, type: 2}
+  - {fileID: 11400000, guid: 461325af61c4f404a81c4d2a8862bf6a, type: 2}
+  - {fileID: 11400000, guid: c9d0026ede3348c4f9b12905592f64bd, type: 2}
+  - {fileID: 11400000, guid: c9d0026ede3348c4f9b12905592f64bd, type: 2}
+  - {fileID: 11400000, guid: f536f5a2578cbe14ea2140b005acda2e, type: 2}
+  weightChanges: []

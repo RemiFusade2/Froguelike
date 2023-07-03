@@ -41,6 +41,55 @@ public class Achievement
     {
         return achievementID.GetHashCode();
     }
+
+    public string GetRewardDescription()
+    {
+        string rewardDescription = achievementData.reward.rewardDescription;
+        switch (achievementData.reward.rewardType)
+        {
+            case AchievementRewardType.CHARACTER:
+                rewardDescription = rewardDescription.Replace("characterName", achievementData.reward.character.characterName);
+                break;
+            case AchievementRewardType.RUN_ITEM:
+                rewardDescription = rewardDescription.Replace("itemName", achievementData.reward.runItem.itemName);
+                break;
+            case AchievementRewardType.SHOP_ITEM:
+                rewardDescription = rewardDescription.Replace("itemName", achievementData.reward.shopItem.itemName);
+                break;
+            case AchievementRewardType.CHAPTER:
+                rewardDescription = rewardDescription.Replace("chapterTitle", achievementData.reward.chapter.chapterTitle);
+                break;
+            default:
+                break;
+        }
+        return rewardDescription;
+    }
+
+    public string GetAchievementDescription()
+    {
+        string conditionDescription = achievementData.achievementDescription;
+
+        foreach (AchievementCondition condition in achievementData.conditionsList)
+        {
+            switch (condition.conditionType)
+            {
+                case AchievementConditionType.CHAPTER:
+                    conditionDescription = conditionDescription.Replace("chapterTitle", condition.playedChapter.chapterTitle);
+                    break;
+                case AchievementConditionType.CHARACTER:
+                    conditionDescription = conditionDescription.Replace("characterName", condition.playedCharacter.characterName);
+                    break;
+                case AchievementConditionType.RUNITEM:
+                case AchievementConditionType.RUNITEMLEVEL:
+                    conditionDescription = conditionDescription.Replace("itemName", condition.runItem.itemName);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return conditionDescription;
+    }
 }
 
 /// <summary>
@@ -51,6 +100,8 @@ public class Achievement
 public class AchievementsSaveData : SaveData
 {
     public List<Achievement> achievementsList;
+
+    public bool achievementsListUnlocked;
 
     public AchievementsSaveData()
     {
@@ -76,6 +127,7 @@ public class AchievementManager : MonoBehaviour
 
     [Header("UI")]
     public TextMeshProUGUI achievementCountTextMesh;
+    public ScrollRect achievementsListScrollRect;
     public RectTransform achievementScrollContentPanel;
     public Transform achievementScrollEntriesParent;
     [Space]
@@ -96,6 +148,17 @@ public class AchievementManager : MonoBehaviour
             Destroy(this.gameObject);
         }
     }
+    
+    public bool IsAchievementsListUnlocked()
+    {
+        return achievementsData.achievementsListUnlocked;
+    }
+
+    public void UnlockAchievementsList()
+    {
+        achievementsData.achievementsListUnlocked = true;
+        SaveDataManager.instance.isSaveDataDirty = true;
+    }
 
     #region Load Data
 
@@ -105,6 +168,7 @@ public class AchievementManager : MonoBehaviour
     /// <param name="saveData"></param>
     public void SetAchievementsData(AchievementsSaveData saveData)
     {
+        achievementsData.achievementsListUnlocked = saveData.achievementsListUnlocked;
         foreach (Achievement achievement in achievementsData.achievementsList)
         {
             Achievement achievementFromSave = saveData.achievementsList.FirstOrDefault(x => x.achievementID.Equals(achievement.achievementID));
@@ -120,6 +184,7 @@ public class AchievementManager : MonoBehaviour
     public void ResetAchievements()
     {
         achievementsData.achievementsList.Clear();
+        achievementsData.achievementsListUnlocked = false;
         foreach (AchievementData achievementData in achievementsScriptableObjectsList)
         {
             Achievement newAchievement = new Achievement()
@@ -195,8 +260,8 @@ public class AchievementManager : MonoBehaviour
     }
 
     #endregion
-    
-    public List<Achievement> GetUnlockedAchievementsForCurrentRun()
+
+    public List<Achievement> GetUnlockedAchievementsForCurrentRun(bool forceUnlockEverything = false)
     {
         List<Achievement> unlockedAchievementsList = new List<Achievement>();
 
@@ -206,20 +271,24 @@ public class AchievementManager : MonoBehaviour
         List <RunItemInfo> allOwnedItems = RunManager.instance.ownedItems;
         PlayableCharacter playedCharacter = RunManager.instance.currentPlayedCharacter;
         int chapterCount = RunManager.instance.GetChapterCount();
+        List<Chapter> completedChapters = RunManager.instance.completedChaptersList;
         FrogCharacterController player = GameManager.instance.player;
 
         List<Achievement> metaAchievements = new List<Achievement>(); // achievements that depend on other achievements
 
         foreach (Achievement achievement in achievementsData.achievementsList)
         {
-            if (!achievement.unlocked)
+            bool isDemoBuildAndAchievementIsNotPartOfDemo = IsAchievementLockedBehindDemo(achievement);
+            if (!achievement.unlocked && !isDemoBuildAndAchievementIsNotPartOfDemo)
             {
-                // This achievement is not unlocked yet
                 bool conditionsAreMet = true;
                 foreach (AchievementCondition condition in achievement.achievementData.conditionsList)
                 {
                     switch (condition.conditionType)
                     {
+                        case AchievementConditionType.CHAPTER:
+                            conditionsAreMet &= (completedChapters.FirstOrDefault(x => x.chapterID.Equals(condition.playedChapter.chapterID)) != null);
+                            break;
                         case AchievementConditionType.CHAPTERCOUNT:
                             conditionsAreMet &= (chapterCount >= condition.chapterCount);
                             break;
@@ -250,7 +319,7 @@ public class AchievementManager : MonoBehaviour
                             switch(condition.specialKey)
                             {
                                 case AchievementConditionSpecialKey.GET_100_FROINS:
-                                    conditionsAreMet &= (GameManager.instance.gameData.availableCurrency > 100);
+                                    conditionsAreMet &= (GameManager.instance.gameData.availableCurrency >= 100);
                                     break;
                                 case AchievementConditionSpecialKey.UNLOCK_A_CHARACTER:
                                     conditionsAreMet &= (CharacterManager.instance.GetUnlockedCharacterCount() > 1);
@@ -271,6 +340,13 @@ public class AchievementManager : MonoBehaviour
                                 case AchievementConditionSpecialKey.GATHER_ALL_FRIENDS:
                                     conditionsAreMet &= (player.HasActiveFriend(FriendType.FROG) && player.HasActiveFriend(FriendType.TOAD) && player.HasActiveFriend(FriendType.GHOST) && player.HasActiveFriend(FriendType.POISONOUS));
                                     break;
+                                case AchievementConditionSpecialKey.UNLOCK_10_CHAPTERS:
+                                    if (!metaAchievements.Contains(achievement))
+                                    {
+                                        metaAchievements.Add(achievement);
+                                    }
+                                    conditionsAreMet &= (ChapterManager.instance.GetUnlockedChaptersCount() >= 10);                                    
+                                    break;
                             }
                             break;
                     }
@@ -280,7 +356,7 @@ public class AchievementManager : MonoBehaviour
                     }
                 }
 
-                if (conditionsAreMet)
+                if (conditionsAreMet || forceUnlockEverything)
                 {
                     // Conditions are met to unlock this Achievement!
                     UnlockAchievement(achievement);
@@ -300,6 +376,10 @@ public class AchievementManager : MonoBehaviour
                     if (condition.conditionType == AchievementConditionType.SPECIAL && condition.specialKey == AchievementConditionSpecialKey.COMPLETE_10_ACHIEVEMENTS)
                     {
                         conditionsAreMet &= (achievementsData.achievementsList.Count(x => x.unlocked) >= 10);
+                    }
+                    if (condition.conditionType == AchievementConditionType.SPECIAL && condition.specialKey == AchievementConditionSpecialKey.UNLOCK_10_CHAPTERS)
+                    {
+                        conditionsAreMet &= (ChapterManager.instance.GetUnlockedChaptersCount() >= 10);
                     }
                 }
                 if (conditionsAreMet)
@@ -359,6 +439,11 @@ public class AchievementManager : MonoBehaviour
         SetSteamAchievementIfPossible(achievement.achievementData.achievementSteamID);
     }
 
+    private bool IsAchievementLockedBehindDemo(Achievement achievement)
+    {
+        return GameManager.instance.demoBuild && !achievement.achievementData.partOfDemo;
+    }
+
     private bool IsAchievementAvailable(Achievement achievement)
     {
         bool conditionCanBeFulfilled = true;
@@ -378,7 +463,7 @@ public class AchievementManager : MonoBehaviour
 
     private List<Achievement> SortAchievementList(List<Achievement> achievements)
     {
-        List<Achievement> result = achievements.OrderBy(x => x.achievementID).OrderByDescending(x => IsAchievementAvailable(x) && !x.achievementData.isSecret).ToList();
+        List<Achievement> result = achievements.OrderBy(x => x.achievementID).OrderBy(x => (x.achievementData.isSecret && !x.unlocked)).OrderByDescending(x => IsAchievementAvailable(x)).OrderBy(x => IsAchievementLockedBehindDemo(x)).ToList();
         return result;
     }
 
@@ -389,8 +474,8 @@ public class AchievementManager : MonoBehaviour
     {
         List<Achievement> orderedAchievements = SortAchievementList(achievementsData.achievementsList);
 
-        int allAchievementsCount = orderedAchievements.Count;
-        int allUnlockedAchievementsCount = orderedAchievements.Count(x => x.unlocked == true);
+        int allAchievementsCount = orderedAchievements.Count(x => !IsAchievementLockedBehindDemo(x));
+        int allUnlockedAchievementsCount = orderedAchievements.Count(x => !IsAchievementLockedBehindDemo(x) && x.unlocked);
 
         achievementCountTextMesh.text = $"{allUnlockedAchievementsCount}/{allAchievementsCount} achieved";
         
@@ -407,15 +492,16 @@ public class AchievementManager : MonoBehaviour
         int entryCount = 1;
         foreach (Achievement achievement in orderedAchievements)
         {
+            bool achievementIsLockedBehindDemo = IsAchievementLockedBehindDemo(achievement);
             bool achievementIsNotSetup = (achievement.achievementData.reward.rewardType == AchievementRewardType.RUN_ITEM && achievement.achievementData.reward.runItem == null)
                 || (achievement.achievementData.reward.rewardType == AchievementRewardType.SHOP_ITEM && achievement.achievementData.reward.shopItem == null);
-            if (!achievementIsNotSetup) // TODO: Remove
+            if (!achievementIsNotSetup && !achievementIsLockedBehindDemo)
             {
                 GameObject achievementEntryGo = Instantiate(achievementEntryPrefab, achievementScrollEntriesParent);
                 AchievementEntryPanelBehaviour achievementEntryScript = achievementEntryGo.GetComponent<AchievementEntryPanelBehaviour>();
                 bool darkerBkg = (entryCount / 2) % 2 == 0;
                 bool canAchieve = IsAchievementAvailable(achievement);
-                achievementEntryScript.Initialize(achievement, darkerBkg, !canAchieve || achievement.achievementData.isSecret);
+                achievementEntryScript.Initialize(achievement, darkerBkg, canAchieve);
                 entryCount++;
             }
         }
@@ -425,5 +511,8 @@ public class AchievementManager : MonoBehaviour
         float entryHeight = containerGridLayoutGroup.cellSize.y + containerGridLayoutGroup.spacing.y;
         float padding = containerGridLayoutGroup.padding.top + containerGridLayoutGroup.padding.bottom;
         achievementScrollContentPanel.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ((entryCount + 1) / 2) * entryHeight + padding);
+
+        // Set scroll view to top position
+        achievementsListScrollRect.normalizedPosition = new Vector2(0, 1);
     }
 }

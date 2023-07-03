@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bad41dd93f187774b8bdbe4c23a9cc6f, type: 3}
+  m_Name: '[CH_ITEM_BOOK_3]'
+  m_EditorClassIdentifier: 
+  chapterID: '[CH_ITEM_BOOK_3]'
+  chapterTitle: Finding the Truth
+  chapterLore:
+  - Finally! The book of knowledge is now right in front of me! I wonder what amazing
+    secrets it holds.\nI must first get rid of these plants though...
+  icons:
+  - {fileID: 21300000, guid: 68abefe47b6919f45b674f7fa1fc656e, type: 3}
+  - {fileID: 21300000, guid: 68abefe47b6919f45b674f7fa1fc656e, type: 3}
+  - {fileID: 21300000, guid: 68abefe47b6919f45b674f7fa1fc656e, type: 3}
+  startingStatBonuses:
+    statsList: []
+  chapterLengthInSeconds: 300
+  startingUnlockState: 1
+  startingWeight: 1
+  canBePlayedMultipleTimesInOneRun: 0
+  conditions:
+  - conditionsList:
+    - conditionType: 2
+      not: 0
+      chapterData: {fileID: 0}
+      minChapterCount: 5
+      maxChapterCount: 5
+      environmentType: 0
+      hatType: 0
+      friendType: 0
+      itemName: {fileID: 0}
+      characterData: {fileID: 0}
+    - conditionType: 1
+      not: 0
+      chapterData: {fileID: 11400000, guid: 609bfbd1ab714814ab48c359cbc22361, type: 2}
+      minChapterCount: 3
+      maxChapterCount: 3
+      environmentType: 0
+      hatType: 0
+      friendType: 0
+      itemName: {fileID: 0}
+      characterData: {fileID: 0}
+  rocksSpawnFrequency: 2
+  pondsSpawnFrequency: 1
+  coinsSpawnFrequency: 1
+  healthSpawnFrequency: 1
+  levelUpSpawnFrequency: 1
+  specialCollectiblesOnTheMap:
+  - tileCoordinates: {x: 0, y: 1}
+    tilePrefab: {fileID: 2605690503437856400, guid: 0e64426fb7f518e4cb73888eba1c6545, type: 3}
+    collectibleType: 0
+    collectibleStatItemData: {fileID: 11400000, guid: 50693eae38927094db2f85f204167944, type: 2}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 0
+  environmentChange: 0
+  characterStyleChange: 0
+  waves:
+  - {fileID: 11400000, guid: dbe3f730e932d3946a1c16c6479fb198, type: 2}
+  - {fileID: 11400000, guid: 0d74991de3ac18c46b450e2e4ea113c0, type: 2}
+  - {fileID: 11400000, guid: c48bbc01cdb0cc1418a90ff4157f84a7, type: 2}
+  - {fileID: 11400000, guid: f56a7e9ca8a6f5f4babff1fc6db68349, type: 2}
+  - {fileID: 11400000, guid: a3d15b14ba2cf8d4baddb3be35fbcf60, type: 2}
+  weightChanges: []

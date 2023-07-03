@@ -91,7 +91,8 @@ public class RunManager : MonoBehaviour
     [Space]
     public string extraLivesPrefix;
     public TextMeshProUGUI extraLivesCountText;
-    [Space]
+
+    [Header("References - UI Level Up")]
     public List<GameObject> levelUpChoicesPanels;
     public List<TextMeshProUGUI> levelUpChoicesTitles;
     public List<TextMeshProUGUI> levelUpChoicesLevels;
@@ -101,6 +102,20 @@ public class RunManager : MonoBehaviour
     public Color defaultUIColor;
     public Color newItemColor;
     public Color maxLevelColor;
+    [Space]
+    public GameObject rerollPostit;
+    public Button rerollButton;
+    public TextMeshProUGUI rerollCount;
+    public GameObject banishPostit;
+    public Button banishButton;
+    public TextMeshProUGUI banishCount;
+    public GameObject skipPostit;
+    public Button skipButton;
+    public TextMeshProUGUI skipCount;
+
+    [Header("Settings - In game UI")]
+    public Color defaultTextColor;
+    public Color highlightedTextColor;
 
     [Header("Settings - Chapter count")]
     public int maxChaptersInARun = 5;
@@ -139,12 +154,17 @@ public class RunManager : MonoBehaviour
     [Header("Runtime - Leveling Up")]
     public List<RunItemData> selectionOfPossibleRunItemsList;
     public bool levelUpChoiceIsVisible;
-
-    private float nextLevelXp;
+    public float nextLevelXp;
+    [Space]
+    public bool rerollsAvailable;
+    public bool banishesAvailable;
+    public bool skipsAvailable;
 
     private float runPlayTime;
     private float runTotalTime; // pause time included
 
+    private Coroutine setCurrencyTextMeshColorCoroutine;
+    private Coroutine setExtraLivesTextMeshColorCoroutine;
 
     #region Unity Callback Methods
 
@@ -191,6 +211,7 @@ public class RunManager : MonoBehaviour
 
     #endregion
 
+    #region Accessors
 
     public bool IsCurrentRunWon()
     {
@@ -228,6 +249,40 @@ public class RunManager : MonoBehaviour
         return statItems;
     }
 
+    public int GetLevelForItem(RunItemData itemData)
+    {
+        int level = 0;
+        foreach (RunItemInfo itemInfo in ownedItems)
+        {
+            bool foundIt = false;
+            if (itemInfo is RunStatItemInfo)
+            {
+                // Stat
+                if ((itemInfo as RunStatItemInfo).itemData.Equals(itemData))
+                {
+                    foundIt = true;
+                }
+            }
+            if (itemInfo is RunWeaponInfo)
+            {
+                // Weapon
+                if ((itemInfo as RunWeaponInfo).weaponItemData.Equals(itemData))
+                {
+                    foundIt = true;
+                }
+            }
+
+            if (foundIt)
+            {
+                level = itemInfo.level;
+                break;
+            }
+        }
+        return level;
+    }
+
+    #endregion
+    
     public void StartNewRun(PlayableCharacter character)
     {
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
@@ -235,11 +290,11 @@ public class RunManager : MonoBehaviour
             Debug.Log("Run Manager - Start a new Run with character: " + character.characterID);
         }
 
-        InitializeNewRun();
-
         // Setup the player controller using the player data that we have
         currentPlayedCharacter = character;
         player.InitializeCharacter(character);
+
+        InitializeNewRun();
 
         // Pick all the items this character starts with
         foreach (RunItemData itemData in character.characterData.startingItems)
@@ -254,24 +309,38 @@ public class RunManager : MonoBehaviour
         ChapterManager.instance.ShowChapterSelection(0);
     }
 
-    private void UpdateInGameCurrencyText(long currencyValue)
+    private void UpdateInGameCurrencyText(long currencyValue, bool highlight)
     {
         currencyText.text = Tools.FormatCurrency(currencyValue, DataManager.instance.currencySymbol);
+        if (highlight)
+        {
+            currencyText.color = highlightedTextColor;
+            if (setCurrencyTextMeshColorCoroutine != null)
+            {
+                StopCoroutine(setCurrencyTextMeshColorCoroutine);
+            }
+            setCurrencyTextMeshColorCoroutine = StartCoroutine(SetTextMeshColor(currencyText, defaultTextColor, 1.0f));
+        }
+    }
+
+    private IEnumerator SetTextMeshColor(TextMeshProUGUI textMesh, Color color, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        textMesh.color = color;
     }
 
     public void IncreaseCollectedCurrency(long currencyValue)
     {
         currentCollectedCurrency += currencyValue;
-        UpdateInGameCurrencyText(currentCollectedCurrency);
+        UpdateInGameCurrencyText(currentCollectedCurrency, true);
     }
 
     public void InitializeNewRun()
     {
         currentCollectedCurrency = 0;
-        UpdateInGameCurrencyText(currentCollectedCurrency);
+        UpdateInGameCurrencyText(currentCollectedCurrency, false);
 
         levelUpChoiceIsVisible = false;
-        //Pause(false);
 
         // Remove all friends and hats
         player.ClearFriends();
@@ -281,12 +350,10 @@ public class RunManager : MonoBehaviour
         level = 1;
         xp = 0;
         nextLevelXp = startLevelXp;
+
         // In-game UI
         UpdateLevelText(level);
         UpdateXPSlider(xp, nextLevelXp);
-
-        // Reset WeaponBehaviour static values
-        WeaponBehaviour.ResetStaticValues();
 
         // Reset Items
         ClearAllItems();
@@ -295,6 +362,23 @@ public class RunManager : MonoBehaviour
         for (int i = 0; i < playedChaptersKillCounts.Length; i++)
         {
             playedChaptersKillCounts[i] = 0;
+        }
+
+        // Reroll, Banish, Skip
+        rerollsAvailable = false;
+        if (player.rerolls > 0)
+        {
+            rerollsAvailable = true;
+        }
+        banishesAvailable = false;
+        if (player.banishs > 0)
+        {
+            banishesAvailable = true;
+        }
+        skipsAvailable = false;
+        if (player.skips > 0)
+        {
+            skipsAvailable = true;
         }
 
         // Reset chapters
@@ -361,9 +445,18 @@ public class RunManager : MonoBehaviour
         killCountText.text = killCountPrefix + eatenBugs.ToString();
     }
 
-    public void SetExtraLives(int reviveCount)
+    public void SetExtraLives(int reviveCount, bool highlight)
     {
         extraLivesCountText.text = extraLivesPrefix + reviveCount.ToString();
+        if (highlight)
+        {
+            extraLivesCountText.color = highlightedTextColor;
+            if (setExtraLivesTextMeshColorCoroutine != null)
+            {
+                StopCoroutine(setExtraLivesTextMeshColorCoroutine);
+            }
+            setExtraLivesTextMeshColorCoroutine = StartCoroutine(SetTextMeshColor(extraLivesCountText, defaultTextColor, 1.0f));
+        }
     }
 
     public void IncreaseKillCount(int kills)
@@ -382,7 +475,7 @@ public class RunManager : MonoBehaviour
         player.revivals--;
 
         UIManager.instance.ShowGameUI();
-        SetExtraLives(player.revivals);
+        SetExtraLives(player.revivals, true);
     }
 
     public void EatFly(float experiencePoints, bool instantlyEndChapter = false)
@@ -397,6 +490,16 @@ public class RunManager : MonoBehaviour
         else
         {
             IncreaseXP(experiencePoints * (1 + player.experienceBoost));
+
+            // Also collect some currency when eating a bug
+            Vector2 currencyProbabilityMinMax = new Vector2(player.currencyBoost, (1 + player.currencyBoost));
+            float currencyProba = Random.Range(currencyProbabilityMinMax.x, currencyProbabilityMinMax.y);
+            float currencyAmount = Mathf.Floor(currencyProba) + ((Random.Range(Mathf.Floor(currencyProba), Mathf.Ceil(currencyProba)) < currencyProba) ? 1 : 0);
+            long currencyAmountLong = (long)Mathf.RoundToInt(currencyAmount);
+            if (currencyAmountLong > 0)
+            {
+                IncreaseCollectedCurrency(currencyAmountLong);
+            }
         }
     }
 
@@ -455,6 +558,8 @@ public class RunManager : MonoBehaviour
 
     public void EndChapter()
     {
+        GameManager.instance.isGameRunning = false;
+
         // Add current played chapter to the list
         completedChaptersList.Add(currentChapter);
 
@@ -463,6 +568,15 @@ public class RunManager : MonoBehaviour
 
         // Stop time
         GameManager.instance.SetTimeScale(0);
+
+        // Reset all tongues
+        foreach (RunWeaponInfo weaponInfo in GetOwnedWeapons())
+        {
+            foreach (GameObject activeWeapon in weaponInfo.activeWeaponsList)
+            {
+                activeWeapon.GetComponent<WeaponBehaviour>().ResetWeapon();
+            }            
+        }
 
         if (completedChaptersList.Count >= maxChaptersInARun)
         {
@@ -507,6 +621,7 @@ public class RunManager : MonoBehaviour
 
         // Teleport player to starting position
         player.ResetPosition();
+        player.Heal(player.maxHealth);
 
         // Update map
         MapBehaviour.instance.ClearMap();
@@ -562,6 +677,8 @@ public class RunManager : MonoBehaviour
 
     public void EndRun()
     {
+        GameManager.instance.isGameRunning = false;
+
         // Show score screen
         ComputeScore();
     }
@@ -590,12 +707,12 @@ public class RunManager : MonoBehaviour
         if (weaponItem.activeWeaponsList.Count > 0)
         {
             // weapon is not the first, we should copy the values from the previous ones
-            weaponGo.GetComponent<WeaponBehaviour>().CopyWeaponStats(weaponItem.activeWeaponsList[0].GetComponent<WeaponBehaviour>());
+            weaponGo.GetComponent<WeaponBehaviour>().CopyWeaponStats(weaponItem.activeWeaponsList);
         }
         else
         {
             // weapon is the first, we should initialize it from the data we have
-            weaponGo.GetComponent<WeaponBehaviour>().Initialize(weaponData);
+            weaponGo.GetComponent<WeaponBehaviour>().Initialize(weaponData, weaponItem.activeWeaponsList);
         }
         // Add the new weapon to the list of active weapons for this RunItem
         weaponItem.activeWeaponsList.Add(weaponGo);
@@ -749,73 +866,27 @@ public class RunManager : MonoBehaviour
         }
     }
 
+    #region Level Up
+
+    private void CloseLevelUp()
+    {
+        HideLevelUpItemSelection();
+        levelUpChoiceIsVisible = false;
+        GameManager.instance.SetTimeScale(1);
+        IncreaseXP(0);
+    }
+
     public void ChooseLevelUpChoice(int index)
     {
         RunItemData pickedItem = selectionOfPossibleRunItemsList[index];
         PickRunItem(pickedItem);
 
-        HideLevelUpItemSelection();
-
-        levelUpChoiceIsVisible = false;
-
-        GameManager.instance.SetTimeScale(1);
-
-        IncreaseXP(0);
+        CloseLevelUp();
     }
 
-    public int GetLevelForItem(RunItemData itemData)
+    private void RandomLevelUpItemSelection()
     {
-        int level = 0;
-        foreach (RunItemInfo itemInfo in ownedItems)
-        {
-            bool foundIt = false;
-            if (itemInfo is RunStatItemInfo)
-            {
-                // Stat
-                if ((itemInfo as RunStatItemInfo).itemData.Equals(itemData))
-                {
-                    foundIt = true;
-                }
-            }
-            if (itemInfo is RunWeaponInfo)
-            {
-                // Weapon
-                if ((itemInfo as RunWeaponInfo).weaponItemData.Equals(itemData))
-                {
-                    foundIt = true;
-                }
-            }
-
-            if (foundIt)
-            {
-                level = itemInfo.level;
-                break;
-            }
-        }
-        return level;
-    }
-
-    public void LevelUP()
-    {
-        levelUpChoiceIsVisible = true;
-        level++;
-        GameManager.instance.SetTimeScale(0);
-
-        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
-        {
-            Debug.Log("Run - Level Up!");
-
-            string weaponLog = "Summary of kill count per tongue:";
-            foreach (RunWeaponInfo weaponInfo in GetOwnedWeapons())
-            {
-                weaponLog += "\n -> " + weaponInfo.weaponItemData.weaponData.weaponName + " ate " + weaponInfo.killCount + " bugs";
-            }
-            Debug.Log(weaponLog);
-        }
-
-        string log = "New level is " + level + ". Selection of items is:";
-
-        levelUpParticleSystem.Play();
+        string log = "Selection of items is:";
 
         // Pick possible items from a pool
         selectionOfPossibleRunItemsList = RunItemManager.instance.PickARandomSelectionOfRunItems(3);
@@ -838,31 +909,79 @@ public class RunManager : MonoBehaviour
         }
     }
 
-    #region UI
-
-    private void UpdateXPSlider(float xp, float maxXp)
+    public void SkipLevelUpItemSelection()
     {
-        xpSlider.maxValue = maxXp;
-        xpSlider.value = xp;
+        if (player.skips > 0)
+        {
+            player.skips--;
+            UpdateRerollBanishSkipPostIts();
+            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log("Use Skip on level up item selection");
+            }
+            CloseLevelUp();
+        }
     }
 
-    private void UpdateLevelText(int level)
+    public void RerollLevelUpItemSelection()
     {
-        levelText.text = "LVL " + level.ToString();
+        if (player.rerolls > 0)
+        {
+            player.rerolls--;
+            UpdateRerollBanishSkipPostIts();
+            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log("Use reroll on level up item selection");
+            }
+            RandomLevelUpItemSelection();
+        }
     }
 
-    public void HideLevelUpItemSelection()
+    public void LevelUP()
     {
-        UIManager.instance.levelUpPanelAnimator.SetBool("Visible", false);
-        SoundManager.instance.PlaySlideBookSound();
+        levelUpChoiceIsVisible = true;
+        level++;
+        GameManager.instance.SetTimeScale(0);
+        levelUpParticleSystem.Play();
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("Run - Level Up!");
+
+            string weaponLog = "Summary of kill count per tongue:";
+            foreach (RunWeaponInfo weaponInfo in GetOwnedWeapons())
+            {
+                weaponLog += "\n -> " + weaponInfo.weaponItemData.weaponData.weaponName + " ate " + weaponInfo.killCount + " bugs";
+            }
+            Debug.Log(weaponLog);
+            Debug.Log("New level is " + level);
+        }
+
+        selectionOfPossibleRunItemsList.Clear();
+        RandomLevelUpItemSelection();
     }
 
-    #endregion
+    private void UpdateRerollBanishSkipPostIts()
+    {
+        rerollPostit.SetActive(rerollsAvailable);
+        rerollButton.interactable = (player.rerolls > 0);
+        rerollCount.SetText($"x{player.rerolls}");
+
+        banishPostit.SetActive(banishesAvailable);
+        banishButton.interactable = (player.banishs > 0);
+        banishCount.SetText($"x{player.banishs}");
+
+        skipPostit.SetActive(skipsAvailable);
+        skipButton.interactable = (player.skips > 0);
+        skipCount.SetText($"x{player.skips}");
+    }
 
     public void ShowLevelUpItemSelection(List<RunItemData> possibleItems, List<int> itemLevels)
     {
         EventSystem.current.SetSelectedGameObject(null);
         SoundManager.instance.PlaySlideBookSound();
+
+        UpdateRerollBanishSkipPostIts();
 
         UIManager.instance.levelUpPanel.SetActive(true);
         UIManager.instance.levelUpPanelAnimator.SetBool("Visible", true);
@@ -938,7 +1057,15 @@ public class RunManager : MonoBehaviour
                 else if (itemType == RunItemType.WEAPON && (level - 1) < item.GetMaxLevelCount())
                 {
                     // Weapon that we already have
-                    description = (item as RunWeaponItemData).weaponBoostLevels[level - 1].description;
+                    RunWeaponItemLevel weaponLevel = (item as RunWeaponItemData).weaponBoostLevels[level - 1];
+                    if (string.IsNullOrEmpty(weaponLevel.description))
+                    {
+                        description = weaponLevel.weaponStatUpgrades.GetDescription();
+                    }
+                    else
+                    {
+                        description = weaponLevel.description;
+                    }
                 }
                 else if (itemType == RunItemType.STAT_BONUS && level < item.GetMaxLevelCount())
                 {
@@ -950,10 +1077,36 @@ public class RunManager : MonoBehaviour
             }
 
             levelUpChoicesIcons[index].sprite = item.icon;
+            levelUpChoicesIcons[index].color = (item.icon == null) ? new Color(0, 0, 0, 0) : Color.white;
 
             index++;
         }
     }
+
+    #endregion
+
+    #region UI
+
+    private void UpdateXPSlider(float xp, float maxXp)
+    {
+        xpSlider.maxValue = maxXp;
+        xpSlider.value = xp;
+    }
+
+    private void UpdateLevelText(int level)
+    {
+        levelText.text = "LVL " + level.ToString();
+    }
+
+    public void HideLevelUpItemSelection()
+    {
+        UIManager.instance.levelUpPanelAnimator.SetBool("Visible", false);
+        SoundManager.instance.PlaySlideBookSound();
+    }
+
+    #endregion
+
+    #region Collect Collectible
 
     public void CollectCollectible(string collectibleName)
     {
@@ -962,8 +1115,7 @@ public class RunManager : MonoBehaviour
             if (int.TryParse(collectibleName.Split("+")[1], out int currency))
             {
                 int collectedCurrency = Mathf.RoundToInt(currency * (1 + player.currencyBoost));
-                currentCollectedCurrency += collectedCurrency;
-                UpdateInGameCurrencyText(currentCollectedCurrency);
+                IncreaseCollectedCurrency(collectedCurrency);
 
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                 {
@@ -1004,4 +1156,6 @@ public class RunManager : MonoBehaviour
             }
         }
     }
+
+    #endregion
 }

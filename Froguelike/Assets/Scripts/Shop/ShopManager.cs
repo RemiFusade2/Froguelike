@@ -40,6 +40,7 @@ public class ShopSaveData : SaveData
 {
     public List<ShopItem> shopItems;
     public long currencySpentInShop;
+    public bool shopUnlocked;
 
     public ShopSaveData()
     {
@@ -51,6 +52,7 @@ public class ShopSaveData : SaveData
         base.Reset();
         shopItems = new List<ShopItem>();
         currencySpentInShop = 0;
+        shopUnlocked = false;
     }
 }
 
@@ -70,6 +72,7 @@ public class ShopManager : MonoBehaviour
     public List<ShopItemData> availableItemDataList;
 
     [Header("UI References")]
+    public ScrollRect shopScrollRect;
     public RectTransform shopPanelContainer;
     public Transform shopPanel;
     public TextMeshProUGUI availableCurrencyText;
@@ -99,6 +102,17 @@ public class ShopManager : MonoBehaviour
         {
             Destroy(this.gameObject);
         }
+    }
+
+    public bool IsShopUnlocked()
+    {
+        return shopData.shopUnlocked;
+    }
+
+    public void UnlockShop()
+    {
+        shopData.shopUnlocked = true;
+        SaveDataManager.instance.isSaveDataDirty = true;
     }
 
     /// <summary>
@@ -166,7 +180,7 @@ public class ShopManager : MonoBehaviour
                 // Compute new starting stats bonuses
                 ComputeStatsBonuses();
                 // Update the shop display
-                DisplayShop();
+                DisplayShop(false);
                 // Signal the SaveDataManager that information from the shop have been updated and should be saved when possible
                 SaveDataManager.instance.isSaveDataDirty = true;
 
@@ -240,6 +254,7 @@ public class ShopManager : MonoBehaviour
         if (hardReset)
         {
             // A hard reset will also remove unlocked items and reset everything to the start game values
+            shopData.shopUnlocked = false;
             shopData.shopItems.Clear();
             foreach (ShopItemData itemData in availableItemDataList)
             {
@@ -264,7 +279,7 @@ public class ShopManager : MonoBehaviour
     /// Update the UI of the Shop.
     /// Will update both the available currency and redraw the buttons for each item using updated values.
     /// </summary>
-    public void DisplayShop()
+    public void DisplayShop(bool moveToTop)
     {
         // Update Refund Button availability
         refundButton.interactable = (shopData.currencySpentInShop > 0);
@@ -281,11 +296,11 @@ public class ShopManager : MonoBehaviour
         int buttonCount = 0;
         foreach (ShopItem item in shopData.shopItems)
         {
-            if (!item.hidden)
+            bool itemHasNoLevel = (item.maxLevel == 0);
+            if (!item.hidden && !itemHasNoLevel)
             {
-                bool itemIsOutOfStock = (item.maxLevel == 0);
-                bool itemIsAvailable = (item.maxLevel > 0 && item.currentLevel < item.maxLevel);
-                bool itemIsMaxedOut = (item.maxLevel > 0 && item.currentLevel == item.maxLevel);
+                bool itemIsAvailable = item.currentLevel < item.maxLevel;
+                bool itemIsMaxedOut = item.currentLevel == item.maxLevel;
                 if (itemIsAvailable)
                 {
                     bool canBuy = false;
@@ -301,7 +316,7 @@ public class ShopManager : MonoBehaviour
                     shopItemButton.Initialize(item, itemIsAvailable && canBuy);
                     buttonCount++;
                 }
-                else if (displaySoldOutItems && (itemIsOutOfStock || itemIsMaxedOut))
+                else if (itemIsMaxedOut)
                 {
                     GameObject shopItemButtonGo = Instantiate(soldOutShopItemPanelPrefab, shopPanel);
                     ShopItemButton shopItemButton = shopItemButtonGo.GetComponent<ShopItemButton>();
@@ -310,12 +325,17 @@ public class ShopManager : MonoBehaviour
                 }
             }
         }
-        /*
+        
         // Set size of container panel
         float buttonHeight = shopPanel.GetComponent<GridLayoutGroup>().cellSize.y + shopPanel.GetComponent<GridLayoutGroup>().spacing.y;
         float padding = shopPanel.GetComponent<GridLayoutGroup>().padding.top + shopPanel.GetComponent<GridLayoutGroup>().padding.bottom;
         shopPanelContainer.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ((buttonCount + 1) / 2) * buttonHeight + padding);
-    */
+
+        if (moveToTop)
+        {
+            // Set scroll view to top position
+            shopScrollRect.normalizedPosition = new Vector2(0, 1);
+        }
     }
 
     /// <summary>
@@ -341,7 +361,7 @@ public class ShopManager : MonoBehaviour
         // Compute new starting stats bonuses
         ComputeStatsBonuses();
         // Update the shop display
-        DisplayShop();
+        DisplayShop(false);
         // Signal the SaveDataManager that information from the shop have been updated and should be saved when possible
         SaveDataManager.instance.isSaveDataDirty = true;
     }
@@ -353,6 +373,7 @@ public class ShopManager : MonoBehaviour
     public void SetShopData(ShopSaveData saveData)
     {
         shopData.currencySpentInShop = saveData.currencySpentInShop;
+        shopData.shopUnlocked = saveData.shopUnlocked;
         foreach (ShopItem item in shopData.shopItems)
         {
             ShopItem itemFromSave = saveData.shopItems.First(x => x.itemName.Equals(item.itemName));
@@ -366,6 +387,6 @@ public class ShopManager : MonoBehaviour
         // Compute new starting stats bonuses
         ComputeStatsBonuses();
         // Update the shop display
-        DisplayShop();
+        DisplayShop(false);
     }
 }

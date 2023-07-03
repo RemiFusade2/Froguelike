@@ -1,0 +1,86 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bad41dd93f187774b8bdbe4c23a9cc6f, type: 3}
+  m_Name: '[CH_COLLECT_HEALTH]'
+  m_EditorClassIdentifier: 
+  chapterID: '[CH_COLLECT_HEALTH]'
+  chapterTitle: First hops
+  chapterLore:
+  - It was a particulary chill day. Bugs were a bit sleepy and easy to catch, and
+    there was plenty of good stuff to be found all around. So relaxing!
+  icons:
+  - {fileID: 21300000, guid: 68abefe47b6919f45b674f7fa1fc656e, type: 3}
+  - {fileID: 21300000, guid: 68abefe47b6919f45b674f7fa1fc656e, type: 3}
+  - {fileID: 21300000, guid: 68abefe47b6919f45b674f7fa1fc656e, type: 3}
+  startingStatBonuses:
+    statsList: []
+  chapterLengthInSeconds: 300
+  startingUnlockState: 1
+  startingWeight: 1
+  canBePlayedMultipleTimesInOneRun: 1
+  conditions:
+  - conditionsList:
+    - conditionType: 2
+      not: 0
+      chapterData: {fileID: 0}
+      minChapterCount: 1
+      maxChapterCount: 4
+      environmentType: 0
+      hatType: 0
+      friendType: 0
+      itemName: {fileID: 0}
+      characterData: {fileID: 0}
+  rocksSpawnFrequency: 2
+  pondsSpawnFrequency: 2
+  coinsSpawnFrequency: 0
+  healthSpawnFrequency: 3
+  levelUpSpawnFrequency: 0
+  specialCollectiblesOnTheMap:
+  - tileCoordinates: {x: 20, y: 20}
+    tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
+    collectibleType: 0
+    collectibleStatItemData: {fileID: 11400000, guid: b139953497217ef4986fe0ace1910a22, type: 2}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 0
+  - tileCoordinates: {x: -20, y: 20}
+    tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
+    collectibleType: 0
+    collectibleStatItemData: {fileID: 11400000, guid: b139953497217ef4986fe0ace1910a22, type: 2}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 0
+  - tileCoordinates: {x: -20, y: -20}
+    tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
+    collectibleType: 0
+    collectibleStatItemData: {fileID: 11400000, guid: b139953497217ef4986fe0ace1910a22, type: 2}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 0
+  - tileCoordinates: {x: 20, y: -20}
+    tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
+    collectibleType: 0
+    collectibleStatItemData: {fileID: 11400000, guid: b139953497217ef4986fe0ace1910a22, type: 2}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 0
+  environmentChange: 0
+  characterStyleChange: 0
+  waves:
+  - {fileID: 11400000, guid: 434e912b9c353d849a6b4123ba4601c9, type: 2}
+  - {fileID: 11400000, guid: dbe3f730e932d3946a1c16c6479fb198, type: 2}
+  - {fileID: 11400000, guid: ecf445f0e8cd7fd4990e97b849684b93, type: 2}
+  - {fileID: 11400000, guid: 14d585dd0d0976941a19c31545619d39, type: 2}
+  - {fileID: 11400000, guid: 0d74991de3ac18c46b450e2e4ea113c0, type: 2}
+  weightChanges:
+  - chapter: {fileID: 11400000}
+    weightChange: -0.2

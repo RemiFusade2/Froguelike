@@ -23,6 +23,9 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI titleScreenCurrencyText;
     public TextMeshProUGUI titleScreenWelcomeMessageText;
     public TextMeshProUGUI titleScreenSaveLocationText;
+    [Space]
+    public GameObject shopButton;
+    public GameObject achievementsButton;
 
     [Header("Shop")]
     public GameObject shopScreen;
@@ -75,6 +78,9 @@ public class UIManager : MonoBehaviour
     [Header("Settings Screen")]
     public GameObject settingsScreen;
 
+    [Header("Demo panels")]
+    public List<GameObject> demoPanelsList;
+
     private void Awake()
     {
         if (instance == null)
@@ -90,7 +96,15 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
-        ShowTitleScreen();
+        UpdateDemoPanels();
+    }
+
+    public void UpdateDemoPanels()
+    {
+        foreach (GameObject demoPanel in demoPanelsList)
+        {
+            demoPanel.SetActive(GameManager.instance.demoBuild);
+        }        
     }
 
     private void HideAllScreens()
@@ -113,7 +127,12 @@ public class UIManager : MonoBehaviour
         MusicManager.instance.PlayTitleMusic();
         HideAllScreens();
         UpdateTitleScreenCurrencyText(GameManager.instance.gameData.availableCurrency);
+
+        shopButton.SetActive(ShopManager.instance.IsShopUnlocked());
+        achievementsButton.SetActive(AchievementManager.instance.IsAchievementsListUnlocked());
+
         titleScreen.SetActive(true);
+
         titleScreenSaveLocationText.text = Application.persistentDataPath;
         if (SteamManager.Initialized)
         {
@@ -132,7 +151,7 @@ public class UIManager : MonoBehaviour
         long currencyValue = GameManager.instance.gameData.availableCurrency;
 
         UpdateTitleScreenCurrencyText(currencyValue);
-        ShopManager.instance.DisplayShop();
+        ShopManager.instance.DisplayShop(false);
     }
 
     private void UpdateTitleScreenCurrencyText(long currencyValue)
@@ -140,14 +159,23 @@ public class UIManager : MonoBehaviour
         titleScreenCurrencyText.text = Tools.FormatCurrency(currencyValue, DataManager.instance.currencySymbol);
     }
 
-    public void ShowCharacterSelectionScreen()
+    public void ShowCharacterSelectionScreen(bool thenGoToChapterSelection)
     {
         HideAllScreens();
 
-        CharacterManager.instance.UpdateCharacterSelectionScreen();
+        bool isThereCharacterSelection = CharacterManager.instance.UpdateCharacterSelectionScreen();
 
         titleScreen.SetActive(true);
-        characterSelectionScreen.SetActive(true);
+        characterSelectionScreen.SetActive(isThereCharacterSelection);
+
+        if (thenGoToChapterSelection)
+        {
+            if (!isThereCharacterSelection)
+            {
+                // Start Run (show chapter selection)
+                CharacterManager.instance.StartRun();
+            }
+        }
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -248,7 +276,7 @@ public class UIManager : MonoBehaviour
     public void ShowShop()
     {
         HideAllScreens();
-        ShopManager.instance.DisplayShop();
+        ShopManager.instance.DisplayShop(true);
         titleScreen.SetActive(true);
         shopScreen.SetActive(true);
 

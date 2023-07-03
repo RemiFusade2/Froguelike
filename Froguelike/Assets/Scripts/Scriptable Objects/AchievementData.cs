@@ -10,7 +10,8 @@ public enum AchievementConditionSpecialKey
     COMPLETE_10_ACHIEVEMENTS = 3,
     PLAY_GHOST_CHAPTER = 4,
     EAT_100000_BUGS = 5,
-    GATHER_ALL_FRIENDS = 6
+    GATHER_ALL_FRIENDS = 6,
+    UNLOCK_10_CHAPTERS = 7
 }
 
 /// <summary>
@@ -26,6 +27,7 @@ public enum AchievementConditionType
     RUNITEM, // have a specific item (can be a weapon too)
     SPECIAL, // specific condition, hardcoded and identified with a string key
     RUNITEMLEVEL, // have a specific item (can be a weapon too) at a specific level
+    CHAPTER, // complete a specific chapter
 
     /*
      * EVERYTHING UNDER HERE IS NOT IMPLEMENTED, AND MAYBE NOT NEEDED
@@ -33,7 +35,6 @@ public enum AchievementConditionType
     PLAYTIME_MIN, // play the game for at least that specific amount of time
     PLAYTIME_MAX, // play the game for no more than that specific amount of time
     CHAPTERUNIQUECOUNT, // complete that many unique chapters
-    CHAPTER, // complete a specific chapter
     FRIEND, // find a specific friend
     FRIENDCOUNT, // find an amount of friends
     RUNSTATITEMCOUNT, // have an amount of stat items
@@ -68,6 +69,9 @@ public class AchievementCondition
 
     [Tooltip("The character you have to play as to unlock this achievement")]
     public CharacterData playedCharacter = null;
+
+    [Tooltip("The chapter you have to play to unlock this achievement")]
+    public ChapterData playedChapter = null;
 
     [Tooltip("The level you have to reach to unlock this achievement")]
     public int reachLevel = 0;
@@ -105,6 +109,10 @@ public enum RewardFeatureType
     SHOP, // Open the shop
     CHARACTER_SELECTION, // Make it possible to select a character at the start of the game
     ACHIEVEMENTS_LIST, // See a list of all achievements in the game
+    CHAPTER_SELECTION_5, // Show 5 chapters instead of 3 when choosing a chapter
+    GHOST_BUFF, // Upgrade Ghost starting stats. Remove its HPMax debuff
+    RIBBIT_BUFF, // Upgrade Ribbit starting stats. Remove its damage debuff
+    STANLEY_BUFF // Upgrade Stanley starting stats. Starts with 9 lives
 }
 
 /// <summary>
@@ -156,6 +164,8 @@ public class AchievementData : ScriptableObject
     [Header("Achievement settings")]
     [Tooltip("Achievement is hidden until you get it")]
     public bool isSecret = false;
+    [Tooltip("Achievement is available in the demo of the game")]
+    public bool partOfDemo = false;
 
     [Header("Achievement settings - display")]
     [Tooltip("Achievement title")]

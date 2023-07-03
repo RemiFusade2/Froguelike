@@ -44,6 +44,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 076b37b59b0f42e44b3491f0fa15943c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  defaultMaxHP: 100
+  defaultHealthRecovery: 0
+  defaultWalkSpeed: 6
+  defaultSwimSpeed: 4
+  defaultMagnetRange: 3
+  defaultStatItemSlotCount: 4
+  defaultWeaponSlotCount: 4
   allWeaponEffectsDataList:
   - effect: 0
     color: {r: 0.91372555, g: 0.53333336, b: 0.8117648, a: 1}
@@ -55,6 +62,199 @@ MonoBehaviour:
     color: {r: 0.4039216, g: 0.78823537, b: 0.9058824, a: 1}
   - effect: 8
     color: {r: 0.6392157, g: 0.30588236, b: 0.654902, a: 1}
+  characterStatsDataList:
+  - stat: 0
+    shortName: MaxHP
+    longName: Max health
+    unit: HP
+    usePercent: 0
+    icon: {fileID: 0}
+  - stat: 1
+    shortName: HPReco
+    longName: Health recovery
+    unit: HP/s
+    usePercent: 0
+    icon: {fileID: 0}
+  - stat: 2
+    shortName: ARM
+    longName: Armor
+    unit: HP
+    usePercent: 0
+    icon: {fileID: 0}
+  - stat: 3
+    shortName: XP
+    longName: XP bonus
+    unit: 
+    usePercent: 1
+    icon: {fileID: 0}
+  - stat: 4
+    shortName: Currency
+    longName: Currency bonus
+    unit: 
+    usePercent: 1
+    icon: {fileID: 0}
+  - stat: 5
+    shortName: CURS
+    longName: Curse
+    unit: 
+    usePercent: 1
+    icon: {fileID: 0}
+  - stat: 6
+    shortName: Walk
+    longName: Walk speed
+    unit: 
+    usePercent: 1
+    icon: {fileID: 0}
+  - stat: 7
+    shortName: Swim
+    longName: Swim speed
+    unit: 
+    usePercent: 1
+    icon: {fileID: 0}
+  - stat: 8
+    shortName: REVIV
+    longName: Revivals
+    unit: 
+    usePercent: 0
+    icon: {fileID: 0}
+  - stat: 9
+    shortName: REROLL
+    longName: Rerolls
+    unit: 
+    usePercent: 0
+    icon: {fileID: 0}
+  - stat: 10
+    shortName: BANISH
+    longName: Banishes
+    unit: 
+    usePercent: 0
+    icon: {fileID: 0}
+  - stat: 11
+    shortName: SKIP
+    longName: Skips
+    unit: 
+    usePercent: 0
+    icon: {fileID: 0}
+  - stat: 12
+    shortName: DMG
+    longName: Weapon damage
+    unit: 
+    usePercent: 1
+    icon: {fileID: 0}
+  - stat: 13
+    shortName: ATKSPD
+    longName: Weapon speed
+    unit: 
+    usePercent: 1
+    icon: {fileID: 0}
+  - stat: 14
+    shortName: ATKCLD
+    longName: Weapon cooldown
+    unit: 
+    usePercent: 1
+    icon: {fileID: 0}
+  - stat: 15
+    shortName: ATKRAN
+    longName: Weapon range
+    unit: 
+    usePercent: 1
+    icon: {fileID: 0}
+  - stat: 16
+    shortName: ATKSIZ
+    longName: Weapon size
+    unit: 
+    usePercent: 1
+    icon: {fileID: 0}
+  - stat: 17
+    shortName: ATKDUR
+    longName: Weapon duration
+    unit: 
+    usePercent: 1
+    icon: {fileID: 0}
+  - stat: 20
+    shortName: MAG
+    longName: Magnet range
+    unit: 
+    usePercent: 1
+    icon: {fileID: 0}
+  - stat: 21
+    shortName: ITEM
+    longName: Item slot
+    unit: 
+    usePercent: 0
+    icon: {fileID: 0}
+  - stat: 22
+    shortName: WEAPON
+    longName: Weapon slot
+    unit: 
+    usePercent: 0
+    icon: {fileID: 0}
+  weaponStatsDataList:
+  - stat: 0
+    shortName: DMG
+    longName: Damage
+    unit: 
+    usePercent: 0
+  - stat: 1
+    shortName: SPD
+    longName: Speed
+    unit: 
+    usePercent: 1
+  - stat: 2
+    shortName: CLD
+    longName: Cooldown
+    unit: 
+    usePercent: 1
+  - stat: 3
+    shortName: RAN
+    longName: Range
+    unit: 
+    usePercent: 1
+  - stat: 4
+    shortName: SIZ
+    longName: Size
+    unit: 
+    usePercent: 1
+  - stat: 5
+    shortName: ARE
+    longName: Area
+    unit: 
+    usePercent: 1
+  - stat: 6
+    shortName: CNT
+    longName: Count
+    unit: 
+    usePercent: 0
+  - stat: 7
+    shortName: VMP
+    longName: Vampire
+    unit: 
+    usePercent: 1
+  - stat: 8
+    shortName: PSN
+    longName: Poison Damage
+    unit: 
+    usePercent: 0
+  - stat: 9
+    shortName: CUR
+    longName: Curse Chance
+    unit: 
+    usePercent: 1
+  - stat: 10
+    shortName: FRZ
+    longName: Freeze
+    unit: 
+    usePercent: 1
+  - stat: 11
+    shortName: DUR
+    longName: Duration
+    unit: 
+    usePercent: 1
+  - stat: 12
+    shortName: KNB
+    longName: Knockback
+    unit: 
+    usePercent: 1
   currencySymbol: FC
   rocksSpawnProbabilities:
   - frequency: 1
@@ -92,19 +292,51 @@ MonoBehaviour:
   - frequency: 3
     probability: {x: 0.1, y: 0.4}
   collectibleDefaultSprite: {fileID: 21300000, guid: d29a5b85d57d047429629782eee8b1ff, type: 3}
-  hatsSpritesList:
+  hatInfoList:
   - hatType: 0
-    sprite: {fileID: 21300000, guid: e2476706cb932544ba6742e1ef9affd2, type: 3}
-  - hatType: 1
-    sprite: {fileID: 21300000, guid: 80ef4ef9c2cc9524c9bc2c09abc6f2db, type: 3}
+    hatSprite: {fileID: 21300000, guid: e2476706cb932544ba6742e1ef9affd2, type: 3}
+    hatHeight: 0.375
   - hatType: 2
-    sprite: {fileID: 21300000, guid: b3270297934ecb9458e1d7e2060cc88b, type: 3}
-  friendsSpritesList:
+    hatSprite: {fileID: 21300000, guid: b3270297934ecb9458e1d7e2060cc88b, type: 3}
+    hatHeight: 0.3125
+  - hatType: 1
+    hatSprite: {fileID: 21300000, guid: 80ef4ef9c2cc9524c9bc2c09abc6f2db, type: 3}
+    hatHeight: 0.25
+  - hatType: 3
+    hatSprite: {fileID: 21300000, guid: 02e48d697bb2b28458571c9e7c904ecd, type: 3}
+    hatHeight: 0.25
+  - hatType: 4
+    hatSprite: {fileID: 21300000, guid: 66161fcf3297ac840b697290526f2925, type: 3}
+    hatHeight: 0.25
+  - hatType: 5
+    hatSprite: {fileID: 21300000, guid: f652acdac6802dc4289fecdf0c575f3c, type: 3}
+    hatHeight: 0.25
+  friendInfoList:
   - friendType: 0
+    prefab: {fileID: 7304753577135151562, guid: 4343cab615f7214438fc482e10d70301, type: 3}
     sprite: {fileID: -1082827359, guid: 24ccc3f90866df147bbccde54f0a3e85, type: 3}
+    style: 0
+    springDistanceMinMax: {x: 0.9, y: 1.1}
+    springDampingMinMax: {x: 0.9, y: 1.1}
+    springFrequencyMinMax: {x: 0.09, y: 0.11}
   - friendType: 1
+    prefab: {fileID: 7304753577135151562, guid: 4343cab615f7214438fc482e10d70301, type: 3}
     sprite: {fileID: -1443578870, guid: 971eb5b595e22d1428aa7fdcbc4b47ad, type: 3}
+    style: 1
+    springDistanceMinMax: {x: 0.7, y: 1}
+    springDampingMinMax: {x: 0.9, y: 1.1}
+    springFrequencyMinMax: {x: 0.06, y: 0.08}
   - friendType: 2
+    prefab: {fileID: 7304753577135151562, guid: 4343cab615f7214438fc482e10d70301, type: 3}
     sprite: {fileID: -1785899201, guid: a4b97357515fdea48a584e1a698c760b, type: 3}
+    style: 2
+    springDistanceMinMax: {x: 0.8, y: 1.2}
+    springDampingMinMax: {x: 0.9, y: 1.1}
+    springFrequencyMinMax: {x: 0.13, y: 0.15}
   - friendType: 3
+    prefab: {fileID: 7304753577135151562, guid: 4343cab615f7214438fc482e10d70301, type: 3}
     sprite: {fileID: -1519977144, guid: aca36f440e2b27b4fb41540a5b21e22d, type: 3}
+    style: 3
+    springDistanceMinMax: {x: 1.2, y: 1.5}
+    springDampingMinMax: {x: 0.9, y: 1.1}
+    springFrequencyMinMax: {x: 0.09, y: 0.11}
