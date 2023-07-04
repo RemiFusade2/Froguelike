@@ -26,6 +26,13 @@ public class ScoreManager : MonoBehaviour
     public TextMeshProUGUI currencyCollectedText;
     public TextMeshProUGUI moralText;
     [Space]
+    public Transform tonguesPanel;
+    public GameObject tonguesDisplayPrefab;
+    public Transform runItemsPanel;
+    public GameObject runItemsDisplayPrefab;
+
+    public TextMeshProUGUI tonguesText;
+    public TextMeshProUGUI tonguesLevelsText;
     public TextMeshProUGUI upgradesText;
     public TextMeshProUGUI upgradesLevelsText;
     [Space]
@@ -125,36 +132,74 @@ public class ScoreManager : MonoBehaviour
         scoreLog += $"-> Moral is: {moral}\n";
 
         // Display all weapons used during this run and their levels
-        string allItemsNames = "";
-        string allItemsLevels = "";
+
+        // Remove previous tongue displays.
+        foreach (Transform child in tonguesPanel)
+        {
+            Destroy(child.gameObject);
+        }
+        //  string allItemsNames = "";
+        //  string allItemsLevels = "";
         scoreLog += $"Weapons:\n";
         foreach (RunItemInfo itemInfo in ownedItems)
         {
             if (itemInfo is RunWeaponInfo)
             {
                 RunWeaponInfo weaponInfo = (itemInfo as RunWeaponInfo);
-                allItemsNames += weaponInfo.weaponItemData.itemName + "\n";
-                allItemsLevels += "LVL " + weaponInfo.level + "\n";
+                //        allItemsNames += weaponInfo.weaponItemData.itemName + "\n";
+                //      allItemsLevels += "LVL " + weaponInfo.level + "\n";
                 scoreLog += $"-> {weaponInfo.weaponItemData.itemName} Lvl {weaponInfo.level} - ate a total of {weaponInfo.killCount.ToString("0.00")} bugs\n";
             }
         }
-        allItemsNames += "\n";
-        allItemsLevels += "\n";
+        // allItemsNames += "\n";
+        // allItemsLevels += "\n";
+
+        int tongueBackgroundIndex = 0;
+        foreach (RunItemInfo itemInfo in ownedItems)
+        {
+            if (itemInfo is RunWeaponInfo)
+            {
+                GameObject runTongueInfoGo = Instantiate(tonguesDisplayPrefab, tonguesPanel);
+                RunItemField runItemField = runTongueInfoGo.GetComponent<RunItemField>();
+                RunWeaponInfo weaponInfo = (itemInfo as RunWeaponInfo);
+                runItemField.Initialize(weaponInfo, tongueBackgroundIndex);
+                tongueBackgroundIndex = tongueBackgroundIndex == 0 ? 1 : 0;
+            }
+        }
 
         // Display all items used during this run and their levels
+
+        // Remove previous run item displays.
+        foreach (Transform child in runItemsPanel)
+        {
+            Destroy(child.gameObject);
+        }
         scoreLog += $"Stat items:\n";
         foreach (RunItemInfo itemInfo in ownedItems)
         {
             if (itemInfo is RunStatItemInfo)
             {
                 RunStatItemInfo statItemInfo = (itemInfo as RunStatItemInfo);
-                allItemsNames += statItemInfo.itemData.itemName + "\n";
-                allItemsLevels += "LVL " + statItemInfo.level + "\n";
+                // allItemsNames += statItemInfo.itemData.itemName + "\n";
+                // allItemsLevels += "LVL " + statItemInfo.level + "\n";
                 scoreLog += $"-> {statItemInfo.itemData.itemName} Lvl {statItemInfo.level}\n";
             }
         }
-        allItemsNames += "\n";
-        allItemsLevels += "\n";
+        // allItemsNames += "\n";
+        // allItemsLevels += "\n";
+
+        int runItemBackgroundIndex = 0;
+        foreach (RunItemInfo itemInfo in ownedItems)
+        {
+            if (itemInfo is RunStatItemInfo)
+            {
+                GameObject runItemInfoGo = Instantiate(runItemsDisplayPrefab, runItemsPanel);
+                RunItemField runItemField = runItemInfoGo.GetComponent<RunItemField>();
+                RunStatItemInfo runItemInfo = (itemInfo as RunStatItemInfo);
+                runItemField.Initialize(runItemInfo, runItemBackgroundIndex);
+                runItemBackgroundIndex = runItemBackgroundIndex == 0 ? 1 : 0;
+            }
+        }
 
         // Display all consumables used during this run
         // TODO? : Display the consumables items that were taken during this Run
@@ -168,8 +213,8 @@ public class ScoreManager : MonoBehaviour
             }
         }*/
 
-        upgradesText.text = allItemsNames;
-        upgradesLevelsText.text = allItemsLevels;
+        // upgradesText.text = allItemsNames;
+        // upgradesLevelsText.text = allItemsLevels;
 
         // Display unlocked achievements
         achievementScrollRect.Initialize(unlockedAchievements);
