@@ -21,17 +21,6 @@ public class PauseScreen : MonoBehaviour
     public GameObject thirdExtraSlots;
     public TextMeshProUGUI livesCountText;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
 
     public void UpdatePauseScreen()
     {
