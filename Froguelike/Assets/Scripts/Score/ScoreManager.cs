@@ -133,21 +133,17 @@ public class ScoreManager : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
-        //  string allItemsNames = "";
-        //  string allItemsLevels = "";
+
         scoreLog += $"Weapons:\n";
+
         foreach (RunItemInfo itemInfo in ownedItems)
         {
             if (itemInfo is RunWeaponInfo)
             {
                 RunWeaponInfo weaponInfo = (itemInfo as RunWeaponInfo);
-                //        allItemsNames += weaponInfo.weaponItemData.itemName + "\n";
-                //      allItemsLevels += "LVL " + weaponInfo.level + "\n";
                 scoreLog += $"-> {weaponInfo.weaponItemData.itemName} Lvl {weaponInfo.level} - ate a total of {weaponInfo.killCount.ToString("0.00")} bugs\n";
             }
         }
-        // allItemsNames += "\n";
-        // allItemsLevels += "\n";
 
         int tongueBackgroundIndex = 0;
         foreach (RunItemInfo itemInfo in ownedItems)
@@ -169,14 +165,14 @@ public class ScoreManager : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
+
         scoreLog += $"Stat items:\n";
+
         foreach (RunItemInfo itemInfo in ownedItems)
         {
             if (itemInfo is RunStatItemInfo)
             {
                 RunStatItemInfo statItemInfo = (itemInfo as RunStatItemInfo);
-                // allItemsNames += statItemInfo.itemData.itemName + "\n";
-                // allItemsLevels += "LVL " + statItemInfo.level + "\n";
                 scoreLog += $"-> {statItemInfo.itemData.itemName} Lvl {statItemInfo.level}\n";
             }
         }
