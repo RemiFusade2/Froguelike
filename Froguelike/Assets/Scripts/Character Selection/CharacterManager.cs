@@ -88,6 +88,7 @@ public class CharacterManager : MonoBehaviour
     public ScrollRect characterListScrollRect;
     public ScrollbarKeepCursorSizeBehaviour characterListScrollbar;
     [Space]
+    public TextMeshProUGUI characterName;
     public RectTransform statsListContent;
     public RectTransform statsListGridLayoutGroup;
     public ScrollRect statsListScrollRect;
@@ -201,7 +202,7 @@ public class CharacterManager : MonoBehaviour
         // Scroll to the top of the lists
         characterListScrollRect.normalizedPosition = new Vector2(0, 1);
         statsListScrollRect.normalizedPosition = new Vector2(0, 1);
-        
+
         UpdateStatsList();
 
         if (buttonCount == 1 && defaultCharacter != null)
@@ -257,6 +258,9 @@ public class CharacterManager : MonoBehaviour
 
     private void UpdateStatsList()
     {
+        // Update the name on top of the stat view.
+        characterName.SetText(currentSelectedCharacter.characterData.characterName);
+
         // Get all values for stats.
         List<StatValue> statBonusesFromShop = ShopManager.instance.statsBonuses;
         List<StatValue> currentCharacterStatList = currentSelectedCharacter.characterStartingStats.statsList;
@@ -283,6 +287,9 @@ public class CharacterManager : MonoBehaviour
             {
                 GameObject statLineGo = Instantiate(statLinePrefab, statsListGridLayoutGroup);
                 CharacterStatLine statLineScript = statLineGo.GetComponent<CharacterStatLine>();
+
+                // Show the icon.
+                statLineGo.transform.Find("Icon").GetComponent<Image>().sprite = DataManager.instance.GetStatSprite(stat);
 
                 float totalValue = 0;
                 if (stat != CharacterStat.WALK_SPEED_BOOST && stat != CharacterStat.SWIM_SPEED_BOOST && stat != CharacterStat.MAGNET_RANGE_BOOST)
@@ -319,9 +326,9 @@ public class CharacterManager : MonoBehaviour
         GridLayoutGroup statsListGridLayoutGroupComponent = statsListGridLayoutGroup.GetComponent<GridLayoutGroup>();
         float buttonHeight = statsListGridLayoutGroupComponent.cellSize.y + statsListGridLayoutGroupComponent.spacing.y;
         float padding = statsListGridLayoutGroupComponent.padding.top + statsListGridLayoutGroupComponent.padding.bottom;
-        statsListContent.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, lineCount * buttonHeight + padding);        
+        statsListContent.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, lineCount * buttonHeight + padding);
     }
-    
+
 
     /// <summary>
     /// Takes a list of stat values and returns one string with the value or a "-" for all stats and formats the values properly.
@@ -392,7 +399,7 @@ public class CharacterManager : MonoBehaviour
                             break;
                     }
                 }
-                
+
                 // Checks what kind of value that is going to be added to the string.
                 switch (thisStat)
                 {

@@ -68,7 +68,7 @@ public class RunManager : MonoBehaviour
 {
     // Singleton
     public static RunManager instance;
-    
+
     [Header("Settings - Logs")]
     public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
 
@@ -112,6 +112,10 @@ public class RunManager : MonoBehaviour
     public GameObject skipPostit;
     public Button skipButton;
     public TextMeshProUGUI skipCount;
+    [Space]
+    public Transform tongueSlotsParent;
+    public Transform statItemSlotsParent;
+    public GameObject slotPrefab;
 
     [Header("Settings - In game UI")]
     public Color defaultTextColor;
@@ -282,7 +286,7 @@ public class RunManager : MonoBehaviour
     }
 
     #endregion
-    
+
     public void StartNewRun(PlayableCharacter character)
     {
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
@@ -357,6 +361,9 @@ public class RunManager : MonoBehaviour
 
         // Reset Items
         ClearAllItems();
+
+        // Reset item slots.
+        InitializeInRunItemSlots();
 
         // Reset kill counts
         for (int i = 0; i < playedChaptersKillCounts.Length; i++)
@@ -575,7 +582,7 @@ public class RunManager : MonoBehaviour
             foreach (GameObject activeWeapon in weaponInfo.activeWeaponsList)
             {
                 activeWeapon.GetComponent<WeaponBehaviour>().ResetWeapon();
-            }            
+            }
         }
 
         if (completedChaptersList.Count >= maxChaptersInARun)
@@ -768,6 +775,9 @@ public class RunManager : MonoBehaviour
                     pickedItemInfo = newStatItemInfo;
 
                     ownedItems.Add(pickedItemInfo);
+
+                    // Show the new item in the in run UI.
+                    UpdateInRunItemSlots(newStatItemInfo.GetRunItemData());
                 }
 
                 // resolve the item picked (according to its current level)
@@ -839,6 +849,9 @@ public class RunManager : MonoBehaviour
                         log += " -> Spawn new weapon!";
                         SpawnWeapon(pickedItemInfo as RunWeaponInfo);
                     }
+
+                    // Show the new item in the in run UI.
+                    UpdateInRunItemSlots(newWeaponInfo.GetRunItemData());
                 }
                 else
                 {
@@ -1102,6 +1115,75 @@ public class RunManager : MonoBehaviour
     {
         UIManager.instance.levelUpPanelAnimator.SetBool("Visible", false);
         SoundManager.instance.PlaySlideBookSound();
+    }
+
+    private void InitializeInRunItemSlots()
+    {
+        // Remove previous slots.
+        DestroyAndDeactivateChildren(tongueSlotsParent);
+        DestroyAndDeactivateChildren(statItemSlotsParent);
+
+        // Show as manys slots as the player has.
+        for (int slots = 0; slots < player.weaponSlotsCount; slots++) AddNewRunItemSlot(tongueSlotsParent);
+        for (int slots = 0; slots < player.statItemSlotsCount; slots++) AddNewRunItemSlot(statItemSlotsParent);
+    }
+
+    private void DestroyAndDeactivateChildren(Transform parent)
+    {
+        foreach (Transform child in parent)
+        {
+            child.gameObject.SetActive(false);
+            Destroy(child.gameObject);
+        }
+    }
+
+    private void UpdateInRunItemSlots(RunItemData newItem)
+    {
+        // Pick the next empty slot.
+        SpriteRenderer nextFreeIconSlot = null;
+        Transform parent = null;
+        switch (newItem.GetItemType())
+        {
+            case RunItemType.WEAPON:
+                parent = tongueSlotsParent;
+                break;
+
+            case RunItemType.STAT_BONUS:
+                parent = statItemSlotsParent;
+                break;
+
+            // If an item is not a tongue or a stat item, it should not be displayed.
+            default:
+                return;
+        }
+
+        // Look for the first empty slot in the right parent.
+        foreach (Transform slot in parent)
+        {
+            if (!slot.gameObject.activeSelf) continue;
+
+            GameObject icon = slot.transform.Find("Icon").gameObject;
+            if (!icon.activeSelf)
+            {
+                nextFreeIconSlot = icon.GetComponent<SpriteRenderer>();
+                break;
+            }
+        }
+
+        // If no empty slot was found, create a new one.
+        if (nextFreeIconSlot == null)
+        {
+            nextFreeIconSlot = AddNewRunItemSlot(parent).Find("Icon").GetComponent<SpriteRenderer>();
+        }
+
+        // Set the icon.
+        nextFreeIconSlot.gameObject.SetActive(true);
+        nextFreeIconSlot.sprite = newItem.icon;
+    }
+
+    private Transform AddNewRunItemSlot(Transform parent)
+    {
+        return Instantiate(slotPrefab, parent).transform;
     }
 
     #endregion
