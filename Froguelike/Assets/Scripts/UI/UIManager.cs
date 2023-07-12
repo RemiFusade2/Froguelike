@@ -81,6 +81,8 @@ public class UIManager : MonoBehaviour
     [Header("Demo panels")]
     public List<GameObject> demoPanelsList;
 
+
+
     private void Awake()
     {
         if (instance == null)
@@ -104,7 +106,7 @@ public class UIManager : MonoBehaviour
         foreach (GameObject demoPanel in demoPanelsList)
         {
             demoPanel.SetActive(GameManager.instance.demoBuild);
-        }        
+        }
     }
 
     private void HideAllScreens()
@@ -249,7 +251,11 @@ public class UIManager : MonoBehaviour
 
     public void ShowPauseScreen()
     {
-        // MusicManager.instance.PauseMusic();
+        // Tell the pause screen to update its information.
+        pausePanel.GetComponent<PauseScreen>().UpdatePauseScreen();
+
+        // MusicManager.instance.PauseMusic(); // I took this away because I think teh music should still be playing (Johanna).
+        // Show the pause screen.
         pausePanel.SetActive(true);
         pausePanelAnimator.SetBool("Visible", true);
 
