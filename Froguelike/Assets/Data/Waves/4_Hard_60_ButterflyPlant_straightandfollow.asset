@@ -10,36 +10,48 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f3dac8d5f33a52541b2181b63b7a8fe5, type: 3}
-  m_Name: 4_Hard_60_FlyPlantWasp_followstaticandbounce
+  m_Name: 4_Hard_60_ButterflyPlant_straightandfollow
   m_EditorClassIdentifier: 
   duration: 60
   enemies:
-  - enemyType: 4
-    tierFormula: chapter+1
+  - enemyType: 1
+    tierFormula: chapter
     movePattern:
-      movePatternType: 4
-      speedFactor: 3
-      bouncecount: 3
+      movePatternType: 1
+      speedFactor: 2
+      bouncecount: 0
     spawnPattern:
       spawnPatternType: 0
       spawnPatternShape: 0
       spawnAmount: 1
       multipleSpawnDelay: 0
-    spawnCooldown: 1
-  - enemyType: 2
-    tierFormula: chapter-1
+    spawnCooldown: 0.4
+  - enemyType: 1
+    tierFormula: chapter+1
     movePattern:
-      movePatternType: 0
+      movePatternType: 1
+      speedFactor: 3
+      bouncecount: 0
+    spawnPattern:
+      spawnPatternType: 2
+      spawnPatternShape: 0
+      spawnAmount: 10
+      multipleSpawnDelay: 0
+    spawnCooldown: 2.5
+  - enemyType: 2
+    tierFormula: chapter+2
+    movePattern:
+      movePatternType: 2
       speedFactor: 1
       bouncecount: 0
     spawnPattern:
       spawnPatternType: 0
       spawnPatternShape: 0
-      spawnAmount: 10
+      spawnAmount: 1
       multipleSpawnDelay: 0
-    spawnCooldown: 2.5
-  - enemyType: 0
-    tierFormula: chapter
+    spawnCooldown: 0.5
+  - enemyType: 2
+    tierFormula: chapter+1
     movePattern:
       movePatternType: 2
       speedFactor: 1
@@ -47,18 +59,6 @@ MonoBehaviour:
     spawnPattern:
       spawnPatternType: 2
       spawnPatternShape: 0
-      spawnAmount: 10
+      spawnAmount: 5
       multipleSpawnDelay: 0
-    spawnCooldown: 4
-  - enemyType: 0
-    tierFormula: chapter+1
-    movePattern:
-      movePatternType: 2
-      speedFactor: 1
-      bouncecount: 0
-    spawnPattern:
-      spawnPatternType: 0
-      spawnPatternShape: 0
-      spawnAmount: 1
-      multipleSpawnDelay: 0
-    spawnCooldown: 0.2
+    spawnCooldown: 1

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: '[CH_STORY_RIBBIT_1]'
   m_EditorClassIdentifier: 
   chapterID: '[CH_STORY_RIBBIT_1]'
+  partOfDemo: 0
   chapterTitle: The Unwanted Frog
   chapterLore:
   - There was a small poisonous frog living alone in a secluded part of the swamp.\nThey
@@ -60,19 +61,26 @@ MonoBehaviour:
       itemName: {fileID: 0}
       characterData: {fileID: 11400000, guid: 8532a20df8a530548b6aa40feab1c90b, type: 2}
   rocksSpawnFrequency: 2
-  pondsSpawnFrequency: 1
+  pondsSpawnFrequency: 2
   coinsSpawnFrequency: 1
-  healthSpawnFrequency: 1
-  levelUpSpawnFrequency: 1
-  specialCollectiblesOnTheMap: []
+  healthSpawnFrequency: 0
+  levelUpSpawnFrequency: 0
+  specialCollectiblesOnTheMap:
+  - tileCoordinates: {x: 0, y: 15}
+    tilePrefab: {fileID: 799068813537004447, guid: 3577fff562b74ae4cb6c4b7340b8b689, type: 3}
+    collectibleType: 0
+    collectibleStatItemData: {fileID: 11400000, guid: 4f94eda1e628c8544bdbe476f6718bac, type: 2}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 0
   environmentChange: 0
   characterStyleChange: 0
   waves:
-  - {fileID: 11400000, guid: dbe3f730e932d3946a1c16c6479fb198, type: 2}
-  - {fileID: 11400000, guid: 0d74991de3ac18c46b450e2e4ea113c0, type: 2}
-  - {fileID: 11400000, guid: c48bbc01cdb0cc1418a90ff4157f84a7, type: 2}
-  - {fileID: 11400000, guid: f56a7e9ca8a6f5f4babff1fc6db68349, type: 2}
-  - {fileID: 11400000, guid: a3d15b14ba2cf8d4baddb3be35fbcf60, type: 2}
+  - {fileID: 11400000, guid: 434e912b9c353d849a6b4123ba4601c9, type: 2}
+  - {fileID: 11400000, guid: 14d585dd0d0976941a19c31545619d39, type: 2}
+  - {fileID: 11400000, guid: 52fd18ac9b5027b4e84739340f6e9112, type: 2}
+  - {fileID: 11400000, guid: 86840b034cbad514fbc5c66e16b51951, type: 2}
+  - {fileID: 11400000, guid: 29360d080b888064aa309b2a05ce9cc6, type: 2}
   weightChanges:
   - chapter: {fileID: 11400000, guid: 56ecd624a4e555841904f8c428245f36, type: 2}
     weightChange: 5

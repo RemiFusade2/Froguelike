@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: '[CH_STORY_RIBBIT_2]'
   m_EditorClassIdentifier: 
   chapterID: '[CH_STORY_RIBBIT_2]'
+  partOfDemo: 0
   chapterTitle: The Secret Garden
   chapterLore:
   - One day, the frog stumbled upon a hidden garden deep in the swamp.\nThe garden
@@ -62,17 +63,31 @@ MonoBehaviour:
   rocksSpawnFrequency: 2
   pondsSpawnFrequency: 1
   coinsSpawnFrequency: 1
-  healthSpawnFrequency: 1
-  levelUpSpawnFrequency: 1
-  specialCollectiblesOnTheMap: []
+  healthSpawnFrequency: 0
+  levelUpSpawnFrequency: 0
+  specialCollectiblesOnTheMap:
+  - tileCoordinates: {x: -10, y: 10}
+    tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
+    collectibleType: 0
+    collectibleStatItemData: {fileID: 11400000, guid: 4f94eda1e628c8544bdbe476f6718bac, type: 2}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 0
+  - tileCoordinates: {x: 10, y: 10}
+    tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
+    collectibleType: 0
+    collectibleStatItemData: {fileID: 11400000, guid: 4f94eda1e628c8544bdbe476f6718bac, type: 2}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 0
   environmentChange: 0
   characterStyleChange: 0
   waves:
-  - {fileID: 11400000, guid: dbe3f730e932d3946a1c16c6479fb198, type: 2}
-  - {fileID: 11400000, guid: 0d74991de3ac18c46b450e2e4ea113c0, type: 2}
-  - {fileID: 11400000, guid: c48bbc01cdb0cc1418a90ff4157f84a7, type: 2}
-  - {fileID: 11400000, guid: f56a7e9ca8a6f5f4babff1fc6db68349, type: 2}
-  - {fileID: 11400000, guid: a3d15b14ba2cf8d4baddb3be35fbcf60, type: 2}
+  - {fileID: 11400000, guid: ecf445f0e8cd7fd4990e97b849684b93, type: 2}
+  - {fileID: 11400000, guid: 29360d080b888064aa309b2a05ce9cc6, type: 2}
+  - {fileID: 11400000, guid: a38d4da42ad5e7a42b7d4c8921c57000, type: 2}
+  - {fileID: 11400000, guid: 33e2c674216817c418eb6f943953eec6, type: 2}
+  - {fileID: 11400000, guid: 49983dfc60f69d94da72514674d8c47f, type: 2}
   weightChanges:
   - chapter: {fileID: 11400000, guid: b5bb837b0c90be24fb17c3fc90f9f249, type: 2}
     weightChange: 5

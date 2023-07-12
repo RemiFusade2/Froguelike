@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: '[CH_STORY_STANLEY_1]'
   m_EditorClassIdentifier: 
   chapterID: '[CH_STORY_STANLEY_1]'
+  partOfDemo: 0
   chapterTitle: Stanley the cat
   chapterLore:
   - Stanley was a cat, but he wanted to become a frog! How do you become a frog?
@@ -61,16 +62,18 @@ MonoBehaviour:
       characterData: {fileID: 11400000, guid: 63cab506d07186443bfd2babb7702689, type: 2}
   rocksSpawnFrequency: 2
   pondsSpawnFrequency: 1
-  coinsSpawnFrequency: 1
-  healthSpawnFrequency: 1
+  coinsSpawnFrequency: 2
+  healthSpawnFrequency: 0
   levelUpSpawnFrequency: 1
   specialCollectiblesOnTheMap: []
   environmentChange: 0
   characterStyleChange: 0
   waves:
-  - {fileID: 11400000, guid: dbe3f730e932d3946a1c16c6479fb198, type: 2}
-  - {fileID: 11400000, guid: 0d74991de3ac18c46b450e2e4ea113c0, type: 2}
-  - {fileID: 11400000, guid: c48bbc01cdb0cc1418a90ff4157f84a7, type: 2}
-  - {fileID: 11400000, guid: f56a7e9ca8a6f5f4babff1fc6db68349, type: 2}
-  - {fileID: 11400000, guid: a3d15b14ba2cf8d4baddb3be35fbcf60, type: 2}
-  weightChanges: []
+  - {fileID: 11400000, guid: 60fc159a5fe920c4c8d692284cbf7fd3, type: 2}
+  - {fileID: 11400000, guid: 52fd18ac9b5027b4e84739340f6e9112, type: 2}
+  - {fileID: 11400000, guid: 86840b034cbad514fbc5c66e16b51951, type: 2}
+  - {fileID: 11400000, guid: 29360d080b888064aa309b2a05ce9cc6, type: 2}
+  - {fileID: 11400000, guid: 14d585dd0d0976941a19c31545619d39, type: 2}
+  weightChanges:
+  - chapter: {fileID: 11400000, guid: a105d79d4c4b4414baea07f96c96e1cb, type: 2}
+    weightChange: 5

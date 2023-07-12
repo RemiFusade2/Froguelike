@@ -42,7 +42,7 @@ public class Chapter
 
     [System.NonSerialized]
     public float weight; // used to decide how likely it is that this chapter will show up in the selection
-    
+
     public Chapter()
     {
         attemptCountByCharacters = new List<CharacterCount>();
@@ -119,7 +119,7 @@ public class ChapterManager : MonoBehaviour
     public TextMeshProUGUI chapterStartTopText;
     public TextMeshProUGUI chapterStartBottomText;
     public List<Image> chapterStartIconsImageList;
-    
+
     [Header("Runtime - Save Data")]
     public ChaptersSaveData chaptersData; // Will be loaded and saved when needed
 
@@ -129,7 +129,7 @@ public class ChapterManager : MonoBehaviour
 
     [Header("Runtime - Chapter selection")]
     public List<Chapter> selectionOfNextChaptersList; // The current selection of X chapters to choose from
-       
+
     private Dictionary<string, Chapter> allChaptersDico; // This dictionary is a handy way to get the Chapter object from its ID
 
     #region Unity Callback methods
@@ -175,6 +175,11 @@ public class ChapterManager : MonoBehaviour
         }
         return unlockedCount;
     }
+    
+    /// COUNT ALL WAVES IN CHAPTERS
+    /*
+    private Dictionary<string, int> allWavesDico;
+    */
 
     /// <summary>
     /// Create the deck of Chapters using the current state of the game
@@ -185,9 +190,32 @@ public class ChapterManager : MonoBehaviour
         List<Chapter> deckOfChapters = new List<Chapter>();
 
         List<Chapter> completedChapters = RunManager.instance.completedChaptersList;
+
+        /// COUNT ALL WAVES IN CHAPTERS
+        /*
+        allWavesDico = new Dictionary<string, int>();
+        */
+
         foreach (KeyValuePair<string, Chapter> chapterKeyValue in allChaptersDico)
         {
             Chapter currentChapter = chapterKeyValue.Value;
+
+            /// COUNT ALL WAVES IN CHAPTERS
+            /*
+            foreach (Wave wave in currentChapter.chapterData.waves)
+            {
+                if (allWavesDico.ContainsKey(wave.name))
+                {
+                    allWavesDico[wave.name] = allWavesDico[wave.name] + 1;
+                }
+                else
+                {
+                    allWavesDico.Add(wave.name, 1);
+                }
+            }
+            */
+
+
             List<ChapterConditionsChunk> currentChapterConditionsChunksList = currentChapter.chapterData.conditions;
 
             if (!currentChapter.chapterData.canBePlayedMultipleTimesInOneRun && completedChapters.Contains(currentChapter))
@@ -252,6 +280,22 @@ public class ChapterManager : MonoBehaviour
                 deckOfChapters.Add(currentChapter);
             }
         }
+
+        /// DISPLAY ALL WAVES COUNT IN CHAPTERS
+        /*
+        string log = "WAVE\n";
+        List<string> waveNamesList = new List<string>();
+        foreach (KeyValuePair<string, int> waveKeyValue in allWavesDico)
+        {
+            waveNamesList.Add(waveKeyValue.Key);
+        }
+        waveNamesList.Sort();
+        foreach (string waveName in waveNamesList)
+        {
+            log += $"{waveName} : {allWavesDico[waveName]}\n";
+        }
+        Debug.Log(log);*/
+
         return deckOfChapters;
     }
 
@@ -336,7 +380,7 @@ public class ChapterManager : MonoBehaviour
     }
 
     private void NewSelectionOfChapters()
-    {        
+    {
         int numberOfChaptersInSelection = chaptersData.chapterCountInSelection;
 
         // Choose a number of chapters from the list of available chapters
@@ -432,14 +476,14 @@ public class ChapterManager : MonoBehaviour
         SaveDataManager.instance.isSaveDataDirty = true;
 
         // Deal with all weight changes to other chapters
-        foreach(ChapterWeightChange weightChange in chapter.chapterData.weightChanges)
+        foreach (ChapterWeightChange weightChange in chapter.chapterData.weightChanges)
         {
             if (allChaptersDico.ContainsKey(weightChange.chapter.chapterID))
             {
                 Chapter weightChangeChapter = allChaptersDico[weightChange.chapter.chapterID];
                 weightChangeChapter.weight += weightChange.weightChange;
             }
-        }        
+        }
 
         // Tell the RunManager to start that chapter
         RunManager.instance.StartChapter(chapter);
@@ -561,11 +605,13 @@ public class ChapterManager : MonoBehaviour
             chaptersData.chapterCountInSelection = 3;
             foreach (ChapterData chapterData in chaptersScriptableObjectsList)
             {
-                Chapter newChapter = new Chapter() {
+                Chapter newChapter = new Chapter()
+                {
                     chapterID = chapterData.chapterID,
                     chapterData = chapterData,
                     unlocked = chapterData.startingUnlockState,
-                    weight = chapterData.startingWeight };
+                    weight = chapterData.startingWeight
+                };
                 chaptersData.chaptersList.Add(newChapter);
             }
         }
