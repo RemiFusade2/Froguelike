@@ -30,6 +30,11 @@ public class ScoreManager : MonoBehaviour
     public GameObject tonguesDisplayPrefab;
     public Transform runItemsPanel;
     public GameObject runItemsDisplayPrefab;
+
+    public TextMeshProUGUI tonguesText;
+    public TextMeshProUGUI tonguesLevelsText;
+    public TextMeshProUGUI upgradesText;
+    public TextMeshProUGUI upgradesLevelsText;
     [Space]
     public AchievementsScrollRect achievementScrollRect;
 
@@ -180,8 +185,9 @@ public class ScoreManager : MonoBehaviour
                 scoreLog += $"-> {statItemInfo.itemData.itemName} Lvl {statItemInfo.level}\n";
             }
         }
+        // allItemsNames += "\n";
+        // allItemsLevels += "\n";
 
-        // Add new run items to display.
         int runItemBackgroundIndex = 0;
         foreach (RunItemInfo itemInfo in ownedItems)
         {
@@ -194,6 +200,21 @@ public class ScoreManager : MonoBehaviour
                 runItemBackgroundIndex = runItemBackgroundIndex == 0 ? 1 : 0;
             }
         }
+
+        // Display all consumables used during this run
+        // TODO? : Display the consumables items that were taken during this Run
+        /*
+        foreach (RunItemInfo itemInfo in itemsInfoList)
+        {
+            if (!itemInfo.item.isWeapon && itemInfo.item.levels.Count == 1)
+            {
+                allItemsNames += itemInfo.item.itemName + "\n";
+                allItemsLevels += "x" + itemInfo.level + "\n";
+            }
+        }*/
+
+        // upgradesText.text = allItemsNames;
+        // upgradesLevelsText.text = allItemsLevels;
 
         // Display unlocked achievements
         achievementScrollRect.Initialize(unlockedAchievements);
