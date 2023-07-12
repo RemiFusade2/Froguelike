@@ -231,7 +231,7 @@ public class DataManager : MonoBehaviour
         {
             case "rock":
                 spawnProba = rocksSpawnProbabilities.FirstOrDefault(x => x.frequency == frequency);
-                probability = (spawnProba != null) ? spawnProba.probability : Vector2.zero;
+                probability = (spawnProba != null) ? spawnProba.probability : Vector2.zero; 
                 break;
             case "pond":
                 spawnProba = pondsSpawnProbabilities.FirstOrDefault(x => x.frequency == frequency);
@@ -400,10 +400,5 @@ public class DataManager : MonoBehaviour
             usePercent = statData.usePercent;
         }
         return statDataExists;
-    }
-
-    public Sprite GetStatSprite(CharacterStat stat)
-    {
-        return characterStatsDataList.FirstOrDefault(x => x.stat.Equals(stat)).icon;
     }
 }
