@@ -29,7 +29,7 @@ public class AchievementsScrollRect : ScrollRect
     private Vector2 lerpTarget;
 
     private float lastTimeScroll;
-    
+
     // Do nothing when using Drag with mouse
     public override void OnBeginDrag(PointerEventData eventData) { }
     public override void OnDrag(PointerEventData eventData) { }
@@ -76,9 +76,9 @@ public class AchievementsScrollRect : ScrollRect
             GameObject newAchievementPanel = Instantiate(achievementScorePrefab, this.content);
             newAchievementPanel.GetComponent<ScoreAchievementPanelBehaviour>().Initialize(achievement);
             numberOfAchievements++;
-        }        
+        }
         currentDisplayedAchievement = 1;
-        
+
         this.content.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, numberOfAchievements * achievementScrollViewContentGridLayoutGroup.cellSize.x);
         UpdateScroll(false);
     }
@@ -86,7 +86,8 @@ public class AchievementsScrollRect : ScrollRect
     private void UpdateScroll(bool lerp)
     {
         achievementCountTextMesh.text = $"{currentDisplayedAchievement}/{numberOfAchievements}";
-        float horizontalScroll = (currentDisplayedAchievement - 1) / (1.0f * numberOfAchievements);
+        float horizontalScroll = numberOfAchievements > 1 ? (currentDisplayedAchievement - 1) / (1.0f * numberOfAchievements - 1) : 0;
+        // horizontalScroll = currentDisplayedAchievement - 1;
         lerpTarget = -Vector2.right * horizontalScroll * this.content.sizeDelta.x;
         isLerping = lerp;
         lastTimeScroll = Time.unscaledTime;
