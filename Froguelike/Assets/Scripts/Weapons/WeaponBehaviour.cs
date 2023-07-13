@@ -7,7 +7,10 @@ public class WeaponBehaviour : MonoBehaviour
 {
     [Header("References")]
     public Transform outlineTransform;
-    
+
+    [Header("Settings - playtests")]
+    public bool forceTargetClosestEnemy = false;
+
     [Header("Settings - appearance")]
     public float tongueWidth = 1;
     public Color outlineColor;
@@ -310,6 +313,7 @@ public class WeaponBehaviour : MonoBehaviour
         float actualCooldown = cooldown * (1 + GameManager.instance.player.attackCooldownBoost);
         if (!preventAttack && !isAttacking && Time.time - lastAttackTime > actualCooldown)
         {
+            GameObject targetEnemy = null;
             switch (weaponType)
             {
                 // Attack random direction
@@ -351,20 +355,36 @@ public class WeaponBehaviour : MonoBehaviour
                 case WeaponType.VAMPIRE:
                 case WeaponType.WIDE:
                 case WeaponType.CAT:
-                    Vector2 playerDirection = GameManager.instance.player.GetVelocity();
-                    if (playerDirection != Vector2.zero)
+                    if (forceTargetClosestEnemy)
                     {
-                        Attack(playerDirection.normalized);
+                        targetEnemy = GetNearestEnemy();
+
+                        if (targetEnemy != null)
+                        {
+                            // Adjusted angle using index and count
+                            float deltaAngle = (tongueTypeCount - 1) * 3 * Mathf.Deg2Rad;
+                            float angle = -deltaAngle + tongueTypeIndex * 2 * deltaAngle / (tongueTypeCount == 1 ? 1 : tongueTypeCount - 1);
+
+                            Attack(EnemiesManager.instance.GetEnemyInstanceFromGameObjectName(targetEnemy.name), true, angle);
+                        }
                     }
                     else
                     {
-                        Attack(GameManager.instance.player.transform.up);
+                        Vector2 playerDirection = GameManager.instance.player.GetVelocity();
+                        if (playerDirection != Vector2.zero)
+                        {
+                            Attack(playerDirection.normalized);
+                        }
+                        else
+                        {
+                            Attack(GameManager.instance.player.transform.up);
+                        }
                     }
                     break;
                 // Attack nearest enemy
                 case WeaponType.QUICK:
                 default:                    
-                    GameObject targetEnemy = GetNearestEnemy();
+                    targetEnemy = GetNearestEnemy();
                     if (targetEnemy != null)
                     {
                         Attack(EnemiesManager.instance.GetEnemyInstanceFromGameObjectName(targetEnemy.name));
@@ -476,7 +496,7 @@ public class WeaponBehaviour : MonoBehaviour
         }
     }
 
-    public void Attack(EnemyInstance enemy)
+    public void Attack(EnemyInstance enemy, bool followEnemy = false, float offsetAngle = 0)
     {
         eatenFliesCount = 0;
         if (enemy != null && tongueLineRenderer != null && outlineLineRenderer != null)
@@ -486,7 +506,70 @@ public class WeaponBehaviour : MonoBehaviour
             {
                 StopCoroutine(sendTongueCoroutine);
             }
-            sendTongueCoroutine = StartCoroutine(SendTongueInDirection((enemy.enemyTransform.position - this.transform.position).normalized));
+            if (followEnemy)
+            {
+                sendTongueCoroutine = StartCoroutine(SendTongueToEnemy(enemy, offsetAngle));
+            }
+            else
+            {
+                sendTongueCoroutine = StartCoroutine(SendTongueInDirection((enemy.enemyTransform.position - this.transform.position).normalized));
+            }
+        }
+    }
+
+    private IEnumerator SendTongueToEnemy(EnemyInstance enemy, float offsetAngle)
+    {
+        isAttacking = true;
+        Vector2 direction = (enemy.enemyTransform.position - this.transform.position).normalized;
+        Vector2 adjustedDirection = Tools.Rotate(direction, offsetAngle);
+        SetTongueDirection(adjustedDirection);
+        float t = 0;
+        isTongueGoingOut = true;
+        tongueLineRenderer.enabled = true;
+        outlineLineRenderer.enabled = true;
+        tongueCollider.enabled = true;
+        float actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
+        while (isTongueGoingOut)
+        {
+            SetTongueScale(t);
+            t += (Time.fixedDeltaTime * actualAttackSpeed);
+            if (enemy.active && enemy.alive)
+            {
+                direction = (enemy.enemyTransform.position - this.transform.position).normalized;
+                adjustedDirection = Tools.Rotate(direction, offsetAngle);
+                SetTongueDirection(adjustedDirection);
+            }
+            yield return new WaitForFixedUpdate();
+            if (t >= 1)
+            {
+                isTongueGoingOut = false;
+            }
+        }
+        while (t > 0)
+        {
+            SetTongueScale(t);
+            t -= (Time.fixedDeltaTime * actualAttackSpeed);
+            if (enemy.active && enemy.alive)
+            {
+                direction = (enemy.enemyTransform.position - this.transform.position).normalized;
+                adjustedDirection = Tools.Rotate(direction, offsetAngle);
+                SetTongueDirection(adjustedDirection);
+            }
+            yield return new WaitForFixedUpdate();
+        }
+        tongueLineRenderer.enabled = false;
+        outlineLineRenderer.enabled = false;
+        tongueCollider.enabled = false;
+        lastAttackTime = Time.time;
+        isAttacking = false;
+        preventAttack = false;
+        enemiesHitNamesList.Clear();
+
+        foreach (GameObject weapon in activeWeaponsOfSameTypeList)
+        {
+            weapon.GetComponent<WeaponBehaviour>().lastAttackTime = lastAttackTime;
+            weapon.GetComponent<WeaponBehaviour>().preventAttack = false;
+            weapon.GetComponent<WeaponBehaviour>().isAttacking = false;
         }
     }
 
