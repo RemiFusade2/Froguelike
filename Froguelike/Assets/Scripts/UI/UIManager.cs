@@ -20,21 +20,26 @@ public class UIManager : MonoBehaviour
 
     [Header("Title")]
     public GameObject titleScreen;
+    public GameObject selectedButtonTitleScreen;
     public TextMeshProUGUI titleScreenCurrencyText;
     public TextMeshProUGUI titleScreenWelcomeMessageText;
     public TextMeshProUGUI titleScreenSaveLocationText;
     [Space]
     public GameObject shopButton;
     public GameObject achievementsButton;
+    public GameObject settingsButton;
 
     [Header("Shop")]
     public GameObject shopScreen;
+    public GameObject selectedButtonShopScreen;
 
     [Header("Achievements")]
     public GameObject achievementsScreen;
+    public GameObject selectedButtonAchievementsScreen;
 
     [Header("Character Selection")]
     public GameObject characterSelectionScreen;
+    public GameObject characterSelectionGridLayoutGroup;
 
     #endregion
 
@@ -42,6 +47,7 @@ public class UIManager : MonoBehaviour
 
     [Header("Chapter selection")]
     public GameObject chapterSelectionScreen;
+    public GameObject selectedButtonChapterSelectionScreen;
 
     [Header("Chapter Start")]
     public GameObject chapterStartScreen;
@@ -52,10 +58,12 @@ public class UIManager : MonoBehaviour
     [Header("Level UP Panel")]
     public GameObject levelUpPanel;
     public Animator levelUpPanelAnimator;
+    public GameObject selectedButtonLevelUpPanel;
 
     [Header("Pause")]
     public GameObject pausePanel;
     public Animator pausePanelAnimator;
+    public GameObject selectedButtonPausePanel;
 
     #endregion
 
@@ -65,18 +73,23 @@ public class UIManager : MonoBehaviour
     public GameObject gameOverPanel;
     public GameObject gameOverRespawnButton;
     public GameObject gameOverGiveUpButton;
+    public GameObject selectedButtonGameOverPanel;
 
     [Header("Score Screen")]
     public GameObject scoreScreen;
+    public GameObject selectedButtonScoreScreen;
 
     #endregion
 
     [Header("Confirmation panels")]
     public GameObject backToTitleScreenConfirmationPanel;
+    public GameObject selectedButtonBackToTitleScreenConfirmationPanel;
     public GameObject clearSaveFileConfirmationPanel;
+    public GameObject selectedButtonClearSaveFileConfirmationPanel;
 
     [Header("Settings Screen")]
     public GameObject settingsScreen;
+    public GameObject selectedButtonSettingsScreen;
 
     [Header("Demo panels")]
     public List<GameObject> demoPanelsList;
@@ -105,13 +118,16 @@ public class UIManager : MonoBehaviour
     {
         foreach (GameObject demoPanel in demoPanelsList)
         {
+            demoPanel.GetComponentInChildren<Button>().interactable = GameManager.instance.demoBuild;
             demoPanel.SetActive(GameManager.instance.demoBuild);
+
         }
     }
 
     private void HideAllScreens()
     {
-        EventSystem.current.SetSelectedGameObject(null);
+        // EventSystem.current.SetSelectedGameObject(null);
+        ClearSelectedButton();
         titleScreen.SetActive(false);
         characterSelectionScreen.SetActive(false);
         chapterSelectionScreen.SetActive(false);
@@ -134,6 +150,10 @@ public class UIManager : MonoBehaviour
         achievementsButton.SetActive(AchievementManager.instance.IsAchievementsListUnlocked());
 
         titleScreen.SetActive(true);
+        titleScreen.GetComponentInChildren<CanvasGroup>().interactable = true;
+
+        // Set a selected button.
+        SetSelectedButton(selectedButtonTitleScreen);
 
         titleScreenSaveLocationText.text = Application.persistentDataPath;
         if (SteamManager.Initialized)
@@ -141,6 +161,7 @@ public class UIManager : MonoBehaviour
             string steamName = SteamFriends.GetPersonaName();
             titleScreenWelcomeMessageText.text = $"Welcome {steamName}! You are connected to Steam.";
         }
+
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -168,7 +189,11 @@ public class UIManager : MonoBehaviour
         bool isThereCharacterSelection = CharacterManager.instance.UpdateCharacterSelectionScreen();
 
         titleScreen.SetActive(true);
+        // TODO
+        titleScreen.GetComponentInChildren<CanvasGroup>().interactable = false;
         characterSelectionScreen.SetActive(isThereCharacterSelection);
+        // Pick the first character button.
+        SetSelectedButton(characterSelectionGridLayoutGroup.GetComponentInChildren<Transform>().GetComponentInChildren<Button>().gameObject);
 
         if (thenGoToChapterSelection)
         {
@@ -330,7 +355,10 @@ public class UIManager : MonoBehaviour
 
     public void ShowSettingsScreen()
     {
+        HideAllScreens();
+        titleScreen.SetActive(true);
         settingsScreen.SetActive(true);
+        SetSelectedButton(selectedButtonSettingsScreen);
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -340,7 +368,10 @@ public class UIManager : MonoBehaviour
 
     public void HideSettingsScreen()
     {
+        ClearSelectedButton();
         settingsScreen.SetActive(false);
+        // TODO this only applies when going to the setting screen from title screen, it will be wrong when going to the settings from the pause screen
+        SetSelectedButton(settingsButton);
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -348,4 +379,21 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    #region Buttons
+
+    private void SetSelectedButton(GameObject buttonGO)
+    {
+        if (buttonGO != null) ClearSelectedButton();
+
+        // Set selected button.
+        EventSystem.current.SetSelectedGameObject(buttonGO);
+
+    }
+
+    private void ClearSelectedButton()
+    {
+        SetSelectedButton(null);
+    }
+
+    #endregion Buttons
 }

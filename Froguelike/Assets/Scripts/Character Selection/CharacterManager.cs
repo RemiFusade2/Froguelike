@@ -82,6 +82,7 @@ public class CharacterManager : MonoBehaviour
 
     [Header("UI References")]
     public Button startButton;
+    public Button backButton;
     [Space]
     public RectTransform characterListContent;
     public RectTransform characterListGridLayoutGroup;
@@ -144,7 +145,7 @@ public class CharacterManager : MonoBehaviour
     #region UI
 
     /// <summary>
-    /// Create buttons for each character, set the appropriate size for the scroll list and display the stats from the shop.
+    /// Create buttons for each character, set the appropriate size for the scroll list and display the stats from the selected character and the shop.
     /// </summary>
     public bool UpdateCharacterSelectionScreen()
     {
@@ -154,11 +155,13 @@ public class CharacterManager : MonoBehaviour
         // Remove previous buttons
         foreach (Transform child in characterListGridLayoutGroup)
         {
+            child.gameObject.SetActive(false);
             Destroy(child.gameObject);
         }
 
         // Instantiate a button for each character (unless this character is hidden)
         int buttonCount = 0;
+        List<Button> characterPanels = new List<Button>(); // For setting UI navigation a little later.
         string characterLog = "";
         PlayableCharacter defaultCharacter = null;
         for (int i = 0; i < charactersData.charactersList.Count; i++)
@@ -168,14 +171,86 @@ public class CharacterManager : MonoBehaviour
             {
                 GameObject newCharacterPanel = Instantiate(characterPanelPrefab, characterListGridLayoutGroup);
                 newCharacterPanel.GetComponent<CharacterSelectionButton>().Initialize(characterInfo);
+                characterPanels.Add(newCharacterPanel.GetComponent<CharacterSelectionButton>().characterButton);
+
                 if (buttonCount == 0)
                 {
                     defaultCharacter = characterInfo;
                 }
+
                 buttonCount++;
                 characterLog += $" {characterInfo.characterID} is " + (characterInfo.unlocked ? "unlocked" : "locked") + " ;";
             }
         }
+
+        // Set button navigations.
+        for (int characterPanel = 0; characterPanel < characterPanels.Count; characterPanel++)
+        {
+            // The current panel.
+            Button thisCharacterPanel = characterPanels[characterPanel];
+            Navigation thisCharacterButtonNav = thisCharacterPanel.navigation;
+
+            int up;
+            int down;
+            // Up  from character panel.
+            // First panel.
+            if (characterPanel == 0)
+            {
+                // Start and back navigates to the first character panel on down.
+                Navigation startButtonNav = startButton.navigation;
+                Navigation backButtonNav = backButton.navigation;
+                startButtonNav.selectOnDown = thisCharacterPanel.GetComponentInChildren<Button>();
+                backButtonNav.selectOnDown = thisCharacterPanel.GetComponentInChildren<Button>();
+                startButton.navigation = startButtonNav;
+                backButton.navigation = backButtonNav;
+
+                // First character panel navigates to back button.
+                thisCharacterButtonNav.selectOnUp = backButton;
+            }
+            // Rest panels.
+            else
+            {
+                up = characterPanel - 1;
+                thisCharacterButtonNav.selectOnUp = characterPanels[up];
+            }
+
+            // Down from character panel.
+            // Last panel.
+            if (characterPanel == characterPanels.Count - 1)
+            {
+                // Start and back navigates to the lasr character panel on up.
+                Navigation startButtonNav = startButton.navigation;
+                Navigation backButtonNav = backButton.navigation;
+                startButtonNav.selectOnUp = thisCharacterPanel.GetComponentInChildren<Button>();
+                backButtonNav.selectOnUp = thisCharacterPanel.GetComponentInChildren<Button>();
+                startButton.navigation = startButtonNav;
+                backButton.navigation = backButtonNav;
+
+                // Last character panel navigates to back button.
+                thisCharacterButtonNav.selectOnDown = backButton;
+            }
+            // Rest panels.
+            else
+            {
+                down = characterPanel + 1;
+                thisCharacterButtonNav.selectOnDown = characterPanels[down];
+            }
+
+            // Left and right from character panel.
+            thisCharacterButtonNav.selectOnLeft = backButton;
+            thisCharacterButtonNav.selectOnRight = startButton;
+
+            // TODO set stat scroll to navigate to selected character on left
+            // same for character scroll on right
+            // instead of looping make navigation from characters to back button on up and to steam page or start (?) on down?
+            // Figure out how scroll will work
+
+            // start button going left and back button going right to selected character?
+
+            thisCharacterPanel.navigation = thisCharacterButtonNav;
+        }
+
+
         characterLog = "Display " + buttonCount + " buttons\n" + characterLog;
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -243,6 +318,17 @@ public class CharacterManager : MonoBehaviour
             if (characterButton != null)
             {
                 characterButton.SetSelected(characterButton.character.Equals(selectedCharacter));
+
+                if (characterButton.character.Equals(selectedCharacter))
+                {
+                    // Set start button and back button navigation.
+                    Navigation startButtonNav = startButton.navigation;
+                    Navigation backButtonNav = backButton.navigation;
+                    startButtonNav.selectOnLeft = characterButton.characterButton;
+                    backButtonNav.selectOnRight = characterButton.characterButton;
+                    startButton.navigation = startButtonNav;
+                    backButton.navigation = backButtonNav;
+                }
             }
         }
 
