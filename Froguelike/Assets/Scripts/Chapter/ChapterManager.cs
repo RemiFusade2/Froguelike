@@ -175,7 +175,7 @@ public class ChapterManager : MonoBehaviour
         }
         return unlockedCount;
     }
-    
+
     /// COUNT ALL WAVES IN CHAPTERS
     /*
     private Dictionary<string, int> allWavesDico;
@@ -386,15 +386,40 @@ public class ChapterManager : MonoBehaviour
         // Choose a number of chapters from the list of available chapters
         SelectNextPossibleChapters(numberOfChaptersInSelection);
 
+        // TODO
+        // Pick button 1
+        // Set up navigation based on how many buttons we will have
+
         // Show the chapters selection
         foreach (ChapterButtonBehaviour chapterButton in chapterButtonsList)
         {
             chapterButton.gameObject.SetActive(false);
+            Navigation chapterButtonNav = chapterButton.GetComponent<Button>().navigation;
+            chapterButtonNav.mode = Navigation.Mode.None;
+            chapterButton.GetComponent<Button>().navigation = chapterButtonNav;
         }
+
         for (int i = 0; i < selectionOfNextChaptersList.Count; i++)
         {
+            // TODO HERE?
             Chapter chapter = selectionOfNextChaptersList[i];
             ChapterButtonBehaviour chapterButton = chapterButtonsList[i];
+
+            // Set button navigation.
+            Navigation chapterButtonNav = chapterButton.GetComponent<Button>().navigation;
+            chapterButtonNav.mode = Navigation.Mode.Explicit;
+
+            /* TODO can I use a switch to set up all the 5 buttons? Since none of them will be the same I think
+            switch (i)
+            {
+                case 0:
+                    break:
+
+                default:
+                    break;
+            }
+            */
+            chapterButton.GetComponent<Button>().navigation = chapterButtonNav;
 
             chapterButton.gameObject.SetActive(true);
             chapterButton.Initialize(chapter);

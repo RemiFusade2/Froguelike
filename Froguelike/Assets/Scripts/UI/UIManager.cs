@@ -189,9 +189,9 @@ public class UIManager : MonoBehaviour
         bool isThereCharacterSelection = CharacterManager.instance.UpdateCharacterSelectionScreen();
 
         titleScreen.SetActive(true);
-        // TODO
         titleScreen.GetComponentInChildren<CanvasGroup>().interactable = false;
         characterSelectionScreen.SetActive(isThereCharacterSelection);
+
         // Pick the first character button.
         SetSelectedButton(characterSelectionGridLayoutGroup.GetComponentInChildren<Transform>().GetComponentInChildren<Button>().gameObject);
 
@@ -216,8 +216,12 @@ public class UIManager : MonoBehaviour
         if (forceTitleScreen)
         {
             titleScreen.SetActive(true);
+            titleScreen.GetComponentInChildren<CanvasGroup>().interactable = false;
         }
         chapterSelectionScreen.SetActive(true);
+
+        // Pick the first chapter option as the selected button.
+        SetSelectedButton(selectedButtonChapterSelectionScreen);
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
