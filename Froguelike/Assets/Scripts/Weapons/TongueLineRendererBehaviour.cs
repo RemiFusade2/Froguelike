@@ -94,9 +94,12 @@ public class TongueLineRendererBehaviour : MonoBehaviour
         colorKeys.Add(new GradientColorKey(DataManager.instance.GetColorForWeaponEffect(previousEffect), 0));
         alphaKeys.Add(new GradientAlphaKey(1, 0));
 
+        float actualColliderRadius = colliderRadius * (GetComponent<WeaponBehaviour>().tongueWidth * (1 + GameManager.instance.player.attackSizeBoost)) * 10;
+
         float epsilon = 0.001f;
 
         int index = 0;
+        Vector2 lastPos = Vector2.zero;
         foreach (Vector2 pos in tonguePositionsList)
         {
             if (index < tongueLineRenderer.positionCount)
@@ -120,7 +123,7 @@ public class TongueLineRendererBehaviour : MonoBehaviour
 
                 // Eventually add a collider (trigger) on the way
                 float distanceToPreviousCollider = Vector2.Distance(previousCollider.offset, pos);
-                if (distanceToPreviousCollider > (colliderRadius*2))
+                if ((distanceToPreviousCollider > (actualColliderRadius * 2)) || (t >= 1 && index == tonguePositionsList.Count - 1))
                 {
                     colliderIndex++;
                     if (colliderIndex < tongueColliderComponentsList.Count)
@@ -134,15 +137,38 @@ public class TongueLineRendererBehaviour : MonoBehaviour
                         previousCollider.isTrigger = true;
                         tongueColliderComponentsList.Add(previousCollider);
                     }
+                    (previousCollider as CircleCollider2D).radius = actualColliderRadius;
                     previousCollider.offset = pos;
                 }
+                lastPos = pos;
             }
             index++;
         }
-        for (int i = colliderIndex; i < tongueColliderComponentsList.Count; i++)
+
+        // Add last collider (tip of tongue)
+        colliderIndex++;
+        if (colliderIndex < tongueColliderComponentsList.Count)
         {
+            previousCollider = tongueColliderComponentsList[colliderIndex];
+        }
+        else
+        {
+            previousCollider = this.gameObject.AddComponent<CircleCollider2D>();
+            (previousCollider as CircleCollider2D).radius = colliderRadius;
+            previousCollider.isTrigger = true;
+            tongueColliderComponentsList.Add(previousCollider);
+        }
+        (previousCollider as CircleCollider2D).radius = actualColliderRadius * 2;
+        previousCollider.offset = lastPos;
+
+        // All remaining colliders are set to zero (unused)
+        for (int i = colliderIndex+1; i < tongueColliderComponentsList.Count; i++)
+        {
+            (tongueColliderComponentsList[i] as CircleCollider2D).radius = 0;
             tongueColliderComponentsList[i].offset = Vector2.zero;
         }
+
+        // Set gradient
         colorKeys.Add(new GradientColorKey(DataManager.instance.GetColorForWeaponEffect(previousEffect), 1));
         alphaKeys.Add(new GradientAlphaKey(1, 1));
         gradient.SetKeys(colorKeys.ToArray(), alphaKeys.ToArray());
