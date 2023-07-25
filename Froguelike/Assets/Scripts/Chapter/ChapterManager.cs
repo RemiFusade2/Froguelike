@@ -401,24 +401,80 @@ public class ChapterManager : MonoBehaviour
 
         for (int i = 0; i < selectionOfNextChaptersList.Count; i++)
         {
-            // TODO HERE?
             Chapter chapter = selectionOfNextChaptersList[i];
             ChapterButtonBehaviour chapterButton = chapterButtonsList[i];
+
+
+            // Rubber Frog approved code!
 
             // Set button navigation.
             Navigation chapterButtonNav = chapterButton.GetComponent<Button>().navigation;
             chapterButtonNav.mode = Navigation.Mode.Explicit;
-
-            /* TODO can I use a switch to set up all the 5 buttons? Since none of them will be the same I think
-            switch (i)
+            Button rerollButton = null;
+            if (rerollInfinitePostIt.activeSelf)
             {
-                case 0:
-                    break:
+                rerollButton = rerollInfinitePostIt.GetComponentInChildren<Button>();
+            }
+            else if (rerollPostIt.activeSelf)
+            {
+                rerollButton = rerollPostIt.GetComponentInChildren<Button>();
+            }
+
+            Button GetButton(int buttonNr)
+            {
+                return chapterButtonsList[buttonNr - 1].GetComponent<Button>();
+            }
+
+            Button GetChapterButtonOrBack(int buttonNr)
+            {
+                return selectionOfNextChaptersList.Count > buttonNr - 1 ? GetButton(buttonNr) : backButton;
+            }
+
+            Button GetRerollButtonOrBack()
+            {
+                return rerollButton ?? backButton;
+            }
+
+            // TODO can I use a switch to set up all the 5 buttons? Since none of them will be the same I think
+            // NOT here, can be done when all the buttons are set up, depending on how many buttons there is in total instead of what button is being set right now
+            int thisButtonNr = i + 1;
+            switch (thisButtonNr)
+            {
+                case 1:
+                    chapterButtonNav.selectOnUp = backButton;
+                    chapterButtonNav.selectOnDown = GetChapterButtonOrBack(2);
+                    chapterButtonNav.selectOnLeft = GetChapterButtonOrBack(4);
+                    chapterButtonNav.selectOnRight = GetRerollButtonOrBack();
+                    break;
+
+                case 2:
+                    chapterButtonNav.selectOnUp = GetButton(1);
+                    chapterButtonNav.selectOnDown = GetChapterButtonOrBack(3);
+                    chapterButtonNav.selectOnLeft = GetChapterButtonOrBack(4);
+                    chapterButtonNav.selectOnRight = GetRerollButtonOrBack();
+                    break;
+
+                case 3:
+                    chapterButtonNav.selectOnUp = GetButton(2);
+                    chapterButtonNav.selectOnDown = backButton;
+                    chapterButtonNav.selectOnLeft = GetChapterButtonOrBack(5);
+                    chapterButtonNav.selectOnRight = GetRerollButtonOrBack();
+                    break;
+
+                case 4:
+                    chapterButtonNav.selectOnUp = backButton;
+                    chapterButtonNav.selectOnDown = GetChapterButtonOrBack(5);
+                    chapterButtonNav.selectOnLeft = GetRerollButtonOrBack();
+                    chapterButtonNav.selectOnRight = GetChapterButtonOrBack(3); // ?
+                    break;
+
+                case 5:
+                    break;
 
                 default:
                     break;
             }
-            */
+
             chapterButton.GetComponent<Button>().navigation = chapterButtonNav;
 
             chapterButton.gameObject.SetActive(true);
