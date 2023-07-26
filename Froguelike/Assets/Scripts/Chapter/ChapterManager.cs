@@ -386,10 +386,6 @@ public class ChapterManager : MonoBehaviour
         // Choose a number of chapters from the list of available chapters
         SelectNextPossibleChapters(numberOfChaptersInSelection);
 
-        // TODO
-        // Pick button 1
-        // Set up navigation based on how many buttons we will have
-
         // Show the chapters selection
         foreach (ChapterButtonBehaviour chapterButton in chapterButtonsList)
         {
@@ -401,11 +397,14 @@ public class ChapterManager : MonoBehaviour
 
         for (int i = 0; i < selectionOfNextChaptersList.Count; i++)
         {
-            Chapter chapter = selectionOfNextChaptersList[i];
-            ChapterButtonBehaviour chapterButton = chapterButtonsList[i];
+            // If there is exactly 4 buttons, use button slots 2 - 5 instead of 1 - 4, by increasing the index by 1.
+            int index = selectionOfNextChaptersList.Count == 4 ? i + 1 : i;
 
+            Chapter chapter = selectionOfNextChaptersList[index];
+            ChapterButtonBehaviour chapterButton = chapterButtonsList[index];
 
-            // Rubber Frog approved code!
+            #region Chapter button navigation
+            // Rubber Frog approved code below!
 
             // Set button navigation.
             Navigation chapterButtonNav = chapterButton.GetComponent<Button>().navigation;
@@ -413,62 +412,151 @@ public class ChapterManager : MonoBehaviour
             Button rerollButton = null;
             if (rerollInfinitePostIt.activeSelf)
             {
-                rerollButton = rerollInfinitePostIt.GetComponentInChildren<Button>();
+                rerollButton = rerollInfinitePostIt.GetComponentInChildren<Button>().interactable ? rerollInfinitePostIt.GetComponentInChildren<Button>() : null;
             }
             else if (rerollPostIt.activeSelf)
             {
-                rerollButton = rerollPostIt.GetComponentInChildren<Button>();
+                rerollButton = rerollPostIt.GetComponentInChildren<Button>().interactable ? rerollPostIt.GetComponentInChildren<Button>() : null;
             }
 
-            Button GetButton(int buttonNr)
+            #region Navigation set up helpers
+            Button GetChapterButton(int chapterButtonNr)
             {
-                return chapterButtonsList[buttonNr - 1].GetComponent<Button>();
+                return chapterButtonsList[chapterButtonNr - 1].GetComponent<Button>();
             }
 
-            Button GetChapterButtonOrBack(int buttonNr)
+            Button GetChapterButtonOrBackButtonOrSelf(int chapterButtonNr, int selfButtonNr)
             {
-                return selectionOfNextChaptersList.Count > buttonNr - 1 ? GetButton(buttonNr) : backButton;
+                if (selectionOfNextChaptersList.Count >= chapterButtonNr)
+                {
+                    return GetChapterButton(chapterButtonNr);
+                }
+                else if (backButton.gameObject.activeSelf)
+                {
+                    return backButton;
+                }
+                else
+                {
+                    return GetChapterButton(selfButtonNr);
+                }
             }
 
-            Button GetRerollButtonOrBack()
+            Button GetChapterButtonOrBackButtonOrRerollButtonOrSelf(int chapterButtonNr, int selfButtonNr)
             {
-                return rerollButton ?? backButton;
+                if (selectionOfNextChaptersList.Count >= chapterButtonNr)
+                {
+                    return GetChapterButton(chapterButtonNr);
+                }
+                else if (backButton.gameObject.activeSelf)
+                {
+                    return backButton;
+                }
+                else if (rerollButton != null)
+                {
+                    return rerollButton;
+                }
+                else
+                {
+                    return GetChapterButton(selfButtonNr);
+                }
             }
 
-            // TODO can I use a switch to set up all the 5 buttons? Since none of them will be the same I think
-            // NOT here, can be done when all the buttons are set up, depending on how many buttons there is in total instead of what button is being set right now
-            int thisButtonNr = i + 1;
+            Button GetBackButtonOrChapterButtonOrRerollButtonOrSelf(int chapterButtonNr, int selfButtonNr)
+            {
+                if (backButton.gameObject.activeSelf)
+                {
+                    return backButton;
+                }
+                else if (selectionOfNextChaptersList.Count >= chapterButtonNr)
+                {
+                    return GetChapterButton(chapterButtonNr);
+                }
+                else if (rerollButton != null)
+                {
+                    return rerollButton;
+                }
+                else
+                {
+                    return GetChapterButton(selfButtonNr);
+                }
+            }
+
+            Button GetBackButtonOrChapterButton(int chapterButtonNr)
+            {
+                return backButton.gameObject.activeSelf ? backButton : GetChapterButton(chapterButtonNr);
+            }
+
+            Button GetRerollButtonOrChapterButton(int chapterButtonNr)
+            {
+                return rerollButton ?? GetChapterButton(chapterButtonNr);
+            }
+
+            Button GetRerollButtonOrBackButtonOrChapterButton(int chapterButtonNr)
+            {
+                // If there is no back or reroll button navigate to the given button instead. Might be the same button as navigated from.
+                if (rerollButton == null && !backButton.gameObject.activeSelf)
+                {
+                    return GetChapterButton(chapterButtonNr);
+                }
+                else
+                {
+                    return rerollButton ?? backButton;
+                }
+            }
+
+            Button GetBackButtonOrRerollButtonOrChapterButton(int chapterButtonNr)
+            {
+                // If there is no back or reroll button navigate to the given button instead. Might be the same button as navigated from.
+                if (rerollButton == null && !backButton.gameObject.activeSelf)
+                {
+                    return GetChapterButton(chapterButtonNr);
+                }
+                else
+                {
+                    return backButton.gameObject.activeSelf ? backButton : rerollButton;
+                }
+            }
+            #endregion Navigation set up helpers
+
+            // Depending on which button is being initilaized and how many buttons are going to be showed the navigation between all buttons on this screen are different.
+            int thisButtonNr = index + 1;
+            // This int will be five if there is 4 or 5 chapters, because if there is four buttons chapter button 2 - 5 is used and I need the number of the last button.
+            int indexOfLastUsedChapterButton = selectionOfNextChaptersList.Count == 4 ? 5 : selectionOfNextChaptersList.Count;
             switch (thisButtonNr)
             {
                 case 1:
-                    chapterButtonNav.selectOnUp = backButton;
-                    chapterButtonNav.selectOnDown = GetChapterButtonOrBack(2);
-                    chapterButtonNav.selectOnLeft = GetChapterButtonOrBack(4);
-                    chapterButtonNav.selectOnRight = GetRerollButtonOrBack();
+                    chapterButtonNav.selectOnUp = GetChapterButtonOrBackButtonOrSelf(indexOfLastUsedChapterButton >= 4 ? 4 : indexOfLastUsedChapterButton == 3 ? 3 : 2, 1); // DONE 4, 3, 2, back, self.
+                    chapterButtonNav.selectOnDown = GetChapterButtonOrBackButtonOrRerollButtonOrSelf(2, 1); // DONE 2, back, reroll, self.
+                    chapterButtonNav.selectOnLeft = GetBackButtonOrChapterButtonOrRerollButtonOrSelf(5, 1); // DONE back, 5, reroll, self.
+                    chapterButtonNav.selectOnRight = GetRerollButtonOrBackButtonOrChapterButton(indexOfLastUsedChapterButton == 5 ? 5 : 1); // DONE reroll, back, 5, self.
                     break;
 
-                case 2:
-                    chapterButtonNav.selectOnUp = GetButton(1);
-                    chapterButtonNav.selectOnDown = GetChapterButtonOrBack(3);
-                    chapterButtonNav.selectOnLeft = GetChapterButtonOrBack(4);
-                    chapterButtonNav.selectOnRight = GetRerollButtonOrBack();
+                case 2: // Has special case for 4 buttons
+                    chapterButtonNav.selectOnUp = GetChapterButton(selectionOfNextChaptersList.Count != 4 ? 1 : 4); // DONE if 4 buttons = 4, else 1. <- SPECIAL
+                    chapterButtonNav.selectOnDown = GetChapterButton(indexOfLastUsedChapterButton >= 3 ? 3 : 1); // DONE 3, 1.
+                    chapterButtonNav.selectOnLeft = GetChapterButtonOrBackButtonOrRerollButtonOrSelf(5, 2); // DONE 5, back, reroll, self.
+                    chapterButtonNav.selectOnRight = GetRerollButtonOrBackButtonOrChapterButton(indexOfLastUsedChapterButton == 5 ? 5 : 2); // DONE reroll, back, 5, self.
                     break;
 
                 case 3:
-                    chapterButtonNav.selectOnUp = GetButton(2);
-                    chapterButtonNav.selectOnDown = backButton;
-                    chapterButtonNav.selectOnLeft = GetChapterButtonOrBack(5);
-                    chapterButtonNav.selectOnRight = GetRerollButtonOrBack();
+                    chapterButtonNav.selectOnUp = GetChapterButton(2); // DONE 2.
+                    chapterButtonNav.selectOnDown = GetChapterButton(indexOfLastUsedChapterButton == 5 ? 5 : 1); // DONE 5, 1.
+                    chapterButtonNav.selectOnLeft = GetChapterButtonOrBackButtonOrRerollButtonOrSelf(4, 3); // DONE 4, back, reroll, self.
+                    chapterButtonNav.selectOnRight = GetRerollButtonOrBackButtonOrChapterButton(indexOfLastUsedChapterButton < 5 ? 3 : 4); // DONE reroll, back, 4, self.
                     break;
 
-                case 4:
-                    chapterButtonNav.selectOnUp = backButton;
-                    chapterButtonNav.selectOnDown = GetChapterButtonOrBack(5);
-                    chapterButtonNav.selectOnLeft = GetRerollButtonOrBack();
-                    chapterButtonNav.selectOnRight = GetChapterButtonOrBack(3); // ?
+                case 4: // Has special case for 4 buttons.
+                    chapterButtonNav.selectOnUp = GetChapterButton(5); // DONE 5.
+                    chapterButtonNav.selectOnDown = GetChapterButton(selectionOfNextChaptersList.Count != 4 ? 1 : 2); // DONE if 4 buttons = 2, else 1. <- SPECIAL
+                    chapterButtonNav.selectOnLeft = GetBackButtonOrRerollButtonOrChapterButton(3); // DONE back, reroll, 3.
+                    chapterButtonNav.selectOnRight = GetChapterButton(3); // DONE 3.
                     break;
 
                 case 5:
+                    chapterButtonNav.selectOnUp = GetChapterButton(3); // DONE 3.
+                    chapterButtonNav.selectOnDown = GetChapterButton(4); // DONE 4.
+                    chapterButtonNav.selectOnLeft = GetBackButtonOrRerollButtonOrChapterButton(2); // DONE back, reroll, 2. (thoght about making it go to 1 if it exist but decided against.)
+                    chapterButtonNav.selectOnRight = GetChapterButton(2); // DONE 2.
                     break;
 
                 default:
@@ -476,6 +564,42 @@ public class ChapterManager : MonoBehaviour
             }
 
             chapterButton.GetComponent<Button>().navigation = chapterButtonNav;
+
+            // After last chapter button is set.
+            if (index + 1 == selectionOfNextChaptersList.Count)
+            {
+                if (backButton.gameObject.activeSelf)
+                {
+                    // Back button navigation.
+                    Navigation backButtonNav = backButton.navigation;
+                    backButtonNav.mode = Navigation.Mode.Explicit;
+
+                    // Has special cases for 4 buttons.
+                    backButtonNav.selectOnUp = GetChapterButton(indexOfLastUsedChapterButton >= 4 ? 4 : indexOfLastUsedChapterButton == 3 ? 3 : indexOfLastUsedChapterButton == 2 ? 2 : 1); // DONE 4, 3, 2, 1.
+                    backButtonNav.selectOnDown = GetChapterButton(indexOfLastUsedChapterButton == 5 ? 5 : 1); // DONE 5, 1.
+                    backButtonNav.selectOnLeft = GetRerollButtonOrChapterButton(selectionOfNextChaptersList.Count != 4 ? 1 : 2); // DONE reroll, if 4 buttons = 2, else 1. <- SPECIAL
+                    backButtonNav.selectOnRight = GetChapterButton(selectionOfNextChaptersList.Count >= 4 ? 5 : 1); // DONE if 4 buttons = 5, else 1. <- SPECIAL
+
+                    backButton.navigation = backButtonNav;
+                }
+
+                // Reroll button navigation.
+                if (rerollButton != null)
+                {
+                    Navigation rerollButtonNav = rerollButton.navigation;
+                    rerollButtonNav.mode = Navigation.Mode.Explicit;
+
+                    // Has special case for 4 buttons.
+                    rerollButtonNav.selectOnUp = GetBackButtonOrChapterButton(indexOfLastUsedChapterButton >= 3 ? 3 : indexOfLastUsedChapterButton == 2 ? 2 : 1); // DONE back, 3, 2, 1.
+                    rerollButtonNav.selectOnDown = GetChapterButton(indexOfLastUsedChapterButton > 1 ? 2 : 1); // DONE 2, 1.
+                    rerollButtonNav.selectOnLeft = GetChapterButton(selectionOfNextChaptersList.Count != 4 ? 1 : 2); // DONE if 4 buttons = 2, else 1. <- SPECIAL
+                    rerollButtonNav.selectOnRight = GetBackButtonOrChapterButton(indexOfLastUsedChapterButton < 5 ? 1 : 5); // DONE back, 5, 1.
+
+                    rerollButton.navigation = rerollButtonNav;
+                }
+            }
+
+            #endregion Chapter button navigation
 
             chapterButton.gameObject.SetActive(true);
             chapterButton.Initialize(chapter);

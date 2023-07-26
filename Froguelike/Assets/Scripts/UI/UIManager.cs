@@ -189,7 +189,7 @@ public class UIManager : MonoBehaviour
         bool isThereCharacterSelection = CharacterManager.instance.UpdateCharacterSelectionScreen();
 
         titleScreen.SetActive(true);
-        titleScreen.GetComponentInChildren<CanvasGroup>().interactable = false;
+        titleScreen.GetComponentInChildren<CanvasGroup>().interactable = !isThereCharacterSelection;
         characterSelectionScreen.SetActive(isThereCharacterSelection);
 
         // Pick the first character button.
