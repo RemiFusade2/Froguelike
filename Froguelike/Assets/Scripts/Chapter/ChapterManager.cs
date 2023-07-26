@@ -398,10 +398,10 @@ public class ChapterManager : MonoBehaviour
         for (int i = 0; i < selectionOfNextChaptersList.Count; i++)
         {
             // If there is exactly 4 buttons, use button slots 2 - 5 instead of 1 - 4, by increasing the index by 1.
-            int index = selectionOfNextChaptersList.Count == 4 ? i + 1 : i;
+            int chapterButtonIndex = selectionOfNextChaptersList.Count == 4 ? i + 1 : i;
 
-            Chapter chapter = selectionOfNextChaptersList[index];
-            ChapterButtonBehaviour chapterButton = chapterButtonsList[index];
+            Chapter chapter = selectionOfNextChaptersList[i];
+            ChapterButtonBehaviour chapterButton = chapterButtonsList[chapterButtonIndex];
 
             #region Chapter button navigation
             // Rubber Frog approved code below!
@@ -427,7 +427,7 @@ public class ChapterManager : MonoBehaviour
 
             Button GetChapterButtonOrBackButtonOrSelf(int chapterButtonNr, int selfButtonNr)
             {
-                if (selectionOfNextChaptersList.Count >= chapterButtonNr)
+                if (selectionOfNextChaptersList.Count >= chapterButtonNr || (selectionOfNextChaptersList.Count == 4 && chapterButtonNr == 5))
                 {
                     return GetChapterButton(chapterButtonNr);
                 }
@@ -443,7 +443,7 @@ public class ChapterManager : MonoBehaviour
 
             Button GetChapterButtonOrBackButtonOrRerollButtonOrSelf(int chapterButtonNr, int selfButtonNr)
             {
-                if (selectionOfNextChaptersList.Count >= chapterButtonNr)
+                if (selectionOfNextChaptersList.Count >= chapterButtonNr || (selectionOfNextChaptersList.Count == 4 && chapterButtonNr == 5))
                 {
                     return GetChapterButton(chapterButtonNr);
                 }
@@ -467,7 +467,7 @@ public class ChapterManager : MonoBehaviour
                 {
                     return backButton;
                 }
-                else if (selectionOfNextChaptersList.Count >= chapterButtonNr)
+                else if (selectionOfNextChaptersList.Count >= chapterButtonNr || (selectionOfNextChaptersList.Count == 4 && chapterButtonNr == 5))
                 {
                     return GetChapterButton(chapterButtonNr);
                 }
@@ -519,14 +519,14 @@ public class ChapterManager : MonoBehaviour
             #endregion Navigation set up helpers
 
             // Depending on which button is being initilaized and how many buttons are going to be showed the navigation between all buttons on this screen are different.
-            int thisButtonNr = index + 1;
+            int thisButtonNr = chapterButtonIndex + 1;
             // This int will be five if there is 4 or 5 chapters, because if there is four buttons chapter button 2 - 5 is used and I need the number of the last button.
             int indexOfLastUsedChapterButton = selectionOfNextChaptersList.Count == 4 ? 5 : selectionOfNextChaptersList.Count;
             switch (thisButtonNr)
             {
                 case 1:
-                    chapterButtonNav.selectOnUp = GetChapterButtonOrBackButtonOrSelf(indexOfLastUsedChapterButton >= 4 ? 4 : indexOfLastUsedChapterButton == 3 ? 3 : 2, 1); // DONE 4, 3, 2, back, self.
-                    chapterButtonNav.selectOnDown = GetChapterButtonOrBackButtonOrRerollButtonOrSelf(2, 1); // DONE 2, back, reroll, self.
+                    chapterButtonNav.selectOnUp = GetChapterButton(indexOfLastUsedChapterButton >= 4 ? 4 : indexOfLastUsedChapterButton == 3 ? 3 : indexOfLastUsedChapterButton == 2 ? 2 : 1); // DONE 4, 3, 2, back, self.
+                    chapterButtonNav.selectOnDown = GetChapterButton(indexOfLastUsedChapterButton >= 2 ? 2 : 1); // DONE 2, back, self. (Had reroll between back and self but removed it after testing).
                     chapterButtonNav.selectOnLeft = GetBackButtonOrChapterButtonOrRerollButtonOrSelf(5, 1); // DONE back, 5, reroll, self.
                     chapterButtonNav.selectOnRight = GetRerollButtonOrBackButtonOrChapterButton(indexOfLastUsedChapterButton == 5 ? 5 : 1); // DONE reroll, back, 5, self.
                     break;
@@ -566,7 +566,7 @@ public class ChapterManager : MonoBehaviour
             chapterButton.GetComponent<Button>().navigation = chapterButtonNav;
 
             // After last chapter button is set.
-            if (index + 1 == selectionOfNextChaptersList.Count)
+            if (chapterButtonIndex + 1 == selectionOfNextChaptersList.Count)
             {
                 if (backButton.gameObject.activeSelf)
                 {
@@ -617,6 +617,12 @@ public class ChapterManager : MonoBehaviour
             GameManager.instance.player.rerolls--;
             UpdateRerollPostit();
             NewSelectionOfChapters();
+
+            if (GameManager.instance.player.rerolls < 1)
+            {
+                // Set new selected button.
+                UIManager.instance.SetSelectedButton(selectionOfNextChaptersList.Count >= 4 ? chapterButtonsList[4].gameObject : chapterButtonsList[0].gameObject);
+            }
         }
     }
 
@@ -655,7 +661,7 @@ public class ChapterManager : MonoBehaviour
     /// <param name="index"></param>
     public void SelectChapter(int index)
     {
-        Chapter chapterInfo = selectionOfNextChaptersList[index];
+        Chapter chapterInfo = selectionOfNextChaptersList[selectionOfNextChaptersList.Count == 4 ? index - 1 : index]; // Special case when there is exactly 4 chapters to choose from, since the chapter buttons 2 - 5 is used instead of buttons 1 - 4.
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {

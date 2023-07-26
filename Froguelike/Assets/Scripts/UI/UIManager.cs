@@ -47,7 +47,7 @@ public class UIManager : MonoBehaviour
 
     [Header("Chapter selection")]
     public GameObject chapterSelectionScreen;
-    public GameObject selectedButtonChapterSelectionScreen;
+    public List<GameObject> chapterSelectionButtons;
 
     [Header("Chapter Start")]
     public GameObject chapterStartScreen;
@@ -221,7 +221,8 @@ public class UIManager : MonoBehaviour
         chapterSelectionScreen.SetActive(true);
 
         // Pick the first chapter option as the selected button.
-        SetSelectedButton(selectedButtonChapterSelectionScreen);
+        GameObject selectedButton = chapterSelectionButtons[4].activeSelf ? chapterSelectionButtons[4] : chapterSelectionButtons[0];
+        SetSelectedButton(selectedButton);
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -385,7 +386,7 @@ public class UIManager : MonoBehaviour
 
     #region Buttons
 
-    private void SetSelectedButton(GameObject buttonGO)
+    public void SetSelectedButton(GameObject buttonGO)
     {
         if (buttonGO != null) ClearSelectedButton();
 
