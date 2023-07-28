@@ -525,35 +525,45 @@ public class ChapterManager : MonoBehaviour
             switch (thisButtonNr)
             {
                 case 1:
-                    chapterButtonNav.selectOnUp = GetChapterButton(indexOfLastUsedChapterButton >= 4 ? 4 : indexOfLastUsedChapterButton == 3 ? 3 : indexOfLastUsedChapterButton == 2 ? 2 : 1); // DONE 4, 3, 2, back, self.
-                    chapterButtonNav.selectOnDown = GetChapterButton(indexOfLastUsedChapterButton >= 2 ? 2 : 1); // DONE 2, back, self. (Had reroll between back and self but removed it after testing).
+                    // OLD chapterButtonNav.selectOnUp = GetChapterButton(indexOfLastUsedChapterButton >= 4 ? 4 : indexOfLastUsedChapterButton == 3 ? 3 : indexOfLastUsedChapterButton == 2 ? 2 : 1); // DONE 4, 3, 2, back, self.
+                    chapterButtonNav.selectOnUp = GetRerollButtonOrChapterButton(indexOfLastUsedChapterButton >= 3 ? 3 : indexOfLastUsedChapterButton == 2 ? 2 : 1); // DONE reroll, 3, 2, self.
+                    // OLD (and probably wrong?) chapterButtonNav.selectOnDown = GetChapterButton(indexOfLastUsedChapterButton >= 2 ? 2 : 1); // DONE 2, back, self. (Had reroll between back and self but removed it after testing).
+                    chapterButtonNav.selectOnDown = indexOfLastUsedChapterButton > 1 ? GetChapterButton(2) : GetRerollButtonOrChapterButton(1); // DONE 2, reroll, self.
                     chapterButtonNav.selectOnLeft = GetBackButtonOrChapterButtonOrRerollButtonOrSelf(5, 1); // DONE back, 5, reroll, self.
                     chapterButtonNav.selectOnRight = GetRerollButtonOrBackButtonOrChapterButton(indexOfLastUsedChapterButton == 5 ? 5 : 1); // DONE reroll, back, 5, self.
                     break;
 
                 case 2: // Has special case for 4 buttons
-                    chapterButtonNav.selectOnUp = GetChapterButton(selectionOfNextChaptersList.Count != 4 ? 1 : 4); // DONE if 4 buttons = 4, else 1. <- SPECIAL
-                    chapterButtonNav.selectOnDown = GetChapterButton(indexOfLastUsedChapterButton >= 3 ? 3 : 1); // DONE 3, 1.
+                    // OLD chapterButtonNav.selectOnUp = GetChapterButton(selectionOfNextChaptersList.Count != 4 ? 1 : 4); // DONE if 4 buttons = 4, else 1. <- SPECIAL
+                    chapterButtonNav.selectOnUp = selectionOfNextChaptersList.Count != 4 ? GetChapterButton(1) : GetRerollButtonOrChapterButton(3); // DONE if 4 buttons = reroll, 3, else 1. <- SPECIAL
+                    // OLD chapterButtonNav.selectOnDown = GetChapterButton(indexOfLastUsedChapterButton >= 3 ? 3 : 1); // DONE 3, 1.
+                    chapterButtonNav.selectOnDown = indexOfLastUsedChapterButton >= 3 ? GetChapterButton(3) : GetRerollButtonOrChapterButton(1); // DONE 3, reroll, 1.
                     chapterButtonNav.selectOnLeft = GetChapterButtonOrBackButtonOrRerollButtonOrSelf(5, 2); // DONE 5, back, reroll, self.
                     chapterButtonNav.selectOnRight = GetRerollButtonOrBackButtonOrChapterButton(indexOfLastUsedChapterButton == 5 ? 5 : 2); // DONE reroll, back, 5, self.
                     break;
 
                 case 3:
+                    // OLD chapterButtonNav.selectOnUp = GetChapterButton(2); // DONE 2.
                     chapterButtonNav.selectOnUp = GetChapterButton(2); // DONE 2.
-                    chapterButtonNav.selectOnDown = GetChapterButton(indexOfLastUsedChapterButton == 5 ? 5 : 1); // DONE 5, 1.
+                    // OLD chapterButtonNav.selectOnDown = GetChapterButton(indexOfLastUsedChapterButton == 5 ? 5 : 1); // DONE 5, 1.
+                    chapterButtonNav.selectOnDown = GetRerollButtonOrChapterButton(selectionOfNextChaptersList.Count != 4 ? 1 : 2); // DONE reroll, 1, 2.
                     chapterButtonNav.selectOnLeft = GetChapterButtonOrBackButtonOrRerollButtonOrSelf(4, 3); // DONE 4, back, reroll, self.
                     chapterButtonNav.selectOnRight = GetRerollButtonOrBackButtonOrChapterButton(indexOfLastUsedChapterButton < 5 ? 3 : 4); // DONE reroll, back, 4, self.
                     break;
 
                 case 4: // Has special case for 4 buttons.
+                    // OLD chapterButtonNav.selectOnUp = GetChapterButton(5); // DONE 5.
                     chapterButtonNav.selectOnUp = GetChapterButton(5); // DONE 5.
-                    chapterButtonNav.selectOnDown = GetChapterButton(selectionOfNextChaptersList.Count != 4 ? 1 : 2); // DONE if 4 buttons = 2, else 1. <- SPECIAL
+                    // OLD chapterButtonNav.selectOnDown = GetChapterButton(selectionOfNextChaptersList.Count != 4 ? 1 : 2); // DONE if 4 buttons = 2, else 1. <- SPECIAL
+                    chapterButtonNav.selectOnDown = GetBackButtonOrChapterButton(5); // DONE back, 5.
                     chapterButtonNav.selectOnLeft = GetBackButtonOrRerollButtonOrChapterButton(3); // DONE back, reroll, 3.
                     chapterButtonNav.selectOnRight = GetChapterButton(3); // DONE 3.
                     break;
 
                 case 5:
-                    chapterButtonNav.selectOnUp = GetChapterButton(3); // DONE 3.
+                    // OLD chapterButtonNav.selectOnUp = GetChapterButton(3); // DONE 3.
+                    chapterButtonNav.selectOnUp = GetBackButtonOrChapterButton(4); // DONE back, 4.
+                    // OLD chapterButtonNav.selectOnDown = GetChapterButton(4); // DONE 4.
                     chapterButtonNav.selectOnDown = GetChapterButton(4); // DONE 4.
                     chapterButtonNav.selectOnLeft = GetBackButtonOrRerollButtonOrChapterButton(2); // DONE back, reroll, 2. (thoght about making it go to 1 if it exist but decided against.)
                     chapterButtonNav.selectOnRight = GetChapterButton(2); // DONE 2.
@@ -575,7 +585,9 @@ public class ChapterManager : MonoBehaviour
                     backButtonNav.mode = Navigation.Mode.Explicit;
 
                     // Has special cases for 4 buttons.
+                    // OLD backButtonNav.selectOnUp = GetChapterButton(indexOfLastUsedChapterButton >= 4 ? 4 : indexOfLastUsedChapterButton == 3 ? 3 : indexOfLastUsedChapterButton == 2 ? 2 : 1); // DONE 4, 3, 2, 1.
                     backButtonNav.selectOnUp = GetChapterButton(indexOfLastUsedChapterButton >= 4 ? 4 : indexOfLastUsedChapterButton == 3 ? 3 : indexOfLastUsedChapterButton == 2 ? 2 : 1); // DONE 4, 3, 2, 1.
+                    // OLD backButtonNav.selectOnDown = GetChapterButton(indexOfLastUsedChapterButton == 5 ? 5 : 1); // DONE 5, 1.
                     backButtonNav.selectOnDown = GetChapterButton(indexOfLastUsedChapterButton == 5 ? 5 : 1); // DONE 5, 1.
                     backButtonNav.selectOnLeft = GetRerollButtonOrChapterButton(selectionOfNextChaptersList.Count != 4 ? 1 : 2); // DONE reroll, if 4 buttons = 2, else 1. <- SPECIAL
                     backButtonNav.selectOnRight = GetChapterButton(selectionOfNextChaptersList.Count >= 4 ? 5 : 1); // DONE if 4 buttons = 5, else 1. <- SPECIAL
@@ -590,8 +602,10 @@ public class ChapterManager : MonoBehaviour
                     rerollButtonNav.mode = Navigation.Mode.Explicit;
 
                     // Has special case for 4 buttons.
-                    rerollButtonNav.selectOnUp = GetBackButtonOrChapterButton(indexOfLastUsedChapterButton >= 3 ? 3 : indexOfLastUsedChapterButton == 2 ? 2 : 1); // DONE back, 3, 2, 1.
-                    rerollButtonNav.selectOnDown = GetChapterButton(indexOfLastUsedChapterButton > 1 ? 2 : 1); // DONE 2, 1.
+                    // OLD rerollButtonNav.selectOnUp = GetBackButtonOrChapterButton(indexOfLastUsedChapterButton >= 3 ? 3 : indexOfLastUsedChapterButton == 2 ? 2 : 1); // DONE back, 3, 2, 1.
+                    rerollButtonNav.selectOnUp = GetChapterButton(indexOfLastUsedChapterButton >= 3 ? 3 : indexOfLastUsedChapterButton == 2 ? 2 : 1); // DONE 3, 2, 1.
+                    // OLD rerollButtonNav.selectOnDown = GetChapterButton(indexOfLastUsedChapterButton > 1 ? 2 : 1); // DONE 2, 1.
+                    rerollButtonNav.selectOnDown = GetChapterButton(selectionOfNextChaptersList.Count != 4 ? 1 : 2); // DONE 1, 2.
                     rerollButtonNav.selectOnLeft = GetChapterButton(selectionOfNextChaptersList.Count != 4 ? 1 : 2); // DONE if 4 buttons = 2, else 1. <- SPECIAL
                     rerollButtonNav.selectOnRight = GetBackButtonOrChapterButton(indexOfLastUsedChapterButton < 5 ? 1 : 5); // DONE back, 5, 1.
 

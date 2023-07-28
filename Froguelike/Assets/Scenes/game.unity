@@ -11038,7 +11038,7 @@ MonoBehaviour:
   rewiredPlayerIds: 00000000
   usePlayingPlayersOnly: 0
   playerMice: []
-  moveOneElementPerAxisPress: 0
+  moveOneElementPerAxisPress: 1
   setActionsById: 0
   horizontalActionId: 0
   verticalActionId: 1
@@ -11053,7 +11053,7 @@ MonoBehaviour:
   m_allowMouseInput: 1
   m_allowMouseInputIfTouchSupported: 1
   m_allowTouchInput: 0
-  m_deselectIfBackgroundClicked: 1
+  m_deselectIfBackgroundClicked: 0
   m_deselectBeforeSelecting: 1
   m_ForceModuleActive: 0
 --- !u!114 &548359044 stripped
@@ -13587,7 +13587,7 @@ MonoBehaviour:
   _dontDestroyOnLoad: 1
   _userData:
     configVars:
-      updateLoop: 5
+      updateLoop: 1
       alwaysUseUnityInput: 0
       windowsStandalonePrimaryInputSource: 0
       osx_primaryInputSource: 0
@@ -13849,7 +13849,7 @@ MonoBehaviour:
       _descriptiveName: UIHorizontal
       _positiveDescriptiveName: UI Move Right
       _negativeDescriptiveName: UI Move Left
-      _behaviorId: 1
+      _behaviorId: 6
       _userAssignable: 1
       _categoryId: 0
     - _id: 9
@@ -13858,7 +13858,7 @@ MonoBehaviour:
       _descriptiveName: UIVertical
       _positiveDescriptiveName: UI Move Up
       _negativeDescriptiveName: UI Move Down
-      _behaviorId: 1
+      _behaviorId: 6
       _userAssignable: 1
       _categoryId: 0
     - _id: 10
@@ -13929,6 +13929,29 @@ MonoBehaviour:
       _buttonRepeatDelay: 0
     - _id: 2
       _name: click
+      _joystickAxisSensitivity: 1
+      _digitalAxisSimulation: 1
+      _digitalAxisSnap: 1
+      _digitalAxisInstantReverse: 0
+      _digitalAxisGravity: 3
+      _digitalAxisSensitivity: 3
+      _mouseXYAxisMode: 0
+      _mouseOtherAxisMode: 0
+      _mouseXYAxisSensitivity: 1
+      _mouseXYAxisDeltaCalc: 0
+      _mouseOtherAxisSensitivity: 1
+      _customControllerAxisSensitivity: 1
+      _buttonDoublePressSpeed: 0.3
+      _buttonShortPressTime: 0.25
+      _buttonShortPressExpiresIn: 0
+      _buttonLongPressTime: 1
+      _buttonLongPressExpiresIn: 0
+      _buttonDeadZone: 0.5
+      _buttonDownBuffer: 0
+      _buttonRepeatRate: 30
+      _buttonRepeatDelay: 0
+    - _id: 6
+      _name: UI
       _joystickAxisSensitivity: 1
       _digitalAxisSimulation: 1
       _digitalAxisSnap: 1
@@ -14132,6 +14155,17 @@ MonoBehaviour:
         _axisRange: 0
         _invert: 0
         _axisContribution: 1
+        _keyboardKeyCode: 0
+        _modifierKey1: 0
+        _modifierKey2: 0
+        _modifierKey3: 0
+      - _actionCategoryId: 0
+        _actionId: -1
+        _elementType: 0
+        _elementIdentifierId: 0
+        _axisRange: 0
+        _invert: 0
+        _axisContribution: 0
         _keyboardKeyCode: 0
         _modifierKey1: 0
         _modifierKey2: 0
@@ -14427,18 +14461,18 @@ MonoBehaviour:
     playerIdCounter: 2
     actionIdCounter: 11
     actionCategoryIdCounter: 1
-    inputBehaviorIdCounter: 3
+    inputBehaviorIdCounter: 8
     mapCategoryIdCounter: 1
     joystickLayoutIdCounter: 1
     keyboardLayoutIdCounter: 1
     mouseLayoutIdCounter: 1
-    customControllerLayoutIdCounter: 1
+    customControllerLayoutIdCounter: 3
     joystickMapIdCounter: 1
     keyboardMapIdCounter: 1
     mouseMapIdCounter: 0
-    customControllerMapIdCounter: 0
-    customControllerIdCounter: 1
-    controllerMapLayoutManagerSetIdCounter: 1
+    customControllerMapIdCounter: 1
+    customControllerIdCounter: 3
+    controllerMapLayoutManagerSetIdCounter: 2
     controllerMapEnablerSetIdCounter: 1
   _controllerDataFiles: {fileID: 11400000, guid: d21d2b20df8369642b76aafbb2576ba7, type: 2}
 --- !u!4 &662918327
