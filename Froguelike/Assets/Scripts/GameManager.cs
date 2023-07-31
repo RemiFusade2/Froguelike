@@ -180,7 +180,7 @@ public class GameManager : MonoBehaviour
     {
         SetTimeScale(0);
         isGameRunning = false;
-        UIManager.instance.ShowGameOver((player.revivals > 0));
+        UIManager.instance.ShowGameOver(player.revivals);
         gameData.deathCount++;
         SaveDataManager.instance.isSaveDataDirty = true;
     }

@@ -20,6 +20,7 @@ public class UIManager : MonoBehaviour
 
     [Header("Title")]
     public GameObject titleScreen;
+    public GameObject menuButtonsGroup;
     public GameObject selectedButtonTitleScreen;
     public TextMeshProUGUI titleScreenCurrencyText;
     public TextMeshProUGUI titleScreenWelcomeMessageText;
@@ -64,6 +65,7 @@ public class UIManager : MonoBehaviour
     public GameObject pausePanel;
     public Animator pausePanelAnimator;
     public GameObject selectedButtonPausePanel;
+    private bool makeLevelUpPanelInteractableAfterClosingPausePanel = false;
 
     #endregion
 
@@ -73,7 +75,6 @@ public class UIManager : MonoBehaviour
     public GameObject gameOverPanel;
     public GameObject gameOverRespawnButton;
     public GameObject gameOverGiveUpButton;
-    public GameObject selectedButtonGameOverPanel;
 
     [Header("Score Screen")]
     public GameObject scoreScreen;
@@ -94,7 +95,7 @@ public class UIManager : MonoBehaviour
     [Header("Demo panels")]
     public List<GameObject> demoPanelsList;
 
-
+    private List<GameObject> rememberThisButton = new List<GameObject>();
 
     private void Awake()
     {
@@ -150,10 +151,12 @@ public class UIManager : MonoBehaviour
         achievementsButton.SetActive(AchievementManager.instance.IsAchievementsListUnlocked());
 
         titleScreen.SetActive(true);
-        titleScreen.GetComponentInChildren<CanvasGroup>().interactable = true;
+        SetScreenInteractability(menuButtonsGroup, true);
 
         // Set a selected button.
         SetSelectedButton(selectedButtonTitleScreen);
+
+        rememberThisButton.Clear();
 
         titleScreenSaveLocationText.text = Application.persistentDataPath;
         if (SteamManager.Initialized)
@@ -189,7 +192,7 @@ public class UIManager : MonoBehaviour
         bool isThereCharacterSelection = CharacterManager.instance.UpdateCharacterSelectionScreen();
 
         titleScreen.SetActive(true);
-        titleScreen.GetComponentInChildren<CanvasGroup>().interactable = !isThereCharacterSelection;
+        SetScreenInteractability(menuButtonsGroup, !isThereCharacterSelection);
         characterSelectionScreen.SetActive(isThereCharacterSelection);
 
         // Pick the first character button.
@@ -216,7 +219,7 @@ public class UIManager : MonoBehaviour
         if (forceTitleScreen)
         {
             titleScreen.SetActive(true);
-            titleScreen.GetComponentInChildren<CanvasGroup>().interactable = false;
+            SetScreenInteractability(menuButtonsGroup, false);
         }
         chapterSelectionScreen.SetActive(true);
 
@@ -245,11 +248,16 @@ public class UIManager : MonoBehaviour
     public void ShowScoreScreen()
     {
         HideAllScreens();
+        SetScreenInteractability(pausePanel, false);
+        SetScreenInteractability(levelUpPanel, false);
 
         // Display score screen
+        SetScreenInteractability(scoreScreen, true);
         inGameUIPanel.SetActive(true);
         scoreScreen.SetActive(true);
         SoundManager.instance.PlayLongPageSound();
+
+        SetSelectedButton(selectedButtonScoreScreen);
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -264,13 +272,18 @@ public class UIManager : MonoBehaviour
         inGameUIPanel.SetActive(true);
     }
 
-    public void ShowGameOver(bool respawnAvailable)
+    public void ShowGameOver(int respawnsAvailable)
     {
-        HideAllScreens();
-        inGameUIPanel.SetActive(true);
+        // HideAllScreens();
+        // inGameUIPanel.SetActive(true);
+        bool respawnAvailable = respawnsAvailable > 0;
+
+        gameOverPanel.GetComponent<GameOverScreen>().UpdateGameOverScreen();
         gameOverPanel.SetActive(true);
-        gameOverRespawnButton.SetActive(respawnAvailable);
-        gameOverGiveUpButton.SetActive(!respawnAvailable);
+        gameOverRespawnButton.GetComponent<Button>().interactable = respawnAvailable;
+        SetSelectedButton(respawnAvailable ? gameOverRespawnButton : gameOverGiveUpButton);
+
+
         SoundManager.instance.PlayDeathSound();
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
@@ -283,6 +296,18 @@ public class UIManager : MonoBehaviour
     {
         // Tell the pause screen to update its information.
         pausePanel.GetComponent<PauseScreen>().UpdatePauseScreen();
+
+        // Set up start button and navigation.
+        SetScreenInteractability(pausePanel, true);
+        if (levelUpPanel.GetComponent<CanvasGroup>().interactable)
+        {
+            SetScreenInteractability(levelUpPanel, false);
+            makeLevelUpPanelInteractableAfterClosingPausePanel = true;
+            SavePreviousSelectedButton();
+        }
+
+        SetSelectedButton(selectedButtonPausePanel);
+
 
         // MusicManager.instance.PauseMusic(); // I took this away because I think teh music should still be playing (Johanna).
         // Show the pause screen.
@@ -301,6 +326,16 @@ public class UIManager : MonoBehaviour
         if (pausePanel.activeInHierarchy)
         {
             pausePanelAnimator.SetBool("Visible", false);
+
+            // Make pause panel not interactable.
+            SetScreenInteractability(pausePanel, false);
+
+            if (makeLevelUpPanelInteractableAfterClosingPausePanel)
+            {
+                SetScreenInteractability(levelUpPanel, true);
+                SetPreviousSelectedButton();
+                //               SetSelectedButton(selectedButtonLevelUpPanel);
+            }
         }
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
@@ -312,9 +347,11 @@ public class UIManager : MonoBehaviour
     public void ShowShop()
     {
         HideAllScreens();
+        SetScreenInteractability(menuButtonsGroup, false);
         ShopManager.instance.DisplayShop(true);
         titleScreen.SetActive(true);
         shopScreen.SetActive(true);
+        SetSelectedButton(selectedButtonShopScreen);
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -341,6 +378,16 @@ public class UIManager : MonoBehaviour
     {
         backToTitleScreenConfirmationPanel.SetActive(active);
 
+        if (active)
+        {
+            SavePreviousSelectedButton();
+            SetSelectedButton(selectedButtonBackToTitleScreenConfirmationPanel);
+        }
+        else
+        {
+            SetPreviousSelectedButton();
+        }
+
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
             Debug.Log("UI - Display Go back to Title confirmation screen");
@@ -351,18 +398,27 @@ public class UIManager : MonoBehaviour
     {
         clearSaveFileConfirmationPanel.SetActive(active);
 
+        if (active)
+        {
+            SavePreviousSelectedButton();
+            SetSelectedButton(selectedButtonClearSaveFileConfirmationPanel);
+        }
+        else
+        {
+            SetPreviousSelectedButton();
+        }
+
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
             Debug.Log("UI - Display Clear save file confirmation screen");
         }
     }
-    #endregion
+    #endregion Confirmation Panels
 
     public void ShowSettingsScreen()
     {
-        HideAllScreens();
-        titleScreen.SetActive(true);
         settingsScreen.SetActive(true);
+        SavePreviousSelectedButton();
         SetSelectedButton(selectedButtonSettingsScreen);
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
@@ -373,10 +429,8 @@ public class UIManager : MonoBehaviour
 
     public void HideSettingsScreen()
     {
-        ClearSelectedButton();
         settingsScreen.SetActive(false);
-        // TODO this only applies when going to the setting screen from title screen, it will be wrong when going to the settings from the pause screen
-        SetSelectedButton(settingsButton);
+        SetPreviousSelectedButton();
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -395,10 +449,37 @@ public class UIManager : MonoBehaviour
 
     }
 
+    private void SavePreviousSelectedButton()
+    {
+        rememberThisButton.Add(EventSystem.current.currentSelectedGameObject);
+    }
+
+    private void SetPreviousSelectedButton()
+    {
+        if (rememberThisButton.Count > 0)
+        {
+            int lastButton = rememberThisButton.Count - 1;
+            SetSelectedButton(rememberThisButton[lastButton]);
+            rememberThisButton.RemoveAt(lastButton);
+        }
+    }
+
     private void ClearSelectedButton()
     {
         SetSelectedButton(null);
     }
 
     #endregion Buttons
+
+    private void SetScreenInteractability(GameObject screen, bool isInteractable)
+    {
+        if (screen.GetComponent<CanvasGroup>())
+        {
+            screen.GetComponent<CanvasGroup>().interactable = isInteractable;
+        }
+        else
+        {
+            Debug.Log(screen.name + " doesn't have a canvas group");
+        }
+    }
 }

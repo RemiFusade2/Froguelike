@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.EventSystems;
 
-public class ShopItemButton : MonoBehaviour
+public class ShopItemButton : MonoBehaviour, ISelectHandler
 {
     [Header("References")]
     public TextMeshProUGUI itemNameText;
@@ -15,6 +16,13 @@ public class ShopItemButton : MonoBehaviour
     [Space]
     public Button buyButton;
     public TextMeshProUGUI priceText;
+
+    public ScrollRect scrollView;
+    public RectTransform viewportRT;
+    public RectTransform thisRT;
+    public Transform itemPanelTransform;
+
+    private const float gap = 22;
 
     public void Initialize(ShopItem item, bool itemIsAvailable)
     {
@@ -39,5 +47,19 @@ public class ShopItemButton : MonoBehaviour
         {
             priceText.text = Tools.FormatCurrency(item.data.costForEachLevel[item.currentLevel], DataManager.instance.currencySymbol);
         }
+
+        scrollView = transform.parent.parent.parent.parent.GetComponent<ScrollRect>();
+        viewportRT = transform.parent.parent.parent.GetComponent<RectTransform>();
+        thisRT = GetComponent<RectTransform>();
+        itemPanelTransform = transform.parent;
+    }
+
+    public void OnSelect(BaseEventData eventData)
+    {
+        // Scroll the button into view.
+        float safeArea = (viewportRT.rect.height - thisRT.rect.height) / 2 - gap;
+        float currentY = itemPanelTransform.localPosition.y + thisRT.localPosition.y;
+        float newY = Mathf.Clamp(currentY, -safeArea, safeArea);
+        itemPanelTransform.localPosition += (newY - currentY) * Vector3.up;
     }
 }
