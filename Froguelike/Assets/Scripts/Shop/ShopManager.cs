@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// ShopItem describes an item in the shop in its current state.
@@ -91,6 +92,8 @@ public class ShopManager : MonoBehaviour
     public ShopSaveData shopData; // Will be loaded and saved when needed
     public List<StatValue> statsBonuses; // This is computed from the items bought
 
+    public Transform trash;
+
     private void Awake()
     {
         if (instance == null)
@@ -170,6 +173,8 @@ public class ShopManager : MonoBehaviour
             int itemCost = item.data.costForEachLevel[item.currentLevel];
             if (GameManager.instance.gameData.availableCurrency >= itemCost)
             {
+                string savedButtonName = EventSystem.current.currentSelectedGameObject.name;
+                EventSystem.current.currentSelectedGameObject.name = "old";
                 // There's enough available currency, so buy the item!
                 // Increase currency spend in shop
                 shopData.currencySpentInShop += itemCost;
@@ -183,6 +188,10 @@ public class ShopManager : MonoBehaviour
                 DisplayShop(false);
                 // Signal the SaveDataManager that information from the shop have been updated and should be saved when possible
                 SaveDataManager.instance.isSaveDataDirty = true;
+
+                // Reselect the last button.
+                Debug.Log("Saved button name " + shopPanel.Find(savedButtonName));
+                EventSystem.current.SetSelectedGameObject(shopPanel.Find(savedButtonName).gameObject);
 
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                 {
@@ -272,6 +281,7 @@ public class ShopManager : MonoBehaviour
 
         shopData.currencySpentInShop = 0;
         SaveDataManager.instance.isSaveDataDirty = true;
+
         return returnedCurrency;
     }
 
@@ -288,10 +298,18 @@ public class ShopManager : MonoBehaviour
         availableCurrencyText.text = Tools.FormatCurrency(GameManager.instance.gameData.availableCurrency, DataManager.instance.currencySymbol);
 
         // Remove previous buttons
-        foreach (Transform child in shopPanel)
+        /* foreach (Transform child in shopPanel)
         {
+            // child.parent = trash;
             Destroy(child.gameObject);
+        } */
+
+        while (shopPanel.childCount > 0)
+        {
+            Destroy(shopPanel.GetChild(0).gameObject);
+            shopPanel.GetChild(0).parent = trash;
         }
+
         // Create new buttons
         int buttonCount = 0;
         foreach (ShopItem item in shopData.shopItems)
@@ -303,17 +321,17 @@ public class ShopManager : MonoBehaviour
                 bool itemIsMaxedOut = item.currentLevel == item.maxLevel;
                 if (itemIsAvailable)
                 {
-                    bool canBuy = false;
+                    bool availableButCantBuy = false;
                     if (item.currentLevel < item.data.costForEachLevel.Count)
                     {
                         int itemCost = item.data.costForEachLevel[item.currentLevel];
-                        canBuy = GameManager.instance.gameData.availableCurrency >= itemCost;
+                        availableButCantBuy = GameManager.instance.gameData.availableCurrency < itemCost;
                     }
 
                     GameObject shopItemButtonGo = Instantiate(availableShopItemPanelPrefab, shopPanel);
                     ShopItemButton shopItemButton = shopItemButtonGo.GetComponent<ShopItemButton>();
                     shopItemButton.buyButton.onClick.AddListener(delegate { BuyItem(item); });
-                    shopItemButton.Initialize(item, itemIsAvailable && canBuy);
+                    shopItemButton.Initialize(item, availableButCantBuy);
                     buttonCount++;
                 }
                 else if (itemIsMaxedOut)
@@ -325,7 +343,7 @@ public class ShopManager : MonoBehaviour
                 }
             }
         }
-        
+
         // Set size of container panel
         float buttonHeight = shopPanel.GetComponent<GridLayoutGroup>().cellSize.y + shopPanel.GetComponent<GridLayoutGroup>().spacing.y;
         float padding = shopPanel.GetComponent<GridLayoutGroup>().padding.top + shopPanel.GetComponent<GridLayoutGroup>().padding.bottom;
@@ -362,6 +380,10 @@ public class ShopManager : MonoBehaviour
         ComputeStatsBonuses();
         // Update the shop display
         DisplayShop(false);
+
+        // Set selected button.
+        EventSystem.current.SetSelectedGameObject(shopPanel.GetComponentInChildren<Button>().gameObject);
+
         // Signal the SaveDataManager that information from the shop have been updated and should be saved when possible
         SaveDataManager.instance.isSaveDataDirty = true;
     }

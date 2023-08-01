@@ -24,10 +24,18 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler
 
     private const float gap = 22;
 
-    public void Initialize(ShopItem item, bool itemIsAvailable)
+    public void Initialize(ShopItem item, bool availableButCantBuy)
     {
-        buyButton.interactable = itemIsAvailable;
+        buyButton.interactable = true;
         buyButton.gameObject.SetActive(true);
+
+        if (availableButCantBuy)
+        {
+            var cantBuyColor = buyButton.colors;
+            cantBuyColor.selectedColor = Color.red;
+            buyButton.colors = cantBuyColor;
+        }
+
 
         itemNameText.text = item.itemName;
         itemDescriptionText.text = item.data.description;
@@ -48,6 +56,8 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler
             priceText.text = Tools.FormatCurrency(item.data.costForEachLevel[item.currentLevel], DataManager.instance.currencySymbol);
         }
 
+        name = item.itemName;
+
         scrollView = transform.parent.parent.parent.parent.GetComponent<ScrollRect>();
         viewportRT = transform.parent.parent.parent.GetComponent<RectTransform>();
         thisRT = GetComponent<RectTransform>();
@@ -57,6 +67,14 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler
     public void OnSelect(BaseEventData eventData)
     {
         // Scroll the button into view.
+        StartCoroutine(ScrollButtonIntoView());
+    }
+
+    private IEnumerator ScrollButtonIntoView()
+    {
+        // Wait for layout to recompute before getting this buttons position.
+        yield return new WaitForSeconds(0.1f);
+
         float safeArea = (viewportRT.rect.height - thisRT.rect.height) / 2 - gap;
         float currentY = itemPanelTransform.localPosition.y + thisRT.localPosition.y;
         float newY = Mathf.Clamp(currentY, -safeArea, safeArea);
