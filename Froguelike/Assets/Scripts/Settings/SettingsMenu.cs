@@ -10,6 +10,7 @@ public class SettingsMenu : MonoBehaviour
 {
     public Toggle fullscreenToggle;
     public TMP_Dropdown resolutionDropdown;
+    public ResolutionsScrollRect resolutionScrollRect;
     public PixelPerfectCamera pixelPerfectCamera;
     public AudioMixer audioMixer;
 
@@ -109,6 +110,7 @@ public class SettingsMenu : MonoBehaviour
         allowedResolutions.Add(biggestResolutionForThisScreen);
 
         UpdateDropdown(options);
+        UpdateResolutionScrollView(options);
     }
 
 
@@ -120,6 +122,20 @@ public class SettingsMenu : MonoBehaviour
         resolutionDropdown.ClearOptions();
         resolutionDropdown.AddOptions(options);
         SetDropdownValue(currentResolutionIndex);
+    }
+
+    private void UpdateResolutionScrollView(List<string> options)
+    {
+        // Remove all old resolutions.
+        for (int child = 0; child < resolutionScrollRect.content.childCount; child = 0)
+        {
+            resolutionScrollRect.content.GetChild(child).gameObject.SetActive(false);
+            Destroy(resolutionScrollRect.content.GetChild(child));
+        }
+
+        resolutionScrollRect.Initialize(options);
+
+
     }
 
     private void SetDropdownValue(int value)
