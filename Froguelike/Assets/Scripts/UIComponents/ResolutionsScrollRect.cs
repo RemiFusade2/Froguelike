@@ -23,7 +23,7 @@ public class ResolutionsScrollRect : ScrollRect
     private float snapLerpDeceleration = 10;
 
     private int numberOfResolutions = 4;
-    private int currentDisplayedResolution = 1;
+    public int currentDisplayedResolution = 1;
 
     private bool isLerping = false;
     private Vector2 lerpTarget;

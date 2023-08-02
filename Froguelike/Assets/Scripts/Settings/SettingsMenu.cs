@@ -11,6 +11,8 @@ public class SettingsMenu : MonoBehaviour
     public Toggle fullscreenToggle;
     public TMP_Dropdown resolutionDropdown;
     public ResolutionsScrollRect resolutionScrollRect;
+    public GameObject leftArrow;
+    public GameObject rightArrow;
     public PixelPerfectCamera pixelPerfectCamera;
     public AudioMixer audioMixer;
 
@@ -109,7 +111,7 @@ public class SettingsMenu : MonoBehaviour
 
         allowedResolutions.Add(biggestResolutionForThisScreen);
 
-        UpdateDropdown(options);
+        // UpdateDropdown(options);
         UpdateResolutionScrollView(options);
     }
 
@@ -127,15 +129,13 @@ public class SettingsMenu : MonoBehaviour
     private void UpdateResolutionScrollView(List<string> options)
     {
         // Remove all old resolutions.
-        for (int child = 0; child < resolutionScrollRect.content.childCount; child = 0)
+        for (int child = 0; child < resolutionScrollRect.content.childCount; child++)
         {
             resolutionScrollRect.content.GetChild(child).gameObject.SetActive(false);
-            Destroy(resolutionScrollRect.content.GetChild(child));
+            Destroy(resolutionScrollRect.content.GetChild(child).gameObject);
         }
 
         resolutionScrollRect.Initialize(options);
-
-
     }
 
     private void SetDropdownValue(int value)
@@ -222,6 +222,11 @@ public class SettingsMenu : MonoBehaviour
         Screen.fullScreen = wantFullscreen;
         resolutionDropdown.interactable = !wantFullscreen;
         SetDropdownValue(currentResolutionIndex);
+
+        leftArrow.GetComponent<Button>().interactable = !wantFullscreen;
+        rightArrow.GetComponent<Button>().interactable = !wantFullscreen;
+
+        fullscreenToggle.isOn = wantFullscreen;
     }
 
     public void SetWindowResolution(int wantedResolutionIndex)
@@ -231,6 +236,15 @@ public class SettingsMenu : MonoBehaviour
             currentResolutionIndex = wantedResolutionIndex;
             Screen.SetResolution(Mathf.RoundToInt(allowedResolutions[currentResolutionIndex].x), Mathf.RoundToInt(allowedResolutions[currentResolutionIndex].y), Screen.fullScreen);
             SetDropdownValue(currentResolutionIndex);
+        }
+    }
+
+    public void SetWindowResolution()
+    {
+        if (startUpDone && !isUpdatingDropdownValue)
+        {
+            currentResolutionIndex = resolutionScrollRect.currentDisplayedResolution - 1;
+            Screen.SetResolution(Mathf.RoundToInt(allowedResolutions[currentResolutionIndex].x), Mathf.RoundToInt(allowedResolutions[currentResolutionIndex].y), Screen.fullScreen);
         }
     }
 
