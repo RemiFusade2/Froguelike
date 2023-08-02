@@ -391,7 +391,7 @@ public class ChapterManager : MonoBehaviour
         {
             chapterButton.gameObject.SetActive(false);
             Navigation chapterButtonNav = chapterButton.GetComponent<Button>().navigation;
-            chapterButtonNav.mode = Navigation.Mode.None;
+            chapterButtonNav.mode = Navigation.Mode.Automatic;
             chapterButton.GetComponent<Button>().navigation = chapterButtonNav;
         }
 
@@ -403,7 +403,9 @@ public class ChapterManager : MonoBehaviour
             Chapter chapter = selectionOfNextChaptersList[i];
             ChapterButtonBehaviour chapterButton = chapterButtonsList[chapterButtonIndex];
 
-            #region Chapter button navigation
+            #region Chapter button navigation (not used, uses automatic navigation instead)
+
+            /*
             // Rubber Frog approved code below!
 
             // Set button navigation.
@@ -612,6 +614,7 @@ public class ChapterManager : MonoBehaviour
                     rerollButton.navigation = rerollButtonNav;
                 }
             }
+            */
 
             #endregion Chapter button navigation
 

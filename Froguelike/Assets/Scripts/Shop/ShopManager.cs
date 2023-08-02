@@ -307,7 +307,7 @@ public class ShopManager : MonoBehaviour
         while (shopPanel.childCount > 0)
         {
             Destroy(shopPanel.GetChild(0).gameObject);
-            shopPanel.GetChild(0).parent = trash;
+            shopPanel.GetChild(0).SetParent(trash);
         }
 
         // Create new buttons

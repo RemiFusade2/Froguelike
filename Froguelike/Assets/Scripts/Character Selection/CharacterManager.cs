@@ -171,6 +171,7 @@ public class CharacterManager : MonoBehaviour
             {
                 GameObject newCharacterPanel = Instantiate(characterPanelPrefab, characterListGridLayoutGroup);
                 newCharacterPanel.GetComponent<CharacterSelectionButton>().Initialize(characterInfo);
+                newCharacterPanel.name = characterInfo.characterData.characterName;
                 characterPanels.Add(newCharacterPanel.GetComponent<CharacterSelectionButton>().characterButton);
 
                 if (buttonCount == 0)
@@ -183,6 +184,8 @@ public class CharacterManager : MonoBehaviour
             }
         }
 
+        #region Button navigation, might not need, might use automatic instead
+        /*
         // Set button navigations.
         for (int characterPanel = 0; characterPanel < characterPanels.Count; characterPanel++)
         {
@@ -249,7 +252,8 @@ public class CharacterManager : MonoBehaviour
 
             thisCharacterPanel.navigation = thisCharacterButtonNav;
         }
-
+        */ //TODO ^
+        #endregion Button navigation
 
         characterLog = "Display " + buttonCount + " buttons\n" + characterLog;
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)

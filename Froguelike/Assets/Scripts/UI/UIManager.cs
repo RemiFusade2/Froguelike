@@ -115,11 +115,6 @@ public class UIManager : MonoBehaviour
         UpdateDemoPanels();
     }
 
-    private void Update()
-    {
-        // Debug.Log("Selected button: " + EventSystem.current);
-    }
-
     public void UpdateDemoPanels()
     {
         foreach (GameObject demoPanel in demoPanelsList)
@@ -257,7 +252,6 @@ public class UIManager : MonoBehaviour
         SetScreenInteractability(levelUpPanel, false);
 
         // Display score screen
-        SetScreenInteractability(scoreScreen, true);
         inGameUIPanel.SetActive(true);
         scoreScreen.SetActive(true);
         SoundManager.instance.PlayLongPageSound();
@@ -351,10 +345,11 @@ public class UIManager : MonoBehaviour
 
     public void ShowShop()
     {
+        SavePreviousSelectedButton();
         HideAllScreens();
-        SetScreenInteractability(menuButtonsGroup, false);
         ShopManager.instance.DisplayShop(true);
         titleScreen.SetActive(true);
+        SetScreenInteractability(menuButtonsGroup, false);
         shopScreen.SetActive(true);
         selectedButtonShopScreen = ShopManager.instance.shopPanel.GetComponentInChildren<Button>().gameObject;
         SetSelectedButton(selectedButtonShopScreen);
@@ -365,17 +360,34 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void HideShop()
+    {
+        shopScreen.SetActive(false);
+        SetScreenInteractability(menuButtonsGroup, true);
+        SetPreviousSelectedButton();
+    }
+
     public void ShowAchievements()
     {
+        SavePreviousSelectedButton();
         HideAllScreens();
         AchievementManager.instance.DisplayAchievementsScreen();
         titleScreen.SetActive(true);
+        SetScreenInteractability(menuButtonsGroup, false);
         achievementsScreen.SetActive(true);
+        SetSelectedButton(selectedButtonAchievementsScreen);
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
             Debug.Log("UI - Display Achievements screen");
         }
+    }
+
+    public void HideAchievements()
+    {
+        achievementsScreen.SetActive(false);
+        SetScreenInteractability(menuButtonsGroup, true);
+        SetPreviousSelectedButton();
     }
 
     #region Confirmation Panels
@@ -450,14 +462,8 @@ public class UIManager : MonoBehaviour
     {
         if (buttonGO != null) ClearSelectedButton();
 
-        string text = "Previous button " + EventSystem.current.currentSelectedGameObject?.name;
         // Set selected button.
         EventSystem.current.SetSelectedGameObject(buttonGO);
-
-        string text2 = " current button " + EventSystem.current.currentSelectedGameObject?.name;
-
-        Debug.Log(text + text2);
-
     }
 
     private void SavePreviousSelectedButton()

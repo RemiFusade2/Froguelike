@@ -17,12 +17,13 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler
     public Button buyButton;
     public TextMeshProUGUI priceText;
 
+    [Header("Scrollview")]
     public ScrollRect scrollView;
     public RectTransform viewportRT;
     public RectTransform thisRT;
     public Transform itemPanelTransform;
 
-    private const float gap = 22;
+    private const float gap = 10;
 
     public void Initialize(ShopItem item, bool availableButCantBuy)
     {
