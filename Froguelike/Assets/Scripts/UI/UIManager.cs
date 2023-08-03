@@ -42,6 +42,14 @@ public class UIManager : MonoBehaviour
     public GameObject characterSelectionScreen;
     public GameObject characterSelectionGridLayoutGroup;
 
+    [Header("Settings Screen")]
+    public GameObject settingsScreen;
+    public GameObject selectedButtonSettingsScreen;
+
+    [Header("Credits")]
+    public GameObject creditsScreen;
+    public GameObject selectedButtonCreditsScreen;
+
     #endregion
 
     #region In Game
@@ -87,10 +95,6 @@ public class UIManager : MonoBehaviour
     public GameObject selectedButtonBackToTitleScreenConfirmationPanel;
     public GameObject clearSaveFileConfirmationPanel;
     public GameObject selectedButtonClearSaveFileConfirmationPanel;
-
-    [Header("Settings Screen")]
-    public GameObject settingsScreen;
-    public GameObject selectedButtonSettingsScreen;
 
     [Header("Demo panels")]
     public List<GameObject> demoPanelsList;
@@ -139,6 +143,7 @@ public class UIManager : MonoBehaviour
         shopScreen.SetActive(false);
         achievementsScreen.SetActive(false);
         settingsScreen.SetActive(false);
+        creditsScreen.SetActive(false);
     }
 
     public void ShowTitleScreen()
@@ -389,6 +394,22 @@ public class UIManager : MonoBehaviour
         SetScreenInteractability(menuButtonsGroup, true);
         SetPreviousSelectedButton();
     }
+
+    public void ShowCreditsScreen()
+    {
+        SavePreviousSelectedButton();
+        SetScreenInteractability(menuButtonsGroup, false);
+        creditsScreen.SetActive(true);
+        SetSelectedButton(selectedButtonCreditsScreen);
+    }
+
+    public void HideCreditsScreen()
+    {
+        creditsScreen.SetActive(false);
+        SetScreenInteractability(menuButtonsGroup, true);
+        SetPreviousSelectedButton();
+    }
+
 
     #region Confirmation Panels
 
