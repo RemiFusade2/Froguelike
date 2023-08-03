@@ -32,7 +32,7 @@ public class UIManager : MonoBehaviour
 
     [Header("Shop")]
     public GameObject shopScreen;
-    public GameObject selectedButtonShopScreen;
+    private GameObject selectedButtonShopScreen;
 
     [Header("Achievements")]
     public GameObject achievementsScreen;
@@ -117,6 +117,7 @@ public class UIManager : MonoBehaviour
     private void Start()
     {
         UpdateDemoPanels();
+        SetScreenInteractability(pausePanel, false);
     }
 
     public void UpdateDemoPanels()
@@ -327,7 +328,7 @@ public class UIManager : MonoBehaviour
     public void HidePauseScreen()
     {
         // MusicManager.instance.UnpauseMusic();
-        if (pausePanel.activeInHierarchy)
+        if (pausePanel.activeInHierarchy && pausePanelAnimator.GetBool("Visible"))
         {
             pausePanelAnimator.SetBool("Visible", false);
 
