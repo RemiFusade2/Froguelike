@@ -66,25 +66,26 @@ public class ResolutionsScrollRect : ScrollRect
         }
     }
 
-    public void Initialize(List<string> resolutions)
+    public void Initialize(List<string> resolutions, int currentResolutionIndex)
     {
         ClearScrollView();
         numberOfResolutions = 0;
-        currentDisplayedResolution = 1;
+        currentDisplayedResolution = currentResolutionIndex + 1; // TODO change this to use the current resolution from settingsmenu script
         foreach (string resolution in resolutions)
         {
             GameObject newResolutionPanel = Instantiate(resolutionOptionPrefab, this.content);
             newResolutionPanel.GetComponent<ResolutionPanelBehaviour>().Initialize(resolution);
             numberOfResolutions++;
         }
-        currentDisplayedResolution = 1;
+        // currentDisplayedResolution = 1;
 
         this.content.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, numberOfResolutions * resolutionsScrollViewContentGridLayoutGroup.cellSize.x);
-        UpdateScroll(false);
+        UpdateScroll(false, currentDisplayedResolution);
     }
 
-    private void UpdateScroll(bool lerp)
+    public void UpdateScroll(bool lerp, int currentResolutionIndex)
     {
+        currentDisplayedResolution = currentResolutionIndex;
         resolutionsCountTextMesh.text = $"{currentDisplayedResolution}/{numberOfResolutions}";
         float horizontalScroll = numberOfResolutions > 1 ? (currentDisplayedResolution - 1) / (1.0f * numberOfResolutions - 1) : 0;
         lerpTarget = -Vector2.right * horizontalScroll * this.content.sizeDelta.x;
@@ -112,13 +113,13 @@ public class ResolutionsScrollRect : ScrollRect
     {
         currentDisplayedResolution = (currentDisplayedResolution - 1);
         ClampCurrentDisplayedResolution();
-        UpdateScroll(true);
+        UpdateScroll(true, currentDisplayedResolution);
     }
 
     public void MoveToNextResolution()
     {
         currentDisplayedResolution = (currentDisplayedResolution + 1);
         ClampCurrentDisplayedResolution();
-        UpdateScroll(true);
+        UpdateScroll(true, currentDisplayedResolution);
     }
 }
