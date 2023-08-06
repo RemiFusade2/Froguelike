@@ -220,6 +220,8 @@ public class EnemiesManager : MonoBehaviour
 
     public Vector3 farAwayPosition;
 
+    public const string pooledEnemyNameStr = "Pooled";
+
 
     #region Unity Callback Methods
 
@@ -934,7 +936,7 @@ public class EnemiesManager : MonoBehaviour
     private void PutEnemyInThePool(EnemyInstance enemy)
     {
         inactiveEnemiesPool.Enqueue(enemy);
-        enemy.enemyTransform.name = "Pooled";
+        enemy.enemyTransform.name = pooledEnemyNameStr;
         enemy.active = false;
         enemy.enemyTransform.position = farAwayPosition;
         enemy.enemyRenderer.enabled = false;

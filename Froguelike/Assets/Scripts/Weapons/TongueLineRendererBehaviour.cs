@@ -4,19 +4,37 @@ using UnityEngine;
 
 public class TongueLineRendererBehaviour : MonoBehaviour
 {
+    [Header("References")]
     public LineRenderer tongueLineRenderer;
     public LineRenderer tongueOutlineLineRenderer;
+    public TongueTipBehaviour tongueTip;
 
-    public float colliderRadius = 0.12f;
+    [Header("Settings")]
+    public float colliderRadius = 0.1f;
+
+    [Header("Runtime")]
+    public AnimationCurve frogMovementWeightOnTongue;
+    public AnimationCurve targetMovementWeightOnTongue;
 
     private List<Collider2D> tongueColliderComponentsList;
 
     private List<Vector2> tonguePositionsList;
     private List<WeaponEffect> tongueEffectsList;
 
-    private void Start()
+    private Vector3 originFrogWhenInitialized;
+
+    private bool followTarget;
+    private Vector3 originTargetWhenInitialized;
+    private GameObject targetGameObject;
+    private Vector2 lastTargetMoveVector;
+
+    private void Awake()
     {
         tongueColliderComponentsList = new List<Collider2D>();
+    }
+
+    private void Start()
+    {
         tongueColliderComponentsList.Add(this.GetComponent<CircleCollider2D>());
         (tongueColliderComponentsList[0] as CircleCollider2D).radius = colliderRadius;
         SetCollidersEnabled(false);
@@ -32,17 +50,72 @@ public class TongueLineRendererBehaviour : MonoBehaviour
             }
             col.enabled = enable;
         }
+        tongueTip.SetColliderEnabled(enable);
+    }
+
+    public void SetCurves(AnimationCurve frogWeightCurve, AnimationCurve targetWeightCurve)
+    {
+        frogMovementWeightOnTongue = frogWeightCurve;
+        targetMovementWeightOnTongue = targetWeightCurve;
+    }
+
+    public void ResetLine()
+    {
+        tonguePositionsList = new List<Vector2>();
+        tongueEffectsList = new List<WeaponEffect>();
+        followTarget = false;
+        targetGameObject = null;
+        originFrogWhenInitialized = Vector3.zero;
+        originTargetWhenInitialized = Vector3.zero;
+        DisableTongue();
+    }
+
+    public void SetLineRenderersWidth(float width, float outlineWeight, float length)
+    {
+        // TODO
+        // length == 0.5f -> tip = 0.5f
+        // length == 1 -> tip = 0.75f
+        // length == 10 -> tip = 0.95f (max)
+
+        // The tongue line renderer goes from 0.5 * width for its root and 1 * width for the tip
+        Keyframe[] tongueLineRendererWidthKeys = new Keyframe[3];
+        tongueLineRendererWidthKeys[0] = new Keyframe(0, 0.5f, 0, 0);
+        tongueLineRendererWidthKeys[1] = new Keyframe(0.75f, 0.5f, 0, 3);
+        tongueLineRendererWidthKeys[2] = new Keyframe(1, 1, 0, 0);
+        AnimationCurve tongueLineRendererWidthCurve = new AnimationCurve(tongueLineRendererWidthKeys);
+        tongueLineRenderer.widthCurve = tongueLineRendererWidthCurve;
+        tongueLineRenderer.widthMultiplier = width;
+
+        // The outline renderer does about the same thing, except the root width is (0.5 * width + outline * 2) and the tip width is (1 * width + outline * 2)
+        Keyframe[] outlineLineRendererWidthKeys = new Keyframe[3];
+        float outlineRootWidthRatio = (0.5f * width + outlineWeight * 2) / (width + outlineWeight * 2);
+        outlineLineRendererWidthKeys[0] = new Keyframe(0, outlineRootWidthRatio, 0, 0);
+        outlineLineRendererWidthKeys[1] = new Keyframe(0.75f, outlineRootWidthRatio, 0, 5);
+        outlineLineRendererWidthKeys[2] = new Keyframe(1, 1, 0, 0);
+        AnimationCurve outlineLineRendererWidthCurve = new AnimationCurve(outlineLineRendererWidthKeys);
+        tongueOutlineLineRenderer.widthCurve = outlineLineRendererWidthCurve;
+        tongueOutlineLineRenderer.widthMultiplier = width + outlineWeight * 2;
     }
 
     /// <summary>
-    /// Set the coordinates, width and colors of the tongue.
+    /// Set the coordinates and colors of the tongue. Prepare for following a target (optional)
     /// </summary>
     /// <param name="newPositions"></param>
-    /// <param name="width"></param>
-    public void InitializeTongue(List<Vector2> newPositions, List<WeaponEffect> newEffects, float width)
+    /// <param name="newEffects"></param>
+    /// <param name="targetedEnemy"></param>
+    public void InitializeTongue(List<Vector2> newPositions, List<WeaponEffect> newEffects, GameObject targetedEnemy = null)
     {
         tonguePositionsList = newPositions;
         tongueEffectsList = newEffects;
+        originFrogWhenInitialized = this.transform.position;
+
+        followTarget = (targetedEnemy != null);
+        if (followTarget)
+        {
+            originTargetWhenInitialized = targetedEnemy.transform.position;
+            targetGameObject = targetedEnemy;
+        }
+
         DisplayTongue(0);
     }
 
@@ -69,7 +142,21 @@ public class TongueLineRendererBehaviour : MonoBehaviour
         effectIndex = Mathf.Clamp(effectIndex, 0, tongueEffectsList.Count - 1);
         effect = tongueEffectsList[effectIndex];
 
+        //Debug.Log($"Got effect from collider. minDistance = {minDistance} ; minColT = {minColT} ; effectIndex = {effectIndex}");
+
         return effect;
+    }
+
+    public float GetTongueLength()
+    {
+        float length = 0;
+        Vector2 previousPos = Vector2.zero;
+        foreach (Vector2 pos in tonguePositionsList)
+        {
+            length += Vector2.Distance(pos, previousPos);
+            previousPos = pos;
+        }
+        return length;
     }
 
     /// <summary>
@@ -79,6 +166,28 @@ public class TongueLineRendererBehaviour : MonoBehaviour
     /// <param name="t"></param>
     public void DisplayTongue(float t = 0)
     {
+        Vector2 frogMovementVector = this.transform.position - originFrogWhenInitialized;
+        Vector2 targetMovementVector = Vector2.zero;
+        if (followTarget)
+        {
+            // Get enemy info
+            EnemyInstance enemyInfo = null;
+            if (!targetGameObject.name.Equals(EnemiesManager.pooledEnemyNameStr))
+            {
+                enemyInfo = EnemiesManager.instance.GetEnemyInstanceFromGameObjectName(targetGameObject.name);
+            }
+
+            if (enemyInfo == null || !enemyInfo.active || !enemyInfo.alive)
+            {
+                targetMovementVector = lastTargetMoveVector;
+            }
+            else
+            {
+                targetMovementVector = targetGameObject.transform.position - originTargetWhenInitialized;
+                lastTargetMoveVector = targetMovementVector;
+            }
+        }
+
         tongueLineRenderer.positionCount = Mathf.RoundToInt(tonguePositionsList.Count * t);
         tongueOutlineLineRenderer.positionCount = Mathf.RoundToInt(tonguePositionsList.Count * t);
 
@@ -104,12 +213,24 @@ public class TongueLineRendererBehaviour : MonoBehaviour
         {
             if (index < tongueLineRenderer.positionCount)
             {
+                float currentT = (index * 1.0f / tonguePositionsList.Count);
+                currentT = Mathf.Clamp(currentT, 0, 1);
+
+                float frogMovementWeight = frogMovementWeightOnTongue.Evaluate(currentT);
+                Vector2 actualPos = pos - frogMovementVector * (1-frogMovementWeight);
+
+                if (followTarget)
+                {
+                    float targetMovementWeight = targetMovementWeightOnTongue.Evaluate(currentT);
+                    actualPos = actualPos + targetMovementVector * targetMovementWeight;
+                }
+
                 // Set position on the line renderers
-                tongueLineRenderer.SetPosition(index, new Vector3(pos.x, pos.y, 0));
-                tongueOutlineLineRenderer.SetPosition(index, new Vector3(pos.x, pos.y, 0));
+                Vector3 linePointPosition = new Vector3(actualPos.x, actualPos.y, 0);
+                tongueLineRenderer.SetPosition(index, linePointPosition);
+                tongueOutlineLineRenderer.SetPosition(index, linePointPosition);
 
                 // Set gradient on the tongue line renderer
-                float currentT = (index * 1.0f / tonguePositionsList.Count);
                 int newEffectIndex = Mathf.FloorToInt(currentT * tongueEffectsList.Count);
                 if (newEffectIndex > effectIndex && t > 0)
                 {
@@ -120,10 +241,11 @@ public class TongueLineRendererBehaviour : MonoBehaviour
                     colorKeys.Add(new GradientColorKey(DataManager.instance.GetColorForWeaponEffect(previousEffect), currentT/t));
                     alphaKeys.Add(new GradientAlphaKey(1, currentT/t));
                 }
-
+                
                 // Eventually add a collider (trigger) on the way
-                float distanceToPreviousCollider = Vector2.Distance(previousCollider.offset, pos);
-                if ((distanceToPreviousCollider > (actualColliderRadius * 2)) || (t >= 1 && index == tonguePositionsList.Count - 1))
+                /*
+                float distanceToPreviousCollider = Vector2.Distance(previousCollider.offset, actualPos);
+                if (distanceToPreviousCollider > (actualColliderRadius * 2))
                 {
                     colliderIndex++;
                     if (colliderIndex < tongueColliderComponentsList.Count)
@@ -138,15 +260,16 @@ public class TongueLineRendererBehaviour : MonoBehaviour
                         tongueColliderComponentsList.Add(previousCollider);
                     }
                     (previousCollider as CircleCollider2D).radius = actualColliderRadius;
-                    previousCollider.offset = pos;
-                }
-                lastPos = pos;
+                    previousCollider.offset = actualPos;
+                }*/
+                lastPos = actualPos;
             }
             index++;
         }
 
         // Add last collider (tip of tongue)
-        colliderIndex++;
+        tongueTip.SetTipPositionAndRadius(lastPos, actualColliderRadius + 0.1f);
+        /*
         if (colliderIndex < tongueColliderComponentsList.Count)
         {
             previousCollider = tongueColliderComponentsList[colliderIndex];
@@ -159,9 +282,11 @@ public class TongueLineRendererBehaviour : MonoBehaviour
             tongueColliderComponentsList.Add(previousCollider);
         }
         (previousCollider as CircleCollider2D).radius = actualColliderRadius * 2;
-        previousCollider.offset = lastPos;
+        previousCollider.offset = lastPos;*/
 
         // All remaining colliders are set to zero (unused)
+        (previousCollider as CircleCollider2D).radius = 0;
+        previousCollider.offset = Vector2.zero;
         for (int i = colliderIndex+1; i < tongueColliderComponentsList.Count; i++)
         {
             (tongueColliderComponentsList[i] as CircleCollider2D).radius = 0;

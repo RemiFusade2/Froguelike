@@ -581,7 +581,7 @@ public class RunManager : MonoBehaviour
         {
             foreach (GameObject activeWeapon in weaponInfo.activeWeaponsList)
             {
-                activeWeapon.GetComponent<WeaponBehaviour>().ResetWeapon();
+                activeWeapon.GetComponent<WeaponBehaviour>().ResetTongue();
             }
         }
 
@@ -639,7 +639,7 @@ public class RunManager : MonoBehaviour
         {
             if (tongue.GetComponent<WeaponBehaviour>() != null)
             {
-                tongue.GetComponent<WeaponBehaviour>().ResetWeapon();
+                tongue.GetComponent<WeaponBehaviour>().ResetTongue();
             }
         }
 

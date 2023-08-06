@@ -18,7 +18,55 @@ MonoBehaviour:
   weaponData:
     weaponName: Cat Tongue
     description: Way shorter and deadlier than a frog tongue
-    weaponPrefab: {fileID: 3990334965163639182, guid: 4a710caa256322a4aa6bfb19109e4559, type: 3}
+    weaponPrefab: {fileID: 3990334965163639182, guid: bbfd4fafa59242249bbdf593af43ebbb, type: 3}
+    frogMovementWeightOnTongue:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    targetMovementWeightOnTongue:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
     weaponType: 9
     weaponBaseStats:
       statsList:
@@ -29,7 +77,7 @@ MonoBehaviour:
       - stat: 11
         value: 1
       - stat: 1
-        value: 1
+        value: 2
       - stat: 3
         value: 0.5
       - stat: 4

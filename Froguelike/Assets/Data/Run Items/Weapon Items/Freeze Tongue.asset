@@ -18,7 +18,73 @@ MonoBehaviour:
   weaponData:
     weaponName: Freeze Tongue
     description: Slows down any food that it doesn't eat
-    weaponPrefab: {fileID: 3990334965163639182, guid: 4a710caa256322a4aa6bfb19109e4559, type: 3}
+    weaponPrefab: {fileID: 3990334965163639182, guid: bbfd4fafa59242249bbdf593af43ebbb, type: 3}
+    frogMovementWeightOnTongue:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: -1.6273587
+        outSlope: -1.6273587
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.041666668
+      - serializedVersion: 3
+        time: 0.8
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    targetMovementWeightOnTongue:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.65
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 3.6792421
+        outSlope: 3.6792421
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.05494509
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
     weaponType: 6
     weaponBaseStats:
       statsList:
@@ -29,7 +95,7 @@ MonoBehaviour:
       - stat: 11
         value: 1
       - stat: 1
-        value: 2.5
+        value: 8
       - stat: 3
         value: 3
       - stat: 4
