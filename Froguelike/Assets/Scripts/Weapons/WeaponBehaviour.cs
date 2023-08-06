@@ -98,22 +98,14 @@ public class WeaponBehaviour : MonoBehaviour
     public void SetTongueWidth(float width)
     {
         tongueWidth = width;
-        float actualWidth = tongueWidth * (1 + GameManager.instance.player.attackSizeBoost);
-        
+        float actualWidth = tongueWidth * (1 + GameManager.instance.player.attackSizeBoost);        
         actualWidth *= 2;
 
         TongueLineRendererBehaviour tongueLineScript = this.GetComponent<TongueLineRendererBehaviour>();
         if (tongueLineScript != null)
         {
-            tongueLineScript.SetLineRenderersWidth(actualWidth, outlineWeight, 1); // TODO
+            tongueLineScript.SetLineRenderersWidth(actualWidth, outlineWeight, 1, weaponType != WeaponType.CAT);
         }
-
-        /*
-        if (tongueLineRenderer != null && outlineLineRenderer != null)
-        {
-            tongueLineRenderer.widthMultiplier = actualWidth;
-            outlineLineRenderer.widthMultiplier = actualWidth + outlineWeight * 2;
-        }*/
     }
 
     private void SetTongueScale(float scale)
@@ -816,6 +808,16 @@ public class WeaponBehaviour : MonoBehaviour
         
         while (isTongueGoingOut)
         {
+            // Set width
+            float actualWidth = tongueWidth * (1 + GameManager.instance.player.attackSizeBoost);
+            actualWidth *= 2;
+
+            TongueLineRendererBehaviour tongueLineScript = this.GetComponent<TongueLineRendererBehaviour>();
+            if (tongueLineScript != null)
+            {
+                tongueLineScript.SetLineRenderersWidth(actualWidth, outlineWeight, tongueLength * t, weaponType != WeaponType.CAT);
+            }
+
             if (t <= 1)
             {
                 tongueScript.DisplayTongue(t);
@@ -831,6 +833,7 @@ public class WeaponBehaviour : MonoBehaviour
                 }
             }
 
+
             actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
             angle += actualAttackSpeed * Time.fixedDeltaTime;
 
@@ -841,6 +844,16 @@ public class WeaponBehaviour : MonoBehaviour
         t = 1;
         while (t > 0)
         {
+            // Set width
+            float actualWidth = tongueWidth * (1 + GameManager.instance.player.attackSizeBoost);
+            actualWidth *= 2;
+
+            TongueLineRendererBehaviour tongueLineScript = this.GetComponent<TongueLineRendererBehaviour>();
+            if (tongueLineScript != null)
+            {
+                tongueLineScript.SetLineRenderersWidth(actualWidth, outlineWeight, tongueLength * t, weaponType != WeaponType.CAT);
+            }
+
             tongueScript.DisplayTongue(t);
             t -= (Time.fixedDeltaTime * (actualAttackSpeed / tongueLength));
 
@@ -938,8 +951,26 @@ public class WeaponBehaviour : MonoBehaviour
 
         while (isTongueGoingOut)
         {
+            // Set width
+            float actualWidth = tongueWidth * (1 + GameManager.instance.player.attackSizeBoost);
+            actualWidth *= 2;
+
+            TongueLineRendererBehaviour tongueLineScript = this.GetComponent<TongueLineRendererBehaviour>();
+            if (tongueLineScript != null)
+            {
+                tongueLineScript.SetLineRenderersWidth(actualWidth, outlineWeight, actualRange * t, weaponType != WeaponType.CAT);
+            }
+
+            // Display tongue
             tongueScript.DisplayTongue(t);
             t += (Time.fixedDeltaTime * (actualAttackSpeed / tongueLength));
+
+            // Rotate tongue only if it's cat tongue (it follows character orientation)
+            if (weaponType == WeaponType.CAT)
+            {
+                this.transform.localRotation = RunManager.instance.player.transform.localRotation;
+            }
+
             yield return new WaitForFixedUpdate();
             if (t >= 1)
             {
@@ -949,8 +980,26 @@ public class WeaponBehaviour : MonoBehaviour
         }
         while (t > 0)
         {
+            // Set width
+            float actualWidth = tongueWidth * (1 + GameManager.instance.player.attackSizeBoost);
+            actualWidth *= 2;
+
+            TongueLineRendererBehaviour tongueLineScript = this.GetComponent<TongueLineRendererBehaviour>();
+            if (tongueLineScript != null)
+            {
+                tongueLineScript.SetLineRenderersWidth(actualWidth, outlineWeight, actualRange * t, weaponType != WeaponType.CAT);
+            }
+
+            // Display tongue
             tongueScript.DisplayTongue(t);
             t -= (Time.fixedDeltaTime * (actualAttackSpeed / tongueLength));
+
+            // Rotate tongue only if it's cat tongue (it follows character orientation)
+            if (weaponType == WeaponType.CAT)
+            {
+                this.transform.localRotation = RunManager.instance.player.transform.localRotation;
+            }
+
             yield return new WaitForFixedUpdate();
         }
 

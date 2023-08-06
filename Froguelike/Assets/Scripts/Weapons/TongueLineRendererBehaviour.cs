@@ -70,18 +70,25 @@ public class TongueLineRendererBehaviour : MonoBehaviour
         DisableTongue();
     }
 
-    public void SetLineRenderersWidth(float width, float outlineWeight, float length)
+    public void SetLineRenderersWidth(float width, float outlineWeight, float length, bool withFrogTongueTip)
     {
-        // TODO
-        // length == 0.5f -> tip = 0.5f
-        // length == 1 -> tip = 0.75f
-        // length == 10 -> tip = 0.95f (max)
+        float tipRatio = (length - 0.5f) / (length+0.01f);
+        tipRatio = Mathf.Clamp(tipRatio, 0, 1);
 
         // The tongue line renderer goes from 0.5 * width for its root and 1 * width for the tip
         Keyframe[] tongueLineRendererWidthKeys = new Keyframe[3];
-        tongueLineRendererWidthKeys[0] = new Keyframe(0, 0.5f, 0, 0);
-        tongueLineRendererWidthKeys[1] = new Keyframe(0.75f, 0.5f, 0, 3);
-        tongueLineRendererWidthKeys[2] = new Keyframe(1, 1, 0, 0);
+        if (withFrogTongueTip)
+        {
+            tongueLineRendererWidthKeys[0] = new Keyframe(0, 0.5f, 0, 0);
+            tongueLineRendererWidthKeys[1] = new Keyframe(tipRatio, 0.5f, 0, 3);
+            tongueLineRendererWidthKeys[2] = new Keyframe(1, 1, 0, 0);
+        }
+        else
+        {
+            tongueLineRendererWidthKeys[0] = new Keyframe(0, 1, 0, 0);
+            tongueLineRendererWidthKeys[1] = new Keyframe(0.5f, 1, 0, 0);
+            tongueLineRendererWidthKeys[2] = new Keyframe(1, 1, 0, 0);
+        }
         AnimationCurve tongueLineRendererWidthCurve = new AnimationCurve(tongueLineRendererWidthKeys);
         tongueLineRenderer.widthCurve = tongueLineRendererWidthCurve;
         tongueLineRenderer.widthMultiplier = width;
@@ -89,9 +96,18 @@ public class TongueLineRendererBehaviour : MonoBehaviour
         // The outline renderer does about the same thing, except the root width is (0.5 * width + outline * 2) and the tip width is (1 * width + outline * 2)
         Keyframe[] outlineLineRendererWidthKeys = new Keyframe[3];
         float outlineRootWidthRatio = (0.5f * width + outlineWeight * 2) / (width + outlineWeight * 2);
-        outlineLineRendererWidthKeys[0] = new Keyframe(0, outlineRootWidthRatio, 0, 0);
-        outlineLineRendererWidthKeys[1] = new Keyframe(0.75f, outlineRootWidthRatio, 0, 5);
-        outlineLineRendererWidthKeys[2] = new Keyframe(1, 1, 0, 0);
+        if (withFrogTongueTip)
+        {
+            outlineLineRendererWidthKeys[0] = new Keyframe(0, outlineRootWidthRatio, 0, 0);
+            outlineLineRendererWidthKeys[1] = new Keyframe(tipRatio, outlineRootWidthRatio, 0, 5);
+            outlineLineRendererWidthKeys[2] = new Keyframe(1, 1, 0, 0);
+        }
+        else
+        {
+            outlineLineRendererWidthKeys[0] = new Keyframe(0, 1, 0, 0);
+            outlineLineRendererWidthKeys[1] = new Keyframe(0.5f, 1, 0, 0);
+            outlineLineRendererWidthKeys[2] = new Keyframe(1, 1, 0, 0);
+        }
         AnimationCurve outlineLineRendererWidthCurve = new AnimationCurve(outlineLineRendererWidthKeys);
         tongueOutlineLineRenderer.widthCurve = outlineLineRendererWidthCurve;
         tongueOutlineLineRenderer.widthMultiplier = width + outlineWeight * 2;
