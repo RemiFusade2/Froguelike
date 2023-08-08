@@ -62,6 +62,9 @@ public class GameManager : MonoBehaviour
 
     [Header("Settings - Demo")]
     public bool demoBuild = false;
+    [Space]
+    public bool cheatsAreEnabled = false;
+    public bool everythingIsUnlocked = false;
 
     [Header("References")]
     public FrogCharacterController player;

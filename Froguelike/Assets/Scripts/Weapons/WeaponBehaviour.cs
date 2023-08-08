@@ -311,9 +311,9 @@ public class WeaponBehaviour : MonoBehaviour
     private GameObject GetNearestEnemy(int nearestRank = 1)
     {
         GameObject enemy = null;
-        Vector2 playerPosition = GameManager.instance.player.transform.position;
+        Vector2 weaponOriginPosition = this.transform.position; 
         float actualRange = range * (1 + GameManager.instance.player.attackRangeBoost);
-        Collider2D[] allColliders = Physics2D.OverlapCircleAll(playerPosition, actualRange, foodLayer);
+        Collider2D[] allColliders = Physics2D.OverlapCircleAll(weaponOriginPosition, actualRange, foodLayer);
         if (allColliders.Length > 0)
         {
             List<float> shortestDistancesList = new List<float>();
@@ -321,7 +321,7 @@ public class WeaponBehaviour : MonoBehaviour
             foreach (Collider2D col in allColliders)
             {
                 EnemyInstance enemyInfo = EnemiesManager.instance.GetEnemyInstanceFromGameObjectName(col.gameObject.name);
-                float distanceWithPlayer = Vector2.Distance(col.transform.position, playerPosition);
+                float distanceWithPlayer = Vector2.Distance(col.transform.position, weaponOriginPosition);
 
                 if (enemyInfo != null && enemyInfo.active)
                 {

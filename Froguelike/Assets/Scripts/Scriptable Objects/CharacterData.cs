@@ -21,6 +21,9 @@ public class CharacterData : ScriptableObject
     [Tooltip("The unique identifier of this character")]
     public string characterID = "[UNIQUE IDENTIFIER]";
 
+    [Header("Chapter settings - Demo")]
+    public bool partOfDemo = false;
+
     [Header("Lore Info")]
     [Tooltip("The name of this character")]
     public string characterName;
