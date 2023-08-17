@@ -29,7 +29,7 @@ public class FriendBehaviour : MonoBehaviour
         springJoint.dampingRatio = Random.Range(info.springDampingMinMax.x, info.springDampingMinMax.y);
 
         weapon.gameObject.SetActive(true);
-        weapon.ResetWeapon();
+        weapon.ResetTongue();
         friendAnimator.SetInteger("Style", _friendInfo.style);
     }
 

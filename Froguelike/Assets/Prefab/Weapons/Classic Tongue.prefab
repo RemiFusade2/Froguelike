@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3990334963750023930}
   - component: {fileID: 3990334963750023931}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Outline
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -153,7 +153,7 @@ GameObject:
   - component: {fileID: 3990334965163639178}
   - component: {fileID: 3990334965163639179}
   - component: {fileID: 7162822689763656702}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Classic Tongue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -297,6 +297,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   outlineTransform: {fileID: 3990334963750023930}
+  forceTargetClosestEnemy: 1
   tongueWidth: 0.1
   outlineColor: {r: 0, g: 0, b: 0, a: 1}
   outlineWeight: 0.06
@@ -309,11 +310,8 @@ MonoBehaviour:
   knockbackForce: 0
   healthAbsorbRatio: 0
   poisonDamage: 0
-  poisonDuration: 0
-  freezeFactor: 0
-  freezeDuration: 0
-  curseFactor: 0
-  curseDuration: 0
+  freezeEffect: 0
+  curseChance: 0
   foodLayer:
     serializedVersion: 2
     m_Bits: 1792

@@ -167,7 +167,7 @@ public class CharacterManager : MonoBehaviour
         for (int i = 0; i < charactersData.charactersList.Count; i++)
         {
             PlayableCharacter characterInfo = charactersData.charactersList[i];
-            if (characterInfo.unlocked)
+            if (IsCharacterUnlocked(characterInfo.characterID))
             {
                 GameObject newCharacterPanel = Instantiate(characterPanelPrefab, characterListGridLayoutGroup);
                 newCharacterPanel.GetComponent<CharacterSelectionButton>().Initialize(characterInfo);
@@ -634,7 +634,7 @@ public class CharacterManager : MonoBehaviour
     {
         bool result = false;
         PlayableCharacter unlockedCharacter = charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals(characterID));
-        if (unlockedCharacter != null && unlockedCharacter.unlocked)
+        if (unlockedCharacter != null && unlockedCharacter.unlocked && (!GameManager.instance.demoBuild || unlockedCharacter.characterData.partOfDemo))
         {
             result = true;
         }

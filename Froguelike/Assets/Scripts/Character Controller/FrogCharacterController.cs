@@ -92,7 +92,7 @@ public class FrogCharacterController : MonoBehaviour
     private float timeSinceLastHPRecovery;
 
     #region Unity Callback Methods
-    
+
     // Start is called before the first frame update
     void Start()
     {
@@ -101,31 +101,37 @@ public class FrogCharacterController : MonoBehaviour
         rewiredPlayer = ReInput.players.GetPlayer(playerID);
         playerRigidbody = GetComponent<Rigidbody2D>();
         ClearFriends();
+
+        if (GameManager.instance.everythingIsUnlocked)
+        {
+            AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true);
+            UIManager.instance.ShowTitleScreen();
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (GetFroinsCheatInput())
+        if (GameManager.instance.cheatsAreEnabled && GetFroinsCheatInput())
         {
             GameManager.instance.ChangeAvailableCurrency(10000);
             UIManager.instance.UpdateCurrencyDisplay();
         }
-        if (GetLevelUpCheatInput())
+        if (GameManager.instance.cheatsAreEnabled && GetLevelUpCheatInput())
         {
             if (GameManager.instance.isGameRunning)
             {
                 RunManager.instance.IncreaseXP(RunManager.instance.nextLevelXp);
             }
         }
-        if (GetSkipChapterCheatInput())
+        if (GameManager.instance.cheatsAreEnabled && GetSkipChapterCheatInput())
         {
             if (GameManager.instance.isGameRunning)
             {
                 RunManager.instance.chapterRemainingTime = 0.1f;
             }
         }
-        if (GetUnlockAllCheatInput())
+        if (GameManager.instance.cheatsAreEnabled && GetUnlockAllCheatInput())
         {
             AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true);
         }

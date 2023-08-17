@@ -19,6 +19,10 @@ public class RunWeaponData
     [Tooltip("The prefab that is spawn when a new instance of that weapon appears in game")]
     public GameObject weaponPrefab;
 
+    [Header("Line curves")]
+    public AnimationCurve frogMovementWeightOnTongue;
+    public AnimationCurve targetMovementWeightOnTongue;
+
     [Header("Base settings")]
     [Tooltip("The type of that weapon, is then used in the WeaponBehaviour script to choose that weapon specific behaviour")]
     public WeaponType weaponType;
