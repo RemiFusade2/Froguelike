@@ -11325,8 +11325,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8163245621343275615, guid: 2739f4850b1d3a148b0e31bfda809591, type: 3}
       propertyPath: logsVerboseLevel
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 8163245621343275615, guid: 2739f4850b1d3a148b0e31bfda809591, type: 3}
+      propertyPath: achievementsScrollbar
+      value: 
+      objectReference: {fileID: 2077246576}
     - target: {fileID: 8163245621343275615, guid: 2739f4850b1d3a148b0e31bfda809591, type: 3}
       propertyPath: achievementCountTextMesh
       value: 
@@ -13217,7 +13221,8 @@ MonoBehaviour:
   logsVerboseLevel: 0
   demoBuild: 0
   cheatsAreEnabled: 0
-  everythingIsUnlocked: 1
+  everythingIsUnlocked: 0
+  thingsWithMissingSpritesAreHidden: 0
   player: {fileID: 1127068952}
   destroyParticleEffectPrefab: {fileID: 5766076256110460918, guid: 867e943a86ac095478453c5eff1f065e, type: 3}
   destroyParticleEffectTimespan: 1
@@ -21564,6 +21569,10 @@ PrefabInstance:
       propertyPath: refundButton
       value: 
       objectReference: {fileID: 818835334}
+    - target: {fileID: 4919826508944035819, guid: abeb0f41db396bd45a4db2a535d395f8, type: 3}
+      propertyPath: shopScrollbar
+      value: 
+      objectReference: {fileID: 1595143876}
     - target: {fileID: 4919826508944035819, guid: abeb0f41db396bd45a4db2a535d395f8, type: 3}
       propertyPath: shopScrollRect
       value: 
@@ -31628,6 +31637,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6405690644331635213, guid: bbb97757cb446d64ba91a472ddb0b054, type: 3}
+      propertyPath: m_VerticalScrollbarVisibility
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6405690644366912504, guid: bbb97757cb446d64ba91a472ddb0b054, type: 3}
       propertyPath: m_AnchorMax.x
       value: 1
@@ -37496,6 +37509,17 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &1595143876 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 796421642, guid: dc1640719ca88da43a9cfcb7845f1f4c, type: 3}
+  m_PrefabInstance: {fileID: 818835333}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbbdb5d530ba23042b44e5f3ef4c41f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1595846626
 GameObject:
   m_ObjectHideFlags: 0
@@ -45477,6 +45501,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: aad2d0aa1ff6df946b28042949ace11c, type: 3}
+--- !u!114 &2077246576 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4719187994616945000, guid: bbb97757cb446d64ba91a472ddb0b054, type: 3}
+  m_PrefabInstance: {fileID: 1562078721}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbbdb5d530ba23042b44e5f3ef4c41f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2084589940
 GameObject:
   m_ObjectHideFlags: 0

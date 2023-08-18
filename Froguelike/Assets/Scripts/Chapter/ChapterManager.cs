@@ -274,9 +274,36 @@ public class ChapterManager : MonoBehaviour
                 }
             }
 
-            if (chapterConditionsAreMet && currentChapter.weight > 0 && (!GameManager.instance.demoBuild || currentChapter.chapterData.partOfDemo))
+            bool chapterCanBeAddedToTheDeck = chapterConditionsAreMet; // conditions are met
+            chapterCanBeAddedToTheDeck = chapterCanBeAddedToTheDeck && currentChapter.weight > 0; // weight is positive
+            chapterCanBeAddedToTheDeck = chapterCanBeAddedToTheDeck && (!GameManager.instance.demoBuild || currentChapter.chapterData.partOfDemo); // this chapter is part of the demo, or the current build is not the demo
+
+            if (chapterCanBeAddedToTheDeck && GameManager.instance.thingsWithMissingSpritesAreHidden)
             {
-                // We add the chapter to the deck if the conditions are met, if its weight is positive, and either if it's part of the demo or we're not playing the demo
+                // Final check if necessary: are there bugs in that chapter that have sprites?
+                // Because if not and if we're hiding these bugs, we can't play this chapter
+                bool allWavesHaveAtLeastOneVisibleEnemy = true;
+                foreach(Wave wave in currentChapter.chapterData.waves)
+                {
+                    bool currentWaveHasAtLeastOneVisibleEnemy = false;
+                    foreach (EnemySpawn enemySpawn in wave.enemies)
+                    {
+                        if (enemySpawn.enemyType == EnemyType.FLY || enemySpawn.enemyType == EnemyType.BUTTERFLY || enemySpawn.enemyType == EnemyType.PLANT)
+                        {
+                            currentWaveHasAtLeastOneVisibleEnemy = true;
+                            break;
+                        }
+                    }
+                    allWavesHaveAtLeastOneVisibleEnemy &= currentWaveHasAtLeastOneVisibleEnemy;
+                }
+                if (!allWavesHaveAtLeastOneVisibleEnemy)
+                {
+                    chapterCanBeAddedToTheDeck = false;
+                }
+            }
+
+            if (chapterCanBeAddedToTheDeck)
+            {
                 deckOfChapters.Add(currentChapter);
             }
         }

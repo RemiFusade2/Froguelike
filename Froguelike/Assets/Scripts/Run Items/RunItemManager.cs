@@ -107,6 +107,10 @@ public class RunItemManager : MonoBehaviour
             // Get the corresponding data
             RunItemData itemData = runItemDataDictionary[itemSaveInfo.itemName];
             bool unlocked = itemSaveInfo.unlocked;
+            if (GameManager.instance.thingsWithMissingSpritesAreHidden && itemData.icon == null)
+            {
+                unlocked = false;
+            }
 
             if (itemData is RunStatItemData)
             {

@@ -60,11 +60,12 @@ public class GameManager : MonoBehaviour
     [Header("Settings - Log")]
     public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
 
-    [Header("Settings - Demo")]
+    [Header("Settings - Build")]
     public bool demoBuild = false;
     [Space]
     public bool cheatsAreEnabled = false;
     public bool everythingIsUnlocked = false;
+    public bool thingsWithMissingSpritesAreHidden = false;
 
     [Header("References")]
     public FrogCharacterController player;

@@ -130,6 +130,7 @@ public class AchievementManager : MonoBehaviour
     public ScrollRect achievementsListScrollRect;
     public RectTransform achievementScrollContentPanel;
     public Transform achievementScrollEntriesParent;
+    public ScrollbarKeepCursorSizeBehaviour achievementsScrollbar;
     [Space]
     public GameObject achievementEntryPrefab;        
 
@@ -279,7 +280,8 @@ public class AchievementManager : MonoBehaviour
         foreach (Achievement achievement in achievementsData.achievementsList)
         {
             bool isDemoBuildAndAchievementIsNotPartOfDemo = IsAchievementLockedBehindDemo(achievement);
-            if (!achievement.unlocked && !isDemoBuildAndAchievementIsNotPartOfDemo)
+            bool achievementIsLockedBehindMissingIcon = IsAchievementLockedBehindMissingIcon(achievement);
+            if (!achievement.unlocked && !isDemoBuildAndAchievementIsNotPartOfDemo && !achievementIsLockedBehindMissingIcon)
             {
                 bool conditionsAreMet = true;
                 foreach (AchievementCondition condition in achievement.achievementData.conditionsList)
@@ -444,6 +446,11 @@ public class AchievementManager : MonoBehaviour
         return GameManager.instance.demoBuild && !achievement.achievementData.partOfDemo;
     }
 
+    private bool IsAchievementLockedBehindMissingIcon(Achievement achievement)
+    {
+        return GameManager.instance.thingsWithMissingSpritesAreHidden && (achievement.achievementData.achievementUnlockedIcon == null || achievement.achievementData.achievementLockedIcon == null);
+    }
+
     private bool IsAchievementAvailable(Achievement achievement)
     {
         bool conditionCanBeFulfilled = true;
@@ -474,8 +481,8 @@ public class AchievementManager : MonoBehaviour
     {
         List<Achievement> orderedAchievements = SortAchievementList(achievementsData.achievementsList);
 
-        int allAchievementsCount = orderedAchievements.Count(x => !IsAchievementLockedBehindDemo(x));
-        int allUnlockedAchievementsCount = orderedAchievements.Count(x => !IsAchievementLockedBehindDemo(x) && x.unlocked);
+        int allAchievementsCount = orderedAchievements.Count(x => !IsAchievementLockedBehindDemo(x) && !IsAchievementLockedBehindMissingIcon(x));
+        int allUnlockedAchievementsCount = orderedAchievements.Count(x => !IsAchievementLockedBehindDemo(x) && !IsAchievementLockedBehindMissingIcon(x) && x.unlocked);
 
         achievementCountTextMesh.text = $"{allUnlockedAchievementsCount}/{allAchievementsCount} achieved";
         
@@ -493,9 +500,10 @@ public class AchievementManager : MonoBehaviour
         foreach (Achievement achievement in orderedAchievements)
         {
             bool achievementIsLockedBehindDemo = IsAchievementLockedBehindDemo(achievement);
+            bool achievementIsLockedBehindMissingIcon = IsAchievementLockedBehindMissingIcon(achievement);
             bool achievementIsNotSetup = (achievement.achievementData.reward.rewardType == AchievementRewardType.RUN_ITEM && achievement.achievementData.reward.runItem == null)
                 || (achievement.achievementData.reward.rewardType == AchievementRewardType.SHOP_ITEM && achievement.achievementData.reward.shopItem == null);
-            if (!achievementIsNotSetup && !achievementIsLockedBehindDemo)
+            if (!achievementIsNotSetup && !achievementIsLockedBehindDemo && !achievementIsLockedBehindMissingIcon)
             {
                 GameObject achievementEntryGo = Instantiate(achievementEntryPrefab, achievementScrollEntriesParent);
                 AchievementEntryPanelBehaviour achievementEntryScript = achievementEntryGo.GetComponent<AchievementEntryPanelBehaviour>();
@@ -514,5 +522,8 @@ public class AchievementManager : MonoBehaviour
 
         // Set scroll view to top position
         achievementsListScrollRect.normalizedPosition = new Vector2(0, 1);
+
+        // Set scroll bar
+        achievementsScrollbar.SetCursorCentered(entryCount <= 11);
     }
 }

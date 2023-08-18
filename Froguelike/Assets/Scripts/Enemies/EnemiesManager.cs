@@ -440,7 +440,16 @@ public class EnemiesManager : MonoBehaviour
                 double delayBetweenSpawns = enemySpawn.spawnCooldown * curseDelayFactor;
                 delayBetweenSpawns = System.Math.Clamp(delayBetweenSpawns, 0.01, double.MaxValue);
 
-                if ((Time.time - lastSpawnTime) > delayBetweenSpawns)
+                bool spawn = (Time.time - lastSpawnTime) > delayBetweenSpawns;
+                if (GameManager.instance.thingsWithMissingSpritesAreHidden)
+                {
+                    if (enemySpawn.enemyType != EnemyType.FLY && enemySpawn.enemyType != EnemyType.BUTTERFLY && enemySpawn.enemyType != EnemyType.PLANT)
+                    {
+                        spawn = false;
+                    }
+                }
+
+                if (spawn)
                 {
                     // If spawn cooldown is over, then spawn!
 
@@ -519,6 +528,7 @@ public class EnemiesManager : MonoBehaviour
     {
         // Get an enemy from the pool
         EnemyInstance enemyFromPool = null;
+
         if (inactiveEnemiesPool.TryDequeue(out enemyFromPool))
         {
             // Set all components values to prefab values

@@ -77,6 +77,7 @@ public class ShopManager : MonoBehaviour
     public Transform shopPanel;
     public TextMeshProUGUI availableCurrencyText;
     public Button refundButton;
+    public ScrollbarKeepCursorSizeBehaviour shopScrollbar;
 
     [Header("UI Prefabs")]
     public GameObject availableShopItemPanelPrefab;
@@ -297,7 +298,8 @@ public class ShopManager : MonoBehaviour
         foreach (ShopItem item in shopData.shopItems)
         {
             bool itemHasNoLevel = (item.maxLevel == 0);
-            if (!item.hidden && !itemHasNoLevel)
+            bool itemIsHiddenDueToNotHavingAnIcon = (GameManager.instance.thingsWithMissingSpritesAreHidden && item.data.icon == null);
+            if (!item.hidden && !itemHasNoLevel && !itemIsHiddenDueToNotHavingAnIcon)
             {
                 bool itemIsAvailable = item.currentLevel < item.maxLevel;
                 bool itemIsMaxedOut = item.currentLevel == item.maxLevel;
@@ -330,6 +332,7 @@ public class ShopManager : MonoBehaviour
         float buttonHeight = shopPanel.GetComponent<GridLayoutGroup>().cellSize.y + shopPanel.GetComponent<GridLayoutGroup>().spacing.y;
         float padding = shopPanel.GetComponent<GridLayoutGroup>().padding.top + shopPanel.GetComponent<GridLayoutGroup>().padding.bottom;
         shopPanelContainer.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ((buttonCount + 1) / 2) * buttonHeight + padding);
+        shopScrollbar.SetCursorCentered(buttonCount <= 6);
 
         if (moveToTop)
         {
