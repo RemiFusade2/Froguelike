@@ -176,6 +176,10 @@ public class AchievementManager : MonoBehaviour
             if (achievementFromSave != null)
             {
                 achievement.unlocked = achievementFromSave.unlocked;
+                if (achievement.unlocked)
+                {
+                    SetSteamAchievementIfPossible(achievement.achievementData.achievementSteamID);
+                }
             }
         }
     }
@@ -203,9 +207,9 @@ public class AchievementManager : MonoBehaviour
     private bool ClearSteamAchievementIfPossible(string achievementSteamKey)
     {
         bool achievementCleared = false;
+        string log = $"Achievement Manager - Achievement {achievementSteamKey} ";
         if (SteamManager.Initialized)
         {
-            string log = $"Achievement Manager - Achievement {achievementSteamKey} ";
             if (Steamworks.SteamUserStats.ClearAchievement(achievementSteamKey))
             {
                 achievementCleared = true;
@@ -215,10 +219,14 @@ public class AchievementManager : MonoBehaviour
             {
                 log += "couldn't be reset on Steam!";
             }
-            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
-            {
-                Debug.Log(log);
-            }
+        }
+        else
+        {
+            log += "can't be checked because Steam manager has not been initialized";
+        }
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log(log);
         }
         return achievementCleared;
     }
@@ -226,9 +234,9 @@ public class AchievementManager : MonoBehaviour
     private bool SetSteamAchievementIfPossible(string achievementSteamKey)
     {
         bool achievementUnlocked = false;
+        string log = $"Achievement Manager - Achievement {achievementSteamKey} ";
         if (SteamManager.Initialized)
         {
-            string log = $"Achievement Manager - Achievement {achievementSteamKey} ";
             if (Steamworks.SteamUserStats.GetAchievement(achievementSteamKey, out bool achieved))
             {
                 if (!achieved)
@@ -252,10 +260,14 @@ public class AchievementManager : MonoBehaviour
             {
                 log += "doesn't exist on Steam";
             }
-            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
-            {
-                Debug.Log(log);
-            }
+        }
+        else
+        {
+            log += "can't be checked because Steam manager has not been initialized";
+        }
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log(log);
         }
         return achievementUnlocked;
     }
