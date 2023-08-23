@@ -134,7 +134,18 @@ public class EnemyInstance
     public void SetOverlayColor(Color newColor)
     {
         enemyRenderer.material.SetInteger("_OverlayVisible", 1);
-        enemyRenderer.material.SetColor("_Overlay", newColor);
+        enemyRenderer.material.SetColor("_OverlayColor", newColor);
+    }
+
+    public void RemoveOutline()
+    {
+        enemyRenderer.material.SetFloat("_OutlineThickness", 0);
+    }
+
+    public void SetOutlineColor(Color newColor, int thickness = 1)
+    {
+        enemyRenderer.material.SetFloat("_OutlineThickness", thickness);
+        enemyRenderer.material.SetColor("_OutlineColor", newColor);
     }
 
     public void Knockback(Vector2 direction, float strength, float duration)
@@ -189,6 +200,10 @@ public class EnemiesManager : MonoBehaviour
 
     [Header("Settings - Update")]
     public int updateAllEnemiesCount = 500;
+
+    [Header("Settings - Outline colors")]
+    public bool useOutlineColorsToDisplayTiers;
+    public List<Color> tiersOutlineColorsList;
 
     [Header("Settings - Effects (poison, frozen, etc.)")]
     public Color poisonedSpriteColor;
@@ -474,7 +489,7 @@ public class EnemiesManager : MonoBehaviour
                             {
                                 for (int j = 0; j < enemyCount; j++)
                                 {
-                                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition + Random.Range(-1.0f, 1.0f) * Vector2.right + Random.Range(-1.0f, 1.0f) * Vector2.up, enemyData, enemySpawn.movePattern, currentWave, currentDelay));
+                                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition + Random.Range(-1.0f, 1.0f) * Vector2.right + Random.Range(-1.0f, 1.0f) * Vector2.up, enemyData, enemySpawn.movePattern, currentWave, currentDelay, difficultyTier));
                                     currentDelay += delayBetweenSpawn;
                                 }
                             }
@@ -499,7 +514,7 @@ public class EnemiesManager : MonoBehaviour
                             for (float angle = 0; angle < arcAngle; angle += deltaAngle)
                             {
                                 spawnPosition = GameManager.instance.player.transform.position + (Mathf.Cos(angle * Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(angle * Mathf.Deg2Rad) * Vector3.up) * spawnDistanceFromPlayer;
-                                StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, currentDelay));
+                                StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, currentDelay, difficultyTier));
                                 currentDelay += delayBetweenSpawn;
                             }
                             break;
@@ -510,7 +525,7 @@ public class EnemiesManager : MonoBehaviour
                             {
                                 if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out spawnPosition))
                                 {
-                                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, currentDelay));
+                                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, currentDelay, difficultyTier));
                                     currentDelay += delayBetweenSpawn;
                                 }
                             }
@@ -524,7 +539,7 @@ public class EnemiesManager : MonoBehaviour
         }
     }
 
-    public void SpawnEnemy(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, Wave originWave)
+    public void SpawnEnemy(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, Wave originWave, int difficultyTier)
     {
         // Get an enemy from the pool
         EnemyInstance enemyFromPool = null;
@@ -558,6 +573,19 @@ public class EnemiesManager : MonoBehaviour
 
             enemyFromPool.wave = originWave;
 
+            if (enemyData.outlineThickness > 0)
+            {
+                enemyFromPool.SetOutlineColor(enemyData.outlineColor, enemyData.outlineThickness);
+                if (useOutlineColorsToDisplayTiers)
+                {
+                    enemyFromPool.SetOutlineColor(tiersOutlineColorsList[difficultyTier - 1], enemyData.outlineThickness);
+                }
+            }
+            else
+            {
+                enemyFromPool.RemoveOutline();
+            }
+
             if (verbose == VerboseLevel.MAXIMAL)
             {
                 Debug.Log($"Spawning a {enemyData.enemyName} with move pattern {movePattern.movePatternType.ToString()}. Total amount of active enemies = {allActiveEnemiesDico.Count + 1}");
@@ -567,10 +595,10 @@ public class EnemiesManager : MonoBehaviour
         }
     }
 
-    private IEnumerator SpawnEnemyAsync(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, Wave originWave, float delay)
+    private IEnumerator SpawnEnemyAsync(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, Wave originWave, float delay, int difficultyTier)
     {
         yield return new WaitForSeconds(delay);
-        SpawnEnemy(prefab, position, enemyData, movePattern, originWave);
+        SpawnEnemy(prefab, position, enemyData, movePattern, originWave, difficultyTier);
     }
 
     public void InitializeWave(Wave wave)
@@ -1046,6 +1074,9 @@ public class EnemiesManager : MonoBehaviour
         enemyInstance.enemyAnimator.SetBool("IsDead", true);
         enemyInstance.enemyCollider.enabled = false;
         enemyInstance.enemyTransform.rotation = Quaternion.Euler(0, 0, 45);
+
+        enemyInstance.RemoveOutline();
+        enemyInstance.RemoveOverlay();
     }
 
     public void SetEnemyDead(string enemyGameObjectName)

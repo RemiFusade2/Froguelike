@@ -43,6 +43,13 @@ public class EnemyData : ScriptableObject
     [Tooltip("How much damage/s this enemy inflicts when touching the frog")]
     public float damage = 10;
 
+    [Space]
+    [Tooltip("Thickness of the outline by default")]
+    public int outlineThickness = 1;
+    [Tooltip("Color of the outline by default")]
+    public Color outlineColor;
+
+    [Space]
     [Tooltip("TEMPORARY: only used for the golden fly that ends the game")]
     public bool instantlyEndChapter = false;
 }
