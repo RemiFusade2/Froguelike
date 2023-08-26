@@ -13,6 +13,9 @@ public class ScoreManager : MonoBehaviour
     // Singleton
     public static ScoreManager instance;
 
+    [Header("Settings")]
+    public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
+
     [Header("Morals")]
     public List<string> possibleMorals;
 
@@ -33,8 +36,6 @@ public class ScoreManager : MonoBehaviour
     [Space]
     public AchievementsScrollRect achievementScrollRect;
 
-    [Header("Settings")]
-    public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
 
     private void Awake()
     {

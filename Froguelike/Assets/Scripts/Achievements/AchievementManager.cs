@@ -274,7 +274,7 @@ public class AchievementManager : MonoBehaviour
 
     #endregion
 
-    public List<Achievement> GetUnlockedAchievementsForCurrentRun(bool forceUnlockEverything = false)
+    public List<Achievement> GetUnlockedAchievementsForCurrentRun(bool unlockAchievements, bool forceUnlockEverything = false)
     {
         List<Achievement> unlockedAchievementsList = new List<Achievement>();
 
@@ -373,8 +373,11 @@ public class AchievementManager : MonoBehaviour
                 if (conditionsAreMet || forceUnlockEverything)
                 {
                     // Conditions are met to unlock this Achievement!
-                    UnlockAchievement(achievement);
                     unlockedAchievementsList.Add(achievement);
+                    if (unlockAchievements)
+                    {
+                        UnlockAchievement(achievement);
+                    }
                 }
             }
         }
@@ -537,5 +540,56 @@ public class AchievementManager : MonoBehaviour
 
         // Set scroll bar
         achievementsScrollbar.SetCursorCentered(entryCount <= 11);
+    }
+
+    public bool IsChapterPartOfALockedAchievement(Chapter chapter)
+    {
+        bool achievementFound = false;
+
+        List<Achievement> newUnlockedAchievementsSoFar = GetUnlockedAchievementsForCurrentRun(false);
+
+        foreach (Achievement achievement in achievementsData.achievementsList)
+        {
+            bool isDemoBuildAndAchievementIsNotPartOfDemo = IsAchievementLockedBehindDemo(achievement);
+            bool achievementIsLockedBehindMissingIcon = IsAchievementLockedBehindMissingIcon(achievement);
+            bool achievementIsAvailable = IsAchievementAvailable(achievement);
+            bool achievementIsLocked = (!newUnlockedAchievementsSoFar.Contains(achievement) && !achievement.unlocked);
+            if (achievementIsLocked && !isDemoBuildAndAchievementIsNotPartOfDemo && !achievementIsLockedBehindMissingIcon && achievementIsAvailable)
+            {
+                foreach (AchievementCondition condition in achievement.achievementData.conditionsList)
+                {
+                    switch (condition.conditionType)
+                    {
+                        case AchievementConditionType.CHAPTER:
+                            if (condition.playedChapter.chapterID != null && condition.playedChapter.chapterID.Equals(chapter.chapterID))
+                            {
+                                achievementFound = true; // Finishing that chapter is a condition to unlock this achievement                                
+                            }
+                            break;
+                        case AchievementConditionType.RUNITEM:
+                            foreach (FixedCollectible collectible in chapter.chapterData.specialCollectiblesOnTheMap)
+                            {
+                                if (collectible.collectibleType == FixedCollectibleType.STATS_ITEM 
+                                    && condition.runItem.itemName.Equals(collectible.collectibleStatItemData.itemName))
+                                {
+                                    achievementFound = true; // There's an item in this chapter that is a condition to unlock this achievement
+                                    break;
+                                }
+                            }                            
+                            break;
+                    }
+                    if (achievementFound)
+                    {
+                        break;
+                    }
+                }
+            }
+            if (achievementFound)
+            {
+                break;
+            }
+        }
+
+        return achievementFound;
     }
 }

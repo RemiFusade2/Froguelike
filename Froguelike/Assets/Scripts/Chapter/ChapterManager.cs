@@ -132,6 +132,8 @@ public class ChapterManager : MonoBehaviour
 
     private Dictionary<string, Chapter> allChaptersDico; // This dictionary is a handy way to get the Chapter object from its ID
 
+    private Coroutine fadeOutChapterStartScreenCoroutine;
+
     #region Unity Callback methods
 
     private void Awake()
@@ -177,6 +179,7 @@ public class ChapterManager : MonoBehaviour
     }
     
     /// COUNT ALL WAVES IN CHAPTERS
+    /// This is used to check how many times each wave is used (to fill up our spreadsheet)
     /*
     private Dictionary<string, int> allWavesDico;
     */
@@ -533,6 +536,58 @@ public class ChapterManager : MonoBehaviour
         SaveDataManager.instance.isSaveDataDirty = true;
     }
 
+    public bool DoesChapterUnlockAnAchievementOrAnUnplayedChapter(Chapter chapter, int chapterCount)
+    {
+        bool achievementOrUnplayedChapterHasBeenFound = false;
+
+        // check if this chapter is part of a condition for an achievement
+        achievementOrUnplayedChapterHasBeenFound = AchievementManager.instance.IsChapterPartOfALockedAchievement(chapter);
+
+        // if it is not, check any chapter that would be added to the deck by playing this one, and call the same method with this new chapter
+        if (!achievementOrUnplayedChapterHasBeenFound && chapterCount < 5)
+        {
+            foreach (KeyValuePair<string, Chapter> chapterKeyValue in allChaptersDico)
+            {
+                Chapter testedChapter = chapterKeyValue.Value;
+                foreach (ChapterConditionsChunk conditionChunk in testedChapter.chapterData.conditions)
+                {
+                    foreach (ChapterCondition condition in conditionChunk.conditionsList)
+                    {
+                        if (condition.conditionType == ChapterConditionType.PLAYED_CHAPTER 
+                            && !condition.not
+                            && condition.chapterData.chapterID.Equals(chapter.chapterID))
+                        {
+                            achievementOrUnplayedChapterHasBeenFound |= DoesChapterUnlockAnAchievementOrAnUnplayedChapter(testedChapter, chapterCount + 1);
+
+                            bool isChapterNew = true;
+                            foreach (CharacterCount count in testedChapter.attemptCountByCharacters)
+                            {
+                                isChapterNew &= (count.counter == 0);
+                            }
+                            achievementOrUnplayedChapterHasBeenFound |= isChapterNew; // chapter has never been played
+
+                            if (achievementOrUnplayedChapterHasBeenFound)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    if (achievementOrUnplayedChapterHasBeenFound)
+                    {
+                        break;
+                    }
+                }
+                if (achievementOrUnplayedChapterHasBeenFound)
+                {
+                    break;
+                }
+            }
+        }
+
+        // Stop as soon as we get "true" or through
+        return achievementOrUnplayedChapterHasBeenFound;
+    }
+
     #region Chapter Start Screen
 
     /// <summary>
@@ -547,6 +602,11 @@ public class ChapterManager : MonoBehaviour
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
             Debug.Log("Chapter - Start screen - " + chapter.chapterID);
+        }
+
+        if (fadeOutChapterStartScreenCoroutine != null)
+        {
+            StopCoroutine(fadeOutChapterStartScreenCoroutine);
         }
 
         // Set background color
@@ -575,10 +635,14 @@ public class ChapterManager : MonoBehaviour
 
     public void FadeOutChapterStartScreen(float delay)
     {
-        StartCoroutine(FadeOutChapterStartScreenAsync(delay));
+        if (fadeOutChapterStartScreenCoroutine != null)
+        {
+            StopCoroutine(fadeOutChapterStartScreenCoroutine);
+        }
+        fadeOutChapterStartScreenCoroutine = StartCoroutine(FadeOutChapterStartScreenAsync(delay));
     }
 
-    private IEnumerator FadeOutChapterStartScreenAsync(float delay)
+    private void SetBackgroundAlpha(float alpha)
     {
         Color backgroundColor = new Color(chapterStartBackground.color.r, chapterStartBackground.color.g, chapterStartBackground.color.b, 1);
         Color transparentBackgroundColor = new Color(chapterStartBackground.color.r, chapterStartBackground.color.g, chapterStartBackground.color.b, 0);
@@ -591,16 +655,23 @@ public class ChapterManager : MonoBehaviour
 
         Color iconColor = new Color(chapterStartIconsImageList[0].color.r, chapterStartIconsImageList[0].color.g, chapterStartIconsImageList[0].color.b, 1);
         Color transparentIconColor = new Color(chapterStartIconsImageList[0].color.r, chapterStartIconsImageList[0].color.g, chapterStartIconsImageList[0].color.b, 0);
+        
+        chapterStartBackground.color = Color.Lerp(backgroundColor, transparentBackgroundColor, alpha);
+        chapterStartTopText.color = Color.Lerp(topTextColor, transparentTopTextColor, alpha);
+        chapterStartBottomText.color = Color.Lerp(bottomTextColor, transparentBottomTextColor, alpha);
+        foreach (Image iconImage in chapterStartIconsImageList)
+        {
+            iconImage.color = Color.Lerp(iconColor, transparentIconColor, alpha);
+        }
+    }
+
+    private IEnumerator FadeOutChapterStartScreenAsync(float delay)
+    {
+        SetBackgroundAlpha(0);
 
         for (float alpha = 0; alpha <= 1; alpha += Time.deltaTime / delay)
         {
-            chapterStartBackground.color = Color.Lerp(backgroundColor, transparentBackgroundColor, alpha);
-            chapterStartTopText.color = Color.Lerp(topTextColor, transparentTopTextColor, alpha);
-            chapterStartBottomText.color = Color.Lerp(bottomTextColor, transparentBottomTextColor, alpha);
-            foreach (Image iconImage in chapterStartIconsImageList)
-            {
-                iconImage.color = Color.Lerp(iconColor, transparentIconColor, alpha);
-            }
+            SetBackgroundAlpha(alpha);
 
             yield return new WaitForEndOfFrame();
         }

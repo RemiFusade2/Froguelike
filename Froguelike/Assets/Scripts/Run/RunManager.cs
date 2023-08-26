@@ -537,8 +537,8 @@ public class RunManager : MonoBehaviour
         int currencyCollectedInThisRun = Mathf.RoundToInt(currentCollectedCurrency);
         currentCollectedCurrency = 0;
 
-        // Maybe unlock some characters if conditions are met
-        List<Achievement> unlockedAchievements = AchievementManager.instance.GetUnlockedAchievementsForCurrentRun();
+        // Maybe unlock some achievements if conditions are met
+        List<Achievement> unlockedAchievements = AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true);
 
         // Add the current chapter to the list (even if current chapter was not completed)
         List<Chapter> chaptersPlayed = new List<Chapter>(completedChaptersList);
@@ -696,7 +696,7 @@ public class RunManager : MonoBehaviour
         SetTimer(chapterRemainingTime);
         if (chapterRemainingTime < 0)
         {
-            chapterRemainingTime = float.MaxValue;
+            chapterRemainingTime = 0; // float.MaxValue;
             EndChapter();
         }
     }

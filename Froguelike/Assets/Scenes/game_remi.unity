@@ -1004,7 +1004,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f239f83f081b504dbdad67c659122b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  logsVerboseLevel: 0
+  logsVerboseLevel: 2
   player: {fileID: 1127068952}
   fliesParent: {fileID: 372494532}
   levelUpParticleSystem: {fileID: 1573265719}
@@ -11332,7 +11332,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8163245621343275615, guid: 2739f4850b1d3a148b0e31bfda809591, type: 3}
       propertyPath: logsVerboseLevel
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8163245621343275615, guid: 2739f4850b1d3a148b0e31bfda809591, type: 3}
       propertyPath: achievementsScrollbar
@@ -13228,7 +13228,7 @@ MonoBehaviour:
   logsVerboseLevel: 0
   demoBuild: 0
   cheatsAreEnabled: 1
-  everythingIsUnlocked: 1
+  everythingIsUnlocked: 0
   thingsWithMissingSpritesAreHidden: 0
   player: {fileID: 1127068952}
   destroyParticleEffectPrefab: {fileID: 5766076256110460918, guid: 867e943a86ac095478453c5eff1f065e, type: 3}
@@ -16977,6 +16977,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a26da817ec1f4d408ce009cb9e2d8ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  logsVerboseLevel: 2
   possibleMorals:
   - Don't forget to buy items from the shop to make your next runs easier.
   - Play with another frog to unlock more stuff.
@@ -17028,7 +17029,6 @@ MonoBehaviour:
   runItemsPanel: {fileID: 957077704}
   runItemsDisplayPrefab: {fileID: 6922059703479670551, guid: 593f4ef70d6424fdb8c22782b8b52a42, type: 3}
   achievementScrollRect: {fileID: 548359044}
-  logsVerboseLevel: 2
 --- !u!224 &846775792 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6246043114616786599, guid: aad2d0aa1ff6df946b28042949ace11c, type: 3}
@@ -47490,6 +47490,10 @@ PrefabInstance:
     - target: {fileID: 1130834795642718601, guid: 16cd18f50aa043547811df0eebcb5a22, type: 3}
       propertyPath: m_Name
       value: Chapter Button 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1130834795642718601, guid: 16cd18f50aa043547811df0eebcb5a22, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1130834795642718612, guid: 16cd18f50aa043547811df0eebcb5a22, type: 3}
       propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
