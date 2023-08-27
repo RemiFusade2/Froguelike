@@ -4,6 +4,14 @@ using UnityEngine;
 using System.Linq;
 
 [System.Serializable]
+public enum DemoLimitationType
+{
+    NONE,
+    NUMBER_OF_RUNS,
+    TIMER
+}
+
+[System.Serializable]
 public class GameSaveData : SaveData
 {
     public int deathCount;
@@ -62,6 +70,11 @@ public class GameManager : MonoBehaviour
 
     [Header("Settings - Build")]
     public bool demoBuild = false;
+    public bool showDemoDisclaimer = false;
+    public DemoLimitationType demoLimitationType;
+    public float demoTimeLimit = 0; // In seconds
+    public int demoRunCountLimit = 0;
+    public bool demoSaveProgress = false;
     [Space]
     public bool cheatsAreEnabled = false;
     public bool everythingIsUnlocked = false;
@@ -102,6 +115,8 @@ public class GameManager : MonoBehaviour
     {
         InitializeStuff();
         BackToTitleScreen();
+        
+        UIManager.instance.ShowDemoDisclaimerScreen(demoBuild && showDemoDisclaimer, demoLimitationType, demoSaveProgress, demoRunCountLimit, demoTimeLimit);
     }
 
     private void Update()
