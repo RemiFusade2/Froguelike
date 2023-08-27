@@ -115,7 +115,8 @@ public class GameManager : MonoBehaviour
     {
         InitializeStuff();
         BackToTitleScreen();
-        
+
+        UIManager.instance.HideEndOfDemoScreen();
         UIManager.instance.ShowDemoDisclaimerScreen(demoBuild && showDemoDisclaimer, demoLimitationType, demoSaveProgress, demoRunCountLimit, demoTimeLimit);
     }
 
@@ -171,15 +172,16 @@ public class GameManager : MonoBehaviour
 
     #region Chapters
 
+    public void RegisterANewAttempt()
+    {
+        gameData.attempts++;
+        SaveDataManager.instance.isSaveDataDirty = true;
+    }
 
     public void StartRunWithCharacter(PlayableCharacter character)
     {
         // Start a new Run
         RunManager.instance.StartNewRun(character);
-
-        // Register a new attempt
-        gameData.attempts++;
-        SaveDataManager.instance.isSaveDataDirty = true;
     }
 
     #endregion
@@ -307,6 +309,12 @@ public class GameManager : MonoBehaviour
         // Clear save file and create a new one
         bool fileErased = SaveDataManager.instance.EraseSaveFile(true);
         SaveDataManager.instance.CreateEmptySaveFile();
+
+        // In case this is a demo build, also reset the demo timer
+        if (demoBuild && demoLimitationType == DemoLimitationType.TIMER)
+        {
+            UIManager.instance.StartDemoTimer();
+        }
 
         InitializeStuff();
         BackToTitleScreen();

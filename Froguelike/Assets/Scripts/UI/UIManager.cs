@@ -84,19 +84,28 @@ public class UIManager : MonoBehaviour
     public List<GameObject> demoPanelsList;
     public GameObject demoLimitationSticker;
     public TextMeshProUGUI demoLimitationText;
+    [Space]
+    public GameObject demoDisclaimerScreen;
+    public TextMeshProUGUI demoDisclaimerText;
+    [Space]
+    public GameObject endOfDemoScreen;
 
     const string demoRunLimitationStr = "Available Runs: DEMO_RUNCOUNT_LIMIT";
     const string demoTimeLimitationStr = "Remaining: DEMO_TIME_LIMIT";
-
-    [Header("Demo Disclaimer Screen")]
-    public GameObject demoDisclaimerScreen;
-    public TextMeshProUGUI demoDisclaimerText;
 
     const string disclaimerTextIntroStr = "This Demo is meant to show a glimpse of what the full game will be. However, it has limits:";
     const string disclaimerTextNoSaveStr = "- your progress will not be saved";
     const string disclaimerTextRunLimitStr = "- you will only be able to play DEMO_RUNCOUNT_LIMIT runs";
     const string disclaimerTextTimeLimitStr = "- you will only be able to play for DEMO_TIME_LIMIT minutes";
     const string disclaimerTextNoLimitStr = "- the content is only a fraction of the full game";
+
+    private bool endOfDemoHasBeenShown;
+    private float removedDisclaimerTime;
+
+    public void StartDemoTimer()
+    {
+        removedDisclaimerTime = Time.unscaledTime;
+    }
 
     private void Awake()
     {
@@ -109,6 +118,8 @@ public class UIManager : MonoBehaviour
         {
             Destroy(this.gameObject);
         }
+        endOfDemoHasBeenShown = false;
+        removedDisclaimerTime = 24*60*60;
     }
 
     private void Start()
@@ -118,7 +129,10 @@ public class UIManager : MonoBehaviour
 
     private void Update()
     {
-        if (GameManager.instance.demoBuild && GameManager.instance.demoLimitationType == DemoLimitationType.TIMER && titleScreen.activeInHierarchy)
+        if (GameManager.instance.demoBuild 
+            && GameManager.instance.demoLimitationType == DemoLimitationType.TIMER 
+            && titleScreen.activeInHierarchy
+            && (demoDisclaimerScreen == null || (demoDisclaimerScreen != null && !demoDisclaimerScreen.activeInHierarchy)))
         {
             UpdateDemoLimitationSticker();
         }
@@ -160,7 +174,7 @@ public class UIManager : MonoBehaviour
                     startButton.interactable = (remainingRuns > 0); // disable start button if there are no more runs
                     break;
                 case DemoLimitationType.TIMER:
-                    float remainingTimeFloat = GameManager.instance.demoTimeLimit - Time.unscaledTime;
+                    float remainingTimeFloat = GameManager.instance.demoTimeLimit - (Time.unscaledTime - removedDisclaimerTime);
                     remainingTimeFloat = Mathf.Clamp(remainingTimeFloat, 0, float.MaxValue);
                     TimeSpan remainingTime = TimeSpan.FromSeconds(remainingTimeFloat);
                     demoLimitationText.text = demoTimeLimitationStr.Replace("DEMO_TIME_LIMIT", remainingTime.ToString(@"mm\:ss"));
@@ -168,6 +182,11 @@ public class UIManager : MonoBehaviour
                     break;
                 default:
                     break;
+            }
+            if (!startButton.interactable && !endOfDemoHasBeenShown && endOfDemoScreen != null)
+            {
+                endOfDemoHasBeenShown = true;
+                endOfDemoScreen.SetActive(true);
             }
         }
         else
@@ -430,10 +449,26 @@ public class UIManager : MonoBehaviour
 
     public void HideDemoDisclaimerScreen()
     {
+        if (demoDisclaimerScreen.activeInHierarchy)
+        {
+            StartDemoTimer();
+        }
         demoDisclaimerScreen.SetActive(false);
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
             Debug.Log("UI - Hide Demo disclaimer screen");
+        }
+    }
+
+    public void HideEndOfDemoScreen()
+    {
+        if (endOfDemoScreen != null)
+        {
+            endOfDemoScreen.SetActive(false);
+            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log("UI - Hide End of Demo screen");
+            }
         }
     }
 

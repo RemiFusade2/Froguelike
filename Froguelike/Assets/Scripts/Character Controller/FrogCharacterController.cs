@@ -104,7 +104,7 @@ public class FrogCharacterController : MonoBehaviour
 
         if (GameManager.instance.everythingIsUnlocked)
         {
-            AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true);
+            AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true, true);
             UIManager.instance.ShowTitleScreen();
         }
     }
@@ -133,7 +133,7 @@ public class FrogCharacterController : MonoBehaviour
         }
         if (GameManager.instance.cheatsAreEnabled && GetUnlockAllCheatInput())
         {
-            AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true);
+            AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true, true);
         }
 
         if (GameManager.instance.isGameRunning)

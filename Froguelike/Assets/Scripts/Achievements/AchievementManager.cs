@@ -274,7 +274,7 @@ public class AchievementManager : MonoBehaviour
 
     #endregion
 
-    public List<Achievement> GetUnlockedAchievementsForCurrentRun(bool unlockAchievements, bool forceUnlockEverything = false)
+    public List<Achievement> GetUnlockedAchievementsForCurrentRun(bool unlockAchievements, bool forceUnlockEverything)
     {
         List<Achievement> unlockedAchievementsList = new List<Achievement>();
 
@@ -293,7 +293,7 @@ public class AchievementManager : MonoBehaviour
         {
             bool isDemoBuildAndAchievementIsNotPartOfDemo = IsAchievementLockedBehindDemo(achievement);
             bool achievementIsLockedBehindMissingIcon = IsAchievementLockedBehindMissingIcon(achievement);
-            if (!achievement.unlocked && !isDemoBuildAndAchievementIsNotPartOfDemo && !achievementIsLockedBehindMissingIcon)
+            if (!achievement.unlocked && !isDemoBuildAndAchievementIsNotPartOfDemo /*&& !achievementIsLockedBehindMissingIcon*/)
             {
                 bool conditionsAreMet = true;
                 foreach (AchievementCondition condition in achievement.achievementData.conditionsList)
@@ -337,6 +337,13 @@ public class AchievementManager : MonoBehaviour
                                     break;
                                 case AchievementConditionSpecialKey.UNLOCK_A_CHARACTER:
                                     conditionsAreMet &= (CharacterManager.instance.GetUnlockedCharacterCount() > 1);
+                                    break;
+                                case AchievementConditionSpecialKey.COMPLETE_1_ACHIEVEMENT:
+                                    if (!metaAchievements.Contains(achievement))
+                                    {
+                                        metaAchievements.Add(achievement);
+                                    }
+                                    conditionsAreMet &= (achievementsData.achievementsList.Count(x => x.unlocked) >= 1);
                                     break;
                                 case AchievementConditionSpecialKey.COMPLETE_10_ACHIEVEMENTS:
                                     if (!metaAchievements.Contains(achievement))
@@ -390,6 +397,10 @@ public class AchievementManager : MonoBehaviour
                 bool conditionsAreMet = true;
                 foreach (AchievementCondition condition in achievement.achievementData.conditionsList)
                 {
+                    if (condition.conditionType == AchievementConditionType.SPECIAL && condition.specialKey == AchievementConditionSpecialKey.COMPLETE_1_ACHIEVEMENT)
+                    {
+                        conditionsAreMet &= (achievementsData.achievementsList.Count(x => x.unlocked) >= 1);
+                    }
                     if (condition.conditionType == AchievementConditionType.SPECIAL && condition.specialKey == AchievementConditionSpecialKey.COMPLETE_10_ACHIEVEMENTS)
                     {
                         conditionsAreMet &= (achievementsData.achievementsList.Count(x => x.unlocked) >= 10);
@@ -496,8 +507,14 @@ public class AchievementManager : MonoBehaviour
     {
         List<Achievement> orderedAchievements = SortAchievementList(achievementsData.achievementsList);
 
+        // OLD CODE: this was used to only display achievements that have icons and are part of the demo
         int allAchievementsCount = orderedAchievements.Count(x => !IsAchievementLockedBehindDemo(x) && !IsAchievementLockedBehindMissingIcon(x));
         int allUnlockedAchievementsCount = orderedAchievements.Count(x => !IsAchievementLockedBehindDemo(x) && !IsAchievementLockedBehindMissingIcon(x) && x.unlocked);
+
+        // NEW CODE: we display every achievement, regardless of missing icons or demo stuff
+        // It is way better to have many achievements to show in the list!
+        allAchievementsCount = orderedAchievements.Count();
+        allUnlockedAchievementsCount = orderedAchievements.Count(x => x.unlocked);
 
         achievementCountTextMesh.text = $"{allUnlockedAchievementsCount}/{allAchievementsCount} achieved";
         
@@ -518,7 +535,11 @@ public class AchievementManager : MonoBehaviour
             bool achievementIsLockedBehindMissingIcon = IsAchievementLockedBehindMissingIcon(achievement);
             bool achievementIsNotSetup = (achievement.achievementData.reward.rewardType == AchievementRewardType.RUN_ITEM && achievement.achievementData.reward.runItem == null)
                 || (achievement.achievementData.reward.rewardType == AchievementRewardType.SHOP_ITEM && achievement.achievementData.reward.shopItem == null);
-            if (!achievementIsNotSetup && !achievementIsLockedBehindDemo && !achievementIsLockedBehindMissingIcon)
+
+            bool addThisAchievementToTheList = !achievementIsNotSetup;
+            // addThisAchievementToTheList &= !achievementIsLockedBehindDemo && !achievementIsLockedBehindMissingIcon;
+
+            if (addThisAchievementToTheList)
             {
                 GameObject achievementEntryGo = Instantiate(achievementEntryPrefab, achievementScrollEntriesParent);
                 AchievementEntryPanelBehaviour achievementEntryScript = achievementEntryGo.GetComponent<AchievementEntryPanelBehaviour>();
@@ -546,7 +567,7 @@ public class AchievementManager : MonoBehaviour
     {
         bool achievementFound = false;
 
-        List<Achievement> newUnlockedAchievementsSoFar = GetUnlockedAchievementsForCurrentRun(false);
+        List<Achievement> newUnlockedAchievementsSoFar = GetUnlockedAchievementsForCurrentRun(false, false);
 
         foreach (Achievement achievement in achievementsData.achievementsList)
         {

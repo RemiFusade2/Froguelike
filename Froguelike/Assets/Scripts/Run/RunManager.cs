@@ -538,7 +538,7 @@ public class RunManager : MonoBehaviour
         currentCollectedCurrency = 0;
 
         // Maybe unlock some achievements if conditions are met
-        List<Achievement> unlockedAchievements = AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true);
+        List<Achievement> unlockedAchievements = AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true, false);
 
         // Add the current chapter to the list (even if current chapter was not completed)
         List<Chapter> chaptersPlayed = new List<Chapter>(completedChaptersList);
@@ -606,8 +606,13 @@ public class RunManager : MonoBehaviour
         // Remove enemies on screen
         EnemiesManager.instance.ClearAllEnemies();
 
-        currentChapter = chapter;
+        // Register a new attempt if this is the first chapter of that run
+        if (GetChapterCount() == 1)
+        {
+            GameManager.instance.RegisterANewAttempt();
+        }
 
+        currentChapter = chapter;
         StartCoroutine(StartChapterAsync());
     }
 

@@ -16,8 +16,8 @@ public class ScoreAchievementPanelBehaviour : MonoBehaviour
         achievementConditionTextMesh.text = achievement.GetAchievementDescription();
         
         achievementRewardTextMesh.text = $"Reward: {achievement.GetRewardDescription()}";
-
-        achievementIcon.sprite = achievement.achievementData.achievementUnlockedIcon;
+        
+        achievementIcon.sprite = (achievement.achievementData.achievementUnlockedIcon != null) ? achievement.achievementData.achievementUnlockedIcon : DataManager.instance.achievementUnlockedDefaultSprite;
     }
 
 }

@@ -24,8 +24,6 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
     [Space]
     public Image unlockedFrameIconImage;
     public Image unlockedIconImage;
-    [Space]
-    public GameObject demoMessage;
 
     [Header("Settings")]
     public Color darkBkgColor;
@@ -50,8 +48,15 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
 
     private void SetAchievementIcon(Achievement achievement)
     {
-        achievementIconImage.sprite = achievement.achievementData.achievementLockedIcon;
-        achievementIconImage.color = (achievement.achievementData.achievementLockedIcon == null) ? new Color(0, 0, 0, 0) : Color.white;
+        if (achievement.unlocked)
+        {
+            achievementIconImage.sprite = (achievement.achievementData.achievementUnlockedIcon != null) ? achievement.achievementData.achievementUnlockedIcon : DataManager.instance.achievementUnlockedDefaultSprite;
+        }
+        else
+        {
+            achievementIconImage.sprite = (achievement.achievementData.achievementLockedIcon != null) ? achievement.achievementData.achievementLockedIcon : DataManager.instance.achievementLockedDefaultSprite;
+        }
+        achievementIconImage.color = (achievementIconImage.sprite == null) ? new Color(0, 0, 0, 0) : Color.white;
     }
 
     public void Initialize(Achievement achievement, bool darkerBkg, bool accessible)
@@ -63,7 +68,6 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
 
         // If current build is Demo build and achievement is not part of demo
         bool isDemoBuildAndAchievementIsNotPartOfDemo = (GameManager.instance.demoBuild && !achievement.achievementData.partOfDemo);
-        demoMessage.SetActive(isDemoBuildAndAchievementIsNotPartOfDemo);
 
         if (achievement.unlocked)
         {
@@ -76,6 +80,17 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
             unlockedFrameIconImage.sprite = achievedFrameSprite;
             unlockedIconImage.sprite = achievedSprite;
             SetAchievementIcon(achievement);
+        }
+        else if (isDemoBuildAndAchievementIsNotPartOfDemo)
+        {
+            // The achievement is not part of the demo
+            SetTextColor(hiddenTextColor);
+            achievementTitleTextMesh.text = "";
+            achievementRewardTextMesh.text = "*Not part of the demo*";
+            achievementHintTextMesh.text = "";
+
+            unlockedFrameIconImage.gameObject.SetActive(false);
+            achievementIconImage.sprite = hiddenAchievementIconSprite;
         }
         else if (!accessible)
         {
