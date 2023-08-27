@@ -1,4 +1,4 @@
 # Froguelike
 The best survival game with frogs!
 
-![screenshot](Screenshots/super ribbit.jpg)
+<img src="Screenshots/superribbit.jpg" width="800" title="hover text">
