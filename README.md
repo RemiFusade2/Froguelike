@@ -1,4 +1,4 @@
 # Froguelike
 The best survival game with frogs!
 
-![screenshot](https://github.com/RemiFusade2/Froguelike/edit/main/Screenshots/superribbit.jpg)
+<img src="Screenshots/superribbit.jpg" width="800" title="hover text">
