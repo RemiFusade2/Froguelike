@@ -204,6 +204,14 @@ public class AchievementManager : MonoBehaviour
 
     #region Steam
 
+    public void ClearAllSteamAchievements()
+    {
+        foreach (Achievement achievement in achievementsData.achievementsList)
+        {
+            ClearSteamAchievementIfPossible(achievement.achievementData.achievementSteamID);
+        }
+    }
+
     private bool ClearSteamAchievementIfPossible(string achievementSteamKey)
     {
         bool achievementCleared = false;
@@ -235,7 +243,7 @@ public class AchievementManager : MonoBehaviour
     {
         bool achievementUnlocked = false;
         string log = $"Achievement Manager - Achievement {achievementSteamKey} ";
-        if (SteamManager.Initialized)
+        if (SteamManager.Initialized && !GameManager.instance.demoBuild)
         {
             if (Steamworks.SteamUserStats.GetAchievement(achievementSteamKey, out bool achieved))
             {
@@ -263,7 +271,7 @@ public class AchievementManager : MonoBehaviour
         }
         else
         {
-            log += "can't be checked because Steam manager has not been initialized";
+            log += "can't be checked because Steam manager has not been initialized, or this is the demo build";
         }
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {

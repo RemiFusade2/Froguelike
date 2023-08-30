@@ -13799,11 +13799,11 @@ MonoBehaviour:
   logsVerboseLevel: 0
   demoBuild: 1
   showDemoDisclaimer: 1
-  demoLimitationType: 2
+  demoLimitationType: 1
   demoTimeLimit: 1800
   demoRunCountLimit: 3
   demoSaveProgress: 0
-  cheatsAreEnabled: 1
+  cheatsAreEnabled: 0
   everythingIsUnlocked: 0
   thingsWithMissingSpritesAreHidden: 1
   player: {fileID: 1127068952}
@@ -14333,6 +14333,15 @@ MonoBehaviour:
       _behaviorId: 0
       _userAssignable: 1
       _categoryId: 0
+    - _id: 7
+      _name: removeachievementscheat
+      _type: 1
+      _descriptiveName: removeachievementscheat
+      _positiveDescriptiveName: 
+      _negativeDescriptiveName: 
+      _behaviorId: 0
+      _userAssignable: 1
+      _categoryId: 0
     - _id: 6
       _name: skipchaptercheat
       _type: 1
@@ -14351,7 +14360,7 @@ MonoBehaviour:
     actionCategoryMap:
       list:
       - categoryId: 0
-        actionIds: 00000000010000000200000003000000040000000600000005000000
+        actionIds: 0000000001000000020000000300000004000000050000000600000007000000
     inputBehaviors:
     - _id: 0
       _name: Default
@@ -14681,13 +14690,24 @@ MonoBehaviour:
         _modifierKey1: 1
         _modifierKey2: 0
         _modifierKey3: 0
+      - _actionCategoryId: 0
+        _actionId: 7
+        _elementType: 1
+        _elementIdentifierId: -1
+        _axisRange: 0
+        _invert: 0
+        _axisContribution: 0
+        _keyboardKeyCode: 100
+        _modifierKey1: 1
+        _modifierKey2: 0
+        _modifierKey3: 0
     mouseMaps: []
     customControllerMaps: []
     customControllers: []
     controllerMapLayoutManagerRuleSets: []
     controllerMapEnablerRuleSets: []
     playerIdCounter: 2
-    actionIdCounter: 7
+    actionIdCounter: 8
     actionCategoryIdCounter: 1
     inputBehaviorIdCounter: 2
     mapCategoryIdCounter: 1
@@ -23160,6 +23180,7 @@ MonoBehaviour:
   froinsCheatInputName: froinscheat
   skipChapterCheatInputName: skipchaptercheat
   unlockAllCheatInputName: unlockallcheat
+  removeAchievementsCheatInputName: removeachievementscheat
   inputAxisDeadZone: 0.3
   friendsParent: {fileID: 115233407}
 --- !u!50 &1127068953

@@ -48,8 +48,8 @@ public class ChapterButtonBehaviour : MonoBehaviour
             if (iconExists)
             {
                 iconImage.sprite = chapter.chapterData.icons[iconCount];
+                UpdateTootipText(iconCount, DataManager.instance.GetTooltipForChapterIcon(chapter.chapterData.icons[iconCount]));
             }
-            UpdateTootipText(iconCount, DataManager.instance.GetTooltipForChapterIcon(chapter.chapterData.icons[iconCount]));
             iconCount++;
         }
 
