@@ -201,8 +201,15 @@ public class UIManager : MonoBehaviour
         SetScreenInteractability(menuButtonsGroup, !isThereCharacterSelection);
         characterSelectionScreen.SetActive(isThereCharacterSelection);
 
-        // Pick the first character button.
-        SetSelectedButton(characterSelectionGridLayoutGroup.GetComponentInChildren<Transform>().GetComponentInChildren<Button>().gameObject);
+        if (isThereCharacterSelection)
+        {
+            // Pick the first character button.
+            SetSelectedButton(characterSelectionGridLayoutGroup.GetComponentInChildren<Transform>().GetComponentInChildren<Button>().gameObject);
+        }
+        else
+        {
+            SetSelectedButton(selectedButtonTitleScreen);
+        }
 
         if (thenGoToChapterSelection)
         {
