@@ -68,6 +68,7 @@ public class FrogCharacterController : MonoBehaviour
     public string froinsCheatInputName = "froinscheat";
     public string skipChapterCheatInputName = "skipchaptercheat";
     public string unlockAllCheatInputName = "unlockallcheat";
+    public string removeAchievementsCheatInputName = "removeachievementscheat";
     [Space]
     public float inputAxisDeadZone = 0.3f;
     
@@ -104,7 +105,7 @@ public class FrogCharacterController : MonoBehaviour
 
         if (GameManager.instance.everythingIsUnlocked)
         {
-            AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true);
+            AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true, true);
             UIManager.instance.ShowTitleScreen();
         }
     }
@@ -133,7 +134,11 @@ public class FrogCharacterController : MonoBehaviour
         }
         if (GameManager.instance.cheatsAreEnabled && GetUnlockAllCheatInput())
         {
-            AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true);
+            AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true, true);
+        }
+        if (GameManager.instance.cheatsAreEnabled && GetRemoveAchievementCheatInput())
+        {
+            AchievementManager.instance.ClearAllSteamAchievements();
         }
 
         if (GameManager.instance.isGameRunning)
@@ -626,6 +631,11 @@ public class FrogCharacterController : MonoBehaviour
     private bool GetUnlockAllCheatInput()
     {
         return rewiredPlayer.GetButtonDown(unlockAllCheatInputName);
+    }
+
+    private bool GetRemoveAchievementCheatInput()
+    {
+        return rewiredPlayer.GetButtonDown(removeAchievementsCheatInputName);
     }
 
     #endregion

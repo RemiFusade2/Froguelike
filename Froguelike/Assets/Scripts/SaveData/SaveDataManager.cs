@@ -127,48 +127,51 @@ public class SaveDataManager : MonoBehaviour
 
     private bool Save(string fileName)
     {
-        string saveFilePath = GetFilePath(fileName);
-        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
-        {
-            Debug.Log("Debug info - Saving at: " + saveFilePath);
-        }
         bool result = false;
-        try
+        if (!GameManager.instance.demoBuild || GameManager.instance.demoSaveProgress)
         {
-            CombinedSaveData allSaveData = CombinedSaveData.GetAllSaveData();
-            switch (saveMethod)
+            string saveFilePath = GetFilePath(fileName);
+            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
             {
-                case SaveMethod.JSON:
-                    // Save the data in JSON format (readable and editable)
-                    if (logsVerboseLevel == VerboseLevel.MAXIMAL)
-                    {
-                        Debug.Log("Debug info - Save in JSON");
-                    }
-                    string jsonData = JsonUtility.ToJson(allSaveData);
-                    File.WriteAllText(saveFilePath, jsonData);
-                    break;
-                case SaveMethod.BINARY:
-                    // Save the data in Binary format (unreadable)
-                    if (logsVerboseLevel == VerboseLevel.MAXIMAL)
-                    {
-                        Debug.Log("Debug info - Save in Binary");
-                    }
-                    FileStream dataStream = new FileStream(saveFilePath, FileMode.Create);
-                    BinaryFormatter converter = new BinaryFormatter();
-                    converter.Serialize(dataStream, allSaveData);
-                    dataStream.Close();
-                    break;
+                Debug.Log("Debug info - Saving at: " + saveFilePath);
             }
-            result = true;
-            isSaveDataDirty = false;
-            if (logsVerboseLevel != VerboseLevel.NONE)
+            try
             {
-                Debug.Log("File " + fileName + " saved successfully");
+                CombinedSaveData allSaveData = CombinedSaveData.GetAllSaveData();
+                switch (saveMethod)
+                {
+                    case SaveMethod.JSON:
+                        // Save the data in JSON format (readable and editable)
+                        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                        {
+                            Debug.Log("Debug info - Save in JSON");
+                        }
+                        string jsonData = JsonUtility.ToJson(allSaveData);
+                        File.WriteAllText(saveFilePath, jsonData);
+                        break;
+                    case SaveMethod.BINARY:
+                        // Save the data in Binary format (unreadable)
+                        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                        {
+                            Debug.Log("Debug info - Save in Binary");
+                        }
+                        FileStream dataStream = new FileStream(saveFilePath, FileMode.Create);
+                        BinaryFormatter converter = new BinaryFormatter();
+                        converter.Serialize(dataStream, allSaveData);
+                        dataStream.Close();
+                        break;
+                }
+                result = true;
+                isSaveDataDirty = false;
+                if (logsVerboseLevel != VerboseLevel.NONE)
+                {
+                    Debug.Log("File " + fileName + " saved successfully");
+                }
             }
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogError("Exception in Save(): " + ex.Message);
+            catch (System.Exception ex)
+            {
+                Debug.LogError("Exception in Save(): " + ex.Message);
+            }
         }
         return result;
     }
@@ -190,62 +193,65 @@ public class SaveDataManager : MonoBehaviour
     private bool Load(string fileName)
     {
         bool success = false;
-        string saveFilePath = GetFilePath(fileName);
-        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        if (!GameManager.instance.demoBuild || GameManager.instance.demoSaveProgress)
         {
-            Debug.Log("Debug info - Loading: " + saveFilePath);
-        }
-        try
-        {
-            if (File.Exists(saveFilePath))
+            string saveFilePath = GetFilePath(fileName);
+            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
             {
-                CombinedSaveData loadedData = null;
-                switch (saveMethod)
+                Debug.Log("Debug info - Loading: " + saveFilePath);
+            }
+            try
+            {
+                if (File.Exists(saveFilePath))
                 {
-                    case SaveMethod.JSON:
-                        // Load the data in JSON format (readable and editable)
-                        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
-                        {
-                            Debug.Log("Debug info - Load in JSON");
-                        }
-                        string jsonData = File.ReadAllText(saveFilePath);
-                        loadedData = JsonUtility.FromJson<CombinedSaveData>(jsonData);
-                        break;
-                    case SaveMethod.BINARY:
-                        // Load the data in Binary format (unreadable)
-                        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
-                        {
-                            Debug.Log("Debug info - Load in Binary");
-                        }
-                        FileStream dataStream = null;
-                        try
-                        {
-                            dataStream = new FileStream(saveFilePath, FileMode.Open);
-                            BinaryFormatter converter = new BinaryFormatter();
-                            loadedData = converter.Deserialize(dataStream) as CombinedSaveData;
-                        }
-                        catch (System.Exception ex)
-                        {
-                            Debug.LogError("Exception in Load(): " + ex.Message);
-                        }
-                        finally
-                        {
-                            dataStream.Close();
-                        }
-                        break;
-                }
-                CombinedSaveData.SetAllSaveData(loadedData);
-                success = true;
-                isSaveDataDirty = false;
-                if (logsVerboseLevel != VerboseLevel.NONE)
-                {
-                    Debug.Log("File " + fileName + " loaded successfully");
+                    CombinedSaveData loadedData = null;
+                    switch (saveMethod)
+                    {
+                        case SaveMethod.JSON:
+                            // Load the data in JSON format (readable and editable)
+                            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                            {
+                                Debug.Log("Debug info - Load in JSON");
+                            }
+                            string jsonData = File.ReadAllText(saveFilePath);
+                            loadedData = JsonUtility.FromJson<CombinedSaveData>(jsonData);
+                            break;
+                        case SaveMethod.BINARY:
+                            // Load the data in Binary format (unreadable)
+                            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                            {
+                                Debug.Log("Debug info - Load in Binary");
+                            }
+                            FileStream dataStream = null;
+                            try
+                            {
+                                dataStream = new FileStream(saveFilePath, FileMode.Open);
+                                BinaryFormatter converter = new BinaryFormatter();
+                                loadedData = converter.Deserialize(dataStream) as CombinedSaveData;
+                            }
+                            catch (System.Exception ex)
+                            {
+                                Debug.LogError("Exception in Load(): " + ex.Message);
+                            }
+                            finally
+                            {
+                                dataStream.Close();
+                            }
+                            break;
+                    }
+                    CombinedSaveData.SetAllSaveData(loadedData);
+                    success = true;
+                    isSaveDataDirty = false;
+                    if (logsVerboseLevel != VerboseLevel.NONE)
+                    {
+                        Debug.Log("File " + fileName + " loaded successfully");
+                    }
                 }
             }
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogError("Exception in Load(): " + ex.Message);
+            catch (System.Exception ex)
+            {
+                Debug.LogError("Exception in Load(): " + ex.Message);
+            }
         }
         return success;
     }

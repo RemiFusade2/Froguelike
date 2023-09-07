@@ -4,6 +4,14 @@ using UnityEngine;
 using System.Linq;
 
 [System.Serializable]
+public enum DemoLimitationType
+{
+    NONE,
+    NUMBER_OF_RUNS,
+    TIMER
+}
+
+[System.Serializable]
 public class GameSaveData : SaveData
 {
     public int deathCount;
@@ -60,11 +68,17 @@ public class GameManager : MonoBehaviour
     [Header("Settings - Log")]
     public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
 
-    [Header("Settings - Demo")]
+    [Header("Settings - Build")]
     public bool demoBuild = false;
+    public bool showDemoDisclaimer = false;
+    public DemoLimitationType demoLimitationType;
+    public float demoTimeLimit = 0; // In seconds
+    public int demoRunCountLimit = 0;
+    public bool demoSaveProgress = false;
     [Space]
     public bool cheatsAreEnabled = false;
     public bool everythingIsUnlocked = false;
+    public bool thingsWithMissingSpritesAreHidden = false;
 
     [Header("References")]
     public FrogCharacterController player;
@@ -101,6 +115,9 @@ public class GameManager : MonoBehaviour
     {
         InitializeStuff();
         BackToTitleScreen();
+
+        UIManager.instance.HideEndOfDemoScreen();
+        UIManager.instance.ShowDemoDisclaimerScreen(demoBuild && showDemoDisclaimer, demoLimitationType, demoSaveProgress, demoRunCountLimit, demoTimeLimit);
     }
 
     private void Update()
@@ -155,15 +172,16 @@ public class GameManager : MonoBehaviour
 
     #region Chapters
 
+    public void RegisterANewAttempt()
+    {
+        gameData.attempts++;
+        SaveDataManager.instance.isSaveDataDirty = true;
+    }
 
     public void StartRunWithCharacter(PlayableCharacter character)
     {
         // Start a new Run
         RunManager.instance.StartNewRun(character);
-
-        // Register a new attempt
-        gameData.attempts++;
-        SaveDataManager.instance.isSaveDataDirty = true;
     }
 
     #endregion
@@ -291,6 +309,12 @@ public class GameManager : MonoBehaviour
         // Clear save file and create a new one
         bool fileErased = SaveDataManager.instance.EraseSaveFile(true);
         SaveDataManager.instance.CreateEmptySaveFile();
+
+        // In case this is a demo build, also reset the demo timer
+        if (demoBuild && demoLimitationType == DemoLimitationType.TIMER)
+        {
+            UIManager.instance.StartDemoTimer();
+        }
 
         InitializeStuff();
         BackToTitleScreen();

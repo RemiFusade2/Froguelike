@@ -159,6 +159,8 @@ public class DataManager : MonoBehaviour
 
     [Header("Sprites")]
     public Sprite collectibleDefaultSprite;
+    public Sprite achievementLockedDefaultSprite;
+    public Sprite achievementUnlockedDefaultSprite;
 
     [Header("Hats")]
     public List<HatInfo> hatInfoList;

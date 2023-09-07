@@ -1,10 +1,11 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
 using Steamworks;
+using System;
 
 /// <summary>
 /// UIManager deals with navigation in the menus, as well as in-game UI.
@@ -26,6 +27,7 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI titleScreenWelcomeMessageText;
     public TextMeshProUGUI titleScreenSaveLocationText;
     [Space]
+    public Button startButton;
     public GameObject shopButton;
     public GameObject achievementsButton;
     public GameObject settingsButton;
@@ -96,10 +98,34 @@ public class UIManager : MonoBehaviour
     public GameObject clearSaveFileConfirmationPanel;
     public GameObject selectedButtonClearSaveFileConfirmationPanel;
 
-    [Header("Demo panels")]
+    [Header("Demo stuff")]
     public List<GameObject> demoPanelsList;
+    public GameObject demoLimitationSticker;
+    public TextMeshProUGUI demoLimitationText;
+    [Space]
+    public GameObject demoDisclaimerScreen;
+    public TextMeshProUGUI demoDisclaimerText;
+    [Space]
+    public GameObject endOfDemoScreen;
 
     private List<GameObject> rememberThisButton = new List<GameObject>();
+
+    const string demoRunLimitationStr = "Available Runs: DEMO_RUNCOUNT_LIMIT";
+    const string demoTimeLimitationStr = "Remaining: DEMO_TIME_LIMIT";
+
+    const string disclaimerTextIntroStr = "This Demo is meant to show a glimpse of what the full game will be. However, it has limits:";
+    const string disclaimerTextNoSaveStr = "- your progress will not be saved";
+    const string disclaimerTextRunLimitStr = "- you will only be able to play DEMO_RUNCOUNT_LIMIT runs";
+    const string disclaimerTextTimeLimitStr = "- you will only be able to play for DEMO_TIME_LIMIT minutes";
+    const string disclaimerTextNoLimitStr = "- the content is only a fraction of the full game";
+
+    private bool endOfDemoHasBeenShown;
+    private float removedDisclaimerTime;
+
+    public void StartDemoTimer()
+    {
+        removedDisclaimerTime = Time.unscaledTime;
+    }
 
     private void Awake()
     {
@@ -112,12 +138,25 @@ public class UIManager : MonoBehaviour
         {
             Destroy(this.gameObject);
         }
+        endOfDemoHasBeenShown = false;
+        removedDisclaimerTime = 24*60*60;
     }
 
     private void Start()
     {
         UpdateDemoPanels();
         SetScreenInteractability(pausePanel, false);
+    }
+
+    private void Update()
+    {
+        if (GameManager.instance.demoBuild 
+            && GameManager.instance.demoLimitationType == DemoLimitationType.TIMER 
+            && titleScreen.activeInHierarchy
+            && (demoDisclaimerScreen == null || (demoDisclaimerScreen != null && !demoDisclaimerScreen.activeInHierarchy)))
+        {
+            UpdateDemoLimitationSticker();
+        }
     }
 
     public void UpdateDemoPanels()
@@ -147,11 +186,50 @@ public class UIManager : MonoBehaviour
         creditsScreen.SetActive(false);
     }
 
+    public void UpdateDemoLimitationSticker()
+    {
+        if (GameManager.instance.demoBuild && GameManager.instance.demoLimitationType != DemoLimitationType.NONE)
+        {
+            demoLimitationSticker.SetActive(true);
+            switch(GameManager.instance.demoLimitationType)
+            {
+                case DemoLimitationType.NUMBER_OF_RUNS:
+                    int remainingRuns = GameManager.instance.demoRunCountLimit - GameManager.instance.gameData.attempts;
+                    demoLimitationText.text = demoRunLimitationStr.Replace("DEMO_RUNCOUNT_LIMIT", remainingRuns.ToString());
+                    startButton.interactable = (remainingRuns > 0); // disable start button if there are no more runs
+                    break;
+                case DemoLimitationType.TIMER:
+                    float remainingTimeFloat = GameManager.instance.demoTimeLimit - (Time.unscaledTime - removedDisclaimerTime);
+                    remainingTimeFloat = Mathf.Clamp(remainingTimeFloat, 0, float.MaxValue);
+                    TimeSpan remainingTime = TimeSpan.FromSeconds(remainingTimeFloat);
+                    demoLimitationText.text = demoTimeLimitationStr.Replace("DEMO_TIME_LIMIT", remainingTime.ToString(@"mm\:ss"));
+                    startButton.interactable = (remainingTimeFloat > 0); // disable start button if there's no more time
+                    break;
+                default:
+                    break;
+            }
+            if (!startButton.interactable && !endOfDemoHasBeenShown && endOfDemoScreen != null)
+            {
+                endOfDemoHasBeenShown = true;
+                endOfDemoScreen.SetActive(true);
+            }
+        }
+        else
+        {
+            demoLimitationSticker.SetActive(false);
+        }
+    }
+
     public void ShowTitleScreen()
     {
         MusicManager.instance.PlayTitleMusic();
         HideAllScreens();
         UpdateTitleScreenCurrencyText(GameManager.instance.gameData.availableCurrency);
+
+        if (demoLimitationSticker != null)
+        {
+            UpdateDemoLimitationSticker();
+        }
 
         shopButton.SetActive(ShopManager.instance.IsShopUnlocked());
         achievementsButton.SetActive(AchievementManager.instance.IsAchievementsListUnlocked());
@@ -437,7 +515,7 @@ public class UIManager : MonoBehaviour
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
-            Debug.Log("UI - Display Go back to Title confirmation screen");
+            Debug.Log($"UI - Display Go back to Title confirmation screen: {active}");
         }
     }
 
@@ -457,10 +535,78 @@ public class UIManager : MonoBehaviour
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
-            Debug.Log("UI - Display Clear save file confirmation screen");
+            Debug.Log($"UI - Display Clear save file confirmation screen: {active}");
         }
     }
+
     #endregion Confirmation Panels
+
+    private string GetDemoDisclaimerString(DemoLimitationType limitationType, bool gameIsSaved, int numberOfRuns = 0, float timer = 0)
+    {
+        string disclaimerString = disclaimerTextIntroStr + "\n";
+        if (!gameIsSaved)
+        {
+            disclaimerString += disclaimerTextNoSaveStr + "\n";
+        }
+        switch (limitationType)
+        {
+            case DemoLimitationType.NONE:
+                disclaimerString += disclaimerTextNoLimitStr;
+                break;
+            case DemoLimitationType.NUMBER_OF_RUNS:
+                disclaimerString += disclaimerTextRunLimitStr.Replace("DEMO_RUNCOUNT_LIMIT", numberOfRuns.ToString());
+                break;
+            case DemoLimitationType.TIMER:
+                disclaimerString += disclaimerTextTimeLimitStr.Replace("DEMO_TIME_LIMIT", Mathf.FloorToInt(timer / 60).ToString());
+                break;
+        }
+
+        return disclaimerString;
+    }
+
+    public void ShowDemoDisclaimerScreen(bool active, DemoLimitationType limitationType, bool gameIsSaved, int numberOfRuns = 0, float timer = 0)
+    {
+        if (active && demoDisclaimerText != null)
+        {
+            string disclaimerStr = GetDemoDisclaimerString(limitationType, gameIsSaved, numberOfRuns, timer);
+            demoDisclaimerText.text = disclaimerStr;
+        }
+
+        if (demoDisclaimerScreen != null)
+        {
+            demoDisclaimerScreen.SetActive(active);
+        }
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"UI - Display Demo disclaimer screen: {active}");
+        }
+    }
+
+    public void HideDemoDisclaimerScreen()
+    {
+        if (demoDisclaimerScreen.activeInHierarchy)
+        {
+            StartDemoTimer();
+        }
+        demoDisclaimerScreen.SetActive(false);
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("UI - Hide Demo disclaimer screen");
+        }
+    }
+
+    public void HideEndOfDemoScreen()
+    {
+        if (endOfDemoScreen != null)
+        {
+            endOfDemoScreen.SetActive(false);
+            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log("UI - Hide End of Demo screen");
+            }
+        }
+    }
 
     public void ShowSettingsScreen()
     {

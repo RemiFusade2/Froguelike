@@ -130,6 +130,7 @@ public class AchievementManager : MonoBehaviour
     public ScrollRect achievementsListScrollRect;
     public RectTransform achievementScrollContentPanel;
     public Transform achievementScrollEntriesParent;
+    public ScrollbarKeepCursorSizeBehaviour achievementsScrollbar;
     [Space]
     public GameObject achievementEntryPrefab;        
 
@@ -175,6 +176,10 @@ public class AchievementManager : MonoBehaviour
             if (achievementFromSave != null)
             {
                 achievement.unlocked = achievementFromSave.unlocked;
+                if (achievement.unlocked)
+                {
+                    SetSteamAchievementIfPossible(achievement.achievementData.achievementSteamID);
+                }
             }
         }
     }
@@ -199,12 +204,20 @@ public class AchievementManager : MonoBehaviour
 
     #region Steam
 
+    public void ClearAllSteamAchievements()
+    {
+        foreach (Achievement achievement in achievementsData.achievementsList)
+        {
+            ClearSteamAchievementIfPossible(achievement.achievementData.achievementSteamID);
+        }
+    }
+
     private bool ClearSteamAchievementIfPossible(string achievementSteamKey)
     {
         bool achievementCleared = false;
+        string log = $"Achievement Manager - Achievement {achievementSteamKey} ";
         if (SteamManager.Initialized)
         {
-            string log = $"Achievement Manager - Achievement {achievementSteamKey} ";
             if (Steamworks.SteamUserStats.ClearAchievement(achievementSteamKey))
             {
                 achievementCleared = true;
@@ -214,10 +227,14 @@ public class AchievementManager : MonoBehaviour
             {
                 log += "couldn't be reset on Steam!";
             }
-            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
-            {
-                Debug.Log(log);
-            }
+        }
+        else
+        {
+            log += "can't be checked because Steam manager has not been initialized";
+        }
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log(log);
         }
         return achievementCleared;
     }
@@ -225,9 +242,9 @@ public class AchievementManager : MonoBehaviour
     private bool SetSteamAchievementIfPossible(string achievementSteamKey)
     {
         bool achievementUnlocked = false;
-        if (SteamManager.Initialized)
+        string log = $"Achievement Manager - Achievement {achievementSteamKey} ";
+        if (SteamManager.Initialized && !GameManager.instance.demoBuild)
         {
-            string log = $"Achievement Manager - Achievement {achievementSteamKey} ";
             if (Steamworks.SteamUserStats.GetAchievement(achievementSteamKey, out bool achieved))
             {
                 if (!achieved)
@@ -251,17 +268,21 @@ public class AchievementManager : MonoBehaviour
             {
                 log += "doesn't exist on Steam";
             }
-            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
-            {
-                Debug.Log(log);
-            }
+        }
+        else
+        {
+            log += "can't be checked because Steam manager has not been initialized, or this is the demo build";
+        }
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log(log);
         }
         return achievementUnlocked;
     }
 
     #endregion
 
-    public List<Achievement> GetUnlockedAchievementsForCurrentRun(bool forceUnlockEverything = false)
+    public List<Achievement> GetUnlockedAchievementsForCurrentRun(bool unlockAchievements, bool forceUnlockEverything)
     {
         List<Achievement> unlockedAchievementsList = new List<Achievement>();
 
@@ -279,7 +300,8 @@ public class AchievementManager : MonoBehaviour
         foreach (Achievement achievement in achievementsData.achievementsList)
         {
             bool isDemoBuildAndAchievementIsNotPartOfDemo = IsAchievementLockedBehindDemo(achievement);
-            if (!achievement.unlocked && !isDemoBuildAndAchievementIsNotPartOfDemo)
+            bool achievementIsLockedBehindMissingIcon = IsAchievementLockedBehindMissingIcon(achievement);
+            if (!achievement.unlocked && !isDemoBuildAndAchievementIsNotPartOfDemo /*&& !achievementIsLockedBehindMissingIcon*/)
             {
                 bool conditionsAreMet = true;
                 foreach (AchievementCondition condition in achievement.achievementData.conditionsList)
@@ -324,6 +346,13 @@ public class AchievementManager : MonoBehaviour
                                 case AchievementConditionSpecialKey.UNLOCK_A_CHARACTER:
                                     conditionsAreMet &= (CharacterManager.instance.GetUnlockedCharacterCount() > 1);
                                     break;
+                                case AchievementConditionSpecialKey.COMPLETE_1_ACHIEVEMENT:
+                                    if (!metaAchievements.Contains(achievement))
+                                    {
+                                        metaAchievements.Add(achievement);
+                                    }
+                                    conditionsAreMet &= (achievementsData.achievementsList.Count(x => x.unlocked) >= 1);
+                                    break;
                                 case AchievementConditionSpecialKey.COMPLETE_10_ACHIEVEMENTS:
                                     if (!metaAchievements.Contains(achievement))
                                     {
@@ -359,8 +388,11 @@ public class AchievementManager : MonoBehaviour
                 if (conditionsAreMet || forceUnlockEverything)
                 {
                     // Conditions are met to unlock this Achievement!
-                    UnlockAchievement(achievement);
                     unlockedAchievementsList.Add(achievement);
+                    if (unlockAchievements)
+                    {
+                        UnlockAchievement(achievement);
+                    }
                 }
             }
         }
@@ -373,6 +405,10 @@ public class AchievementManager : MonoBehaviour
                 bool conditionsAreMet = true;
                 foreach (AchievementCondition condition in achievement.achievementData.conditionsList)
                 {
+                    if (condition.conditionType == AchievementConditionType.SPECIAL && condition.specialKey == AchievementConditionSpecialKey.COMPLETE_1_ACHIEVEMENT)
+                    {
+                        conditionsAreMet &= (achievementsData.achievementsList.Count(x => x.unlocked) >= 1);
+                    }
                     if (condition.conditionType == AchievementConditionType.SPECIAL && condition.specialKey == AchievementConditionSpecialKey.COMPLETE_10_ACHIEVEMENTS)
                     {
                         conditionsAreMet &= (achievementsData.achievementsList.Count(x => x.unlocked) >= 10);
@@ -444,6 +480,11 @@ public class AchievementManager : MonoBehaviour
         return GameManager.instance.demoBuild && !achievement.achievementData.partOfDemo;
     }
 
+    private bool IsAchievementLockedBehindMissingIcon(Achievement achievement)
+    {
+        return GameManager.instance.thingsWithMissingSpritesAreHidden && (achievement.achievementData.achievementUnlockedIcon == null || achievement.achievementData.achievementLockedIcon == null);
+    }
+
     private bool IsAchievementAvailable(Achievement achievement)
     {
         bool conditionCanBeFulfilled = true;
@@ -474,8 +515,14 @@ public class AchievementManager : MonoBehaviour
     {
         List<Achievement> orderedAchievements = SortAchievementList(achievementsData.achievementsList);
 
-        int allAchievementsCount = orderedAchievements.Count(x => !IsAchievementLockedBehindDemo(x));
-        int allUnlockedAchievementsCount = orderedAchievements.Count(x => !IsAchievementLockedBehindDemo(x) && x.unlocked);
+        // OLD CODE: this was used to only display achievements that have icons and are part of the demo
+        int allAchievementsCount = orderedAchievements.Count(x => !IsAchievementLockedBehindDemo(x) && !IsAchievementLockedBehindMissingIcon(x));
+        int allUnlockedAchievementsCount = orderedAchievements.Count(x => !IsAchievementLockedBehindDemo(x) && !IsAchievementLockedBehindMissingIcon(x) && x.unlocked);
+
+        // NEW CODE: we display every achievement, regardless of missing icons or demo stuff
+        // It is way better to have many achievements to show in the list!
+        allAchievementsCount = orderedAchievements.Count();
+        allUnlockedAchievementsCount = orderedAchievements.Count(x => x.unlocked);
 
         achievementCountTextMesh.text = $"{allUnlockedAchievementsCount}/{allAchievementsCount} achieved";
         
@@ -493,9 +540,14 @@ public class AchievementManager : MonoBehaviour
         foreach (Achievement achievement in orderedAchievements)
         {
             bool achievementIsLockedBehindDemo = IsAchievementLockedBehindDemo(achievement);
+            bool achievementIsLockedBehindMissingIcon = IsAchievementLockedBehindMissingIcon(achievement);
             bool achievementIsNotSetup = (achievement.achievementData.reward.rewardType == AchievementRewardType.RUN_ITEM && achievement.achievementData.reward.runItem == null)
                 || (achievement.achievementData.reward.rewardType == AchievementRewardType.SHOP_ITEM && achievement.achievementData.reward.shopItem == null);
-            if (!achievementIsNotSetup && !achievementIsLockedBehindDemo)
+
+            bool addThisAchievementToTheList = !achievementIsNotSetup;
+            // addThisAchievementToTheList &= !achievementIsLockedBehindDemo && !achievementIsLockedBehindMissingIcon;
+
+            if (addThisAchievementToTheList)
             {
                 GameObject achievementEntryGo = Instantiate(achievementEntryPrefab, achievementScrollEntriesParent);
                 AchievementEntryPanelBehaviour achievementEntryScript = achievementEntryGo.GetComponent<AchievementEntryPanelBehaviour>();
@@ -514,5 +566,59 @@ public class AchievementManager : MonoBehaviour
 
         // Set scroll view to top position
         achievementsListScrollRect.normalizedPosition = new Vector2(0, 1);
+
+        // Set scroll bar
+        achievementsScrollbar.SetCursorCentered(entryCount <= 11);
+    }
+
+    public bool IsChapterPartOfALockedAchievement(Chapter chapter)
+    {
+        bool achievementFound = false;
+
+        List<Achievement> newUnlockedAchievementsSoFar = GetUnlockedAchievementsForCurrentRun(false, false);
+
+        foreach (Achievement achievement in achievementsData.achievementsList)
+        {
+            bool isDemoBuildAndAchievementIsNotPartOfDemo = IsAchievementLockedBehindDemo(achievement);
+            bool achievementIsLockedBehindMissingIcon = IsAchievementLockedBehindMissingIcon(achievement);
+            bool achievementIsAvailable = IsAchievementAvailable(achievement);
+            bool achievementIsLocked = (!newUnlockedAchievementsSoFar.Contains(achievement) && !achievement.unlocked);
+            if (achievementIsLocked && !isDemoBuildAndAchievementIsNotPartOfDemo && !achievementIsLockedBehindMissingIcon && achievementIsAvailable)
+            {
+                foreach (AchievementCondition condition in achievement.achievementData.conditionsList)
+                {
+                    switch (condition.conditionType)
+                    {
+                        case AchievementConditionType.CHAPTER:
+                            if (condition.playedChapter.chapterID != null && condition.playedChapter.chapterID.Equals(chapter.chapterID))
+                            {
+                                achievementFound = true; // Finishing that chapter is a condition to unlock this achievement                                
+                            }
+                            break;
+                        case AchievementConditionType.RUNITEM:
+                            foreach (FixedCollectible collectible in chapter.chapterData.specialCollectiblesOnTheMap)
+                            {
+                                if (collectible.collectibleType == FixedCollectibleType.STATS_ITEM 
+                                    && condition.runItem.itemName.Equals(collectible.collectibleStatItemData.itemName))
+                                {
+                                    achievementFound = true; // There's an item in this chapter that is a condition to unlock this achievement
+                                    break;
+                                }
+                            }                            
+                            break;
+                    }
+                    if (achievementFound)
+                    {
+                        break;
+                    }
+                }
+            }
+            if (achievementFound)
+            {
+                break;
+            }
+        }
+
+        return achievementFound;
     }
 }

@@ -13,9 +13,15 @@ public class ChapterButtonBehaviour : MonoBehaviour
     [Header("References - NEW")]
     public GameObject newKeywordGameObject;
 
+    [Header("References - Something to unlock")]
+    public GameObject somethingToUnlockIcon;
+    public GameObject somethingToUnlockTooltip;
+
     [Header("References - Icons")]
     public Transform chapterIconsParent;
     public List<GameObject> tooltipsList;
+
+    public const string somethingToUnlockTooltipString = "There is still something to unlock in that storyline";
 
     public void Initialize(Chapter chapter)
     {
@@ -29,6 +35,10 @@ public class ChapterButtonBehaviour : MonoBehaviour
         }
         newKeywordGameObject.SetActive(isChapterNew);
 
+        bool thereIsSomethingToUnlockInStoryline = !isChapterNew && ChapterManager.instance.DoesChapterUnlockAnAchievementOrAnUnplayedChapter(chapter, RunManager.instance.GetChapterCount());
+        somethingToUnlockIcon.SetActive(thereIsSomethingToUnlockInStoryline);
+        somethingToUnlockTooltip.SetActive(false);
+
         int iconCount = 0;
         foreach (Transform iconChild in chapterIconsParent)
         {
@@ -38,8 +48,8 @@ public class ChapterButtonBehaviour : MonoBehaviour
             if (iconExists)
             {
                 iconImage.sprite = chapter.chapterData.icons[iconCount];
+                UpdateTootipText(iconCount, DataManager.instance.GetTooltipForChapterIcon(chapter.chapterData.icons[iconCount]));
             }
-            UpdateTootipText(iconCount, DataManager.instance.GetTooltipForChapterIcon(chapter.chapterData.icons[iconCount]));
             iconCount++;
         }
 
@@ -54,6 +64,10 @@ public class ChapterButtonBehaviour : MonoBehaviour
         if (index >= 0 && index < tooltipsList.Count)
         {
             tooltipsList[index].SetActive(active);
+        }
+        else if (index == -1)
+        {
+            somethingToUnlockTooltip.SetActive(active);
         }
     }
 
