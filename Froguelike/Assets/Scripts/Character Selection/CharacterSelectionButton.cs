@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.EventSystems;
 
-public class CharacterSelectionButton : MonoBehaviour
+public class CharacterSelectionButton : MonoBehaviour, ISelectHandler
 {
     [Header("References")]
     public Button characterButton;
@@ -24,9 +25,17 @@ public class CharacterSelectionButton : MonoBehaviour
     public Color charactersDefaultTextColor;
     public Color charactersHintTextColor;
 
+    [Header("Scrollview")]
+    public ScrollRect scrollView;
+    public RectTransform viewportRT;
+    public RectTransform thisRT;
+    public Transform characterPanelGroupTransform;
+
     [Header("Runtime")]
     public PlayableCharacter character;
     public bool isSelected;
+
+    private const float gap = 22;
 
     // Start is called before the first frame update
     void Start()
@@ -38,6 +47,11 @@ public class CharacterSelectionButton : MonoBehaviour
     {
         character = characterData;
         UpdateUI();
+
+        scrollView = transform.parent.parent.parent.parent.GetComponent<ScrollRect>();
+        viewportRT = transform.parent.parent.parent.GetComponent<RectTransform>();
+        thisRT = GetComponent<RectTransform>();
+        characterPanelGroupTransform = transform.parent;
     }
 
     private void UpdateUI()
@@ -82,5 +96,22 @@ public class CharacterSelectionButton : MonoBehaviour
     {
         isSelected = selected;
         UpdateUI();
+    }
+
+    public void OnSelect(BaseEventData eventData)
+    {
+        // Scroll the button into view.
+        StartCoroutine(ScrollButtonIntoView());
+    }
+
+    private IEnumerator ScrollButtonIntoView()
+    {
+        // Wait for layout to recompute before getting this buttons position.
+        yield return new WaitForSeconds(0.1f);
+
+        float safeArea = (viewportRT.rect.height - thisRT.rect.height) / 2 - gap;
+        float currentY = characterPanelGroupTransform.localPosition.y + thisRT.localPosition.y;
+        float newY = Mathf.Clamp(currentY, -safeArea, safeArea);
+        characterPanelGroupTransform.localPosition += (newY - currentY) * Vector3.up;
     }
 }

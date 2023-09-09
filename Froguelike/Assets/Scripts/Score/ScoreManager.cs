@@ -35,6 +35,8 @@ public class ScoreManager : MonoBehaviour
     public GameObject runItemsDisplayPrefab;
     [Space]
     public AchievementsScrollRect achievementScrollRect;
+    public GameObject leftArrow;
+    public GameObject rightArrow;
 
 
     private void Awake()
@@ -195,6 +197,8 @@ public class ScoreManager : MonoBehaviour
         // Display unlocked achievements
         achievementScrollRect.Initialize(unlockedAchievements);
         achievementScrollRect.transform.parent.gameObject.SetActive((unlockedAchievements.Count > 0));
+        leftArrow.SetActive(unlockedAchievements.Count > 1);
+        rightArrow.SetActive(unlockedAchievements.Count > 1);
 
         // Show the score screen
         UIManager.instance.ShowScoreScreen();

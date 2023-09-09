@@ -9,22 +9,21 @@ using UnityEngine.Audio;
 public class SettingsMenu : MonoBehaviour
 {
     public Toggle fullscreenToggle;
-    public TMP_Dropdown resolutionDropdown;
+    public ResolutionsScrollRect resolutionScrollRect;
+    public GameObject leftArrow;
+    public GameObject rightArrow;
     public PixelPerfectCamera pixelPerfectCamera;
     public AudioMixer audioMixer;
 
     private Vector2 biggestResolutionForThisScreen;
     private List<Vector2> allowedResolutions;
-    // private Vector2 currentResolution;
 
     int gameWidth;
     int gameHeight;
 
-    int currentResolutionIndex;
-    int gameScaler;
+    int currentResolutionIndex = -1;
 
     bool startUpDone = false;
-    bool isUpdatingDropdownValue = false;
     bool isChangingFullscreen = false;
 
     CanvasScaler canvasScaler;
@@ -49,7 +48,9 @@ public class SettingsMenu : MonoBehaviour
 
         // Set the fullsccreen toggle to match the current fullscreen mode.
         fullscreenToggle.isOn = Screen.fullScreen;
-        resolutionDropdown.interactable = !Screen.fullScreen;
+
+        // leftArrow.GetComponent<Button>().interactable = !Screen.fullScreen;
+        // rightArrow.GetComponent<Button>().interactable = !Screen.fullScreen;
 
         // Get the intended reolution of the game.
         gameWidth = pixelPerfectCamera.refResolutionX;
@@ -92,7 +93,7 @@ public class SettingsMenu : MonoBehaviour
             }
         }
 
-        // If no reolution matched, make sure there still is a resolution index.
+        // If no resolution matched, make sure there still is a resolution index.
         if (currentResolutionIndex < 0)
         {
             // If the game is in fullscreen pick the biggest one, otherwise pick the second biggest one.
@@ -106,29 +107,22 @@ public class SettingsMenu : MonoBehaviour
             }
         }
 
+        // Add the fullscreen resolution, since it might be different from the biggest resolution that fits.
         allowedResolutions.Add(biggestResolutionForThisScreen);
 
-        UpdateDropdown(options);
+        UpdateResolutionScrollView(options);
     }
 
-
-    // Update the resolution dropdown and set the marker to the current reolution (without setting a resolution).
-    private void UpdateDropdown(List<string> options)
+    private void UpdateResolutionScrollView(List<string> options)
     {
-        isUpdatingDropdownValue = true;
+        // Remove all old resolutions.
+        for (int child = 0; child < resolutionScrollRect.content.childCount; child++)
+        {
+            resolutionScrollRect.content.GetChild(child).gameObject.SetActive(false);
+            Destroy(resolutionScrollRect.content.GetChild(child).gameObject);
+        }
 
-        resolutionDropdown.ClearOptions();
-        resolutionDropdown.AddOptions(options);
-        SetDropdownValue(currentResolutionIndex);
-    }
-
-    private void SetDropdownValue(int value)
-    {
-        isUpdatingDropdownValue = true;
-
-        resolutionDropdown.SetValueWithoutNotify(value);
-
-        isUpdatingDropdownValue = false;
+        resolutionScrollRect.Initialize(options, currentResolutionIndex);
     }
 
     // Update is called once per frame
@@ -138,7 +132,7 @@ public class SettingsMenu : MonoBehaviour
         // currentMaxRes.SetText(Screen.resolutions[Screen.resolutions.Length - 1].width + "x" + Screen.resolutions[Screen.resolutions.Length - 1].height);
 
 
-        // Detect if the biggest available resolution changed and if so set new reolution options.
+        // Detect if the biggest available resolution changed and if so set new resolution options.
         if (biggestResolutionForThisScreen.x != Screen.resolutions[Screen.resolutions.Length - 1].width || biggestResolutionForThisScreen.y != Screen.resolutions[Screen.resolutions.Length - 1].height)
         {
             Debug.Log("Redo resolution options");
@@ -161,13 +155,12 @@ public class SettingsMenu : MonoBehaviour
             }
         }
 
-        if (canvasScaler.scaleFactor != pixelPerfectCamera.pixelRatio * 2)
+        // Resizes the canvas to match the pixel ratio.
+        if (canvasScaler.scaleFactor != pixelPerfectCamera.pixelRatio)
         {
             ResizeCanvas();
-            SetDropdownValue(pixelPerfectCamera.pixelRatio - 1);
+            resolutionScrollRect.UpdateScroll(false, pixelPerfectCamera.pixelRatio);
         }
-
-
     }
 
     private void LateUpdate()
@@ -186,7 +179,7 @@ public class SettingsMenu : MonoBehaviour
         {
             SetWindowResolution(allowedResolutions.Count - 1);
             currentResolutionIndex = allowedResolutions.Count - 2;
-            SetDropdownValue(currentResolutionIndex);
+            resolutionScrollRect.UpdateScroll(false, currentResolutionIndex + 1);
         }
         else if (startUpDone)
         {
@@ -204,17 +197,29 @@ public class SettingsMenu : MonoBehaviour
         }
 
         Screen.fullScreen = wantFullscreen;
-        resolutionDropdown.interactable = !wantFullscreen;
-        SetDropdownValue(currentResolutionIndex);
+
+        // leftArrow.GetComponent<Button>().interactable = !wantFullscreen;
+        // rightArrow.GetComponent<Button>().interactable = !wantFullscreen;
+        resolutionScrollRect.UpdateScroll(false, currentResolutionIndex + 1);
+
+        fullscreenToggle.isOn = wantFullscreen;
     }
 
     public void SetWindowResolution(int wantedResolutionIndex)
     {
-        if (startUpDone && !isUpdatingDropdownValue)
+        if (startUpDone)
         {
             currentResolutionIndex = wantedResolutionIndex;
             Screen.SetResolution(Mathf.RoundToInt(allowedResolutions[currentResolutionIndex].x), Mathf.RoundToInt(allowedResolutions[currentResolutionIndex].y), Screen.fullScreen);
-            SetDropdownValue(currentResolutionIndex);
+        }
+    }
+
+    public void SetWindowResolution()
+    {
+        if (startUpDone)
+        {
+            currentResolutionIndex = resolutionScrollRect.currentDisplayedResolution - 1;
+            Screen.SetResolution(Mathf.RoundToInt(allowedResolutions[currentResolutionIndex].x), Mathf.RoundToInt(allowedResolutions[currentResolutionIndex].y), Screen.fullScreen);
         }
     }
 
@@ -224,8 +229,7 @@ public class SettingsMenu : MonoBehaviour
     }
 
 
-
-
+    #region Sound
     // Sound.
 
     public void OnVolumeValueChange(Slider slider)
@@ -284,8 +288,6 @@ public class SettingsMenu : MonoBehaviour
             Mute("volumeMusic");
         }
     }
-
-
 
     private void Mute(string audioGroupVolumeParameter)
     {
@@ -353,4 +355,6 @@ public class SettingsMenu : MonoBehaviour
         float newVolume = volume * 1;
         return newVolume;
     }
+
+    #endregion Sound
 }

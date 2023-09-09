@@ -91,8 +91,13 @@ public class RunManager : MonoBehaviour
     [Space]
     public string extraLivesPrefix;
     public TextMeshProUGUI extraLivesCountText;
+    [Space]
+    public Transform tongueSlotsParent;
+    public Transform statItemSlotsParent;
+    public GameObject slotPrefab;
 
     [Header("References - UI Level Up")]
+    public GameObject levelUpPanel;
     public List<GameObject> levelUpChoicesPanels;
     public List<TextMeshProUGUI> levelUpChoicesTitles;
     public List<TextMeshProUGUI> levelUpChoicesLevels;
@@ -112,10 +117,6 @@ public class RunManager : MonoBehaviour
     public GameObject skipPostit;
     public Button skipButton;
     public TextMeshProUGUI skipCount;
-    [Space]
-    public Transform tongueSlotsParent;
-    public Transform statItemSlotsParent;
-    public GameObject slotPrefab;
 
     [Header("Settings - In game UI")]
     public Color defaultTextColor;
@@ -996,7 +997,8 @@ public class RunManager : MonoBehaviour
 
     public void ShowLevelUpItemSelection(List<RunItemData> possibleItems, List<int> itemLevels)
     {
-        EventSystem.current.SetSelectedGameObject(null);
+        levelUpPanel.GetComponent<CanvasGroup>().interactable = true;
+        EventSystem.current.SetSelectedGameObject(levelUpChoicesPanels[0]);
         SoundManager.instance.PlaySlideBookSound();
 
         UpdateRerollBanishSkipPostIts();
@@ -1118,6 +1120,7 @@ public class RunManager : MonoBehaviour
 
     public void HideLevelUpItemSelection()
     {
+        levelUpPanel.GetComponent<CanvasGroup>().interactable = false;
         UIManager.instance.levelUpPanelAnimator.SetBool("Visible", false);
         SoundManager.instance.PlaySlideBookSound();
     }

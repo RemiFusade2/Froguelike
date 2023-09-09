@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -21,6 +21,8 @@ public class UIManager : MonoBehaviour
 
     [Header("Title")]
     public GameObject titleScreen;
+    public GameObject menuButtonsGroup;
+    public GameObject selectedButtonTitleScreen;
     public TextMeshProUGUI titleScreenCurrencyText;
     public TextMeshProUGUI titleScreenWelcomeMessageText;
     public TextMeshProUGUI titleScreenSaveLocationText;
@@ -28,15 +30,27 @@ public class UIManager : MonoBehaviour
     public Button startButton;
     public GameObject shopButton;
     public GameObject achievementsButton;
+    public GameObject settingsButton;
 
     [Header("Shop")]
     public GameObject shopScreen;
+    private GameObject selectedButtonShopScreen;
 
     [Header("Achievements")]
     public GameObject achievementsScreen;
+    public GameObject selectedButtonAchievementsScreen;
 
     [Header("Character Selection")]
     public GameObject characterSelectionScreen;
+    public GameObject characterSelectionGridLayoutGroup;
+
+    [Header("Settings Screen")]
+    public GameObject settingsScreen;
+    public GameObject selectedButtonSettingsScreen;
+
+    [Header("Credits")]
+    public GameObject creditsScreen;
+    public GameObject selectedButtonCreditsScreen;
 
     #endregion
 
@@ -44,6 +58,7 @@ public class UIManager : MonoBehaviour
 
     [Header("Chapter selection")]
     public GameObject chapterSelectionScreen;
+    public List<GameObject> chapterSelectionButtons;
 
     [Header("Chapter Start")]
     public GameObject chapterStartScreen;
@@ -54,10 +69,13 @@ public class UIManager : MonoBehaviour
     [Header("Level UP Panel")]
     public GameObject levelUpPanel;
     public Animator levelUpPanelAnimator;
+    public GameObject selectedButtonLevelUpPanel;
 
     [Header("Pause")]
     public GameObject pausePanel;
     public Animator pausePanelAnimator;
+    public GameObject selectedButtonPausePanel;
+    private bool makeLevelUpPanelInteractableAfterClosingPausePanel = false;
 
     #endregion
 
@@ -70,15 +88,15 @@ public class UIManager : MonoBehaviour
 
     [Header("Score Screen")]
     public GameObject scoreScreen;
+    public GameObject selectedButtonScoreScreen;
 
     #endregion
 
     [Header("Confirmation panels")]
     public GameObject backToTitleScreenConfirmationPanel;
+    public GameObject selectedButtonBackToTitleScreenConfirmationPanel;
     public GameObject clearSaveFileConfirmationPanel;
-
-    [Header("Settings Screen")]
-    public GameObject settingsScreen;
+    public GameObject selectedButtonClearSaveFileConfirmationPanel;
 
     [Header("Demo stuff")]
     public List<GameObject> demoPanelsList;
@@ -89,6 +107,8 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI demoDisclaimerText;
     [Space]
     public GameObject endOfDemoScreen;
+
+    private List<GameObject> rememberThisButton = new List<GameObject>();
 
     const string demoRunLimitationStr = "Available Runs: DEMO_RUNCOUNT_LIMIT";
     const string demoTimeLimitationStr = "Remaining: DEMO_TIME_LIMIT";
@@ -125,6 +145,7 @@ public class UIManager : MonoBehaviour
     private void Start()
     {
         UpdateDemoPanels();
+        SetScreenInteractability(pausePanel, false);
     }
 
     private void Update()
@@ -142,13 +163,16 @@ public class UIManager : MonoBehaviour
     {
         foreach (GameObject demoPanel in demoPanelsList)
         {
+            demoPanel.GetComponentInChildren<Button>().interactable = GameManager.instance.demoBuild;
             demoPanel.SetActive(GameManager.instance.demoBuild);
+
         }
     }
 
     private void HideAllScreens()
     {
-        EventSystem.current.SetSelectedGameObject(null);
+        // EventSystem.current.SetSelectedGameObject(null);
+        ClearSelectedButton();
         titleScreen.SetActive(false);
         characterSelectionScreen.SetActive(false);
         chapterSelectionScreen.SetActive(false);
@@ -159,6 +183,7 @@ public class UIManager : MonoBehaviour
         shopScreen.SetActive(false);
         achievementsScreen.SetActive(false);
         settingsScreen.SetActive(false);
+        creditsScreen.SetActive(false);
     }
 
     public void UpdateDemoLimitationSticker()
@@ -210,6 +235,12 @@ public class UIManager : MonoBehaviour
         achievementsButton.SetActive(AchievementManager.instance.IsAchievementsListUnlocked());
 
         titleScreen.SetActive(true);
+        SetScreenInteractability(menuButtonsGroup, true);
+
+        // Set a selected button.
+        SetSelectedButton(selectedButtonTitleScreen);
+
+        rememberThisButton.Clear();
 
         titleScreenSaveLocationText.text = Application.persistentDataPath;
         if (SteamManager.Initialized)
@@ -217,6 +248,7 @@ public class UIManager : MonoBehaviour
             string steamName = SteamFriends.GetPersonaName();
             titleScreenWelcomeMessageText.text = $"Welcome {steamName}! You are connected to Steam.";
         }
+
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -244,7 +276,18 @@ public class UIManager : MonoBehaviour
         bool isThereCharacterSelection = CharacterManager.instance.UpdateCharacterSelectionScreen();
 
         titleScreen.SetActive(true);
+        SetScreenInteractability(menuButtonsGroup, !isThereCharacterSelection);
         characterSelectionScreen.SetActive(isThereCharacterSelection);
+
+        if (isThereCharacterSelection)
+        {
+            // Pick the first character button.
+            SetSelectedButton(characterSelectionGridLayoutGroup.GetComponentInChildren<Transform>().GetComponentInChildren<Button>().gameObject);
+        }
+        else
+        {
+            SetSelectedButton(selectedButtonTitleScreen);
+        }
 
         if (thenGoToChapterSelection)
         {
@@ -267,8 +310,13 @@ public class UIManager : MonoBehaviour
         if (forceTitleScreen)
         {
             titleScreen.SetActive(true);
+            SetScreenInteractability(menuButtonsGroup, false);
         }
         chapterSelectionScreen.SetActive(true);
+
+        // Pick the first chapter option as the selected button.
+        GameObject selectedButton = chapterSelectionButtons[4].activeSelf ? chapterSelectionButtons[4] : chapterSelectionButtons[0];
+        SetSelectedButton(selectedButton);
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -291,11 +339,15 @@ public class UIManager : MonoBehaviour
     public void ShowScoreScreen()
     {
         HideAllScreens();
+        SetScreenInteractability(pausePanel, false);
+        SetScreenInteractability(levelUpPanel, false);
 
         // Display score screen
         inGameUIPanel.SetActive(true);
         scoreScreen.SetActive(true);
         SoundManager.instance.PlayLongPageSound();
+
+        SetSelectedButton(selectedButtonScoreScreen);
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -310,13 +362,18 @@ public class UIManager : MonoBehaviour
         inGameUIPanel.SetActive(true);
     }
 
-    public void ShowGameOver(bool respawnAvailable)
+    public void ShowGameOver(int respawnsAvailable)
     {
-        HideAllScreens();
-        inGameUIPanel.SetActive(true);
+        // HideAllScreens();
+        // inGameUIPanel.SetActive(true);
+        bool respawnAvailable = respawnsAvailable > 0;
+
+        gameOverPanel.GetComponent<GameOverScreen>().UpdateGameOverScreen();
         gameOverPanel.SetActive(true);
-        gameOverRespawnButton.SetActive(respawnAvailable);
-        gameOverGiveUpButton.SetActive(!respawnAvailable);
+        gameOverRespawnButton.GetComponent<Button>().interactable = respawnAvailable;
+        SetSelectedButton(respawnAvailable ? gameOverRespawnButton : gameOverGiveUpButton);
+
+
         SoundManager.instance.PlayDeathSound();
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
@@ -329,6 +386,18 @@ public class UIManager : MonoBehaviour
     {
         // Tell the pause screen to update its information.
         pausePanel.GetComponent<PauseScreen>().UpdatePauseScreen();
+
+        // Set up start button and navigation.
+        SetScreenInteractability(pausePanel, true);
+        if (levelUpPanel.GetComponent<CanvasGroup>().interactable)
+        {
+            SetScreenInteractability(levelUpPanel, false);
+            makeLevelUpPanelInteractableAfterClosingPausePanel = true;
+            SavePreviousSelectedButton();
+        }
+
+        SetSelectedButton(selectedButtonPausePanel);
+
 
         // MusicManager.instance.PauseMusic(); // I took this away because I think teh music should still be playing (Johanna).
         // Show the pause screen.
@@ -344,9 +413,19 @@ public class UIManager : MonoBehaviour
     public void HidePauseScreen()
     {
         // MusicManager.instance.UnpauseMusic();
-        if (pausePanel.activeInHierarchy)
+        if (pausePanel.activeInHierarchy && pausePanelAnimator.GetBool("Visible"))
         {
             pausePanelAnimator.SetBool("Visible", false);
+
+            // Make pause panel not interactable.
+            SetScreenInteractability(pausePanel, false);
+
+            if (makeLevelUpPanelInteractableAfterClosingPausePanel)
+            {
+                SetScreenInteractability(levelUpPanel, true);
+                SetPreviousSelectedButton();
+                //               SetSelectedButton(selectedButtonLevelUpPanel);
+            }
         }
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
@@ -357,10 +436,14 @@ public class UIManager : MonoBehaviour
 
     public void ShowShop()
     {
+        SavePreviousSelectedButton();
         HideAllScreens();
         ShopManager.instance.DisplayShop(true);
         titleScreen.SetActive(true);
+        SetScreenInteractability(menuButtonsGroup, false);
         shopScreen.SetActive(true);
+        selectedButtonShopScreen = ShopManager.instance.shopPanel.GetComponentInChildren<Button>().gameObject;
+        SetSelectedButton(selectedButtonShopScreen);
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -368,12 +451,22 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void HideShop()
+    {
+        shopScreen.SetActive(false);
+        SetScreenInteractability(menuButtonsGroup, true);
+        SetPreviousSelectedButton();
+    }
+
     public void ShowAchievements()
     {
+        SavePreviousSelectedButton();
         HideAllScreens();
         AchievementManager.instance.DisplayAchievementsScreen();
         titleScreen.SetActive(true);
+        SetScreenInteractability(menuButtonsGroup, false);
         achievementsScreen.SetActive(true);
+        SetSelectedButton(selectedButtonAchievementsScreen);
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -381,11 +474,44 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void HideAchievements()
+    {
+        achievementsScreen.SetActive(false);
+        SetScreenInteractability(menuButtonsGroup, true);
+        SetPreviousSelectedButton();
+    }
+
+    public void ShowCreditsScreen()
+    {
+        SavePreviousSelectedButton();
+        SetScreenInteractability(menuButtonsGroup, false);
+        creditsScreen.SetActive(true);
+        SetSelectedButton(selectedButtonCreditsScreen);
+    }
+
+    public void HideCreditsScreen()
+    {
+        creditsScreen.SetActive(false);
+        SetScreenInteractability(menuButtonsGroup, true);
+        SetPreviousSelectedButton();
+    }
+
+
     #region Confirmation Panels
 
     public void ShowBackToTitleScreenConfirmationPanel(bool active)
     {
         backToTitleScreenConfirmationPanel.SetActive(active);
+
+        if (active)
+        {
+            SavePreviousSelectedButton();
+            SetSelectedButton(selectedButtonBackToTitleScreenConfirmationPanel);
+        }
+        else
+        {
+            SetPreviousSelectedButton();
+        }
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -397,13 +523,23 @@ public class UIManager : MonoBehaviour
     {
         clearSaveFileConfirmationPanel.SetActive(active);
 
+        if (active)
+        {
+            SavePreviousSelectedButton();
+            SetSelectedButton(selectedButtonClearSaveFileConfirmationPanel);
+        }
+        else
+        {
+            SetPreviousSelectedButton();
+        }
+
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
             Debug.Log($"UI - Display Clear save file confirmation screen: {active}");
         }
     }
 
-    #endregion
+    #endregion Confirmation Panels
 
     private string GetDemoDisclaimerString(DemoLimitationType limitationType, bool gameIsSaved, int numberOfRuns = 0, float timer = 0)
     {
@@ -475,6 +611,8 @@ public class UIManager : MonoBehaviour
     public void ShowSettingsScreen()
     {
         settingsScreen.SetActive(true);
+        SavePreviousSelectedButton();
+        SetSelectedButton(selectedButtonSettingsScreen);
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -485,6 +623,7 @@ public class UIManager : MonoBehaviour
     public void HideSettingsScreen()
     {
         settingsScreen.SetActive(false);
+        SetPreviousSelectedButton();
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -492,4 +631,47 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    #region Buttons
+
+    public void SetSelectedButton(GameObject buttonGO)
+    {
+        if (buttonGO != null) ClearSelectedButton();
+
+        // Set selected button.
+        EventSystem.current.SetSelectedGameObject(buttonGO);
+    }
+
+    private void SavePreviousSelectedButton()
+    {
+        rememberThisButton.Add(EventSystem.current.currentSelectedGameObject);
+    }
+
+    private void SetPreviousSelectedButton()
+    {
+        if (rememberThisButton.Count > 0)
+        {
+            int lastButton = rememberThisButton.Count - 1;
+            SetSelectedButton(rememberThisButton[lastButton]);
+            rememberThisButton.RemoveAt(lastButton);
+        }
+    }
+
+    private void ClearSelectedButton()
+    {
+        SetSelectedButton(null);
+    }
+
+    #endregion Buttons
+
+    private void SetScreenInteractability(GameObject screen, bool isInteractable)
+    {
+        if (screen.GetComponent<CanvasGroup>())
+        {
+            screen.GetComponent<CanvasGroup>().interactable = isInteractable;
+        }
+        else
+        {
+            Debug.Log(screen.name + " doesn't have a canvas group");
+        }
+    }
 }
