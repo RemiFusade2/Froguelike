@@ -33,4 +33,12 @@ public class ScrollbarKeepCursorSizeBehaviour : MonoBehaviour
             }
         }
     }
+
+    public void SetValue(float v)
+    {
+        if (scrollBar != null)
+        {
+            scrollBar.value = v;
+        }
+    }
 }

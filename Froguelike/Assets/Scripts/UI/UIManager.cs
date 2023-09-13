@@ -484,6 +484,7 @@ public class UIManager : MonoBehaviour
     public void HideShop()
     {
         shopScreen.SetActive(false);
+        UpdateTitleScreenCurrencyText(GameManager.instance.gameData.availableCurrency);
         SetScreenInteractability(menuButtonsGroup, true);
         SetPreviousSelectedButton();
     }

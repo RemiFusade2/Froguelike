@@ -37,7 +37,6 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler
             buyButton.colors = cantBuyColor;
         }
 
-
         itemNameText.text = item.itemName;
         itemDescriptionText.text = item.data.description;
         itemIconImage.sprite = item.data.icon;
@@ -64,21 +63,35 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler
         thisRT = GetComponent<RectTransform>();
         itemPanelTransform = transform.parent;
     }
-
+    
     public void OnSelect(BaseEventData eventData)
     {
+        if (ShopManager.instance.logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"Shop Item Button - OnSelect(). eventData = {eventData}");
+        }
+
         // Scroll the button into view.
-        StartCoroutine(ScrollButtonIntoView());
+        StartCoroutine(ScrollButtonIntoViewAsync());
     }
 
-    private IEnumerator ScrollButtonIntoView()
+    private IEnumerator ScrollButtonIntoViewAsync()
     {
         // Wait for layout to recompute before getting this buttons position.
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSecondsRealtime(0.1f);
+        ScrollButtonIntoView();
+    }
 
+    private void ScrollButtonIntoView()
+    {
         float safeArea = (viewportRT.rect.height - thisRT.rect.height) / 2 - gap;
         float currentY = itemPanelTransform.localPosition.y + thisRT.localPosition.y;
         float newY = Mathf.Clamp(currentY, -safeArea, safeArea);
         itemPanelTransform.localPosition += (newY - currentY) * Vector3.up;
+
+        if (ShopManager.instance.logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"Shop Item Button - ScrollButtonIntoView(). safeArea = {safeArea}. currentY = {currentY}. newY = {newY}.");
+        }
     }
 }
