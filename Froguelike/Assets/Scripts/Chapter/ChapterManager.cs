@@ -280,31 +280,7 @@ public class ChapterManager : MonoBehaviour
             bool chapterCanBeAddedToTheDeck = chapterConditionsAreMet; // conditions are met
             chapterCanBeAddedToTheDeck = chapterCanBeAddedToTheDeck && currentChapter.weight > 0; // weight is positive
             chapterCanBeAddedToTheDeck = chapterCanBeAddedToTheDeck && (!GameManager.instance.demoBuild || currentChapter.chapterData.partOfDemo); // this chapter is part of the demo, or the current build is not the demo
-
-            if (chapterCanBeAddedToTheDeck && GameManager.instance.thingsWithMissingSpritesAreHidden)
-            {
-                // Final check if necessary: are there bugs in that chapter that have sprites?
-                // Because if not and if we're hiding these bugs, we can't play this chapter
-                bool allWavesHaveAtLeastOneVisibleEnemy = true;
-                foreach(Wave wave in currentChapter.chapterData.waves)
-                {
-                    bool currentWaveHasAtLeastOneVisibleEnemy = false;
-                    foreach (EnemySpawn enemySpawn in wave.enemies)
-                    {
-                        if (enemySpawn.enemyType == EnemyType.FLY || enemySpawn.enemyType == EnemyType.BUTTERFLY || enemySpawn.enemyType == EnemyType.PLANT)
-                        {
-                            currentWaveHasAtLeastOneVisibleEnemy = true;
-                            break;
-                        }
-                    }
-                    allWavesHaveAtLeastOneVisibleEnemy &= currentWaveHasAtLeastOneVisibleEnemy;
-                }
-                if (!allWavesHaveAtLeastOneVisibleEnemy)
-                {
-                    chapterCanBeAddedToTheDeck = false;
-                }
-            }
-
+            
             if (chapterCanBeAddedToTheDeck)
             {
                 deckOfChapters.Add(currentChapter);

@@ -106,7 +106,7 @@ public class FrogCharacterController : MonoBehaviour
         if (GameManager.instance.everythingIsUnlocked)
         {
             AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true, true);
-            UIManager.instance.ShowTitleScreen();
+            //UIManager.instance.ShowTitleScreen();
         }
     }
 

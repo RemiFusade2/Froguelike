@@ -456,13 +456,6 @@ public class EnemiesManager : MonoBehaviour
                 delayBetweenSpawns = System.Math.Clamp(delayBetweenSpawns, 0.01, double.MaxValue);
 
                 bool spawn = (Time.time - lastSpawnTime) > delayBetweenSpawns;
-                if (GameManager.instance.thingsWithMissingSpritesAreHidden)
-                {
-                    if (enemySpawn.enemyType != EnemyType.FLY && enemySpawn.enemyType != EnemyType.BUTTERFLY && enemySpawn.enemyType != EnemyType.PLANT)
-                    {
-                        spawn = false;
-                    }
-                }
 
                 if (spawn)
                 {

@@ -360,8 +360,8 @@ public class AchievementManager : MonoBehaviour
                                     }
                                     conditionsAreMet &= (achievementsData.achievementsList.Count(x => x.unlocked) >= 10);
                                     break;
-                                case AchievementConditionSpecialKey.PLAY_GHOST_CHAPTER:
-                                    conditionsAreMet &= (RunManager.instance.completedChaptersList.FirstOrDefault(x => x.chapterID.Equals("[DEATH]")) != null);
+                                case AchievementConditionSpecialKey.DIE_A_BUNCH_OF_TIMES:
+                                    conditionsAreMet &= GameManager.instance.gameData.deathCount >= 10;
                                     break;
                                 case AchievementConditionSpecialKey.EAT_100000_BUGS:
                                     conditionsAreMet &= (GameManager.instance.gameData.cumulatedScore >= 100000);
@@ -620,5 +620,11 @@ public class AchievementManager : MonoBehaviour
         }
 
         return achievementFound;
+    }
+
+    public bool AllDemoAchievementsHaveBeenUnlocked()
+    {
+        int lockedDemoAchievements = achievementsData.achievementsList.Count(x => x.achievementData.partOfDemo && !x.unlocked);
+        return (lockedDemoAchievements == 0);
     }
 }

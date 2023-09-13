@@ -100,24 +100,27 @@ public class UIManager : MonoBehaviour
 
     [Header("Demo stuff")]
     public List<GameObject> demoPanelsList;
+    [Space]
     public GameObject demoLimitationSticker;
     public TextMeshProUGUI demoLimitationText;
     [Space]
     public GameObject demoDisclaimerScreen;
     public TextMeshProUGUI demoDisclaimerText;
+    public GameObject demoDisclaimerOkButton;
     [Space]
     public GameObject endOfDemoScreen;
+    public GameObject endOfDemoBackgroundButton;
 
     private List<GameObject> rememberThisButton = new List<GameObject>();
 
     const string demoRunLimitationStr = "Available Runs: DEMO_RUNCOUNT_LIMIT";
     const string demoTimeLimitationStr = "Remaining: DEMO_TIME_LIMIT";
 
-    const string disclaimerTextIntroStr = "This Demo is meant to show a glimpse of what the full game will be. However, it has limits:";
+    const string disclaimerTextIntroStr = "This Demo is meant to show a glimpse of what the full game will be. However, it is limited.";
     const string disclaimerTextNoSaveStr = "- your progress will not be saved";
     const string disclaimerTextRunLimitStr = "- you will only be able to play DEMO_RUNCOUNT_LIMIT runs";
     const string disclaimerTextTimeLimitStr = "- you will only be able to play for DEMO_TIME_LIMIT minutes";
-    const string disclaimerTextNoLimitStr = "- the content is only a fraction of the full game";
+    const string disclaimerTextNoLimitStr = "The content is only a fraction of the full game.";
 
     private bool endOfDemoHasBeenShown;
     private float removedDisclaimerTime;
@@ -150,13 +153,16 @@ public class UIManager : MonoBehaviour
 
     private void Update()
     {
+        /*
+         * UNCOMMENT THIS PART IF YOU WANT A TIME LIMIT (VISIBLE ON THE TITLE SCREEN) THAT IS UPDATED EVERY FRAME
+         * 
         if (GameManager.instance.demoBuild 
             && GameManager.instance.demoLimitationType == DemoLimitationType.TIMER 
             && titleScreen.activeInHierarchy
             && (demoDisclaimerScreen == null || (demoDisclaimerScreen != null && !demoDisclaimerScreen.activeInHierarchy)))
         {
             UpdateDemoLimitationSticker();
-        }
+        }*/
     }
 
     public void UpdateDemoPanels()
@@ -188,35 +194,59 @@ public class UIManager : MonoBehaviour
 
     public void UpdateDemoLimitationSticker()
     {
-        if (GameManager.instance.demoBuild && GameManager.instance.demoLimitationType != DemoLimitationType.NONE)
+        bool showEndOfDemoScreen = false;
+        if (GameManager.instance.demoBuild)
         {
-            demoLimitationSticker.SetActive(true);
-            switch(GameManager.instance.demoLimitationType)
+            if (GameManager.instance.demoLimitationType != DemoLimitationType.NONE)
             {
-                case DemoLimitationType.NUMBER_OF_RUNS:
-                    int remainingRuns = GameManager.instance.demoRunCountLimit - GameManager.instance.gameData.attempts;
-                    demoLimitationText.text = demoRunLimitationStr.Replace("DEMO_RUNCOUNT_LIMIT", remainingRuns.ToString());
-                    startButton.interactable = (remainingRuns > 0); // disable start button if there are no more runs
-                    break;
-                case DemoLimitationType.TIMER:
-                    float remainingTimeFloat = GameManager.instance.demoTimeLimit - (Time.unscaledTime - removedDisclaimerTime);
-                    remainingTimeFloat = Mathf.Clamp(remainingTimeFloat, 0, float.MaxValue);
-                    TimeSpan remainingTime = TimeSpan.FromSeconds(remainingTimeFloat);
-                    demoLimitationText.text = demoTimeLimitationStr.Replace("DEMO_TIME_LIMIT", remainingTime.ToString(@"mm\:ss"));
-                    startButton.interactable = (remainingTimeFloat > 0); // disable start button if there's no more time
-                    break;
-                default:
-                    break;
+                // Demo limitation sticker must be visible and up to date
+                demoLimitationSticker.SetActive(true);
+                switch (GameManager.instance.demoLimitationType)
+                {
+                    case DemoLimitationType.NUMBER_OF_RUNS:
+                        int remainingRuns = GameManager.instance.demoRunCountLimit - GameManager.instance.gameData.attempts;
+                        demoLimitationText.text = demoRunLimitationStr.Replace("DEMO_RUNCOUNT_LIMIT", remainingRuns.ToString());
+                        startButton.interactable = (remainingRuns > 0); // disable start button if there are no more runs
+                        break;
+                    case DemoLimitationType.TIMER:
+                        float remainingTimeFloat = GameManager.instance.demoTimeLimit - (Time.unscaledTime - removedDisclaimerTime);
+                        remainingTimeFloat = Mathf.Clamp(remainingTimeFloat, 0, float.MaxValue);
+                        TimeSpan remainingTime = TimeSpan.FromSeconds(remainingTimeFloat);
+                        demoLimitationText.text = demoTimeLimitationStr.Replace("DEMO_TIME_LIMIT", remainingTime.ToString(@"mm\:ss"));
+                        startButton.interactable = (remainingTimeFloat > 0); // disable start button if there's no more time
+                        break;
+                    default:
+                        break;
+                }
+                if (!startButton.interactable && !endOfDemoHasBeenShown && endOfDemoScreen != null)
+                {
+                    showEndOfDemoScreen = true;
+                }
             }
-            if (!startButton.interactable && !endOfDemoHasBeenShown && endOfDemoScreen != null)
+            else
+            {
+                // There's no limitations, so no sticker to update
+                // But it doesn't mean we don't have to check for the end-of-demo screen
+                if (AchievementManager.instance.AllDemoAchievementsHaveBeenUnlocked() && !endOfDemoHasBeenShown && endOfDemoScreen != null)
+                {
+                    showEndOfDemoScreen = true;
+                }
+            }
+
+            if (showEndOfDemoScreen)
             {
                 endOfDemoHasBeenShown = true;
+                SetScreenInteractability(titleScreen, false);
+                SetScreenInteractability(menuButtonsGroup, false);
+                SetScreenInteractability(endOfDemoScreen, true);
                 endOfDemoScreen.SetActive(true);
+                SetSelectedButton(endOfDemoBackgroundButton);
+
+                if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                {
+                    Debug.Log("UI - Display End-of-demo screen");
+                }
             }
-        }
-        else
-        {
-            demoLimitationSticker.SetActive(false);
         }
     }
 
@@ -225,12 +255,7 @@ public class UIManager : MonoBehaviour
         MusicManager.instance.PlayTitleMusic();
         HideAllScreens();
         UpdateTitleScreenCurrencyText(GameManager.instance.gameData.availableCurrency);
-
-        if (demoLimitationSticker != null)
-        {
-            UpdateDemoLimitationSticker();
-        }
-
+        
         shopButton.SetActive(ShopManager.instance.IsShopUnlocked());
         achievementsButton.SetActive(AchievementManager.instance.IsAchievementsListUnlocked());
 
@@ -242,13 +267,18 @@ public class UIManager : MonoBehaviour
 
         rememberThisButton.Clear();
 
-        titleScreenSaveLocationText.text = Application.persistentDataPath;
+        /*titleScreenSaveLocationText.text = Application.persistentDataPath;
         if (SteamManager.Initialized)
         {
             string steamName = SteamFriends.GetPersonaName();
             titleScreenWelcomeMessageText.text = $"Welcome {steamName}! You are connected to Steam.";
-        }
+        }*/
 
+        if (demoLimitationSticker != null)
+        {
+            demoLimitationSticker.SetActive(false);
+            UpdateDemoLimitationSticker();
+        }
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -574,7 +604,18 @@ public class UIManager : MonoBehaviour
 
         if (demoDisclaimerScreen != null)
         {
+            SetScreenInteractability(titleScreen, !active);
+            SetScreenInteractability(menuButtonsGroup, !active);
+            SetScreenInteractability(demoDisclaimerScreen, active);
             demoDisclaimerScreen.SetActive(active);
+            if (active)
+            {
+                SetSelectedButton(demoDisclaimerOkButton);
+            }
+            else
+            {
+                SetSelectedButton(selectedButtonTitleScreen);
+            }
         }
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
@@ -589,7 +630,24 @@ public class UIManager : MonoBehaviour
         {
             StartDemoTimer();
         }
+
+        SetScreenInteractability(demoDisclaimerScreen, false);
         demoDisclaimerScreen.SetActive(false);
+
+        if (endOfDemoScreen.activeInHierarchy)
+        {
+            SetScreenInteractability(endOfDemoScreen, true);
+            SetSelectedButton(endOfDemoBackgroundButton);
+        }
+        else
+        {
+            SetScreenInteractability(titleScreen, true);
+            SetScreenInteractability(menuButtonsGroup, true);
+            SetSelectedButton(selectedButtonTitleScreen);
+
+            UpdateDemoLimitationSticker();
+        }
+
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
             Debug.Log("UI - Hide Demo disclaimer screen");
@@ -600,7 +658,11 @@ public class UIManager : MonoBehaviour
     {
         if (endOfDemoScreen != null)
         {
+            SetScreenInteractability(titleScreen, true);
+            SetScreenInteractability(menuButtonsGroup, true);
+            SetScreenInteractability(endOfDemoScreen, false);
             endOfDemoScreen.SetActive(false);
+            SetSelectedButton(selectedButtonTitleScreen);
             if (logsVerboseLevel == VerboseLevel.MAXIMAL)
             {
                 Debug.Log("UI - Hide End of Demo screen");

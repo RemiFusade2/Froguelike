@@ -116,7 +116,7 @@ public class GameManager : MonoBehaviour
         InitializeStuff();
         BackToTitleScreen();
 
-        UIManager.instance.HideEndOfDemoScreen();
+        //UIManager.instance.HideEndOfDemoScreen();
         UIManager.instance.ShowDemoDisclaimerScreen(demoBuild && showDemoDisclaimer, demoLimitationType, demoSaveProgress, demoRunCountLimit, demoTimeLimit);
     }
 
