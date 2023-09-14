@@ -122,7 +122,8 @@ public class UIManager : MonoBehaviour
     const string disclaimerTextTimeLimitStr = "- you will only be able to play for DEMO_TIME_LIMIT minutes";
     const string disclaimerTextNoLimitStr = "The content is only a fraction of the full game.";
 
-    private bool endOfDemoHasBeenShown;
+    [Header("Runtime")]
+    public bool endOfDemoHasBeenShown;
     private float removedDisclaimerTime;
 
     public void StartDemoTimer()
