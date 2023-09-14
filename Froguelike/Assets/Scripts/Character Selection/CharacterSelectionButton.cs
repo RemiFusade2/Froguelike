@@ -110,7 +110,7 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
         SoundManager.instance.PlayButtonSound(characterButton);
 
         // Scroll the button into view.
-        StartCoroutine(ScrollButtonIntoView());
+        StartCoroutine(ScrollButtonIntoViewAsync());
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -118,12 +118,15 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
         characterButton.Select();
     }
 
-
-    private IEnumerator ScrollButtonIntoView()
+    private IEnumerator ScrollButtonIntoViewAsync()
     {
         // Wait for layout to recompute before getting this buttons position.
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSecondsRealtime(0.1f);
+        ScrollButtonIntoView();
+    }
 
+    private void ScrollButtonIntoView()
+    {
         float safeArea = (viewportRT.rect.height - thisRT.rect.height) / 2 - gap;
         float currentY = characterPanelGroupTransform.localPosition.y + thisRT.localPosition.y;
         float newY = Mathf.Clamp(currentY, -safeArea, safeArea);
