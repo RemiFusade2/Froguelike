@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
 
-public class ShopItemButton : MonoBehaviour, ISelectHandler
+public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandler
 {
     [Header("References")]
     public TextMeshProUGUI itemNameText;
@@ -13,9 +13,14 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler
     public Image itemIconImage;
     [Space]
     public Transform levelPanelParent;
+    public GameObject levelPrefab;
+    public Sprite levelBoughtSprite;
+    public Sprite levelUnavailableSprite;
     [Space]
     public Button buyButton;
     public TextMeshProUGUI priceText;
+    [Space]
+    public GameObject soldOutImage;
 
     [Header("Scrollview")]
     public ScrollRect scrollView;
@@ -30,6 +35,11 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler
         buyButton.interactable = true;
         buyButton.gameObject.SetActive(true);
 
+        if (soldOutImage != null)
+        {
+            soldOutImage.SetActive(!availableButCantBuy);
+        }
+
         if (availableButCantBuy)
         {
             var cantBuyColor = buyButton.colors;
@@ -41,14 +51,19 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler
         itemDescriptionText.text = item.data.description;
         itemIconImage.sprite = item.data.icon;
 
-        int level = 0;
         foreach (Transform levelChild in levelPanelParent)
         {
-            bool levelIsActive = (level < item.currentLevel);
-            bool levelExists = (level < item.maxLevel);
-            levelChild.GetChild(0).GetComponent<Image>().enabled = levelIsActive;
-            levelChild.GetComponent<Image>().enabled = levelExists;
-            level++;
+            levelChild.gameObject.SetActive(false);
+            Destroy(levelChild.gameObject);
+        }
+
+        for (int i = 0; i < item.maxLevel; i++)
+        {
+            bool levelIsBought= i < item.currentLevel;
+
+            GameObject levelBox = Instantiate(levelPrefab, levelPanelParent);
+            levelBox.transform.GetChild(1).GetComponent<Image>().sprite = levelIsBought ? levelBoughtSprite : null;
+            levelBox.transform.GetChild(1).GetComponent<Image>().enabled = levelIsBought;
         }
 
         if (item.currentLevel < item.data.costForEachLevel.Count)
@@ -66,6 +81,7 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler
     
     public void OnSelect(BaseEventData eventData)
     {
+        SoundManager.instance.PlayButtonSound(buyButton);
         if (ShopManager.instance.logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
             Debug.Log($"Shop Item Button - OnSelect(). eventData = {eventData}");
@@ -73,6 +89,11 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler
 
         // Scroll the button into view.
         StartCoroutine(ScrollButtonIntoViewAsync());
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        buyButton.Select();
     }
 
     private IEnumerator ScrollButtonIntoViewAsync()
