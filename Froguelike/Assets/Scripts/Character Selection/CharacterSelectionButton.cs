@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
 
-public class CharacterSelectionButton : MonoBehaviour, ISelectHandler
+public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerEnterHandler
 {
     [Header("References")]
     public Button characterButton;
@@ -16,6 +16,7 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler
     public TextMeshProUGUI characterDescriptionText;
     public Image characterIconImage;
     public Image tongueIconImage;
+    public Image animationImage;
 
     [Header("UI")]
     public Sprite characterLockedSprite;
@@ -24,6 +25,10 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler
     [Space]
     public Color charactersDefaultTextColor;
     public Color charactersHintTextColor;
+    [Space]
+    public Color characterLockedAnimationColor;
+    public Color characterAvailableAnimationColor;
+    public Color characterSelectedAnimationColor;
 
     [Header("Scrollview")]
     public ScrollRect scrollView;
@@ -65,6 +70,7 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler
             {
                 // character is unlocked
                 characterBackgroundImage.sprite = isSelected ? characterSelectedSprite : characterAvailableSprite; // use the corresponding sprite if the character is selected
+                animationImage.color = isSelected ? characterSelectedAnimationColor : characterAvailableAnimationColor; // Set the color for the animation. 
                 characterNameText.color = charactersDefaultTextColor;
                 characterNameText.text = character.characterData.characterName;
                 characterDescriptionText.color = charactersDefaultTextColor;
@@ -76,6 +82,7 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler
             {
                 // character is locked, so display hint to unlock it
                 characterBackgroundImage.sprite = characterLockedSprite;
+                animationImage.color = characterLockedAnimationColor; // Set the color for the animation.
                 characterNameText.color = charactersHintTextColor;
                 characterNameText.text = "???";
                 characterDescriptionText.color = charactersHintTextColor;
@@ -100,9 +107,17 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler
 
     public void OnSelect(BaseEventData eventData)
     {
+        SoundManager.instance.PlayButtonSound(characterButton);
+
         // Scroll the button into view.
         StartCoroutine(ScrollButtonIntoView());
     }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        characterButton.Select();
+    }
+
 
     private IEnumerator ScrollButtonIntoView()
     {

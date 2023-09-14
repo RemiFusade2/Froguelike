@@ -321,26 +321,28 @@ public class ShopManager : MonoBehaviour
             {
                 bool itemIsAvailable = item.currentLevel < item.maxLevel;
                 bool itemIsMaxedOut = item.currentLevel == item.maxLevel;
-                if (itemIsAvailable)
-                {
-                    bool availableButCantBuy = false;
-                    if (item.currentLevel < item.data.costForEachLevel.Count)
-                    {
-                        int itemCost = item.data.costForEachLevel[item.currentLevel];
-                        availableButCantBuy = GameManager.instance.gameData.availableCurrency < itemCost;
-                    }
 
+                // Check if item can be bought.
+                bool availableButCantBuy = false;
+                if (item.currentLevel < item.data.costForEachLevel.Count)
+                {
+                    int itemCost = item.data.costForEachLevel[item.currentLevel];
+                    availableButCantBuy = GameManager.instance.gameData.availableCurrency < itemCost && itemIsAvailable;
+                }
+
+                if (itemIsAvailable && !availableButCantBuy)
+                {
                     GameObject shopItemButtonGo = Instantiate(availableShopItemPanelPrefab, shopPanel);
                     ShopItemButton shopItemButton = shopItemButtonGo.GetComponent<ShopItemButton>();
                     shopItemButton.buyButton.onClick.AddListener(delegate { BuyItem(item); });
                     shopItemButton.Initialize(item, availableButCantBuy);
                     buttonCount++;
                 }
-                else if (itemIsMaxedOut)
+                else if (itemIsMaxedOut || (itemIsAvailable && availableButCantBuy))
                 {
                     GameObject shopItemButtonGo = Instantiate(soldOutShopItemPanelPrefab, shopPanel);
                     ShopItemButton shopItemButton = shopItemButtonGo.GetComponent<ShopItemButton>();
-                    shopItemButton.Initialize(item, false);
+                    shopItemButton.Initialize(item, availableButCantBuy);
                     buttonCount++;
                 }
             }
