@@ -78,13 +78,17 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
         thisRT = GetComponent<RectTransform>();
         itemPanelTransform = transform.parent;
     }
-
+    
     public void OnSelect(BaseEventData eventData)
     {
         SoundManager.instance.PlayButtonSound(buyButton);
+        if (ShopManager.instance.logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"Shop Item Button - OnSelect(). eventData = {eventData}");
+        }
 
         // Scroll the button into view.
-        StartCoroutine(ScrollButtonIntoView());
+        StartCoroutine(ScrollButtonIntoViewAsync());
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -92,14 +96,23 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
         buyButton.Select();
     }
 
-    private IEnumerator ScrollButtonIntoView()
+    private IEnumerator ScrollButtonIntoViewAsync()
     {
         // Wait for layout to recompute before getting this buttons position.
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSecondsRealtime(0.1f);
+        ScrollButtonIntoView();
+    }
 
+    private void ScrollButtonIntoView()
+    {
         float safeArea = (viewportRT.rect.height - thisRT.rect.height) / 2 - gap;
         float currentY = itemPanelTransform.localPosition.y + thisRT.localPosition.y;
         float newY = Mathf.Clamp(currentY, -safeArea, safeArea);
         itemPanelTransform.localPosition += (newY - currentY) * Vector3.up;
+
+        if (ShopManager.instance.logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"Shop Item Button - ScrollButtonIntoView(). safeArea = {safeArea}. currentY = {currentY}. newY = {newY}.");
+        }
     }
 }

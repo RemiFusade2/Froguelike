@@ -8,7 +8,7 @@ public enum AchievementConditionSpecialKey
     GET_100_FROINS = 1,
     UNLOCK_A_CHARACTER = 2,
     COMPLETE_10_ACHIEVEMENTS = 3,
-    PLAY_GHOST_CHAPTER = 4,
+    DIE_A_BUNCH_OF_TIMES = 4,
     EAT_100000_BUGS = 5,
     GATHER_ALL_FRIENDS = 6,
     UNLOCK_10_CHAPTERS = 7,

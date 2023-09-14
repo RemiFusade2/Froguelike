@@ -68,6 +68,9 @@ public class ShopManager : MonoBehaviour
     // Singleton
     public static ShopManager instance;
 
+    [Header("Logs")]
+    public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
+
     [Header("Item data")]
     [Tooltip("Scriptable objects containing data for each item")]
     public List<ShopItemData> availableItemDataList;
@@ -86,8 +89,6 @@ public class ShopManager : MonoBehaviour
 
     [Header("Settings")]
     public bool displaySoldOutItems = true;
-    [Space]
-    public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
 
     [Header("Runtime")]
     public ShopSaveData shopData; // Will be loaded and saved when needed
@@ -191,7 +192,10 @@ public class ShopManager : MonoBehaviour
                 SaveDataManager.instance.isSaveDataDirty = true;
 
                 // Reselect the last button.
-                Debug.Log("Saved button name " + shopPanel.Find(savedButtonName));
+                if (logsVerboseLevel != VerboseLevel.NONE)
+                {
+                    Debug.Log("Saved button name " + shopPanel.Find(savedButtonName));
+                }
                 EventSystem.current.SetSelectedGameObject(shopPanel.Find(savedButtonName).gameObject);
 
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
@@ -358,6 +362,11 @@ public class ShopManager : MonoBehaviour
         {
             // Set scroll view to top position
             shopScrollRect.normalizedPosition = new Vector2(0, 1);
+        }
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"Shop - DisplayShop({moveToTop}). button count = {buttonCount}");
         }
     }
 
