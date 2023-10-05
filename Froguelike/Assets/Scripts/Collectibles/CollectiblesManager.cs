@@ -79,6 +79,7 @@ public class CollectiblesManager : MonoBehaviour
         GameObject newCollectible = Instantiate(superCollectiblePrefab, position, Quaternion.identity, this.transform);
         newCollectible.GetComponent<SuperCollectibleBehaviour>().InitializeCollectible(collectible);
         newCollectible.name = collectible.collectibleType.ToString();
+        RunManager.instance.GetCompassArrowForCollectible(collectible).SetCollectibleTransform(newCollectible.transform);
     }
 
     public void SpawnCollectible(Vector2 position, CollectibleType collectibleType, float bonusValue)
@@ -155,6 +156,7 @@ public class CollectiblesManager : MonoBehaviour
 
     public void CollectSuperCollectible(FixedCollectible superCollectible)
     {
+        RunManager.instance.RemoveCompassArrowForCollectible(superCollectible);
         switch (superCollectible.collectibleType)
         {
             case FixedCollectibleType.FRIEND:
