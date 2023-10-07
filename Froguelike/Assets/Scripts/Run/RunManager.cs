@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -95,6 +96,9 @@ public class RunManager : MonoBehaviour
     public Transform tongueSlotsParent;
     public Transform statItemSlotsParent;
     public GameObject slotPrefab;
+    [Space]
+    public Transform compassParent;
+    public GameObject compassArrowPrefab;
 
     [Header("References - UI Level Up")]
     public GameObject levelUpPanel;
@@ -164,6 +168,9 @@ public class RunManager : MonoBehaviour
     public bool rerollsAvailable;
     public bool banishesAvailable;
     public bool skipsAvailable;
+
+    [Header("Runtime - Compass")]
+    public List<CompassArrowBehaviour> compassArrowsList;
 
     private float runPlayTime;
     private float runTotalTime; // pause time included
@@ -607,6 +614,10 @@ public class RunManager : MonoBehaviour
         // Remove enemies on screen
         EnemiesManager.instance.ClearAllEnemies();
 
+        /*
+        // Remove collectibles on screen
+        CollectiblesManager.instance.ClearCollectibles();*/
+
         // Register a new attempt if this is the first chapter of that run
         if (GetChapterCount() == 1)
         {
@@ -622,7 +633,31 @@ public class RunManager : MonoBehaviour
         return completedChaptersList.Count + 1;
     }
 
-    private IEnumerator StartChapterAsync()
+    private void ClearCompassArrows()
+    {
+        foreach (Transform compassChild in compassParent)
+        {
+            Destroy(compassChild.gameObject, 0.01f);
+        }
+        compassArrowsList.Clear();
+    }
+
+    public CompassArrowBehaviour GetCompassArrowForCollectible(FixedCollectible collectible)
+    {
+        return compassArrowsList.FirstOrDefault(x => x.collectibleTileCoordinates.Equals(collectible.tileCoordinates));
+    }
+
+    public void RemoveCompassArrowForCollectible(FixedCollectible collectible)
+    {
+        CompassArrowBehaviour arrow = GetCompassArrowForCollectible(collectible);
+        if (arrow != null)
+        {
+            compassArrowsList.Remove(arrow);
+            Destroy(arrow.gameObject);
+        }
+    }
+
+private IEnumerator StartChapterAsync()
     {
         int chapterCount = GetChapterCount();
 
@@ -636,8 +671,20 @@ public class RunManager : MonoBehaviour
         player.ResetPosition();
         player.Heal(player.maxHealth);
 
-        // Update map
+        // Clear old map
         MapBehaviour.instance.ClearMap();
+
+        // Prepare compass arrows
+        ClearCompassArrows();
+        List<FixedCollectible> fixedCollectiblesList = currentChapter.chapterData.specialCollectiblesOnTheMap;
+        foreach (FixedCollectible collectible in fixedCollectiblesList)
+        {
+            GameObject arrow = Instantiate(compassArrowPrefab, compassParent);
+            arrow.GetComponent<CompassArrowBehaviour>().SetCollectibleTileCoordinates(collectible.tileCoordinates);
+            compassArrowsList.Add(arrow.GetComponent<CompassArrowBehaviour>());
+        }
+
+        // Create starting tiles
         UpdateMap();
 
         // Reinitialize all weapons

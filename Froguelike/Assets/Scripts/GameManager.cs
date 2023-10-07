@@ -82,6 +82,7 @@ public class GameManager : MonoBehaviour
 
     [Header("References")]
     public FrogCharacterController player;
+    public MainCamera gameCamera;
 
     [Header("Prefabs")]
     public GameObject destroyParticleEffectPrefab;
