@@ -524,7 +524,7 @@ public class AchievementManager : MonoBehaviour
         allAchievementsCount = orderedAchievements.Count();
         allUnlockedAchievementsCount = orderedAchievements.Count(x => x.unlocked);
 
-        achievementCountTextMesh.text = $"{allUnlockedAchievementsCount}/{allAchievementsCount} achieved";
+        achievementCountTextMesh.text = $"{allUnlockedAchievementsCount} / {allAchievementsCount}";
         
         // Remove previous buttons except the first empty one
         foreach (Transform child in achievementScrollEntriesParent)

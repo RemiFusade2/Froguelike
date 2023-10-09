@@ -18,6 +18,8 @@ public class FrogCharacterController : MonoBehaviour
     public CircleCollider2D magnetTrigger;
     [Space]
     public Animator animator;
+    [Space]
+    public SpriteRenderer characterRenderer;
 
     [Header("Hats")]
     public Transform hatsParent;
@@ -32,6 +34,7 @@ public class FrogCharacterController : MonoBehaviour
     public float maxHealth = 100;
     public float healthRecovery;
     public float hpRecoveryDelay = 1.0f;
+    public Color characterBeingHitOverlayColor;
     [Space]
     public float magnetRangeBoost = 0;
     [Space]
@@ -259,7 +262,13 @@ public class FrogCharacterController : MonoBehaviour
 
     public void InitializeCharacter(PlayableCharacter characterInfo)
     {
+        // Set up animator
         SetAnimatorCharacterValue(characterInfo.characterData.characterAnimatorValue);
+
+        // Reset sprite overlay & outline
+        characterRenderer.material.SetInteger("_OverlayVisible", 0);
+        characterRenderer.material.SetColor("_OverlayColor", characterBeingHitOverlayColor);
+        characterRenderer.material.SetFloat("_OutlineThickness", 0);
 
         // Starting Stats for this character
         StatsWrapper allStartingStatsWrapper = StatsWrapper.JoinLists(characterInfo.characterStartingStats, ShopManager.instance.statsBonuses);
@@ -701,9 +710,34 @@ public class FrogCharacterController : MonoBehaviour
         }
     }
 
+    private Coroutine DamageTookEndOfEffectCoroutine;
+
+    private IEnumerator TakingDamageEndOfEffectAsync(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        SoundManager.instance.StopPlayingTakeDamageLoopSound();
+        characterRenderer.material.SetInteger("_OverlayVisible", 0);
+    }
+
+    private void TakingDamageEffect()
+    {
+        characterRenderer.material.SetInteger("_OverlayVisible", 1);
+        SoundManager.instance.PlayTakeDamageLoopSound();
+        if (DamageTookEndOfEffectCoroutine != null)
+        {
+            StopCoroutine(DamageTookEndOfEffectCoroutine);
+        }
+        DamageTookEndOfEffectCoroutine = StartCoroutine(TakingDamageEndOfEffectAsync(0.6f));
+    }
+
     private void ChangeHealth(float change)
     {
         bool deathImminent = (currentHealth < 5); 
+
+        if (change < 0)
+        {
+            TakingDamageEffect();
+        }
 
         currentHealth += change;
         if (currentHealth >= maxHealth)

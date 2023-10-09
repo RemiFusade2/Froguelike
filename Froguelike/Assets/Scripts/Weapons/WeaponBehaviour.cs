@@ -1207,6 +1207,8 @@ public class WeaponBehaviour : MonoBehaviour
             if (enemyIsDead)
             {
                 //EnemiesManager.instance.SetEnemyDead(enemyName);
+                SoundManager.instance.PlayEatBugSound();
+
                 eatenFliesCount++;
 
                 foreach (RunWeaponInfo weaponInfo in RunManager.instance.GetOwnedWeapons())

@@ -302,6 +302,9 @@ public class RunManager : MonoBehaviour
             Debug.Log("Run Manager - Start a new Run with character: " + character.characterID);
         }
 
+        // Stop playing any looped sound
+        SoundManager.instance.StopAllLoops();
+
         // Setup the player controller using the player data that we have
         currentPlayedCharacter = character;
         player.InitializeCharacter(character);
@@ -523,6 +526,7 @@ public class RunManager : MonoBehaviour
         // Stop time & music
         GameManager.instance.SetTimeScale(0);
         MusicManager.instance.PauseMusic();
+        SoundManager.instance.PauseInGameSounds();
 
         // Check if this is a win
         if (IsCurrentRunWon())
@@ -1009,6 +1013,7 @@ private IEnumerator StartChapterAsync()
         level++;
         GameManager.instance.SetTimeScale(0);
         levelUpParticleSystem.Play();
+        SoundManager.instance.PlayLevelUpSound();
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -1049,6 +1054,9 @@ private IEnumerator StartChapterAsync()
         SoundManager.instance.PlaySlideBookSound();
 
         UpdateRerollBanishSkipPostIts();
+        
+        // Audio
+        SoundManager.instance.PauseInGameSounds();
 
         UIManager.instance.levelUpPanel.SetActive(true);
         UIManager.instance.levelUpPanelAnimator.SetBool("Visible", true);
@@ -1253,6 +1261,7 @@ private IEnumerator StartChapterAsync()
             {
                 int collectedCurrency = Mathf.RoundToInt(currency * (1 + player.currencyBoost));
                 IncreaseCollectedCurrency(collectedCurrency);
+                SoundManager.instance.PlayPickUpFroinsSound();
 
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                 {
@@ -1289,6 +1298,7 @@ private IEnumerator StartChapterAsync()
                 {
                     Debug.Log("Run - Collected some health. Healing: +" + hpBonus + "HP");
                 }
+                SoundManager.instance.PlayHealSound();
                 player.Heal(hpBonus);
             }
         }

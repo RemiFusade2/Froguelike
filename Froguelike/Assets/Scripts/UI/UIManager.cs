@@ -391,6 +391,7 @@ public class UIManager : MonoBehaviour
         HideAllScreens();
         HidePauseScreen();
         inGameUIPanel.SetActive(true);
+        SoundManager.instance.UnpauseInGameSounds();
     }
 
     public void ShowGameOver(int respawnsAvailable)
@@ -399,11 +400,11 @@ public class UIManager : MonoBehaviour
         // inGameUIPanel.SetActive(true);
         bool respawnAvailable = respawnsAvailable > 0;
 
+        SoundManager.instance.PauseInGameSounds();
         gameOverPanel.GetComponent<GameOverScreen>().UpdateGameOverScreen();
         gameOverPanel.SetActive(true);
         gameOverRespawnButton.GetComponent<Button>().interactable = respawnAvailable;
         SetSelectedButton(respawnAvailable ? gameOverRespawnButton : gameOverGiveUpButton);
-
 
         SoundManager.instance.PlayDeathSound();
 
@@ -429,8 +430,8 @@ public class UIManager : MonoBehaviour
 
         SetSelectedButton(selectedButtonPausePanel);
 
-
-        // MusicManager.instance.PauseMusic(); // I took this away because I think teh music should still be playing (Johanna).
+        SoundManager.instance.PauseInGameSounds();
+        // MusicManager.instance.PauseMusic(); // I took this away because I think teh music should still be playing (Johanna). // I agree that this is better but SFX should be stopped no? (Rémi)
         // Show the pause screen.
         pausePanel.SetActive(true);
         pausePanelAnimator.SetBool("Visible", true);
@@ -443,6 +444,7 @@ public class UIManager : MonoBehaviour
 
     public void HidePauseScreen()
     {
+        SoundManager.instance.UnpauseInGameSounds();
         // MusicManager.instance.UnpauseMusic();
         if (pausePanel.activeInHierarchy && pausePanelAnimator.GetBool("Visible"))
         {
