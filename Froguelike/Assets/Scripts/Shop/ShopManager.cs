@@ -412,7 +412,7 @@ public class ShopManager : MonoBehaviour
         shopData.shopUnlocked = saveData.shopUnlocked;
         foreach (ShopItem item in shopData.shopItems)
         {
-            ShopItem itemFromSave = saveData.shopItems.First(x => x.itemName.Equals(item.itemName));
+            ShopItem itemFromSave = saveData.shopItems.FirstOrDefault(x => x.itemName.Equals(item.itemName));
             if (itemFromSave != null)
             {
                 item.currentLevel = itemFromSave.currentLevel;
