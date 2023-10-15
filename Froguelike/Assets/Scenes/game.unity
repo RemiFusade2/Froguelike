@@ -7794,13 +7794,13 @@ MonoBehaviour:
   healVolume: 1
   pickUpFroinsSound: {fileID: 8300000, guid: 391e3a5131850d645b2ce5eb01bafba1, type: 3}
   pickUpFroinsVolume: 0.9
-  grabCollectibleSound: {fileID: 0}
+  grabCollectibleSound: {fileID: 8300000, guid: 95322ab0bdf82dc4993e4ab2e87f8294, type: 3}
   grabCollectibleVolume: 1
   levelUpSound: {fileID: 8300000, guid: e9f981afade18674c9cc35051ce104a7, type: 3}
   levelUpVolume: 0.3
-  buyItemInShopSound: {fileID: 0}
-  buyItemInShopVolume: 1
-  refundShopSound: {fileID: 0}
+  buyItemInShopSound: {fileID: 8300000, guid: 7c366e8439ccfac45ae679143fa59c34, type: 3}
+  buyItemInShopVolume: 0.5
+  refundShopSound: {fileID: 8300000, guid: b66a09e37e63c27409d314240c73ecea, type: 3}
   refundShopVolume: 1
   rerollSound: {fileID: 0}
   rerollVolume: 1
@@ -8597,6 +8597,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36f744f39c2e61445ac98411be612b3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  useSteamOverlay: 1
 --- !u!1001 &532523376
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -44305,7 +44306,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5720242611125686611, guid: 307c0424b490a42ef97e2923ae0adf03, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5720242611139832349, guid: 307c0424b490a42ef97e2923ae0adf03, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target

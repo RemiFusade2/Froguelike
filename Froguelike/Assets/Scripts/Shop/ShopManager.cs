@@ -188,6 +188,8 @@ public class ShopManager : MonoBehaviour
                 ComputeStatsBonuses();
                 // Update the shop display
                 DisplayShop(false);
+                // Play sound
+                SoundManager.instance.PlayBuyItemInShopSound();
                 // Signal the SaveDataManager that information from the shop have been updated and should be saved when possible
                 SaveDataManager.instance.isSaveDataDirty = true;
 
@@ -394,6 +396,9 @@ public class ShopManager : MonoBehaviour
         ComputeStatsBonuses();
         // Update the shop display
         DisplayShop(false);
+
+        // Play sound
+        SoundManager.instance.PlayRefundShopSound();
 
         // Set selected button.
         EventSystem.current.SetSelectedGameObject(shopPanel.GetComponentInChildren<Button>().gameObject);

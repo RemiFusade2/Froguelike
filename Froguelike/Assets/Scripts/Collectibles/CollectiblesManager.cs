@@ -157,6 +157,7 @@ public class CollectiblesManager : MonoBehaviour
     public void CollectSuperCollectible(FixedCollectible superCollectible)
     {
         RunManager.instance.RemoveCompassArrowForCollectible(superCollectible);
+        SoundManager.instance.PlayPickUpCollectibleSound();
         switch (superCollectible.collectibleType)
         {
             case FixedCollectibleType.FRIEND:

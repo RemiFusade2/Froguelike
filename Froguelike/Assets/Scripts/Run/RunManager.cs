@@ -585,6 +585,9 @@ public class RunManager : MonoBehaviour
         // Tell ChapterManager to register that the current character completed that chapter
         ChapterManager.instance.CompleteChapter(currentChapter, currentPlayedCharacter);
 
+        // Audio
+        SoundManager.instance.PauseInGameSounds();
+
         // Stop time
         GameManager.instance.SetTimeScale(0);
 
@@ -1051,11 +1054,11 @@ private IEnumerator StartChapterAsync()
     {
         levelUpPanel.GetComponent<CanvasGroup>().interactable = true;
         EventSystem.current.SetSelectedGameObject(levelUpChoicesPanels[0]);
-        SoundManager.instance.PlaySlideBookSound();
 
         UpdateRerollBanishSkipPostIts();
-        
+
         // Audio
+        SoundManager.instance.PlaySlideBookSound();
         SoundManager.instance.PauseInGameSounds();
 
         UIManager.instance.levelUpPanel.SetActive(true);

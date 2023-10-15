@@ -258,6 +258,8 @@ public class FrogCharacterController : MonoBehaviour
     private void UpdateMagnetRange()
     {
         magnetTrigger.radius = (DataManager.instance.defaultMagnetRange * (1 + magnetRangeBoost));
+        magnetTrigger.gameObject.SetActive(true);
+        magnetTrigger.enabled = true;
     }
 
     public void InitializeCharacter(PlayableCharacter characterInfo)
@@ -727,7 +729,7 @@ public class FrogCharacterController : MonoBehaviour
         {
             StopCoroutine(DamageTookEndOfEffectCoroutine);
         }
-        DamageTookEndOfEffectCoroutine = StartCoroutine(TakingDamageEndOfEffectAsync(0.6f));
+        DamageTookEndOfEffectCoroutine = StartCoroutine(TakingDamageEndOfEffectAsync(0.7f));
     }
 
     private void ChangeHealth(float change)
