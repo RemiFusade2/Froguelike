@@ -204,7 +204,7 @@ public class SoundManager : MonoBehaviour
         {
             StopCoroutine(volumeChangeCoroutine);
         }
-        volumeChangeCoroutine = StartCoroutine(FadeVolume(takeDamageAudioSource, 0, 0.01f, MakeAudioSourceStop)); // Then stop playing      
+        volumeChangeCoroutine = StartCoroutine(FadeVolume(takeDamageAudioSource, 0, 0.01f, MakeAudioSourceStop)); // Then stop playing
     }
 
     public void StopAllLoops()

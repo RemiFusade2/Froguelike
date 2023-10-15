@@ -714,6 +714,16 @@ public class FrogCharacterController : MonoBehaviour
 
     private Coroutine DamageTookEndOfEffectCoroutine;
 
+    public void StopTakeDamageEffect()
+    {
+        if (DamageTookEndOfEffectCoroutine != null)
+        {
+            StopCoroutine(DamageTookEndOfEffectCoroutine);
+        }
+        characterRenderer.material.SetInteger("_OverlayVisible", 0);
+        SoundManager.instance.StopAllLoops();
+    }
+
     private IEnumerator TakingDamageEndOfEffectAsync(float delay)
     {
         yield return new WaitForSeconds(delay);

@@ -586,7 +586,8 @@ public class RunManager : MonoBehaviour
         ChapterManager.instance.CompleteChapter(currentChapter, currentPlayedCharacter);
 
         // Audio
-        SoundManager.instance.PauseInGameSounds();
+        player.StopTakeDamageEffect();
+        SoundManager.instance.StopAllLoops();
 
         // Stop time
         GameManager.instance.SetTimeScale(0);
