@@ -25,6 +25,7 @@ public class SoundManager : MonoBehaviour
     public AudioSource buyItemInShopAudioSource;
     public AudioSource refundShopAudioSource;
 
+    public AudioSource eatBountyAudioSource;
     public Transform eatBugAudioSourcesParent;
 
     [Header("Audio Clips")]
@@ -65,6 +66,8 @@ public class SoundManager : MonoBehaviour
     public AudioClip skipSound;
     [Range(0, 1)] public float skipVolume = 1;
 
+    public AudioClip eatBountySound;
+    [Range(0, 1)] public float eatBBountyVolume = 1;
     public AudioClip eatBugSound;
     [Range(0, 1)] public float eatBugVolume = 1;
 
@@ -305,6 +308,11 @@ public class SoundManager : MonoBehaviour
         refundShopAudioSource.PlayOneShot(refundShopSound);
     }
 
+    public void PlayEatBountySound()
+    {
+        eatBountyAudioSource.volume = ModifyVolume(eatBBountyVolume);
+        eatBountyAudioSource.PlayOneShot(eatBountySound);
+    }
     public void PlayEatBugSound()
     {
         float pitch = Random.Range(0.7f, 1.3f);

@@ -208,6 +208,18 @@ public class RunManager : MonoBehaviour
             // Spawn current wave
             EnemiesManager.instance.TrySpawnWave(GetCurrentWave());
 
+            // Spawn bounties
+            int playedTimeThisChapter = Mathf.RoundToInt(currentChapter.chapterData.chapterLengthInSeconds - chapterRemainingTime);
+            float delayDuringWhichWeTryToSpawnBounties = 5; // For 5 seconds after bounty spawn time, we try to spawn bounty
+            for (int i = 0; i < currentChapter.chapterData.bountyBugs.Count; i++)
+            {
+                BountyBug bounty = currentChapter.chapterData.bountyBugs[i];
+                if (playedTimeThisChapter >= bounty.spawnTime && playedTimeThisChapter <= bounty.spawnTime + delayDuringWhichWeTryToSpawnBounties)
+                {
+                    EnemiesManager.instance.TrySpawnBounty(i, bounty);
+                }
+            }
+
             // Wave remaining time decreases
             waveRemainingTime -= Time.deltaTime;
 
@@ -496,28 +508,21 @@ public class RunManager : MonoBehaviour
         SetExtraLives(player.revivals, true);
     }
 
-    public void EatFly(float experiencePoints, bool instantlyEndChapter = false)
+    public void EatFly(float experiencePoints)
     {
         // Increase kill count by 1 and display it
         IncreaseKillCount(1);
 
-        if (instantlyEndChapter)
-        {
-            EndChapter();
-        }
-        else
-        {
-            IncreaseXP(experiencePoints * (1 + player.experienceBoost));
+        IncreaseXP(experiencePoints * (1 + player.experienceBoost));
 
-            // Also collect some currency when eating a bug
-            Vector2 currencyProbabilityMinMax = new Vector2(player.currencyBoost, (1 + player.currencyBoost));
-            float currencyProba = Random.Range(currencyProbabilityMinMax.x, currencyProbabilityMinMax.y);
-            float currencyAmount = Mathf.Floor(currencyProba) + ((Random.Range(Mathf.Floor(currencyProba), Mathf.Ceil(currencyProba)) < currencyProba) ? 1 : 0);
-            long currencyAmountLong = (long)Mathf.RoundToInt(currencyAmount);
-            if (currencyAmountLong > 0)
-            {
-                IncreaseCollectedCurrency(currencyAmountLong);
-            }
+        // Also collect some currency when eating a bug
+        Vector2 currencyProbabilityMinMax = new Vector2(player.currencyBoost, (1 + player.currencyBoost));
+        float currencyProba = Random.Range(currencyProbabilityMinMax.x, currencyProbabilityMinMax.y);
+        float currencyAmount = Mathf.Floor(currencyProba) + ((Random.Range(Mathf.Floor(currencyProba), Mathf.Ceil(currencyProba)) < currencyProba) ? 1 : 0);
+        long currencyAmountLong = (long)Mathf.RoundToInt(currencyAmount);
+        if (currencyAmountLong > 0)
+        {
+            IncreaseCollectedCurrency(currencyAmountLong);
         }
     }
 

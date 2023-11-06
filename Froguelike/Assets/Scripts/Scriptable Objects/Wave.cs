@@ -24,7 +24,6 @@ public enum EnemyType
     WATER_STRIDER,
     MOTH,
     ROACH,
-    FRUITFLY,
     SPIDER,
     CRAYFISH,
     FISH,

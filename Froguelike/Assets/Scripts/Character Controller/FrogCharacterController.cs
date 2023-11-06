@@ -662,10 +662,16 @@ public class FrogCharacterController : MonoBehaviour
         {
             // This enemy can inflict damage now
             enemy.lastDamageInflictedTime = Time.time;
-            EnemyData enemyData = EnemiesManager.instance.GetEnemyDataFromGameObjectName(collider.gameObject.name);
+            EnemyData enemyData = EnemiesManager.instance.GetEnemyDataFromGameObjectName(collider.gameObject.name, out BountyBug bountyBug);
+
+            float damageFactor = 1;
+            if (bountyBug != null)
+            {
+                damageFactor = bountyBug.damageMultiplier;
+            }
 
             // Compute actual damage
-            float damage = Mathf.Clamp(enemyData.damage - armor, 0.1f, float.MaxValue);
+            float damage = Mathf.Clamp((enemyData.damage * damageFactor) - armor, 0.1f, float.MaxValue);
 
             if (logsVerboseLevel == VerboseLevel.MAXIMAL)
             {

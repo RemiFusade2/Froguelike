@@ -31,7 +31,7 @@ public class EnemyData : ScriptableObject
     [Tooltip("The prefab will describe how the enemy looks, which layer it is on, and how heavy it is")]
     public GameObject prefab;
 
-    [Header("Enemy settings")]
+    [Header("Enemy settings - stats")]
     [Tooltip("Does this enemy shoot stuff? NOT IMPLEMENTED YET")]
     public EnemyAttackPattern attackPattern = EnemyAttackPattern.NO_ATTACK;
     [Tooltip("How much damage this enemy can take before being eaten")]
@@ -43,13 +43,9 @@ public class EnemyData : ScriptableObject
     [Tooltip("How much damage/s this enemy inflicts when touching the frog")]
     public float damage = 10;
 
-    [Space]
+    [Header("Enemy settings - visuals")]
     [Tooltip("Thickness of the outline by default")]
     public int outlineThickness = 1;
     [Tooltip("Color of the outline by default")]
     public Color outlineColor;
-
-    [Space]
-    [Tooltip("TEMPORARY: only used for the golden fly that ends the game")]
-    public bool instantlyEndChapter = false;
 }

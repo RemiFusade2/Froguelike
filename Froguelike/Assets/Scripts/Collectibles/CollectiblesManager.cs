@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public enum CollectibleType
@@ -36,6 +37,10 @@ public class CollectiblesManager : MonoBehaviour
     public float collectibleMovingSpeedFactor = 1.5f;
     public float collectMinDistance = 1.5f;
     public float updateAllCollectiblesDelay = 0.1f;
+
+    [Header("Settings - Spawn")]
+    public float collectibleSpawnAveragePushForce = 6;
+    public float collectibleSpawnDelay = 1;
 
     [Header("Settings - Logs")]
     public VerboseLevel verboseLevel;
@@ -82,7 +87,7 @@ public class CollectiblesManager : MonoBehaviour
         RunManager.instance.GetCompassArrowForCollectible(collectible).SetCollectibleTransform(newCollectible.transform);
     }
 
-    public void SpawnCollectible(Vector2 position, CollectibleType collectibleType, float bonusValue)
+    public void SpawnCollectible(Vector2 position, CollectibleType collectibleType, float bonusValue, bool pushAway = false)
     {
         GameObject newCollectible = Instantiate(magnetCollectiblePrefab, position, Quaternion.identity, this.transform);
 
@@ -116,7 +121,26 @@ public class CollectiblesManager : MonoBehaviour
         collectibleName += "+" + bonusValue.ToString();
         newCollectible.name = collectibleName;
 
+        if (pushAway)
+        {
+            float randomPushForce = Random.Range(collectibleSpawnAveragePushForce * 0.7f, collectibleSpawnAveragePushForce * 1.3f);
+            newCollectible.GetComponent<Rigidbody2D>().AddForce(randomPushForce * Random.insideUnitCircle.normalized, ForceMode2D.Impulse);
+
+            // Ensure that it can't be collected for a short delay after spawn
+            StartCoroutine(EnableCollectibleCollider(newCollectible.GetComponent<CircleCollider2D>(), collectibleSpawnDelay));
+        }
+        else
+        {
+            newCollectible.GetComponent<CircleCollider2D>().enabled = true;
+        }
+
         allCollectiblesList.Add(newCollectible.transform);
+    }
+
+    private IEnumerator EnableCollectibleCollider(CircleCollider2D colliderComponent, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        colliderComponent.enabled = true;
     }
 
     /// <summary>
