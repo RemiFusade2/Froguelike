@@ -156,6 +156,13 @@ public class DataManager : MonoBehaviour
     public List<SpawnProbability> collectibleCurrencySpawnProbabilities;
     public List<SpawnProbability> collectibleHealthSpawnProbabilities;
     public List<SpawnProbability> collectibleLevelUpSpawnProbabilities;
+    [Space]
+    public List<SpawnProbability> collectiblePowerUpsSpawnProbabilities;
+
+    [Header("Power ups")]
+    public float powerUpFreezeDuration = 10;
+    public float powerUpPoisonDuration = 10;
+    public float powerUpCurseDuration = 10;
 
     [Header("Sprites")]
     public Sprite collectibleDefaultSprite;
@@ -249,6 +256,10 @@ public class DataManager : MonoBehaviour
                 break;
             case "levelUp":
                 spawnProba = collectibleLevelUpSpawnProbabilities.FirstOrDefault(x => x.frequency == frequency);
+                probability = (spawnProba != null) ? spawnProba.probability : Vector2.zero;
+                break;
+            case "powerUp":
+                spawnProba = collectiblePowerUpsSpawnProbabilities.FirstOrDefault(x => x.frequency == frequency);
                 probability = (spawnProba != null) ? spawnProba.probability : Vector2.zero;
                 break;
             default:

@@ -1262,13 +1262,12 @@ private IEnumerator StartChapterAsync()
 
     #region Collect Collectible
 
-    public void CollectCollectible(string collectibleName)
+    public void CollectCollectible(CollectibleType collectibleType, float collectibleValue)
     {
-        if (collectibleName.Contains("Currency"))
+        switch (collectibleType)
         {
-            if (int.TryParse(collectibleName.Split("+")[1], out int currency))
-            {
-                int collectedCurrency = Mathf.RoundToInt(currency * (1 + player.currencyBoost));
+            case CollectibleType.FROINS:
+                int collectedCurrency = Mathf.RoundToInt(collectibleValue * (1 + player.currencyBoost));
                 IncreaseCollectedCurrency(collectedCurrency);
                 SoundManager.instance.PlayPickUpFroinsSound();
 
@@ -1276,40 +1275,55 @@ private IEnumerator StartChapterAsync()
                 {
                     Debug.Log("Run - Collected " + collectedCurrency + " Froins. Current collected currency is: " + currentCollectedCurrency + " Froins");
                 }
-            }
-        }
-        else if (collectibleName.Contains("LevelUp"))
-        {
-            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
-            {
-                Debug.Log("Run - Collected a Level Up");
-            }
-
-            IncreaseXP(nextLevelXp - xp);
-        }
-        else if (collectibleName.Contains("XP"))
-        {
-            if (float.TryParse(collectibleName.Split("+")[1], out float xpBonus))
-            {
+                break;
+            case CollectibleType.LEVEL_UP:
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                 {
-                    Debug.Log("Run - Collected a XP Bonus: +" + xpBonus + "XP");
+                    Debug.Log("Run - Collected a Level Up");
                 }
-
-                IncreaseXP(xpBonus);
-            }
-        }
-        else if (collectibleName.Contains("HP"))
-        {
-            if (int.TryParse(collectibleName.Split("+")[1], out int hpBonus))
-            {
+                IncreaseXP(nextLevelXp - xp);
+                break;
+            case CollectibleType.XP_BONUS:
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                 {
-                    Debug.Log("Run - Collected some health. Healing: +" + hpBonus + "HP");
+                    Debug.Log("Run - Collected a XP Bonus: +" + collectibleValue + "XP");
+                }
+                IncreaseXP(collectibleValue);
+                break;
+            case CollectibleType.HEALTH:
+                if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                {
+                    Debug.Log("Run - Collected some health. Healing: +" + collectibleValue + "HP");
                 }
                 SoundManager.instance.PlayHealSound();
-                player.Heal(hpBonus);
-            }
+                player.Heal(collectibleValue);
+                break;
+            case CollectibleType.POWERUP_FREEZE_ALL:
+                EnemiesManager.instance.ApplyGlobalFreezeEffect(DataManager.instance.powerUpFreezeDuration);
+                SoundManager.instance.PlayFreezeAllSound();
+                if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                {
+                    Debug.Log("Run - Collected Freeze power-up");
+                }
+                break;
+            case CollectibleType.POWERUP_POISON_ALL:
+                EnemiesManager.instance.ApplyGlobalPoisonEffect(DataManager.instance.powerUpPoisonDuration);
+                SoundManager.instance.PlayFreezeAllSound();
+                if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                {
+                    Debug.Log("Run - Collected Poison power-up");
+                }
+                break;
+            case CollectibleType.POWERUP_CURSE_ALL:
+                EnemiesManager.instance.ApplyGlobalCurseEffect(DataManager.instance.powerUpCurseDuration);
+                SoundManager.instance.PlayFreezeAllSound();
+                if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                {
+                    Debug.Log("Run - Collected Curse power-up");
+                }
+                break;
+            default:
+                break;
         }
     }
 

@@ -28,6 +28,8 @@ public class SoundManager : MonoBehaviour
     public AudioSource eatBountyAudioSource;
     public Transform eatBugAudioSourcesParent;
 
+    public AudioSource powerUpAudioSource;
+
     [Header("Audio Clips")]
     public AudioClip buttonSound;
     [Range(0, 1)] public float buttonVolume = 1;
@@ -39,7 +41,7 @@ public class SoundManager : MonoBehaviour
     [Range(0, 1)] public float pageShortVolume = 1;
     public AudioClip slideBookSound;
     [Range(0, 1)] public float slideBookVolume = 1;
-    
+
     public AudioClip takeDamageSound;
     [Range(0, 1)] public float takeDamageVolume = 1;
     public AudioClip healSound;
@@ -52,9 +54,6 @@ public class SoundManager : MonoBehaviour
     public AudioClip levelUpSound;
     [Range(0, 1)] public float levelUpVolume = 1;
 
-    /*
-    public AudioClip aTongueEatsABugSound;
-    [Range(0, 1)] public float aTongueEatsABugVolume = 1;*/
 
     public AudioClip buyItemInShopSound;
     [Range(0, 1)] public float buyItemInShopVolume = 1;
@@ -70,6 +69,10 @@ public class SoundManager : MonoBehaviour
     [Range(0, 1)] public float eatBBountyVolume = 1;
     public AudioClip eatBugSound;
     [Range(0, 1)] public float eatBugVolume = 1;
+
+    public AudioClip powerUpFreezeAllSound;
+    [Range(0, 1)] public float powerUpFreezeAllVolume = 1;
+
 
     private int eatBugLastUsedAudioSourceIndex;
     private List<AudioSource> eatBugAudioSourcesList;
@@ -334,6 +337,12 @@ public class SoundManager : MonoBehaviour
         audioSource.volume = ModifyVolume(skipVolume);
         audioSource.PlayOneShot(skipSound);
     }*/
+
+    public void PlayFreezeAllSound()
+    {
+        powerUpAudioSource.volume = ModifyVolume(powerUpFreezeAllVolume);
+        powerUpAudioSource.PlayOneShot(powerUpFreezeAllSound);
+    }
 
     #endregion
 }

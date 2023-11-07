@@ -237,6 +237,11 @@ public class EnemiesManager : MonoBehaviour
 
     public const string pooledEnemyNameStr = "Pooled";
 
+    // Global effects
+    private bool applyGlobalFreeze = false;
+    private bool applyGlobalPoison = false;
+    private bool applyGlobalCurse = false;
+
 
     #region Unity Callback Methods
 
@@ -819,6 +824,10 @@ public class EnemiesManager : MonoBehaviour
 
         bountiesDico.Clear();
         spawnedBountiesIDs.Clear();
+
+        applyGlobalCurse = false;
+        applyGlobalFreeze = false;
+        applyGlobalPoison = false;
     }
 
     /// <summary>
@@ -1000,8 +1009,9 @@ public class EnemiesManager : MonoBehaviour
 
                             // Poison Damage
                             enemy.poisonRemainingTime -= enemyUpdateDeltaTime;
-                            if (enemy.poisonRemainingTime <= 0)
+                            if (enemy.poisonRemainingTime <= 0 && !applyGlobalPoison)
                             {
+                                // No poison effect
                                 enemy.poisonRemainingTime = 0;
                                 enemy.poisonDamage = 0;
                                 enemy.lastPoisonDamageTime = float.MinValue;
@@ -1009,7 +1019,11 @@ public class EnemiesManager : MonoBehaviour
                             }
                             else if (Time.time - enemy.lastPoisonDamageTime > delayBetweenPoisonDamage)
                             {
-                                bool enemyIsDead = DamageEnemy(enemy.enemyID, enemy.poisonDamage, null);
+                                // Poison effect is on, and cooldown since last poison damage is over
+                                float poisonDamage = enemy.poisonDamage;
+                                if (applyGlobalPoison)
+                                    poisonDamage = 1;
+                                bool enemyIsDead = DamageEnemy(enemy.enemyID, poisonDamage, null);
                                 enemy.lastPoisonDamageTime = Time.time;
 
                                 if (enemyIsDead && !enemiesToDestroyIDList.Contains(enemy.enemyID))
@@ -1071,6 +1085,42 @@ public class EnemiesManager : MonoBehaviour
         UpdateSpriteColor(enemy);
     }
 
+    public void ApplyGlobalFreezeEffect(float duration)
+    {
+        applyGlobalFreeze = true;
+        StartCoroutine(SetGlobalFreezeEffect(false, duration));
+    }
+
+    private IEnumerator SetGlobalFreezeEffect(bool active, float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        applyGlobalFreeze = active;
+    }
+
+    public void ApplyGlobalPoisonEffect(float duration)
+    {
+        applyGlobalPoison = true;
+        StartCoroutine(SetGlobalPoisonEffect(false, duration));
+    }
+
+    private IEnumerator SetGlobalPoisonEffect(bool active, float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        applyGlobalPoison = active;
+    }
+
+    public void ApplyGlobalCurseEffect(float duration)
+    {
+        applyGlobalCurse = true;
+        StartCoroutine(SetGlobalCurseEffect(false, duration));
+    }
+
+    private IEnumerator SetGlobalCurseEffect(bool active, float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        applyGlobalCurse = active;
+    }
+
     public void ApplyCurseEffect(string enemyGoName, float duration)
     {
         int enemyIndex = int.Parse(enemyGoName);
@@ -1079,6 +1129,7 @@ public class EnemiesManager : MonoBehaviour
         UpdateSpriteColor(enemy);
     }
 
+
     private void SetEnemyVelocity(EnemyInstance enemy, float updateDeltaTime)
     {
         float angle = -Vector2.SignedAngle(enemy.moveDirection, Vector2.right);
@@ -1086,21 +1137,22 @@ public class EnemiesManager : MonoBehaviour
         enemy.enemyTransform.rotation = Quaternion.Euler(0, 0, roundedAngle);
 
         float changeSpeedFactor = 1;
-        if (enemy.freezeRemainingTime > 0)
+        if (enemy.freezeRemainingTime > 0 || applyGlobalFreeze)
         {
             changeSpeedFactor = 0;
             enemy.enemyRigidbody.mass = 10000;
         }
-        else if (enemy.curseRemainingTime > 0)
+        else if (enemy.curseRemainingTime > 0 || applyGlobalCurse)
         {
             changeSpeedFactor = 3;
             enemy.enemyRigidbody.mass = 1000;
         }
 
         float actualSpeed = GetEnemyDataFromGameObjectName(enemy.enemyTransform.name, out BountyBug bountyBug).moveSpeed * changeSpeedFactor * enemy.movePattern.speedFactor;
-        float walkSpeed = DataManager.instance.defaultWalkSpeed * (1 + GameManager.instance.player.walkSpeedBoost);
+        //float walkSpeed = DataManager.instance.defaultWalkSpeed * (1 + GameManager.instance.player.walkSpeedBoost);
         actualSpeed = Mathf.Clamp(actualSpeed, 0, 30);
         enemy.enemyRigidbody.velocity = enemy.moveDirection * actualSpeed;
+        enemy.enemyAnimator.SetFloat("Speed", actualSpeed);
     }
 
     private void UpdateSpriteColor(EnemyInstance enemyInstance)
@@ -1111,17 +1163,19 @@ public class EnemiesManager : MonoBehaviour
         }
         else
         {
-            if (enemyInstance.poisonRemainingTime > 0)
+            // TODO: Show effects using shader. Have effects being stackable
+
+            if (applyGlobalFreeze || enemyInstance.freezeRemainingTime > 0)
             {
-                enemyInstance.SetOverlayColor(poisonedSpriteColor); // enemy is poisoned
+                enemyInstance.SetOverlayColor(frozenSpriteColor); // enemy is frozen
             }
-            else if (enemyInstance.curseRemainingTime > 0)
+            else if (applyGlobalCurse || enemyInstance.curseRemainingTime > 0)
             {
                 enemyInstance.SetOverlayColor(cursedSpriteColor); // enemy is cursed
             }
-            else if (enemyInstance.freezeRemainingTime > 0)
+            else if(applyGlobalPoison || enemyInstance.poisonRemainingTime > 0)
             {
-                enemyInstance.SetOverlayColor(frozenSpriteColor); // enemy is frozen
+                enemyInstance.SetOverlayColor(poisonedSpriteColor); // enemy is poisoned
             }
             else
             {
@@ -1162,7 +1216,7 @@ public class EnemiesManager : MonoBehaviour
                     {
                         int value = 0;
                         value = (bounty.collectibleType == CollectibleType.HEALTH ? 100 : value);
-                        value = (bounty.collectibleType == CollectibleType.CURRENCY ? 10 : value);
+                        value = (bounty.collectibleType == CollectibleType.FROINS ? 10 : value);
                         value = (bounty.collectibleType == CollectibleType.LEVEL_UP ? 1 : value);
                         value = (bounty.collectibleType == CollectibleType.XP_BONUS ? 10 : value);
                         CollectiblesManager.instance.SpawnCollectible(enemyInstance.enemyTransform.position, bounty.collectibleType, value, pushAway: true);

@@ -77,6 +77,13 @@ public enum SpawnFrequency
     LOTS
 }
 
+[System.Serializable]
+public class CollectibleSpawnFrequency
+{
+    public CollectibleType Type;
+    public SpawnFrequency Frequency;
+}
+
 /// <summary>
 /// All different types of conditions for a Chapter to appear
 /// </summary>
@@ -304,6 +311,11 @@ public class ChapterData : ScriptableObject
     public SpawnFrequency healthSpawnFrequency;
     [Tooltip("The amount of collectible levelUp on a tile")]
     public SpawnFrequency levelUpSpawnFrequency;
+
+    [Space]
+    [Header("Chapter settings - Power Ups Collectibles")]
+    public List<CollectibleSpawnFrequency> otherCollectibleSpawnFrequenciesList;
+
     [Space]
     [Tooltip("A list of all special collectibles on the map, like items, weapons, hat, etc.")]
     public List<FixedCollectible> specialCollectiblesOnTheMap;
