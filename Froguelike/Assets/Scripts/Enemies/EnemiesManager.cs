@@ -103,6 +103,7 @@ public class EnemyInstance
 
     // Origin wave
     public Wave wave;
+    public bool neverDespawn;
 
     // Current in-game state - knockback & cooldown
     public float knockbackCooldown;
@@ -201,10 +202,6 @@ public class EnemiesManager : MonoBehaviour
     [Header("Settings - Update")]
     public int updateAllEnemiesCount = 500;
 
-    [Header("Settings - Outline colors")]
-    public bool useOutlineColorsToDisplayTiers;
-    public List<Color> tiersOutlineColorsList;
-
     [Header("Settings - Effects (poison, frozen, etc.)")]
     public Color poisonedSpriteColor;
     public Color frozenSpriteColor;
@@ -233,9 +230,17 @@ public class EnemiesManager : MonoBehaviour
     private Queue<EnemyInstance> inactiveEnemiesPool;
     private Queue<GameObject> damageTextsPool;
 
+    private HashSet<int> spawnedBountiesIDs;
+    private Dictionary<int, BountyBug> bountiesDico;
+
     public Vector3 farAwayPosition;
 
     public const string pooledEnemyNameStr = "Pooled";
+
+    // Global effects
+    private bool applyGlobalFreeze = false;
+    private bool applyGlobalPoison = false;
+    private bool applyGlobalCurse = false;
 
 
     #region Unity Callback Methods
@@ -251,7 +256,9 @@ public class EnemiesManager : MonoBehaviour
     {
         lastSpawnTimesList = new List<float>();
 
-        // Initialize dictionaries
+        // Initialize data structures
+        bountiesDico = new Dictionary<int, BountyBug>();
+        spawnedBountiesIDs = new HashSet<int>();
         enemiesDataFromNameDico = new Dictionary<string, EnemyData>();
         enemiesDataFromTypeDico = new Dictionary<EnemyType, List<EnemyData>>();
         foreach (EnemyTypeData enemyTypeData in enemiesTypesDataList)
@@ -435,6 +442,36 @@ public class EnemiesManager : MonoBehaviour
         return resultData;
     }
 
+    /// <summary>
+    /// Attempt to spawn a new "bounty" (ie: an enemy that doesn't despawn unless killed)
+    /// </summary>
+    /// <param name="bountyID">Unique identifier for this bounty in this chapter</param>
+    /// <param name="bountyBugData">EnemyData contains data about the enemy to spawn</param>
+    public void TrySpawnBounty(int bountyID, BountyBug bountyBug)
+    {
+        if (RunManager.instance.currentChapter != null && RunManager.instance.currentChapter.chapterData != null)
+        {
+            if (spawnedBountiesIDs != null && !spawnedBountiesIDs.Contains(bountyID))
+            {
+                // Keep a dictionary of current bounties
+                spawnedBountiesIDs.Add(bountyID);
+
+                // Get random spawn position, around and in front of frog
+                GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out Vector2 spawnPosition);
+                
+                // Get EnemyData & prefab according to relevant difficulty tier
+                int difficultyTier = GetTierFromFormulaAndChapterCount(bountyBug.tierFormula, RunManager.instance.GetChapterCount());
+                EnemyData enemyData = GetEnemyDataFromTypeAndDifficultyTier(bountyBug.enemyType, difficultyTier);
+                GameObject enemyPrefab = enemyData.prefab;
+
+                // Spawn bug using info we have
+                StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition + Random.Range(-1.0f, 1.0f) * Vector2.right + Random.Range(-1.0f, 1.0f) * Vector2.up, enemyData, bountyBug.movePattern, originWave: null, delay: 0, difficultyTier: difficultyTier, neverDespawn: true, bounty: bountyBug));
+                
+            }
+        }
+    }
+
+
     public void TrySpawnWave(Wave currentWave)
     {
         if (RunManager.instance.currentChapter != null && RunManager.instance.currentChapter.chapterData != null)
@@ -532,7 +569,7 @@ public class EnemiesManager : MonoBehaviour
         }
     }
 
-    public void SpawnEnemy(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, Wave originWave, int difficultyTier)
+    public void SpawnEnemy(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, Wave originWave, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null)
     {
         // Get an enemy from the pool
         EnemyInstance enemyFromPool = null;
@@ -565,14 +602,19 @@ public class EnemiesManager : MonoBehaviour
             enemyFromPool.enemyTransform.position = position;
 
             enemyFromPool.wave = originWave;
+            enemyFromPool.neverDespawn = neverDespawn;
 
-            if (enemyData.outlineThickness > 0)
+            int outlineThickness = enemyData.outlineThickness;
+            Color outlineColor = enemyData.outlineColor;
+            if (bounty != null)
             {
-                enemyFromPool.SetOutlineColor(enemyData.outlineColor, enemyData.outlineThickness);
-                if (useOutlineColorsToDisplayTiers)
-                {
-                    enemyFromPool.SetOutlineColor(tiersOutlineColorsList[difficultyTier - 1], enemyData.outlineThickness);
-                }
+                outlineThickness = bounty.outlineThicknessOverride;
+                outlineColor = bounty.outlineColorOverride;
+            }
+
+            if (outlineThickness > 0)
+            {
+                enemyFromPool.SetOutlineColor(outlineColor, outlineThickness);
             }
             else
             {
@@ -584,14 +626,14 @@ public class EnemiesManager : MonoBehaviour
                 Debug.Log($"Spawning a {enemyData.enemyName} with move pattern {movePattern.movePatternType.ToString()}. Total amount of active enemies = {allActiveEnemiesDico.Count + 1}");
             }
 
-            AddEnemy(enemyFromPool, enemyData, movePattern);
+            AddEnemy(enemyFromPool, enemyData, movePattern, bounty);
         }
     }
 
-    private IEnumerator SpawnEnemyAsync(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, Wave originWave, float delay, int difficultyTier)
+    private IEnumerator SpawnEnemyAsync(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, Wave originWave, float delay, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null)
     {
         yield return new WaitForSeconds(delay);
-        SpawnEnemy(prefab, position, enemyData, movePattern, originWave, difficultyTier);
+        SpawnEnemy(prefab, position, enemyData, movePattern, originWave, difficultyTier, neverDespawn, bounty);
     }
 
     public void InitializeWave(Wave wave)
@@ -619,22 +661,36 @@ public class EnemiesManager : MonoBehaviour
         return GetEnemyInstanceFromID(ID);
     }
 
-    public EnemyData GetEnemyDataFromGameObjectName(string gameObjectName)
+    public EnemyData GetEnemyDataFromGameObjectName(string gameObjectName, out BountyBug bountyBug)
     {
         int ID = int.Parse(gameObjectName);
+        bountiesDico.TryGetValue(ID, out bountyBug); // Get potential bounty
         EnemyInstance instance = GetEnemyInstanceFromID(ID);
         return enemiesDataFromNameDico[instance.enemyName];
     }
 
-    public void AddEnemy(EnemyInstance newEnemy, EnemyData enemyData, EnemyMovePattern movePattern)
+    public void AddEnemy(EnemyInstance newEnemy, EnemyData enemyData, EnemyMovePattern movePattern, BountyBug bounty = null)
     {
         // setup enemy - name
         newEnemy.enemyName = enemyData.enemyName;
         lastKey++;
         newEnemy.enemyTransform.gameObject.name = lastKey.ToString();
 
+        // add enemy to dico
+        newEnemy.enemyID = lastKey;
+        allActiveEnemiesDico.Add(lastKey, newEnemy);
+
+        // Bounty multipliers
+        float hpMultiplier = 1;
+        if (bounty != null)
+        {
+            hpMultiplier = bounty.hpMultiplier;
+            // add bounty to dico
+            bountiesDico.Add(newEnemy.enemyID, bounty);
+        }
+
         // setup enemy - state
-        newEnemy.HP = enemyData.maxHP * (1 + GameManager.instance.player.curse); // Max HP is affected by the curse
+        newEnemy.HP = (enemyData.maxHP * hpMultiplier) * (1 + GameManager.instance.player.curse); // Max HP is affected by the curse
         newEnemy.active = true;
         newEnemy.alive = true;
 
@@ -648,10 +704,6 @@ public class EnemiesManager : MonoBehaviour
             Debug.LogWarning("Initializing enemy instance but EnemyInfo is null!");
         }
         newEnemy.enemyInfo = enemyInfo;
-
-        // add enemy to dico
-        newEnemy.enemyID = lastKey;
-        allActiveEnemiesDico.Add(lastKey, newEnemy);
 
         // add enemy to update queue
         enemiesToUpdateQueue.Enqueue(newEnemy);
@@ -769,6 +821,13 @@ public class EnemiesManager : MonoBehaviour
         enemiesToUpdateQueue.Clear();
         allActiveEnemiesDico.Clear();
         lastKey = 0;
+
+        bountiesDico.Clear();
+        spawnedBountiesIDs.Clear();
+
+        applyGlobalCurse = false;
+        applyGlobalFreeze = false;
+        applyGlobalPoison = false;
     }
 
     /// <summary>
@@ -789,6 +848,7 @@ public class EnemiesManager : MonoBehaviour
                 EnemyInstance enemy = enemiesToUpdateQueue.Dequeue();
                 EnemyData enemyData = enemiesDataFromNameDico[enemy.enemyName];
                 EnemyMovePattern movePattern = enemy.movePattern;
+                
                 if (enemy.active)
                 {
                     float enemyUpdateDeltaTime = (Time.time - enemy.lastUpdateTime);
@@ -815,7 +875,15 @@ public class EnemiesManager : MonoBehaviour
                         {
                             enemy.enemyRenderer.enabled = false;
                             enemy.active = false;
-                            RunManager.instance.EatFly(enemyData.xPBonus * (1 + GameManager.instance.player.curse), enemyData.instantlyEndChapter);
+
+                            float XPEarned = enemyData.xPBonus;
+                            if (bountiesDico.ContainsKey(enemy.enemyID))
+                            {
+                                XPEarned *= bountiesDico[enemy.enemyID].xpMultiplier;
+                            }
+                            XPEarned *= (1 + GameManager.instance.player.curse);
+
+                            RunManager.instance.EatFly(XPEarned);
                             enemiesToDestroyIDList.Add(enemy.enemyID);
                         }
                     }
@@ -827,7 +895,7 @@ public class EnemiesManager : MonoBehaviour
                         float distanceWithFrog = Vector2.Distance(frogPosition, enemy.enemyTransform.position);
                         if (distanceWithFrog > maxDistanceBeforeUnspawn)
                         {
-                            if (unspawnEnemiesThatGoTooFar || !enemy.wave.Equals(RunManager.instance.GetCurrentWave()))
+                            if (unspawnEnemiesThatGoTooFar || (!enemy.neverDespawn && !enemy.wave.Equals(RunManager.instance.GetCurrentWave())))
                             {
                                 // Unspawn enemy
                                 enemy.enemyRenderer.enabled = false;
@@ -841,6 +909,24 @@ public class EnemiesManager : MonoBehaviour
                                 if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out Vector2 spawnPosition))
                                 {
                                     enemy.enemyTransform.position = spawnPosition;
+                                }
+
+                                // Make sure its direction is reset
+                                switch(enemy.movePattern.movePatternType)
+                                {
+                                    case EnemyMovePatternType.STRAIGHT_LINE:
+                                        enemy.moveDirection = (playerTransform.position - enemy.enemyTransform.position).normalized;
+                                        SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
+                                        break;
+                                    case EnemyMovePatternType.BOUNCE_ON_EDGES:
+                                        enemy.moveDirection = (playerTransform.position - enemy.enemyTransform.position).normalized;
+                                        enemy.moveDirection = (new Vector2(Mathf.Sign(enemy.moveDirection.x), Mathf.Sign(enemy.moveDirection.y))).normalized;
+                                        enemy.bounceCount = enemy.movePattern.bouncecount;
+                                        SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
+                                        break;
+                                    default:
+                                        // Velocity is going to be updated anyway
+                                        break;
                                 }
                             }
                         }
@@ -923,8 +1009,9 @@ public class EnemiesManager : MonoBehaviour
 
                             // Poison Damage
                             enemy.poisonRemainingTime -= enemyUpdateDeltaTime;
-                            if (enemy.poisonRemainingTime <= 0)
+                            if (enemy.poisonRemainingTime <= 0 && !applyGlobalPoison)
                             {
+                                // No poison effect
                                 enemy.poisonRemainingTime = 0;
                                 enemy.poisonDamage = 0;
                                 enemy.lastPoisonDamageTime = float.MinValue;
@@ -932,7 +1019,11 @@ public class EnemiesManager : MonoBehaviour
                             }
                             else if (Time.time - enemy.lastPoisonDamageTime > delayBetweenPoisonDamage)
                             {
-                                bool enemyIsDead = DamageEnemy(enemy.enemyID, enemy.poisonDamage, null);
+                                // Poison effect is on, and cooldown since last poison damage is over
+                                float poisonDamage = enemy.poisonDamage;
+                                if (applyGlobalPoison)
+                                    poisonDamage = 1;
+                                bool enemyIsDead = DamageEnemy(enemy.enemyID, poisonDamage, null);
                                 enemy.lastPoisonDamageTime = Time.time;
 
                                 if (enemyIsDead && !enemiesToDestroyIDList.Contains(enemy.enemyID))
@@ -994,6 +1085,42 @@ public class EnemiesManager : MonoBehaviour
         UpdateSpriteColor(enemy);
     }
 
+    public void ApplyGlobalFreezeEffect(float duration)
+    {
+        applyGlobalFreeze = true;
+        StartCoroutine(SetGlobalFreezeEffect(false, duration));
+    }
+
+    private IEnumerator SetGlobalFreezeEffect(bool active, float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        applyGlobalFreeze = active;
+    }
+
+    public void ApplyGlobalPoisonEffect(float duration)
+    {
+        applyGlobalPoison = true;
+        StartCoroutine(SetGlobalPoisonEffect(false, duration));
+    }
+
+    private IEnumerator SetGlobalPoisonEffect(bool active, float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        applyGlobalPoison = active;
+    }
+
+    public void ApplyGlobalCurseEffect(float duration)
+    {
+        applyGlobalCurse = true;
+        StartCoroutine(SetGlobalCurseEffect(false, duration));
+    }
+
+    private IEnumerator SetGlobalCurseEffect(bool active, float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        applyGlobalCurse = active;
+    }
+
     public void ApplyCurseEffect(string enemyGoName, float duration)
     {
         int enemyIndex = int.Parse(enemyGoName);
@@ -1002,6 +1129,7 @@ public class EnemiesManager : MonoBehaviour
         UpdateSpriteColor(enemy);
     }
 
+
     private void SetEnemyVelocity(EnemyInstance enemy, float updateDeltaTime)
     {
         float angle = -Vector2.SignedAngle(enemy.moveDirection, Vector2.right);
@@ -1009,21 +1137,22 @@ public class EnemiesManager : MonoBehaviour
         enemy.enemyTransform.rotation = Quaternion.Euler(0, 0, roundedAngle);
 
         float changeSpeedFactor = 1;
-        if (enemy.freezeRemainingTime > 0)
+        if (enemy.freezeRemainingTime > 0 || applyGlobalFreeze)
         {
             changeSpeedFactor = 0;
             enemy.enemyRigidbody.mass = 10000;
         }
-        else if (enemy.curseRemainingTime > 0)
+        else if (enemy.curseRemainingTime > 0 || applyGlobalCurse)
         {
             changeSpeedFactor = 3;
             enemy.enemyRigidbody.mass = 1000;
         }
 
-        float actualSpeed = GetEnemyDataFromGameObjectName(enemy.enemyTransform.name).moveSpeed * changeSpeedFactor * enemy.movePattern.speedFactor;
-        float walkSpeed = DataManager.instance.defaultWalkSpeed * (1 + GameManager.instance.player.walkSpeedBoost);
+        float actualSpeed = GetEnemyDataFromGameObjectName(enemy.enemyTransform.name, out BountyBug bountyBug).moveSpeed * changeSpeedFactor * enemy.movePattern.speedFactor;
+        //float walkSpeed = DataManager.instance.defaultWalkSpeed * (1 + GameManager.instance.player.walkSpeedBoost);
         actualSpeed = Mathf.Clamp(actualSpeed, 0, 30);
         enemy.enemyRigidbody.velocity = enemy.moveDirection * actualSpeed;
+        enemy.enemyAnimator.SetFloat("Speed", actualSpeed);
     }
 
     private void UpdateSpriteColor(EnemyInstance enemyInstance)
@@ -1034,17 +1163,19 @@ public class EnemiesManager : MonoBehaviour
         }
         else
         {
-            if (enemyInstance.poisonRemainingTime > 0)
+            // TODO: Show effects using shader. Have effects being stackable
+
+            if (applyGlobalFreeze || enemyInstance.freezeRemainingTime > 0)
             {
-                enemyInstance.SetOverlayColor(poisonedSpriteColor); // enemy is poisoned
+                enemyInstance.SetOverlayColor(frozenSpriteColor); // enemy is frozen
             }
-            else if (enemyInstance.curseRemainingTime > 0)
+            else if (applyGlobalCurse || enemyInstance.curseRemainingTime > 0)
             {
                 enemyInstance.SetOverlayColor(cursedSpriteColor); // enemy is cursed
             }
-            else if (enemyInstance.freezeRemainingTime > 0)
+            else if(applyGlobalPoison || enemyInstance.poisonRemainingTime > 0)
             {
-                enemyInstance.SetOverlayColor(frozenSpriteColor); // enemy is frozen
+                enemyInstance.SetOverlayColor(poisonedSpriteColor); // enemy is poisoned
             }
             else
             {
@@ -1066,10 +1197,37 @@ public class EnemiesManager : MonoBehaviour
 
         enemyInstance.enemyAnimator.SetBool("IsDead", true);
         enemyInstance.enemyCollider.enabled = false;
-        enemyInstance.enemyTransform.rotation = Quaternion.Euler(0, 0, 45);
 
-        enemyInstance.RemoveOutline();
+        // Remove visual effect on the enemy
+        //enemyInstance.RemoveOutline();
         enemyInstance.RemoveOverlay();
+
+        // Spawn rewards for bounties
+        if (bountiesDico.ContainsKey(enemyInstance.enemyID))
+        {
+            BountyBug bountyBug = bountiesDico[enemyInstance.enemyID];
+            if (bountyBug != null
+                && bountyBug.bountyList != null
+                && bountyBug.bountyList.Count > 0)
+            {
+                foreach (Bounty bounty in bountyBug.bountyList)
+                {
+                    for (int i = 0; i < bounty.amount; i++)
+                    {
+                        int value = 0;
+                        value = (bounty.collectibleType == CollectibleType.HEALTH ? 100 : value);
+                        value = (bounty.collectibleType == CollectibleType.FROINS ? 10 : value);
+                        value = (bounty.collectibleType == CollectibleType.LEVEL_UP ? 1 : value);
+                        value = (bounty.collectibleType == CollectibleType.XP_BONUS ? 10 : value);
+                        CollectiblesManager.instance.SpawnCollectible(enemyInstance.enemyTransform.position, bounty.collectibleType, value, pushAway: true);
+                    }
+                }
+
+                // Play SFX
+                SoundManager.instance.PlayEatBountySound();
+            }
+        }
+        
     }
 
     public void SetEnemyDead(string enemyGameObjectName)

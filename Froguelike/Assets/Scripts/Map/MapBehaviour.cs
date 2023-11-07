@@ -168,7 +168,7 @@ public class MapBehaviour : MonoBehaviour
                 {
                     int chapterMultiplicator = 1; // RunManager.instance.completedChaptersList.Count + 1;
                     int bonusValue = chapterMultiplicator * 10;
-                    CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.CURRENCY, bonusValue);
+                    CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.FROINS, bonusValue);
                 }
             }
 
@@ -193,6 +193,21 @@ public class MapBehaviour : MonoBehaviour
                 if (GetSpawnPosition(tileCoordinates, out Vector2 position))
                 {
                     CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.LEVEL_UP, 1);
+                }
+            }
+
+            // generate other collectibles
+            foreach (CollectibleSpawnFrequency collectibleSpawnFrequency in currentPlayedChapter.chapterData.otherCollectibleSpawnFrequenciesList)
+            {
+                Vector2 powerUpMinMax = DataManager.instance.GetSpawnProbability("powerUp", collectibleSpawnFrequency.Frequency);
+                float powerUpProba = Random.Range(powerUpMinMax.x, powerUpMinMax.y);
+                float powerUpAmount = Mathf.Floor(powerUpProba) + ((Random.Range(Mathf.Floor(powerUpProba), Mathf.Ceil(powerUpProba)) < powerUpProba) ? 1 : 0);
+                for (int i = 0; i < powerUpAmount; i++)
+                {
+                    if (GetSpawnPosition(tileCoordinates, out Vector2 position))
+                    {
+                        CollectiblesManager.instance.SpawnCollectible(position, collectibleSpawnFrequency.Type, 1);
+                    }
                 }
             }
         }

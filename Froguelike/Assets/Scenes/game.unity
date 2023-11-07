@@ -829,6 +829,134 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 318288364846524358, guid: f85e78e9c9d183845a5c75b461150ce3, type: 3}
   m_PrefabInstance: {fileID: 53086747}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &63856971
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 63856973}
+  - component: {fileID: 63856972}
+  m_Layer: 0
+  m_Name: Power Up Audio Source
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!82 &63856972
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 63856971}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: -322592479979663565, guid: 05cc8123ca8a8134f9d54cca06408f71, type: 2}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!4 &63856973
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 63856971}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 464157711}
+  m_RootOrder: 14
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &69634790
 GameObject:
   m_ObjectHideFlags: 0
@@ -5869,13 +5997,11 @@ MonoBehaviour:
   spawnCenterMaxDistanceToPlayer: 30
   spawnCircleRadius: 30
   findSpawnPositionMaxAttempts: 10
-  maxDistanceBeforeUnspawn: 60
+  maxDistanceBeforeUnspawn: 40
   unspawnEnemiesThatGoTooFar: 0
   maxDamageTexts: 300
   maxActiveEnemies: 1500
   updateAllEnemiesCount: 1500
-  useOutlineColorsToDisplayTiers: 0
-  tiersOutlineColorsList: []
   poisonedSpriteColor: {r: 0.16862746, g: 0.5529412, b: 0.21960786, a: 1}
   frozenSpriteColor: {r: 0.4039216, g: 0.78823537, b: 0.9058824, a: 1}
   cursedSpriteColor: {r: 0.6392157, g: 0.30588236, b: 0.654902, a: 1}
@@ -7777,7 +7903,9 @@ MonoBehaviour:
   levelUpAudioSource: {fileID: 1913548679}
   buyItemInShopAudioSource: {fileID: 95588978}
   refundShopAudioSource: {fileID: 2068843764}
+  eatBountyAudioSource: {fileID: 691041840}
   eatBugAudioSourcesParent: {fileID: 935145505}
+  powerUpAudioSource: {fileID: 63856972}
   buttonSound: {fileID: 8300000, guid: 4fd524aa30b04874fb1285caed3760ed, type: 3}
   buttonVolume: 0.5
   deathSound: {fileID: 8300000, guid: f15541d86a1c9c64399ec5c85dc1d0d1, type: 3}
@@ -7806,8 +7934,12 @@ MonoBehaviour:
   rerollVolume: 1
   skipSound: {fileID: 0}
   skipVolume: 1
+  eatBountySound: {fileID: 8300000, guid: 7607faa274425314ba27cfdac8553068, type: 3}
+  eatBBountyVolume: 1
   eatBugSound: {fileID: 8300000, guid: 6fc251f3ac9707642af3071f912c0790, type: 3}
   eatBugVolume: 0.5
+  powerUpFreezeAllSound: {fileID: 8300000, guid: eef3bed49e800b44a8bb1112730f47d0, type: 3}
+  powerUpFreezeAllVolume: 1
 --- !u!4 &464157711
 Transform:
   m_ObjectHideFlags: 0
@@ -7832,7 +7964,9 @@ Transform:
   - {fileID: 1913548678}
   - {fileID: 95588977}
   - {fileID: 2068843765}
+  - {fileID: 691041839}
   - {fileID: 935145505}
+  - {fileID: 63856973}
   m_Father: {fileID: 0}
   m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -12728,6 +12862,134 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &691041838
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 691041839}
+  - component: {fileID: 691041840}
+  m_Layer: 0
+  m_Name: Eat Bounty Audio Source
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &691041839
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 691041838}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 464157711}
+  m_RootOrder: 12
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &691041840
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 691041838}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: -322592479979663565, guid: 05cc8123ca8a8134f9d54cca06408f71, type: 2}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &691063645
 GameObject:
   m_ObjectHideFlags: 0
@@ -17694,7 +17956,7 @@ Transform:
   - {fileID: 548540347}
   - {fileID: 1918968016}
   m_Father: {fileID: 464157711}
-  m_RootOrder: 12
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &941574426
 GameObject:
@@ -36139,15 +36401,35 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   magnetCollectiblePrefab: {fileID: 2308838969773596893, guid: 2af3cfbf96755494ca3053a8d58eafa4, type: 3}
   superCollectiblePrefab: {fileID: 2308838969773596893, guid: 0f3c5a4fac17b984a94935dc83ba7974, type: 3}
-  currencyCollectibleIcon: {fileID: 21300000, guid: 33db472c27805814a845fe5dd40282ee, type: 3}
-  superCurrencyCollectibleIcon: {fileID: 21300000, guid: d29a5b85d57d047429629782eee8b1ff, type: 3}
-  xpCollectibleIcon: {fileID: 21300000, guid: cfd319fd0ad327c48b9994d470900f4d, type: 3}
-  levelUpCollectibleIcon: {fileID: 21300000, guid: 51e6115c02d369d4b890a578e8f5652b, type: 3}
-  healthCollectibleIcon: {fileID: 21300000, guid: a9fff52a2b4006e488c5142311c6d3a4, type: 3}
+  magnetCollectiblesIconsList:
+  - Type: 0
+    Name: Currency
+    Icon: {fileID: 21300000, guid: d29a5b85d57d047429629782eee8b1ff, type: 3}
+  - Type: 1
+    Name: XP
+    Icon: {fileID: 21300000, guid: cfd319fd0ad327c48b9994d470900f4d, type: 3}
+  - Type: 2
+    Name: LevelUp
+    Icon: {fileID: 21300000, guid: 51e6115c02d369d4b890a578e8f5652b, type: 3}
+  - Type: 3
+    Name: HP
+    Icon: {fileID: 21300000, guid: a9fff52a2b4006e488c5142311c6d3a4, type: 3}
+  - Type: 4
+    Name: FreezeAll
+    Icon: {fileID: 21300000, guid: 26c990268b83ee943b7f58b3084e5f50, type: 3}
+  - Type: 5
+    Name: PoisonAll
+    Icon: {fileID: 21300000, guid: 045f00d928b2d3d4082fbd2b7fe6e79e, type: 3}
+  - Type: 6
+    Name: CurseAll
+    Icon: {fileID: 21300000, guid: 4c6f4120e7a69364da1a4c828a76ad98, type: 3}
   collectibleMinMovingSpeed: 8
   collectibleMovingSpeedFactor: 1.5
   collectMinDistance: 1
   updateAllCollectiblesDelay: 0.1
+  collectibleSpawnMinPushForce: 5
+  collectibleSpawnMaxPushForce: 7
+  collectibleSpawnDelay: 0.9
   verboseLevel: 0
 --- !u!1 &1674015627
 GameObject:
@@ -44134,6 +44416,38 @@ PrefabInstance:
     - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
       propertyPath: characterStatsDataList.Array.data[0].icon
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: collectiblePowerUpsSpawnProbabilities.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: collectiblePowerUpsSpawnProbabilities.Array.data[0].frequency
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: collectiblePowerUpsSpawnProbabilities.Array.data[1].frequency
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: collectiblePowerUpsSpawnProbabilities.Array.data[2].frequency
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: collectiblePowerUpsSpawnProbabilities.Array.data[0].probability.y
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: collectiblePowerUpsSpawnProbabilities.Array.data[1].probability.y
+      value: 0.06
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: collectiblePowerUpsSpawnProbabilities.Array.data[2].probability.x
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: collectiblePowerUpsSpawnProbabilities.Array.data[2].probability.y
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 1633024039481550883, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
       propertyPath: m_Name

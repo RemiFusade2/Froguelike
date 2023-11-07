@@ -1,13 +1,27 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
+[System.Serializable]
 public enum CollectibleType
 {
-    CURRENCY,
+    FROINS,
     XP_BONUS,
     LEVEL_UP,
-    HEALTH
+    HEALTH,
+
+    POWERUP_FREEZE_ALL,
+    POWERUP_POISON_ALL,
+    POWERUP_CURSE_ALL
+}
+
+[System.Serializable]
+public class CollectibleInfo
+{
+    public CollectibleType Type;
+    public string Name;
+    public Sprite Icon;
 }
 
 /// <summary>
@@ -25,17 +39,18 @@ public class CollectiblesManager : MonoBehaviour
     public GameObject superCollectiblePrefab;
 
     [Header("Magnet collectibles icons")]
-    public Sprite currencyCollectibleIcon;
-    public Sprite superCurrencyCollectibleIcon;
-    public Sprite xpCollectibleIcon;
-    public Sprite levelUpCollectibleIcon;
-    public Sprite healthCollectibleIcon;
+    public List<CollectibleInfo> magnetCollectiblesIconsList;
 
     [Header("Settings - Magnet")]
     public float collectibleMinMovingSpeed = 8;
     public float collectibleMovingSpeedFactor = 1.5f;
     public float collectMinDistance = 1.5f;
     public float updateAllCollectiblesDelay = 0.1f;
+
+    [Header("Settings - Spawn")]
+    public float collectibleSpawnMinPushForce = 5;
+    public float collectibleSpawnMaxPushForce = 7;
+    public float collectibleSpawnDelay = 1;
 
     [Header("Settings - Logs")]
     public VerboseLevel verboseLevel;
@@ -82,41 +97,68 @@ public class CollectiblesManager : MonoBehaviour
         RunManager.instance.GetCompassArrowForCollectible(collectible).SetCollectibleTransform(newCollectible.transform);
     }
 
-    public void SpawnCollectible(Vector2 position, CollectibleType collectibleType, float bonusValue)
+    private CollectibleInfo GetCollectibleInfoFromType(CollectibleType collectibleType)
+    {
+        return magnetCollectiblesIconsList.Where(x => x.Type.Equals(collectibleType)).FirstOrDefault();
+    }
+
+    private CollectibleInfo GetCollectibleInfoFromName(string collectibleName)
+    {
+        return magnetCollectiblesIconsList.Where(x => x.Name.Equals(collectibleName)).FirstOrDefault();
+    }
+
+
+    private string GetCollectibleGameObjectName(CollectibleInfo collectibleInfo, float bonusValue)
+    {
+        return $"{collectibleInfo.Name}+{bonusValue.ToString()}";
+    }
+
+    private void GetCollectibleTypeAndValueFromName(string gameObjectName, out CollectibleType collectibleType, out float bonusValue)
+    {
+        collectibleType = CollectibleType.XP_BONUS;
+        bonusValue = 0;
+
+        string[] splitName = gameObjectName.Split("+");
+        CollectibleInfo info = GetCollectibleInfoFromName(splitName[0]);
+
+        if (info != null)
+        {
+            collectibleType = info.Type;
+            int.TryParse(splitName[1], out int value);
+            bonusValue = value;
+        }
+    }
+
+    public void SpawnCollectible(Vector2 position, CollectibleType collectibleType, float bonusValue, bool pushAway = false)
     {
         GameObject newCollectible = Instantiate(magnetCollectiblePrefab, position, Quaternion.identity, this.transform);
 
-        string collectibleName = "";
-        switch (collectibleType)
+        CollectibleInfo collectibleInfo = GetCollectibleInfoFromType(collectibleType);
+
+        newCollectible.GetComponent<SpriteRenderer>().sprite = collectibleInfo.Icon;
+
+        newCollectible.name = $"{collectibleInfo.Name}+{bonusValue.ToString()}";
+
+        if (pushAway)
         {
-            case CollectibleType.CURRENCY:
-                if (bonusValue > 1)
-                {
-                    newCollectible.GetComponent<SpriteRenderer>().sprite = superCurrencyCollectibleIcon;
-                }
-                else
-                {
-                    newCollectible.GetComponent<SpriteRenderer>().sprite = currencyCollectibleIcon;
-                }
-                collectibleName = "Currency";
-                break;
-            case CollectibleType.XP_BONUS:
-                newCollectible.GetComponent<SpriteRenderer>().sprite = xpCollectibleIcon;
-                collectibleName = "XP";
-                break;
-            case CollectibleType.LEVEL_UP:
-                newCollectible.GetComponent<SpriteRenderer>().sprite = levelUpCollectibleIcon;
-                collectibleName = "LevelUp";
-                break;
-            case CollectibleType.HEALTH:
-                newCollectible.GetComponent<SpriteRenderer>().sprite = healthCollectibleIcon;
-                collectibleName = "HP";
-                break;
+            float randomPushForce = Random.Range(collectibleSpawnMinPushForce, collectibleSpawnMaxPushForce);
+            newCollectible.GetComponent<Rigidbody2D>().AddForce(randomPushForce * Random.insideUnitCircle.normalized, ForceMode2D.Impulse);
+
+            // Ensure that it can't be collected for a short delay after spawn
+            StartCoroutine(EnableCollectibleCollider(newCollectible.GetComponent<CircleCollider2D>(), collectibleSpawnDelay));
         }
-        collectibleName += "+" + bonusValue.ToString();
-        newCollectible.name = collectibleName;
+        else
+        {
+            newCollectible.GetComponent<CircleCollider2D>().enabled = true;
+        }
 
         allCollectiblesList.Add(newCollectible.transform);
+    }
+
+    private IEnumerator EnableCollectibleCollider(CircleCollider2D colliderComponent, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        colliderComponent.enabled = true;
     }
 
     /// <summary>
@@ -138,14 +180,17 @@ public class CollectiblesManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Destroy collectible and remove it from the list. Returns its name.
+    /// Destroy collectible and remove it from the list. Returns its type and value.
     /// Call this method if there's a collision between the collectible and the character collider.
     /// </summary>
     /// <param name="collectible">The transform of the collected collectible</param>
     /// <returns>Returns game object name, contains data on which type of collectible it was</returns>
-    private string CollectCollectible(Transform collectible)
+    private string CollectCollectible(Transform collectible, out CollectibleType collectibleType, out float collectibleValue)
     {
         string collectibleName = collectible.gameObject.name;
+
+        GetCollectibleTypeAndValueFromName(collectibleName, out collectibleType, out collectibleValue);
+
         if (allCapturedCollectiblesList.Contains(collectible))
         {
             allCapturedCollectiblesList.Remove(collectible);
@@ -235,8 +280,8 @@ public class CollectiblesManager : MonoBehaviour
             // Collect all collectibles that are close enough (destroy them + apply their effect)
             foreach (Transform collectible in collectedCollectibles)
             {
-                string collectibleName = CollectCollectible(collectible);
-                RunManager.instance.CollectCollectible(collectibleName);
+                string collectibleName = CollectCollectible(collectible, out CollectibleType collectibleType, out float collectibleValue);
+                RunManager.instance.CollectCollectible(collectibleType, collectibleValue);
             }
         }
     }

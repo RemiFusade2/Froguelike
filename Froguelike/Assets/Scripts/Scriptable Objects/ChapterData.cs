@@ -77,6 +77,13 @@ public enum SpawnFrequency
     LOTS
 }
 
+[System.Serializable]
+public class CollectibleSpawnFrequency
+{
+    public CollectibleType Type;
+    public SpawnFrequency Frequency;
+}
+
 /// <summary>
 /// All different types of conditions for a Chapter to appear
 /// </summary>
@@ -195,6 +202,57 @@ public class ChapterWeightChange
     public float weightChange;
 }
 
+/// <summary>
+/// Bounty contains information about the nature and amount of collectibles
+/// </summary>
+[System.Serializable]
+public class Bounty
+{
+    [Tooltip("Type of reward")]
+    public CollectibleType collectibleType;
+    [Tooltip("Amount of reward")]
+    public int amount;
+}
+
+/// <summary>
+/// BountyBug contains information about when a bounty bug must be spawned and which bug
+/// </summary>
+[System.Serializable]
+public class BountyBug
+{
+    [Header("Spawn")]
+    [Tooltip("Time after which this bug must be spawned")]
+    public float spawnTime;
+
+    [Header("Enemy")]
+    [Tooltip("The type of enemy that would spawn (combined with its tier, we'd know what enemy spawns exactly)")]
+    public EnemyType enemyType;
+    [Tooltip("Formula that would give a value between 1 and 5. You can use the keyword \"chapter\" to adapt the enemy tier to the current chapter count.")]
+    public string tierFormula;
+
+    [Header("Stat Multipliers")]
+    [Tooltip("HP Max of bug is multiplied by this value")]
+    public float hpMultiplier;
+    [Tooltip("Damage of bug is multiplied by this value")]
+    public float damageMultiplier;
+    [Tooltip("XP given by this bug is multiplied by this value")]
+    public float xpMultiplier;
+
+    [Header("Movement")]
+    [Tooltip("Which movement pattern this enemy will follow")]
+    public EnemyMovePattern movePattern;
+
+    [Header("Appearance")]
+    [Tooltip("Outline thickness of this bug")]
+    public int outlineThicknessOverride = 1;
+    [Tooltip("Outline color of this bug")]
+    public Color outlineColorOverride = new Color(0.984f, 0.992f, 0.984f);
+
+    [Header("Bounty")]
+    [Tooltip("A list of collectibles + amount that serve as a bounty")]
+    public List<Bounty> bountyList;
+}
+
 #endregion
 
 
@@ -253,6 +311,11 @@ public class ChapterData : ScriptableObject
     public SpawnFrequency healthSpawnFrequency;
     [Tooltip("The amount of collectible levelUp on a tile")]
     public SpawnFrequency levelUpSpawnFrequency;
+
+    [Space]
+    [Header("Chapter settings - Power Ups Collectibles")]
+    public List<CollectibleSpawnFrequency> otherCollectibleSpawnFrequenciesList;
+
     [Space]
     [Tooltip("A list of all special collectibles on the map, like items, weapons, hat, etc.")]
     public List<FixedCollectible> specialCollectiblesOnTheMap;
@@ -266,6 +329,8 @@ public class ChapterData : ScriptableObject
     [Header("Chapter settings - Waves of enemies")]
     [Tooltip("A series of waves happening during this chapter. Waves have their own duration")]
     public List<Wave> waves;
+    [Tooltip("A series of bounty bugs being spawned during this chapter")]
+    public List<BountyBug> bountyBugs;
 
     [Header("Chapter settings - Weight changes to other chapters")]
     [Tooltip("A list of all the modifications to chapters likelihood of appearance after playing this one")]
