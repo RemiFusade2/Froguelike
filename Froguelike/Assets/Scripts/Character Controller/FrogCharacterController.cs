@@ -268,7 +268,7 @@ public class FrogCharacterController : MonoBehaviour
         SetAnimatorCharacterValue(characterInfo.characterData.characterAnimatorValue);
 
         // Reset sprite overlay & outline
-        characterRenderer.material.SetInteger("_OverlayVisible", 0);
+        characterRenderer.material.SetFloat("_OverlayVisible", 0);
         characterRenderer.material.SetColor("_OverlayColor", characterBeingHitOverlayColor);
         characterRenderer.material.SetFloat("_OutlineThickness", 0);
 
@@ -726,7 +726,7 @@ public class FrogCharacterController : MonoBehaviour
         {
             StopCoroutine(DamageTookEndOfEffectCoroutine);
         }
-        characterRenderer.material.SetInteger("_OverlayVisible", 0);
+        characterRenderer.material.SetFloat("_OverlayVisible", 0);
         SoundManager.instance.StopAllLoops();
     }
 
@@ -734,12 +734,12 @@ public class FrogCharacterController : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         SoundManager.instance.StopPlayingTakeDamageLoopSound();
-        characterRenderer.material.SetInteger("_OverlayVisible", 0);
+        characterRenderer.material.SetFloat("_OverlayVisible", 0);
     }
 
     private void TakingDamageEffect()
     {
-        characterRenderer.material.SetInteger("_OverlayVisible", 1);
+        characterRenderer.material.SetFloat("_OverlayVisible", 1);
         SoundManager.instance.PlayTakeDamageLoopSound();
         if (DamageTookEndOfEffectCoroutine != null)
         {

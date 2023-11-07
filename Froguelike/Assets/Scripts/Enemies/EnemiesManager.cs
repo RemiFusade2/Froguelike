@@ -129,12 +129,12 @@ public class EnemyInstance
 
     public void RemoveOverlay()
     {
-        enemyRenderer.material.SetInteger("_OverlayVisible", 0);
+        enemyRenderer.material.SetFloat("_OverlayVisible", 0);
     }
 
     public void SetOverlayColor(Color newColor)
     {
-        enemyRenderer.material.SetInteger("_OverlayVisible", 1);
+        enemyRenderer.material.SetFloat("_OverlayVisible", 1);
         enemyRenderer.material.SetColor("_OverlayColor", newColor);
     }
 
