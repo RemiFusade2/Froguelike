@@ -183,7 +183,7 @@ public class SettingsMenu : MonoBehaviour
             Screen.SetResolution(res.x, res.y, false);
         }
 
-        resolutionScrollRect.UpdateScroll(false, currentResolutionIndex);
+        resolutionScrollRect.UpdateScroll(false, currentResolutionIndex + 1);
     }
 
     public void SetWindowResolution(int wantedResolutionIndex)
