@@ -30,6 +30,7 @@ public class SettingsMenu : MonoBehaviour
     CanvasScaler canvasScaler;
 
     public TextMeshProUGUI text;
+    DisplayInfo savedDisplayInfo;
 
     #region Sound
 
@@ -54,15 +55,9 @@ public class SettingsMenu : MonoBehaviour
         // Set the fullsccreen toggle to match the current fullscreen mode.
         fullscreenToggle.isOn = Screen.fullScreen;
 
-        // Resolution can't be changed if in full screen.
-        // leftArrow.GetComponent<Button>().interactable = !Screen.fullScreen;
-        // rightArrow.GetComponent<Button>().interactable = !Screen.fullScreen;
-
         // Get the intended resolution of the game.
         gameWidth = pixelPerfectCamera.refResolutionX;
         gameHeight = pixelPerfectCamera.refResolutionY;
-
-        Screen.fullScreenMode = FullScreenMode.MaximizedWindow;
 
         FindAllowedResolutions();
 
@@ -72,8 +67,9 @@ public class SettingsMenu : MonoBehaviour
     private void FindAllowedResolutions()
     {
         allowedResolutions = new List<Vector2Int>();
-
-        biggestResolutionForThisScreen = new Vector2Int(Screen.mainWindowDisplayInfo.workArea.width, Screen.mainWindowDisplayInfo.workArea.height);
+        // Save the mainwindow displayinfo to use to detect if the player changed mscreen for the window, and if so: update the available options. (run this method again)
+        savedDisplayInfo = Screen.mainWindowDisplayInfo;
+        biggestResolutionForThisScreen = new Vector2Int(savedDisplayInfo.width, savedDisplayInfo.height);
 
         // Find the biggest possible scale.
         int maxWidthScale = 0;
@@ -86,7 +82,7 @@ public class SettingsMenu : MonoBehaviour
 
         List<string> allowedResolutionsAsStrings = new List<string>();
 
-        for (int scale = 1; scale <= maxGameScale + 1; scale++)
+        for (int scale = 1; scale <= maxGameScale; scale++)
         {
             // Add this resolution to the options.
             Vector2Int thisResolution = new Vector2Int(gameWidth * scale, gameHeight * scale);
@@ -116,7 +112,7 @@ public class SettingsMenu : MonoBehaviour
         }
 
         // Add the fullscreen resolution, since it might be different from the biggest resolution that fits.
-        allowedResolutions.Add(biggestResolutionForThisScreen);
+        // allowedResolutions.Add(biggestResolutionForThisScreen);
 
         UpdateResolutionScrollView(allowedResolutionsAsStrings);
     }
@@ -137,44 +133,21 @@ public class SettingsMenu : MonoBehaviour
     void Update()
     {
         // For debugging resolution settings
-         text.SetText("Screen. : " + Screen.width + "x" + Screen.height + ", " + Screen.fullScreenMode + ", display: " + Display.main.renderingWidth + "x" + Display.main.renderingHeight + ", safe area: " + Screen.safeArea.width + "x" + Screen.safeArea.height + ", current res: " + Screen.currentResolution + ", good?: " + Screen.mainWindowDisplayInfo.width + "x" + Screen.mainWindowDisplayInfo.height + ", " + Screen.mainWindowDisplayInfo.name);
-        text.SetText("workArea.max.x: " + Screen.mainWindowDisplayInfo.workArea.max.x + "x" + Screen.mainWindowDisplayInfo.workArea.max.y +
-                    ", workArea.size.x: " + Screen.mainWindowDisplayInfo.workArea.size.x + "x" + Screen.mainWindowDisplayInfo.workArea.size.y +
-                    ", workArea.xMax: " + Screen.mainWindowDisplayInfo.workArea.xMax + "x" + Screen.mainWindowDisplayInfo.workArea.yMax +
-                    ", workArea.width: " + Screen.mainWindowDisplayInfo.workArea.width + "x" + Screen.mainWindowDisplayInfo.workArea.height +
-                    ", .width: " + Screen.mainWindowDisplayInfo.width + "x" + Screen.mainWindowDisplayInfo.height +
-                    ", workArea.min.x: " + Screen.mainWindowDisplayInfo.workArea.min.x + "x" + Screen.mainWindowDisplayInfo.workArea.min.y +
-                    ", workArea.x: " + Screen.mainWindowDisplayInfo.workArea.x + "x" + Screen.mainWindowDisplayInfo.workArea.y +
-                    ", workArea.xMin: " + Screen.mainWindowDisplayInfo.workArea.xMin + "x" + Screen.mainWindowDisplayInfo.workArea.yMin +
-                    ", " + Screen.fullScreenMode);
+        // text.SetText("Windows size: " + Screen.width + "x" + Screen.height + ", " + Screen.fullScreenMode + ", display: " + savedDisplayInfo.width + "x" + savedDisplayInfo.height);
+        // text.SetText(currentResolutionIndex.ToString());
 
-        // Detect if the biggest available resolution changed and if so set new resolution options.
-        if (biggestResolutionForThisScreen.x != Screen.resolutions[Screen.resolutions.Length - 1].width || biggestResolutionForThisScreen.y != Screen.resolutions[Screen.resolutions.Length - 1].height)
+        // Detect if the screens resolution changed and if so set new resolution options.
+        if (savedDisplayInfo.width != Screen.mainWindowDisplayInfo.width || savedDisplayInfo.height != Screen.mainWindowDisplayInfo.height)
         {
-            // Debug.Log("Redo resolution options");
-            // FindAllowedResolutions();
+            FindAllowedResolutions();
         }
 
-        if (biggestResolutionForThisScreen.x != Screen.safeArea.width || biggestResolutionForThisScreen.y != Screen.safeArea.height)
-        {
-            // Debug.Log("Redo resolution options");
-             // FindAllowedResolutions();
-        }
-
-       // if (biggestResolutionForThisScreen != Screen.mainWindowDisplayInfo.)
-
-        if (Screen.fullScreen && !fullscreenToggle.isOn)
+        // Make sure the toggle is displaying correctly.
+        if ((Screen.fullScreen && !fullscreenToggle.isOn) || (!Screen.fullScreen && fullscreenToggle.isOn))
         {
             if (!isChangingFullscreen)
             {
-                fullscreenToggle.isOn = true;
-            }
-        }
-        else if (!Screen.fullScreen && fullscreenToggle.isOn)
-        {
-            if (!isChangingFullscreen)
-            {
-                fullscreenToggle.isOn = false;
+                fullscreenToggle.SetIsOnWithoutNotify(Screen.fullScreen);
             }
         }
 
@@ -200,41 +173,17 @@ public class SettingsMenu : MonoBehaviour
 
         if (wantFullscreen)
         {
-            //SetWindowResolution(allowedResolutions.Count - 1);
-            currentResolutionIndex = allowedResolutions.Count - 1;
-           // Screen.fullScreenMode = FullScreenMode.MaximizedWindow;
-            Screen.fullScreen = true;
+            currentResolutionIndex = Mathf.Max(allowedResolutions.Count - 1, 0);
+            Vector2Int res = allowedResolutions[currentResolutionIndex];
+            Screen.SetResolution(res.x, res.y, FullScreenMode.MaximizedWindow);
         }
         else if (startUpDone)
         {
-            // would be nice to use the biggest one that doesnt fill the whole sreen, now I'm using the second biggest one.
-
-            if (allowedResolutions[allowedResolutions.Count - 1] == allowedResolutions[allowedResolutions.Count - 2])
-            {
-                // SetWindowResolution(Mathf.Max(allowedResolutions.Count - 3, 0));
-
-                Vector2Int res = allowedResolutions[Mathf.Max(allowedResolutions.Count - 3, 0)];
-                currentResolutionIndex = Mathf.Max(allowedResolutions.Count - 3, 0);
-                Screen.SetResolution(res.x, res.y, false);
-
-            }
-            else
-            {
-                // SetWindowResolution(Mathf.Max(allowedResolutions.Count - 2, 0));
-
-                Vector2Int res = allowedResolutions[Mathf.Max(allowedResolutions.Count - 2, 0)];
-                currentResolutionIndex = Mathf.Max(allowedResolutions.Count - 2, 0);
-                Screen.SetResolution(res.x, res.y, false);
-            }
+            Vector2Int res = allowedResolutions[currentResolutionIndex];
+            Screen.SetResolution(res.x, res.y, false);
         }
 
-        // Screen.fullScreen = wantFullscreen;
-
-        // leftArrow.GetComponent<Button>().interactable = !wantFullscreen;
-        // rightArrow.GetComponent<Button>().interactable = !wantFullscreen;
         resolutionScrollRect.UpdateScroll(false, currentResolutionIndex);
-
-        fullscreenToggle.isOn = wantFullscreen;
     }
 
     public void SetWindowResolution(int wantedResolutionIndex)
@@ -245,7 +194,6 @@ public class SettingsMenu : MonoBehaviour
             Vector2Int res = allowedResolutions[Mathf.Max(currentResolutionIndex, 0)];
             if (Screen.fullScreen)
             {
-                // Screen.fullScreenMode = FullScreenMode.MaximizedWindow;
                 Screen.SetResolution(res.x, res.y, FullScreenMode.MaximizedWindow);
             }
             else
@@ -263,11 +211,7 @@ public class SettingsMenu : MonoBehaviour
             Vector2Int res = allowedResolutions[Mathf.Max(currentResolutionIndex, 0)];
             if (Screen.fullScreen)
             {
-                // Screen.fullScreenMode = FullScreenMode.MaximizedWindow;
                 Screen.SetResolution(res.x, res.y, FullScreenMode.MaximizedWindow);
-                //Debug.Log(allowedResolutions[currentResolutionIndex]);
-                //Screen.SetResolution(allowedResolutions[currentResolutionIndex].x, allowedResolutions[currentResolutionIndex].y, false);
-                //Screen.fullScreen = true;
             }
             else
             {

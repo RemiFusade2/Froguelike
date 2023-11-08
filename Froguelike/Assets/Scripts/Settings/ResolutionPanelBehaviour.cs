@@ -18,6 +18,7 @@ public class ResolutionPanelBehaviour : MonoBehaviour
     // TODO use this!
     public void SetSelected(bool isSelected)
     {
+        Debug.Log("used it!");
         selectedImage.SetActive(isSelected);
     }
 }
