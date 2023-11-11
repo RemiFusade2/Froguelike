@@ -2,26 +2,29 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 
+
+/// <summary>
+/// Describes an instance of a collectible, with all relevant data linked to it
+/// </summary>
 [System.Serializable]
-public enum CollectibleType
+public class CollectibleInstance
 {
-    FROINS,
-    XP_BONUS,
-    LEVEL_UP,
-    HEALTH,
+    public CollectibleType collectibleType;
+    public float collectibleValue;
 
-    POWERUP_FREEZE_ALL,
-    POWERUP_POISON_ALL,
-    POWERUP_CURSE_ALL
-}
+    public bool active;
+    public bool captured;
 
-[System.Serializable]
-public class CollectibleInfo
-{
-    public CollectibleType Type;
-    public string Name;
-    public Sprite Icon;
+    public Vector2 moveDirection;
+    public float lastUpdateTime;
+
+    // References to Components
+    public Transform collectibleTransform;
+    public Rigidbody2D collectibleRigidbody;
+    public SpriteRenderer collectibleRenderer;
+    public Collider2D collectibleCollider;
 }
 
 /// <summary>
@@ -34,15 +37,27 @@ public class CollectiblesManager : MonoBehaviour
 {
     public static CollectiblesManager instance;
 
+    [Header("Settings - Logs")]
+    public VerboseLevel verboseLevel;
+
+    [Header("References")]
+    public Transform collectiblesParent;
+
     [Header("Prefabs")]
+    [Tooltip("Collectibles, they get magnetized when you walk near them")]
     public GameObject magnetCollectiblePrefab;
+    [Tooltip("Collectibles placed at a specific spot on the map, you need to walk onto them to grab them")]
     public GameObject superCollectiblePrefab;
 
-    [Header("Magnet collectibles icons")]
-    public List<CollectibleInfo> magnetCollectiblesIconsList;
+    [Header("Settings - Pooling")]
+    public int maxCollectibles = 1000;
+
+    [Header("Settings - Update")]
+    public int updateCollectiblesCount = 100;
 
     [Header("Settings - Magnet")]
-    public float collectibleMinMovingSpeed = 8;
+    public float collectibleMinMovingSpeed = 5;
+    public float collectibleMaxMovingSpeed = 30;
     public float collectibleMovingSpeedFactor = 1.5f;
     public float collectMinDistance = 1.5f;
     public float updateAllCollectiblesDelay = 0.1f;
@@ -51,43 +66,199 @@ public class CollectiblesManager : MonoBehaviour
     public float collectibleSpawnMinPushForce = 5;
     public float collectibleSpawnMaxPushForce = 7;
     public float collectibleSpawnDelay = 1;
+    public float collectibleDespawnDistance = 150;
 
-    [Header("Settings - Logs")]
-    public VerboseLevel verboseLevel;
+    private CollectibleInstance[] allCollectibles; // Used to get a collectible instance from its ID (index)
 
+    private Queue<CollectibleInstance> inactiveCollectiblesPool; // Used to grab an inactive collectible instance and use it
 
-    private List<Transform> allCollectiblesList;
-    private List<Transform> allCapturedCollectiblesList;
+    private Queue<CollectibleInstance> capturedCollectiblesQueue; // Used to update all captured collectibles and move them towards the frog
 
     private Coroutine updateCollectiblesCoroutine;
 
     #region Unity Callback Methods
 
-    // Start is called before the first frame update
-    void Awake()
+    private void Awake()
     {
         instance = this;
-        allCollectiblesList = new List<Transform>();
-        allCapturedCollectiblesList = new List<Transform>();
+        capturedCollectiblesQueue = new Queue<CollectibleInstance>();
     }
 
     private void Start()
     {
+        InstantiateAllCollectibles();
         ReinitializeUpdateCoroutine();
     }
 
     #endregion
 
-    public void ClearCollectibles()
+    private string GetNameFromID(int id)
     {
-        foreach(Transform collectibleChild in this.transform)
-        {
-            Destroy(collectibleChild.gameObject, 0.05f);
-        }
-        allCollectiblesList.Clear();
-        allCapturedCollectiblesList.Clear();
-        ReinitializeUpdateCoroutine();
+        return id.ToString();
     }
+
+    private int GetIDFromName(string name)
+    {
+        if (int.TryParse(name, out int result))
+        {
+            return result;
+        }
+        return -1;
+    }
+
+    private CollectibleInstance GetCollectibleInstanceFromGameObject(GameObject collectibleGameObject)
+    {
+        int ID = GetIDFromName(collectibleGameObject.name);
+        CollectibleInstance result = null;
+        if (ID != -1)
+        {
+            result = allCollectibles[ID];
+        }
+        return result;
+    }
+
+    private void InstantiateAllCollectibles()
+    {
+        allCollectibles = new CollectibleInstance[maxCollectibles];
+        inactiveCollectiblesPool = new Queue<CollectibleInstance>();
+        for (int i = 0; i < maxCollectibles; i++)
+        {
+            CollectibleInstance collectible = new CollectibleInstance();
+            allCollectibles[i] = collectible;
+
+            GameObject collectibleGameObject = Instantiate(magnetCollectiblePrefab, DataManager.instance.farAwayPosition, Quaternion.identity, collectiblesParent);
+            collectibleGameObject.name = GetNameFromID(i);
+
+            collectible.collectibleTransform = collectibleGameObject.transform;
+            collectible.collectibleRigidbody = collectibleGameObject.GetComponent<Rigidbody2D>();
+            collectible.collectibleCollider = collectibleGameObject.GetComponent<Collider2D>();
+            collectible.collectibleRenderer = collectibleGameObject.GetComponent<SpriteRenderer>();
+
+            PutCollectibleInThePool(collectible);
+        }
+    }
+
+    private void PutCollectibleInThePool(CollectibleInstance collectible)
+    {
+        inactiveCollectiblesPool.Enqueue(collectible);
+
+        collectible.active = false;
+        collectible.captured = false;
+
+        collectible.collectibleTransform.position = DataManager.instance.farAwayPosition;
+        collectible.collectibleRenderer.enabled = false;
+        collectible.collectibleRigidbody.velocity = Vector2.zero;
+        collectible.collectibleRigidbody.simulated = false;
+        collectible.collectibleCollider.enabled = false;
+
+        if (verboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"Put collectible {collectible.collectibleTransform.name} in the pool");
+        }
+    }
+
+    /// <summary>
+    /// Remove all collectibles from the map.
+    /// Put them back in the pool.
+    /// </summary>
+    public void ClearAllCollectibles()
+    {
+        capturedCollectiblesQueue.Clear();
+        foreach (CollectibleInstance collectible in allCollectibles)
+        {
+            if (collectible.active)
+            {
+                PutCollectibleInThePool(collectible);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Spawn a collectible (from the pool) at a position on the map.
+    /// Optional: add a push force to it
+    /// </summary>
+    /// <param name="position"></param>
+    /// <param name="collectibleType"></param>
+    /// <param name="bonusValue"></param>
+    /// <param name="pushAwayForce"></param>
+    public void SpawnCollectible(Vector2 position, CollectibleType collectibleType, float bonusValue, float pushAwayForce = 0)
+    {
+        if (inactiveCollectiblesPool.TryDequeue(out CollectibleInstance collectible))
+        {
+            CollectibleInfo collectibleInfo = DataManager.instance.GetCollectibleInfoFromType(collectibleType);
+
+            // Set Icon
+            // For XP and Froins, there are multiple icons depending on the value of XP and Froins this collectible has
+            int iconIndex = 0;
+            // TODO: make it so it's possible to choose the values from which we change icons
+            switch (collectibleType)
+            {
+                case CollectibleType.XP_BONUS:
+                    float maxXpBonusValue = 10;
+                    iconIndex = Mathf.FloorToInt((bonusValue / maxXpBonusValue) * collectibleInfo.Icons.Count);
+                    iconIndex = Mathf.Clamp(iconIndex, 0, collectibleInfo.Icons.Count - 1);
+                    break;
+                case CollectibleType.FROINS:
+                    float maxfroinsBonusValue = 10;
+                    iconIndex = Mathf.FloorToInt((bonusValue / maxfroinsBonusValue) * collectibleInfo.Icons.Count);
+                    iconIndex = Mathf.Clamp(iconIndex, 0, collectibleInfo.Icons.Count - 1);
+                    break;
+            }
+            Sprite collectibleIcon = collectibleInfo.Icons[iconIndex];
+            collectible.collectibleRenderer.sprite = collectibleIcon;
+            collectible.collectibleRenderer.enabled = true;
+
+            // Set type and value
+            collectible.collectibleType = collectibleType;
+            collectible.collectibleValue = bonusValue;
+
+            // Set position
+            collectible.collectibleTransform.position = position;
+
+            if (pushAwayForce > 0)
+            {
+                // Enable rigidbody but not collider
+                // Enable collider after a delay
+                float randomPushForce = pushAwayForce * Random.Range(collectibleSpawnMinPushForce, collectibleSpawnMaxPushForce);
+                collectible.collectibleRigidbody.velocity = Vector2.zero;
+                collectible.collectibleRigidbody.simulated = true;
+                collectible.collectibleRigidbody.AddForce(randomPushForce * Random.insideUnitCircle.normalized, ForceMode2D.Impulse);
+
+                StartCoroutine(ActivateCollectible(collectible, collectibleSpawnDelay)); // short delay after spawn
+            }
+            else
+            {
+                StartCoroutine(ActivateCollectible(collectible, 0)); // no delay
+            }
+
+            if (verboseLevel == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log($"Spawn collectible {collectible.collectibleTransform.name} as {collectible.collectibleType.ToString()} + {collectible.collectibleValue}");
+            }
+        }
+        else
+        {
+            if (verboseLevel == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log("Impossible to spawn collectible because pool is empty");
+            }
+        }
+    }
+
+    private IEnumerator ActivateCollectible(CollectibleInstance collectible, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        collectible.active = true;
+        collectible.captured = false;
+        collectible.collectibleCollider.enabled = true;
+        collectible.collectibleRigidbody.simulated = true;
+
+        collectible.collectibleRigidbody.velocity = Vector2.zero;
+    }
+
+
+    #region Super Collectibles (not pooled)
 
     public void SpawnSuperCollectible(FixedCollectible collectible, Vector2 position)
     {
@@ -97,108 +268,6 @@ public class CollectiblesManager : MonoBehaviour
         RunManager.instance.GetCompassArrowForCollectible(collectible).SetCollectibleTransform(newCollectible.transform);
     }
 
-    private CollectibleInfo GetCollectibleInfoFromType(CollectibleType collectibleType)
-    {
-        return magnetCollectiblesIconsList.Where(x => x.Type.Equals(collectibleType)).FirstOrDefault();
-    }
-
-    private CollectibleInfo GetCollectibleInfoFromName(string collectibleName)
-    {
-        return magnetCollectiblesIconsList.Where(x => x.Name.Equals(collectibleName)).FirstOrDefault();
-    }
-
-
-    private string GetCollectibleGameObjectName(CollectibleInfo collectibleInfo, float bonusValue)
-    {
-        return $"{collectibleInfo.Name}+{bonusValue.ToString()}";
-    }
-
-    private void GetCollectibleTypeAndValueFromName(string gameObjectName, out CollectibleType collectibleType, out float bonusValue)
-    {
-        collectibleType = CollectibleType.XP_BONUS;
-        bonusValue = 0;
-
-        string[] splitName = gameObjectName.Split("+");
-        CollectibleInfo info = GetCollectibleInfoFromName(splitName[0]);
-
-        if (info != null)
-        {
-            collectibleType = info.Type;
-            int.TryParse(splitName[1], out int value);
-            bonusValue = value;
-        }
-    }
-
-    public void SpawnCollectible(Vector2 position, CollectibleType collectibleType, float bonusValue, bool pushAway = false)
-    {
-        GameObject newCollectible = Instantiate(magnetCollectiblePrefab, position, Quaternion.identity, this.transform);
-
-        CollectibleInfo collectibleInfo = GetCollectibleInfoFromType(collectibleType);
-
-        newCollectible.GetComponent<SpriteRenderer>().sprite = collectibleInfo.Icon;
-
-        newCollectible.name = $"{collectibleInfo.Name}+{bonusValue.ToString()}";
-
-        if (pushAway)
-        {
-            float randomPushForce = Random.Range(collectibleSpawnMinPushForce, collectibleSpawnMaxPushForce);
-            newCollectible.GetComponent<Rigidbody2D>().AddForce(randomPushForce * Random.insideUnitCircle.normalized, ForceMode2D.Impulse);
-
-            // Ensure that it can't be collected for a short delay after spawn
-            StartCoroutine(EnableCollectibleCollider(newCollectible.GetComponent<CircleCollider2D>(), collectibleSpawnDelay));
-        }
-        else
-        {
-            newCollectible.GetComponent<CircleCollider2D>().enabled = true;
-        }
-
-        allCollectiblesList.Add(newCollectible.transform);
-    }
-
-    private IEnumerator EnableCollectibleCollider(CircleCollider2D colliderComponent, float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        colliderComponent.enabled = true;
-    }
-
-    /// <summary>
-    /// Add the collectible to the capture list. All captured collectibles will move towards the character.
-    /// Call this method when a collectible is in magnet range.
-    /// Only one call is required per collectible.
-    /// </summary>
-    /// <param name="collectible"></param>
-    public void CaptureCollectible(Transform collectible)
-    {
-        if (!allCapturedCollectiblesList.Contains(collectible))
-        {
-            allCapturedCollectiblesList.Add(collectible);
-            if (verboseLevel == VerboseLevel.MAXIMAL)
-            {
-                Debug.Log("Capture collectible: " + collectible.gameObject.name);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Destroy collectible and remove it from the list. Returns its type and value.
-    /// Call this method if there's a collision between the collectible and the character collider.
-    /// </summary>
-    /// <param name="collectible">The transform of the collected collectible</param>
-    /// <returns>Returns game object name, contains data on which type of collectible it was</returns>
-    private string CollectCollectible(Transform collectible, out CollectibleType collectibleType, out float collectibleValue)
-    {
-        string collectibleName = collectible.gameObject.name;
-
-        GetCollectibleTypeAndValueFromName(collectibleName, out collectibleType, out collectibleValue);
-
-        if (allCapturedCollectiblesList.Contains(collectible))
-        {
-            allCapturedCollectiblesList.Remove(collectible);
-        }
-        Destroy(collectible.gameObject);
-        return collectibleName;
-    }
-
     public void CollectSuperCollectible(FixedCollectible superCollectible)
     {
         RunManager.instance.RemoveCompassArrowForCollectible(superCollectible);
@@ -206,7 +275,9 @@ public class CollectiblesManager : MonoBehaviour
         switch (superCollectible.collectibleType)
         {
             case FixedCollectibleType.FRIEND:
-                GameManager.instance.player.AddActiveFriend(superCollectible.collectibleFriendType, GameManager.instance.player.transform.position);
+                Vector2 friendPosition = GameManager.instance.player.transform.position;
+                //friendPosition += Random.insideUnitCircle.normalized * 2;
+                FriendsManager.instance.AddActiveFriend(superCollectible.collectibleFriendType, friendPosition);
                 break;
             case FixedCollectibleType.HAT:
                 GameManager.instance.player.AddHat(superCollectible.collectibleHatType);
@@ -224,6 +295,63 @@ public class CollectiblesManager : MonoBehaviour
         }
     }
 
+    #endregion
+
+    public void CaptureCollectible(Transform collectibleTransform)
+    {
+        CollectibleInstance collectible = GetCollectibleInstanceFromGameObject(collectibleTransform.gameObject);
+        if (collectible != null)
+        {
+            CaptureCollectible(collectible);
+        }
+    }
+
+    /// <summary>
+    /// Add the collectible to the capture queue. All captured collectibles will move towards the character.
+    /// Call this method when a collectible is in magnet range.
+    /// Only one call is required per collectible.
+    /// </summary>
+    /// <param name="collectible"></param>
+    public void CaptureCollectible(CollectibleInstance collectible)
+    {
+        if (!collectible.captured)
+        {
+            collectible.captured = true;
+            capturedCollectiblesQueue.Enqueue(collectible);
+            collectible.collectibleCollider.enabled = false;
+
+            if (verboseLevel == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log("Capture collectible: " + collectible.collectibleTransform.name);
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Instantly capture all active collectibles that give XP or Froins
+    /// </summary>
+    public void ApplyMegaMagnet()
+    {
+        foreach (CollectibleInstance collectible in allCollectibles)
+        {
+            if (collectible.active && !collectible.captured && (collectible.collectibleType == CollectibleType.FROINS || collectible.collectibleType == CollectibleType.XP_BONUS || collectible.collectibleType == CollectibleType.LEVEL_UP))
+            {
+                CaptureCollectible(collectible);
+            }
+        }
+    }
+        
+    /// <summary>
+    /// Put all captured collectibles back into the pool, without collecting them
+    /// </summary>
+    public void CancelAllCapturedCollectibles()
+    {
+        while (capturedCollectiblesQueue.TryDequeue(out CollectibleInstance collectible))
+        {
+            PutCollectibleInThePool(collectible);
+        }
+    }
+
     #region Update Magnet Collectibles
 
     private void ReinitializeUpdateCoroutine()
@@ -235,53 +363,76 @@ public class CollectiblesManager : MonoBehaviour
         updateCollectiblesCoroutine = StartCoroutine(UpdateAllCollectiblesAsync(updateAllCollectiblesDelay));
     }
 
-    public IEnumerator UpdateAllCollectiblesAsync(float delay)
+    private IEnumerator UpdateAllCollectiblesAsync(float delay)
     {
         while (true)
         {
-            UpdateAllCollectibles();
+            UpdateCapturedCollectibles(updateCollectiblesCount);
             yield return new WaitForSeconds(delay);
         }
     }
 
     /// <summary>
-    /// Move the collectibles that were captured towards the character.
+    /// Move the collectibles that were captured towards the frog.
     /// </summary>
-    public void UpdateAllCollectibles()
+    private void UpdateCapturedCollectibles(int maxCount)
     {
         if (GameManager.instance.isGameRunning)
         {
-            // Update velocity of all capture collectibles + collect the ones that are close enough to the character
+            // Update velocity of all captured collectibles + collect the ones that are close enough to the frog
             Transform playerTransform = GameManager.instance.player.transform;
-            Rigidbody2D collectibleRb = null;
+
+            int collectiblesToUpdateCount = Mathf.Min(capturedCollectiblesQueue.Count, maxCount);
             float distanceWithFrog = 0;
             Vector2 moveDirection;
-            List<Transform> collectedCollectibles = new List<Transform>();
-            foreach (Transform collectible in allCapturedCollectiblesList)
+            float walkSpeed = DataManager.instance.defaultWalkSpeed * (1 + GameManager.instance.player.GetWalkSpeedBoost());
+            float collectibleMovingSpeed = collectibleMovingSpeedFactor * walkSpeed;
+            for (int i = 0; i < collectiblesToUpdateCount; i++)
             {
-                distanceWithFrog = Vector2.Distance(playerTransform.position, collectible.position);
-                moveDirection = (playerTransform.position - collectible.position).normalized;
-                
-                if (distanceWithFrog < collectMinDistance)
+                if (capturedCollectiblesQueue.TryDequeue(out CollectibleInstance collectible))
                 {
-                    // this collectible is close enough to be collected
-                    collectedCollectibles.Add(collectible);
-                }
-                else
-                {
-                    collectibleRb = collectible.GetComponent<Rigidbody2D>();
-                    float walkSpeed = DataManager.instance.defaultWalkSpeed * (1 + GameManager.instance.player.walkSpeedBoost);
-                    float collectibleMovingSpeed = collectibleMovingSpeedFactor * walkSpeed;
-                    collectibleMovingSpeed = Mathf.Clamp(collectibleMovingSpeed, collectibleMinMovingSpeed, 100.0f);
-                    collectibleRb.velocity = moveDirection * collectibleMovingSpeed;
-                }
-            }
+                    // Move collectible towards frog
+                    moveDirection = (playerTransform.position - collectible.collectibleTransform.position);
+                    distanceWithFrog = moveDirection.magnitude;
 
-            // Collect all collectibles that are close enough (destroy them + apply their effect)
-            foreach (Transform collectible in collectedCollectibles)
-            {
-                string collectibleName = CollectCollectible(collectible, out CollectibleType collectibleType, out float collectibleValue);
-                RunManager.instance.CollectCollectible(collectibleType, collectibleValue);
+                    // Despawn the collectible if it is too far
+                    if (distanceWithFrog > collectibleDespawnDistance)
+                    {
+                        if (verboseLevel == VerboseLevel.MAXIMAL)
+                        {
+                            Debug.Log($"Unspawn collectible {collectible.collectibleTransform.name} because it's too far");
+                        }
+                        PutCollectibleInThePool(collectible);
+                    }
+                    else
+                    {
+                        // Collect the collectible if it is close enough or if its speed is moving it away from the frog (should only happen if the collectible passed the frog)
+                        moveDirection = moveDirection.normalized; 
+                        float dot = Vector2.Dot(collectible.collectibleRigidbody.velocity, moveDirection);
+                        if (distanceWithFrog < collectMinDistance || dot < 0)
+                        {
+                            // Collect
+                            if (verboseLevel == VerboseLevel.MAXIMAL)
+                            {
+                                Debug.Log($"Collect collectible {collectible.collectibleTransform.name}");
+                            }
+                            RunManager.instance.CollectCollectible(collectible.collectibleType, collectible.collectibleValue);
+                            PutCollectibleInThePool(collectible);
+                        }
+                        else
+                        {
+                            // Update collectible velocity
+                            collectibleMovingSpeed = Mathf.Clamp(collectibleMovingSpeed, collectibleMinMovingSpeed, collectibleMaxMovingSpeed);
+                            collectible.collectibleRigidbody.velocity = moveDirection * collectibleMovingSpeed;
+                        }
+                    }
+
+                    // If that collectible is still active and captured, we'll update it again next time
+                    if (collectible.active && collectible.captured)
+                    {
+                        capturedCollectiblesQueue.Enqueue(collectible);
+                    }
+                }
             }
         }
     }

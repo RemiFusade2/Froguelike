@@ -219,7 +219,7 @@ public class TongueLineRendererBehaviour : MonoBehaviour
         colorKeys.Add(new GradientColorKey(DataManager.instance.GetColorForWeaponEffect(previousEffect), 0));
         alphaKeys.Add(new GradientAlphaKey(1, 0));
 
-        float actualColliderRadius = colliderRadius * (GetComponent<WeaponBehaviour>().tongueWidth * (1 + GameManager.instance.player.attackSizeBoost)) * 10;
+        float actualColliderRadius = colliderRadius * (GetComponent<WeaponBehaviour>().tongueWidth * (1 + GameManager.instance.player.GetAttackSizeBoost())) * 10;
 
         float epsilon = 0.001f;
 

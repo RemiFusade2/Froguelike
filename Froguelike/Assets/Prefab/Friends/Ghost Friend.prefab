@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5554363714292049469}
   m_Layer: 13
-  m_Name: weapon start point
+  m_Name: Tongue start point
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -40,7 +40,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5554363714341002031}
-  - component: {fileID: 5554363714341002030}
   m_Layer: 0
   m_Name: Ghost Friend
   m_TagString: Untagged
@@ -65,32 +64,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5554363714341002030
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5554363714341002024}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: af57c52755d0fc7458b85845224ff60c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  friendGameObject: {fileID: 5554363714433496637}
-  weaponPositionTransform: {fileID: 5554363714292049469}
-  weapon: {fileID: 5009737963393679690}
-  friendRigidbody: {fileID: 5554363714433496641}
-  friendAnimator: {fileID: 5554363714433496642}
-  springJoint: {fileID: 5554363714433496647}
-  _friendInfo:
-    friendType: 0
-    prefab: {fileID: 0}
-    sprite: {fileID: 0}
-    style: 0
-    springDistanceMinMax: {x: 0, y: 0}
-    springDampingMinMax: {x: 0, y: 0}
-    springFrequencyMinMax: {x: 0, y: 0}
 --- !u!1 &5554363714433496637
 GameObject:
   m_ObjectHideFlags: 0
@@ -104,9 +77,8 @@ GameObject:
   - component: {fileID: 5554363714433496641}
   - component: {fileID: 5554363714433496642}
   - component: {fileID: 5554363714433496643}
-  - component: {fileID: 5554363714433496647}
   m_Layer: 13
-  m_Name: Ghost Friend
+  m_Name: Friend
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -143,7 +115,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 0.3
+  m_Radius: 0.35
 --- !u!50 &5554363714433496641
 Rigidbody2D:
   serializedVersion: 4
@@ -156,8 +128,8 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 0.1
-  m_LinearDrag: 1
+  m_Mass: 1
+  m_LinearDrag: 0.9
   m_AngularDrag: 0.05
   m_GravityScale: 0
   m_Material: {fileID: 0}
@@ -167,7 +139,7 @@ Rigidbody2D:
   m_Constraints: 4
 --- !u!95 &5554363714433496642
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -184,7 +156,8 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!212 &5554363714433496643
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -237,26 +210,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!231 &5554363714433496647
-SpringJoint2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5554363714433496637}
-  m_Enabled: 1
-  serializedVersion: 4
-  m_EnableCollision: 0
-  m_ConnectedRigidBody: {fileID: 0}
-  m_BreakForce: Infinity
-  m_BreakTorque: Infinity
-  m_AutoConfigureConnectedAnchor: 0
-  m_Anchor: {x: 0, y: 0}
-  m_ConnectedAnchor: {x: 0, y: 0}
-  m_AutoConfigureDistance: 0
-  m_Distance: 1
-  m_DampingRatio: 1
-  m_Frequency: 0.07
 --- !u!1001 &8279496970821222592
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -290,7 +243,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3990334965163639182, guid: bbfd4fafa59242249bbdf593af43ebbb, type: 3}
       propertyPath: m_Name
-      value: Ghost Friend Tongue
+      value: Friend Tongue
       objectReference: {fileID: 0}
     - target: {fileID: 3990334965163639183, guid: bbfd4fafa59242249bbdf593af43ebbb, type: 3}
       propertyPath: m_RootOrder
@@ -343,14 +296,3 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3990334965163639183, guid: bbfd4fafa59242249bbdf593af43ebbb, type: 3}
   m_PrefabInstance: {fileID: 8279496970821222592}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &5009737963393679690 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3990334965163639178, guid: bbfd4fafa59242249bbdf593af43ebbb, type: 3}
-  m_PrefabInstance: {fileID: 8279496970821222592}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 22dc257ef3f2ed0478e3378a81878adf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

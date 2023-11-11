@@ -26,7 +26,22 @@ public class FrogCharacterController : MonoBehaviour
     public GameObject hatPrefab;
     public int hatSortingOrder = 10;
 
-    [Header("Character data")]
+    [Header("Character data - Settings")]
+    public Color characterBeingHitOverlayColor;
+
+    [Header("Character data - God Mode Settings")]
+    public float godModeWalkSpeedBoost = 1;
+    public float godModeSwimSpeedBoost = 1.5f;
+    public float godModeMinCooldownBoost = -0.8f;
+    public float godModeAttackDamageBoost = 2;
+    public float godModeAttackRangeBoost = 1.5f;
+    public float godModeAttackSizeBoost = 0.5f;
+    public float godModeAttackSpeedBoost = 1;
+    public float godModeAttackDurationBoost = 1;
+    public float godModeAttackSpecialStrengthBoost = 1;
+    public float godModeAttackSpecialDurationBoost = 1;
+
+    [Header("Character data - Runtime")]
     public float walkSpeedBoost;
     public float swimSpeedBoost;
     [Space]
@@ -34,7 +49,6 @@ public class FrogCharacterController : MonoBehaviour
     public float maxHealth = 100;
     public float healthRecovery;
     public float hpRecoveryDelay = 1.0f;
-    public Color characterBeingHitOverlayColor;
     [Space]
     public float magnetRangeBoost = 0;
     [Space]
@@ -74,9 +88,6 @@ public class FrogCharacterController : MonoBehaviour
     public string removeAchievementsCheatInputName = "removeachievementscheat";
     [Space]
     public float inputAxisDeadZone = 0.3f;
-    
-    [Header("Friend Frogs")]
-    public Transform friendsParent;
 
 
     private Player rewiredPlayer;
@@ -95,6 +106,9 @@ public class FrogCharacterController : MonoBehaviour
 
     private float timeSinceLastHPRecovery;
 
+    private bool applyGodMode;
+    private Coroutine setGodModeCoroutine;
+
     #region Unity Callback Methods
 
     // Start is called before the first frame update
@@ -104,7 +118,7 @@ public class FrogCharacterController : MonoBehaviour
         invincibilityTime = 0;
         rewiredPlayer = ReInput.players.GetPlayer(playerID);
         playerRigidbody = GetComponent<Rigidbody2D>();
-        ClearFriends();
+        FriendsManager.instance.ClearFriends();
 
         if (GameManager.instance.everythingIsUnlocked)
         {
@@ -157,14 +171,6 @@ public class FrogCharacterController : MonoBehaviour
                 weaponTransform.GetComponent<WeaponBehaviour>().TryAttack();
             }
 
-            // Make friends attack!
-            foreach (Transform friend in friendsParent)
-            {
-                FriendBehaviour friendScript = friend.GetComponent<FriendBehaviour>();
-                friendScript.TryAttack();
-                friendScript.ClampSpeed();
-            }
-
             if (!GameManager.instance.gameIsPaused && !ChapterManager.instance.chapterChoiceIsVisible && !RunManager.instance.levelUpChoiceIsVisible && (Time.time - timeSinceLastHPRecovery) > hpRecoveryDelay)
             {
                 Heal(healthRecovery);
@@ -186,7 +192,7 @@ public class FrogCharacterController : MonoBehaviour
             invincibilityTime -= Time.fixedDeltaTime;
         }
 
-        float moveSpeed = isOnLand ? (DataManager.instance.defaultWalkSpeed * (1+walkSpeedBoost)) : (DataManager.instance.defaultSwimSpeed * (1 + swimSpeedBoost));
+        float moveSpeed = isOnLand ? (DataManager.instance.defaultWalkSpeed * (1 + GetWalkSpeedBoost())) : (DataManager.instance.defaultSwimSpeed * (1 + GetSwimSpeedBoost()));
         Vector2 moveInput = (((HorizontalInput * Vector2.right).normalized + (VerticalInput * Vector2.up).normalized)).normalized * moveSpeed;
 
         if (!moveInput.Equals(Vector2.zero))
@@ -201,17 +207,94 @@ public class FrogCharacterController : MonoBehaviour
         {
             weaponTransform.GetComponent<WeaponBehaviour>().SetTonguePosition(weaponStartPoint);
         }
-
-        // Make friends move
-        foreach (Transform friend in friendsParent)
-        {
-            FriendBehaviour friendScript = friend.GetComponent<FriendBehaviour>();
-            friendScript.TryAttack();
-            friendScript.UpdateOrientation();
-        }
     }
 
     #endregion
+
+    #region Accessors
+
+    public float GetWalkSpeedBoost()
+    {
+        if (applyGodMode)
+        {
+            return walkSpeedBoost + godModeWalkSpeedBoost;
+        }
+        return walkSpeedBoost;
+    }
+    public float GetSwimSpeedBoost()
+    {
+        if (applyGodMode)
+        {
+            return swimSpeedBoost + godModeSwimSpeedBoost;
+        }
+        return swimSpeedBoost;
+    }
+    public float GetAttackCooldownBoost()
+    {
+        if (applyGodMode)
+        {
+            return Mathf.Min(godModeMinCooldownBoost, attackCooldownBoost);
+        }
+        return attackCooldownBoost;
+    }
+    public float GetAttackDamageBoost()
+    {
+        if (applyGodMode)
+        {
+            return attackDamageBoost + godModeAttackDamageBoost;
+        }
+        return attackDamageBoost;
+    }
+    public float GetAttackRangeBoost()
+    {
+        if (applyGodMode)
+        {
+            return attackRangeBoost + godModeAttackRangeBoost;
+        }
+        return attackRangeBoost;
+    }
+    public float GetAttackSizeBoost()
+    {
+        if (applyGodMode)
+        {
+            return attackSizeBoost + godModeAttackSizeBoost;
+        }
+        return attackSizeBoost;
+    }
+    public float GetAttackSpeedBoost()
+    {
+        if (applyGodMode)
+        {
+            return attackSpeedBoost + godModeAttackSpeedBoost;
+        }
+        return attackSpeedBoost;
+    }
+    public float GetAttackDurationBoost()
+    {
+        if (applyGodMode)
+        {
+            return attackDurationBoost + godModeAttackDurationBoost;
+        }
+        return attackDurationBoost;
+    }
+    public float GetAttackSpecialStrengthBoost()
+    {
+        if (applyGodMode)
+        {
+            return attackSpecialStrengthBoost + godModeAttackSpecialStrengthBoost;
+        }
+        return attackSpecialStrengthBoost;
+    }
+    public float GetAttackSpecialDurationBoost()
+    {
+        if (applyGodMode)
+        {
+            return attackSpecialDurationBoost + godModeAttackSpecialDurationBoost;
+        }
+        return attackSpecialDurationBoost;
+    }
+
+    #endregion Accessors
 
     public Rigidbody2D GetRigidbody()
     {
@@ -224,24 +307,35 @@ public class FrogCharacterController : MonoBehaviour
         // return playerRigidbody.velocity;
     }
 
+
+    public void TeleportToARandomPosition()
+    {
+        // Find random position
+        Vector2 randomPosition = Random.insideUnitCircle * Random.Range(100, 500);
+        // Prepare the map
+        MapBehaviour.instance.GenerateNewTilesAroundPosition(randomPosition);
+        // Reset all tongues
+        foreach (Transform weaponTransform in weaponsParent)
+        {
+            weaponTransform.GetComponent<WeaponBehaviour>().ResetTongue();
+        }
+        // Destroy all captured collectibles (they are lost)
+        CollectiblesManager.instance.CancelAllCapturedCollectibles();
+        // Teleport
+        isOnLand = true;
+        transform.localPosition = randomPosition;
+        // Teleport friends with you
+        Vector2 frogPosition = new Vector2(this.transform.position.x, this.transform.position.y);
+        FriendsManager.instance.SetFriendsInACircleAroundFrog(frogPosition);
+    }
+
     public void ResetPosition()
     {
         isOnLand = true;
         transform.localPosition = Vector3.zero;
-        int numberOfActiveFriends = friendsParent.childCount;
-        float deltaAngle = 0;
-        float distance = 2.5f;
-        if (numberOfActiveFriends > 0)
-        {
-            deltaAngle = (Mathf.PI * 2) / numberOfActiveFriends;
-        }
-        float angle = 0;
-        foreach (Transform friend in friendsParent)
-        {
-            FriendBehaviour friendScript = friend.GetComponent<FriendBehaviour>();
-            friendScript.SetPosition(distance * (Mathf.Cos(angle) * Vector2.right + Mathf.Sin(angle) * Vector2.up));
-            angle += deltaAngle;
-        }
+        applyGodMode = false;
+        Vector2 frogPosition = new Vector2(this.transform.position.x, this.transform.position.y);
+        FriendsManager.instance.SetFriendsInACircleAroundFrog(frogPosition);
     }
 
     private void SetAnimatorCharacterValue(int value)
@@ -455,9 +549,9 @@ public class FrogCharacterController : MonoBehaviour
 
         RunManager.instance.IncreaseXP(consumableData.effect.xpBonus);
 
-        Heal(consumableData.effect.healthBonus);        
+        Heal(consumableData.effect.healthBonus);
     }
-    
+
     public void ResolvePickedStatItemLevel(RunStatItemLevel itemLevelData)
     {
         // All of these stats could probably be stored in a better way 
@@ -518,40 +612,6 @@ public class FrogCharacterController : MonoBehaviour
             moveDirection = playerRigidbody.velocity.normalized;
         }
         return moveDirection;
-    }
-
-    public void ClearFriends()
-    {
-        foreach (Transform friend in friendsParent)
-        {
-            Destroy(friend.gameObject);
-        }
-    }
-
-    public bool HasActiveFriend(FriendType friendType)
-    {
-        bool friendIsActive = false;
-        foreach (Transform friend in friendsParent)
-        {
-            FriendBehaviour friendScript = friend.GetComponent<FriendBehaviour>();
-            friendIsActive |= (friendScript.GetFriendType() == friendType);
-            if (friendIsActive) break;
-        }
-        return friendIsActive;
-    }
-
-    public void AddActiveFriend(FriendType friendType, Vector2 friendPosition)
-    {
-        FriendInfo friendInfo = DataManager.instance.GetInfoForFriend(friendType);
-
-        GameObject newFriend = Instantiate(friendInfo.prefab, friendsParent);
-        FriendBehaviour newFriendScript = newFriend.GetComponent<FriendBehaviour>();
-        newFriendScript.Initialize(friendInfo, friendPosition);
-
-        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
-        {
-            Debug.Log($"Player - Add Friend: {friendType.ToString()} at position {friendPosition.ToString()}");
-        }
     }
 
     public void ClearHats()
@@ -658,7 +718,7 @@ public class FrogCharacterController : MonoBehaviour
         EnemyInstance enemy = EnemiesManager.instance.GetEnemyInstanceFromGameObjectName(collider.gameObject.name);
 
         float damageCooldown = 1.0f;
-        if (Time.time - enemy.lastDamageInflictedTime >= damageCooldown)
+        if (enemy != null && (Time.time - enemy.lastDamageInflictedTime) >= damageCooldown && !applyGodMode)
         {
             // This enemy can inflict damage now
             enemy.lastDamageInflictedTime = Time.time;
@@ -750,7 +810,7 @@ public class FrogCharacterController : MonoBehaviour
 
     private void ChangeHealth(float change)
     {
-        bool deathImminent = (currentHealth < 5); 
+        bool deathImminent = (currentHealth < 5);
 
         if (change < 0)
         {
@@ -787,5 +847,21 @@ public class FrogCharacterController : MonoBehaviour
             healthRatio = 0;
         }
         healthBar.localScale = healthRatio * Vector3.right + healthBar.localScale.y * Vector3.up + healthBar.localScale.z * Vector3.forward;
+    }
+
+    public void ApplyGodMode(float duration)
+    {
+        applyGodMode = true;
+        if (setGodModeCoroutine != null)
+        {
+            StopCoroutine(setGodModeCoroutine);
+        }
+        setGodModeCoroutine = StartCoroutine(SetGodMode(false, duration));
+    }
+
+    private IEnumerator SetGodMode(bool active, float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        applyGodMode = active;
     }
 }

@@ -370,7 +370,7 @@ public class RunManager : MonoBehaviour
         levelUpChoiceIsVisible = false;
 
         // Remove all friends and hats
-        player.ClearFriends();
+        FriendsManager.instance.ClearFriends();
         player.ClearHats();
 
         // Level and XP
@@ -508,7 +508,7 @@ public class RunManager : MonoBehaviour
         SetExtraLives(player.revivals, true);
     }
 
-    public void EatFly(float experiencePoints)
+    public void EatEnemy(float experiencePoints)
     {
         // Increase kill count by 1 and display it
         IncreaseKillCount(1);
@@ -606,6 +606,9 @@ public class RunManager : MonoBehaviour
             }
         }
 
+        // Remove all temporary friends
+        FriendsManager.instance.ClearFriends(onlyTemporary: true);
+
         if (completedChaptersList.Count >= maxChaptersInARun)
         {
             // This was the final chapter
@@ -678,7 +681,7 @@ private IEnumerator StartChapterAsync()
         ChapterManager.instance.ShowChapterStartScreen(chapterCount, currentChapter);
 
         // Clear all collectible
-        CollectiblesManager.instance.ClearCollectibles();
+        CollectiblesManager.instance.ClearAllCollectibles();
 
         // Teleport player to starting position
         player.ResetPosition();
@@ -1277,28 +1280,29 @@ private IEnumerator StartChapterAsync()
                 }
                 break;
             case CollectibleType.LEVEL_UP:
+                IncreaseXP(nextLevelXp - xp);
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                 {
                     Debug.Log("Run - Collected a Level Up");
                 }
-                IncreaseXP(nextLevelXp - xp);
                 break;
             case CollectibleType.XP_BONUS:
+                IncreaseXP(collectibleValue * (1 + player.experienceBoost));
+                SoundManager.instance.PlayPickUpXPSound(collectibleValue);
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                 {
                     Debug.Log("Run - Collected a XP Bonus: +" + collectibleValue + "XP");
                 }
-                IncreaseXP(collectibleValue);
                 break;
             case CollectibleType.HEALTH:
+                player.Heal(collectibleValue);
+                SoundManager.instance.PlayHealSound();
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                 {
                     Debug.Log("Run - Collected some health. Healing: +" + collectibleValue + "HP");
                 }
-                SoundManager.instance.PlayHealSound();
-                player.Heal(collectibleValue);
                 break;
-            case CollectibleType.POWERUP_FREEZE_ALL:
+            case CollectibleType.POWERUP_FREEZEALL:
                 EnemiesManager.instance.ApplyGlobalFreezeEffect(DataManager.instance.powerUpFreezeDuration);
                 SoundManager.instance.PlayFreezeAllSound();
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
@@ -1306,7 +1310,7 @@ private IEnumerator StartChapterAsync()
                     Debug.Log("Run - Collected Freeze power-up");
                 }
                 break;
-            case CollectibleType.POWERUP_POISON_ALL:
+            case CollectibleType.POWERUP_POISONALL:
                 EnemiesManager.instance.ApplyGlobalPoisonEffect(DataManager.instance.powerUpPoisonDuration);
                 SoundManager.instance.PlayFreezeAllSound();
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
@@ -1314,12 +1318,70 @@ private IEnumerator StartChapterAsync()
                     Debug.Log("Run - Collected Poison power-up");
                 }
                 break;
-            case CollectibleType.POWERUP_CURSE_ALL:
+            case CollectibleType.POWERUP_CURSEALL:
                 EnemiesManager.instance.ApplyGlobalCurseEffect(DataManager.instance.powerUpCurseDuration);
                 SoundManager.instance.PlayFreezeAllSound();
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                 {
                     Debug.Log("Run - Collected Curse power-up");
+                }
+                break;
+            case CollectibleType.POWERUP_GODMODE:
+                player.ApplyGodMode(DataManager.instance.powerUpGodModeDuration);
+                SoundManager.instance.PlayFreezeAllSound();
+                if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                {
+                    Debug.Log("Run - Collected God Mode power-up");
+                }
+                break;
+            case CollectibleType.POWERUP_FRIENDSFRENZY:
+                // Spawn 20 friends of any type around the frog
+                // They will behave as "temporary friends" = stick around for a short time and then wander away
+                for (int i = 0; i < DataManager.instance.powerUpFriendsFrenzyAmount; i++)
+                {
+                    Vector2 friendPosition = GameManager.instance.player.transform.position;
+                    friendPosition += Random.insideUnitCircle.normalized * 2;                    
+                    FriendType friendType = (FriendType)Random.Range(0, System.Enum.GetValues(typeof(FriendType)).Length);
+                    FriendsManager.instance.AddActiveFriend(friendType, friendPosition, temporary: true, lifespan: DataManager.instance.powerUpFriendsFrenzyLifespan);
+                }
+                SoundManager.instance.PlayFreezeAllSound();
+                if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                {
+                    Debug.Log("Run - Collected Friends Frenzy power-up");
+                }
+                break;
+            case CollectibleType.POWERUP_MEGAMAGNET:
+                CollectiblesManager.instance.ApplyMegaMagnet();
+                SoundManager.instance.PlayFreezeAllSound();
+                if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                {
+                    Debug.Log("Run - Collected Mega Magnet power-up");
+                }
+                break;
+            case CollectibleType.POWERUP_LEVELUPBUGS:
+                EnemiesManager.instance.SwitchTierOfAllEnemies(1);
+                SoundManager.instance.PlayFreezeAllSound();
+                if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                {
+                    Debug.Log("Run - Collected Level Up Bugs power-up");
+                }
+                break;
+            case CollectibleType.POWERUP_LEVELDOWNBUGS:
+                EnemiesManager.instance.SwitchTierOfAllEnemies(-1);
+                SoundManager.instance.PlayFreezeAllSound();
+                if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                {
+                    Debug.Log("Run - Collected Level Down Bugs power-up");
+                }
+                break;
+            case CollectibleType.POWERUP_TELEPORT:
+                player.TeleportToARandomPosition();
+                EnemiesManager.instance.ClearAllEnemies(true);
+                FriendsManager.instance.ClearFriends(onlyTemporary: true);
+                SoundManager.instance.PlayFreezeAllSound();
+                if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                {
+                    Debug.Log("Run - Collected Teleport power-up");
                 }
                 break;
             default:

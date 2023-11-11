@@ -98,7 +98,7 @@ public class WeaponBehaviour : MonoBehaviour
     public void SetTongueWidth(float width)
     {
         tongueWidth = width;
-        float actualWidth = tongueWidth * (1 + GameManager.instance.player.attackSizeBoost);        
+        float actualWidth = tongueWidth * (1 + GameManager.instance.player.GetAttackSizeBoost());        
         actualWidth *= 2;
 
         TongueLineRendererBehaviour tongueLineScript = this.GetComponent<TongueLineRendererBehaviour>();
@@ -110,8 +110,8 @@ public class WeaponBehaviour : MonoBehaviour
 
     private void SetTongueScale(float scale)
     {
-        float actualRange = range * (1 + GameManager.instance.player.attackRangeBoost);
-        float actualWidth = tongueWidth * (1 + GameManager.instance.player.attackSizeBoost);
+        float actualRange = range * (1 + GameManager.instance.player.GetAttackRangeBoost());
+        float actualWidth = tongueWidth * (1 + GameManager.instance.player.GetAttackSizeBoost());
         if (scale <= 0)
         {
             this.transform.localScale = Vector3.zero;
@@ -312,7 +312,7 @@ public class WeaponBehaviour : MonoBehaviour
     {
         GameObject enemy = null;
         Vector2 weaponOriginPosition = this.transform.position; 
-        float actualRange = range * (1 + GameManager.instance.player.attackRangeBoost);
+        float actualRange = range * (1 + GameManager.instance.player.GetAttackRangeBoost());
         Collider2D[] allColliders = Physics2D.OverlapCircleAll(weaponOriginPosition, actualRange, foodLayer);
         if (allColliders.Length > 0)
         {
@@ -375,7 +375,6 @@ public class WeaponBehaviour : MonoBehaviour
     private List<WeaponEffect> GetRandomEffects()
     {
         List<WeaponEffect> result = new List<WeaponEffect>();
-        float actualRange = range * (1 + GameManager.instance.player.attackRangeBoost);
         List<WeaponEffect> possibleEffects = new List<WeaponEffect>();
         if (healthAbsorbRatio > 0)
         {
@@ -412,7 +411,7 @@ public class WeaponBehaviour : MonoBehaviour
     {
         List<Vector2> result = new List<Vector2>();
         
-        float actualRange = range * (1 + GameManager.instance.player.attackRangeBoost);
+        float actualRange = range * (1 + GameManager.instance.player.GetAttackRangeBoost());
         Vector2 direction = Vector2.up;
         float distanceToTarget = actualRange;
 
@@ -662,7 +661,7 @@ public class WeaponBehaviour : MonoBehaviour
         float angleChange = 0;
         float minAngleChange = -0.15f;
         float maxAngleChange = 0.15f;
-        float actualRange = range * (1 + GameManager.instance.player.attackRangeBoost);
+        float actualRange = range * (1 + GameManager.instance.player.GetAttackRangeBoost());
         for (float totalDistance = 0; totalDistance < actualRange; totalDistance += deltaDistance)
         {
             // move position following direction
@@ -687,7 +686,7 @@ public class WeaponBehaviour : MonoBehaviour
 
     public void TryAttack()
     {
-        float actualCooldown = cooldown * (1 + GameManager.instance.player.attackCooldownBoost);
+        float actualCooldown = cooldown * (1 + GameManager.instance.player.GetAttackCooldownBoost());
         if (!preventAttack && !isAttacking && Time.time - lastAttackTime > actualCooldown)
         {
             GameObject targetEnemy = null;
@@ -799,8 +798,8 @@ public class WeaponBehaviour : MonoBehaviour
 
         tongueScript.EnableTongue();
 
-        float actualAttackDuration = duration * (1 + GameManager.instance.player.attackDurationBoost); // in seconds
-        float actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
+        float actualAttackDuration = duration * (1 + GameManager.instance.player.GetAttackDurationBoost()); // in seconds
+        float actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.GetAttackSpeedBoost());
         float tongueLength = tongueScript.GetTongueLength();
 
         float angle = 0;
@@ -809,7 +808,7 @@ public class WeaponBehaviour : MonoBehaviour
         while (isTongueGoingOut)
         {
             // Set width
-            float actualWidth = tongueWidth * (1 + GameManager.instance.player.attackSizeBoost);
+            float actualWidth = tongueWidth * (1 + GameManager.instance.player.GetAttackSizeBoost());
             actualWidth *= 2;
 
             TongueLineRendererBehaviour tongueLineScript = this.GetComponent<TongueLineRendererBehaviour>();
@@ -827,6 +826,14 @@ public class WeaponBehaviour : MonoBehaviour
             {
                 tongueScript.DisplayTongue(1);
                 actualAttackDuration -= Time.fixedDeltaTime;
+
+                // In case the attack duration went down midway through the rotating
+                float newAttackDuration = duration * (1 + GameManager.instance.player.GetAttackDurationBoost()); // in seconds
+                if (newAttackDuration < actualAttackDuration)
+                {
+                    actualAttackDuration = newAttackDuration;
+                }
+
                 if (actualAttackDuration < 0)
                 {
                     isTongueGoingOut = false;
@@ -834,7 +841,7 @@ public class WeaponBehaviour : MonoBehaviour
             }
 
 
-            actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
+            actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.GetAttackSpeedBoost());
             angle += actualAttackSpeed * Time.fixedDeltaTime;
 
             SetTongueDirection((Mathf.Cos(angle) * Vector2.right + Mathf.Sin(angle) * Vector2.up).normalized);
@@ -845,7 +852,7 @@ public class WeaponBehaviour : MonoBehaviour
         while (t > 0)
         {
             // Set width
-            float actualWidth = tongueWidth * (1 + GameManager.instance.player.attackSizeBoost);
+            float actualWidth = tongueWidth * (1 + GameManager.instance.player.GetAttackSizeBoost());
             actualWidth *= 2;
 
             TongueLineRendererBehaviour tongueLineScript = this.GetComponent<TongueLineRendererBehaviour>();
@@ -857,7 +864,7 @@ public class WeaponBehaviour : MonoBehaviour
             tongueScript.DisplayTongue(t);
             t -= (Time.fixedDeltaTime * (actualAttackSpeed / tongueLength));
 
-            actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
+            actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.GetAttackSpeedBoost());
             angle += actualAttackSpeed * Time.fixedDeltaTime;
 
             SetTongueDirection((Mathf.Cos(angle) * Vector2.right + Mathf.Sin(angle) * Vector2.up).normalized);
@@ -945,14 +952,14 @@ public class WeaponBehaviour : MonoBehaviour
 
         tongueScript.EnableTongue();
 
-        float actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
-        float actualRange = range * (1 + GameManager.instance.player.attackRangeBoost);
+        float actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.GetAttackSpeedBoost());
+        float actualRange = range * (1 + GameManager.instance.player.GetAttackRangeBoost());
         float tongueLength = tongueScript.GetTongueLength();
 
         while (isTongueGoingOut)
         {
             // Set width
-            float actualWidth = tongueWidth * (1 + GameManager.instance.player.attackSizeBoost);
+            float actualWidth = tongueWidth * (1 + GameManager.instance.player.GetAttackSizeBoost());
             actualWidth *= 2;
 
             TongueLineRendererBehaviour tongueLineScript = this.GetComponent<TongueLineRendererBehaviour>();
@@ -981,7 +988,7 @@ public class WeaponBehaviour : MonoBehaviour
         while (t > 0)
         {
             // Set width
-            float actualWidth = tongueWidth * (1 + GameManager.instance.player.attackSizeBoost);
+            float actualWidth = tongueWidth * (1 + GameManager.instance.player.GetAttackSizeBoost());
             actualWidth *= 2;
 
             TongueLineRendererBehaviour tongueLineScript = this.GetComponent<TongueLineRendererBehaviour>();
@@ -1030,7 +1037,7 @@ public class WeaponBehaviour : MonoBehaviour
         tongueLineRenderer.enabled = true;
         outlineLineRenderer.enabled = true;
         tongueCollider.enabled = true;
-        float actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
+        float actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.GetAttackSpeedBoost());
         while (isTongueGoingOut)
         {
             SetTongueScale(t);
@@ -1084,7 +1091,7 @@ public class WeaponBehaviour : MonoBehaviour
         tongueLineRenderer.enabled = true;
         outlineLineRenderer.enabled = true;
         tongueCollider.enabled = true;
-        float actualAttackSpeed = attackSpeed * (1+GameManager.instance.player.attackSpeedBoost);
+        float actualAttackSpeed = attackSpeed * (1+GameManager.instance.player.GetAttackSpeedBoost());
         while (isTongueGoingOut)
         {
             SetTongueScale(t);
@@ -1129,17 +1136,17 @@ public class WeaponBehaviour : MonoBehaviour
 
         // default part, for any weapon
         string enemyName = collision.gameObject.name;
-        if (!enemiesHitNamesList.Contains(enemyName))
+        if (!enemyName.Equals(EnemiesManager.pooledEnemyNameStr) && !enemiesHitNamesList.Contains(enemyName))
         {
             enemiesHitNamesList.Add(enemyName); // to prevent a single tongue to hit the same enemy multiple times
             if (weaponType == WeaponType.ROTATING)
             {
-                float actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.attackSpeedBoost);
+                float actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.GetAttackSpeedBoost());
                 StartCoroutine(RemoveEnemyNameWithDelay(enemyName, 1.0f / actualAttackSpeed));
             }
 
             EnemyInstance enemy = EnemiesManager.instance.GetEnemyInstanceFromGameObjectName(enemyName);
-            float actualDamage = tipFactor * ( damage * (1 + GameManager.instance.player.attackDamageBoost) );
+            float actualDamage = tipFactor * ( damage * (1 + GameManager.instance.player.GetAttackDamageBoost()) );
 
             WeaponEffect activeEffect = WeaponEffect.NONE;
             switch (weaponType)
@@ -1167,7 +1174,7 @@ public class WeaponBehaviour : MonoBehaviour
             if (activeEffect == WeaponEffect.CURSE)
             {
                 // Apply curseFactor as a probability of curse
-                float curseProbability = curseChance * (1 + GameManager.instance.player.attackSpecialStrengthBoost);
+                float curseProbability = curseChance * (1 + GameManager.instance.player.GetAttackSpecialStrengthBoost());
                 if (Random.Range(0.0f, 1.0f) < curseProbability)
                 {
                     isCursed = true;
@@ -1187,20 +1194,20 @@ public class WeaponBehaviour : MonoBehaviour
             // poison part, add poison damage to enemy
             if (activeEffect == WeaponEffect.POISON)
             {
-                float actualPoisonDamage = poisonDamage * (1 + GameManager.instance.player.attackSpecialStrengthBoost);
-                float actualPoisonDuration = duration * (1 + GameManager.instance.player.attackSpecialDurationBoost);
+                float actualPoisonDamage = poisonDamage * (1 + GameManager.instance.player.GetAttackSpecialStrengthBoost());
+                float actualPoisonDuration = duration * (1 + GameManager.instance.player.GetAttackSpecialDurationBoost());
                 EnemiesManager.instance.AddPoisonDamageToEnemy(enemyName, actualPoisonDamage, actualPoisonDuration);
             }
 
             // freeze part, diminish enemy speed
             if (activeEffect == WeaponEffect.FREEZE)
             {
-                float enemyFreezeDuration = duration * (1 + GameManager.instance.player.attackSpecialDurationBoost);
+                float enemyFreezeDuration = duration * (1 + GameManager.instance.player.GetAttackSpecialDurationBoost());
                 EnemiesManager.instance.ApplyFreezeEffect(enemyName, enemyFreezeDuration);
             }
             if (isCursed)
             {
-                float enemyCurseDuration = duration * (1 + GameManager.instance.player.attackSpecialDurationBoost);
+                float enemyCurseDuration = duration * (1 + GameManager.instance.player.GetAttackSpecialDurationBoost());
                 EnemiesManager.instance.ApplyCurseEffect(enemyName, enemyCurseDuration);
             }
 

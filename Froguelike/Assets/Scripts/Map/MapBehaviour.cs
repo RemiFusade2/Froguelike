@@ -66,7 +66,7 @@ public class MapBehaviour : MonoBehaviour
         foreach (GameObject go in gameObjectsToDestroyList)
         {
             Destroy(go);
-            GameManager.instance.SpawnDestroyParticleEffect(go.transform.position);
+            //GameManager.instance.SpawnDestroyParticleEffect(go.transform.position);
         }
     }
 
