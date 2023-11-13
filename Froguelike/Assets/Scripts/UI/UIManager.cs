@@ -109,7 +109,7 @@ public class UIManager : MonoBehaviour
     public GameObject demoDisclaimerOkButton;
     [Space]
     public GameObject endOfDemoScreen;
-    public GameObject endOfDemoBackgroundButton;
+    public GameObject endOfDemoSteamButton;
 
     private List<GameObject> rememberThisButton = new List<GameObject>();
 
@@ -237,11 +237,11 @@ public class UIManager : MonoBehaviour
             if (showEndOfDemoScreen)
             {
                 endOfDemoHasBeenShown = true;
-                SetScreenInteractability(titleScreen, false);
+                // SetScreenInteractability(titleScreen, false); (This makes the end of demo screen not interactable as well, since it is a child of title screen /J)
                 SetScreenInteractability(menuButtonsGroup, false);
                 SetScreenInteractability(endOfDemoScreen, true);
                 endOfDemoScreen.SetActive(true);
-                SetSelectedButton(endOfDemoBackgroundButton);
+                SetSelectedButton(endOfDemoSteamButton);
 
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                 {
@@ -402,8 +402,8 @@ public class UIManager : MonoBehaviour
 
         SoundManager.instance.PauseInGameSounds();
         gameOverPanel.GetComponent<GameOverScreen>().UpdateGameOverScreen();
-        gameOverPanel.SetActive(true);
         gameOverRespawnButton.GetComponent<Button>().interactable = respawnAvailable;
+        gameOverPanel.SetActive(true);
         SetSelectedButton(respawnAvailable ? gameOverRespawnButton : gameOverGiveUpButton);
 
         SoundManager.instance.PlayDeathSound();
@@ -641,7 +641,7 @@ public class UIManager : MonoBehaviour
         if (endOfDemoScreen.activeInHierarchy)
         {
             SetScreenInteractability(endOfDemoScreen, true);
-            SetSelectedButton(endOfDemoBackgroundButton);
+            SetSelectedButton(endOfDemoSteamButton);
         }
         else
         {
@@ -666,7 +666,7 @@ public class UIManager : MonoBehaviour
             SetScreenInteractability(menuButtonsGroup, true);
             SetScreenInteractability(endOfDemoScreen, false);
             endOfDemoScreen.SetActive(false);
-            SetSelectedButton(selectedButtonTitleScreen);
+            SetSelectedButton(settingsButton);
             if (logsVerboseLevel == VerboseLevel.MAXIMAL)
             {
                 Debug.Log("UI - Hide End of Demo screen");
