@@ -431,7 +431,7 @@ public class UIManager : MonoBehaviour
         SetSelectedButton(selectedButtonPausePanel);
 
         SoundManager.instance.PauseInGameSounds();
-        // MusicManager.instance.PauseMusic(); // I took this away because I think teh music should still be playing (Johanna). // I agree that this is better but SFX should be stopped no? (Rémi)
+        // MusicManager.instance.PauseMusic(); // I took this away because I think teh music should still be playing (Johanna). // I agree that this is better but SFX should be stopped no? (Rï¿½mi)
         // Show the pause screen.
         pausePanel.SetActive(true);
         pausePanelAnimator.SetBool("Visible", true);
@@ -608,7 +608,7 @@ public class UIManager : MonoBehaviour
 
         if (demoDisclaimerScreen != null)
         {
-            SetScreenInteractability(titleScreen, !active);
+            // SetScreenInteractability(titleScreen, !active); // (since this is a parent of the demo disclamer it also makes the demo disclamer not interactable, so I commented it out /J)
             SetScreenInteractability(menuButtonsGroup, !active);
             SetScreenInteractability(demoDisclaimerScreen, active);
             demoDisclaimerScreen.SetActive(active);

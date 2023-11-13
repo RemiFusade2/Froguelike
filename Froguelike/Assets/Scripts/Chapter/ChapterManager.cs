@@ -377,6 +377,10 @@ public class ChapterManager : MonoBehaviour
         rerollPostIt.SetActive(!isFirstChapter);
         rerollPostItCountTextMesh.SetText($"x{GameManager.instance.player.rerolls}");
         rerollPostItButton.interactable = (GameManager.instance.player.rerolls > 0);
+        if (rerollPostIt.activeSelf)
+        {
+            rerollPostIt.GetComponent<CanvasGroup>().blocksRaycasts = (GameManager.instance.player.rerolls > 0);
+        }
     }
 
     public void SetChapterCountInSelection(int newChapterCount)
