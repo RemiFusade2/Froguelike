@@ -251,6 +251,20 @@ public class BountyBug
     [Header("Bounty")]
     [Tooltip("A list of collectibles + amount that serve as a bounty")]
     public List<Bounty> bountyList;
+
+    public BountyBug(EnemyType enemyType, float hpMultiplier, float damageMultiplier, float xpMultiplier, EnemyMovePattern movePattern)
+    {
+        this.spawnTime = 0;
+        this.enemyType = enemyType;
+        this.tierFormula = "";
+        this.hpMultiplier = hpMultiplier;
+        this.damageMultiplier = damageMultiplier;
+        this.xpMultiplier = xpMultiplier;
+        this.movePattern = movePattern;
+        this.outlineThicknessOverride = 1;
+        this.outlineColorOverride = new Color(0.984f, 0.992f, 0.984f);
+        this.bountyList = new List<Bounty>();
+    }
 }
 
 #endregion

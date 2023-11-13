@@ -31,6 +31,10 @@ public class EnemyData : ScriptableObject
     [Tooltip("The prefab will describe how the enemy looks, which layer it is on, and how heavy it is")]
     public GameObject prefab;
 
+    [Header("Type")]
+    [Tooltip("The type of this enemy.")]
+    public EnemyType enemyType;
+
     [Header("Enemy settings - stats")]
     [Tooltip("Does this enemy shoot stuff? NOT IMPLEMENTED YET")]
     public EnemyAttackPattern attackPattern = EnemyAttackPattern.NO_ATTACK;

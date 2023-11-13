@@ -248,7 +248,7 @@ public class ChapterManager : MonoBehaviour
                             conditionChunkIsValid = true; // TODO: use condition.environmentType to compare to the current environment
                             break;
                         case ChapterConditionType.FRIEND:
-                            conditionChunkIsValid = GameManager.instance.player.HasActiveFriend(condition.friendType);
+                            conditionChunkIsValid = FriendsManager.instance.HasActiveFriend(condition.friendType);
                             break;
                         case ChapterConditionType.HAT:
                             conditionChunkIsValid = GameManager.instance.player.HasHat(condition.hatType);

@@ -1,3 +1,4 @@
+using Rewired;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -85,6 +86,9 @@ public class EnemyInstance
     // References to EnemyInfo
     public EnemyInfo enemyInfo;
 
+    // Bounty
+    public BountyBug bountyBug;
+
     // Current in-game state
     public bool active;
     public bool alive;
@@ -105,6 +109,9 @@ public class EnemyInstance
     public Wave wave;
     public bool neverDespawn;
 
+    // Difficulty tier
+    public int difficultyTier;
+
     // Current in-game state - knockback & cooldown
     public float knockbackCooldown;
 
@@ -123,6 +130,9 @@ public class EnemyInstance
     public SpriteRenderer enemyRenderer;
     public Animator enemyAnimator;
     public Collider2D enemyCollider;
+    public ParticleSystem enemyFreezeParticles;
+    public ParticleSystem enemyPoisonParticles;
+    public ParticleSystem enemyCurseParticles;
 
     // A link to the last weapon that hit this enemy
     public Transform lastWeaponHitTransform;
@@ -180,6 +190,7 @@ public class EnemiesManager : MonoBehaviour
     public List<EnemyTypeData> enemiesTypesDataList;
 
     [Header("Prefabs")]
+    public GameObject defaultEnemyPrefab;
     public GameObject damageTextPrefab;
 
     [Header("Settings - Spawn")]
@@ -230,10 +241,7 @@ public class EnemiesManager : MonoBehaviour
     private Queue<EnemyInstance> inactiveEnemiesPool;
     private Queue<GameObject> damageTextsPool;
 
-    private HashSet<int> spawnedBountiesIDs;
-    private Dictionary<int, BountyBug> bountiesDico;
-
-    public Vector3 farAwayPosition;
+    private HashSet<int> spawnedBugsWithBountiesIDs;
 
     public const string pooledEnemyNameStr = "Pooled";
 
@@ -241,14 +249,24 @@ public class EnemiesManager : MonoBehaviour
     private bool applyGlobalFreeze = false;
     private bool applyGlobalPoison = false;
     private bool applyGlobalCurse = false;
+    private Coroutine SetGlobalFreezeEffectCoroutine;
+    private Coroutine SetGlobalPoisonEffectCoroutine;
+    private Coroutine SetGlobalCurseEffectCoroutine;
 
 
     #region Unity Callback Methods
 
     private void Awake()
     {
-        instance = this;
-        farAwayPosition = new Vector3(10000, 10000, 10000); // this should be far enough and always out of camera frustum
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(this);
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
     }
 
     // Start is called before the first frame update
@@ -257,8 +275,7 @@ public class EnemiesManager : MonoBehaviour
         lastSpawnTimesList = new List<float>();
 
         // Initialize data structures
-        bountiesDico = new Dictionary<int, BountyBug>();
-        spawnedBountiesIDs = new HashSet<int>();
+        spawnedBugsWithBountiesIDs = new HashSet<int>();
         enemiesDataFromNameDico = new Dictionary<string, EnemyData>();
         enemiesDataFromTypeDico = new Dictionary<EnemyType, List<EnemyData>>();
         foreach (EnemyTypeData enemyTypeData in enemiesTypesDataList)
@@ -283,14 +300,18 @@ public class EnemiesManager : MonoBehaviour
             newEnemy.active = false;
             newEnemy.alive = false;
 
-            GameObject firstEnemyPrefab = enemiesTypesDataList[0].enemiesList[0].prefab;
-            GameObject enemyGameObject = Instantiate(firstEnemyPrefab, farAwayPosition, Quaternion.identity, enemiesParent);
+            GameObject firstEnemyPrefab = defaultEnemyPrefab;
+            GameObject enemyGameObject = Instantiate(firstEnemyPrefab, DataManager.instance.farAwayPosition, Quaternion.identity, enemiesParent);
 
             newEnemy.enemyTransform = enemyGameObject.transform;
             newEnemy.enemyRenderer = enemyGameObject.GetComponent<SpriteRenderer>();
             newEnemy.enemyRigidbody = enemyGameObject.GetComponent<Rigidbody2D>();
             newEnemy.enemyAnimator = enemyGameObject.GetComponent<Animator>();
             newEnemy.enemyCollider = enemyGameObject.GetComponent<Collider2D>();
+
+            newEnemy.enemyFreezeParticles = newEnemy.enemyTransform.Find("Freeze Particles").GetComponent<ParticleSystem>();
+            newEnemy.enemyPoisonParticles = newEnemy.enemyTransform.Find("Poison Particles").GetComponent<ParticleSystem>();
+            newEnemy.enemyCurseParticles = newEnemy.enemyTransform.Find("Curse Particles").GetComponent<ParticleSystem>();
 
             PutEnemyInThePool(newEnemy);
         }
@@ -299,7 +320,7 @@ public class EnemiesManager : MonoBehaviour
         damageTextsPool = new Queue<GameObject>();
         for (int i = 0; i < maxDamageTexts; i++)
         {
-            GameObject damageText = Instantiate(damageTextPrefab, farAwayPosition, Quaternion.identity, damageTextsParent);
+            GameObject damageText = Instantiate(damageTextPrefab, DataManager.instance.farAwayPosition, Quaternion.identity, damageTextsParent);
             damageTextsPool.Enqueue(damageText);
         }
     }
@@ -451,10 +472,10 @@ public class EnemiesManager : MonoBehaviour
     {
         if (RunManager.instance.currentChapter != null && RunManager.instance.currentChapter.chapterData != null)
         {
-            if (spawnedBountiesIDs != null && !spawnedBountiesIDs.Contains(bountyID))
+            if (spawnedBugsWithBountiesIDs != null && !spawnedBugsWithBountiesIDs.Contains(bountyID))
             {
                 // Keep a dictionary of current bounties
-                spawnedBountiesIDs.Add(bountyID);
+                spawnedBugsWithBountiesIDs.Add(bountyID);
 
                 // Get random spawn position, around and in front of frog
                 GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out Vector2 spawnPosition);
@@ -569,7 +590,7 @@ public class EnemiesManager : MonoBehaviour
         }
     }
 
-    public void SpawnEnemy(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, Wave originWave, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null)
+    public void SpawnEnemy(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, Wave originWave, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null)
     {
         // Get an enemy from the pool
         EnemyInstance enemyFromPool = null;
@@ -602,6 +623,7 @@ public class EnemiesManager : MonoBehaviour
             enemyFromPool.enemyTransform.position = position;
 
             enemyFromPool.wave = originWave;
+            enemyFromPool.difficultyTier = difficultyTier;
             enemyFromPool.neverDespawn = neverDespawn;
 
             int outlineThickness = enemyData.outlineThickness;
@@ -627,13 +649,19 @@ public class EnemiesManager : MonoBehaviour
             }
 
             AddEnemy(enemyFromPool, enemyData, movePattern, bounty);
+
+            if (forceMovementDirection && moveDirection.HasValue)
+            {
+                enemyFromPool.moveDirection = moveDirection.Value;
+                SetEnemyVelocity(enemyFromPool, 0);
+            }
         }
     }
 
-    private IEnumerator SpawnEnemyAsync(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, Wave originWave, float delay, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null)
+    private IEnumerator SpawnEnemyAsync(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, Wave originWave, float delay, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null)
     {
         yield return new WaitForSeconds(delay);
-        SpawnEnemy(prefab, position, enemyData, movePattern, originWave, difficultyTier, neverDespawn, bounty);
+        SpawnEnemy(prefab, position, enemyData, movePattern, originWave, difficultyTier, neverDespawn, bounty, forceMovementDirection, moveDirection);
     }
 
     public void InitializeWave(Wave wave)
@@ -657,6 +685,8 @@ public class EnemiesManager : MonoBehaviour
     }
     public EnemyInstance GetEnemyInstanceFromGameObjectName(string gameObjectName)
     {
+        if (gameObjectName.Equals(pooledEnemyNameStr))
+            return null;
         int ID = int.Parse(gameObjectName);
         return GetEnemyInstanceFromID(ID);
     }
@@ -664,9 +694,9 @@ public class EnemiesManager : MonoBehaviour
     public EnemyData GetEnemyDataFromGameObjectName(string gameObjectName, out BountyBug bountyBug)
     {
         int ID = int.Parse(gameObjectName);
-        bountiesDico.TryGetValue(ID, out bountyBug); // Get potential bounty
-        EnemyInstance instance = GetEnemyInstanceFromID(ID);
-        return enemiesDataFromNameDico[instance.enemyName];
+        EnemyInstance enemyInstance = GetEnemyInstanceFromID(ID);
+        bountyBug = enemyInstance.bountyBug; // Get potential bounty
+        return enemiesDataFromNameDico[enemyInstance.enemyName];
     }
 
     public void AddEnemy(EnemyInstance newEnemy, EnemyData enemyData, EnemyMovePattern movePattern, BountyBug bounty = null)
@@ -686,7 +716,7 @@ public class EnemiesManager : MonoBehaviour
         {
             hpMultiplier = bounty.hpMultiplier;
             // add bounty to dico
-            bountiesDico.Add(newEnemy.enemyID, bounty);
+            newEnemy.bountyBug = bounty;
         }
 
         // setup enemy - state
@@ -704,6 +734,9 @@ public class EnemiesManager : MonoBehaviour
             Debug.LogWarning("Initializing enemy instance but EnemyInfo is null!");
         }
         newEnemy.enemyInfo = enemyInfo;
+
+        // setup enemy - data
+        newEnemy.enemyInfo.enemyData = enemyData;
 
         // add enemy to update queue
         enemiesToUpdateQueue.Enqueue(newEnemy);
@@ -757,6 +790,8 @@ public class EnemiesManager : MonoBehaviour
             damageText.transform.position = position;
             damageText.GetComponent<TMPro.TextMeshPro>().text = Mathf.RoundToInt(damage).ToString();
             damageText.GetComponent<MeshRenderer>().enabled = true;
+            damageText.GetComponent<Rigidbody2D>().simulated = true;
+            damageText.GetComponent<Rigidbody2D>().velocity = Vector2.up;
             StartCoroutine(PutDamageTextIntoPool(damageText, 1.0f));
         }
 
@@ -764,7 +799,7 @@ public class EnemiesManager : MonoBehaviour
         if (enemy.HP < 0.01f)
         {
             // enemy died, let's eat it now
-            SetEnemyDead(enemy);
+            SetEnemyDead(enemy, despawnEnemyAndSpawnXP: true);
             enemyDied = true;
         }
 
@@ -792,7 +827,8 @@ public class EnemiesManager : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         damageText.GetComponent<MeshRenderer>().enabled = false;
-        damageText.transform.position = farAwayPosition;
+        damageText.GetComponent<Rigidbody2D>().simulated = false;
+        damageText.transform.position = DataManager.instance.farAwayPosition;
         damageTextsPool.Enqueue(damageText);
     }
 
@@ -803,31 +839,35 @@ public class EnemiesManager : MonoBehaviour
         return DamageEnemy(index, damage, weapon);
     }
 
-    public void ClearAllEnemies()
+    public void ClearAllEnemies(bool ignoreBounties = false)
     {
         List<int> enemiesToDestroyIDList = new List<int>();
+        Queue<EnemyInstance> remainingEnemiesQueue = new Queue<EnemyInstance>();
         foreach (KeyValuePair<int, EnemyInstance> enemyInfo in allActiveEnemiesDico)
         {
-            enemiesToDestroyIDList.Add(enemyInfo.Key);
+            if (!ignoreBounties || enemyInfo.Value.bountyBug == null)
+            {
+                enemiesToDestroyIDList.Add(enemyInfo.Key);
+            }
+            else
+            {
+                remainingEnemiesQueue.Enqueue(enemyInfo.Value);
+            }
         }
         foreach (int id in enemiesToDestroyIDList)
         {
-            GameManager.instance.SpawnDestroyParticleEffect(allActiveEnemiesDico[id].enemyTransform.position);
-
             // do not destroy the enemy gameobject but instead deactivate it and put it back in the pool
             PutEnemyInThePool(allActiveEnemiesDico[id]);
             allActiveEnemiesDico.Remove(id);
         }
         enemiesToUpdateQueue.Clear();
-        allActiveEnemiesDico.Clear();
-        lastKey = 0;
+        while (remainingEnemiesQueue.TryDequeue(out EnemyInstance enemy))
+        {
+            enemiesToUpdateQueue.Enqueue(enemy);
+        }
+        //allActiveEnemiesDico.Clear();
 
-        bountiesDico.Clear();
-        spawnedBountiesIDs.Clear();
-
-        applyGlobalCurse = false;
-        applyGlobalFreeze = false;
-        applyGlobalPoison = false;
+        //spawnedBugsWithBountiesIDs.Clear();
     }
 
     /// <summary>
@@ -845,12 +885,12 @@ public class EnemiesManager : MonoBehaviour
             int enemiesToUpdateCount = Mathf.Min(maxEnemiesToUpdateCount, enemiesToUpdateQueue.Count);
             for (int i = 0; i < enemiesToUpdateCount; i++)
             {
-                EnemyInstance enemy = enemiesToUpdateQueue.Dequeue();
-                EnemyData enemyData = enemiesDataFromNameDico[enemy.enemyName];
-                EnemyMovePattern movePattern = enemy.movePattern;
-                
+                EnemyInstance enemy = enemiesToUpdateQueue.Dequeue();                
                 if (enemy.active)
                 {
+                    EnemyData enemyData = enemiesDataFromNameDico[enemy.enemyName];
+                    EnemyMovePattern movePattern = enemy.movePattern;
+
                     float enemyUpdateDeltaTime = (Time.time - enemy.lastUpdateTime);
                     Vector3 frogPosition = playerTransform.position;
                     if (!enemy.alive)
@@ -861,7 +901,7 @@ public class EnemiesManager : MonoBehaviour
                         enemy.lastPoisonDamageTime = float.MinValue;
                         enemy.freezeRemainingTime = 0;
                         enemy.curseRemainingTime = 0;
-                        UpdateSpriteColor(enemy);
+                        UpdateSpriteColorAndStatusParticles(enemy);
                         if (enemy.lastWeaponHitTransform != null)
                         {
                             frogPosition = enemy.lastWeaponHitTransform.position;
@@ -869,21 +909,22 @@ public class EnemiesManager : MonoBehaviour
                         float dot = Vector2.Dot(enemy.moveDirection, (frogPosition - enemy.enemyTransform.position).normalized);
                         float distanceWithFrog = Vector2.Distance(frogPosition, enemy.enemyTransform.position);
                         enemy.moveDirection = (frogPosition - enemy.enemyTransform.position).normalized;
-                        float walkSpeed = DataManager.instance.defaultWalkSpeed * (1 + GameManager.instance.player.walkSpeedBoost);
+                        float walkSpeed = DataManager.instance.defaultWalkSpeed * (1 + GameManager.instance.player.GetWalkSpeedBoost());
                         enemy.enemyRigidbody.velocity = 2 * enemy.moveDirection * walkSpeed;
                         if (dot < 0 || distanceWithFrog < 1.5f)
                         {
                             enemy.enemyRenderer.enabled = false;
                             enemy.active = false;
 
+                            // Spawn XP
                             float XPEarned = enemyData.xPBonus;
-                            if (bountiesDico.ContainsKey(enemy.enemyID))
+                            if (enemy.bountyBug != null)
                             {
-                                XPEarned *= bountiesDico[enemy.enemyID].xpMultiplier;
+                                XPEarned *= enemy.bountyBug.xpMultiplier;
                             }
                             XPEarned *= (1 + GameManager.instance.player.curse);
 
-                            RunManager.instance.EatFly(XPEarned);
+                            RunManager.instance.EatEnemy(XPEarned);
                             enemiesToDestroyIDList.Add(enemy.enemyID);
                         }
                     }
@@ -949,7 +990,7 @@ public class EnemiesManager : MonoBehaviour
                                 enemy.curseRemainingTime -= enemyUpdateDeltaTime;
 
                                 // Enemy get its color back (depending on current effect applied)
-                                UpdateSpriteColor(enemy);
+                                UpdateSpriteColorAndStatusParticles(enemy);
 
                                 switch (movePattern.movePatternType)
                                 {
@@ -1015,7 +1056,7 @@ public class EnemiesManager : MonoBehaviour
                                 enemy.poisonRemainingTime = 0;
                                 enemy.poisonDamage = 0;
                                 enemy.lastPoisonDamageTime = float.MinValue;
-                                UpdateSpriteColor(enemy);
+                                UpdateSpriteColorAndStatusParticles(enemy);
                             }
                             else if (Time.time - enemy.lastPoisonDamageTime > delayBetweenPoisonDamage)
                             {
@@ -1026,12 +1067,14 @@ public class EnemiesManager : MonoBehaviour
                                 bool enemyIsDead = DamageEnemy(enemy.enemyID, poisonDamage, null);
                                 enemy.lastPoisonDamageTime = Time.time;
 
+                                /*
                                 if (enemyIsDead && !enemiesToDestroyIDList.Contains(enemy.enemyID))
                                 {
+                                    Something wrong here
                                     enemiesToDestroyIDList.Add(enemy.enemyID);
                                     enemy.active = false;
                                     CollectiblesManager.instance.SpawnCollectible(enemy.enemyTransform.position, CollectibleType.XP_BONUS, enemyData.xPBonus);
-                                }
+                                }*/
                             }
                         }
                     }
@@ -1048,9 +1091,12 @@ public class EnemiesManager : MonoBehaviour
             }
             foreach (int enemyID in enemiesToDestroyIDList)
             {
-                EnemyInstance enemy = allActiveEnemiesDico[enemyID];
-                PutEnemyInThePool(enemy);
-                allActiveEnemiesDico.Remove(enemyID);
+                if (allActiveEnemiesDico.ContainsKey(enemyID))
+                {
+                    EnemyInstance enemy = allActiveEnemiesDico[enemyID];
+                    PutEnemyInThePool(enemy);
+                    allActiveEnemiesDico.Remove(enemyID);
+                }
             }
         }
     }
@@ -1058,37 +1104,54 @@ public class EnemiesManager : MonoBehaviour
     private void PutEnemyInThePool(EnemyInstance enemy)
     {
         inactiveEnemiesPool.Enqueue(enemy);
+        enemy.HP = 10000;
+        enemy.poisonDamage = 0;
         enemy.enemyTransform.name = pooledEnemyNameStr;
         enemy.active = false;
-        enemy.enemyTransform.position = farAwayPosition;
+        enemy.enemyTransform.position = DataManager.instance.farAwayPosition;
         enemy.enemyRenderer.enabled = false;
         enemy.enemyRigidbody.simulated = false;
         enemy.enemyAnimator.enabled = false;
         enemy.enemyCollider.enabled = false;
+        enemy.bountyBug = null;
+
+        enemy.enemyCurseParticles.Stop();
+        enemy.enemyFreezeParticles.Stop();
+        enemy.enemyPoisonParticles.Stop();
     }
 
     public void AddPoisonDamageToEnemy(string enemyGoName, float poisonDamage, float poisonDuration)
     {
         int enemyIndex = int.Parse(enemyGoName);
-        EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
-        enemy.poisonDamage = poisonDamage;
-        enemy.poisonRemainingTime = poisonDuration;
-        enemy.lastPoisonDamageTime = Time.time;
-        UpdateSpriteColor(enemy);
+        if (allActiveEnemiesDico.ContainsKey(enemyIndex))
+        {
+            EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
+            enemy.poisonDamage = poisonDamage;
+            enemy.poisonRemainingTime = poisonDuration;
+            enemy.lastPoisonDamageTime = Time.time;
+            UpdateSpriteColorAndStatusParticles(enemy);
+        }
     }
 
     public void ApplyFreezeEffect(string enemyGoName, float duration)
     {
         int enemyIndex = int.Parse(enemyGoName);
-        EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
-        enemy.freezeRemainingTime = duration;
-        UpdateSpriteColor(enemy);
+        if (allActiveEnemiesDico.ContainsKey(enemyIndex))
+        {
+            EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
+            enemy.freezeRemainingTime = duration;
+            UpdateSpriteColorAndStatusParticles(enemy);
+        }
     }
 
     public void ApplyGlobalFreezeEffect(float duration)
     {
         applyGlobalFreeze = true;
-        StartCoroutine(SetGlobalFreezeEffect(false, duration));
+        if (SetGlobalFreezeEffectCoroutine != null)
+        {
+            StopCoroutine(SetGlobalFreezeEffectCoroutine);
+        }
+        SetGlobalFreezeEffectCoroutine = StartCoroutine(SetGlobalFreezeEffect(false, duration));
     }
 
     private IEnumerator SetGlobalFreezeEffect(bool active, float duration)
@@ -1100,7 +1163,11 @@ public class EnemiesManager : MonoBehaviour
     public void ApplyGlobalPoisonEffect(float duration)
     {
         applyGlobalPoison = true;
-        StartCoroutine(SetGlobalPoisonEffect(false, duration));
+        if (SetGlobalPoisonEffectCoroutine != null)
+        {
+            StopCoroutine(SetGlobalPoisonEffectCoroutine);
+        }
+        SetGlobalPoisonEffectCoroutine = StartCoroutine(SetGlobalPoisonEffect(false, duration));
     }
 
     private IEnumerator SetGlobalPoisonEffect(bool active, float duration)
@@ -1112,7 +1179,11 @@ public class EnemiesManager : MonoBehaviour
     public void ApplyGlobalCurseEffect(float duration)
     {
         applyGlobalCurse = true;
-        StartCoroutine(SetGlobalCurseEffect(false, duration));
+        if (SetGlobalCurseEffectCoroutine != null)
+        {
+            StopCoroutine(SetGlobalCurseEffectCoroutine);
+        }
+        SetGlobalCurseEffectCoroutine = StartCoroutine(SetGlobalCurseEffect(false, duration));
     }
 
     private IEnumerator SetGlobalCurseEffect(bool active, float duration)
@@ -1126,9 +1197,65 @@ public class EnemiesManager : MonoBehaviour
         int enemyIndex = int.Parse(enemyGoName);
         EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
         enemy.curseRemainingTime = duration;
-        UpdateSpriteColor(enemy);
+        UpdateSpriteColorAndStatusParticles(enemy);
     }
 
+    /// <summary>
+    /// Reset every active & alive bug to another bug of the same Kind, with a different tier
+    /// If tier is < 1 and tier should decrease, then the bug is killed (XP is spawned)
+    /// If tier is > 5 and tier should increase, then the bug is turned into a bounty giving extra XP & Froins
+    /// If the bug was a bounty already, then it is not changed
+    /// </summary>
+    /// <param name="deltaTier"></param>
+    public void SwitchTierOfAllEnemies(int deltaTier)
+    {
+        Dictionary<int, EnemyInstance> temporaryAllActiveEnemiesDico = new Dictionary<int, EnemyInstance>(allActiveEnemiesDico);
+        foreach (KeyValuePair<int, EnemyInstance> keyValue in temporaryAllActiveEnemiesDico)
+        {
+            int enemyID = keyValue.Key;
+            EnemyInstance enemyInstance = keyValue.Value;
+
+            if (enemyInstance.bountyBug != null)
+            {
+                // Enemy has a bounty, it is not changed one way or the other
+            }
+            else
+            {
+                // Enemy has no bounty, let's switch its tier!
+                int newTier = enemyInstance.difficultyTier + deltaTier;
+                Vector3 enemyPosition = enemyInstance.enemyTransform.position;
+                Vector2 enemyMoveDirection = enemyInstance.moveDirection;
+                EnemyMovePattern enemyMovePattern = new EnemyMovePattern(enemyInstance.movePattern);
+                EnemyData enemyData = GetEnemyDataFromTypeAndDifficultyTier(enemyInstance.enemyInfo.enemyData.enemyType, Mathf.Clamp(newTier, 1, 5));
+                if (newTier < 1)
+                {
+                    // Spawn XP
+                    float XPEarned = Mathf.Clamp(enemyData.xPBonus / 2, 1, 100);
+                    XPEarned *= (1 + GameManager.instance.player.curse);
+                    CollectiblesManager.instance.SpawnCollectible(enemyPosition, CollectibleType.XP_BONUS, XPEarned);
+                }
+                else if (newTier > 5)
+                {
+                    // Spawn the same enemy but with a bounty
+                    BountyBug bountyBug = new BountyBug(enemyData.enemyType, 100, 5, 2, enemyMovePattern);
+                    bountyBug.bountyList.Add( new Bounty() { collectibleType = CollectibleType.FROINS, amount = 10 });
+                    bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 5 });
+                    StartCoroutine(SpawnEnemyAsync(enemyData.prefab, enemyPosition, enemyData, enemyMovePattern, enemyInstance.wave, 0.01f, 5, neverDespawn: true, bounty: bountyBug, forceMovementDirection: true, moveDirection: enemyMoveDirection));
+                }
+                else
+                {
+                    // Spawn a new enemy with new tier
+                    GameObject enemyPrefab = enemyData.prefab;
+                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, enemyPosition, enemyData, enemyMovePattern, enemyInstance.wave, 0.01f, newTier, forceMovementDirection: true, moveDirection: enemyMoveDirection));
+                }
+                // Unspawn that enemy
+                enemyInstance.enemyRenderer.enabled = false;
+                enemyInstance.active = false;
+                PutEnemyInThePool(allActiveEnemiesDico[enemyID]);
+                allActiveEnemiesDico.Remove(enemyID);
+            }
+        }
+    }
 
     private void SetEnemyVelocity(EnemyInstance enemy, float updateDeltaTime)
     {
@@ -1149,42 +1276,83 @@ public class EnemiesManager : MonoBehaviour
         }
 
         float actualSpeed = GetEnemyDataFromGameObjectName(enemy.enemyTransform.name, out BountyBug bountyBug).moveSpeed * changeSpeedFactor * enemy.movePattern.speedFactor;
-        //float walkSpeed = DataManager.instance.defaultWalkSpeed * (1 + GameManager.instance.player.walkSpeedBoost);
         actualSpeed = Mathf.Clamp(actualSpeed, 0, 30);
         enemy.enemyRigidbody.velocity = enemy.moveDirection * actualSpeed;
         enemy.enemyAnimator.SetFloat("Speed", actualSpeed);
     }
 
-    private void UpdateSpriteColor(EnemyInstance enemyInstance)
+    private void UpdateSpriteColorAndStatusParticles(EnemyInstance enemyInstance)
     {
         if (enemyInstance.knockbackCooldown > 0)
         {
-            enemyInstance.SetOverlayColor(Color.white); // enemy being hit
+            // enemy being hit
+            enemyInstance.SetOverlayColor(Color.white);
         }
         else
         {
-            // TODO: Show effects using shader. Have effects being stackable
+            // enemy is back to normal
+            enemyInstance.RemoveOverlay();
+        }
 
+        // Freeze effect
+        if (enemyInstance.enemyFreezeParticles != null)
+        {
             if (applyGlobalFreeze || enemyInstance.freezeRemainingTime > 0)
-            {
-                enemyInstance.SetOverlayColor(frozenSpriteColor); // enemy is frozen
-            }
-            else if (applyGlobalCurse || enemyInstance.curseRemainingTime > 0)
-            {
-                enemyInstance.SetOverlayColor(cursedSpriteColor); // enemy is cursed
-            }
-            else if(applyGlobalPoison || enemyInstance.poisonRemainingTime > 0)
-            {
-                enemyInstance.SetOverlayColor(poisonedSpriteColor); // enemy is poisoned
+            {   
+                if (!enemyInstance.enemyFreezeParticles.isPlaying)
+                {
+                    enemyInstance.enemyFreezeParticles.Play();
+                }
             }
             else
             {
-                enemyInstance.RemoveOverlay(); // enemy is back to normal
+                if (enemyInstance.enemyFreezeParticles.isPlaying)
+                {
+                    enemyInstance.enemyFreezeParticles.Stop();
+                }
+            }
+        }
+
+        // Curse effect
+        if (enemyInstance.enemyCurseParticles != null)
+        {
+            if (applyGlobalCurse || enemyInstance.curseRemainingTime > 0)
+            {
+                if (!enemyInstance.enemyCurseParticles.isPlaying)
+                {
+                    enemyInstance.enemyCurseParticles.Play();
+                }
+            }
+            else
+            {
+                if (enemyInstance.enemyCurseParticles.isPlaying)
+                {
+                    enemyInstance.enemyCurseParticles.Stop();
+                }
+            }
+        }
+
+        // Poison effect
+        if (enemyInstance.enemyPoisonParticles != null)
+        {
+            if (applyGlobalPoison || enemyInstance.poisonRemainingTime > 0)
+            {
+                if (!enemyInstance.enemyPoisonParticles.isPlaying)
+                {
+                    enemyInstance.enemyPoisonParticles.Play();
+                }
+            }
+            else
+            {
+                if (enemyInstance.enemyPoisonParticles.isPlaying)
+                {
+                    enemyInstance.enemyPoisonParticles.Stop();
+                }
             }
         }
     }
 
-    public void SetEnemyDead(EnemyInstance enemyInstance)
+    public void SetEnemyDead(EnemyInstance enemyInstance, bool despawnEnemyAndSpawnXP = false)
     {
         if (enemyInstance.enemyInfo != null)
         {
@@ -1203,29 +1371,57 @@ public class EnemiesManager : MonoBehaviour
         enemyInstance.RemoveOverlay();
 
         // Spawn rewards for bounties
-        if (bountiesDico.ContainsKey(enemyInstance.enemyID))
+        if (enemyInstance.bountyBug != null)
         {
-            BountyBug bountyBug = bountiesDico[enemyInstance.enemyID];
-            if (bountyBug != null
-                && bountyBug.bountyList != null
-                && bountyBug.bountyList.Count > 0)
+            if (enemyInstance.bountyBug.bountyList != null
+                && enemyInstance.bountyBug.bountyList.Count > 0)
             {
-                foreach (Bounty bounty in bountyBug.bountyList)
+                foreach (Bounty bounty in enemyInstance.bountyBug.bountyList)
                 {
                     for (int i = 0; i < bounty.amount; i++)
                     {
-                        int value = 0;
+                        int value = 1;
                         value = (bounty.collectibleType == CollectibleType.HEALTH ? 100 : value);
                         value = (bounty.collectibleType == CollectibleType.FROINS ? 10 : value);
-                        value = (bounty.collectibleType == CollectibleType.LEVEL_UP ? 1 : value);
                         value = (bounty.collectibleType == CollectibleType.XP_BONUS ? 10 : value);
-                        CollectiblesManager.instance.SpawnCollectible(enemyInstance.enemyTransform.position, bounty.collectibleType, value, pushAway: true);
+                        CollectiblesManager.instance.SpawnCollectible(enemyInstance.enemyTransform.position, bounty.collectibleType, value, pushAwayForce: bounty.amount);
                     }
                 }
 
                 // Play SFX
                 SoundManager.instance.PlayEatBountySound();
             }
+        }
+
+        if (despawnEnemyAndSpawnXP)
+        {
+            enemyInstance.enemyRenderer.enabled = false;
+            enemyInstance.active = false;
+
+            // Spawn XP
+            Vector3 xpSpawnPosition = enemyInstance.enemyTransform.position - 0.1f * Vector3.up;
+            float XPEarned = enemyInstance.enemyInfo.enemyData.xPBonus;
+            if (enemyInstance.bountyBug != null)
+            {
+                XPEarned *= enemyInstance.bountyBug.xpMultiplier;
+            }
+            XPEarned *= (1 + GameManager.instance.player.curse);
+            CollectiblesManager.instance.SpawnCollectible(xpSpawnPosition, CollectibleType.XP_BONUS, XPEarned);
+
+            // Spawn Froins (a chance to get froins when killing a bug)
+            Vector2 currencyProbabilityMinMax = new Vector2(0, 0.1f * (1 + GameManager.instance.player.currencyBoost));
+            float currencyProba = Random.Range(currencyProbabilityMinMax.x, currencyProbabilityMinMax.y);
+            float currencyAmount = Mathf.Floor(currencyProba) + ((Random.Range(Mathf.Floor(currencyProba), Mathf.Ceil(currencyProba)) < currencyProba) ? 1 : 0);
+            long currencyAmountLong = (long)Mathf.RoundToInt(currencyAmount);
+            if (currencyAmountLong > 0)
+            {
+                Vector3 froinsSpawnPosition = enemyInstance.enemyTransform.position + 0.2f * Vector3.up;
+                CollectiblesManager.instance.SpawnCollectible(froinsSpawnPosition, CollectibleType.FROINS, currencyAmountLong);
+            }
+
+            PutEnemyInThePool(enemyInstance);
+            allActiveEnemiesDico.Remove(enemyInstance.enemyID);
+
         }
         
     }

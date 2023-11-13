@@ -955,7 +955,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 464157711}
-  m_RootOrder: 14
+  m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &69634790
 GameObject:
@@ -1350,7 +1350,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 464157711}
-  m_RootOrder: 10
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!82 &95588978
 AudioSource:
@@ -1707,8 +1707,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 115233407}
+  - component: {fileID: 115233408}
   m_Layer: 0
-  m_Name: Friends
+  m_Name: Friends Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1729,6 +1730,90 @@ Transform:
   m_Father: {fileID: 1377549577}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &115233408
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 115233406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db221688b53656d4a98a1e8bdb9d6d8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  logsVerboseLevel: 0
+  minAngleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 160
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.25
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  maxAngleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 180
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.75
+      value: 180
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 20
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  maxDistanceUntilDespawn: 45
+  maxDistanceFromFrog: 10
+  minDistanceFromFrog: 2
+  updateAllFriendsCount: 50
+  activeFriends: []
 --- !u!1001 &116018971
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5893,9 +5978,7 @@ MonoBehaviour:
     - {fileID: 11400000, guid: e1bda4f7b35752241832a2b578bd82da, type: 2}
     - {fileID: 11400000, guid: 15fd122752210cd42a46feb4942ac9cf, type: 2}
     - {fileID: 11400000, guid: 989ca87eeb3f34842b90b84d2b5dcd55, type: 2}
-  - enemyType: 28
-    enemiesList:
-    - {fileID: 11400000, guid: 1c49aab4868b59c44a26f5d0441acb5b, type: 2}
+  defaultEnemyPrefab: {fileID: 770728660837659543, guid: 2e9c11cc18528724e9690342d9d14685, type: 3}
   damageTextPrefab: {fileID: 4022214579611050533, guid: 19080e1cdd51db248be2fe8a417ce6f5, type: 3}
   minSpawnDistanceFromPlayer: 22
   maxSpawnDistanceFromPlayer: 35
@@ -5905,7 +5988,7 @@ MonoBehaviour:
   findSpawnPositionMaxAttempts: 10
   maxDistanceBeforeUnspawn: 40
   unspawnEnemiesThatGoTooFar: 0
-  maxDamageTexts: 300
+  maxDamageTexts: 600
   maxActiveEnemies: 1500
   updateAllEnemiesCount: 1500
   poisonedSpriteColor: {r: 0.16862746, g: 0.5529412, b: 0.21960786, a: 1}
@@ -5916,7 +5999,6 @@ MonoBehaviour:
   knockbackDuration: 0.2
   enemiesData:
     enemiesList: []
-  farAwayPosition: {x: 0, y: 0, z: 0}
 --- !u!1 &375755789
 GameObject:
   m_ObjectHideFlags: 0
@@ -7688,6 +7770,7 @@ MonoBehaviour:
   takeDamageAudioSource: {fileID: 1138367404}
   healAudioSource: {fileID: 1146035219}
   pickUpFroinsAudioSource: {fileID: 1442788814}
+  pickUpXPAudioSource: {fileID: 1672218483}
   grabCollectibleAudioSource: {fileID: 775132015}
   levelUpAudioSource: {fileID: 1913548679}
   buyItemInShopAudioSource: {fileID: 95588978}
@@ -7711,6 +7794,8 @@ MonoBehaviour:
   healVolume: 1
   pickUpFroinsSound: {fileID: 8300000, guid: 391e3a5131850d645b2ce5eb01bafba1, type: 3}
   pickUpFroinsVolume: 0.9
+  pickUpXPSound: {fileID: 8300000, guid: 794d150398ef899428ec54cbd58427a5, type: 3}
+  pickUpXPVolume: 1
   grabCollectibleSound: {fileID: 8300000, guid: 95322ab0bdf82dc4993e4ab2e87f8294, type: 3}
   grabCollectibleVolume: 1
   levelUpSound: {fileID: 8300000, guid: e9f981afade18674c9cc35051ce104a7, type: 3}
@@ -7749,6 +7834,7 @@ Transform:
   - {fileID: 1169957211}
   - {fileID: 1146035218}
   - {fileID: 1442788813}
+  - {fileID: 1672218482}
   - {fileID: 775132014}
   - {fileID: 1913548678}
   - {fileID: 95588977}
@@ -12570,7 +12656,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 464157711}
-  m_RootOrder: 12
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!82 &691041840
 AudioSource:
@@ -13930,7 +14016,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 464157711}
-  m_RootOrder: 8
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!82 &775132015
 AudioSource:
@@ -17563,7 +17649,7 @@ Transform:
   - {fileID: 548540347}
   - {fileID: 1918968016}
   m_Father: {fileID: 464157711}
-  m_RootOrder: 13
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &941574426
 GameObject:
@@ -20277,13 +20363,23 @@ MonoBehaviour:
   hatsParent: {fileID: 974585524}
   hatPrefab: {fileID: 6961706316015745635, guid: 608d611b5b7414b4ea3539092133e1e1, type: 3}
   hatSortingOrder: 10
+  characterBeingHitOverlayColor: {r: 0.9843138, g: 0.9921569, b: 0.9843138, a: 1}
+  godModeWalkSpeedBoost: 1
+  godModeSwimSpeedBoost: 2
+  godModeMinCooldownBoost: -0.9
+  godModeAttackDamageBoost: 2
+  godModeAttackRangeBoost: 1.5
+  godModeAttackSizeBoost: 0.5
+  godModeAttackSpeedBoost: 1
+  godModeAttackDurationBoost: 1
+  godModeAttackSpecialStrengthBoost: 1
+  godModeAttackSpecialDurationBoost: 1
   walkSpeedBoost: 0
   swimSpeedBoost: 0
   currentHealth: 100
   maxHealth: 100
   healthRecovery: 0.01
   hpRecoveryDelay: 1
-  characterBeingHitOverlayColor: {r: 0.9843138, g: 0.9921569, b: 0.9843138, a: 1}
   magnetRangeBoost: 0
   armor: 0
   experienceBoost: 0
@@ -20313,7 +20409,6 @@ MonoBehaviour:
   unlockAllCheatInputName: unlockallcheat
   removeAchievementsCheatInputName: removeachievementscheat
   inputAxisDeadZone: 0.3
-  friendsParent: {fileID: 115233407}
 --- !u!50 &1127068953
 Rigidbody2D:
   serializedVersion: 4
@@ -35769,38 +35864,149 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96fbc18bc9d09da4c8d5d6b01bd391e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  verboseLevel: 0
+  collectiblesParent: {fileID: 1665346292}
   magnetCollectiblePrefab: {fileID: 2308838969773596893, guid: 2af3cfbf96755494ca3053a8d58eafa4, type: 3}
   superCollectiblePrefab: {fileID: 2308838969773596893, guid: 0f3c5a4fac17b984a94935dc83ba7974, type: 3}
-  magnetCollectiblesIconsList:
-  - Type: 0
-    Name: Currency
-    Icon: {fileID: 21300000, guid: d29a5b85d57d047429629782eee8b1ff, type: 3}
-  - Type: 1
-    Name: XP
-    Icon: {fileID: 21300000, guid: cfd319fd0ad327c48b9994d470900f4d, type: 3}
-  - Type: 2
-    Name: LevelUp
-    Icon: {fileID: 21300000, guid: 51e6115c02d369d4b890a578e8f5652b, type: 3}
-  - Type: 3
-    Name: HP
-    Icon: {fileID: 21300000, guid: a9fff52a2b4006e488c5142311c6d3a4, type: 3}
-  - Type: 4
-    Name: FreezeAll
-    Icon: {fileID: 21300000, guid: 26c990268b83ee943b7f58b3084e5f50, type: 3}
-  - Type: 5
-    Name: PoisonAll
-    Icon: {fileID: 21300000, guid: 045f00d928b2d3d4082fbd2b7fe6e79e, type: 3}
-  - Type: 6
-    Name: CurseAll
-    Icon: {fileID: 21300000, guid: 4c6f4120e7a69364da1a4c828a76ad98, type: 3}
+  maxCollectibles: 1000
+  updateCollectiblesCount: 100
   collectibleMinMovingSpeed: 8
+  collectibleMaxMovingSpeed: 30
   collectibleMovingSpeedFactor: 1.5
   collectMinDistance: 1
   updateAllCollectiblesDelay: 0.1
-  collectibleSpawnMinPushForce: 5
-  collectibleSpawnMaxPushForce: 7
-  collectibleSpawnDelay: 0.9
-  verboseLevel: 0
+  collectibleSpawnMinPushForce: 0.5
+  collectibleSpawnMaxPushForce: 0.7
+  collectibleSpawnDelay: 1
+  collectibleDespawnDistance: 150
+--- !u!1 &1672218481
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1672218482}
+  - component: {fileID: 1672218483}
+  m_Layer: 0
+  m_Name: Pickup XP Audio Source
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1672218482
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1672218481}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 464157711}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &1672218483
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1672218481}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: -322592479979663565, guid: 05cc8123ca8a8134f9d54cca06408f71, type: 2}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1674015627
 GameObject:
   m_ObjectHideFlags: 0
@@ -38572,7 +38778,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 464157711}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!82 &1913548679
 AudioSource:
@@ -40043,7 +40249,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 234913695
+    m_Bits: 771784607
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 8400000, guid: ed5c089adac90cb4bb0aabb19f0abb36, type: 2}
   m_TargetDisplay: 0
@@ -41466,7 +41672,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 464157711}
-  m_RootOrder: 11
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2076528028 stripped
 MonoBehaviour:
@@ -43625,6 +43831,22 @@ PrefabInstance:
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[0].mass
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[1].mass
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[2].mass
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[3].mass
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
       propertyPath: friendInfoList.Array.data[1].prefab
       value: 
       objectReference: {fileID: 5335859843515845929, guid: 076c80494e8047d4282f026e7fb9668f, type: 3}
@@ -43636,6 +43858,22 @@ PrefabInstance:
       propertyPath: friendInfoList.Array.data[3].prefab
       value: 
       objectReference: {fileID: 5869345214771575039, guid: df74ea6b399287343852f11cdf67db61, type: 3}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[0].hopForce
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[1].hopForce
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[2].hopForce
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[3].hopForce
+      value: 2.6
+      objectReference: {fileID: 0}
     - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
       propertyPath: chapterIconsList.Array.data[0].tooltip
       value: A friend to meet
@@ -43651,6 +43889,26 @@ PrefabInstance:
     - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
       propertyPath: chapterIconsList.Array.data[3].tooltip
       value: A secret to find
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.size
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[0].linearDrag
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[1].linearDrag
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[2].linearDrag
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[3].linearDrag
+      value: 0.7
       objectReference: {fileID: 0}
     - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
       propertyPath: chapterIconsList.Array.data[0].iconSprite
@@ -43673,8 +43931,180 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[0].Name
+      value: Froins
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[0].Type
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[1].Name
+      value: XP
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[1].Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[2].Name
+      value: LevelUp
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[2].Type
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[3].Name
+      value: HP
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[3].Type
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[4].Name
+      value: FreezeAll
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[4].Type
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[5].Name
+      value: PoisonAll
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[5].Type
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[6].Name
+      value: CurseAll
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[6].Type
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[7].Name
+      value: GodMode
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[7].Type
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[8].Name
+      value: FriendsFrenzy
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[8].Type
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[9].Name
+      value: MegaMagnet
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[9].Type
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[10].Name
+      value: LevelUpBugs
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[10].Type
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[11].Name
+      value: LevelDownBugs
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[11].Type
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[12].Name
+      value: Teleport
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[12].Type
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
       propertyPath: collectiblePowerUpsSpawnProbabilities.Array.size
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[0].timeBetweenDirectionChange
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[1].timeBetweenDirectionChange
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[2].timeBetweenDirectionChange
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[3].timeBetweenDirectionChange
+      value: 1.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[0].Icons.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[1].Icons.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[2].Icons.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[3].Icons.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[4].Icons.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[5].Icons.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[6].Icons.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[7].Icons.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[8].Icons.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[9].Icons.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[10].Icons.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[11].Icons.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[12].Icons.Array.size
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
       propertyPath: collectiblePowerUpsSpawnProbabilities.Array.data[0].frequency
@@ -43688,6 +44118,74 @@ PrefabInstance:
       propertyPath: collectiblePowerUpsSpawnProbabilities.Array.data[2].frequency
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[0].Icons.Array.data[0]
+      value: 
+      objectReference: {fileID: 21300000, guid: 33db472c27805814a845fe5dd40282ee, type: 3}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[0].Icons.Array.data[1]
+      value: 
+      objectReference: {fileID: 21300000, guid: d29a5b85d57d047429629782eee8b1ff, type: 3}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[1].Icons.Array.data[0]
+      value: 
+      objectReference: {fileID: 21300000, guid: cfd319fd0ad327c48b9994d470900f4d, type: 3}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[1].Icons.Array.data[1]
+      value: 
+      objectReference: {fileID: 21300000, guid: b800e3ff8e9692b4f97cc63cf9454411, type: 3}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[2].Icons.Array.data[0]
+      value: 
+      objectReference: {fileID: 21300000, guid: 51e6115c02d369d4b890a578e8f5652b, type: 3}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[2].Icons.Array.data[1]
+      value: 
+      objectReference: {fileID: 21300000, guid: b800e3ff8e9692b4f97cc63cf9454411, type: 3}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[3].Icons.Array.data[0]
+      value: 
+      objectReference: {fileID: 21300000, guid: a9fff52a2b4006e488c5142311c6d3a4, type: 3}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[4].Icons.Array.data[0]
+      value: 
+      objectReference: {fileID: 21300000, guid: 26c990268b83ee943b7f58b3084e5f50, type: 3}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[5].Icons.Array.data[0]
+      value: 
+      objectReference: {fileID: 21300000, guid: 045f00d928b2d3d4082fbd2b7fe6e79e, type: 3}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[6].Icons.Array.data[0]
+      value: 
+      objectReference: {fileID: 21300000, guid: 4c6f4120e7a69364da1a4c828a76ad98, type: 3}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[6].Icons.Array.data[1]
+      value: 
+      objectReference: {fileID: 21300000, guid: 4c6f4120e7a69364da1a4c828a76ad98, type: 3}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[7].Icons.Array.data[0]
+      value: 
+      objectReference: {fileID: 21300000, guid: 0dfbde84a31a228499723094d03ae7a5, type: 3}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[8].Icons.Array.data[0]
+      value: 
+      objectReference: {fileID: 21300000, guid: 2187e0c6de7b4404086a7132b4f5d297, type: 3}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[9].Icons.Array.data[0]
+      value: 
+      objectReference: {fileID: 21300000, guid: 7ebd3b02491cbb74296091e093f0b258, type: 3}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[10].Icons.Array.data[0]
+      value: 
+      objectReference: {fileID: 21300000, guid: 43cb194d915dd2943acfafc812ddf4d0, type: 3}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[11].Icons.Array.data[0]
+      value: 
+      objectReference: {fileID: 21300000, guid: 21882d01251953140ab42aced0029a27, type: 3}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: magnetCollectiblesIconsList.Array.data[12].Icons.Array.data[0]
+      value: 
+      objectReference: {fileID: 21300000, guid: 9e841501a14e22f488f00bf33a574496, type: 3}
     - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
       propertyPath: collectiblePowerUpsSpawnProbabilities.Array.data[0].probability.y
       value: 0.02

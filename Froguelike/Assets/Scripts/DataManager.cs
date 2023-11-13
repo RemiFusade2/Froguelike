@@ -64,6 +64,28 @@ public enum WeaponType
     CAT // target nearest, SUPER WIDE, shorter, TONS OF DAMAGE
 }
 
+/// <summary>
+/// An Enum for each magnet collectible in the game
+/// </summary>
+[System.Serializable]
+public enum CollectibleType
+{
+    FROINS,
+    XP_BONUS,
+    LEVEL_UP,
+    HEALTH,
+
+    POWERUP_FREEZEALL,
+    POWERUP_POISONALL,
+    POWERUP_CURSEALL,
+    POWERUP_GODMODE,
+    POWERUP_FRIENDSFRENZY,
+    POWERUP_MEGAMAGNET,
+    POWERUP_LEVELUPBUGS,
+    POWERUP_LEVELDOWNBUGS,
+    POWERUP_TELEPORT
+}
+
 [System.Serializable]
 public class FriendInfo
 {
@@ -74,9 +96,8 @@ public class FriendInfo
     public Sprite sprite;
     public int style; // for animator
 
-    public Vector2 springDistanceMinMax;
-    public Vector2 springDampingMinMax;
-    public Vector2 springFrequencyMinMax;
+    public float hopForce;
+    public float timeBetweenDirectionChange;
 }
 
 [System.Serializable]
@@ -122,6 +143,14 @@ public class ChapterIconData
     public string tooltip;
 }
 
+[System.Serializable]
+public class CollectibleInfo
+{
+    public string Name;
+    public CollectibleType Type;
+    public List<Sprite> Icons;
+}
+
 /// <summary>
 /// DataManager is a class used to give access to handy methods to get relevant data for the game (weapon types, items, enemy types, etc.)
 /// </summary>
@@ -163,11 +192,17 @@ public class DataManager : MonoBehaviour
     public float powerUpFreezeDuration = 10;
     public float powerUpPoisonDuration = 10;
     public float powerUpCurseDuration = 10;
+    public float powerUpGodModeDuration = 10;
+    public int powerUpFriendsFrenzyAmount = 20;
+    public float powerUpFriendsFrenzyLifespan = 10;
 
     [Header("Sprites")]
     public Sprite collectibleDefaultSprite;
     public Sprite achievementLockedDefaultSprite;
     public Sprite achievementUnlockedDefaultSprite;
+
+    [Header("Magnet collectibles Sprites")]
+    public List<CollectibleInfo> magnetCollectiblesIconsList;
 
     [Header("Hats")]
     public List<HatInfo> hatInfoList;
@@ -177,6 +212,9 @@ public class DataManager : MonoBehaviour
 
     [Header("Chapter Icons")]
     public List<ChapterIconData> chapterIconsList;
+
+    [Header("Useful")]
+    public Vector3 farAwayPosition;
 
 
     private Dictionary<WeaponEffect, Color> weaponEffectColorDico;
@@ -189,6 +227,7 @@ public class DataManager : MonoBehaviour
         if (instance == null)
         {
             instance = this;
+            farAwayPosition = new Vector3(50000, 50000, 50000); // this should be far enough and always out of camera frustum
             DontDestroyOnLoad(this);
         }
         else
@@ -418,5 +457,15 @@ public class DataManager : MonoBehaviour
     public Sprite GetStatSprite(CharacterStat stat)
     {
         return characterStatsDataList.FirstOrDefault(x => x.stat.Equals(stat)).icon;
+    }
+
+    public CollectibleInfo GetCollectibleInfoFromType(CollectibleType collectibleType)
+    {
+        return magnetCollectiblesIconsList.Where(x => x.Type.Equals(collectibleType)).FirstOrDefault();
+    }
+
+    public CollectibleInfo GetCollectibleInfoFromName(string collectibleName)
+    {
+        return magnetCollectiblesIconsList.Where(x => x.Name.Equals(collectibleName)).FirstOrDefault();
     }
 }

@@ -19,6 +19,7 @@ public class SoundManager : MonoBehaviour
     public AudioSource healAudioSource;
 
     public AudioSource pickUpFroinsAudioSource;
+    public AudioSource pickUpXPAudioSource;
     public AudioSource grabCollectibleAudioSource;
     public AudioSource levelUpAudioSource;
 
@@ -49,6 +50,8 @@ public class SoundManager : MonoBehaviour
 
     public AudioClip pickUpFroinsSound;
     [Range(0, 1)] public float pickUpFroinsVolume = 1;
+    public AudioClip pickUpXPSound;
+    [Range(0, 1)] public float pickUpXPVolume = 1;
     public AudioClip grabCollectibleSound;
     [Range(0, 1)] public float grabCollectibleVolume = 1;
     public AudioClip levelUpSound;
@@ -306,6 +309,12 @@ public class SoundManager : MonoBehaviour
     {
         pickUpFroinsAudioSource.volume = ModifyVolume(pickUpFroinsVolume);
         pickUpFroinsAudioSource.PlayOneShot(pickUpFroinsSound);
+    }
+    public void PlayPickUpXPSound(float xpValue)
+    {
+        float volumeMultiplier = Mathf.Clamp((xpValue / 20.0f), 0.2f, 1.0f);
+        pickUpXPAudioSource.volume = ModifyVolume(Mathf.Clamp(pickUpXPVolume * volumeMultiplier, 0, 1));
+        pickUpXPAudioSource.PlayOneShot(pickUpXPSound);
     }
     public void PlayPickUpCollectibleSound()
     {

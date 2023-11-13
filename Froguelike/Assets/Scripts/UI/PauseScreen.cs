@@ -42,12 +42,17 @@ public class PauseScreen : MonoBehaviour
 
         }
 
-        int nrOfFriends = runManager.player.friendsParent.childCount;
-        for (int friend = 0; friend < nrOfFriends; friend++)
+        int nrOfFriends = FriendsManager.instance.transform.childCount;
+        foreach (FriendInstance friend in FriendsManager.instance.activeFriends)
         {
             if (thingSlot >= thingSlotsParent.childCount) break;
-            thingSlotsParent.GetChild(thingSlot).GetComponentInChildren<SpriteRenderer>().sprite = runManager.player.friendsParent.GetComponentsInChildren<FriendBehaviour>()[friend]._friendInfo.sprite;
+            thingSlotsParent.GetChild(thingSlot).GetComponentInChildren<SpriteRenderer>().sprite = friend.Info.sprite;
             thingSlot++;
+        }
+
+        for (int friend = 0; friend < nrOfFriends; friend++)
+        {         
+            
         }
 
 

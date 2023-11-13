@@ -64,6 +64,13 @@ public class EnemyMovePattern
     public float speedFactor;
     [Tooltip("In case of a bouncing pattern, how many times does it bounce before exiting the screen")]
     public int bouncecount;
+
+    public EnemyMovePattern(EnemyMovePattern origin)
+    {
+        this.movePatternType = origin.movePatternType;
+        this.speedFactor = origin.speedFactor;
+        this.bouncecount = origin.bouncecount;
+    }
 }
 
 /// <summary>
