@@ -13,7 +13,7 @@ public class FrogCharacterController : MonoBehaviour
     [Header("References")]
     public Transform weaponsParent;
     public Transform weaponStartPoint;
-    public Transform healthBar;
+    public HealthBarBehaviour healthBar;
     [Space]
     public CircleCollider2D magnetTrigger;
     [Space]
@@ -44,11 +44,6 @@ public class FrogCharacterController : MonoBehaviour
     [Header("Character data - Runtime")]
     public float walkSpeedBoost;
     public float swimSpeedBoost;
-    [Space]
-    public float currentHealth = 100;
-    public float maxHealth = 100;
-    public float healthRecovery;
-    public float hpRecoveryDelay = 1.0f;
     [Space]
     public float magnetRangeBoost = 0;
     [Space]
@@ -102,10 +97,6 @@ public class FrogCharacterController : MonoBehaviour
 
     private float orientationAngle;
 
-    private float invincibilityTime;
-
-    private float timeSinceLastHPRecovery;
-
     private bool applyGodMode;
     private Coroutine setGodModeCoroutine;
 
@@ -115,7 +106,6 @@ public class FrogCharacterController : MonoBehaviour
     void Start()
     {
         isOnLand = true;
-        invincibilityTime = 0;
         rewiredPlayer = ReInput.players.GetPlayer(playerID);
         playerRigidbody = GetComponent<Rigidbody2D>();
         FriendsManager.instance.ClearFriends();
@@ -160,49 +150,46 @@ public class FrogCharacterController : MonoBehaviour
 
         if (GameManager.instance.isGameRunning)
         {
-
+            // Get Pause input
             if (GetPauseInput())
             {
                 GameManager.instance.TogglePause();
             }
 
+            // Attempt to attack with all active tongues
             foreach (Transform weaponTransform in weaponsParent)
             {
                 weaponTransform.GetComponent<WeaponBehaviour>().TryAttack();
             }
 
-            if (!GameManager.instance.gameIsPaused && !ChapterManager.instance.chapterChoiceIsVisible && !RunManager.instance.levelUpChoiceIsVisible && (Time.time - timeSinceLastHPRecovery) > hpRecoveryDelay)
-            {
-                Heal(healthRecovery);
-                timeSinceLastHPRecovery = Time.time;
-            }
-
+            // Set animator speed
             float speed = Mathf.Clamp(playerRigidbody.velocity.magnitude, 0, 10);
             animator.SetFloat("Speed", speed);
+
+            // Check for Game Over condition or critical health status
+            CheckHealthStatus();
         }
     }
 
     private void FixedUpdate()
     {
+        // Get movement input
         UpdateHorizontalInput();
         UpdateVerticalInput();
-
-        if (invincibilityTime > 0)
-        {
-            invincibilityTime -= Time.fixedDeltaTime;
-        }
-
         float moveSpeed = isOnLand ? (DataManager.instance.defaultWalkSpeed * (1 + GetWalkSpeedBoost())) : (DataManager.instance.defaultSwimSpeed * (1 + GetSwimSpeedBoost()));
         Vector2 moveInput = (((HorizontalInput * Vector2.right).normalized + (VerticalInput * Vector2.up).normalized)).normalized * moveSpeed;
 
+        // If movement input is not zero, then rotate frog
         if (!moveInput.Equals(Vector2.zero))
         {
             orientationAngle = 90 + 90 * Mathf.RoundToInt((Vector2.SignedAngle(moveInput, Vector2.right)) / 90);
             transform.localRotation = Quaternion.Euler(0, 0, -orientationAngle);
         }
 
+        // In any case, set frog velocity
         playerRigidbody.velocity = moveInput;
 
+        // Make sure that every tongue follows the frog
         foreach (Transform weaponTransform in weaponsParent)
         {
             weaponTransform.GetComponent<WeaponBehaviour>().SetTonguePosition(weaponStartPoint);
@@ -375,19 +362,21 @@ public class FrogCharacterController : MonoBehaviour
         }
 
         // MAX HP should always be defined for any character
-        maxHealth = DataManager.instance.defaultMaxHP;
+        float maxHealth = DataManager.instance.defaultMaxHP;
         if (allStartingStatsWrapper.GetValueForStat(CharacterStat.MAX_HEALTH, out float startingMaxHPBonus))
         {
             maxHealth += startingMaxHPBonus;
         }
 
         // HP Recovery
-        healthRecovery = DataManager.instance.defaultHealthRecovery;
+        float healthRecovery = DataManager.instance.defaultHealthRecovery;
         if (allStartingStatsWrapper.GetValueForStat(CharacterStat.HEALTH_RECOVERY, out float startingHPRecoveryBoost))
         {
             healthRecovery += startingHPRecoveryBoost;
         }
-        timeSinceLastHPRecovery = Time.time;
+
+        healthBar.SetMaxHealth(maxHealth);
+        healthBar.SetHealthRecovery(healthRecovery);
 
         // Armor
         armor = 0;
@@ -537,8 +526,7 @@ public class FrogCharacterController : MonoBehaviour
 
         RunManager.instance.SetExtraLives(revivals, false);
 
-        currentHealth = maxHealth;
-        UpdateHealthBar();
+        healthBar.ResetHealth();
     }
 
     public void ResolvePickedConsumableItem(RunConsumableItemData consumableData)
@@ -562,8 +550,8 @@ public class FrogCharacterController : MonoBehaviour
         armor += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ARMOR).value;
         experienceBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.XP_BOOST).value;
         currencyBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.CURRENCY_BOOST).value;
-        healthRecovery += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.HEALTH_RECOVERY).value;
-        maxHealth += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.MAX_HEALTH).value;
+        healthBar.IncreaseHealthRecovery((float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.HEALTH_RECOVERY).value);
+        healthBar.IncreaseMaxHealth((float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.MAX_HEALTH).value);
 
         revivals += (int)itemLevelData.statUpgrades.GetStatValue(CharacterStat.REVIVAL).value;
         RunManager.instance.SetExtraLives(revivals, true);
@@ -588,15 +576,11 @@ public class FrogCharacterController : MonoBehaviour
         // item and weapon slots
         statItemSlotsCount += (int)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ITEM_SLOT).value;
         weaponSlotsCount += (int)itemLevelData.statUpgrades.GetStatValue(CharacterStat.WEAPON_SLOT).value;
-
-        UpdateHealthBar();
     }
 
     public void Respawn()
     {
-        currentHealth = maxHealth;
-        UpdateHealthBar();
-        invincibilityTime = 1;
+        healthBar.ResetHealth();
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -731,11 +715,12 @@ public class FrogCharacterController : MonoBehaviour
             }
 
             // Compute actual damage
-            float damage = Mathf.Clamp((enemyData.damage * damageFactor) - armor, 0.1f, float.MaxValue);
 
+
+            float damage = Mathf.Clamp((enemyData.damage * damageFactor) - armor, 0.1f, float.MaxValue);
             if (logsVerboseLevel == VerboseLevel.MAXIMAL)
             {
-                Debug.Log("Player - Take damage from " + enemyData.enemyName + ": " + damage.ToString("0.00") + " HP. Current health was: " + currentHealth.ToString("0.00") + " HP; new health is: " + (currentHealth - damage).ToString("0.00") + " HP");
+                Debug.Log("Player - Take damage from " + enemyData.enemyName + ": " + damage.ToString("0.00") + " HP.");
             }
 
             ChangeHealth(-damage);
@@ -748,7 +733,7 @@ public class FrogCharacterController : MonoBehaviour
         {
             isOnLand = false;
         }
-        if (collider.CompareTag("Enemy") && GameManager.instance.isGameRunning && invincibilityTime <= 0)
+        if (collider.CompareTag("Enemy") && GameManager.instance.isGameRunning)
         {
             DealWithEnemyCollision(collider);
         }
@@ -763,7 +748,7 @@ public class FrogCharacterController : MonoBehaviour
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (collision.collider.CompareTag("Enemy") && GameManager.instance.isGameRunning && invincibilityTime <= 0)
+        if (collision.collider.CompareTag("Enemy") && GameManager.instance.isGameRunning)
         {
             DealWithEnemyCollision(collision.collider);
         }
@@ -774,7 +759,7 @@ public class FrogCharacterController : MonoBehaviour
         ChangeHealth((healAmount > 0) ? healAmount : 0);
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
-            Debug.Log("Player - Healing: +" + healAmount + "HP. Current HP is " + currentHealth.ToString("0.00") + " HP, max HP is " + maxHealth.ToString("0.00") + " HP.");
+            Debug.Log("Player - Healing: +" + healAmount + "HP.");
         }
     }
 
@@ -810,43 +795,33 @@ public class FrogCharacterController : MonoBehaviour
 
     private void ChangeHealth(float change)
     {
-        bool deathImminent = (currentHealth < 5);
-
         if (change < 0)
         {
+            // Take damage
+            healthBar.DecreaseHealth(-change);
             TakingDamageEffect();
         }
-
-        currentHealth += change;
-        if (currentHealth >= maxHealth)
+        else if (change > 0)
         {
-            currentHealth = maxHealth;
+            // Heal
+            healthBar.IncreaseHealth(change);
         }
-        if (currentHealth <= 0)
-        {
-            if (deathImminent)
-            {
-                // If frog was low HP and took enough damage to die, then it's game over
-                GameManager.instance.TriggerGameOver();
-            }
-            else
-            {
-                // If frog had enough HP and took enough damage to die, then it's second chance time! 2s invicibility and 0.1 HP left!
-                currentHealth = 0.1f;
-                invincibilityTime = 2;
-            }
-        }
-        UpdateHealthBar();
     }
 
-    private void UpdateHealthBar()
+    private void CheckHealthStatus()
     {
-        float healthRatio = currentHealth / maxHealth;
-        if (healthRatio < 0)
+        if (healthBar.IsDead())
         {
-            healthRatio = 0;
+            GameManager.instance.TriggerGameOver();
         }
-        healthBar.localScale = healthRatio * Vector3.right + healthBar.localScale.y * Vector3.up + healthBar.localScale.z * Vector3.forward;
+        else if (healthBar.IsSuperCritical())
+        {
+            // Super critical health effect (music? UI change?)
+        }
+        else if (healthBar.IsCritical())
+        {
+            // Critical health effect (music? UI change?)
+        }
     }
 
     public void ApplyGodMode(float duration)

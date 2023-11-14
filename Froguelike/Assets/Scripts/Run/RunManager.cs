@@ -685,7 +685,7 @@ private IEnumerator StartChapterAsync()
 
         // Teleport player to starting position
         player.ResetPosition();
-        player.Heal(player.maxHealth);
+        player.healthBar.ResetHealth();
 
         // Clear old map
         MapBehaviour.instance.ClearMap();
