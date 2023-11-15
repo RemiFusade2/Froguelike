@@ -92,7 +92,7 @@ public class CompassArrowBehaviour : MonoBehaviour
 
             if (collectibleTransform != null)
             {
-                collectibleTransform.GetComponent<SuperCollectibleBehaviour>().SetArrowVisibility(!arrowImage.enabled);
+                collectibleTransform.GetComponent<FixedCollectibleBehaviour>().SetArrowVisibility(!arrowImage.enabled);
             }
         }
     }

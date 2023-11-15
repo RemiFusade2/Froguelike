@@ -17,6 +17,22 @@ public class CharacterCount
 }
 
 /// <summary>
+/// FixedCollectibleFound associate a fixed collectible with a boolean.
+/// It is used to store the information about which fixed collectibles have been picked up in a given chapter.
+/// </summary>
+[System.Serializable]
+public class FixedCollectibleFound
+{
+    public string collectibleIdentifier; // We use tile coordinates "X_Y" as identifier
+    public bool hasBeenFoundOnce;
+
+    public static string GetIdentifierFromCoordinates(Vector2Int coordinates)
+    {
+        return $"{coordinates.x}_{coordinates.y}";
+    }
+}
+
+/// <summary>
 /// Chapter describes a chapter in its current state.
 /// It has a reference to ChapterData, the scriptable object that describes the chapter. This is not serialized with the rest.
 /// It keeps the chapterID there for serialization. When saving/loading this chapter from a save file, the ID will be used to retrieve the right chapter in the program.
@@ -40,6 +56,8 @@ public class Chapter
     public List<CharacterCount> attemptCountByCharacters;
     public List<CharacterCount> completionCountByCharacters;
 
+    public List<FixedCollectibleFound> fixedCollectiblesFoundList;
+
     [System.NonSerialized]
     public float weight; // used to decide how likely it is that this chapter will show up in the selection
 
@@ -47,6 +65,7 @@ public class Chapter
     {
         attemptCountByCharacters = new List<CharacterCount>();
         completionCountByCharacters = new List<CharacterCount>();
+        fixedCollectiblesFoundList = new List<FixedCollectibleFound>();
     }
 
     public override bool Equals(object obj)
@@ -740,6 +759,38 @@ public class ChapterManager : MonoBehaviour
         SaveDataManager.instance.isSaveDataDirty = true;
     }
 
+    public bool IsFixedCollectibleShownByCompassInChapter(Chapter chapter, FixedCollectible collectible)
+    {
+        // Get information about the collectible being found
+        FixedCollectibleFound collectibleFound = chapter.fixedCollectiblesFoundList.FirstOrDefault(x => x.collectibleIdentifier.Equals(FixedCollectibleFound.GetIdentifierFromCoordinates(collectible.tileCoordinates)));
+        bool compassShowsCollectible = (collectibleFound != null && collectibleFound.hasBeenFoundOnce);
+
+        if (!compassShowsCollectible)
+        {
+            compassShowsCollectible = (GameManager.instance.GetCompassLevel() >= collectible.compassLevel);
+        }
+
+        return compassShowsCollectible;
+    }
+
+    public void FoundFixedCollectible(Chapter chapter, FixedCollectible collectible)
+    {
+        // Save information about the collectible being found
+        FixedCollectibleFound collectibleFound = chapter.fixedCollectiblesFoundList.FirstOrDefault(x => x.collectibleIdentifier.Equals(FixedCollectibleFound.GetIdentifierFromCoordinates(collectible.tileCoordinates)));
+        if (collectibleFound == null)
+        {
+            // first time this collectible is found
+            collectibleFound = new FixedCollectibleFound() { collectibleIdentifier = FixedCollectibleFound.GetIdentifierFromCoordinates(collectible.tileCoordinates), hasBeenFoundOnce = true };
+            chapter.fixedCollectiblesFoundList.Add(collectibleFound);
+        }
+        else
+        {
+            // This should never happen
+            collectibleFound.hasBeenFoundOnce = true;
+        }
+        SaveDataManager.instance.isSaveDataDirty = true;
+    }
+
     public bool DoesChapterUnlockAnAchievementOrAnUnplayedChapter(Chapter chapter, int chapterCount)
     {
         bool achievementOrUnplayedChapterHasBeenFound = false;
@@ -925,6 +976,7 @@ public class ChapterManager : MonoBehaviour
                 chapter.weight = chapter.chapterData.startingWeight;
                 chapter.attemptCountByCharacters.Clear();
                 chapter.completionCountByCharacters.Clear();
+                chapter.fixedCollectiblesFoundList.Clear();
             }
         }
 
@@ -955,6 +1007,7 @@ public class ChapterManager : MonoBehaviour
                 chapter.unlocked = chapterFromSave.unlocked;
                 chapter.attemptCountByCharacters = new List<CharacterCount>(chapterFromSave.attemptCountByCharacters);
                 chapter.completionCountByCharacters = new List<CharacterCount>(chapterFromSave.completionCountByCharacters);
+                chapter.fixedCollectiblesFoundList = new List<FixedCollectibleFound>(chapterFromSave.fixedCollectiblesFoundList);
             }
         }
     }

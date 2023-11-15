@@ -263,35 +263,25 @@ public class CollectiblesManager : MonoBehaviour
     public void SpawnSuperCollectible(FixedCollectible collectible, Vector2 position)
     {
         GameObject newCollectible = Instantiate(superCollectiblePrefab, position, Quaternion.identity, this.transform);
-        newCollectible.GetComponent<SuperCollectibleBehaviour>().InitializeCollectible(collectible);
+        newCollectible.GetComponent<FixedCollectibleBehaviour>().InitializeCollectible(collectible);
         newCollectible.name = collectible.collectibleType.ToString();
-        RunManager.instance.GetCompassArrowForCollectible(collectible).SetCollectibleTransform(newCollectible.transform);
+        CompassArrowBehaviour compassArrow = RunManager.instance.GetCompassArrowForCollectible(collectible);
+        if (compassArrow != null)
+        {
+            compassArrow.SetCollectibleTransform(newCollectible.transform);
+        }
     }
 
-    public void CollectSuperCollectible(FixedCollectible superCollectible)
+    public void CollectFixedCollectible(FixedCollectible superCollectible)
     {
         RunManager.instance.RemoveCompassArrowForCollectible(superCollectible);
         SoundManager.instance.PlayPickUpCollectibleSound();
-        switch (superCollectible.collectibleType)
-        {
-            case FixedCollectibleType.FRIEND:
-                Vector2 friendPosition = GameManager.instance.player.transform.position;
-                //friendPosition += Random.insideUnitCircle.normalized * 2;
-                FriendsManager.instance.AddActiveFriend(superCollectible.collectibleFriendType, friendPosition);
-                break;
-            case FixedCollectibleType.HAT:
-                GameManager.instance.player.AddHat(superCollectible.collectibleHatType);
-                break;
-            case FixedCollectibleType.STATS_ITEM:
-                RunManager.instance.PickRunItem(superCollectible.collectibleStatItemData);
-                break;
-            case FixedCollectibleType.WEAPON_ITEM:
-                RunManager.instance.PickRunItem(superCollectible.collectibleWeaponItemData);
-                break;
-        }
+
+        RunManager.instance.ShowCollectSuperCollectiblePanel(superCollectible);
+
         if (verboseLevel == VerboseLevel.MAXIMAL)
         {
-            Debug.Log("Collect super collectible: " + superCollectible.collectibleType.ToString());
+            Debug.Log("Collectible Manager - Collect fixed collectible: " + superCollectible.collectibleType.ToString());
         }
     }
 

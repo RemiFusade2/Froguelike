@@ -378,7 +378,6 @@ public class DataManager : MonoBehaviour
         return info;
     }
 
-
     public Sprite GetSpriteForHat(HatType hatType)
     {
         HatInfo info = GetInfoForHat(hatType);

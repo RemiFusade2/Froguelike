@@ -14,8 +14,8 @@ public class ChapterButtonBehaviour : MonoBehaviour
     public GameObject newKeywordGameObject;
 
     [Header("References - Something to unlock")]
-    public GameObject somethingToUnlockIcon;
-    public GameObject somethingToUnlockTooltip;
+    public GameObject chapterCompletedIcon;
+    public GameObject chapterCompletedTooltip;
 
     [Header("References - Icons")]
     public Transform chapterIconsParent;
@@ -25,9 +25,11 @@ public class ChapterButtonBehaviour : MonoBehaviour
 
     public void Initialize(Chapter chapter)
     {
+        // Title and description
         titleTextMesh.SetText(chapter.chapterData.chapterTitle);
         descriptionTextMesh.SetText(chapter.chapterData.chapterLore[0].Replace("\\n", "\n"));
 
+        // "New" keyword if chapter has never been played
         bool isChapterNew = true;
         foreach (CharacterCount count in chapter.attemptCountByCharacters)
         {
@@ -35,10 +37,17 @@ public class ChapterButtonBehaviour : MonoBehaviour
         }
         newKeywordGameObject.SetActive(isChapterNew);
 
-        bool thereIsSomethingToUnlockInStoryline = !isChapterNew && ChapterManager.instance.DoesChapterUnlockAnAchievementOrAnUnplayedChapter(chapter, RunManager.instance.GetChapterCount());
-        somethingToUnlockIcon.SetActive(thereIsSomethingToUnlockInStoryline);
-        somethingToUnlockTooltip.SetActive(false);
+        // "Chapter completed" icon if everything has been found in that chapter + the chapter is not needed in any quest
+        chapterCompletedIcon.SetActive(false);
+        chapterCompletedTooltip.SetActive(false);
+        if (!isChapterNew )
+        {
+            bool thereIsSomethingToUnlockInStoryline = !isChapterNew && ChapterManager.instance.DoesChapterUnlockAnAchievementOrAnUnplayedChapter(chapter, RunManager.instance.GetChapterCount());
+            chapterCompletedIcon.SetActive(!thereIsSomethingToUnlockInStoryline);
+            chapterCompletedTooltip.SetActive(false);
+        }
 
+        // Other icons (deactivated for now)
         int iconCount = 0;
         foreach (Transform iconChild in chapterIconsParent)
         {
@@ -53,6 +62,7 @@ public class ChapterButtonBehaviour : MonoBehaviour
             iconCount++;
         }
 
+        // Make sure all tooltips are off
         foreach (GameObject tooltip in tooltipsList)
         {
             tooltip.SetActive(false);
@@ -67,7 +77,7 @@ public class ChapterButtonBehaviour : MonoBehaviour
         }
         else if (index == -1)
         {
-            somethingToUnlockTooltip.SetActive(active);
+            chapterCompletedTooltip.SetActive(active);
         }
     }
 

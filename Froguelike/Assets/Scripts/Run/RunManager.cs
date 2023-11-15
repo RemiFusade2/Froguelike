@@ -4,6 +4,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Timeline;
 using UnityEngine.UI;
 
 [System.Serializable]
@@ -122,6 +123,18 @@ public class RunManager : MonoBehaviour
     public Button skipButton;
     public TextMeshProUGUI skipCount;
 
+    [Header("References - UI Found Fixed Collectible")]
+    public GameObject fixedCollectibleFoundPanel;
+    public TextMeshProUGUI fixedCollectibleTitleText;
+    public TextMeshProUGUI fixedCollectibleNameText;
+    public Image fixedCollectibleItemIcon;
+    public Image fixedCollectibleFriendIcon;
+    public Image fixedCollectibleHatIcon;
+    [Space]
+    public Button fixedCollectibleAcceptButton;
+    public TextMeshProUGUI fixedCollectibleAcceptText;
+    public TextMeshProUGUI fixedCollectibleRefuseText;
+
     [Header("Settings - In game UI")]
     public Color defaultTextColor;
     public Color highlightedTextColor;
@@ -169,6 +182,10 @@ public class RunManager : MonoBehaviour
     public bool banishesAvailable;
     public bool skipsAvailable;
 
+    [Header("Runtime - Fixed collectible")]
+    public bool fixedCollectibleFoundPanelIsVisible;
+    public FixedCollectible fixedCollectibleInfo;
+
     [Header("Runtime - Compass")]
     public List<CompassArrowBehaviour> compassArrowsList;
 
@@ -195,6 +212,7 @@ public class RunManager : MonoBehaviour
 
     void Start()
     {
+        HideCollectFixedCollectiblePanel();
         InvokeRepeating("UpdateMap", 0.2f, 0.5f);
     }
 
@@ -673,7 +691,7 @@ public class RunManager : MonoBehaviour
         }
     }
 
-private IEnumerator StartChapterAsync()
+    private IEnumerator StartChapterAsync()
     {
         int chapterCount = GetChapterCount();
 
@@ -695,9 +713,12 @@ private IEnumerator StartChapterAsync()
         List<FixedCollectible> fixedCollectiblesList = currentChapter.chapterData.specialCollectiblesOnTheMap;
         foreach (FixedCollectible collectible in fixedCollectiblesList)
         {
-            GameObject arrow = Instantiate(compassArrowPrefab, compassParent);
-            arrow.GetComponent<CompassArrowBehaviour>().SetCollectibleTileCoordinates(collectible.tileCoordinates);
-            compassArrowsList.Add(arrow.GetComponent<CompassArrowBehaviour>());
+            if (ChapterManager.instance.IsFixedCollectibleShownByCompassInChapter(currentChapter, collectible))
+            {
+                GameObject arrow = Instantiate(compassArrowPrefab, compassParent);
+                arrow.GetComponent<CompassArrowBehaviour>().SetCollectibleTileCoordinates(collectible.tileCoordinates);
+                compassArrowsList.Add(arrow.GetComponent<CompassArrowBehaviour>());
+            }
         }
 
         // Create starting tiles
@@ -1340,7 +1361,7 @@ private IEnumerator StartChapterAsync()
                 for (int i = 0; i < DataManager.instance.powerUpFriendsFrenzyAmount; i++)
                 {
                     Vector2 friendPosition = GameManager.instance.player.transform.position;
-                    friendPosition += Random.insideUnitCircle.normalized * 2;                    
+                    friendPosition += Random.insideUnitCircle.normalized * 2;
                     FriendType friendType = (FriendType)Random.Range(0, System.Enum.GetValues(typeof(FriendType)).Length);
                     FriendsManager.instance.AddActiveFriend(friendType, friendPosition, temporary: true, lifespan: DataManager.instance.powerUpFriendsFrenzyLifespan);
                 }
@@ -1387,6 +1408,104 @@ private IEnumerator StartChapterAsync()
             default:
                 break;
         }
+    }
+
+    #endregion
+
+    #region Collect Fixed Collectible
+
+    private void HideCollectFixedCollectiblePanel()
+    {
+        // Hide UI Panel
+        fixedCollectibleFoundPanel.SetActive(false);
+        fixedCollectibleFoundPanelIsVisible = false;
+        fixedCollectibleInfo = null;
+    }
+
+    private void CloseCollectFixedCollectiblePanel()
+    {
+        // Hide UI Panel
+        HideCollectFixedCollectiblePanel();
+
+        // Set Time Scale back to 1
+        GameManager.instance.SetTimeScale(1);
+    }
+    public void CollectFixedCollectible(bool accepted)
+    {
+        if (accepted)
+        {
+            // Pick up Fixed Collectible
+            switch (fixedCollectibleInfo.collectibleType)
+            {
+                case FixedCollectibleType.FRIEND:
+                    Vector2 friendPosition = GameManager.instance.player.transform.position;
+                    FriendsManager.instance.AddActiveFriend(fixedCollectibleInfo.collectibleFriendType, friendPosition);
+                    break;
+                case FixedCollectibleType.HAT:
+                    GameManager.instance.player.AddHat(fixedCollectibleInfo.collectibleHatType);
+                    break;
+                case FixedCollectibleType.STATS_ITEM:
+                    PickRunItem(fixedCollectibleInfo.collectibleStatItemData);
+                    break;
+                case FixedCollectibleType.WEAPON_ITEM:
+                    PickRunItem(fixedCollectibleInfo.collectibleWeaponItemData);
+                    break;
+            }
+        }
+
+        // Close UI panel and unpause the game
+        CloseCollectFixedCollectiblePanel();
+
+        // Unpause sounds
+        SoundManager.instance.UnpauseInGameSounds();
+    }
+    public void ShowCollectSuperCollectiblePanel(FixedCollectible collectibleInfo)
+    {
+        // Set Time Scale back to 0
+        GameManager.instance.SetTimeScale(0);
+
+        // Update info on panel
+        fixedCollectibleTitleText.text = collectibleInfo.foundCollectibleTitle;
+        fixedCollectibleNameText.text = collectibleInfo.collectibleName;
+        fixedCollectibleAcceptText.text = collectibleInfo.acceptCollectibleStr;
+        fixedCollectibleRefuseText.text = collectibleInfo.refuseCollectibleStr;
+        // Update icon
+        fixedCollectibleItemIcon.enabled = false;
+        fixedCollectibleFriendIcon.enabled = false;
+        fixedCollectibleHatIcon.enabled = false;
+        switch (collectibleInfo.collectibleType)
+        {
+            case FixedCollectibleType.FRIEND:
+                fixedCollectibleFriendIcon.enabled = true;
+                fixedCollectibleFriendIcon.sprite = DataManager.instance.GetSpriteForFriend(collectibleInfo.collectibleFriendType);
+                break;
+            case FixedCollectibleType.HAT:
+                fixedCollectibleHatIcon.enabled = true;
+                fixedCollectibleHatIcon.sprite = DataManager.instance.GetSpriteForHat(collectibleInfo.collectibleHatType);
+                break;
+            case FixedCollectibleType.STATS_ITEM:
+                fixedCollectibleItemIcon.enabled = true;
+                fixedCollectibleItemIcon.sprite = collectibleInfo.collectibleStatItemData.icon;
+                break;
+            case FixedCollectibleType.WEAPON_ITEM:
+                fixedCollectibleItemIcon.enabled = true;
+                fixedCollectibleItemIcon.sprite = collectibleInfo.collectibleWeaponItemData.icon;
+                break;
+        }
+
+        // Show UI Panel
+        fixedCollectibleFoundPanel.SetActive(true);
+        fixedCollectibleFoundPanelIsVisible = true;
+        fixedCollectibleInfo = collectibleInfo;
+
+        // Select Accept button by default
+        fixedCollectibleAcceptButton.Select();
+
+        // Stop sounds
+        SoundManager.instance.PauseInGameSounds();
+
+        // Save that data in the save file: this fixed collectible has been found!
+        ChapterManager.instance.FoundFixedCollectible(currentChapter, collectibleInfo);
     }
 
     #endregion
