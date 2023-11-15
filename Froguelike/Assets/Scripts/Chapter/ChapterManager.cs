@@ -791,12 +791,29 @@ public class ChapterManager : MonoBehaviour
         SaveDataManager.instance.isSaveDataDirty = true;
     }
 
+    public bool DoesChapterContainFixedItemsThatHaveNeverBeenFound(Chapter chapter)
+    {
+        bool result = chapter.fixedCollectiblesFoundList.Count() < chapter.chapterData.specialCollectiblesOnTheMap.Count();
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"Chapter Manager - DoesChapterContainFixedItemsThatHaveNeverBeenFound for chapter {chapter.chapterID} returned {result}");
+        }
+
+        return result;
+    }
+
     public bool DoesChapterUnlockAnAchievementOrAnUnplayedChapter(Chapter chapter, int chapterCount)
     {
         bool achievementOrUnplayedChapterHasBeenFound = false;
 
         // check if this chapter is part of a condition for an achievement
         achievementOrUnplayedChapterHasBeenFound = AchievementManager.instance.IsChapterPartOfALockedAchievement(chapter);
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"Chapter Manager - IsChapterPartOfALockedAchievement for chapter {chapter.chapterID} returned {achievementOrUnplayedChapterHasBeenFound}");
+        }
 
         // if it is not, check any chapter that would be added to the deck by playing this one, and call the same method with this new chapter
         if (!achievementOrUnplayedChapterHasBeenFound && chapterCount < 5)
@@ -813,6 +830,8 @@ public class ChapterManager : MonoBehaviour
                             && condition.chapterData.chapterID.Equals(chapter.chapterID))
                         {
                             achievementOrUnplayedChapterHasBeenFound |= DoesChapterUnlockAnAchievementOrAnUnplayedChapter(testedChapter, chapterCount + 1);
+
+                            achievementOrUnplayedChapterHasBeenFound |= DoesChapterContainFixedItemsThatHaveNeverBeenFound(testedChapter);
 
                             bool isChapterNew = true;
                             foreach (CharacterCount count in testedChapter.attemptCountByCharacters)
@@ -837,6 +856,11 @@ public class ChapterManager : MonoBehaviour
                     break;
                 }
             }
+        }
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"Chapter Manager - DoesChapterUnlockAnAchievementOrAnUnplayedChapter for chapter {chapter.chapterID} returned {achievementOrUnplayedChapterHasBeenFound}");
         }
 
         // Stop as soon as we get "true" or through

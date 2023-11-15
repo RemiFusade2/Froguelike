@@ -167,6 +167,8 @@ public class DataManager : MonoBehaviour
     public float defaultMagnetRange = 3.0f;
     public int defaultStatItemSlotCount = 4;
     public int defaultWeaponSlotCount = 4;
+    [Space]
+    public float capturedCollectiblesSpeed = 12;
 
     [Header("Weapon effects colors")]
     public List<WeaponEffectData> allWeaponEffectsDataList;

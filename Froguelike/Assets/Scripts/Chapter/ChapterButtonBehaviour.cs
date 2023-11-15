@@ -42,7 +42,8 @@ public class ChapterButtonBehaviour : MonoBehaviour
         chapterCompletedTooltip.SetActive(false);
         if (!isChapterNew )
         {
-            bool thereIsSomethingToUnlockInStoryline = !isChapterNew && ChapterManager.instance.DoesChapterUnlockAnAchievementOrAnUnplayedChapter(chapter, RunManager.instance.GetChapterCount());
+            bool thereIsSomethingToUnlockInStoryline = ChapterManager.instance.DoesChapterUnlockAnAchievementOrAnUnplayedChapter(chapter, RunManager.instance.GetChapterCount());
+            thereIsSomethingToUnlockInStoryline |= ChapterManager.instance.DoesChapterContainFixedItemsThatHaveNeverBeenFound(chapter);
             chapterCompletedIcon.SetActive(!thereIsSomethingToUnlockInStoryline);
             chapterCompletedTooltip.SetActive(false);
         }

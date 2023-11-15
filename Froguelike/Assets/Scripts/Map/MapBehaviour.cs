@@ -132,7 +132,7 @@ public class MapBehaviour : MonoBehaviour
 
             // In that situation, we just spawn the super collectible and that's it
             // Everything else is already on the treasure tile
-            CollectiblesManager.instance.SpawnSuperCollectible(superCollectibleOnCurrentTile, tileWorldPosition);
+            CollectiblesManager.instance.SpawnFixedCollectible(superCollectibleOnCurrentTile, tileWorldPosition);
         }
         else
         {

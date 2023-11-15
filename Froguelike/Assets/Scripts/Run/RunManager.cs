@@ -648,9 +648,8 @@ public class RunManager : MonoBehaviour
         // Remove enemies on screen
         EnemiesManager.instance.ClearAllEnemies();
 
-        /*
         // Remove collectibles on screen
-        CollectiblesManager.instance.ClearCollectibles();*/
+        CollectiblesManager.instance.ClearAllCollectibles();
 
         // Register a new attempt if this is the first chapter of that run
         if (GetChapterCount() == 1)

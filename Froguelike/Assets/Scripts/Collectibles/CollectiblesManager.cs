@@ -42,12 +42,13 @@ public class CollectiblesManager : MonoBehaviour
 
     [Header("References")]
     public Transform collectiblesParent;
+    public Transform fixedCollectiblesParent;
 
     [Header("Prefabs")]
     [Tooltip("Collectibles, they get magnetized when you walk near them")]
     public GameObject magnetCollectiblePrefab;
     [Tooltip("Collectibles placed at a specific spot on the map, you need to walk onto them to grab them")]
-    public GameObject superCollectiblePrefab;
+    public GameObject fixedCollectiblePrefab;
 
     [Header("Settings - Pooling")]
     public int maxCollectibles = 1000;
@@ -58,7 +59,6 @@ public class CollectiblesManager : MonoBehaviour
     [Header("Settings - Magnet")]
     public float collectibleMinMovingSpeed = 5;
     public float collectibleMaxMovingSpeed = 30;
-    public float collectibleMovingSpeedFactor = 1.5f;
     public float collectMinDistance = 1.5f;
     public float updateAllCollectiblesDelay = 0.1f;
 
@@ -163,6 +163,7 @@ public class CollectiblesManager : MonoBehaviour
     /// </summary>
     public void ClearAllCollectibles()
     {
+        // Clear Magnet collectibles
         capturedCollectiblesQueue.Clear();
         foreach (CollectibleInstance collectible in allCollectibles)
         {
@@ -170,6 +171,12 @@ public class CollectiblesManager : MonoBehaviour
             {
                 PutCollectibleInThePool(collectible);
             }
+        }
+
+        // Clear Fixed collectibles
+        foreach (Transform child in fixedCollectiblesParent)
+        {
+            Destroy(child.gameObject, 0.1f);
         }
     }
 
@@ -258,11 +265,11 @@ public class CollectiblesManager : MonoBehaviour
     }
 
 
-    #region Super Collectibles (not pooled)
+    #region Fixed Collectibles (not pooled)
 
-    public void SpawnSuperCollectible(FixedCollectible collectible, Vector2 position)
+    public void SpawnFixedCollectible(FixedCollectible collectible, Vector2 position)
     {
-        GameObject newCollectible = Instantiate(superCollectiblePrefab, position, Quaternion.identity, this.transform);
+        GameObject newCollectible = Instantiate(fixedCollectiblePrefab, position, Quaternion.identity, fixedCollectiblesParent);
         newCollectible.GetComponent<FixedCollectibleBehaviour>().InitializeCollectible(collectible);
         newCollectible.name = collectible.collectibleType.ToString();
         CompassArrowBehaviour compassArrow = RunManager.instance.GetCompassArrowForCollectible(collectible);
@@ -375,8 +382,7 @@ public class CollectiblesManager : MonoBehaviour
             int collectiblesToUpdateCount = Mathf.Min(capturedCollectiblesQueue.Count, maxCount);
             float distanceWithFrog = 0;
             Vector2 moveDirection;
-            float walkSpeed = DataManager.instance.defaultWalkSpeed * (1 + GameManager.instance.player.GetWalkSpeedBoost());
-            float collectibleMovingSpeed = collectibleMovingSpeedFactor * walkSpeed;
+            float collectibleMovingSpeed = DataManager.instance.capturedCollectiblesSpeed;
             for (int i = 0; i < collectiblesToUpdateCount; i++)
             {
                 if (capturedCollectiblesQueue.TryDequeue(out CollectibleInstance collectible))

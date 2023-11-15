@@ -583,6 +583,16 @@ public class AchievementManager : MonoBehaviour
             bool achievementIsLockedBehindMissingIcon = IsAchievementLockedBehindMissingIcon(achievement);
             bool achievementIsAvailable = IsAchievementAvailable(achievement);
             bool achievementIsLocked = (!newUnlockedAchievementsSoFar.Contains(achievement) && !achievement.unlocked);
+
+            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+            {
+                string log = $"Achievement Manager - isDemoBuildAndAchievementIsNotPartOfDemo for chapter {chapter.chapterID} returned {isDemoBuildAndAchievementIsNotPartOfDemo}\n";
+                log += $"achievementIsLockedBehindMissingIcon for chapter {chapter.chapterID} returned {achievementIsLockedBehindMissingIcon}\n";
+                log += $"achievementIsAvailable for chapter {chapter.chapterID} returned {achievementIsAvailable}\n";
+                log += $"achievementIsLocked for chapter {chapter.chapterID} returned {achievementIsLocked}";
+                Debug.Log(log);
+            }
+
             if (achievementIsLocked && !isDemoBuildAndAchievementIsNotPartOfDemo && !achievementIsLockedBehindMissingIcon && achievementIsAvailable)
             {
                 foreach (AchievementCondition condition in achievement.achievementData.conditionsList)
