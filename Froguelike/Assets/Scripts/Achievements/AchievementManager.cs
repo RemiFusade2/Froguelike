@@ -367,7 +367,7 @@ public class AchievementManager : MonoBehaviour
                                     conditionsAreMet &= (GameManager.instance.gameData.cumulatedScore >= 100000);
                                     break;
                                 case AchievementConditionSpecialKey.GATHER_ALL_FRIENDS:
-                                    conditionsAreMet &= (FriendsManager.instance.HasActiveFriend(FriendType.FROG) && FriendsManager.instance.HasActiveFriend(FriendType.TOAD) && FriendsManager.instance.HasActiveFriend(FriendType.GHOST) && FriendsManager.instance.HasActiveFriend(FriendType.POISONOUS));
+                                    conditionsAreMet &= (FriendsManager.instance.HasPermanentFriend(FriendType.FROG) && FriendsManager.instance.HasPermanentFriend(FriendType.TOAD) && FriendsManager.instance.HasPermanentFriend(FriendType.GHOST) && FriendsManager.instance.HasPermanentFriend(FriendType.POISONOUS));
                                     break;
                                 case AchievementConditionSpecialKey.UNLOCK_10_CHAPTERS:
                                     if (!metaAchievements.Contains(achievement))

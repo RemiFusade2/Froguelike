@@ -301,7 +301,7 @@ public class EnemiesManager : MonoBehaviour
             newEnemy.alive = false;
 
             GameObject firstEnemyPrefab = defaultEnemyPrefab;
-            GameObject enemyGameObject = Instantiate(firstEnemyPrefab, DataManager.instance.farAwayPosition, Quaternion.identity, enemiesParent);
+            GameObject enemyGameObject = Instantiate(firstEnemyPrefab, DataManager.instance.GetFarAwayPosition(), Quaternion.identity, enemiesParent);
 
             newEnemy.enemyTransform = enemyGameObject.transform;
             newEnemy.enemyRenderer = enemyGameObject.GetComponent<SpriteRenderer>();
@@ -320,7 +320,7 @@ public class EnemiesManager : MonoBehaviour
         damageTextsPool = new Queue<GameObject>();
         for (int i = 0; i < maxDamageTexts; i++)
         {
-            GameObject damageText = Instantiate(damageTextPrefab, DataManager.instance.farAwayPosition, Quaternion.identity, damageTextsParent);
+            GameObject damageText = Instantiate(damageTextPrefab, DataManager.instance.GetFarAwayPosition(), Quaternion.identity, damageTextsParent);
             damageTextsPool.Enqueue(damageText);
         }
     }
@@ -828,7 +828,7 @@ public class EnemiesManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
         damageText.GetComponent<MeshRenderer>().enabled = false;
         damageText.GetComponent<Rigidbody2D>().simulated = false;
-        damageText.transform.position = DataManager.instance.farAwayPosition;
+        damageText.transform.position = DataManager.instance.GetFarAwayPosition();
         damageTextsPool.Enqueue(damageText);
     }
 
@@ -1108,7 +1108,7 @@ public class EnemiesManager : MonoBehaviour
         enemy.poisonDamage = 0;
         enemy.enemyTransform.name = pooledEnemyNameStr;
         enemy.active = false;
-        enemy.enemyTransform.position = DataManager.instance.farAwayPosition;
+        enemy.enemyTransform.position = DataManager.instance.GetFarAwayPosition();
         enemy.enemyRenderer.enabled = false;
         enemy.enemyRigidbody.simulated = false;
         enemy.enemyAnimator.enabled = false;

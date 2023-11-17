@@ -108,7 +108,7 @@ public class FrogCharacterController : MonoBehaviour
         isOnLand = true;
         rewiredPlayer = ReInput.players.GetPlayer(playerID);
         playerRigidbody = GetComponent<Rigidbody2D>();
-        FriendsManager.instance.ClearFriends();
+        FriendsManager.instance.ClearAllFriends();
 
         if (GameManager.instance.everythingIsUnlocked)
         {
@@ -313,7 +313,7 @@ public class FrogCharacterController : MonoBehaviour
         transform.localPosition = randomPosition;
         // Teleport friends with you
         Vector2 frogPosition = new Vector2(this.transform.position.x, this.transform.position.y);
-        FriendsManager.instance.SetFriendsInACircleAroundFrog(frogPosition);
+        FriendsManager.instance.PlacePermanentFriendsInACircleAroundFrog(frogPosition);
     }
 
     public void ResetPosition()
@@ -322,7 +322,7 @@ public class FrogCharacterController : MonoBehaviour
         transform.localPosition = Vector3.zero;
         applyGodMode = false;
         Vector2 frogPosition = new Vector2(this.transform.position.x, this.transform.position.y);
-        FriendsManager.instance.SetFriendsInACircleAroundFrog(frogPosition);
+        FriendsManager.instance.PlacePermanentFriendsInACircleAroundFrog(frogPosition);
     }
 
     private void SetAnimatorCharacterValue(int value)

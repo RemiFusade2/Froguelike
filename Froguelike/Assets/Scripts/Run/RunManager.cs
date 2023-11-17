@@ -388,7 +388,7 @@ public class RunManager : MonoBehaviour
         levelUpChoiceIsVisible = false;
 
         // Remove all friends and hats
-        FriendsManager.instance.ClearFriends();
+        FriendsManager.instance.ClearAllFriends();
         player.ClearHats();
 
         // Level and XP
@@ -625,7 +625,7 @@ public class RunManager : MonoBehaviour
         }
 
         // Remove all temporary friends
-        FriendsManager.instance.ClearFriends(onlyTemporary: true);
+        FriendsManager.instance.ClearAllFriends(onlyTemporary: true);
 
         if (completedChaptersList.Count >= maxChaptersInARun)
         {
@@ -928,7 +928,7 @@ public class RunManager : MonoBehaviour
 
                     // Also spawn as many weapons as required
                     int firstSpawnCount = 1;
-                    WeaponStatValue weaponCountStatValue = newWeaponInfo.weaponItemData.weaponData.weaponBaseStats.GetStatValue(WeaponStat.COUNT);
+                    TongueStatValue weaponCountStatValue = newWeaponInfo.weaponItemData.weaponData.weaponBaseStats.GetStatValue(TongueStat.COUNT);
                     if (weaponCountStatValue != null)
                     {
                         firstSpawnCount = Mathf.RoundToInt((float)weaponCountStatValue.value);
@@ -947,7 +947,7 @@ public class RunManager : MonoBehaviour
                     // We already had that weapon, maybe we need to spawn more weapons depending on if this level adds any
                     if (level >= 0 && level < pickedItemData.GetMaxLevelCount())
                     {
-                        WeaponStatValue weaponCountStatValue = (pickedItemData as RunWeaponItemData).weaponBoostLevels[level].weaponStatUpgrades.GetStatValue(WeaponStat.COUNT);
+                        TongueStatValue weaponCountStatValue = (pickedItemData as RunWeaponItemData).weaponBoostLevels[level].weaponStatUpgrades.GetStatValue(TongueStat.COUNT);
                         spawnWeapons = (weaponCountStatValue == null) ? 0 : Mathf.RoundToInt((float)weaponCountStatValue.value);
 
                         // Spawn as many weapons as needed
@@ -1397,7 +1397,7 @@ public class RunManager : MonoBehaviour
             case CollectibleType.POWERUP_TELEPORT:
                 player.TeleportToARandomPosition();
                 EnemiesManager.instance.ClearAllEnemies(true);
-                FriendsManager.instance.ClearFriends(onlyTemporary: true);
+                FriendsManager.instance.ClearAllFriends(onlyTemporary: true);
                 SoundManager.instance.PlayFreezeAllSound();
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                 {
@@ -1464,10 +1464,18 @@ public class RunManager : MonoBehaviour
         GameManager.instance.SetTimeScale(0);
 
         // Update info on panel
-        fixedCollectibleTitleText.text = collectibleInfo.foundCollectibleTitle;
-        fixedCollectibleNameText.text = collectibleInfo.collectibleName;
-        fixedCollectibleAcceptText.text = collectibleInfo.acceptCollectibleStr;
-        fixedCollectibleRefuseText.text = collectibleInfo.refuseCollectibleStr;
+        string foundCollectibleTitle = string.IsNullOrEmpty(collectibleInfo.foundCollectibleTitle) ? DataManager.instance.GetDefaultFoundCollectibleTitle(collectibleInfo) : collectibleInfo.foundCollectibleTitle;
+        fixedCollectibleTitleText.text = foundCollectibleTitle;
+
+        string foundCollectibleName = string.IsNullOrEmpty(collectibleInfo.collectibleName) ? DataManager.instance.GetDefaultFoundCollectibleName(collectibleInfo) : collectibleInfo.collectibleName;
+        fixedCollectibleNameText.text = foundCollectibleName;
+
+        string foundCollectibleAcceptStr = string.IsNullOrEmpty(collectibleInfo.acceptCollectibleStr) ? DataManager.instance.defaultFoundCollectibleAcceptStr : collectibleInfo.acceptCollectibleStr;
+        fixedCollectibleAcceptText.text = foundCollectibleAcceptStr;
+
+        string foundCollectibleRefuseStr = string.IsNullOrEmpty(collectibleInfo.refuseCollectibleStr) ? DataManager.instance.defaultFoundCollectibleRefuseStr : collectibleInfo.refuseCollectibleStr;
+        fixedCollectibleRefuseText.text = foundCollectibleRefuseStr;
+
         // Update icon
         fixedCollectibleItemIcon.enabled = false;
         fixedCollectibleFriendIcon.enabled = false;

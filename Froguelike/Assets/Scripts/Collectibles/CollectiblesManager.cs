@@ -54,13 +54,11 @@ public class CollectiblesManager : MonoBehaviour
     public int maxCollectibles = 1000;
 
     [Header("Settings - Update")]
-    public int updateCollectiblesCount = 100;
+    public int updateCollectiblesCount = 200;
+    public float updateAllCollectiblesDelay = 0.02f;
 
     [Header("Settings - Magnet")]
-    public float collectibleMinMovingSpeed = 5;
-    public float collectibleMaxMovingSpeed = 30;
     public float collectMinDistance = 1.5f;
-    public float updateAllCollectiblesDelay = 0.1f;
 
     [Header("Settings - Spawn")]
     public float collectibleSpawnMinPushForce = 5;
@@ -80,7 +78,16 @@ public class CollectiblesManager : MonoBehaviour
 
     private void Awake()
     {
-        instance = this;
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(this);
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
+
         capturedCollectiblesQueue = new Queue<CollectibleInstance>();
     }
 
@@ -126,7 +133,7 @@ public class CollectiblesManager : MonoBehaviour
             CollectibleInstance collectible = new CollectibleInstance();
             allCollectibles[i] = collectible;
 
-            GameObject collectibleGameObject = Instantiate(magnetCollectiblePrefab, DataManager.instance.farAwayPosition, Quaternion.identity, collectiblesParent);
+            GameObject collectibleGameObject = Instantiate(magnetCollectiblePrefab, DataManager.instance.GetFarAwayPosition(), Quaternion.identity, collectiblesParent);
             collectibleGameObject.name = GetNameFromID(i);
 
             collectible.collectibleTransform = collectibleGameObject.transform;
@@ -145,7 +152,7 @@ public class CollectiblesManager : MonoBehaviour
         collectible.active = false;
         collectible.captured = false;
 
-        collectible.collectibleTransform.position = DataManager.instance.farAwayPosition;
+        collectible.collectibleTransform.position = DataManager.instance.GetFarAwayPosition();
         collectible.collectibleRenderer.enabled = false;
         collectible.collectibleRigidbody.velocity = Vector2.zero;
         collectible.collectibleRigidbody.simulated = false;
@@ -380,7 +387,7 @@ public class CollectiblesManager : MonoBehaviour
             Transform playerTransform = GameManager.instance.player.transform;
 
             int collectiblesToUpdateCount = Mathf.Min(capturedCollectiblesQueue.Count, maxCount);
-            float distanceWithFrog = 0;
+            float distanceWithFrog;
             Vector2 moveDirection;
             float collectibleMovingSpeed = DataManager.instance.capturedCollectiblesSpeed;
             for (int i = 0; i < collectiblesToUpdateCount; i++)
@@ -418,7 +425,6 @@ public class CollectiblesManager : MonoBehaviour
                         else
                         {
                             // Update collectible velocity
-                            collectibleMovingSpeed = Mathf.Clamp(collectibleMovingSpeed, collectibleMinMovingSpeed, collectibleMaxMovingSpeed);
                             collectible.collectibleRigidbody.velocity = moveDirection * collectibleMovingSpeed;
                         }
                     }

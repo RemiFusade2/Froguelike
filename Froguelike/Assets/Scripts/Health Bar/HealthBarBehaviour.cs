@@ -36,7 +36,6 @@ public class HealthBarBehaviour : MonoBehaviour
 
     [Header("Runtime")]
     public float maxHealth;
-    public float armor;
     public float healthRecovery; // Amount of health recovered per second, only if no damage was taken after a delay.
     [Space]
     public float currentHealthShown; // HP bar shows this amount

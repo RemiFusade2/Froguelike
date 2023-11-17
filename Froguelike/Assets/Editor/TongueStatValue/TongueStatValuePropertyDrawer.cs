@@ -5,8 +5,8 @@ using UnityEditor;
 
 #region Property Drawers (custom inspector stuff)
 
-[CustomPropertyDrawer(typeof(WeaponStatValue))]
-public class WeaponStatValueDrawer : PropertyDrawer
+[CustomPropertyDrawer(typeof(TongueStatValue))]
+public class TongueStatValueDrawer : PropertyDrawer
 {
     // Draw the property inside the given rect
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)

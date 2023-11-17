@@ -25,11 +25,11 @@ public class RunWeaponData
 
     [Header("Base settings")]
     [Tooltip("The type of that weapon, is then used in the WeaponBehaviour script to choose that weapon specific behaviour")]
-    public WeaponType weaponType;
+    public TongueType weaponType;
 
     [Header("Base Stats")]
     [Tooltip("Basically represents this weapons stats at level 1")]
-    public WeaponStatsWrapper weaponBaseStats;
+    public TongueStatsWrapper weaponBaseStats;
 }
 
 /// <summary>
@@ -40,7 +40,7 @@ public class RunWeaponItemLevel : RunItemLevel
 {
     [Header("Weapon Boosts")]
     [Tooltip("A list of Weapon Stats that this level improves")]
-    public WeaponStatsWrapper weaponStatUpgrades;
+    public TongueStatsWrapper weaponStatUpgrades;
 }
 
 /// <summary>
