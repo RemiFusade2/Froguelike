@@ -10,7 +10,9 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
     [Header("References")]
     public Button characterButton;
     [Space]
+    public Image characterFrameImage;
     public Image characterBackgroundImage;
+    public Image characterBackgroundAnimationImage;
     [Space]
     public TextMeshProUGUI characterNameText;
     public TextMeshProUGUI characterDescriptionText;
@@ -19,16 +21,22 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
     public Image animationImage;
 
     [Header("UI")]
-    public Sprite characterLockedSprite;
-    public Sprite characterAvailableSprite;
-    public Sprite characterSelectedSprite;
+    public Sprite characterLockedFrameSprite;
+    public Sprite characterAvailableFrameSprite;
+    public Sprite characterSelectedFrameSprite;
     [Space]
     public Color charactersDefaultTextColor;
     public Color charactersHintTextColor;
     [Space]
-    public Color characterLockedAnimationColor;
-    public Color characterAvailableAnimationColor;
-    public Color characterSelectedAnimationColor;
+    public Color characterLockedFrameAnimationColor;
+    public Color characterLockedBackgroundAnimationColor;
+    public Color characterLockedBackgroundColor;
+    public Color characterAvailableFrameAnimationColor;
+    public Color characterAvailableBackgroundAnimationColor;
+    public Color characterAvailableBackgroundColor;
+    public Color characterSelectedFrameAnimationColor;
+    public Color characterSelectedBackgroundAnimationColor;
+    public Color characterSelectedBackgroundColor;
 
     [Header("Scrollview")]
     public ScrollRect scrollView;
@@ -69,8 +77,10 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
             if (character.unlocked)
             {
                 // character is unlocked
-                characterBackgroundImage.sprite = isSelected ? characterSelectedSprite : characterAvailableSprite; // use the corresponding sprite if the character is selected
-                animationImage.color = isSelected ? characterSelectedAnimationColor : characterAvailableAnimationColor; // Set the color for the animation. 
+                characterFrameImage.sprite = isSelected ? characterSelectedFrameSprite : characterAvailableFrameSprite; // use the corresponding sprite if the character is selected
+                characterBackgroundImage.color = isSelected ? characterSelectedBackgroundColor : characterAvailableBackgroundColor;
+                characterBackgroundAnimationImage.color = isSelected ? characterSelectedBackgroundAnimationColor : characterAvailableBackgroundAnimationColor;
+                animationImage.color = isSelected ? characterSelectedFrameAnimationColor : characterAvailableFrameAnimationColor; // Set the color for the animation. 
                 characterNameText.color = charactersDefaultTextColor;
                 characterNameText.text = character.characterData.characterName;
                 characterDescriptionText.color = charactersDefaultTextColor;
@@ -81,8 +91,10 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
             else
             {
                 // character is locked, so display hint to unlock it
-                characterBackgroundImage.sprite = characterLockedSprite;
-                animationImage.color = characterLockedAnimationColor; // Set the color for the animation.
+                characterFrameImage.sprite = characterLockedFrameSprite;
+                characterBackgroundImage.color = characterLockedBackgroundColor;
+                characterBackgroundAnimationImage.color = characterLockedBackgroundAnimationColor;
+                animationImage.color = characterLockedFrameAnimationColor; // Set the color for the animation.
                 characterNameText.color = charactersHintTextColor;
                 characterNameText.text = "???";
                 characterDescriptionText.color = charactersHintTextColor;

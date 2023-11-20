@@ -7,7 +7,7 @@ using TMPro;
 
 public class ResolutionsScrollRect : ScrollRect
 {
-    [Header("Achievements References")]
+    [Header("Resolutions References")]
     public TextMeshProUGUI resolutionsCountTextMesh;
     public GridLayoutGroup resolutionsScrollViewContentGridLayoutGroup;
 
@@ -70,14 +70,13 @@ public class ResolutionsScrollRect : ScrollRect
     {
         ClearScrollView();
         numberOfResolutions = 0;
-        currentDisplayedResolution = currentResolutionIndex + 1; // TODO change this to use the current resolution from settingsmenu script
+        currentDisplayedResolution =  currentResolutionIndex + 1;
         foreach (string resolution in resolutions)
         {
             GameObject newResolutionPanel = Instantiate(resolutionOptionPrefab, this.content);
             newResolutionPanel.GetComponent<ResolutionPanelBehaviour>().Initialize(resolution);
             numberOfResolutions++;
         }
-        // currentDisplayedResolution = 1;
 
         this.content.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, numberOfResolutions * resolutionsScrollViewContentGridLayoutGroup.cellSize.x);
         UpdateScroll(false, currentDisplayedResolution);

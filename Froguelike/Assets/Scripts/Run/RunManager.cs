@@ -1069,14 +1069,18 @@ public class RunManager : MonoBehaviour
         rerollPostit.SetActive(rerollsAvailable);
         rerollButton.interactable = (player.rerolls > 0);
         rerollCount.SetText($"x{player.rerolls}");
+        rerollPostit.GetComponent<CanvasGroup>().blocksRaycasts = (player.rerolls > 0);
+        
 
         banishPostit.SetActive(banishesAvailable);
         banishButton.interactable = (player.banishs > 0);
         banishCount.SetText($"x{player.banishs}");
+        banishPostit.GetComponent<CanvasGroup>().blocksRaycasts = (player.banishs > 0);
 
         skipPostit.SetActive(skipsAvailable);
         skipButton.interactable = (player.skips > 0);
         skipCount.SetText($"x{player.skips}");
+        skipPostit.GetComponent<CanvasGroup>().blocksRaycasts = (player.skips > 0);
     }
 
     public void ShowLevelUpItemSelection(List<RunItemData> possibleItems, List<int> itemLevels)
