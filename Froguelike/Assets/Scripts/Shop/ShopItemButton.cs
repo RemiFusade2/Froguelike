@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
 
-public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandler
+public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandler, IDeselectHandler
 {
     [Header("References")]
     public TextMeshProUGUI itemNameText;
@@ -19,6 +19,7 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
     [Space]
     public Button buyButton;
     public TextMeshProUGUI priceText;
+    public Animator animator;
     [Space]
     public GameObject soldOutImage;
 
@@ -59,7 +60,7 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
 
         for (int i = 0; i < item.maxLevel; i++)
         {
-            bool levelIsBought= i < item.currentLevel;
+            bool levelIsBought = i < item.currentLevel;
 
             GameObject levelBox = Instantiate(levelPrefab, levelPanelParent);
             levelBox.transform.GetChild(1).GetComponent<Image>().sprite = levelIsBought ? levelBoughtSprite : null;
@@ -78,7 +79,7 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
         thisRT = GetComponent<RectTransform>();
         itemPanelTransform = transform.parent;
     }
-    
+
     public void OnSelect(BaseEventData eventData)
     {
         SoundManager.instance.PlayButtonSound(buyButton);
@@ -94,6 +95,11 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
     public void OnPointerEnter(PointerEventData eventData)
     {
         buyButton.Select();
+    }
+
+    public void OnDeselect(BaseEventData eventData)
+    {
+        animator.SetTrigger("Normal");
     }
 
     private IEnumerator ScrollButtonIntoViewAsync()

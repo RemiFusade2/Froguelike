@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
 
-public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerEnterHandler
+public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerEnterHandler, IDeselectHandler
 {
     [Header("References")]
     public Button characterButton;
@@ -128,6 +128,10 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
     public void OnPointerEnter(PointerEventData eventData)
     {
         characterButton.Select();
+    }
+    public void OnDeselect(BaseEventData eventData)
+    {
+        characterButton.GetComponent<Animator>().SetTrigger("Normal");
     }
 
     private IEnumerator ScrollButtonIntoViewAsync()
