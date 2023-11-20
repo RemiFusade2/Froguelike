@@ -19,7 +19,7 @@ public class TongueLineRendererBehaviour : MonoBehaviour
     private List<Collider2D> tongueColliderComponentsList;
 
     private List<Vector2> tonguePositionsList;
-    private List<WeaponEffect> tongueEffectsList;
+    private List<TongueEffect> tongueEffectsList;
 
     private Vector3 originFrogWhenInitialized;
 
@@ -62,7 +62,7 @@ public class TongueLineRendererBehaviour : MonoBehaviour
     public void ResetLine()
     {
         tonguePositionsList = new List<Vector2>();
-        tongueEffectsList = new List<WeaponEffect>();
+        tongueEffectsList = new List<TongueEffect>();
         followTarget = false;
         targetGameObject = null;
         originFrogWhenInitialized = Vector3.zero;
@@ -119,7 +119,7 @@ public class TongueLineRendererBehaviour : MonoBehaviour
     /// <param name="newPositions"></param>
     /// <param name="newEffects"></param>
     /// <param name="targetedEnemy"></param>
-    public void InitializeTongue(List<Vector2> newPositions, List<WeaponEffect> newEffects, GameObject targetedEnemy = null)
+    public void InitializeTongue(List<Vector2> newPositions, List<TongueEffect> newEffects, GameObject targetedEnemy = null)
     {
         tonguePositionsList = newPositions;
         tongueEffectsList = newEffects;
@@ -135,9 +135,9 @@ public class TongueLineRendererBehaviour : MonoBehaviour
         DisplayTongue(0);
     }
 
-    public WeaponEffect GetEffectFromCollider(Collider2D collider)
+    public TongueEffect GetEffectFromCollider(Collider2D collider)
     {
-        WeaponEffect effect = WeaponEffect.NONE;
+        TongueEffect effect = TongueEffect.NONE;
         float colT = 0;
         float minColT = 0;
         float minDistance = float.MaxValue;
@@ -215,7 +215,7 @@ public class TongueLineRendererBehaviour : MonoBehaviour
         List<GradientColorKey> colorKeys = new List<GradientColorKey>();
         List<GradientAlphaKey> alphaKeys = new List<GradientAlphaKey>();
         int effectIndex = 0;
-        WeaponEffect previousEffect = tongueEffectsList[effectIndex];
+        TongueEffect previousEffect = tongueEffectsList[effectIndex];
         colorKeys.Add(new GradientColorKey(DataManager.instance.GetColorForWeaponEffect(previousEffect), 0));
         alphaKeys.Add(new GradientAlphaKey(1, 0));
 

@@ -43,7 +43,7 @@ public class PauseScreen : MonoBehaviour
         }
 
         int nrOfFriends = FriendsManager.instance.transform.childCount;
-        foreach (FriendInstance friend in FriendsManager.instance.activeFriends)
+        foreach (FriendInstance friend in FriendsManager.instance.permanentFriendsList)
         {
             if (thingSlot >= thingSlotsParent.childCount) break;
             thingSlotsParent.GetChild(thingSlot).GetComponentInChildren<SpriteRenderer>().sprite = friend.Info.sprite;

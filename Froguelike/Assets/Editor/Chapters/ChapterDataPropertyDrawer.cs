@@ -128,76 +128,146 @@ public class FixedCollectibleDrawer : PropertyDrawer
         // Using BeginProperty / EndProperty on the parent property means that prefab override logic works on the entire property.
         EditorGUI.BeginProperty(position, label, property);
 
-        // Coordinates first
-        {
-            float labelWidth = 100;
-            Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
-            Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
-            EditorGUI.LabelField(labelRect, new GUIContent("Tile coordinates:"));
-            EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("tileCoordinates"), GUIContent.none);
-        }
-        position.y += EditorGUIUtility.singleLineHeight;
+        float alignWidth = 140;
 
-        // Tile prefab
+        // Tile
         {
-            float labelWidth = 100;
-            Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
-            Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
-            EditorGUI.LabelField(labelRect, new GUIContent("Tile prefab:"));
-            EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("tilePrefab"), GUIContent.none);
-        }
-        position.y += EditorGUIUtility.singleLineHeight;
+            // Tile Coordinates
+            {
+                float labelWidth = alignWidth;
+                Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+                Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+                EditorGUI.LabelField(labelRect, new GUIContent("Tile coordinates:"));
+                EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("tileCoordinates"), GUIContent.none);
+            }
+            position.y += EditorGUIUtility.singleLineHeight;
 
-        // Then type of collectible
-        {
-            float labelWidth = 100;
-            Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
-            Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
-            EditorGUI.LabelField(labelRect, new GUIContent("Collectible type:"));
-            EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("collectibleType"), GUIContent.none);
+            // Tile prefab
+            {
+                float labelWidth = alignWidth;
+                Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+                Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+                EditorGUI.LabelField(labelRect, new GUIContent("Tile prefab:"));
+                EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("tilePrefab"), GUIContent.none);
+            }
+            position.y += EditorGUIUtility.singleLineHeight;
         }
-        position.y += EditorGUIUtility.singleLineHeight;
+        position.y += EditorGUIUtility.singleLineHeight; // Add some space
 
-        // Then depending on type, feed the data for the right collectible type
-        var collectibleType = property.FindPropertyRelative("collectibleType");
-        if (collectibleType.enumValueFlag == (int)FixedCollectibleType.FRIEND)
+        // Collectible
         {
-            float labelWidth = 100;
-            Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
-            Rect dataRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
-            EditorGUI.LabelField(labelRect, new GUIContent("Friend:"));
-            EditorGUI.PropertyField(dataRect, property.FindPropertyRelative("collectibleFriendType"), GUIContent.none);
+            // Name of collectible
+            {
+                float labelWidth = alignWidth;
+                Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+                Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+                EditorGUI.LabelField(labelRect, new GUIContent("Collectible name:"));
+                EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("collectibleName"), GUIContent.none);
+            }
+            position.y += EditorGUIUtility.singleLineHeight;
+
+            // Type of collectible
+            {
+                float labelWidth = alignWidth;
+                Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+                Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+                EditorGUI.LabelField(labelRect, new GUIContent("Collectible type:"));
+                EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("collectibleType"), GUIContent.none);
+            }
+            position.y += EditorGUIUtility.singleLineHeight;
+
+            // Depending on type, feed the data for the right collectible type
+            var collectibleType = property.FindPropertyRelative("collectibleType");
+            if (collectibleType.enumValueFlag == (int)FixedCollectibleType.FRIEND)
+            {
+                float labelWidth = alignWidth;
+                Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+                Rect dataRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+                EditorGUI.LabelField(labelRect, new GUIContent("Friend:"));
+                EditorGUI.PropertyField(dataRect, property.FindPropertyRelative("collectibleFriendType"), GUIContent.none);
+            }
+            else if (collectibleType.enumValueFlag == (int)FixedCollectibleType.HAT)
+            {
+                float labelWidth = alignWidth;
+                Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+                Rect dataRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+                EditorGUI.LabelField(labelRect, new GUIContent("Hat:"));
+                EditorGUI.PropertyField(dataRect, property.FindPropertyRelative("collectibleHatType"), GUIContent.none);
+            }
+            else if (collectibleType.enumValueFlag == (int)FixedCollectibleType.STATS_ITEM)
+            {
+                float labelWidth = alignWidth;
+                Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+                Rect dataRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+                EditorGUI.LabelField(labelRect, new GUIContent("Stat Item:"));
+                EditorGUI.PropertyField(dataRect, property.FindPropertyRelative("collectibleStatItemData"), GUIContent.none);
+            }
+            else if (collectibleType.enumValueFlag == (int)FixedCollectibleType.WEAPON_ITEM)
+            {
+                float labelWidth = alignWidth;
+                Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+                Rect dataRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+                EditorGUI.LabelField(labelRect, new GUIContent("Weapon Item:"));
+                EditorGUI.PropertyField(dataRect, property.FindPropertyRelative("collectibleWeaponItemData"), GUIContent.none);
+            }
+            position.y += EditorGUIUtility.singleLineHeight;
+
         }
-        else if (collectibleType.enumValueFlag == (int)FixedCollectibleType.HAT)
+        position.y += EditorGUIUtility.singleLineHeight; // Add some space
+
+        // UI
         {
-            float labelWidth = 100;
-            Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
-            Rect dataRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
-            EditorGUI.LabelField(labelRect, new GUIContent("Hat:"));
-            EditorGUI.PropertyField(dataRect, property.FindPropertyRelative("collectibleHatType"), GUIContent.none);
+            // Then Title when collectible is found
+            {
+                float labelWidth = alignWidth;
+                Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+                Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+                EditorGUI.LabelField(labelRect, new GUIContent("Collectible found title:"));
+                EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("foundCollectibleTitle"), GUIContent.none);
+            }
+            position.y += EditorGUIUtility.singleLineHeight;
+
+            // Accept collectible text
+            {
+                float labelWidth = alignWidth;
+                Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+                Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+                EditorGUI.LabelField(labelRect, new GUIContent("Accept Collectible text:"));
+                EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("acceptCollectibleStr"), GUIContent.none);
+            }
+            position.y += EditorGUIUtility.singleLineHeight;
+
+            // Refuse collectible text
+            {
+                float labelWidth = alignWidth;
+                Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+                Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+                EditorGUI.LabelField(labelRect, new GUIContent("Refuse Collectible text:"));
+                EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("refuseCollectibleStr"), GUIContent.none);
+            }
+            position.y += EditorGUIUtility.singleLineHeight;
         }
-        else if (collectibleType.enumValueFlag == (int)FixedCollectibleType.STATS_ITEM)
+        position.y += EditorGUIUtility.singleLineHeight; // Add some space
+
+        // Compass
         {
-            float labelWidth = 100;
-            Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
-            Rect dataRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
-            EditorGUI.LabelField(labelRect, new GUIContent("Stat Item:"));
-            EditorGUI.PropertyField(dataRect, property.FindPropertyRelative("collectibleStatItemData"), GUIContent.none);
+            // Compass Level
+            {
+                float labelWidth = alignWidth;
+                Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+                Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+                EditorGUI.LabelField(labelRect, new GUIContent("Compass Level:"));
+                EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("compassLevel"), GUIContent.none);
+            }
+
         }
-        else if (collectibleType.enumValueFlag == (int)FixedCollectibleType.WEAPON_ITEM)
-        {
-            float labelWidth = 100;
-            Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
-            Rect dataRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
-            EditorGUI.LabelField(labelRect, new GUIContent("Weapon Item:"));
-            EditorGUI.PropertyField(dataRect, property.FindPropertyRelative("collectibleWeaponItemData"), GUIContent.none);
-        }
+
         EditorGUI.EndProperty();
     }
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
-        int numberOfLines = 4;
+        int numberOfLines = 13;
         return numberOfLines * EditorGUIUtility.singleLineHeight;
     }
 }

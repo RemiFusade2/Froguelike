@@ -82,7 +82,7 @@ public class MapBehaviour : MonoBehaviour
         }
     }
 
-    private bool GetSpawnPosition(Vector2Int tileCoordinates, out Vector2 spawnPosition)
+    private bool GetRandomSpawnPositionOnTile(Vector2Int tileCoordinates, out Vector2 spawnPosition)
     {
         spawnPosition = Vector2.zero;
         
@@ -132,7 +132,7 @@ public class MapBehaviour : MonoBehaviour
 
             // In that situation, we just spawn the super collectible and that's it
             // Everything else is already on the treasure tile
-            CollectiblesManager.instance.SpawnSuperCollectible(superCollectibleOnCurrentTile, tileWorldPosition);
+            CollectiblesManager.instance.SpawnFixedCollectible(superCollectibleOnCurrentTile, tileWorldPosition);
         }
         else
         {
@@ -164,7 +164,7 @@ public class MapBehaviour : MonoBehaviour
             float currencyAmount = Mathf.Floor(currencyProba) + ((Random.Range(Mathf.Floor(currencyProba), Mathf.Ceil(currencyProba)) < currencyProba) ? 1 : 0);
             for (int i = 0; i < currencyAmount; i++)
             {
-                if (GetSpawnPosition(tileCoordinates, out Vector2 position))
+                if (GetRandomSpawnPositionOnTile(tileCoordinates, out Vector2 position))
                 {
                     int chapterMultiplicator = 1; // RunManager.instance.completedChaptersList.Count + 1;
                     int bonusValue = chapterMultiplicator * 10;
@@ -178,7 +178,7 @@ public class MapBehaviour : MonoBehaviour
             float healthAmount = Mathf.Floor(healthProba) + ((Random.Range(Mathf.Floor(healthProba), Mathf.Ceil(healthProba)) < healthProba) ? 1 : 0);
             for (int i = 0; i < healthAmount; i++)
             {
-                if (GetSpawnPosition(tileCoordinates, out Vector2 position))
+                if (GetRandomSpawnPositionOnTile(tileCoordinates, out Vector2 position))
                 {
                     CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.HEALTH, 200);
                 }
@@ -190,7 +190,7 @@ public class MapBehaviour : MonoBehaviour
             float levelUpAmount = Mathf.Floor(levelUpProba) + ((Random.Range(Mathf.Floor(levelUpProba), Mathf.Ceil(levelUpProba)) < levelUpProba) ? 1 : 0);
             for (int i = 0; i < levelUpAmount; i++)
             {
-                if (GetSpawnPosition(tileCoordinates, out Vector2 position))
+                if (GetRandomSpawnPositionOnTile(tileCoordinates, out Vector2 position))
                 {
                     CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.LEVEL_UP, 1);
                 }
@@ -204,7 +204,7 @@ public class MapBehaviour : MonoBehaviour
                 float powerUpAmount = Mathf.Floor(powerUpProba) + ((Random.Range(Mathf.Floor(powerUpProba), Mathf.Ceil(powerUpProba)) < powerUpProba) ? 1 : 0);
                 for (int i = 0; i < powerUpAmount; i++)
                 {
-                    if (GetSpawnPosition(tileCoordinates, out Vector2 position))
+                    if (GetRandomSpawnPositionOnTile(tileCoordinates, out Vector2 position))
                     {
                         CollectiblesManager.instance.SpawnCollectible(position, collectibleSpawnFrequency.Type, 1);
                     }

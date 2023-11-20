@@ -42,25 +42,23 @@ public class CollectiblesManager : MonoBehaviour
 
     [Header("References")]
     public Transform collectiblesParent;
+    public Transform fixedCollectiblesParent;
 
     [Header("Prefabs")]
     [Tooltip("Collectibles, they get magnetized when you walk near them")]
     public GameObject magnetCollectiblePrefab;
     [Tooltip("Collectibles placed at a specific spot on the map, you need to walk onto them to grab them")]
-    public GameObject superCollectiblePrefab;
+    public GameObject fixedCollectiblePrefab;
 
     [Header("Settings - Pooling")]
     public int maxCollectibles = 1000;
 
     [Header("Settings - Update")]
-    public int updateCollectiblesCount = 100;
+    public int updateCollectiblesCount = 200;
+    public float updateAllCollectiblesDelay = 0.02f;
 
     [Header("Settings - Magnet")]
-    public float collectibleMinMovingSpeed = 5;
-    public float collectibleMaxMovingSpeed = 30;
-    public float collectibleMovingSpeedFactor = 1.5f;
     public float collectMinDistance = 1.5f;
-    public float updateAllCollectiblesDelay = 0.1f;
 
     [Header("Settings - Spawn")]
     public float collectibleSpawnMinPushForce = 5;
@@ -80,7 +78,16 @@ public class CollectiblesManager : MonoBehaviour
 
     private void Awake()
     {
-        instance = this;
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(this);
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
+
         capturedCollectiblesQueue = new Queue<CollectibleInstance>();
     }
 
@@ -126,7 +133,7 @@ public class CollectiblesManager : MonoBehaviour
             CollectibleInstance collectible = new CollectibleInstance();
             allCollectibles[i] = collectible;
 
-            GameObject collectibleGameObject = Instantiate(magnetCollectiblePrefab, DataManager.instance.farAwayPosition, Quaternion.identity, collectiblesParent);
+            GameObject collectibleGameObject = Instantiate(magnetCollectiblePrefab, DataManager.instance.GetFarAwayPosition(), Quaternion.identity, collectiblesParent);
             collectibleGameObject.name = GetNameFromID(i);
 
             collectible.collectibleTransform = collectibleGameObject.transform;
@@ -145,7 +152,7 @@ public class CollectiblesManager : MonoBehaviour
         collectible.active = false;
         collectible.captured = false;
 
-        collectible.collectibleTransform.position = DataManager.instance.farAwayPosition;
+        collectible.collectibleTransform.position = DataManager.instance.GetFarAwayPosition();
         collectible.collectibleRenderer.enabled = false;
         collectible.collectibleRigidbody.velocity = Vector2.zero;
         collectible.collectibleRigidbody.simulated = false;
@@ -163,6 +170,7 @@ public class CollectiblesManager : MonoBehaviour
     /// </summary>
     public void ClearAllCollectibles()
     {
+        // Clear Magnet collectibles
         capturedCollectiblesQueue.Clear();
         foreach (CollectibleInstance collectible in allCollectibles)
         {
@@ -170,6 +178,12 @@ public class CollectiblesManager : MonoBehaviour
             {
                 PutCollectibleInThePool(collectible);
             }
+        }
+
+        // Clear Fixed collectibles
+        foreach (Transform child in fixedCollectiblesParent)
+        {
+            Destroy(child.gameObject, 0.1f);
         }
     }
 
@@ -258,40 +272,30 @@ public class CollectiblesManager : MonoBehaviour
     }
 
 
-    #region Super Collectibles (not pooled)
+    #region Fixed Collectibles (not pooled)
 
-    public void SpawnSuperCollectible(FixedCollectible collectible, Vector2 position)
+    public void SpawnFixedCollectible(FixedCollectible collectible, Vector2 position)
     {
-        GameObject newCollectible = Instantiate(superCollectiblePrefab, position, Quaternion.identity, this.transform);
-        newCollectible.GetComponent<SuperCollectibleBehaviour>().InitializeCollectible(collectible);
+        GameObject newCollectible = Instantiate(fixedCollectiblePrefab, position, Quaternion.identity, fixedCollectiblesParent);
+        newCollectible.GetComponent<FixedCollectibleBehaviour>().InitializeCollectible(collectible);
         newCollectible.name = collectible.collectibleType.ToString();
-        RunManager.instance.GetCompassArrowForCollectible(collectible).SetCollectibleTransform(newCollectible.transform);
+        CompassArrowBehaviour compassArrow = RunManager.instance.GetCompassArrowForCollectible(collectible);
+        if (compassArrow != null)
+        {
+            compassArrow.SetCollectibleTransform(newCollectible.transform);
+        }
     }
 
-    public void CollectSuperCollectible(FixedCollectible superCollectible)
+    public void CollectFixedCollectible(FixedCollectible superCollectible)
     {
         RunManager.instance.RemoveCompassArrowForCollectible(superCollectible);
         SoundManager.instance.PlayPickUpCollectibleSound();
-        switch (superCollectible.collectibleType)
-        {
-            case FixedCollectibleType.FRIEND:
-                Vector2 friendPosition = GameManager.instance.player.transform.position;
-                //friendPosition += Random.insideUnitCircle.normalized * 2;
-                FriendsManager.instance.AddActiveFriend(superCollectible.collectibleFriendType, friendPosition);
-                break;
-            case FixedCollectibleType.HAT:
-                GameManager.instance.player.AddHat(superCollectible.collectibleHatType);
-                break;
-            case FixedCollectibleType.STATS_ITEM:
-                RunManager.instance.PickRunItem(superCollectible.collectibleStatItemData);
-                break;
-            case FixedCollectibleType.WEAPON_ITEM:
-                RunManager.instance.PickRunItem(superCollectible.collectibleWeaponItemData);
-                break;
-        }
+
+        RunManager.instance.ShowCollectSuperCollectiblePanel(superCollectible);
+
         if (verboseLevel == VerboseLevel.MAXIMAL)
         {
-            Debug.Log("Collect super collectible: " + superCollectible.collectibleType.ToString());
+            Debug.Log("Collectible Manager - Collect fixed collectible: " + superCollectible.collectibleType.ToString());
         }
     }
 
@@ -383,10 +387,9 @@ public class CollectiblesManager : MonoBehaviour
             Transform playerTransform = GameManager.instance.player.transform;
 
             int collectiblesToUpdateCount = Mathf.Min(capturedCollectiblesQueue.Count, maxCount);
-            float distanceWithFrog = 0;
+            float distanceWithFrog;
             Vector2 moveDirection;
-            float walkSpeed = DataManager.instance.defaultWalkSpeed * (1 + GameManager.instance.player.GetWalkSpeedBoost());
-            float collectibleMovingSpeed = collectibleMovingSpeedFactor * walkSpeed;
+            float collectibleMovingSpeed = DataManager.instance.capturedCollectiblesSpeed;
             for (int i = 0; i < collectiblesToUpdateCount; i++)
             {
                 if (capturedCollectiblesQueue.TryDequeue(out CollectibleInstance collectible))
@@ -422,7 +425,6 @@ public class CollectiblesManager : MonoBehaviour
                         else
                         {
                             // Update collectible velocity
-                            collectibleMovingSpeed = Mathf.Clamp(collectibleMovingSpeed, collectibleMinMovingSpeed, collectibleMaxMovingSpeed);
                             collectible.collectibleRigidbody.velocity = moveDirection * collectibleMovingSpeed;
                         }
                     }

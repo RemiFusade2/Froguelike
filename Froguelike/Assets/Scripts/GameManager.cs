@@ -24,6 +24,8 @@ public class GameSaveData : SaveData
     public long availableCurrency;
     public long totalSpentCurrency;
 
+    public int compassLevel;
+
     public GameSaveData()
     {
         Reset();
@@ -40,6 +42,7 @@ public class GameSaveData : SaveData
         wins = 0;
         availableCurrency = 0;
         totalSpentCurrency = 0;
+        compassLevel = 0;
     }
 
     public override string ToString()
@@ -51,7 +54,8 @@ public class GameSaveData : SaveData
         result += "attempts = " + attempts.ToString() + "\n";
         result += "wins = " + wins.ToString() + "\n";
         result += "availableCurrency = " + availableCurrency.ToString() + "\n";
-        result += "totalSpentCurrency = " + totalSpentCurrency.ToString();
+        result += "totalSpentCurrency = " + totalSpentCurrency.ToString() + "\n";
+        result += "compassLevel = " + compassLevel.ToString();
         return result;
     }
 }
@@ -331,5 +335,10 @@ public class GameManager : MonoBehaviour
     {
         gameData = saveData;
         UIManager.instance.UpdateCurrencyDisplay();
+    }
+
+    public int GetCompassLevel()
+    {
+        return gameData.compassLevel;
     }
 }

@@ -17,10 +17,10 @@ public enum VerboseLevel
 }
 
 /// <summary>
-/// WeaponEffect will be used as a mask, as a weapon could have multiple of these effects at the same time.
+/// TongueEffect will be used as a mask, as a tongue could have multiple of these effects at the same time.
 /// </summary>
 [System.Serializable]
-public enum WeaponEffect
+public enum TongueEffect
 {
     NONE = 0,
     VAMPIRE = 1,
@@ -30,9 +30,9 @@ public enum WeaponEffect
 }
 
 [System.Serializable]
-public struct WeaponEffectData
+public struct TongueEffectData
 {
-    public WeaponEffect effect;
+    public TongueEffect effect;
     public Color color;
 }
 
@@ -45,23 +45,23 @@ public enum RunItemType
 }
 
 /// <summary>
-/// An Enum for each weapon in the game.
-/// Most weapon work with a "case by case" implementation. 
-/// So this type will be used in the code to check how that specific weapon would behave, or to spawn the right weapon prefab.
+/// An Enum for each tongue in the game.
+/// Most tongue work with a "case by case" implementation. 
+/// So this type will be used in the code to check how that specific tongue would behave.
 /// </summary>
 [System.Serializable]
-public enum WeaponType
+public enum TongueType
 {
     CLASSIC, // target nearest, medium range, medium damage, no special
-    QUICK, // target nearest, shorter, super fast, low damage, low cooldown. Upgrade to zero cooldown and triple tongue.
-    WIDE, // target nearest, wider than usual, shorter, more damage
-    ROTATING, // rotates around, medium range, low damage, upgrade to double
+    QUICK, // target nearest, shorter, super fast, low damage, low cooldown. Upgrade to zero cooldown.
+    WIDE, // target nearest and continue after first hit, wider than usual, more damage
+    ROTATING, // rotates around, medium range, low damage, upgrade to have multiple
     VAMPIRE, // target nearest, medium range, low damage, heal when damage. RED
     POISON, // target nearest, low range, medium damage, poison damage during a delay after hit. GREEN
-    FREEZE, // target nearest, high range, low damage, slow down enemies. BLUE
+    FREEZE, // target nearest, high range, low damage, stop enemies. BLUE
     CURSED, // target nearest, medium range, high damage, high speed, make enemies faster. PURPLE OR ORANGE
-    RANDOM, // target random direction, high range, high damage, medium speed. Random effect and random color
-    CAT // target nearest, SUPER WIDE, shorter, TONS OF DAMAGE
+    RANDOM, // target random direction, high range, high damage, medium speed. Random effects and random colors
+    CAT // target in front of frog, SUPER WIDE, shorter, TONS OF DAMAGE
 }
 
 /// <summary>
@@ -91,10 +91,16 @@ public class FriendInfo
 {
     public FriendType friendType;
 
-    public GameObject prefab;
-
     public Sprite sprite;
     public int style; // for animator
+
+    // Rigidbody:
+    public float Mass;
+    public float LinearDrag;
+
+    // Tongue type and base stats
+    public TongueType tongueType;
+    public TongueStatsWrapper tongueBaseStats;
 
     public float hopForce;
     public float timeBetweenDirectionChange;
@@ -129,7 +135,7 @@ public class CharacterStatNameAndRelevantData
 [System.Serializable]
 public class WeaponStatNameAndRelevantData
 {
-    public WeaponStat stat;
+    public TongueStat stat;
     public string shortName;
     public string longName;
     public string unit;
@@ -167,9 +173,11 @@ public class DataManager : MonoBehaviour
     public float defaultMagnetRange = 3.0f;
     public int defaultStatItemSlotCount = 4;
     public int defaultWeaponSlotCount = 4;
+    [Space]
+    public float capturedCollectiblesSpeed = 12;
 
     [Header("Weapon effects colors")]
-    public List<WeaponEffectData> allWeaponEffectsDataList;
+    public List<TongueEffectData> allWeaponEffectsDataList;
 
     [Header("Stats info")]
     public List<CharacterStatNameAndRelevantData> characterStatsDataList;
@@ -201,6 +209,16 @@ public class DataManager : MonoBehaviour
     public Sprite achievementLockedDefaultSprite;
     public Sprite achievementUnlockedDefaultSprite;
 
+    [Header("Fixed collectibles UI Strings")]
+    public string defaultFoundCollectibleItemTitle = "You found";
+    public string defaultFoundCollectibleFriendTitle = "You met";
+    [Space]
+    public string defaultFoundCollectibleItemName = "A thing";
+    public string defaultFoundCollectibleFriendName = "A smol frend";
+    [Space]
+    public string defaultFoundCollectibleAcceptStr = "Accept";
+    public string defaultFoundCollectibleRefuseStr = "Refuse";
+
     [Header("Magnet collectibles Sprites")]
     public List<CollectibleInfo> magnetCollectiblesIconsList;
 
@@ -213,11 +231,12 @@ public class DataManager : MonoBehaviour
     [Header("Chapter Icons")]
     public List<ChapterIconData> chapterIconsList;
 
-    [Header("Useful")]
-    public Vector3 farAwayPosition;
 
 
-    private Dictionary<WeaponEffect, Color> weaponEffectColorDico;
+
+    private Vector3 farAwayPosition;
+
+    private Dictionary<TongueEffect, Color> weaponEffectColorDico;
     private Dictionary<HatType, HatInfo> hatsDictionary;
     private Dictionary<FriendType, FriendInfo> friendsDictionary;
     private Dictionary<Sprite, ChapterIconData> chapterIconsDictionary;
@@ -308,15 +327,15 @@ public class DataManager : MonoBehaviour
         return probability;
     }
 
-    public Color GetColorForWeaponEffect(WeaponEffect effect)
+    public Color GetColorForWeaponEffect(TongueEffect effect)
     {
         return weaponEffectColorDico[effect];
     }
 
     private void InitializeData()
     {
-        weaponEffectColorDico = new Dictionary<WeaponEffect, Color>();
-        foreach (WeaponEffectData weaponEffectData in allWeaponEffectsDataList)
+        weaponEffectColorDico = new Dictionary<TongueEffect, Color>();
+        foreach (TongueEffectData weaponEffectData in allWeaponEffectsDataList)
         {
             weaponEffectColorDico.Add(weaponEffectData.effect, weaponEffectData.color);
         }
@@ -378,7 +397,6 @@ public class DataManager : MonoBehaviour
         return info;
     }
 
-
     public Sprite GetSpriteForHat(HatType hatType)
     {
         HatInfo info = GetInfoForHat(hatType);
@@ -421,7 +439,7 @@ public class DataManager : MonoBehaviour
         return resultSprite;
     }
 
-    public bool TryGetStatData(WeaponStat stat, out string shortName, out string longName, out string unit, out bool usePercent)
+    public bool TryGetStatData(TongueStat stat, out string shortName, out string longName, out string unit, out bool usePercent)
     {
         bool statDataExists = false;
         WeaponStatNameAndRelevantData statData = weaponStatsDataList.FirstOrDefault(x => x.stat.Equals(stat));
@@ -467,5 +485,19 @@ public class DataManager : MonoBehaviour
     public CollectibleInfo GetCollectibleInfoFromName(string collectibleName)
     {
         return magnetCollectiblesIconsList.Where(x => x.Name.Equals(collectibleName)).FirstOrDefault();
+    }
+
+    public string GetDefaultFoundCollectibleTitle(FixedCollectible collectibleInfo)
+    {
+        return (collectibleInfo.collectibleType == FixedCollectibleType.FRIEND) ? defaultFoundCollectibleFriendTitle : defaultFoundCollectibleItemTitle;
+    }
+    public string GetDefaultFoundCollectibleName(FixedCollectible collectibleInfo)
+    {
+        return (collectibleInfo.collectibleType == FixedCollectibleType.FRIEND) ? defaultFoundCollectibleFriendName : defaultFoundCollectibleItemName;
+    }
+
+    public Vector3 GetFarAwayPosition()
+    {
+        return farAwayPosition;
     }
 }

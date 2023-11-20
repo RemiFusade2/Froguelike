@@ -367,7 +367,7 @@ public class AchievementManager : MonoBehaviour
                                     conditionsAreMet &= (GameManager.instance.gameData.cumulatedScore >= 100000);
                                     break;
                                 case AchievementConditionSpecialKey.GATHER_ALL_FRIENDS:
-                                    conditionsAreMet &= (FriendsManager.instance.HasActiveFriend(FriendType.FROG) && FriendsManager.instance.HasActiveFriend(FriendType.TOAD) && FriendsManager.instance.HasActiveFriend(FriendType.GHOST) && FriendsManager.instance.HasActiveFriend(FriendType.POISONOUS));
+                                    conditionsAreMet &= (FriendsManager.instance.HasPermanentFriend(FriendType.FROG) && FriendsManager.instance.HasPermanentFriend(FriendType.TOAD) && FriendsManager.instance.HasPermanentFriend(FriendType.GHOST) && FriendsManager.instance.HasPermanentFriend(FriendType.POISONOUS));
                                     break;
                                 case AchievementConditionSpecialKey.UNLOCK_10_CHAPTERS:
                                     if (!metaAchievements.Contains(achievement))
@@ -583,6 +583,16 @@ public class AchievementManager : MonoBehaviour
             bool achievementIsLockedBehindMissingIcon = IsAchievementLockedBehindMissingIcon(achievement);
             bool achievementIsAvailable = IsAchievementAvailable(achievement);
             bool achievementIsLocked = (!newUnlockedAchievementsSoFar.Contains(achievement) && !achievement.unlocked);
+
+            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+            {
+                string log = $"Achievement Manager - isDemoBuildAndAchievementIsNotPartOfDemo for chapter {chapter.chapterID} returned {isDemoBuildAndAchievementIsNotPartOfDemo}\n";
+                log += $"achievementIsLockedBehindMissingIcon for chapter {chapter.chapterID} returned {achievementIsLockedBehindMissingIcon}\n";
+                log += $"achievementIsAvailable for chapter {chapter.chapterID} returned {achievementIsAvailable}\n";
+                log += $"achievementIsLocked for chapter {chapter.chapterID} returned {achievementIsLocked}";
+                Debug.Log(log);
+            }
+
             if (achievementIsLocked && !isDemoBuildAndAchievementIsNotPartOfDemo && !achievementIsLockedBehindMissingIcon && achievementIsAvailable)
             {
                 foreach (AchievementCondition condition in achievement.achievementData.conditionsList)

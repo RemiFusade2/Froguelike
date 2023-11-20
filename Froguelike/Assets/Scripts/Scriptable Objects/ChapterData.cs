@@ -114,10 +114,11 @@ public class FixedCollectible
 {
     [Tooltip("The coordinates (integers, can be negative) of the Tile where this Collectible will appear")]
     public Vector2Int tileCoordinates;
-
     [Tooltip("Prefab for the tile where the collectible will appear (in the center)")]
     public GameObject tilePrefab;
 
+    [Tooltip("The name of this collectible")]
+    public string collectibleName;
     [Tooltip("The type of collectible")]
     public FixedCollectibleType collectibleType;
 
@@ -136,6 +137,16 @@ public class FixedCollectible
     // In case the collectible is a friend
     [Tooltip("The Friend in question")]
     public FriendType collectibleFriendType;
+
+    [Tooltip("The title when this collectible is found")]
+    public string foundCollectibleTitle;
+    [Tooltip("What appears as text if you want to accept this collectible")]
+    public string acceptCollectibleStr;
+    [Tooltip("What appears as text if you want to refuse this collectible")]
+    public string refuseCollectibleStr;
+
+    [Tooltip("How high level your compass must be to show that item")]
+    public int compassLevel;
 }
 
 

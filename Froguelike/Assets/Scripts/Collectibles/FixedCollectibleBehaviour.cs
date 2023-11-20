@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SuperCollectibleBehaviour : MonoBehaviour
+public class FixedCollectibleBehaviour : MonoBehaviour
 {
     [Header("References")]
     public SpriteRenderer collectibleRenderer;
@@ -26,7 +26,7 @@ public class SuperCollectibleBehaviour : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            CollectiblesManager.instance.CollectSuperCollectible(collectibleInfo);
+            CollectiblesManager.instance.CollectFixedCollectible(collectibleInfo);
             Destroy(this.gameObject);
         }
     }
