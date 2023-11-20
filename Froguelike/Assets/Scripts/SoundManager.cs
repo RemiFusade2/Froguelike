@@ -254,6 +254,24 @@ public class SoundManager : MonoBehaviour
         }
     }
 
+    public void PlayButtonSound(Scrollbar scrollbar)
+    {
+        if (scrollbar.interactable)
+        {
+            buttonAudioSource.volume = ModifyVolume(buttonVolume);
+            buttonAudioSource.PlayOneShot(buttonSound);
+        }
+    }
+
+    public void PlayButtonSound(Slider slider)
+    {
+        if (slider.interactable)
+        {
+            buttonAudioSource.volume = ModifyVolume(buttonVolume);
+            buttonAudioSource.PlayOneShot(buttonSound);
+        }
+    }
+
     public void PlayLongPageSound()
     {
         pageLongAudioSource.volume = ModifyVolume(pageLongVolume);

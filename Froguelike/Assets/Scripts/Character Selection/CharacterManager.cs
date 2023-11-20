@@ -94,6 +94,7 @@ public class CharacterManager : MonoBehaviour
     public RectTransform statsListGridLayoutGroup;
     public ScrollRect statsListScrollRect;
     public ScrollbarKeepCursorSizeBehaviour statListScrollbar;
+    public GameObject hideShopStats;
 
     [Header("UI Prefab")]
     public GameObject characterPanelPrefab;
@@ -270,12 +271,9 @@ public class CharacterManager : MonoBehaviour
         // Select first character by default
         SelectCharacter(defaultCharacter);
 
-        characterListScrollbar.SetCursorCentered(buttonCount <= 3);
-        if (buttonCount > 3)
-        {
-            // Enough buttons to scroll. Set the cursor up top.
-            characterListScrollRect.verticalScrollbar.value = 0;
-        }
+        // Set the cursor to the top.
+        characterListScrollRect.verticalScrollbar.value = 0;
+
         statsListScrollRect.verticalScrollbar.value = 0; // Cursor up top on the stat list
 
         // Scroll to the top of the lists
@@ -417,6 +415,9 @@ public class CharacterManager : MonoBehaviour
         float buttonHeight = statsListGridLayoutGroupComponent.cellSize.y + statsListGridLayoutGroupComponent.spacing.y;
         float padding = statsListGridLayoutGroupComponent.padding.top + statsListGridLayoutGroupComponent.padding.bottom;
         statsListContent.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, lineCount * buttonHeight + padding);
+
+        // Hide shop if it isn't unlocked yet.
+        hideShopStats.SetActive(!ShopManager.instance.IsShopUnlocked());
     }
 
 
