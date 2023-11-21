@@ -49,8 +49,7 @@ public class UIManager : MonoBehaviour
     public GameObject selectedButtonSettingsScreen;
 
     [Header("Credits")]
-    public GameObject creditsScreen;
-    public GameObject selectedButtonCreditsScreen;
+    public CreditsScreenBehaviour creditsScreen;
 
     #endregion
 
@@ -190,7 +189,7 @@ public class UIManager : MonoBehaviour
         shopScreen.SetActive(false);
         achievementsScreen.SetActive(false);
         settingsScreen.SetActive(false);
-        creditsScreen.SetActive(false);
+        creditsScreen.gameObject.SetActive(false);
     }
 
     public void UpdateDemoLimitationSticker()
@@ -519,13 +518,13 @@ public class UIManager : MonoBehaviour
     {
         SavePreviousSelectedButton();
         SetScreenInteractability(menuButtonsGroup, false);
-        creditsScreen.SetActive(true);
-        SetSelectedButton(selectedButtonCreditsScreen);
+        creditsScreen.Reset();
+        creditsScreen.gameObject.SetActive(true);
     }
 
     public void HideCreditsScreen()
     {
-        creditsScreen.SetActive(false);
+        creditsScreen.gameObject.SetActive(false);
         SetScreenInteractability(menuButtonsGroup, true);
         SetPreviousSelectedButton();
     }
