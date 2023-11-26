@@ -8,7 +8,7 @@ public class PauseScreen : MonoBehaviour
 {
     public RunManager runManager;
 
-    public SpriteRenderer characterImage;
+    public Image characterImage;
     public TextMeshProUGUI characterNameText;
     public Transform thingSlotsParent;
     public TextMeshProUGUI chapterText;
@@ -26,39 +26,53 @@ public class PauseScreen : MonoBehaviour
     {
         // Character image.
         characterImage.sprite = runManager.currentPlayedCharacter.characterData.characterSprite;
+        characterImage.SetNativeSize();
 
         // Character name.
         characterNameText.SetText(runManager.currentPlayedCharacter.characterData.characterName);
 
         // Hats + friends
         int thingSlot = 0;
+        Image thingSlotImage;
 
         int nrOfHats = runManager.player.hatsParent.childCount;
         for (int hat = 0; hat < nrOfHats; hat++)
         {
             if (thingSlot >= thingSlotsParent.childCount) break;
-            thingSlotsParent.GetChild(thingSlot).GetComponentInChildren<SpriteRenderer>().sprite = runManager.player.hatsParent.GetComponentsInChildren<SpriteRenderer>()[hat].sprite;
-            thingSlot++;
 
+            thingSlotImage = thingSlotsParent.GetChild(thingSlot).GetComponentInChildren<Image>();
+            thingSlotImage.sprite = runManager.player.hatsParent.GetComponentsInChildren<SpriteRenderer>()[hat].sprite;
+            thingSlotImage.SetNativeSize();
+            thingSlotImage.gameObject.SetActive(true);
+
+            thingSlot++;
         }
 
         int nrOfFriends = FriendsManager.instance.transform.childCount;
         foreach (FriendInstance friend in FriendsManager.instance.permanentFriendsList)
         {
             if (thingSlot >= thingSlotsParent.childCount) break;
-            thingSlotsParent.GetChild(thingSlot).GetComponentInChildren<SpriteRenderer>().sprite = friend.Info.sprite;
+
+            thingSlotsParent.GetChild(thingSlot).transform.GetChild(0).gameObject.SetActive(true);
+            thingSlotImage = thingSlotsParent.GetChild(thingSlot).GetComponentInChildren<Image>();
+            thingSlotImage.sprite = friend.Info.sprite;
+            thingSlotImage.SetNativeSize();
+
             thingSlot++;
         }
 
-        for (int friend = 0; friend < nrOfFriends; friend++)
-        {         
-            
-        }
-
-
         while (thingSlot < thingSlotsParent.childCount)
         {
-            thingSlotsParent.GetChild(thingSlot).GetComponentInChildren<SpriteRenderer>().sprite = null;
+            thingSlotImage = thingSlotsParent.GetChild(thingSlot).GetComponentInChildren<Image>();
+            if (thingSlotImage != null)
+            {
+                thingSlotImage.gameObject.SetActive(false);
+            }
+            else
+            {
+                break;
+            }
+
             thingSlot++;
         }
 
