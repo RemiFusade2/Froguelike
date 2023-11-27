@@ -1040,6 +1040,19 @@ public class RunManager : MonoBehaviour
         }
     }
 
+    public void BanishLevelUpItemSelection()
+    {
+        if (player.banishs > 0)
+        {
+            player.banishs--;
+            UpdateRerollBanishSkipPostIts();
+            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log("Use banish on level up item selection");
+            }
+        }
+    }
+
     public void LevelUP()
     {
         levelUpChoiceIsVisible = true;
@@ -1072,7 +1085,6 @@ public class RunManager : MonoBehaviour
         rerollCount.SetText($"x{player.rerolls}");
         rerollPostit.GetComponent<CanvasGroup>().blocksRaycasts = (player.rerolls > 0);
         
-
         banishPostit.SetActive(banishesAvailable);
         banishButton.interactable = (player.banishs > 0);
         banishCount.SetText($"x{player.banishs}");
