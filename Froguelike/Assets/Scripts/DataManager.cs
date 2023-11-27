@@ -201,8 +201,9 @@ public class DataManager : MonoBehaviour
     public float powerUpPoisonDuration = 10;
     public float powerUpCurseDuration = 10;
     public float powerUpGodModeDuration = 10;
-    public int powerUpFriendsFrenzyAmount = 20;
-    public float powerUpFriendsFrenzyLifespan = 10;
+    public int powerUpFriendsFrenzyAmount = 100;
+    public float powerUpFriendsFrenzyLifespan = 15;
+    public float powerUpFriendsFrenzySpawnDistanceFromPlayer = 30;
 
     [Header("Sprites")]
     public Sprite collectibleDefaultSprite;

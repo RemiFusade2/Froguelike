@@ -332,6 +332,10 @@ public class EnemiesManager : MonoBehaviour
 
     #endregion
 
+    public bool IsGlobalFreezeActive()
+    {
+        return applyGlobalFreeze;
+    }
 
     /// <summary>
     /// Returns a random spawn position around the player and in the direction of its movement.
@@ -1259,10 +1263,7 @@ public class EnemiesManager : MonoBehaviour
 
     private void SetEnemyVelocity(EnemyInstance enemy, float updateDeltaTime)
     {
-        float angle = -Vector2.SignedAngle(enemy.moveDirection, Vector2.right);
-        float roundedAngle = -90 + Mathf.RoundToInt(angle / 90) * 90;
-        enemy.enemyTransform.rotation = Quaternion.Euler(0, 0, roundedAngle);
-
+        // Set speed factor
         float changeSpeedFactor = 1;
         if (enemy.freezeRemainingTime > 0 || applyGlobalFreeze)
         {
@@ -1275,6 +1276,15 @@ public class EnemiesManager : MonoBehaviour
             enemy.enemyRigidbody.mass = 1000;
         }
 
+        if (changeSpeedFactor > 0)
+        {
+            // Set orientation
+            float angle = -Vector2.SignedAngle(enemy.moveDirection, Vector2.right);
+            float roundedAngle = -90 + Mathf.RoundToInt(angle / 90) * 90;
+            enemy.enemyTransform.rotation = Quaternion.Euler(0, 0, roundedAngle);
+        }
+
+        // Set speed
         float actualSpeed = GetEnemyDataFromGameObjectName(enemy.enemyTransform.name, out BountyBug bountyBug).moveSpeed * changeSpeedFactor * enemy.movePattern.speedFactor;
         actualSpeed = Mathf.Clamp(actualSpeed, 0, 30);
         enemy.enemyRigidbody.velocity = enemy.moveDirection * actualSpeed;

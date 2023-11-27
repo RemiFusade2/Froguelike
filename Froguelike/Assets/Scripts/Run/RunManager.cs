@@ -127,6 +127,7 @@ public class RunManager : MonoBehaviour
     public GameObject fixedCollectibleFoundPanel;
     public TextMeshProUGUI fixedCollectibleTitleText;
     public TextMeshProUGUI fixedCollectibleNameText;
+    public TextMeshProUGUI fixedCollectibleBonusText;
     public Image fixedCollectibleItemIcon;
     public Image fixedCollectibleFriendIcon;
     public Image fixedCollectibleHatIcon;
@@ -1359,12 +1360,12 @@ public class RunManager : MonoBehaviour
                 }
                 break;
             case CollectibleType.POWERUP_FRIENDSFRENZY:
-                // Spawn 20 friends of any type around the frog
+                // Spawn a bunch of friends of any type around the frog
                 // They will behave as "temporary friends" = stick around for a short time and then wander away
                 for (int i = 0; i < DataManager.instance.powerUpFriendsFrenzyAmount; i++)
                 {
                     Vector2 friendPosition = GameManager.instance.player.transform.position;
-                    friendPosition += Random.insideUnitCircle.normalized * 2;
+                    friendPosition += Random.insideUnitCircle.normalized * DataManager.instance.powerUpFriendsFrenzySpawnDistanceFromPlayer;
                     FriendType friendType = (FriendType)Random.Range(0, System.Enum.GetValues(typeof(FriendType)).Length);
                     FriendsManager.instance.AddActiveFriend(friendType, friendPosition, temporary: true, lifespan: DataManager.instance.powerUpFriendsFrenzyLifespan);
                 }
@@ -1473,6 +1474,16 @@ public class RunManager : MonoBehaviour
 
         string foundCollectibleName = string.IsNullOrEmpty(collectibleInfo.collectibleName) ? DataManager.instance.GetDefaultFoundCollectibleName(collectibleInfo) : collectibleInfo.collectibleName;
         fixedCollectibleNameText.text = foundCollectibleName;
+
+        fixedCollectibleBonusText.text = "";
+        if (collectibleInfo.collectibleType == FixedCollectibleType.WEAPON_ITEM || collectibleInfo.collectibleType == FixedCollectibleType.STATS_ITEM)
+        {
+            //TODO
+            string lvl = "MAX";
+            string stat = "Armor";
+            string statBonusValue = "0.5";
+            fixedCollectibleBonusText.text = $"(Lvl {lvl}: {stat} +{statBonusValue})";
+        }
 
         string foundCollectibleAcceptStr = string.IsNullOrEmpty(collectibleInfo.acceptCollectibleStr) ? DataManager.instance.defaultFoundCollectibleAcceptStr : collectibleInfo.acceptCollectibleStr;
         fixedCollectibleAcceptText.text = foundCollectibleAcceptStr;

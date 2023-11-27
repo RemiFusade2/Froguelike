@@ -8,7 +8,7 @@ using static Rewired.ComponentControls.Effects.RotateAroundAxis;
 public class CreditsScreenBehaviour : MonoBehaviour
 {
     [Header("References")]
-    public GameObject SelectedButtonCreditsScreen;
+    public GameObject SelectedGameObjectCreditsScreen;
     public ScrollRect scrollRect;
     public RectTransform contentRect;
     public ScrollbarKeepCursorSizeBehaviour keepCursorSizeBehaviour;
@@ -29,7 +29,7 @@ public class CreditsScreenBehaviour : MonoBehaviour
         keepCursorSizeBehaviour.SetCursorCentered(false);
 
         //  Select button that must be selected by default
-        UIManager.instance.SetSelectedButton(SelectedButtonCreditsScreen);
+        UIManager.instance.SetSelectedButton(SelectedGameObjectCreditsScreen);
 
         // Scroll up
         //keepCursorSizeBehaviour.SetValue(1); 
