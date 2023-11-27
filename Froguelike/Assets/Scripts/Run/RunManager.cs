@@ -182,6 +182,9 @@ public class RunManager : MonoBehaviour
     public bool rerollsAvailable;
     public bool banishesAvailable;
     public bool skipsAvailable;
+    [Space]
+    public List<RunItemData> banishedItemsList;
+    public bool isUsingBanishForCurrentItemSelection;
 
     [Header("Runtime - Fixed collectible")]
     public bool fixedCollectibleFoundPanelIsVisible;
@@ -332,6 +335,9 @@ public class RunManager : MonoBehaviour
         {
             Debug.Log("Run Manager - Start a new Run with character: " + character.characterID);
         }
+
+        // Remove banished items
+        banishedItemsList.Clear();
 
         // Stop playing any looped sound
         SoundManager.instance.StopAllLoops();
@@ -982,9 +988,29 @@ public class RunManager : MonoBehaviour
     public void ChooseLevelUpChoice(int index)
     {
         RunItemData pickedItem = selectionOfPossibleRunItemsList[index];
-        PickRunItem(pickedItem);
+
+        if (isUsingBanishForCurrentItemSelection) 
+        {
+            // This item was chosen to be BANISHED
+            BanishRunItem(pickedItem);
+        }
+        else
+        {
+            // This item was chosen to be PICKED
+            PickRunItem(pickedItem);
+        }
 
         CloseLevelUp();
+    }
+
+    public bool IsRunItemBanished(RunItemData runItemData)
+    {
+        return banishedItemsList.Contains(runItemData);
+    }
+
+    public void BanishRunItem(RunItemData pickedItemData)
+    {
+        banishedItemsList.Add(pickedItemData);
     }
 
     private void RandomLevelUpItemSelection()
@@ -1046,6 +1072,12 @@ public class RunManager : MonoBehaviour
         {
             player.banishs--;
             UpdateRerollBanishSkipPostIts();
+            SetRerollBanishSkipPostItsEnable(false);
+            isUsingBanishForCurrentItemSelection = true;
+
+            // Default select first item
+            UIManager.instance.SetSelectedButton(levelUpChoicesPanels[0]);
+
             if (logsVerboseLevel == VerboseLevel.MAXIMAL)
             {
                 Debug.Log("Use banish on level up item selection");
@@ -1055,6 +1087,7 @@ public class RunManager : MonoBehaviour
 
     public void LevelUP()
     {
+        isUsingBanishForCurrentItemSelection = false;
         levelUpChoiceIsVisible = true;
         level++;
         GameManager.instance.SetTimeScale(0);
@@ -1094,6 +1127,16 @@ public class RunManager : MonoBehaviour
         skipButton.interactable = (player.skips > 0);
         skipCount.SetText($"x{player.skips}");
         skipPostit.GetComponent<CanvasGroup>().blocksRaycasts = (player.skips > 0);
+    }
+
+    private void SetRerollBanishSkipPostItsEnable(bool enabled)
+    {
+        rerollButton.interactable = enabled;
+        banishButton.interactable = enabled;
+        skipButton.interactable = enabled;
+        rerollPostit.GetComponent<CanvasGroup>().blocksRaycasts = enabled;
+        banishPostit.GetComponent<CanvasGroup>().blocksRaycasts = enabled;
+        skipPostit.GetComponent<CanvasGroup>().blocksRaycasts = enabled;
     }
 
     public void ShowLevelUpItemSelection(List<RunItemData> possibleItems, List<int> itemLevels)
@@ -1205,6 +1248,9 @@ public class RunManager : MonoBehaviour
 
             index++;
         }
+
+        // Default select first item
+        UIManager.instance.SetSelectedButton(levelUpChoicesPanels[0]);
     }
 
     #endregion

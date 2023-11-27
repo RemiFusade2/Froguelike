@@ -681,6 +681,8 @@ MonoBehaviour:
   rerollsAvailable: 1
   banishesAvailable: 0
   skipsAvailable: 0
+  banishedItemsList: []
+  isUsingBanishForCurrentItemSelection: 0
   fixedCollectibleFoundPanelIsVisible: 0
   fixedCollectibleInfo:
     tileCoordinates: {x: 0, y: 0}
@@ -15228,10 +15230,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 905985176}
     - target: {fileID: 4919826508944035819, guid: abeb0f41db396bd45a4db2a535d395f8, type: 3}
-      propertyPath: logsVerboseLevel
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4919826508944035819, guid: abeb0f41db396bd45a4db2a535d395f8, type: 3}
       propertyPath: shopPanelContainer
       value: 
       objectReference: {fileID: 818835337}
@@ -15239,18 +15237,6 @@ PrefabInstance:
       propertyPath: availableCurrencyText
       value: 
       objectReference: {fileID: 759443635}
-    - target: {fileID: 4919826508944035819, guid: abeb0f41db396bd45a4db2a535d395f8, type: 3}
-      propertyPath: availableItemDataList.Array.size
-      value: 18
-      objectReference: {fileID: 0}
-    - target: {fileID: 4919826508944035819, guid: abeb0f41db396bd45a4db2a535d395f8, type: 3}
-      propertyPath: availableItemDataList.Array.data[16]
-      value: 
-      objectReference: {fileID: 11400000, guid: 4597d34c223954f4b9bb091f0f3fb27b, type: 2}
-    - target: {fileID: 4919826508944035819, guid: abeb0f41db396bd45a4db2a535d395f8, type: 3}
-      propertyPath: availableItemDataList.Array.data[17]
-      value: 
-      objectReference: {fileID: 11400000, guid: e3394454313df294c82d6d2227d2072c, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: abeb0f41db396bd45a4db2a535d395f8, type: 3}
 --- !u!114 &1063019153 stripped

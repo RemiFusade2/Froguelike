@@ -371,7 +371,7 @@ public class CharacterManager : MonoBehaviour
         for (int i = 0; i < statValues.Length; i++)
         {
             CharacterStat stat = (CharacterStat)i;
-            if (stat != CharacterStat.ATK_SPECIAL_DURATION_BOOST && stat != CharacterStat.ATK_SPECIAL_STRENGTH_BOOST && stat != CharacterStat.BANISH && stat != CharacterStat.ATK_DURATION_BOOST) // we don't show these stats anymore
+            if (stat != CharacterStat.ATK_SPECIAL_DURATION_BOOST && stat != CharacterStat.ATK_SPECIAL_STRENGTH_BOOST && stat != CharacterStat.ATK_DURATION_BOOST) // we don't show these stats anymore
             {
                 GameObject statLineGo = Instantiate(statLinePrefab, statsListGridLayoutGroup);
                 CharacterStatLine statLineScript = statLineGo.GetComponent<CharacterStatLine>();

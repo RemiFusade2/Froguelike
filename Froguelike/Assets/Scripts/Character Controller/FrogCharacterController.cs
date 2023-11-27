@@ -703,11 +703,14 @@ public class FrogCharacterController : MonoBehaviour
 
         float damageCooldown = 1.0f;
         bool enemyCanInflictDamage = (enemy != null); // Enemy exists
-        enemyCanInflictDamage &= enemy.active && enemy.alive; // Enemy is active and alive
-        enemyCanInflictDamage &= (Time.time - enemy.lastDamageInflictedTime) >= damageCooldown; // This enemy didn't do damage for a while
-        enemyCanInflictDamage &= !applyGodMode; // God mode is off
-        enemyCanInflictDamage &= !EnemiesManager.instance.IsGlobalFreezeActive(); // Global freeze is off
-        enemyCanInflictDamage &= (enemy.freezeRemainingTime <= 0); // This enemy is not frozen
+        if (enemyCanInflictDamage)
+        {
+            enemyCanInflictDamage &= enemy.active && enemy.alive; // Enemy is active and alive
+            enemyCanInflictDamage &= (Time.time - enemy.lastDamageInflictedTime) >= damageCooldown; // This enemy didn't do damage for a while
+            enemyCanInflictDamage &= !applyGodMode; // God mode is off
+            enemyCanInflictDamage &= !EnemiesManager.instance.IsGlobalFreezeActive(); // Global freeze is off
+            enemyCanInflictDamage &= (enemy.freezeRemainingTime <= 0); // This enemy is not frozen
+        }
         if (enemyCanInflictDamage)
         {
             // This enemy can inflict damage now

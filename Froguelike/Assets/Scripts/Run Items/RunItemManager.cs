@@ -86,6 +86,7 @@ public class RunItemManager : MonoBehaviour
     /// An item can show up under certain conditions:
     /// - if it is already owned and not maxed out
     /// - if not, if it is unlocked and if there's room for it
+    /// An item doesn't show up if it was banished during the run
     /// </summary>
     /// <param name="minimumItemCount">The minimum number of items we need in that pool</param>
     /// <returns></returns>
@@ -106,6 +107,13 @@ public class RunItemManager : MonoBehaviour
         {
             // Get the corresponding data
             RunItemData itemData = runItemDataDictionary[itemSaveInfo.itemName];
+
+            if (RunManager.instance.IsRunItemBanished(itemData))
+            {
+                continue;
+            }
+
+            // Unlocked
             bool unlocked = itemSaveInfo.unlocked;
             if (GameManager.instance.thingsWithMissingSpritesAreHidden && itemData.icon == null)
             {
