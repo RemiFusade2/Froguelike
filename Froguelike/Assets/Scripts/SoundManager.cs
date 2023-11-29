@@ -35,33 +35,33 @@ public class SoundManager : MonoBehaviour
     [field: Header("Audio Clips")]
     [field: SerializeField] public EventReference buttonSound { get; private set; }
     [Range(0, 1)] public float buttonVolume = 1;
-    public AudioClip deathSound;
+    [field: SerializeField] public EventReference deathSound { get; private set; }
     [Range(0, 1)] public float deathVolume = 1;
-    public AudioClip pageLongSound;
+    [field: SerializeField] public EventReference pageLongSound { get; private set; }
     [Range(0, 1)] public float pageLongVolume = 1;
-    public AudioClip pageShortSound;
+    [field: SerializeField] public EventReference pageShortSound { get; private set; }
     [Range(0, 1)] public float pageShortVolume = 1;
-    public AudioClip slideBookSound;
+    [field: SerializeField] public EventReference slideBookSound { get; private set; }
     [Range(0, 1)] public float slideBookVolume = 1;
 
     public AudioClip takeDamageSound;
     [Range(0, 1)] public float takeDamageVolume = 1;
-    public AudioClip healSound;
+    [field: SerializeField] public EventReference healSound { get; private set; }
     [Range(0, 1)] public float healVolume = 1;
 
-    public AudioClip pickUpFroinsSound;
+    [field: SerializeField] public EventReference pickUpFroinsSound { get; private set; }
     [Range(0, 1)] public float pickUpFroinsVolume = 1;
-    public AudioClip pickUpXPSound;
+    [field: SerializeField] public EventReference pickUpXPSound { get; private set; }
     [Range(0, 1)] public float pickUpXPVolume = 1;
-    public AudioClip grabCollectibleSound;
+    [field: SerializeField] public EventReference grabCollectibleSound { get; private set; }
     [Range(0, 1)] public float grabCollectibleVolume = 1;
-    public AudioClip levelUpSound;
+    [field: SerializeField] public EventReference levelUpSound { get; private set; }
     [Range(0, 1)] public float levelUpVolume = 1;
 
 
-    public AudioClip buyItemInShopSound;
+    [field: SerializeField] public EventReference buyItemInShopSound { get; private set; }
     [Range(0, 1)] public float buyItemInShopVolume = 1;
-    public AudioClip refundShopSound;
+    [field: SerializeField] public EventReference refundShopSound { get; private set; }
     [Range(0, 1)] public float refundShopVolume = 1;
 
     public AudioClip rerollSound;
@@ -69,12 +69,12 @@ public class SoundManager : MonoBehaviour
     public AudioClip skipSound;
     [Range(0, 1)] public float skipVolume = 1;
 
-    public AudioClip eatBountySound;
+    [field: SerializeField] public EventReference eatBountySound { get; private set; }
     [Range(0, 1)] public float eatBBountyVolume = 1;
-    public AudioClip eatBugSound;
+    [field: SerializeField] public EventReference eatBugSound { get; private set; }
     [Range(0, 1)] public float eatBugVolume = 1;
 
-    public AudioClip powerUpFreezeAllSound;
+    [field: SerializeField] public EventReference powerUpFreezeAllSound { get; private set; }
     [Range(0, 1)] public float powerUpFreezeAllVolume = 1;
 
 
@@ -185,6 +185,7 @@ public class SoundManager : MonoBehaviour
     {
         source.Play();
     }
+
     private void MakeAudioSourceStop(AudioSource source)
     {
         source.Stop();
@@ -232,90 +233,84 @@ public class SoundManager : MonoBehaviour
     {
         if (selectable.interactable)
         {
-
             RuntimeManager.PlayOneShot(buttonSound);
         }
     }
 
     public void PlayLongPageSound()
     {
-        pageLongAudioSource.volume = ModifyVolume(pageLongVolume);
-        pageLongAudioSource.PlayOneShot(pageLongSound);
+        RuntimeManager.PlayOneShot(pageLongSound);
     }
 
     public void PlayDeathSound()
     {
-        deathAudioSource.volume = ModifyVolume(deathVolume);
-        deathAudioSource.PlayOneShot(deathSound);
+        RuntimeManager.PlayOneShot(deathSound);
     }
 
     public void PlayShortPageSound()
     {
-        pageShortAudioSource.volume = ModifyVolume(pageShortVolume);
-        pageShortAudioSource.PlayOneShot(pageShortSound);
+        RuntimeManager.PlayOneShot(pageShortSound);
     }
 
     public void PlaySlideBookSound()
     {
-        slideBookAudioSource.volume = ModifyVolume(slideBookVolume);
-        slideBookAudioSource.PlayOneShot(slideBookSound);
+        RuntimeManager.PlayOneShot(slideBookSound);
     }
 
     public void PlayHealSound()
     {
-        healAudioSource.volume = ModifyVolume(healVolume);
-        if (healSound != null)
-        {
-            healAudioSource.PlayOneShot(healSound);
-        }
+        RuntimeManager.PlayOneShot(healSound);
     }
 
     public void PlayPickUpFroinsSound()
     {
-        pickUpFroinsAudioSource.volume = ModifyVolume(pickUpFroinsVolume);
-        pickUpFroinsAudioSource.PlayOneShot(pickUpFroinsSound);
+        RuntimeManager.PlayOneShot(pickUpFroinsSound);
     }
-    public void PlayPickUpXPSound(float xpValue)
+
+    public void PlayPickUpXPSound(float xpValue) // TODO
     {
-        float volumeMultiplier = Mathf.Clamp((xpValue / 20.0f), 0.2f, 1.0f);
-        pickUpXPAudioSource.volume = ModifyVolume(Mathf.Clamp(pickUpXPVolume * volumeMultiplier, 0, 1));
-        pickUpXPAudioSource.PlayOneShot(pickUpXPSound);
+        // TODO needs a parameter for the volume multiplier, I guess it is louder if it is more xp?
+        // float volumeMultiplier = Mathf.Clamp((xpValue / 20.0f), 0.2f, 1.0f);
+        // pickUpXPAudioSource.volume = ModifyVolume(Mathf.Clamp(pickUpXPVolume * volumeMultiplier, 0, 1));
+
+        RuntimeManager.PlayOneShot(pickUpXPSound);
     }
+
     public void PlayPickUpCollectibleSound()
     {
-        grabCollectibleAudioSource.volume = ModifyVolume(grabCollectibleVolume);
-        grabCollectibleAudioSource.PlayOneShot(grabCollectibleSound);
+        RuntimeManager.PlayOneShot(grabCollectibleSound);
     }
+
     public void PlayLevelUpSound()
     {
-        levelUpAudioSource.volume = ModifyVolume(levelUpVolume);
-        levelUpAudioSource.PlayOneShot(levelUpSound);
+        RuntimeManager.PlayOneShot(levelUpSound);
     }
 
     public void PlayBuyItemInShopSound()
     {
-        buyItemInShopAudioSource.volume = ModifyVolume(buyItemInShopVolume);
-        buyItemInShopAudioSource.PlayOneShot(buyItemInShopSound);
+        RuntimeManager.PlayOneShot(buyItemInShopSound);
     }
+
     public void PlayRefundShopSound()
     {
-        refundShopAudioSource.volume = ModifyVolume(refundShopVolume);
-        refundShopAudioSource.PlayOneShot(refundShopSound);
+        RuntimeManager.PlayOneShot(refundShopSound);
     }
 
     public void PlayEatBountySound()
     {
-        eatBountyAudioSource.volume = ModifyVolume(eatBBountyVolume);
-        eatBountyAudioSource.PlayOneShot(eatBountySound);
+        RuntimeManager.PlayOneShot(eatBountySound);
     }
-    public void PlayEatBugSound()
+
+    public void PlayEatBugSound() // TODO
     {
-        float pitch = Random.Range(0.7f, 1.3f);
+        // TODO randomize pitch.
+        /* float pitch = Random.Range(0.7f, 1.3f);
         eatBugLastUsedAudioSourceIndex = (eatBugLastUsedAudioSourceIndex + 1) % eatBugAudioSourcesList.Count;
         AudioSource eatBugAudioSource = eatBugAudioSourcesList[eatBugLastUsedAudioSourceIndex];
         eatBugAudioSource.pitch = pitch;
-        eatBugAudioSource.volume = ModifyVolume(eatBugVolume);
-        eatBugAudioSource.PlayOneShot(eatBugSound);
+        eatBugAudioSource.volume = ModifyVolume(eatBugVolume); */
+
+        RuntimeManager.PlayOneShot(eatBugSound);
     }
 
     /*
@@ -332,8 +327,7 @@ public class SoundManager : MonoBehaviour
 
     public void PlayFreezeAllSound()
     {
-        powerUpAudioSource.volume = ModifyVolume(powerUpFreezeAllVolume);
-        powerUpAudioSource.PlayOneShot(powerUpFreezeAllSound);
+        RuntimeManager.PlayOneShot(powerUpFreezeAllSound);
     }
 
     #endregion
