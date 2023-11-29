@@ -119,6 +119,8 @@ public class FixedCollectible
 
     [Tooltip("The name of this collectible")]
     public string collectibleName;
+    [Tooltip("The description of this collectible")]
+    public string collectibleDescription;
     [Tooltip("The type of collectible")]
     public FixedCollectibleType collectibleType;
 

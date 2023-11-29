@@ -2,10 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Timeline;
 using UnityEngine.UI;
+using static UnityEditor.Progress;
 
 [System.Serializable]
 public class RunItemInfo
@@ -853,7 +855,13 @@ public class RunManager : MonoBehaviour
                         itemIsNew = false;
                         pickedItemInfo = ownedItem;
                         log += " (already owned, level " + ownedItem.level + ")";
-                        ownedItem.level++;
+
+                        if (level < itemData.GetMaxLevel())
+                        {
+                            // Level was not already maxed out
+                            ownedItem.level++;
+                        }
+
                         level = ownedItem.level - 1;
                         break;
                     }
@@ -910,7 +918,11 @@ public class RunManager : MonoBehaviour
                             }
                         }
 
-                        ownedWeapon.level++;
+                        if (level < pickedItemData.GetMaxLevel())
+                        {
+                            // Level was not already maxed out
+                            ownedWeapon.level++;
+                        }
 
                         break;
                     }
@@ -1526,26 +1538,80 @@ public class RunManager : MonoBehaviour
         // Set Time Scale back to 0
         GameManager.instance.SetTimeScale(0);
 
-        // Update info on panel
+        // Update title ("you found" for items, "you met" for friends, or whatever you choose)
         string foundCollectibleTitle = string.IsNullOrEmpty(collectibleInfo.foundCollectibleTitle) ? DataManager.instance.GetDefaultFoundCollectibleTitle(collectibleInfo) : collectibleInfo.foundCollectibleTitle;
         fixedCollectibleTitleText.text = foundCollectibleTitle;
 
+        // Update name of the item
         string foundCollectibleName = string.IsNullOrEmpty(collectibleInfo.collectibleName) ? DataManager.instance.GetDefaultFoundCollectibleName(collectibleInfo) : collectibleInfo.collectibleName;
         fixedCollectibleNameText.text = foundCollectibleName;
 
-        fixedCollectibleBonusText.text = "";
+        // Update bonus of the item
+        int currentLevelForItem;
+        int maxLevelForItem;
+        string descriptionStr;
+        string levelStr;
+        string bonusText = $"({collectibleInfo.collectibleDescription})";
+
         if (collectibleInfo.collectibleType == FixedCollectibleType.WEAPON_ITEM || collectibleInfo.collectibleType == FixedCollectibleType.STATS_ITEM)
         {
-            //TODO
-            string lvl = "MAX";
-            string stat = "Armor";
-            string statBonusValue = "0.5";
-            fixedCollectibleBonusText.text = $"(Lvl {lvl}: {stat} +{statBonusValue})";
-        }
+            // Item is tongue or stat item
+            // In that case, description is "level + stats improved"
+            // Unless the item is a new, in that case there's a description for it
+            RunItemData item = (collectibleInfo.collectibleType == FixedCollectibleType.WEAPON_ITEM) ? collectibleInfo.collectibleWeaponItemData : collectibleInfo.collectibleStatItemData;
+            maxLevelForItem = item.GetMaxLevel();
+            currentLevelForItem = Mathf.Clamp(GetLevelForItem(item), 0, maxLevelForItem);
 
+            if (currentLevelForItem <= 0)
+            {
+                levelStr = "NEW";
+            }
+            else if (currentLevelForItem == maxLevelForItem-1)
+            {
+                levelStr = "MAX";
+            }
+            else if (currentLevelForItem >= maxLevelForItem)
+            {
+                levelStr = "MAX+";
+            }
+            else
+            {
+                levelStr = $"Lvl {currentLevelForItem+1}";
+            }
+
+            if (collectibleInfo.collectibleType == FixedCollectibleType.WEAPON_ITEM && currentLevelForItem <= 0)
+            {
+                // Item is a new Tongue
+                descriptionStr = collectibleInfo.collectibleWeaponItemData.weaponData.description;
+            }
+            else if (collectibleInfo.collectibleType == FixedCollectibleType.WEAPON_ITEM)
+            {
+                // Item is a tongue upgrade
+                if (currentLevelForItem >= maxLevelForItem)
+                {
+                    currentLevelForItem = maxLevelForItem - 1; // If tongue is already maxed out, then next upgrade is the same as max upgrade
+                }
+                descriptionStr = collectibleInfo.collectibleWeaponItemData.weaponBoostLevels[currentLevelForItem - 1].weaponStatUpgrades.GetDescription().Replace("\n", " & ");
+            }
+            else
+            {
+                // Item is a stat item
+                if (currentLevelForItem >= maxLevelForItem)
+                {
+                    currentLevelForItem = maxLevelForItem-1; // If item is already maxed out, then next upgrade is the same as max upgrade
+                }
+                descriptionStr = collectibleInfo.collectibleStatItemData.statBoostLevels[currentLevelForItem].description;
+            }
+
+            bonusText = $"({levelStr}: {descriptionStr})";
+        }
+        fixedCollectibleBonusText.text = bonusText;
+
+        // Update "Accept" text
         string foundCollectibleAcceptStr = string.IsNullOrEmpty(collectibleInfo.acceptCollectibleStr) ? DataManager.instance.defaultFoundCollectibleAcceptStr : collectibleInfo.acceptCollectibleStr;
         fixedCollectibleAcceptText.text = foundCollectibleAcceptStr;
 
+        // Update "Refuse" text
         string foundCollectibleRefuseStr = string.IsNullOrEmpty(collectibleInfo.refuseCollectibleStr) ? DataManager.instance.defaultFoundCollectibleRefuseStr : collectibleInfo.refuseCollectibleStr;
         fixedCollectibleRefuseText.text = foundCollectibleRefuseStr;
 

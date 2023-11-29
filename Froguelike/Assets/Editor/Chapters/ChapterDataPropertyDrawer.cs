@@ -166,6 +166,16 @@ public class FixedCollectibleDrawer : PropertyDrawer
             }
             position.y += EditorGUIUtility.singleLineHeight;
 
+            // Description of collectible
+            {
+                float labelWidth = alignWidth;
+                Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+                Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+                EditorGUI.LabelField(labelRect, new GUIContent("Collectible description:"));
+                EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("collectibleDescription"), GUIContent.none);
+            }
+            position.y += EditorGUIUtility.singleLineHeight;
+
             // Type of collectible
             {
                 float labelWidth = alignWidth;
@@ -267,7 +277,7 @@ public class FixedCollectibleDrawer : PropertyDrawer
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
-        int numberOfLines = 13;
+        int numberOfLines = 14;
         return numberOfLines * EditorGUIUtility.singleLineHeight;
     }
 }
