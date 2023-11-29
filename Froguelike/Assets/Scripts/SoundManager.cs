@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using FMODUnity;
 
 public class SoundManager : MonoBehaviour
 {
-    public static SoundManager instance;
+    public static SoundManager instance { get; private set; }
 
     [Header("Audio Sources")]
     public AudioSource buttonAudioSource;
@@ -31,8 +32,8 @@ public class SoundManager : MonoBehaviour
 
     public AudioSource powerUpAudioSource;
 
-    [Header("Audio Clips")]
-    public AudioClip buttonSound;
+    [field: Header("Audio Clips")]
+    [field: SerializeField] public EventReference buttonSound { get; private set; }
     [Range(0, 1)] public float buttonVolume = 1;
     public AudioClip deathSound;
     [Range(0, 1)] public float deathVolume = 1;
@@ -227,48 +228,12 @@ public class SoundManager : MonoBehaviour
 
     #region Play "one shot" sound
 
-    public void PlayButtonSound(Button button)
+    public void PlayButtonSound(Selectable selectable)
     {
-        if (button.interactable)
+        if (selectable.interactable)
         {
-            buttonAudioSource.volume = ModifyVolume(buttonVolume);
-            buttonAudioSource.PlayOneShot(buttonSound);
-        }
-    }
 
-    public void PlayButtonSound(Toggle toggle)
-    {
-        if (toggle.interactable)
-        {
-            buttonAudioSource.volume = ModifyVolume(buttonVolume);
-            buttonAudioSource.PlayOneShot(buttonSound);
-        }
-    }
-
-    public void PlayButtonSound(TMP_Dropdown dropdown)
-    {
-        if (dropdown.interactable)
-        {
-            buttonAudioSource.volume = ModifyVolume(buttonVolume);
-            buttonAudioSource.PlayOneShot(buttonSound);
-        }
-    }
-
-    public void PlayButtonSound(Scrollbar scrollbar)
-    {
-        if (scrollbar.interactable)
-        {
-            buttonAudioSource.volume = ModifyVolume(buttonVolume);
-            buttonAudioSource.PlayOneShot(buttonSound);
-        }
-    }
-
-    public void PlayButtonSound(Slider slider)
-    {
-        if (slider.interactable)
-        {
-            buttonAudioSource.volume = ModifyVolume(buttonVolume);
-            buttonAudioSource.PlayOneShot(buttonSound);
+            RuntimeManager.PlayOneShot(buttonSound);
         }
     }
 
