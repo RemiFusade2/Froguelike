@@ -62,7 +62,18 @@ public class RunItemData : ScriptableObject
     /// <returns></returns>
     public int GetMaxLevel()
     {
-        return GetMaxLevelCount() + 1;
+        int maxLevel = 0;
+
+        if (this is RunStatItemData)
+        {
+            maxLevel = (this as RunStatItemData).statBoostLevels.Count; // A stat item has as many levels as the amount of "upgrades"
+        }
+        if (this is RunWeaponItemData)
+        {
+            maxLevel = (this as RunWeaponItemData).weaponBoostLevels.Count + 1; // A weapon has a level 1 base, and then a bunch of upgrades
+        }
+
+        return maxLevel;
     }
 
     /// <summary>

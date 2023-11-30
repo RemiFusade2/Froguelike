@@ -781,7 +781,7 @@ public class EnemiesManager : MonoBehaviour
     /// <param name="damage"></param>
     /// <param name="weapon"></param>
     /// <returns></returns>
-    public bool DamageEnemy(int enemyIndex, float damage, Transform weapon)
+    public bool DamageEnemy(int enemyIndex, float damage, Transform weapon, bool applyVampireEffect = false)
     {
         EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
         enemy.HP -= damage;
@@ -796,6 +796,10 @@ public class EnemiesManager : MonoBehaviour
             damageText.GetComponent<MeshRenderer>().enabled = true;
             damageText.GetComponent<Rigidbody2D>().simulated = true;
             damageText.GetComponent<Rigidbody2D>().velocity = Vector2.up;
+            if (applyVampireEffect)
+            {
+                damageText.GetComponent<ParticleSystem>().Play();
+            }
             StartCoroutine(PutDamageTextIntoPool(damageText, 1.0f));
         }
 
@@ -837,10 +841,10 @@ public class EnemiesManager : MonoBehaviour
     }
 
     // Return true if enemy dieded
-    public bool DamageEnemy(string enemyGoName, float damage, Transform weapon)
+    public bool DamageEnemy(string enemyGoName, float damage, Transform weapon, bool applyVampireEffect = false)
     {
         int index = int.Parse(enemyGoName);
-        return DamageEnemy(index, damage, weapon);
+        return DamageEnemy(index, damage, weapon, applyVampireEffect);
     }
 
     public void ClearAllEnemies(bool ignoreBounties = false)
@@ -871,7 +875,10 @@ public class EnemiesManager : MonoBehaviour
         }
         //allActiveEnemiesDico.Clear();
 
-        //spawnedBugsWithBountiesIDs.Clear();
+        if (!ignoreBounties)
+        {
+            spawnedBugsWithBountiesIDs.Clear();
+        }
     }
 
     /// <summary>

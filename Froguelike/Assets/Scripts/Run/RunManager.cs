@@ -974,9 +974,6 @@ public class RunManager : MonoBehaviour
                         TongueStatValue weaponCountStatValue = (pickedItemData as RunWeaponItemData).weaponBoostLevels[level].weaponStatUpgrades.GetStatValue(TongueStat.COUNT);
                         spawnWeapons = (weaponCountStatValue == null) ? 0 : Mathf.RoundToInt((float)weaponCountStatValue.value);
 
-                        // TODO: remove
-                        //spawnWeapons += 10;
-
                         // Spawn as many weapons as needed
                         for (int w = 0; w < spawnWeapons; w++)
                         {

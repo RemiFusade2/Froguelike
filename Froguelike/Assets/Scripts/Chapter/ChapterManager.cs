@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -334,7 +335,7 @@ public class ChapterManager : MonoBehaviour
         }
 
         // Pick a random value between 0 and the weights sum
-        float randomValue = Random.Range(0, sumWeights);
+        float randomValue = UnityEngine.Random.Range(0, sumWeights);
 
         // Find the Chapter from this random value
         Chapter resultChapter = null;
@@ -1035,7 +1036,14 @@ public class ChapterManager : MonoBehaviour
                 chapter.unlocked = chapterFromSave.unlocked;
                 chapter.attemptCountByCharacters = new List<CharacterCount>(chapterFromSave.attemptCountByCharacters);
                 chapter.completionCountByCharacters = new List<CharacterCount>(chapterFromSave.completionCountByCharacters);
-                chapter.fixedCollectiblesFoundList = new List<FixedCollectibleFound>(chapterFromSave.fixedCollectiblesFoundList);
+                if (chapterFromSave.fixedCollectiblesFoundList != null)
+                {
+                    chapter.fixedCollectiblesFoundList = new List<FixedCollectibleFound>(chapterFromSave.fixedCollectiblesFoundList);
+                }
+                else
+                {
+                    chapter.fixedCollectiblesFoundList = new List<FixedCollectibleFound>();
+                }
             }
         }
     }
