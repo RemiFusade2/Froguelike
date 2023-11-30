@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -51,12 +52,33 @@ public class CombinedSaveData
 
     public static void SetAllSaveData(CombinedSaveData saveData)
     {
-        GameManager.instance.SetGameData(saveData.gameSaveData);
-        ShopManager.instance.SetShopData(saveData.shopSaveData);
-        CharacterManager.instance.SetCharactersData(saveData.charactersSaveData);
-        EnemiesManager.instance.SetEnemiesData(saveData.enemiesSaveData);
-        ChapterManager.instance.SetChaptersData(saveData.chaptersSaveData);
-        RunItemManager.instance.SetRunItemsData(saveData.runItemsSaveData);
-        AchievementManager.instance.SetAchievementsData(saveData.achievementsSaveData);
+        if (saveData.gameSaveData != null)
+        {
+            GameManager.instance.SetGameData(saveData.gameSaveData);
+        }
+        if (saveData.shopSaveData != null)
+        {
+            ShopManager.instance.SetShopData(saveData.shopSaveData);
+        }
+        if (saveData.charactersSaveData != null)
+        {
+            CharacterManager.instance.SetCharactersData(saveData.charactersSaveData);
+        }
+        if (saveData.enemiesSaveData != null)
+        {
+            EnemiesManager.instance.SetEnemiesData(saveData.enemiesSaveData);
+        }
+        if (saveData.chaptersSaveData != null)
+        {
+            ChapterManager.instance.SetChaptersData(saveData.chaptersSaveData);
+        }
+        if (saveData.runItemsSaveData != null)
+        {
+            RunItemManager.instance.SetRunItemsData(saveData.runItemsSaveData);
+        }
+        if (saveData.achievementsSaveData != null)
+        {
+            AchievementManager.instance.SetAchievementsData(saveData.achievementsSaveData);
+        }
     }
 }

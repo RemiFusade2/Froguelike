@@ -218,6 +218,7 @@ public class TongueStatsWrapper
                 result += $"{statNameStr} {plusSign}{statValueStr}\n";
             }
         }
+        result = result.Substring(0, result.Length - 1); // Remove last character
         return result;
     }
 

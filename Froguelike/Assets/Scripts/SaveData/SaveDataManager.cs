@@ -23,13 +23,15 @@ public class SaveDataManager : MonoBehaviour
     // Singleton
     public static SaveDataManager instance;
 
+    [Header("Settings - Logs")]
+    public VerboseLevel verbose = VerboseLevel.NONE;
+
     [Header("Save files")]
     public string saveFileName = "FroguelikeSaveFile";
     public string backupSaveFileName = "FroguelikeSaveFile_backup";
 
     [Header("Settings")]
     public SaveMethod saveMethod = SaveMethod.BINARY;
-    public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
     [Space]
     public bool createBackup = true;
     [Space]
@@ -90,7 +92,7 @@ public class SaveDataManager : MonoBehaviour
     private bool EraseSaveFile(string fileName)
     {
         string saveFilePath = GetFilePath(fileName);
-        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        if (verbose == VerboseLevel.MAXIMAL)
         {
             Debug.Log("Debug info - Erasing file: " + saveFilePath);
         }
@@ -99,7 +101,7 @@ public class SaveDataManager : MonoBehaviour
         {
             File.Delete(saveFilePath);
             result = true;
-            if (logsVerboseLevel != VerboseLevel.NONE)
+            if (verbose != VerboseLevel.NONE)
             {
                 Debug.Log("Debug info - Save file erased successfully");
             }
@@ -131,7 +133,7 @@ public class SaveDataManager : MonoBehaviour
         if (!GameManager.instance.demoBuild || GameManager.instance.demoSaveProgress)
         {
             string saveFilePath = GetFilePath(fileName);
-            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+            if (verbose == VerboseLevel.MAXIMAL)
             {
                 Debug.Log("Debug info - Saving at: " + saveFilePath);
             }
@@ -142,7 +144,7 @@ public class SaveDataManager : MonoBehaviour
                 {
                     case SaveMethod.JSON:
                         // Save the data in JSON format (readable and editable)
-                        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                        if (verbose == VerboseLevel.MAXIMAL)
                         {
                             Debug.Log("Debug info - Save in JSON");
                         }
@@ -151,7 +153,7 @@ public class SaveDataManager : MonoBehaviour
                         break;
                     case SaveMethod.BINARY:
                         // Save the data in Binary format (unreadable)
-                        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                        if (verbose == VerboseLevel.MAXIMAL)
                         {
                             Debug.Log("Debug info - Save in Binary");
                         }
@@ -163,7 +165,7 @@ public class SaveDataManager : MonoBehaviour
                 }
                 result = true;
                 isSaveDataDirty = false;
-                if (logsVerboseLevel != VerboseLevel.NONE)
+                if (verbose != VerboseLevel.NONE)
                 {
                     Debug.Log("File " + fileName + " saved successfully");
                 }
@@ -196,7 +198,7 @@ public class SaveDataManager : MonoBehaviour
         if (!GameManager.instance.demoBuild || GameManager.instance.demoSaveProgress)
         {
             string saveFilePath = GetFilePath(fileName);
-            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+            if (verbose == VerboseLevel.MAXIMAL)
             {
                 Debug.Log("Debug info - Loading: " + saveFilePath);
             }
@@ -209,7 +211,7 @@ public class SaveDataManager : MonoBehaviour
                     {
                         case SaveMethod.JSON:
                             // Load the data in JSON format (readable and editable)
-                            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                            if (verbose == VerboseLevel.MAXIMAL)
                             {
                                 Debug.Log("Debug info - Load in JSON");
                             }
@@ -218,7 +220,7 @@ public class SaveDataManager : MonoBehaviour
                             break;
                         case SaveMethod.BINARY:
                             // Load the data in Binary format (unreadable)
-                            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                            if (verbose == VerboseLevel.MAXIMAL)
                             {
                                 Debug.Log("Debug info - Load in Binary");
                             }
@@ -226,8 +228,25 @@ public class SaveDataManager : MonoBehaviour
                             try
                             {
                                 dataStream = new FileStream(saveFilePath, FileMode.Open);
+                                if (verbose == VerboseLevel.MAXIMAL)
+                                {
+                                    Debug.Log("Debug info - dataStream opened");
+                                }
                                 BinaryFormatter converter = new BinaryFormatter();
-                                loadedData = converter.Deserialize(dataStream) as CombinedSaveData;
+                                if (verbose == VerboseLevel.MAXIMAL)
+                                {
+                                    Debug.Log("Debug info - converter created");
+                                }
+                                object data = converter.Deserialize(dataStream);
+                                if (verbose == VerboseLevel.MAXIMAL)
+                                {
+                                    Debug.Log($"Debug info - data deserialized: {data}");
+                                }
+                                loadedData = data as CombinedSaveData;
+                                if (verbose == VerboseLevel.MAXIMAL)
+                                {
+                                    Debug.Log($"Debug info - loadedData deserialized: {loadedData}");
+                                }
                             }
                             catch (System.Exception ex)
                             {
@@ -239,10 +258,18 @@ public class SaveDataManager : MonoBehaviour
                             }
                             break;
                     }
+                    if (verbose == VerboseLevel.MAXIMAL)
+                    {
+                        Debug.Log($"Debug info - Calling CombinedSaveData.SetAllSaveData({loadedData})");
+                    }
                     CombinedSaveData.SetAllSaveData(loadedData);
+                    if (verbose == VerboseLevel.MAXIMAL)
+                    {
+                        Debug.Log($"Debug info - CombinedSaveData.SetAllSaveData({loadedData}) called");
+                    }
                     success = true;
                     isSaveDataDirty = false;
-                    if (logsVerboseLevel != VerboseLevel.NONE)
+                    if (verbose != VerboseLevel.NONE)
                     {
                         Debug.Log("File " + fileName + " loaded successfully");
                     }

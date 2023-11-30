@@ -856,7 +856,7 @@ public class RunManager : MonoBehaviour
                         pickedItemInfo = ownedItem;
                         log += " (already owned, level " + ownedItem.level + ")";
 
-                        if (level < itemData.GetMaxLevel())
+                        if (ownedItem.level < itemData.GetMaxLevel())
                         {
                             // Level was not already maxed out
                             ownedItem.level++;
@@ -906,22 +906,28 @@ public class RunManager : MonoBehaviour
                         // We already own such an item
                         itemIsNew = false;
                         pickedItemInfo = ownedWeapon;
-                        level = ownedWeapon.level - 1;
-                        log += " (already owned, level " + ownedWeapon.level + ")";
 
-                        // we need to upgrade all similar weapons
+                        log += $" (already owned, level {ownedWeapon.level})"; // show previous level
+
+                        if (ownedWeapon.level < pickedItemData.GetMaxLevel())
+                        {
+                            // Level is not already maxed out
+                            ownedWeapon.level++; // Increase level
+                        }
+
+                        // We need to upgrade all similar weapons
+                        level = ownedWeapon.level - 2; // This is level boost index
                         foreach (GameObject weaponGo in ownedWeapon.activeWeaponsList)
                         {
                             if (level >= 0 && level < ownedWeapon.weaponItemData.GetMaxLevelCount())
                             {
                                 weaponGo.GetComponent<WeaponBehaviour>().LevelUp(ownedWeapon.weaponItemData.weaponBoostLevels[level]);
                             }
-                        }
-
-                        if (level < pickedItemData.GetMaxLevel())
-                        {
-                            // Level was not already maxed out
-                            ownedWeapon.level++;
+                            else if (level >= ownedWeapon.weaponItemData.GetMaxLevelCount())
+                            {
+                                // Weapon is maxed out. This code should never be called!
+                                weaponGo.GetComponent<WeaponBehaviour>().LevelUp(ownedWeapon.weaponItemData.weaponBoostLevels[level - 1]); // repeat last level upgrade
+                            }
                         }
 
                         break;
@@ -963,7 +969,6 @@ public class RunManager : MonoBehaviour
                 }
                 else
                 {
-                    // We already had that weapon, maybe we need to spawn more weapons depending on if this level adds any
                     if (level >= 0 && level < pickedItemData.GetMaxLevelCount())
                     {
                         TongueStatValue weaponCountStatValue = (pickedItemData as RunWeaponItemData).weaponBoostLevels[level].weaponStatUpgrades.GetStatValue(TongueStat.COUNT);
@@ -1574,6 +1579,7 @@ public class RunManager : MonoBehaviour
             else if (currentLevelForItem >= maxLevelForItem)
             {
                 levelStr = "MAX+";
+                currentLevelForItem = maxLevelForItem - 1; // If item is already maxed out, then next upgrade is the same as max upgrade
             }
             else
             {
@@ -1588,19 +1594,17 @@ public class RunManager : MonoBehaviour
             else if (collectibleInfo.collectibleType == FixedCollectibleType.WEAPON_ITEM)
             {
                 // Item is a tongue upgrade
-                if (currentLevelForItem >= maxLevelForItem)
-                {
-                    currentLevelForItem = maxLevelForItem - 1; // If tongue is already maxed out, then next upgrade is the same as max upgrade
-                }
                 descriptionStr = collectibleInfo.collectibleWeaponItemData.weaponBoostLevels[currentLevelForItem - 1].weaponStatUpgrades.GetDescription().Replace("\n", " & ");
             }
             else
             {
                 // Item is a stat item
+
                 if (currentLevelForItem >= maxLevelForItem)
                 {
                     currentLevelForItem = maxLevelForItem - 1; // If item is already maxed out, then next upgrade is the same as max upgrade
                 }
+
                 descriptionStr = collectibleInfo.collectibleStatItemData.statBoostLevels[currentLevelForItem].description;
             }
 
