@@ -1,46 +1,50 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using FMODUnity;
+using FMOD.Studio;
 
 public class MusicManager : MonoBehaviour
 {
-    public static MusicManager instance;
+    public static MusicManager instance { get; private set; }
 
-    [Header("Music")]
-    public AudioClip titleMusic;
-    [Range(0, 1)] public float titleMusicVolume = 1;
-    public AudioClip levelMusic;
-    [Range(0, 1)] public float levelMusicVolume = 1;
+    [field: Header("Music")]
+    [field: SerializeField] public EventReference titleMusic { get; private set; }
+    [field: SerializeField] public EventReference inRunMusic { get; private set; }
 
-    private AudioSource audioSource;
+    private EventInstance titleMusicEvent;
+    private EventInstance inRunMusicEvent;
 
     private void Awake()
     {
-        instance = this;
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(this);
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
+
+        titleMusicEvent = RuntimeManager.CreateInstance(titleMusic);
+        inRunMusicEvent = RuntimeManager.CreateInstance(inRunMusic);
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        CheckAudioSource();
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-    private void CheckAudioSource()
-    {
-        if (audioSource == null)
-        {
-            audioSource = GetComponent<AudioSource>();
-        }
     }
 
     public void PlayTitleMusic()
     {
+        UnpauseMusic();
+        inRunMusicEvent.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+        titleMusicEvent.start();
+
+
+        /*
         CheckAudioSource();
         audioSource.volume = titleMusicVolume;
         if (audioSource == null || audioSource.clip == null || !audioSource.clip.Equals(titleMusic) || !audioSource.isPlaying)
@@ -48,25 +52,42 @@ public class MusicManager : MonoBehaviour
             audioSource.clip = titleMusic;
             audioSource.Play();
         }
+        */
     }
 
     public void PlayLevelMusic()
     {
+        UnpauseMusic();
+        titleMusicEvent.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+        inRunMusicEvent.start();
+
+        /*
         CheckAudioSource();
         audioSource.volume = levelMusicVolume;
         audioSource.clip = levelMusic;
         audioSource.Play();
+        */
     }
 
     public void PauseMusic()
     {
+        titleMusicEvent.setPaused(true);
+        inRunMusicEvent.setPaused(true);
+
+        /*
         CheckAudioSource();
         audioSource.Pause();
+        */
     }
 
     public void UnpauseMusic()
     {
+        titleMusicEvent.setPaused(false);
+        inRunMusicEvent.setPaused(false);
+
+        /*
         CheckAudioSource();
         audioSource.UnPause();
+        */
     }
 }

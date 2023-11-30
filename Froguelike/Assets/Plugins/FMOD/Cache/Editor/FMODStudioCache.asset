@@ -143,10 +143,10 @@ MonoBehaviour:
   Path: ../FMOD/FMOD_Froguelike/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 638369571362849565
+  lastModified: 638369760949617828
   FileSizes:
   - Name: Desktop
-    Value: 1574
+    Value: 1724
   Exists: 1
 --- !u!114 &-2842933255974462157
 MonoBehaviour:
@@ -175,7 +175,7 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
---- !u!114 &-2109644273088873388
+--- !u!114 &-1615856072548762269
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -185,23 +185,43 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/UISelected
+  m_Name: event:/Music/InRunMusic
   m_EditorClassIdentifier: 
-  Path: event:/UISelected
+  Path: event:/Music/InRunMusic
   Guid:
-    Data1: 659645947
-    Data2: 1117874891
-    Data3: 1857548692
-    Data4: 1153221071
+    Data1: -298882781
+    Data2: 1104801658
+    Data3: 717182621
+    Data4: -35106347
   Banks:
-  - {fileID: 864254932730433483}
-  IsStream: 0
+  - {fileID: -18861664281574811}
+  IsStream: 1
   Is3D: 0
-  IsOneShot: 1
+  IsOneShot: 0
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 0
+  Length: 19996
+--- !u!114 &-18861664281574811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Music.bank
+  m_EditorClassIdentifier: 
+  Path: ../FMOD/FMOD_Froguelike/Build/Desktop/Music.bank
+  Name: Music
+  StudioPath: bank:/Music
+  lastModified: 638369760951049730
+  FileSizes:
+  - Name: Desktop
+    Value: 314080
+  Exists: 1
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -220,8 +240,8 @@ MonoBehaviour:
   - {fileID: 864254932730433483}
   - {fileID: 8159557336185028953}
   - {fileID: -8433404268845308050}
+  - {fileID: -18861664281574811}
   EditorEvents:
-  - {fileID: -2109644273088873388}
   - {fileID: -7716872712838323020}
   - {fileID: 3889078804096660422}
   - {fileID: -2842933255974462157}
@@ -238,13 +258,43 @@ MonoBehaviour:
   - {fileID: 1599570235893437061}
   - {fileID: 962273348792309562}
   - {fileID: -7205301074116899452}
+  - {fileID: -1615856072548762269}
+  - {fileID: 566424666774944301}
+  - {fileID: 1870281355886628613}
   EditorParameters: []
   MasterBanks:
   - {fileID: 6527175867075044624}
   StringsBanks:
   - {fileID: -3343564064817551758}
-  cacheTime: 638369571364195575
+  cacheTime: 638369760951049730
   cacheVersion: 131609
+--- !u!114 &566424666774944301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/UI/UISelected
+  m_EditorClassIdentifier: 
+  Path: event:/UI/UISelected
+  Guid:
+    Data1: 659645947
+    Data2: 1117874891
+    Data3: 1857548692
+    Data4: 1153221071
+  Banks:
+  - {fileID: 864254932730433483}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &864254932730433483
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -260,7 +310,7 @@ MonoBehaviour:
   Path: ../FMOD/FMOD_Froguelike/Build/Desktop/UI.bank
   Name: UI
   StudioPath: bank:/UI
-  lastModified: 638369516125714261
+  lastModified: 638369687487700284
   FileSizes:
   - Name: Desktop
     Value: 12320
@@ -319,6 +369,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
+--- !u!114 &1870281355886628613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Music/TitleMusic
+  m_EditorClassIdentifier: 
+  Path: event:/Music/TitleMusic
+  Guid:
+    Data1: 311211000
+    Data2: 1133036378
+    Data3: 542781625
+    Data4: -2004300622
+  Banks:
+  - {fileID: -18861664281574811}
+  IsStream: 1
+  Is3D: 0
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 14004
 --- !u!114 &2080207661672762618
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -469,7 +546,7 @@ MonoBehaviour:
   Path: ../FMOD/FMOD_Froguelike/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 638369571362829555
+  lastModified: 638369760949597819
   FileSizes:
   - Name: Desktop
     Value: 1036
