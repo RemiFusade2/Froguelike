@@ -4,85 +4,39 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using FMODUnity;
+using FMOD.Studio;
 
 public class SoundManager : MonoBehaviour
 {
     public static SoundManager instance { get; private set; }
 
-    [Header("Audio Sources")]
-    public AudioSource buttonAudioSource;
-    public AudioSource deathAudioSource;
-    public AudioSource pageLongAudioSource;
-    public AudioSource pageShortAudioSource;
-    public AudioSource slideBookAudioSource;
-
-    public AudioSource takeDamageAudioSource;
-    public AudioSource healAudioSource;
-
-    public AudioSource pickUpFroinsAudioSource;
-    public AudioSource pickUpXPAudioSource;
-    public AudioSource grabCollectibleAudioSource;
-    public AudioSource levelUpAudioSource;
-
-    public AudioSource buyItemInShopAudioSource;
-    public AudioSource refundShopAudioSource;
-
-    public AudioSource eatBountyAudioSource;
-    public Transform eatBugAudioSourcesParent;
-
-    public AudioSource powerUpAudioSource;
-
-    [field: Header("Audio Clips")]
+    [field: Header("FMOD Events")]
     [field: SerializeField] public EventReference buttonSound { get; private set; }
-    [Range(0, 1)] public float buttonVolume = 1;
     [field: SerializeField] public EventReference deathSound { get; private set; }
-    [Range(0, 1)] public float deathVolume = 1;
     [field: SerializeField] public EventReference pageLongSound { get; private set; }
-    [Range(0, 1)] public float pageLongVolume = 1;
     [field: SerializeField] public EventReference pageShortSound { get; private set; }
-    [Range(0, 1)] public float pageShortVolume = 1;
     [field: SerializeField] public EventReference slideBookSound { get; private set; }
-    [Range(0, 1)] public float slideBookVolume = 1;
 
-    public AudioClip takeDamageSound;
-    [Range(0, 1)] public float takeDamageVolume = 1;
+    [field: SerializeField] public EventReference takeDamageSound { get; private set; }
     [field: SerializeField] public EventReference healSound { get; private set; }
-    [Range(0, 1)] public float healVolume = 1;
 
     [field: SerializeField] public EventReference pickUpFroinsSound { get; private set; }
-    [Range(0, 1)] public float pickUpFroinsVolume = 1;
     [field: SerializeField] public EventReference pickUpXPSound { get; private set; }
-    [Range(0, 1)] public float pickUpXPVolume = 1;
     [field: SerializeField] public EventReference grabCollectibleSound { get; private set; }
-    [Range(0, 1)] public float grabCollectibleVolume = 1;
     [field: SerializeField] public EventReference levelUpSound { get; private set; }
-    [Range(0, 1)] public float levelUpVolume = 1;
-
 
     [field: SerializeField] public EventReference buyItemInShopSound { get; private set; }
-    [Range(0, 1)] public float buyItemInShopVolume = 1;
     [field: SerializeField] public EventReference refundShopSound { get; private set; }
-    [Range(0, 1)] public float refundShopVolume = 1;
 
-    public AudioClip rerollSound;
-    [Range(0, 1)] public float rerollVolume = 1;
-    public AudioClip skipSound;
-    [Range(0, 1)] public float skipVolume = 1;
+    [field: SerializeField] public EventReference rerollSound { get; private set; }
+    [field: SerializeField] public EventReference skipSound { get; private set; }
 
-    [field: SerializeField] public EventReference eatBountySound { get; private set; }
-    [Range(0, 1)] public float eatBBountyVolume = 1;
-    [field: SerializeField] public EventReference eatBugSound { get; private set; }
-    [Range(0, 1)] public float eatBugVolume = 1;
+    [field: SerializeField] public EventReference eatBountySound { get; private set; } // Not used yet.
+    [field: SerializeField] public EventReference eatBugSound { get; private set; } // Not used yet.
 
     [field: SerializeField] public EventReference powerUpFreezeAllSound { get; private set; }
-    [Range(0, 1)] public float powerUpFreezeAllVolume = 1;
 
-
-    private int eatBugLastUsedAudioSourceIndex;
-    private List<AudioSource> eatBugAudioSourcesList;
-
-    private bool isSoundOn;
-    private float volumeModifier = 1;
+    private EventInstance takeDamageEvent;
 
     private void Awake()
     {
@@ -99,133 +53,65 @@ public class SoundManager : MonoBehaviour
 
     private void Start()
     {
-        eatBugAudioSourcesList = new List<AudioSource>();
-        foreach (Transform child in eatBugAudioSourcesParent)
-        {
-            eatBugAudioSourcesList.Add(child.GetComponent<AudioSource>());
-        }
-        eatBugLastUsedAudioSourceIndex = 0;
+        takeDamageEvent = RuntimeManager.CreateInstance(takeDamageSound);
     }
 
-    /*
-    // Turns sound on with true, turns sound of with false.
-    public void SoundOn(bool on)
+    private void PauseInGameLoopedSFX(bool paused)
     {
-        if (on && audioSource.mute)
-        {
-            audioSource.mute = false;
-        }
-        else if (!on && !audioSource.mute)
-        {
-            audioSource.mute = true;
-        }
+        takeDamageEvent.setPaused(paused);
     }
 
-    public void SetVolumeModifier(float percentage)
+    public void PauseInGameLoopedSFX()
     {
-        // Sets the percentage for the volume. (0% - 200%)
-        volumeModifier = Mathf.Clamp(percentage, 0, 200);
-    }
-    */
-
-    private void PauseInGameSounds(bool paused)
-    {
-        if (paused)
-        {
-            takeDamageAudioSource.Pause();
-        }
-        else
-        {
-            takeDamageAudioSource.UnPause();
-        }
-    }
-    public void PauseInGameSounds()
-    {
-        PauseInGameSounds(true);
-    }
-    public void UnpauseInGameSounds()
-    {
-        PauseInGameSounds(false);
+        PauseInGameLoopedSFX(true);
     }
 
-    private float ModifyVolume(float volume)
+    public void UnpauseInGameLoopedSFX()
     {
-        float newVolume = volume * volumeModifier;
-        return newVolume;
+        PauseInGameLoopedSFX(false);
     }
 
     #region Play loops
 
-    private float currentLoopVolume;
-    private float targetLoopVolume;
-
-    private Coroutine volumeChangeCoroutine;
-
-    private IEnumerator FadeVolume(AudioSource source, float newTargetValue, float maxVolumeDeltaPerFrame, System.Action<AudioSource> endOfFadeAction)
+    private void MakeLoopEventStart(EventInstance source)
     {
-        targetLoopVolume = newTargetValue;
-        yield return new WaitForEndOfFrame();
-        while (currentLoopVolume != targetLoopVolume)
-        {
-            yield return new WaitForEndOfFrame();
-
-            float deltaVolume = (targetLoopVolume - currentLoopVolume);
-            deltaVolume = Mathf.Sign(deltaVolume) * Mathf.Min(maxVolumeDeltaPerFrame, Mathf.Abs(deltaVolume));
-            currentLoopVolume += deltaVolume;
-
-            source.volume = ModifyVolume(currentLoopVolume);
-        }
-        if (endOfFadeAction != null)
-        {
-            endOfFadeAction(source);
-        }
+        source.start();
     }
 
-    private void MakeAudioSourcePlay(AudioSource source)
+    private void MakeLoopEventStop(EventInstance source)
     {
-        source.Play();
+        source.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
     }
 
-    private void MakeAudioSourceStop(AudioSource source)
+    public void PlayTakeDamageLoopSound() // TODO
     {
-        source.Stop();
-    }
-
-    public void PlayTakeDamageLoopSound()
-    {
+        // TODO fade in.
         // Start playing
-        if (!takeDamageAudioSource.isPlaying)
+        PLAYBACK_STATE playbackState;
+        takeDamageEvent.getPlaybackState(out playbackState);
+        if (playbackState.Equals(PLAYBACK_STATE.STOPPED))
         {
-            takeDamageAudioSource.clip = takeDamageSound;
-            takeDamageAudioSource.Play();
+            takeDamageEvent.start();
         }
-
-        // Fade in volume
-        if (volumeChangeCoroutine != null)
-        {
-            StopCoroutine(volumeChangeCoroutine);
-        }
-        volumeChangeCoroutine = StartCoroutine(FadeVolume(takeDamageAudioSource, takeDamageVolume, 0.01f, null));
     }
 
-    public void StopPlayingTakeDamageLoopSound()
+    public void StopPlayingTakeDamageLoopSound() // TODO
     {
-        // Fade out volume
-        if (volumeChangeCoroutine != null)
+        // TODO fade out.
+        PLAYBACK_STATE playbackState;
+        takeDamageEvent.getPlaybackState(out playbackState);
+        if (playbackState.Equals(PLAYBACK_STATE.PLAYING))
         {
-            StopCoroutine(volumeChangeCoroutine);
+            takeDamageEvent.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
         }
-        volumeChangeCoroutine = StartCoroutine(FadeVolume(takeDamageAudioSource, 0, 0.01f, MakeAudioSourceStop)); // Then stop playing
     }
 
     public void StopAllLoops()
     {
-        currentLoopVolume = 0;
-        takeDamageAudioSource.volume = ModifyVolume(currentLoopVolume);
-        MakeAudioSourceStop(takeDamageAudioSource); // Stop playing
+        MakeLoopEventStop(takeDamageEvent); // Stop playing
     }
 
-    #endregion
+    #endregion Play loops
 
     #region Play "one shot" sound
 
@@ -269,10 +155,7 @@ public class SoundManager : MonoBehaviour
 
     public void PlayPickUpXPSound(float xpValue) // TODO
     {
-        // TODO needs a parameter for the volume multiplier, I guess it is louder if it is more xp?
-        // float volumeMultiplier = Mathf.Clamp((xpValue / 20.0f), 0.2f, 1.0f);
-        // pickUpXPAudioSource.volume = ModifyVolume(Mathf.Clamp(pickUpXPVolume * volumeMultiplier, 0, 1));
-
+        // TODO could have a parameter for the volume multiplier, it was set up to be louder if it is more xp with the old system.
         RuntimeManager.PlayOneShot(pickUpXPSound);
     }
 
@@ -304,26 +187,18 @@ public class SoundManager : MonoBehaviour
     public void PlayEatBugSound() // TODO
     {
         // TODO randomize pitch.
-        /* float pitch = Random.Range(0.7f, 1.3f);
-        eatBugLastUsedAudioSourceIndex = (eatBugLastUsedAudioSourceIndex + 1) % eatBugAudioSourcesList.Count;
-        AudioSource eatBugAudioSource = eatBugAudioSourcesList[eatBugLastUsedAudioSourceIndex];
-        eatBugAudioSource.pitch = pitch;
-        eatBugAudioSource.volume = ModifyVolume(eatBugVolume); */
-
         RuntimeManager.PlayOneShot(eatBugSound);
     }
 
-    /*
     public void PlayRerollSound()
     {
-        audioSource.volume = ModifyVolume(rerollVolume);
-        audioSource.PlayOneShot(rerollSound);
+        // TODO No sound yet.
     }
+
     public void PlaySkipSound()
     {
-        audioSource.volume = ModifyVolume(skipVolume);
-        audioSource.PlayOneShot(skipSound);
-    }*/
+        // TODO No sound yet.
+    }
 
     public void PlayFreezeAllSound()
     {

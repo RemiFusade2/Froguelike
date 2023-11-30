@@ -142,7 +142,7 @@ public class UIManager : MonoBehaviour
             Destroy(this.gameObject);
         }
         endOfDemoHasBeenShown = false;
-        removedDisclaimerTime = 24*60*60;
+        removedDisclaimerTime = 24 * 60 * 60;
     }
 
     private void Start()
@@ -255,7 +255,7 @@ public class UIManager : MonoBehaviour
         MusicManager.instance.PlayTitleMusic();
         HideAllScreens();
         UpdateTitleScreenCurrencyText(GameManager.instance.gameData.availableCurrency);
-        
+
         shopButton.SetActive(ShopManager.instance.IsShopUnlocked());
         achievementsButton.SetActive(AchievementManager.instance.IsAchievementsListUnlocked());
 
@@ -390,7 +390,7 @@ public class UIManager : MonoBehaviour
         HideAllScreens();
         HidePauseScreen();
         inGameUIPanel.SetActive(true);
-        SoundManager.instance.UnpauseInGameSounds();
+        SoundManager.instance.UnpauseInGameLoopedSFX();
     }
 
     public void ShowGameOver(int respawnsAvailable)
@@ -399,7 +399,7 @@ public class UIManager : MonoBehaviour
         // inGameUIPanel.SetActive(true);
         bool respawnAvailable = respawnsAvailable > 0;
 
-        SoundManager.instance.PauseInGameSounds();
+        SoundManager.instance.PauseInGameLoopedSFX();
         gameOverPanel.GetComponent<GameOverScreen>().UpdateGameOverScreen();
         gameOverRespawnButton.GetComponent<Button>().interactable = respawnAvailable;
         gameOverPanel.SetActive(true);
@@ -429,7 +429,7 @@ public class UIManager : MonoBehaviour
 
         SetSelectedButton(selectedButtonPausePanel);
 
-        SoundManager.instance.PauseInGameSounds();
+        SoundManager.instance.PauseInGameLoopedSFX();
         // MusicManager.instance.PauseMusic(); // I took this away because I think teh music should still be playing (Johanna). // I agree that this is better but SFX should be stopped no? (R�mi)
         // Show the pause screen.
         pausePanel.SetActive(true);
@@ -443,7 +443,7 @@ public class UIManager : MonoBehaviour
 
     public void HidePauseScreen()
     {
-        SoundManager.instance.UnpauseInGameSounds();
+        SoundManager.instance.UnpauseInGameLoopedSFX();
         // MusicManager.instance.UnpauseMusic();
         if (pausePanel.activeInHierarchy && pausePanelAnimator.GetBool("Visible"))
         {
