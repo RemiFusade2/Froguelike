@@ -5,6 +5,8 @@ using UnityEngine.Experimental.Rendering.Universal;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.Audio;
+using FMODUnity;
+using FMOD.Studio;
 
 public class SettingsMenu : MonoBehaviour
 {
@@ -35,7 +37,6 @@ public class SettingsMenu : MonoBehaviour
     #region Sound
 
     [Header("Sound")]
-    public AudioMixer audioMixer;
     public SoundManager soundManager;
     public Toggle SFXToggle;
     public Slider SFXSlider;
@@ -63,6 +64,46 @@ public class SettingsMenu : MonoBehaviour
 
         startUpDone = true;
     }
+
+    // Update is called once per frame
+    void Update()
+    {
+        // For debugging resolution settings
+        // text.SetText("Windows size: " + Screen.width + "x" + Screen.height + ", " + Screen.fullScreenMode + ", display: " + savedDisplayInfo.width + "x" + savedDisplayInfo.height);
+        // text.SetText(currentResolutionIndex.ToString());
+
+        // Detect if the screens resolution changed and if so set new resolution options.
+        if (savedDisplayInfo.width != Screen.mainWindowDisplayInfo.width || savedDisplayInfo.height != Screen.mainWindowDisplayInfo.height)
+        {
+            FindAllowedResolutions();
+        }
+
+        // Make sure the toggle is displaying correctly.
+        if ((Screen.fullScreen && !fullscreenToggle.isOn) || (!Screen.fullScreen && fullscreenToggle.isOn))
+        {
+            if (!isChangingFullscreen)
+            {
+                fullscreenToggle.SetIsOnWithoutNotify(Screen.fullScreen);
+            }
+        }
+
+        // Resizes the canvas to match the pixel ratio.
+        if (canvasScaler.scaleFactor != pixelPerfectCamera.pixelRatio)
+        {
+            ResizeCanvas();
+            resolutionScrollRect.UpdateScroll(false, pixelPerfectCamera.pixelRatio);
+        }
+    }
+
+    private void LateUpdate()
+    {
+        if (isChangingFullscreen)
+        {
+            isChangingFullscreen = false;
+        }
+    }
+
+    #region Resolution
 
     private void FindAllowedResolutions()
     {
@@ -129,44 +170,6 @@ public class SettingsMenu : MonoBehaviour
         resolutionScrollRect.Initialize(options, currentResolutionIndex);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        // For debugging resolution settings
-        // text.SetText("Windows size: " + Screen.width + "x" + Screen.height + ", " + Screen.fullScreenMode + ", display: " + savedDisplayInfo.width + "x" + savedDisplayInfo.height);
-        // text.SetText(currentResolutionIndex.ToString());
-
-        // Detect if the screens resolution changed and if so set new resolution options.
-        if (savedDisplayInfo.width != Screen.mainWindowDisplayInfo.width || savedDisplayInfo.height != Screen.mainWindowDisplayInfo.height)
-        {
-            FindAllowedResolutions();
-        }
-
-        // Make sure the toggle is displaying correctly.
-        if ((Screen.fullScreen && !fullscreenToggle.isOn) || (!Screen.fullScreen && fullscreenToggle.isOn))
-        {
-            if (!isChangingFullscreen)
-            {
-                fullscreenToggle.SetIsOnWithoutNotify(Screen.fullScreen);
-            }
-        }
-
-        // Resizes the canvas to match the pixel ratio.
-        if (canvasScaler.scaleFactor != pixelPerfectCamera.pixelRatio)
-        {
-            ResizeCanvas();
-            resolutionScrollRect.UpdateScroll(false, pixelPerfectCamera.pixelRatio);
-        }
-    }
-
-    private void LateUpdate()
-    {
-        if (isChangingFullscreen)
-        {
-            isChangingFullscreen = false;
-        }
-    }
-
     public void SetFullscreen(bool wantFullscreen)
     {
         isChangingFullscreen = true;
@@ -225,33 +228,26 @@ public class SettingsMenu : MonoBehaviour
         canvasScaler.scaleFactor = pixelPerfectCamera.pixelRatio;
     }
 
+    #endregion Resolution
 
     #region Sound
     // Sound.
 
-    public void OnVolumeValueChange(Slider slider)
-    {
-        /*
-        float percentage = (slider.value / slider.maxValue) * 2; // Does this give the right kind of number? Should it be * 100?, give number between 0 and 2 now
-
-        soundManager.SetVolumeModifier(percentage);
-        */
-
-    }
-
-    // Turns sound on with true, turns sound of with false.
+    // Turns SFX on with true, turns sound of with false.
     public void SFXOn(bool on)
     {
         if (on)
         {
             SetSFXVolume(previousSFXVolume);
             SFXSlider.SetValueWithoutNotify(previousSFXVolume);
+
+            SoundManager.instance.MuteSFX(false);
         }
         else if (!on)
         {
             if (SFXSlider.value == SFXSlider.minValue)
             {
-                previousSFXVolume = 0;
+                previousSFXVolume = SFXSlider.maxValue / 2;
             }
             else
             {
@@ -259,22 +255,25 @@ public class SettingsMenu : MonoBehaviour
                 SFXSlider.SetValueWithoutNotify(SFXSlider.minValue);
             }
 
-            Mute("volumeSFX");
+            SoundManager.instance.MuteSFX(true);
         }
     }
 
+    // Turns music on with true, turns sound of with false.
     public void MusicOn(bool on)
     {
         if (on)
         {
             SetMusicVolume(previousMusicVolume);
             musicSlider.SetValueWithoutNotify(previousMusicVolume);
+
+            SoundManager.instance.MuteMusic(false);
         }
         else if (!on)
         {
             if (musicSlider.value == musicSlider.minValue)
             {
-                previousMusicVolume = 0;
+                previousMusicVolume = musicSlider.maxValue / 2;
             }
             else
             {
@@ -282,25 +281,17 @@ public class SettingsMenu : MonoBehaviour
                 musicSlider.SetValueWithoutNotify(musicSlider.minValue);
             }
 
-            Mute("volumeMusic");
+            SoundManager.instance.MuteMusic(true);
         }
     }
 
-    private void Mute(string audioGroupVolumeParameter)
-    {
-        audioMixer.SetFloat(audioGroupVolumeParameter, -80f);
-    }
-
+    // Sets volume and updates the check box if necessary.
     public void SetSFXVolume(float volume)
     {
-        float newVolume = volume;
+        float newVolume = volume / SFXSlider.maxValue * 2;
 
-        if (newVolume < 0)
-        {
-            newVolume *= 3;
-        }
 
-        if (newVolume == -30)
+        if (newVolume == SFXSlider.minValue)
         {
             if (SFXToggle.isOn)
             {
@@ -308,27 +299,25 @@ public class SettingsMenu : MonoBehaviour
                 SFXOn(false);
             }
         }
-        else if (newVolume > -30)
+        else if (newVolume > 0)
         {
             if (!SFXToggle.isOn)
             {
                 SFXToggle.SetIsOnWithoutNotify(true);
+                SoundManager.instance.MuteSFX(false);
             }
-
-            audioMixer.SetFloat("volumeSFX", newVolume);
         }
+
+        SoundManager.instance.SetNewSFXVolume(newVolume);
     }
 
+    // Sets volume and updates the check box if necessary.
     public void SetMusicVolume(float volume)
     {
-        float newVolume = volume;
+        float newVolume = volume / musicSlider.maxValue * 2;
 
-        if (newVolume < 0)
-        {
-            newVolume *= 3;
-        }
 
-        if (newVolume == -30)
+        if (newVolume == musicSlider.minValue)
         {
             if (musicToggle.isOn)
             {
@@ -336,21 +325,16 @@ public class SettingsMenu : MonoBehaviour
                 MusicOn(false);
             }
         }
-        else if (newVolume > -30)
+        else if (newVolume > 0)
         {
             if (!musicToggle.isOn)
             {
                 musicToggle.SetIsOnWithoutNotify(true);
+                SoundManager.instance.MuteMusic(false);
             }
-
-            audioMixer.SetFloat("volumeMusic", newVolume);
         }
-    }
 
-    private float ModifyVolume(float volume)
-    {
-        float newVolume = volume * 1;
-        return newVolume;
+        SoundManager.instance.SetNewMusicVolume(newVolume);
     }
 
     #endregion Sound

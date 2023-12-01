@@ -38,6 +38,11 @@ public class SoundManager : MonoBehaviour
 
     private EventInstance takeDamageEvent;
 
+
+    private Bus musicBus;
+    private Bus SFXBus;
+
+
     private void Awake()
     {
         if (instance == null)
@@ -49,11 +54,35 @@ public class SoundManager : MonoBehaviour
         {
             Destroy(this.gameObject);
         }
+
+        musicBus = RuntimeManager.GetBus("bus:/Music");
+        SFXBus = RuntimeManager.GetBus("bus:/SFX");
     }
 
     private void Start()
     {
         takeDamageEvent = RuntimeManager.CreateInstance(takeDamageSound);
+    }
+
+    // Settings.
+    public void SetNewMusicVolume(float volume)
+    {
+        musicBus.setVolume(volume);
+    }
+
+    public void SetNewSFXVolume(float volume)
+    {
+        SFXBus.setVolume(volume);
+    }
+
+    public void MuteMusic(bool beMuted)
+    {
+        musicBus.setMute(beMuted);
+    }
+
+    public void MuteSFX(bool beMuted)
+    {
+        SFXBus.setMute(beMuted);
     }
 
     private void PauseInGameLoopedSFX(bool paused)
