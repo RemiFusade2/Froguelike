@@ -75,12 +75,12 @@ public class SoundManager : MonoBehaviour
         SFXBus.setVolume(volume);
     }
 
-    public void MuteMusic(bool beMuted)
+    public void MuteMusicBus(bool beMuted)
     {
         musicBus.setMute(beMuted);
     }
 
-    public void MuteSFX(bool beMuted)
+    public void MuteSFXBus(bool beMuted)
     {
         SFXBus.setMute(beMuted);
     }
@@ -109,7 +109,7 @@ public class SoundManager : MonoBehaviour
 
     private void MakeLoopEventStop(EventInstance source)
     {
-        source.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+        source.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
     }
 
     public void PlayTakeDamageLoopSound() // TODO
@@ -131,7 +131,7 @@ public class SoundManager : MonoBehaviour
         takeDamageEvent.getPlaybackState(out playbackState);
         if (playbackState.Equals(PLAYBACK_STATE.PLAYING))
         {
-            takeDamageEvent.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+            takeDamageEvent.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
         }
     }
 

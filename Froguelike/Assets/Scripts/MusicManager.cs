@@ -40,7 +40,7 @@ public class MusicManager : MonoBehaviour
     public void PlayTitleMusic()
     {
         UnpauseMusic();
-        inRunMusicEvent.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+        inRunMusicEvent.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
         titleMusicEvent.start();
 
 
@@ -58,7 +58,7 @@ public class MusicManager : MonoBehaviour
     public void PlayLevelMusic()
     {
         UnpauseMusic();
-        titleMusicEvent.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+        titleMusicEvent.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
         inRunMusicEvent.start();
 
         /*
@@ -69,10 +69,10 @@ public class MusicManager : MonoBehaviour
         */
     }
 
-    public void PauseMusic()
+    public void StopMusic()
     {
-        titleMusicEvent.setPaused(true);
-        inRunMusicEvent.setPaused(true);
+        titleMusicEvent.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+        inRunMusicEvent.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
 
         /*
         CheckAudioSource();

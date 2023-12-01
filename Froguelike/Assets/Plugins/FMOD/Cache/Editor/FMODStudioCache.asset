@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-8915486431583252501
+--- !u!114 &-8869204758590197738
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/ShopRefund
+  m_Name: event:/Shop/ShopRefund
   m_EditorClassIdentifier: 
-  Path: event:/ShopRefund
+  Path: event:/Shop/ShopRefund
   Guid:
     Data1: -1478747350
     Data2: 1167292571
@@ -42,65 +42,11 @@ MonoBehaviour:
   Path: ../FMOD/FMOD_Froguelike/Build/Desktop/Temporary.bank
   Name: Temporary
   StudioPath: bank:/Temporary
-  lastModified: 638369867242413708
+  lastModified: 638370639716342471
   FileSizes:
   - Name: Desktop
-    Value: 149280
+    Value: 149568
   Exists: 1
---- !u!114 &-7716872712838323020
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/BookSlide
-  m_EditorClassIdentifier: 
-  Path: event:/BookSlide
-  Guid:
-    Data1: -1655455666
-    Data2: 1325135080
-    Data3: 329538477
-    Data4: 946602755
-  Banks:
-  - {fileID: 8159557336185028953}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 0
---- !u!114 &-7253373623674612697
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/LevelUp
-  m_EditorClassIdentifier: 
-  Path: event:/LevelUp
-  Guid:
-    Data1: 1268081430
-    Data2: 1175306731
-    Data3: -501241212
-    Data4: 280704497
-  Banks:
-  - {fileID: -8433404268845308050}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 0
 --- !u!114 &-7205301074116899452
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -128,6 +74,114 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
+--- !u!114 &-6816968327394535329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/InRun/LevelUp
+  m_EditorClassIdentifier: 
+  Path: event:/InRun/LevelUp
+  Guid:
+    Data1: 1268081430
+    Data2: 1175306731
+    Data3: -501241212
+    Data4: 280704497
+  Banks:
+  - {fileID: -8433404268845308050}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
+--- !u!114 &-6295840963185475186
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/InRun/TakeDamageLoop
+  m_EditorClassIdentifier: 
+  Path: event:/InRun/TakeDamageLoop
+  Guid:
+    Data1: 1169597055
+    Data2: 1285901863
+    Data3: 1271460020
+    Data4: 1696885205
+  Banks:
+  - {fileID: -8433404268845308050}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 496
+--- !u!114 &-6281611501138030862
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Shop/ShopBuy
+  m_EditorClassIdentifier: 
+  Path: event:/Shop/ShopBuy
+  Guid:
+    Data1: -344999570
+    Data2: 1287332941
+    Data3: 711099287
+    Data4: -1988856287
+  Banks:
+  - {fileID: -8433404268845308050}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
+--- !u!114 &-5584905193479632416
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/InRun/PickUpItem
+  m_EditorClassIdentifier: 
+  Path: event:/InRun/PickUpItem
+  Guid:
+    Data1: 346104287
+    Data2: 1291269918
+    Data3: 1520980883
+    Data4: -1804802113
+  Banks:
+  - {fileID: -8433404268845308050}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &-3343564064817551758
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -143,12 +197,12 @@ MonoBehaviour:
   Path: ../FMOD/FMOD_Froguelike/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 638369867240548966
+  lastModified: 638370627995404620
   FileSizes:
   - Name: Desktop
-    Value: 1794
+    Value: 1854
   Exists: 1
---- !u!114 &-2842933255974462157
+--- !u!114 &-3098482532759606219
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -158,16 +212,43 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/PageTurnLong
+  m_Name: event:/UI/BookSounds/BookSlide
   m_EditorClassIdentifier: 
-  Path: event:/PageTurnLong
+  Path: event:/UI/BookSounds/BookSlide
   Guid:
-    Data1: -403760608
-    Data2: 1216050007
-    Data3: 1211489195
-    Data4: -225113638
+    Data1: -1655455666
+    Data2: 1325135080
+    Data3: 329538477
+    Data4: 946602755
   Banks:
   - {fileID: 8159557336185028953}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
+--- !u!114 &-2333856767906735190
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/UI/BookSounds/PageTurnShort
+  m_EditorClassIdentifier: 
+  Path: event:/UI/BookSounds/PageTurnShort
+  Guid:
+    Data1: 450435983
+    Data2: 1086802835
+    Data3: 1676004542
+    Data4: -587585913
+  Banks:
+  - {fileID: 864254932730433483}
   IsStream: 0
   Is3D: 0
   IsOneShot: 1
@@ -202,6 +283,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 19996
+--- !u!114 &-731124968605056524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/InRun/PickUpXP
+  m_EditorClassIdentifier: 
+  Path: event:/InRun/PickUpXP
+  Guid:
+    Data1: 1763721946
+    Data2: 1113605924
+    Data3: 337919118
+    Data4: 1106336057
+  Banks:
+  - {fileID: -8433404268845308050}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &-18861664281574811
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -217,10 +325,10 @@ MonoBehaviour:
   Path: ../FMOD/FMOD_Froguelike/Build/Desktop/Music.bank
   Name: Music
   StudioPath: bank:/Music
-  lastModified: 638369867241832716
+  lastModified: 638370636742435634
   FileSizes:
   - Name: Desktop
-    Value: 314080
+    Value: 314592
   Exists: 1
 --- !u!114 &11400000
 MonoBehaviour:
@@ -242,32 +350,59 @@ MonoBehaviour:
   - {fileID: -8433404268845308050}
   - {fileID: -18861664281574811}
   EditorEvents:
-  - {fileID: -7716872712838323020}
-  - {fileID: 3889078804096660422}
-  - {fileID: -2842933255974462157}
-  - {fileID: 8943540376368119020}
-  - {fileID: -7253373623674612697}
-  - {fileID: -8915486431583252501}
-  - {fileID: 5549953106577196961}
-  - {fileID: 2145631486965372748}
-  - {fileID: 7527332656708899444}
-  - {fileID: 2080207661672762618}
-  - {fileID: 9180261675684521305}
-  - {fileID: 7629906366035950482}
-  - {fileID: 3208498975931732105}
-  - {fileID: 1599570235893437061}
-  - {fileID: 962273348792309562}
   - {fileID: -7205301074116899452}
   - {fileID: -1615856072548762269}
   - {fileID: 566424666774944301}
   - {fileID: 1870281355886628613}
+  - {fileID: 1613909180636115878}
+  - {fileID: 8758185251930310319}
+  - {fileID: -3098482532759606219}
+  - {fileID: -6816968327394535329}
+  - {fileID: -8869204758590197738}
+  - {fileID: -6281611501138030862}
+  - {fileID: -6295840963185475186}
+  - {fileID: 4583904637236416895}
+  - {fileID: 1979953575856088201}
+  - {fileID: 4775855708873556209}
+  - {fileID: -731124968605056524}
+  - {fileID: -5584905193479632416}
+  - {fileID: 703032731532512325}
+  - {fileID: 435710488241930260}
+  - {fileID: -2333856767906735190}
   EditorParameters: []
   MasterBanks:
   - {fileID: 6527175867075044624}
   StringsBanks:
   - {fileID: -3343564064817551758}
-  cacheTime: 638369867242624926
+  cacheTime: 638370639716342471
   cacheVersion: 131609
+--- !u!114 &435710488241930260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/InRun/EatBounty
+  m_EditorClassIdentifier: 
+  Path: event:/InRun/EatBounty
+  Guid:
+    Data1: -1694894870
+    Data2: 1319737076
+    Data3: -404913525
+    Data4: 1708370985
+  Banks:
+  - {fileID: -8433404268845308050}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &566424666774944301
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -295,6 +430,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
+--- !u!114 &703032731532512325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/InRun/Heal
+  m_EditorClassIdentifier: 
+  Path: event:/InRun/Heal
+  Guid:
+    Data1: 337806820
+    Data2: 1106112679
+    Data3: 1748282517
+    Data4: -1431502001
+  Banks:
+  - {fileID: -8433404268845308050}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &864254932730433483
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -310,12 +472,12 @@ MonoBehaviour:
   Path: ../FMOD/FMOD_Froguelike/Build/Desktop/UI.bank
   Name: UI
   StudioPath: bank:/UI
-  lastModified: 638369867242624926
+  lastModified: 638370627996350122
   FileSizes:
   - Name: Desktop
     Value: 12320
   Exists: 1
---- !u!114 &962273348792309562
+--- !u!114 &1613909180636115878
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -325,43 +487,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/EatBounty
+  m_Name: event:/UI/BookSounds/PageTurnLong
   m_EditorClassIdentifier: 
-  Path: event:/EatBounty
+  Path: event:/UI/BookSounds/PageTurnLong
   Guid:
-    Data1: -1694894870
-    Data2: 1319737076
-    Data3: -404913525
-    Data4: 1708370985
+    Data1: -403760608
+    Data2: 1216050007
+    Data3: 1211489195
+    Data4: -225113638
   Banks:
-  - {fileID: -8433404268845308050}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 0
---- !u!114 &1599570235893437061
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Heal
-  m_EditorClassIdentifier: 
-  Path: event:/Heal
-  Guid:
-    Data1: 337806820
-    Data2: 1106112679
-    Data3: 1748282517
-    Data4: -1431502001
-  Banks:
-  - {fileID: -8433404268845308050}
+  - {fileID: 8159557336185028953}
   IsStream: 0
   Is3D: 0
   IsOneShot: 1
@@ -396,7 +531,7 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 14004
---- !u!114 &2080207661672762618
+--- !u!114 &1979953575856088201
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -406,9 +541,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/PowerUpFreeze
+  m_Name: event:/InRun/PowerUpFreeze
   m_EditorClassIdentifier: 
-  Path: event:/PowerUpFreeze
+  Path: event:/InRun/PowerUpFreeze
   Guid:
     Data1: 832113068
     Data2: 1220481949
@@ -423,7 +558,7 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
---- !u!114 &2145631486965372748
+--- !u!114 &4583904637236416895
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -433,41 +568,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/TakeDamageLoop
+  m_Name: event:/InRun/EatBug
   m_EditorClassIdentifier: 
-  Path: event:/TakeDamageLoop
+  Path: event:/InRun/EatBug
   Guid:
-    Data1: 1169597055
-    Data2: 1285901863
-    Data3: 1271460020
-    Data4: 1696885205
-  Banks:
-  - {fileID: -8433404268845308050}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 0
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 496
---- !u!114 &3208498975931732105
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/PickUpItem
-  m_EditorClassIdentifier: 
-  Path: event:/PickUpItem
-  Guid:
-    Data1: 346104287
-    Data2: 1291269918
-    Data3: 1520980883
-    Data4: -1804802113
+    Data1: 1263737734
+    Data2: 1085062552
+    Data3: 133591693
+    Data4: -779476967
   Banks:
   - {fileID: -8433404268845308050}
   IsStream: 0
@@ -477,7 +585,7 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
---- !u!114 &3889078804096660422
+--- !u!114 &4775855708873556209
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -487,41 +595,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/PageRip
+  m_Name: event:/InRun/PickUpFroin
   m_EditorClassIdentifier: 
-  Path: event:/PageRip
+  Path: event:/InRun/PickUpFroin
   Guid:
-    Data1: 1307103267
-    Data2: 1329769381
-    Data3: 1024109243
-    Data4: -982666011
-  Banks:
-  - {fileID: 8159557336185028953}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 0
---- !u!114 &5549953106577196961
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/ShopBuy
-  m_EditorClassIdentifier: 
-  Path: event:/ShopBuy
-  Guid:
-    Data1: -344999570
-    Data2: 1287332941
-    Data3: 711099287
-    Data4: -1988856287
+    Data1: -625830979
+    Data2: 1133181754
+    Data3: 583968416
+    Data4: 2079892241
   Banks:
   - {fileID: -8433404268845308050}
   IsStream: 0
@@ -546,65 +627,11 @@ MonoBehaviour:
   Path: ../FMOD/FMOD_Froguelike/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 638369867240528962
+  lastModified: 638370627995384620
   FileSizes:
   - Name: Desktop
     Value: 1340
   Exists: 1
---- !u!114 &7527332656708899444
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/EatBug
-  m_EditorClassIdentifier: 
-  Path: event:/EatBug
-  Guid:
-    Data1: 1263737734
-    Data2: 1085062552
-    Data3: 133591693
-    Data4: -779476967
-  Banks:
-  - {fileID: -8433404268845308050}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 0
---- !u!114 &7629906366035950482
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/PickUpXP
-  m_EditorClassIdentifier: 
-  Path: event:/PickUpXP
-  Guid:
-    Data1: 1763721946
-    Data2: 1113605924
-    Data3: 337919118
-    Data4: 1106336057
-  Banks:
-  - {fileID: -8433404268845308050}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 0
 --- !u!114 &8159557336185028953
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -620,12 +647,12 @@ MonoBehaviour:
   Path: ../FMOD/FMOD_Froguelike/Build/Desktop/SFX.bank
   Name: SFX
   StudioPath: bank:/SFX
-  lastModified: 638369867242052157
+  lastModified: 638370627995679855
   FileSizes:
   - Name: Desktop
     Value: 49728
   Exists: 1
---- !u!114 &8943540376368119020
+--- !u!114 &8758185251930310319
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -635,43 +662,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/PageTurnShort
+  m_Name: event:/UI/BookSounds/PageRip
   m_EditorClassIdentifier: 
-  Path: event:/PageTurnShort
+  Path: event:/UI/BookSounds/PageRip
   Guid:
-    Data1: 450435983
-    Data2: 1086802835
-    Data3: 1676004542
-    Data4: -587585913
+    Data1: 1307103267
+    Data2: 1329769381
+    Data3: 1024109243
+    Data4: -982666011
   Banks:
-  - {fileID: 864254932730433483}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 0
---- !u!114 &9180261675684521305
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/PickUpFroin
-  m_EditorClassIdentifier: 
-  Path: event:/PickUpFroin
-  Guid:
-    Data1: -625830979
-    Data2: 1133181754
-    Data3: 583968416
-    Data4: 2079892241
-  Banks:
-  - {fileID: -8433404268845308050}
+  - {fileID: 8159557336185028953}
   IsStream: 0
   Is3D: 0
   IsOneShot: 1

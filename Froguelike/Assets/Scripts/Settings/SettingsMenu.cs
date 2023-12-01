@@ -241,7 +241,7 @@ public class SettingsMenu : MonoBehaviour
             SetSFXVolume(previousSFXVolume);
             SFXSlider.SetValueWithoutNotify(previousSFXVolume);
 
-            SoundManager.instance.MuteSFX(false);
+            SoundManager.instance.MuteSFXBus(false);
         }
         else if (!on)
         {
@@ -255,7 +255,7 @@ public class SettingsMenu : MonoBehaviour
                 SFXSlider.SetValueWithoutNotify(SFXSlider.minValue);
             }
 
-            SoundManager.instance.MuteSFX(true);
+            SoundManager.instance.MuteSFXBus(true);
         }
     }
 
@@ -267,7 +267,7 @@ public class SettingsMenu : MonoBehaviour
             SetMusicVolume(previousMusicVolume);
             musicSlider.SetValueWithoutNotify(previousMusicVolume);
 
-            SoundManager.instance.MuteMusic(false);
+            SoundManager.instance.MuteMusicBus(false);
         }
         else if (!on)
         {
@@ -281,7 +281,7 @@ public class SettingsMenu : MonoBehaviour
                 musicSlider.SetValueWithoutNotify(musicSlider.minValue);
             }
 
-            SoundManager.instance.MuteMusic(true);
+            SoundManager.instance.MuteMusicBus(true);
         }
     }
 
@@ -304,7 +304,7 @@ public class SettingsMenu : MonoBehaviour
             if (!SFXToggle.isOn)
             {
                 SFXToggle.SetIsOnWithoutNotify(true);
-                SoundManager.instance.MuteSFX(false);
+                SoundManager.instance.MuteSFXBus(false);
             }
         }
 
@@ -330,7 +330,7 @@ public class SettingsMenu : MonoBehaviour
             if (!musicToggle.isOn)
             {
                 musicToggle.SetIsOnWithoutNotify(true);
-                SoundManager.instance.MuteMusic(false);
+                SoundManager.instance.MuteMusicBus(false);
             }
         }
 
