@@ -31,7 +31,7 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
 
     private const float gap = 10;
 
-    public void Initialize(ShopItem item, bool availableButCantBuy)
+    public void Initialize(ShopItem item, bool availableButCantBuy, int extraFee)
     {
         buyButton.interactable = true;
         buyButton.gameObject.SetActive(true);
@@ -69,7 +69,8 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
 
         if (item.currentLevel < item.data.costForEachLevel.Count)
         {
-            priceText.text = Tools.FormatCurrency(item.data.costForEachLevel[item.currentLevel], DataManager.instance.currencySymbol);
+            int cost = item.data.costForEachLevel[item.currentLevel] + extraFee;
+            priceText.text = Tools.FormatCurrency(cost, DataManager.instance.currencySymbol);
         }
 
         name = item.itemName;

@@ -61,6 +61,7 @@ public class GameSaveData : SaveData
     }
 }
 
+
 /// <summary>
 /// GameManager is a high-level class that will coordinate all calls to other Managers.
 /// It also contains some settings that apply to the whole game.
@@ -100,7 +101,6 @@ public class GameManager : MonoBehaviour
     public bool hasGameStarted;
     public bool isGameRunning;
 
-
     private void Awake()
     {
         if (instance == null)
@@ -126,6 +126,7 @@ public class GameManager : MonoBehaviour
 
         //UIManager.instance.HideEndOfDemoScreen();
         UIManager.instance.ShowDemoDisclaimerScreen(demoBuild && showDemoDisclaimer, demoLimitationType, demoSaveProgress, demoRunCountLimit, demoTimeLimit);
+
     }
 
     private void Update()

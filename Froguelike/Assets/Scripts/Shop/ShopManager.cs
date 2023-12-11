@@ -89,12 +89,15 @@ public class ShopManager : MonoBehaviour
 
     [Header("Settings")]
     public bool displaySoldOutItems = true;
+    public int baseFee = 10;
 
     [Header("Runtime")]
     public ShopSaveData shopData; // Will be loaded and saved when needed
     public List<StatValue> statsBonuses; // This is computed from the items bought
 
-    public Transform trash;
+    public Transform trash; // doesn't seem to change at runtime
+    [Space]
+    public int currentFee; // reset after redund, increases with every item bought
 
     private void Awake()
     {
@@ -161,6 +164,11 @@ public class ShopManager : MonoBehaviour
         SaveDataManager.instance.isSaveDataDirty = true;
     }
 
+    private void ComputeCurrentFee()
+    {
+        currentFee = baseFee * shopData.shopItems.Sum(x => x.currentLevel);       
+    }
+
     /// <summary>
     /// Attempt to buy an item.
     /// Spend the currency if available and upgrade the item to its next level.
@@ -172,7 +180,7 @@ public class ShopManager : MonoBehaviour
         if (item.currentLevel < item.maxLevel)
         {
             // Get the cost of that upgrade
-            int itemCost = item.data.costForEachLevel[item.currentLevel];
+            int itemCost = item.data.costForEachLevel[item.currentLevel] + currentFee;
             if (GameManager.instance.gameData.availableCurrency >= itemCost)
             {
                 string savedButtonName = EventSystem.current.currentSelectedGameObject.name;
@@ -186,6 +194,8 @@ public class ShopManager : MonoBehaviour
                 item.currentLevel++;
                 // Compute new starting stats bonuses
                 ComputeStatsBonuses();
+                // Compute the new extra fee
+                ComputeCurrentFee();
                 // Update the shop display
                 DisplayShop(false);
                 // Play sound
@@ -289,6 +299,9 @@ public class ShopManager : MonoBehaviour
         shopData.currencySpentInShop = 0;
         SaveDataManager.instance.isSaveDataDirty = true;
 
+        // Compute the new extra fee
+        ComputeCurrentFee();
+
         return returnedCurrency;
     }
 
@@ -332,7 +345,7 @@ public class ShopManager : MonoBehaviour
                 bool availableButCantBuy = false;
                 if (item.currentLevel < item.data.costForEachLevel.Count)
                 {
-                    int itemCost = item.data.costForEachLevel[item.currentLevel];
+                    int itemCost = item.data.costForEachLevel[item.currentLevel] + currentFee;
                     availableButCantBuy = GameManager.instance.gameData.availableCurrency < itemCost && itemIsAvailable;
                 }
 
@@ -341,14 +354,14 @@ public class ShopManager : MonoBehaviour
                     GameObject shopItemButtonGo = Instantiate(availableShopItemPanelPrefab, shopPanel);
                     ShopItemButton shopItemButton = shopItemButtonGo.GetComponent<ShopItemButton>();
                     shopItemButton.buyButton.onClick.AddListener(delegate { BuyItem(item); });
-                    shopItemButton.Initialize(item, availableButCantBuy);
+                    shopItemButton.Initialize(item, availableButCantBuy, currentFee);
                     buttonCount++;
                 }
                 else if (itemIsMaxedOut || (itemIsAvailable && availableButCantBuy))
                 {
                     GameObject shopItemButtonGo = Instantiate(soldOutShopItemPanelPrefab, shopPanel);
                     ShopItemButton shopItemButton = shopItemButtonGo.GetComponent<ShopItemButton>();
-                    shopItemButton.Initialize(item, availableButCantBuy);
+                    shopItemButton.Initialize(item, availableButCantBuy, currentFee);
                     buttonCount++;
                 }
             }
@@ -394,6 +407,8 @@ public class ShopManager : MonoBehaviour
 
         // Compute new starting stats bonuses
         ComputeStatsBonuses();
+        // Compute current fee
+        ComputeCurrentFee();
         // Update the shop display
         DisplayShop(false);
 
@@ -427,6 +442,8 @@ public class ShopManager : MonoBehaviour
         }
         // Compute new starting stats bonuses
         ComputeStatsBonuses();
+        // Compute current fee
+        ComputeCurrentFee();
         // Update the shop display
         DisplayShop(false);
     }

@@ -137,6 +137,8 @@ public class EnemyInstance
     // A link to the last weapon that hit this enemy
     public Transform lastWeaponHitTransform;
 
+    public Coroutine removeOverlayCoroutine;
+
     public void RemoveOverlay()
     {
         enemyRenderer.material.SetFloat("_OverlayVisible", 0);
@@ -214,9 +216,11 @@ public class EnemiesManager : MonoBehaviour
     public int updateAllEnemiesCount = 500;
 
     [Header("Settings - Effects (poison, frozen, etc.)")]
-    public Color poisonedSpriteColor;
-    public Color frozenSpriteColor;
-    public Color cursedSpriteColor;
+    public Color poisonedOverlayColor;
+    public Color frozenOverlayColor;
+    public Color cursedOverlayColor;
+    public Color vampireOverlayColor;
+    public Color knockbackOverlayColor;
     public float delayBetweenPoisonDamage = 0.6f;
 
     [Header("Settings - Movement")]
@@ -786,6 +790,9 @@ public class EnemiesManager : MonoBehaviour
         EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
         enemy.HP -= damage;
 
+        bool knockback = false;
+        bool vampireEffect = false;
+
         // Display damage text
         GameObject damageText = null;
         if (Mathf.RoundToInt(damage) > 0 && damageTextsPool.TryDequeue(out damageText))
@@ -798,6 +805,8 @@ public class EnemiesManager : MonoBehaviour
             damageText.GetComponent<Rigidbody2D>().velocity = Vector2.up;
             if (applyVampireEffect)
             {
+                // damage is not null and vampire effect is ON
+                vampireEffect = true;
                 damageText.GetComponent<ParticleSystem>().Play();
             }
             StartCoroutine(PutDamageTextIntoPool(damageText, 1.0f));
@@ -822,10 +831,17 @@ public class EnemiesManager : MonoBehaviour
                 float knockbackForce = weapon.GetComponent<WeaponBehaviour>().knockbackForce / knockbackStrengthMassRatio;
 
                 enemy.Knockback(knockbackDirection, knockbackForce, knockbackDuration);
-
-                // Enemy will be white while it is knocked back
-                enemy.SetOverlayColor(Color.white);
+                knockback = true;
             }
+        }
+
+        if (vampireEffect)
+        {
+            SetOverlayColor(enemy, vampireOverlayColor, 0.3f);
+        }
+        else if (knockback)
+        {
+            SetOverlayColor(enemy, knockbackOverlayColor, 0.3f);
         }
 
         return enemyDied;
@@ -912,7 +928,7 @@ public class EnemiesManager : MonoBehaviour
                         enemy.lastPoisonDamageTime = float.MinValue;
                         enemy.freezeRemainingTime = 0;
                         enemy.curseRemainingTime = 0;
-                        UpdateSpriteColorAndStatusParticles(enemy);
+                        UpdateStatusParticles(enemy);
                         if (enemy.lastWeaponHitTransform != null)
                         {
                             frogPosition = enemy.lastWeaponHitTransform.position;
@@ -1001,7 +1017,7 @@ public class EnemiesManager : MonoBehaviour
                                 enemy.curseRemainingTime -= enemyUpdateDeltaTime;
 
                                 // Enemy get its color back (depending on current effect applied)
-                                UpdateSpriteColorAndStatusParticles(enemy);
+                                UpdateStatusParticles(enemy);
 
                                 switch (movePattern.movePatternType)
                                 {
@@ -1067,7 +1083,7 @@ public class EnemiesManager : MonoBehaviour
                                 enemy.poisonRemainingTime = 0;
                                 enemy.poisonDamage = 0;
                                 enemy.lastPoisonDamageTime = float.MinValue;
-                                UpdateSpriteColorAndStatusParticles(enemy);
+                                UpdateStatusParticles(enemy);
                             }
                             else if (Time.time - enemy.lastPoisonDamageTime > delayBetweenPoisonDamage)
                             {
@@ -1140,7 +1156,8 @@ public class EnemiesManager : MonoBehaviour
             enemy.poisonDamage = poisonDamage;
             enemy.poisonRemainingTime = poisonDuration;
             enemy.lastPoisonDamageTime = Time.time;
-            UpdateSpriteColorAndStatusParticles(enemy);
+            SetOverlayColor(enemy, poisonedOverlayColor, 0.3f);
+            UpdateStatusParticles(enemy);
         }
     }
 
@@ -1151,7 +1168,8 @@ public class EnemiesManager : MonoBehaviour
         {
             EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
             enemy.freezeRemainingTime = duration;
-            UpdateSpriteColorAndStatusParticles(enemy);
+            SetOverlayColor(enemy, frozenOverlayColor, 0.3f);
+            UpdateStatusParticles(enemy);
         }
     }
 
@@ -1206,9 +1224,13 @@ public class EnemiesManager : MonoBehaviour
     public void ApplyCurseEffect(string enemyGoName, float duration)
     {
         int enemyIndex = int.Parse(enemyGoName);
-        EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
-        enemy.curseRemainingTime = duration;
-        UpdateSpriteColorAndStatusParticles(enemy);
+        if (allActiveEnemiesDico.ContainsKey(enemyIndex))
+        {
+            EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
+            enemy.curseRemainingTime = duration;
+            SetOverlayColor(enemy, cursedOverlayColor, 0.3f);
+            UpdateStatusParticles(enemy);
+        }
     }
 
     /// <summary>
@@ -1298,19 +1320,25 @@ public class EnemiesManager : MonoBehaviour
         enemy.enemyAnimator.SetFloat("Speed", actualSpeed);
     }
 
-    private void UpdateSpriteColorAndStatusParticles(EnemyInstance enemyInstance)
+    private void SetOverlayColor(EnemyInstance enemyInstance, Color color, float delay)
     {
-        if (enemyInstance.knockbackCooldown > 0)
+        enemyInstance.SetOverlayColor(color);
+        if (enemyInstance.removeOverlayCoroutine != null)
         {
-            // enemy being hit
-            enemyInstance.SetOverlayColor(Color.white);
+            StopCoroutine(enemyInstance.removeOverlayCoroutine);
+            enemyInstance.removeOverlayCoroutine = null;
         }
-        else
-        {
-            // enemy is back to normal
-            enemyInstance.RemoveOverlay();
-        }
+        StartCoroutine(RemoveOverlayColorAsync(enemyInstance, delay));
+    }
 
+    private IEnumerator RemoveOverlayColorAsync(EnemyInstance enemyInstance, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        enemyInstance.RemoveOverlay();
+    }
+
+    private void UpdateStatusParticles(EnemyInstance enemyInstance)
+    {
         // Freeze effect
         if (enemyInstance.enemyFreezeParticles != null)
         {
@@ -1415,6 +1443,9 @@ public class EnemiesManager : MonoBehaviour
             enemyInstance.enemyRenderer.enabled = false;
             enemyInstance.active = false;
 
+            // Increase kill count by 1 and display it
+            RunManager.instance.IncreaseKillCount(1);
+
             // Spawn XP
             Vector3 xpSpawnPosition = enemyInstance.enemyTransform.position - 0.1f * Vector3.up;
             float XPEarned = enemyInstance.enemyInfo.enemyData.xPBonus;
@@ -1426,19 +1457,18 @@ public class EnemiesManager : MonoBehaviour
             CollectiblesManager.instance.SpawnCollectible(xpSpawnPosition, CollectibleType.XP_BONUS, XPEarned);
 
             // Spawn Froins (a chance to get froins when killing a bug)
-            Vector2 currencyProbabilityMinMax = new Vector2(0, 0.1f * (1 + GameManager.instance.player.currencyBoost));
+            Vector2 currencyProbabilityMinMax = new Vector2(0, DataManager.instance.baseCurrencyProbabilitySpawnFromBugs * (1 + GameManager.instance.player.currencyBoost));
             float currencyProba = Random.Range(currencyProbabilityMinMax.x, currencyProbabilityMinMax.y);
             float currencyAmount = Mathf.Floor(currencyProba) + ((Random.Range(Mathf.Floor(currencyProba), Mathf.Ceil(currencyProba)) < currencyProba) ? 1 : 0);
             long currencyAmountLong = (long)Mathf.RoundToInt(currencyAmount);
-            if (currencyAmountLong > 0)
+            for (int i = 0; i < currencyAmountLong; i++)
             {
-                Vector3 froinsSpawnPosition = enemyInstance.enemyTransform.position + 0.2f * Vector3.up;
-                CollectiblesManager.instance.SpawnCollectible(froinsSpawnPosition, CollectibleType.FROINS, currencyAmountLong);
+                Vector3 froinsSpawnPosition = enemyInstance.enemyTransform.position + 0.4f * Random.onUnitSphere.normalized;
+                CollectiblesManager.instance.SpawnCollectible(froinsSpawnPosition, CollectibleType.FROINS, 10) ;
             }
 
             PutEnemyInThePool(enemyInstance);
             allActiveEnemiesDico.Remove(enemyInstance.enemyID);
-
         }
         
     }

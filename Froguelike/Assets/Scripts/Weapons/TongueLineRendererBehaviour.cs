@@ -99,7 +99,7 @@ public class TongueLineRendererBehaviour : MonoBehaviour
         if (withFrogTongueTip)
         {
             outlineLineRendererWidthKeys[0] = new Keyframe(0, outlineRootWidthRatio, 0, 0);
-            outlineLineRendererWidthKeys[1] = new Keyframe(tipRatio, outlineRootWidthRatio, 0, 5);
+            outlineLineRendererWidthKeys[1] = new Keyframe(tipRatio, outlineRootWidthRatio, 0, 3);
             outlineLineRendererWidthKeys[2] = new Keyframe(1, 1, 0, 0);
         }
         else

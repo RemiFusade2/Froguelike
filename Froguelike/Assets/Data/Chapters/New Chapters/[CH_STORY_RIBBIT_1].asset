@@ -62,14 +62,21 @@ MonoBehaviour:
   coinsSpawnFrequency: 1
   healthSpawnFrequency: 0
   levelUpSpawnFrequency: 0
+  otherCollectibleSpawnFrequenciesList: []
   specialCollectiblesOnTheMap:
   - tileCoordinates: {x: 0, y: 15}
     tilePrefab: {fileID: 799068813537004447, guid: 3577fff562b74ae4cb6c4b7340b8b689, type: 3}
+    collectibleName: Some Moss
+    collectibleDescription: 
     collectibleType: 0
     collectibleStatItemData: {fileID: 11400000, guid: 4f94eda1e628c8544bdbe476f6718bac, type: 2}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
     collectibleFriendType: 0
+    foundCollectibleTitle: You found
+    acceptCollectibleStr: Take it
+    refuseCollectibleStr: Ew...
+    compassLevel: 1
   environmentChange: 0
   characterStyleChange: 0
   waves:
@@ -78,6 +85,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 52fd18ac9b5027b4e84739340f6e9112, type: 2}
   - {fileID: 11400000, guid: 86840b034cbad514fbc5c66e16b51951, type: 2}
   - {fileID: 11400000, guid: 29360d080b888064aa309b2a05ce9cc6, type: 2}
+  bountyBugs: []
   weightChanges:
   - chapter: {fileID: 11400000, guid: 56ecd624a4e555841904f8c428245f36, type: 2}
     weightChange: 5

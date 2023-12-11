@@ -94,6 +94,7 @@ public class FrogCharacterController : MonoBehaviour
     private Rigidbody2D playerRigidbody;
 
     private bool isOnLand;
+    private bool onlyUseWalkSpeed;
 
     private float orientationAngle;
 
@@ -106,6 +107,7 @@ public class FrogCharacterController : MonoBehaviour
     void Start()
     {
         isOnLand = true;
+        onlyUseWalkSpeed = false;
         rewiredPlayer = ReInput.players.GetPlayer(playerID);
         playerRigidbody = GetComponent<Rigidbody2D>();
         FriendsManager.instance.ClearAllFriends();
@@ -176,7 +178,9 @@ public class FrogCharacterController : MonoBehaviour
         // Get movement input
         UpdateHorizontalInput();
         UpdateVerticalInput();
-        float moveSpeed = isOnLand ? (DataManager.instance.defaultWalkSpeed * (1 + GetWalkSpeedBoost())) : (DataManager.instance.defaultSwimSpeed * (1 + GetSwimSpeedBoost()));
+        
+        float moveSpeed = (isOnLand || onlyUseWalkSpeed) ? (DataManager.instance.defaultWalkSpeed * (1 + GetWalkSpeedBoost())) : (DataManager.instance.defaultSwimSpeed * (1 + GetSwimSpeedBoost()));
+                
         Vector2 moveInput = (((HorizontalInput * Vector2.right).normalized + (VerticalInput * Vector2.up).normalized)).normalized * moveSpeed;
 
         // If movement input is not zero, then rotate frog
@@ -345,6 +349,8 @@ public class FrogCharacterController : MonoBehaviour
 
     public void InitializeCharacter(PlayableCharacter characterInfo)
     {
+        onlyUseWalkSpeed = characterInfo.characterID.Equals("GHOST");
+
         // Set up animator
         SetAnimatorCharacterValue(characterInfo.characterData.characterAnimatorValue);
 
