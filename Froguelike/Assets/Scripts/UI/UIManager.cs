@@ -175,7 +175,6 @@ public class UIManager : MonoBehaviour
         {
             demoPanel.GetComponentInChildren<Button>().interactable = GameManager.instance.demoBuild;
             demoPanel.SetActive(GameManager.instance.demoBuild);
-
         }
     }
 
@@ -194,6 +193,10 @@ public class UIManager : MonoBehaviour
         achievementsScreen.SetActive(false);
         settingsScreen.SetActive(false);
         creditsScreen.gameObject.SetActive(false);
+
+        ShowRerollWarningConfirmationPanel(false);
+        ShowClearSaveFileConfirmationPanel(false);
+        ShowBackToTitleScreenConfirmationPanel(false);
     }
 
     public void UpdateDemoLimitationSticker()

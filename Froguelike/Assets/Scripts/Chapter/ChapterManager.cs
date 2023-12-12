@@ -215,8 +215,8 @@ public class ChapterManager : MonoBehaviour
         List<Chapter> completedChapters = RunManager.instance.completedChaptersList;
 
         // If this is not empty, then we were asked for a reroll, and we don't want to get the same chapters twice
-        List<Chapter> previousSelectionOfChapters = selectionOfNextChaptersList; 
-
+        List<Chapter> previousSelectionOfChapters = selectionOfNextChaptersList;
+        previousSelectionOfChapters.Clear(); // TODO: Remove
 
         /// COUNT ALL WAVES IN CHAPTERS
         /*
@@ -684,7 +684,9 @@ public class ChapterManager : MonoBehaviour
 
     public void RerollChapterSelection()
     {
-        if (true)
+        // TODO: show rerol confirmation if needed
+        bool rerollChapterConfirmationNeeded = false;
+        if (!rerollChapterConfirmationNeeded)
         {
             ConfirmRerollChapterSelection();
         }
