@@ -214,6 +214,10 @@ public class ChapterManager : MonoBehaviour
 
         List<Chapter> completedChapters = RunManager.instance.completedChaptersList;
 
+        // If this is not empty, then we were asked for a reroll, and we don't want to get the same chapters twice
+        List<Chapter> previousSelectionOfChapters = selectionOfNextChaptersList; 
+
+
         /// COUNT ALL WAVES IN CHAPTERS
         /*
         allWavesDico = new Dictionary<string, int>();
@@ -238,6 +242,11 @@ public class ChapterManager : MonoBehaviour
             }
             */
 
+            if (previousSelectionOfChapters.Contains(currentChapter))
+            {
+                // This chapter was already part of previous selection and we asked for a reroll, so let's ignore this one and move on
+                continue;
+            }
 
             List<ChapterConditionsChunk> currentChapterConditionsChunksList = currentChapter.chapterData.conditions;
 
@@ -653,7 +662,7 @@ public class ChapterManager : MonoBehaviour
         }
     }
 
-    public void RerollChapterSelection()
+    public void ConfirmRerollChapterSelection()
     {
         if (isFirstChapter)
         {
@@ -670,6 +679,18 @@ public class ChapterManager : MonoBehaviour
                 // Set new selected button.
                 UIManager.instance.SetSelectedButton(selectionOfNextChaptersList.Count >= 4 ? chapterButtonsList[4].gameObject : chapterButtonsList[0].gameObject);
             }
+        }
+    }
+
+    public void RerollChapterSelection()
+    {
+        if (true)
+        {
+            ConfirmRerollChapterSelection();
+        }
+        else
+        {
+            UIManager.instance.ShowRerollWarningConfirmationPanel(true);
         }
     }
 

@@ -470,7 +470,7 @@ public class RunManager : MonoBehaviour
         MapBehaviour.instance.GenerateNewTilesAroundPosition(player.transform.position);
     }
 
-    public void IncreaseXP(float moreXP)
+    public void IncreaseXP(float moreXP, bool preventXPIncrease = false)
     {
         xp += moreXP;
 
@@ -485,9 +485,12 @@ public class RunManager : MonoBehaviour
 
             xp -= nextLevelXp;
 
-            float levelOn100Ratio = Mathf.Clamp(level / 100.0f, 0, 1);
-            float nextLevelFactor = xpNeededForNextLevelMinFactor + (xpNeededForNextLevelMaxFactor - xpNeededForNextLevelMinFactor) * xpNeededForEachLevelCurve.Evaluate(levelOn100Ratio);
-            nextLevelXp *= nextLevelFactor;
+            if (!preventXPIncrease)
+            {
+                float levelOn100Ratio = Mathf.Clamp(level / 100.0f, 0, 1);
+                float nextLevelFactor = xpNeededForNextLevelMinFactor + (xpNeededForNextLevelMaxFactor - xpNeededForNextLevelMinFactor) * xpNeededForEachLevelCurve.Evaluate(levelOn100Ratio);
+                nextLevelXp *= nextLevelFactor;
+            }
         }
     }
 
@@ -994,12 +997,12 @@ public class RunManager : MonoBehaviour
 
     #region Level Up
 
-    private void CloseLevelUp()
+    private void CloseLevelUp(bool levelWasSkipped)
     {
         HideLevelUpItemSelection();
         levelUpChoiceIsVisible = false;
         GameManager.instance.SetTimeScale(1);
-        IncreaseXP(0);
+        IncreaseXP(0, levelWasSkipped);
     }
 
     public void ChooseLevelUpChoice(int index)
@@ -1017,7 +1020,7 @@ public class RunManager : MonoBehaviour
             PickRunItem(pickedItem);
         }
 
-        CloseLevelUp();
+        CloseLevelUp(false);
     }
 
     public bool IsRunItemBanished(RunItemData runItemData)
@@ -1035,7 +1038,7 @@ public class RunManager : MonoBehaviour
         string log = "Selection of items is:";
 
         // Pick possible items from a pool
-        selectionOfPossibleRunItemsList = RunItemManager.instance.PickARandomSelectionOfRunItems(3);
+        selectionOfPossibleRunItemsList = RunItemManager.instance.PickARandomSelectionOfRunItems(3, selectionOfPossibleRunItemsList);
 
         // Find next levels for each of these items
         List<int> itemLevels = new List<int>();
@@ -1065,7 +1068,7 @@ public class RunManager : MonoBehaviour
             {
                 Debug.Log("Use Skip on level up item selection");
             }
-            CloseLevelUp();
+            CloseLevelUp(true);
         }
     }
 
@@ -1073,14 +1076,27 @@ public class RunManager : MonoBehaviour
     {
         if (player.rerolls > 0)
         {
-            player.rerolls--;
-            UpdateRerollBanishSkipPostIts();
-            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+            if (RunItemManager.instance.ItemRerollSimilarItemsCount(selectionOfPossibleRunItemsList) > 0)
             {
-                Debug.Log("Use reroll on level up item selection");
+                // Show warning: some options will be the same, even after reroll
+                UIManager.instance.ShowRerollWarningConfirmationPanel(true);
             }
-            RandomLevelUpItemSelection();
+            else
+            {
+                ConfirmRerollLevelUpItemSelection();
+            }
         }
+    }
+
+    public void ConfirmRerollLevelUpItemSelection()
+    {
+        player.rerolls--;
+        UpdateRerollBanishSkipPostIts();
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("Use reroll on level up item selection");
+        }
+        RandomLevelUpItemSelection();
     }
 
     public void BanishLevelUpItemSelection()
@@ -1128,12 +1144,12 @@ public class RunManager : MonoBehaviour
         RandomLevelUpItemSelection();
     }
 
-    private void UpdateRerollBanishSkipPostIts()
+    private void UpdateRerollBanishSkipPostIts(bool rerollWouldGiveMoreOptions = true)
     {
         rerollPostit.SetActive(rerollsAvailable);
-        rerollButton.interactable = (player.rerolls > 0);
+        rerollButton.interactable = (player.rerolls > 0) && rerollWouldGiveMoreOptions;
         rerollCount.SetText($"x{player.rerolls}");
-        rerollPostit.GetComponent<CanvasGroup>().blocksRaycasts = (player.rerolls > 0);
+        rerollPostit.GetComponent<CanvasGroup>().blocksRaycasts = (player.rerolls > 0) && rerollWouldGiveMoreOptions;
         
         banishPostit.SetActive(banishesAvailable);
         banishButton.interactable = (player.banishs > 0);
@@ -1161,7 +1177,8 @@ public class RunManager : MonoBehaviour
         levelUpPanel.GetComponent<CanvasGroup>().interactable = true;
         EventSystem.current.SetSelectedGameObject(levelUpChoicesPanels[0]);
 
-        UpdateRerollBanishSkipPostIts();
+        int similarItemsCountInCaseOfReroll = RunItemManager.instance.ItemRerollSimilarItemsCount(possibleItems);
+        UpdateRerollBanishSkipPostIts((similarItemsCountInCaseOfReroll < 3));
 
         // Audio
         SoundManager.instance.PlaySlideBookSound();

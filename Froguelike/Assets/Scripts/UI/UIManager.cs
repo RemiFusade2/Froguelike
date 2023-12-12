@@ -94,8 +94,12 @@ public class UIManager : MonoBehaviour
     [Header("Confirmation panels")]
     public GameObject backToTitleScreenConfirmationPanel;
     public GameObject selectedButtonBackToTitleScreenConfirmationPanel;
+    [Space]
     public GameObject clearSaveFileConfirmationPanel;
     public GameObject selectedButtonClearSaveFileConfirmationPanel;
+    [Space]
+    public GameObject rerollWarningConfirmationPanel;
+    public GameObject selectedButtonRerollWarningConfirmationPanel;
 
     [Header("Demo stuff")]
     public List<GameObject> demoPanelsList;
@@ -531,6 +535,26 @@ public class UIManager : MonoBehaviour
 
 
     #region Confirmation Panels
+
+    public void ShowRerollWarningConfirmationPanel(bool active)
+    {
+        rerollWarningConfirmationPanel.SetActive(active);
+
+        if (active)
+        {
+            SavePreviousSelectedButton();
+            SetSelectedButton(selectedButtonRerollWarningConfirmationPanel);
+        }
+        else
+        {
+            SetPreviousSelectedButton();
+        }
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"UI - Display Reroll Warning confirmation screen: {active}");
+        }
+    }
 
     public void ShowBackToTitleScreenConfirmationPanel(bool active)
     {

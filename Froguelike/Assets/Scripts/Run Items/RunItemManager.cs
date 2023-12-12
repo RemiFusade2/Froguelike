@@ -82,15 +82,34 @@ public class RunItemManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Return the amount of items that would be the same in the selection if you ask for a reroll now.
+    /// </summary>
+    /// <returns></returns>
+    public int ItemRerollSimilarItemsCount(List<RunItemData> previousSelection)
+    {
+        List<RunItemData> potentialSelectionOfItems = GetListOfRunItems(3, previousSelection);
+        int count = 0;
+        foreach (RunItemData item in previousSelection)
+        {
+            if (potentialSelectionOfItems.Contains(item))
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /// <summary>
     /// Create a pool of items (stat items and weapons) to choose from.
     /// An item can show up under certain conditions:
     /// - if it is already owned and not maxed out
     /// - if not, if it is unlocked and if there's room for it
     /// An item doesn't show up if it was banished during the run
+    /// An item doesn't show up if it was part of the previous selection and you asked for a reroll
     /// </summary>
     /// <param name="minimumItemCount">The minimum number of items we need in that pool</param>
     /// <returns></returns>
-    private List<RunItemData> GetListOfRunItems(int minimumItemCount)
+    private List<RunItemData> GetListOfRunItems(int minimumItemCount, List<RunItemData> previousSelection)
     {
         // Resulting pool
         List<RunItemData> runItemsPool = new List<RunItemData>();
@@ -109,6 +128,11 @@ public class RunItemManager : MonoBehaviour
             RunItemData itemData = runItemDataDictionary[itemSaveInfo.itemName];
 
             if (RunManager.instance.IsRunItemBanished(itemData))
+            {
+                continue;
+            }
+
+            if (previousSelection.Contains(itemData))
             {
                 continue;
             }
@@ -150,6 +174,7 @@ public class RunItemManager : MonoBehaviour
             }
         }
         
+        // Fill the rest with consumable items until we reach the minimum item count
         bool atLeastOneConsumableItemAvailable = allConsumableRunItemsScriptableObjects.Count > 0;
         while (runItemsPool.Count < minimumItemCount && atLeastOneConsumableItemAvailable)
         {
@@ -164,16 +189,23 @@ public class RunItemManager : MonoBehaviour
                 }
             }
         }
+
         return runItemsPool;
     }
 
-    public List<RunItemData> PickARandomSelectionOfRunItems(int numberOfItems)
+    /// <summary>
+    /// Return a list of N RunItemData that are different from the previous selection (as much as possible)
+    /// </summary>
+    /// <param name="numberOfItems"></param>
+    /// <param name="previousSelection"></param>
+    /// <returns></returns>
+    public List<RunItemData> PickARandomSelectionOfRunItems(int numberOfItems, List<RunItemData> previousSelection)
     {
         // Resulting list
         List<RunItemData> runItemsList = new List<RunItemData>();
         
         // Pool of items to select from
-        List<RunItemData> possibleItems = GetListOfRunItems(numberOfItems);
+        List<RunItemData> possibleItems = GetListOfRunItems(numberOfItems, previousSelection);
         
         if (possibleItems.Count <= numberOfItems)
         {

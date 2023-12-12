@@ -126,7 +126,6 @@ public class GameManager : MonoBehaviour
 
         //UIManager.instance.HideEndOfDemoScreen();
         UIManager.instance.ShowDemoDisclaimerScreen(demoBuild && showDemoDisclaimer, demoLimitationType, demoSaveProgress, demoRunCountLimit, demoTimeLimit);
-
     }
 
     private void Update()
@@ -213,6 +212,21 @@ public class GameManager : MonoBehaviour
         UIManager.instance.ShowGameOver(player.revivals);
         gameData.deathCount++;
         SaveDataManager.instance.isSaveDataDirty = true;
+    }
+
+    public void ConfirmReroll()
+    {
+        bool isRerollForLevelUp = true;
+        if (isRerollForLevelUp)
+        {
+            // Reroll level up items
+            RunManager.instance.ConfirmRerollLevelUpItemSelection();
+        }
+        else
+        {
+            // Reroll chapters
+            ChapterManager.instance.ConfirmRerollChapterSelection();
+        }
     }
 
     /// <summary>
