@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chapterID: '[CH_ITEM_REVIVE_3]'
   partOfDemo: 1
-  chapterTitle: The holy grail
+  chapterTitle: The froggy grail
   chapterLore:
   - I am getting close, I can feel it! Only the last piece of the puzzle remains:\n"Don't
     wander, head straight North,\nBe rightful and find your worth."
@@ -52,14 +52,21 @@ MonoBehaviour:
   coinsSpawnFrequency: 1
   healthSpawnFrequency: 2
   levelUpSpawnFrequency: 0
+  otherCollectibleSpawnFrequenciesList: []
   specialCollectiblesOnTheMap:
-  - tileCoordinates: {x: 0, y: 1}
+  - tileCoordinates: {x: 0, y: 10}
     tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
+    collectibleName: The Froggy Grail
+    collectibleDescription: It's mine now!
     collectibleType: 0
     collectibleStatItemData: {fileID: 11400000, guid: 6e96535a23ad42f47bad1b739c2e9fa3, type: 2}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
     collectibleFriendType: 0
+    foundCollectibleTitle: You found
+    acceptCollectibleStr: Take it
+    refuseCollectibleStr: Leave it
+    compassLevel: 0
   environmentChange: 0
   characterStyleChange: 0
   waves:

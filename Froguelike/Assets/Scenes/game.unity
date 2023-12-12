@@ -618,8 +618,8 @@ MonoBehaviour:
   highlightedTextColor: {r: 0.9960785, g: 0.74509805, b: 0.20000002, a: 1}
   maxChaptersInARun: 5
   startLevelXp: 5
-  xpNeededForNextLevelMinFactor: 1.1
-  xpNeededForNextLevelMaxFactor: 1.35
+  xpNeededForNextLevelMinFactor: 1.09
+  xpNeededForNextLevelMaxFactor: 1.33
   xpNeededForEachLevelCurve:
     serializedVersion: 2
     m_Curve:
@@ -3748,9 +3748,11 @@ MonoBehaviour:
   maxDamageTexts: 600
   maxActiveEnemies: 1500
   updateAllEnemiesCount: 1500
-  poisonedSpriteColor: {r: 0.16862746, g: 0.5529412, b: 0.21960786, a: 1}
-  frozenSpriteColor: {r: 0.4039216, g: 0.78823537, b: 0.9058824, a: 1}
-  cursedSpriteColor: {r: 0.6392157, g: 0.30588236, b: 0.654902, a: 1}
+  poisonedOverlayColor: {r: 0.3254902, g: 0.72156864, b: 0.14509805, a: 1}
+  frozenOverlayColor: {r: 0.56078434, g: 0.9333334, b: 0.9333334, a: 1}
+  cursedOverlayColor: {r: 0.6392157, g: 0.30588236, b: 0.654902, a: 1}
+  vampireOverlayColor: {r: 0.7960785, g: 0.25882354, b: 0.31764707, a: 1}
+  knockbackOverlayColor: {r: 0.9843138, g: 0.9921569, b: 0.9843138, a: 1}
   delayBetweenPoisonDamage: 0.6
   delayBetweenRandomChangeOfDirection: 1.5
   knockbackDuration: 0.2
@@ -14390,6 +14392,10 @@ PrefabInstance:
       propertyPath: trash
       value: 
       objectReference: {fileID: 1378647581}
+    - target: {fileID: 4919826508944035819, guid: abeb0f41db396bd45a4db2a535d395f8, type: 3}
+      propertyPath: baseFee
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 4919826508944035819, guid: abeb0f41db396bd45a4db2a535d395f8, type: 3}
       propertyPath: shopPanel
       value: 
@@ -32744,6 +32750,10 @@ PrefabInstance:
       value: 80
       objectReference: {fileID: 0}
     - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: baseCurrencyProbabilitySpawnFromBugs
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
       propertyPath: powerUpFriendsFrenzySpawnDistanceFromPlayer
       value: 23
       objectReference: {fileID: 0}
@@ -36460,6 +36470,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 7978220894028803650, guid: 59c67d09569c781419f4218687db094f, type: 3}
+      propertyPath: verbose
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7978220894028803650, guid: 59c67d09569c781419f4218687db094f, type: 3}
       propertyPath: debugInfo
       value: 0

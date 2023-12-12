@@ -53,28 +53,21 @@ MonoBehaviour:
   coinsSpawnFrequency: 2
   healthSpawnFrequency: 0
   levelUpSpawnFrequency: 0
+  otherCollectibleSpawnFrequenciesList: []
   specialCollectiblesOnTheMap:
-  - tileCoordinates: {x: 5, y: 5}
+  - tileCoordinates: {x: -10, y: 5}
     tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
+    collectibleName: Mighty
+    collectibleDescription: 
     collectibleType: 0
     collectibleStatItemData: {fileID: 11400000, guid: 07f49185c536d1744894b0ebdc453a06, type: 2}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
     collectibleFriendType: 0
-  - tileCoordinates: {x: 5, y: -5}
-    tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
-    collectibleType: 0
-    collectibleStatItemData: {fileID: 11400000, guid: 07f49185c536d1744894b0ebdc453a06, type: 2}
-    collectibleWeaponItemData: {fileID: 0}
-    collectibleHatType: 0
-    collectibleFriendType: 0
-  - tileCoordinates: {x: -10, y: 0}
-    tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
-    collectibleType: 0
-    collectibleStatItemData: {fileID: 11400000, guid: 07f49185c536d1744894b0ebdc453a06, type: 2}
-    collectibleWeaponItemData: {fileID: 0}
-    collectibleHatType: 0
-    collectibleFriendType: 0
+    foundCollectibleTitle: You feel
+    acceptCollectibleStr: Nice!
+    refuseCollectibleStr: Meh
+    compassLevel: 1
   environmentChange: 0
   characterStyleChange: 0
   waves:

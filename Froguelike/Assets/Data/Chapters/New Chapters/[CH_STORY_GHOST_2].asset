@@ -72,35 +72,60 @@ MonoBehaviour:
   coinsSpawnFrequency: 1
   healthSpawnFrequency: 1
   levelUpSpawnFrequency: 0
+  otherCollectibleSpawnFrequenciesList: []
   specialCollectiblesOnTheMap:
-  - tileCoordinates: {x: -10, y: 0}
+  - tileCoordinates: {x: -8, y: 0}
     tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
+    collectibleName: Shade
+    collectibleDescription: She seems friendly
     collectibleType: 3
     collectibleStatItemData: {fileID: 0}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
     collectibleFriendType: 2
-  - tileCoordinates: {x: 10, y: 0}
+    foundCollectibleTitle: You met
+    acceptCollectibleStr: Hi!
+    refuseCollectibleStr: Good bye
+    compassLevel: 1
+  - tileCoordinates: {x: 8, y: 0}
     tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
+    collectibleName: Frosto
+    collectibleDescription: He seems friendly
     collectibleType: 3
     collectibleStatItemData: {fileID: 0}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
     collectibleFriendType: 2
+    foundCollectibleTitle: You met
+    acceptCollectibleStr: Hi!
+    refuseCollectibleStr: Good bye
+    compassLevel: 1
   - tileCoordinates: {x: 0, y: 10}
     tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
+    collectibleName: Quill
+    collectibleDescription: They seem friendly
     collectibleType: 3
     collectibleStatItemData: {fileID: 0}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
     collectibleFriendType: 2
+    foundCollectibleTitle: You met
+    acceptCollectibleStr: Hi!
+    refuseCollectibleStr: Good bye
+    compassLevel: 1
   - tileCoordinates: {x: 0, y: -10}
     tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
+    collectibleName: Zeph
+    collectibleDescription: He seems friendly
     collectibleType: 3
     collectibleStatItemData: {fileID: 0}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
     collectibleFriendType: 2
+    foundCollectibleTitle: You met
+    acceptCollectibleStr: Hi!
+    refuseCollectibleStr: Good bye
+    compassLevel: 1
   environmentChange: 0
   characterStyleChange: 0
   waves:
@@ -109,6 +134,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0d9f68e6f477faa468e9f82e836602cf, type: 2}
   - {fileID: 11400000, guid: 17c87bd33fca722458968abb41b7f14d, type: 2}
   - {fileID: 11400000, guid: ab1a41fb24089684fb517eaf98e9cb5d, type: 2}
+  bountyBugs: []
   weightChanges:
   - chapter: {fileID: 11400000, guid: 170203449f0b45a4d909ce989fb24aeb, type: 2}
     weightChange: 5

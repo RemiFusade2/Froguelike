@@ -156,6 +156,16 @@ public class FixedCollectibleDrawer : PropertyDrawer
 
         // Collectible
         {
+            // Title when collectible is found
+            {
+                float labelWidth = alignWidth;
+                Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+                Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+                EditorGUI.LabelField(labelRect, new GUIContent("Collectible found title:"));
+                EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("foundCollectibleTitle"), GUIContent.none);
+            }
+            position.y += EditorGUIUtility.singleLineHeight;
+
             // Name of collectible
             {
                 float labelWidth = alignWidth;
@@ -227,16 +237,6 @@ public class FixedCollectibleDrawer : PropertyDrawer
 
         // UI
         {
-            // Then Title when collectible is found
-            {
-                float labelWidth = alignWidth;
-                Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
-                Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
-                EditorGUI.LabelField(labelRect, new GUIContent("Collectible found title:"));
-                EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("foundCollectibleTitle"), GUIContent.none);
-            }
-            position.y += EditorGUIUtility.singleLineHeight;
-
             // Accept collectible text
             {
                 float labelWidth = alignWidth;
