@@ -558,6 +558,7 @@ public class RunManager : MonoBehaviour
         // Stop time & music
         GameManager.instance.SetTimeScale(0);
         MusicManager.instance.StopMusic();
+        MusicManager.instance.PlayTitleMusic();
         SoundManager.instance.PauseInGameLoopedSFX();
 
         // Check if this is a win
