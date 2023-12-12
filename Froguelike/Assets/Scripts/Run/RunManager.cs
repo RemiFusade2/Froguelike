@@ -560,8 +560,9 @@ public class RunManager : MonoBehaviour
     {
         // Stop time & music
         GameManager.instance.SetTimeScale(0);
-        MusicManager.instance.PauseMusic();
-        SoundManager.instance.PauseInGameSounds();
+        MusicManager.instance.StopMusic();
+        MusicManager.instance.PlayTitleMusic();
+        SoundManager.instance.PauseInGameLoopedSFX();
 
         // Check if this is a win
         if (IsCurrentRunWon())
@@ -1009,7 +1010,7 @@ public class RunManager : MonoBehaviour
     {
         RunItemData pickedItem = selectionOfPossibleRunItemsList[index];
 
-        if (isUsingBanishForCurrentItemSelection) 
+        if (isUsingBanishForCurrentItemSelection)
         {
             // This item was chosen to be BANISHED
             BanishRunItem(pickedItem);
@@ -1150,7 +1151,7 @@ public class RunManager : MonoBehaviour
         rerollButton.interactable = (player.rerolls > 0) && rerollWouldGiveMoreOptions;
         rerollCount.SetText($"x{player.rerolls}");
         rerollPostit.GetComponent<CanvasGroup>().blocksRaycasts = (player.rerolls > 0) && rerollWouldGiveMoreOptions;
-        
+
         banishPostit.SetActive(banishesAvailable);
         banishButton.interactable = (player.banishs > 0);
         banishCount.SetText($"x{player.banishs}");
@@ -1182,7 +1183,7 @@ public class RunManager : MonoBehaviour
 
         // Audio
         SoundManager.instance.PlaySlideBookSound();
-        SoundManager.instance.PauseInGameSounds();
+        SoundManager.instance.PauseInGameLoopedSFX();
 
         UIManager.instance.levelUpPanel.SetActive(true);
         UIManager.instance.levelUpPanelAnimator.SetBool("Visible", true);
@@ -1307,6 +1308,7 @@ public class RunManager : MonoBehaviour
         levelUpPanel.GetComponent<CanvasGroup>().interactable = false;
         UIManager.instance.levelUpPanelAnimator.SetBool("Visible", false);
         SoundManager.instance.PlaySlideBookSound();
+        SoundManager.instance.UnpauseInGameLoopedSFX();
     }
 
     private void InitializeInRunItemSlots()
@@ -1553,7 +1555,7 @@ public class RunManager : MonoBehaviour
         CloseCollectFixedCollectiblePanel();
 
         // Unpause sounds
-        SoundManager.instance.UnpauseInGameSounds();
+        SoundManager.instance.UnpauseInGameLoopedSFX();
     }
     public void ShowCollectSuperCollectiblePanel(FixedCollectible collectibleInfo)
     {
@@ -1588,7 +1590,7 @@ public class RunManager : MonoBehaviour
             {
                 levelStr = "NEW";
             }
-            else if (currentLevelForItem == maxLevelForItem-1)
+            else if (currentLevelForItem == maxLevelForItem - 1)
             {
                 levelStr = "MAX";
             }
@@ -1599,7 +1601,7 @@ public class RunManager : MonoBehaviour
             }
             else
             {
-                levelStr = $"Lvl {currentLevelForItem+1}";
+                levelStr = $"Lvl {currentLevelForItem + 1}";
             }
 
             if (collectibleInfo.collectibleType == FixedCollectibleType.WEAPON_ITEM && currentLevelForItem <= 0)
@@ -1615,6 +1617,12 @@ public class RunManager : MonoBehaviour
             else
             {
                 // Item is a stat item
+
+                if (currentLevelForItem >= maxLevelForItem)
+                {
+                    currentLevelForItem = maxLevelForItem - 1; // If item is already maxed out, then next upgrade is the same as max upgrade
+                }
+
                 descriptionStr = collectibleInfo.collectibleStatItemData.statBoostLevels[currentLevelForItem].description;
             }
 
@@ -1663,7 +1671,7 @@ public class RunManager : MonoBehaviour
         fixedCollectibleAcceptButton.Select();
 
         // Stop sounds
-        SoundManager.instance.PauseInGameSounds();
+        SoundManager.instance.PauseInGameLoopedSFX();
 
         // Save that data in the save file: this fixed collectible has been found!
         ChapterManager.instance.FoundFixedCollectible(currentChapter, collectibleInfo);
