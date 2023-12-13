@@ -7,7 +7,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Timeline;
 using UnityEngine.UI;
-using static UnityEditor.Progress;
 
 [System.Serializable]
 public class RunItemInfo
