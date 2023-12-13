@@ -198,6 +198,25 @@ public class ChapterManager : MonoBehaviour
         return unlockedCount;
     }
 
+    /// <summary>
+    /// Return true if a reroll would show at least one new chapter.
+    /// </summary>
+    /// <param name="numberOfSimilarChaptersAfterReroll">Return a value that is the number of similar chapters after the reroll</param>
+    /// <returns></returns>
+    public bool WouldChapterRerollGiveAtLeastOneNewChapter(out int numberOfSimilarChaptersAfterReroll)
+    {
+        int numberOfNewChaptersInCurrentDeck = GetDeckOfChapters(true).Count;
+        int numberOfChaptersInSelection = chaptersData.chapterCountInSelection;
+
+        bool result = (numberOfNewChaptersInCurrentDeck > 0);
+
+        numberOfSimilarChaptersAfterReroll = (numberOfChaptersInSelection - numberOfNewChaptersInCurrentDeck);
+        numberOfSimilarChaptersAfterReroll = (numberOfSimilarChaptersAfterReroll < 0) ? 0 : numberOfSimilarChaptersAfterReroll;
+
+        return result;
+    }
+
+
     /// COUNT ALL WAVES IN CHAPTERS
     /// This is used to check how many times each wave is used (to fill up our spreadsheet)
     /*
@@ -208,7 +227,7 @@ public class ChapterManager : MonoBehaviour
     /// Create the deck of Chapters using the current state of the game
     /// </summary>
     /// <returns></returns>
-    private List<Chapter> GetDeckOfChapters()
+    private List<Chapter> GetDeckOfChapters(bool forcePreventUsingChaptersFromPreviousSelection)
     {
         List<Chapter> deckOfChapters = new List<Chapter>();
 
@@ -216,103 +235,121 @@ public class ChapterManager : MonoBehaviour
 
         // If this is not empty, then we were asked for a reroll, and we don't want to get the same chapters twice
         List<Chapter> previousSelectionOfChapters = selectionOfNextChaptersList;
-        previousSelectionOfChapters.Clear(); // TODO: Remove
 
         /// COUNT ALL WAVES IN CHAPTERS
         /*
         allWavesDico = new Dictionary<string, int>();
         */
 
-        foreach (KeyValuePair<string, Chapter> chapterKeyValue in allChaptersDico)
+        int numberOfChaptersInSelection = chaptersData.chapterCountInSelection;
+        bool preventChaptersFromPreviousSelection = true;
+        bool deckIsReady = false;
+        while (!deckIsReady)
         {
-            Chapter currentChapter = chapterKeyValue.Value;
-
-            /// COUNT ALL WAVES IN CHAPTERS
-            /*
-            foreach (Wave wave in currentChapter.chapterData.waves)
+            foreach (KeyValuePair<string, Chapter> chapterKeyValue in allChaptersDico)
             {
-                if (allWavesDico.ContainsKey(wave.name))
+                Chapter currentChapter = chapterKeyValue.Value;
+
+                /// COUNT ALL WAVES IN CHAPTERS
+                /*
+                foreach (Wave wave in currentChapter.chapterData.waves)
                 {
-                    allWavesDico[wave.name] = allWavesDico[wave.name] + 1;
-                }
-                else
-                {
-                    allWavesDico.Add(wave.name, 1);
-                }
-            }
-            */
-
-            if (previousSelectionOfChapters.Contains(currentChapter))
-            {
-                // This chapter was already part of previous selection and we asked for a reroll, so let's ignore this one and move on
-                continue;
-            }
-
-            List<ChapterConditionsChunk> currentChapterConditionsChunksList = currentChapter.chapterData.conditions;
-
-            if (!currentChapter.chapterData.canBePlayedMultipleTimesInOneRun && completedChapters.Contains(currentChapter))
-            {
-                // This chapter has already been played and can't be played more than once
-                continue;
-            }
-
-            bool chapterConditionsAreMet = (currentChapterConditionsChunksList.Count == 0); // particular case if there are no conditions
-
-            // Check each chunk of conditions, until at least one is valid (chunk valid = all conditions met)
-            foreach (ChapterConditionsChunk conditionChunk in currentChapterConditionsChunksList)
-            {
-                bool conditionChunkIsValid = true;
-                foreach (ChapterCondition condition in conditionChunk.conditionsList)
-                {
-                    switch (condition.conditionType)
+                    if (allWavesDico.ContainsKey(wave.name))
                     {
-                        case ChapterConditionType.CHAPTER_COUNT:
-                            int currentChapterCount = RunManager.instance.GetChapterCount();
-                            conditionChunkIsValid = (currentChapterCount >= condition.minChapterCount) && (currentChapterCount <= condition.maxChapterCount);
-                            break;
-                        case ChapterConditionType.CHARACTER:
-                            conditionChunkIsValid = (RunManager.instance.currentPlayedCharacter.characterID.Equals(condition.characterData.characterID));
-                            break;
-                        case ChapterConditionType.ENVIRONMENT:
-                            conditionChunkIsValid = true; // TODO: use condition.environmentType to compare to the current environment
-                            break;
-                        case ChapterConditionType.FRIEND:
-                            conditionChunkIsValid = FriendsManager.instance.HasPermanentFriend(condition.friendType);
-                            break;
-                        case ChapterConditionType.HAT:
-                            conditionChunkIsValid = GameManager.instance.player.HasHat(condition.hatType);
-                            break;
-                        case ChapterConditionType.PLAYED_CHAPTER:
-                            Chapter c = completedChapters.FirstOrDefault(x => x.chapterData.Equals(condition.chapterData));
-                            conditionChunkIsValid = (c != null);
-                            break;
-                        case ChapterConditionType.RUN_ITEM:
-                            conditionChunkIsValid = (RunManager.instance.GetLevelForItem(condition.itemName) > 0);
-                            break;
-                        case ChapterConditionType.UNLOCKED:
-                            conditionChunkIsValid = currentChapter.unlocked;
-                            break;
+                        allWavesDico[wave.name] = allWavesDico[wave.name] + 1;
                     }
-                    conditionChunkIsValid = condition.not ? (!conditionChunkIsValid) : (conditionChunkIsValid); // apply a NOT if needed
-                    if (!conditionChunkIsValid)
+                    else
                     {
-                        break; // one condition was false so the whole chunk is invalid
+                        allWavesDico.Add(wave.name, 1);
                     }
                 }
-                if (conditionChunkIsValid)
+                */
+
+                if (preventChaptersFromPreviousSelection && previousSelectionOfChapters.Contains(currentChapter))
                 {
-                    chapterConditionsAreMet = true;
-                    break; // one chunk was true, it's enough for the chapter to be included in the deck
+                    // This chapter was already part of previous selection and we asked for a reroll, so let's ignore this one and move on
+                    continue;
+                }
+
+                List<ChapterConditionsChunk> currentChapterConditionsChunksList = currentChapter.chapterData.conditions;
+
+                if (!currentChapter.chapterData.canBePlayedMultipleTimesInOneRun && completedChapters.Contains(currentChapter))
+                {
+                    // This chapter has already been played and can't be played more than once
+                    continue;
+                }
+
+                bool chapterConditionsAreMet = (currentChapterConditionsChunksList.Count == 0); // particular case if there are no conditions
+
+                // Check each chunk of conditions, until at least one is valid (chunk valid = all conditions met)
+                foreach (ChapterConditionsChunk conditionChunk in currentChapterConditionsChunksList)
+                {
+                    bool conditionChunkIsValid = true;
+                    foreach (ChapterCondition condition in conditionChunk.conditionsList)
+                    {
+                        switch (condition.conditionType)
+                        {
+                            case ChapterConditionType.CHAPTER_COUNT:
+                                int currentChapterCount = RunManager.instance.GetChapterCount();
+                                conditionChunkIsValid = (currentChapterCount >= condition.minChapterCount) && (currentChapterCount <= condition.maxChapterCount);
+                                break;
+                            case ChapterConditionType.CHARACTER:
+                                conditionChunkIsValid = (RunManager.instance.currentPlayedCharacter.characterID.Equals(condition.characterData.characterID));
+                                break;
+                            case ChapterConditionType.ENVIRONMENT:
+                                conditionChunkIsValid = true; // TODO: use condition.environmentType to compare to the current environment
+                                break;
+                            case ChapterConditionType.FRIEND:
+                                conditionChunkIsValid = FriendsManager.instance.HasPermanentFriend(condition.friendType);
+                                break;
+                            case ChapterConditionType.HAT:
+                                conditionChunkIsValid = GameManager.instance.player.HasHat(condition.hatType);
+                                break;
+                            case ChapterConditionType.PLAYED_CHAPTER:
+                                Chapter c = completedChapters.FirstOrDefault(x => x.chapterData.Equals(condition.chapterData));
+                                conditionChunkIsValid = (c != null);
+                                break;
+                            case ChapterConditionType.RUN_ITEM:
+                                conditionChunkIsValid = (RunManager.instance.GetLevelForItem(condition.itemName) > 0);
+                                break;
+                            case ChapterConditionType.UNLOCKED:
+                                conditionChunkIsValid = currentChapter.unlocked;
+                                break;
+                        }
+                        conditionChunkIsValid = condition.not ? (!conditionChunkIsValid) : (conditionChunkIsValid); // apply a NOT if needed
+                        if (!conditionChunkIsValid)
+                        {
+                            break; // one condition was false so the whole chunk is invalid
+                        }
+                    }
+                    if (conditionChunkIsValid)
+                    {
+                        chapterConditionsAreMet = true;
+                        break; // one chunk was true, it's enough for the chapter to be included in the deck
+                    }
+                }
+
+                bool chapterCanBeAddedToTheDeck = chapterConditionsAreMet; // conditions are met
+                chapterCanBeAddedToTheDeck = chapterCanBeAddedToTheDeck && currentChapter.weight > 0; // weight is positive
+                chapterCanBeAddedToTheDeck = chapterCanBeAddedToTheDeck && (!GameManager.instance.demoBuild || currentChapter.chapterData.partOfDemo); // this chapter is part of the demo, or the current build is not the demo
+
+                if (chapterCanBeAddedToTheDeck && !deckOfChapters.Contains(currentChapter))
+                {
+                    deckOfChapters.Add(currentChapter);
                 }
             }
 
-            bool chapterCanBeAddedToTheDeck = chapterConditionsAreMet; // conditions are met
-            chapterCanBeAddedToTheDeck = chapterCanBeAddedToTheDeck && currentChapter.weight > 0; // weight is positive
-            chapterCanBeAddedToTheDeck = chapterCanBeAddedToTheDeck && (!GameManager.instance.demoBuild || currentChapter.chapterData.partOfDemo); // this chapter is part of the demo, or the current build is not the demo
-            
-            if (chapterCanBeAddedToTheDeck)
+            if (deckOfChapters.Count >= numberOfChaptersInSelection || !preventChaptersFromPreviousSelection)
             {
-                deckOfChapters.Add(currentChapter);
+                deckIsReady = true;
+            }
+            if (preventChaptersFromPreviousSelection)
+            {
+                preventChaptersFromPreviousSelection = false;
+                if (forcePreventUsingChaptersFromPreviousSelection)
+                {
+                    deckIsReady = true;
+                }
             }
         }
 
@@ -370,7 +407,7 @@ public class ChapterManager : MonoBehaviour
         string log = "Chapter selection - ";
 
         // Create the deck of chapters to choose from
-        List<Chapter> deckOfChapters = GetDeckOfChapters();
+        List<Chapter> deckOfChapters = GetDeckOfChapters(false);
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
             log += "Deck of Chapters: ";
@@ -402,13 +439,15 @@ public class ChapterManager : MonoBehaviour
 
     private void UpdateRerollPostit()
     {
+        bool rerollWouldGiveAtLeastOneNewChapter = WouldChapterRerollGiveAtLeastOneNewChapter(out int numberOfSimilarChaptersAfterReroll);
+
         rerollInfinitePostIt.SetActive(isFirstChapter);
         rerollPostIt.SetActive(!isFirstChapter);
         rerollPostItCountTextMesh.SetText($"x{GameManager.instance.player.rerolls}");
-        rerollPostItButton.interactable = (GameManager.instance.player.rerolls > 0);
+        rerollPostItButton.interactable = (GameManager.instance.player.rerolls > 0) && rerollWouldGiveAtLeastOneNewChapter;
         if (rerollPostIt.activeSelf)
         {
-            rerollPostIt.GetComponent<CanvasGroup>().blocksRaycasts = (GameManager.instance.player.rerolls > 0);
+            rerollPostIt.GetComponent<CanvasGroup>().blocksRaycasts = (GameManager.instance.player.rerolls > 0) && rerollWouldGiveAtLeastOneNewChapter;
         }
     }
 
@@ -671,8 +710,8 @@ public class ChapterManager : MonoBehaviour
         else if (GameManager.instance.player.rerolls > 0)
         {
             GameManager.instance.player.rerolls--;
-            UpdateRerollPostit();
             NewSelectionOfChapters();
+            UpdateRerollPostit();
 
             if (GameManager.instance.player.rerolls < 1)
             {
@@ -684,15 +723,15 @@ public class ChapterManager : MonoBehaviour
 
     public void RerollChapterSelection()
     {
-        // TODO: show rerol confirmation if needed
-        bool rerollChapterConfirmationNeeded = false;
-        if (!rerollChapterConfirmationNeeded)
+        bool rerollWouldGiveAtLeastOneNewChapter = WouldChapterRerollGiveAtLeastOneNewChapter(out int numberOfSimilarChaptersAfterReroll);
+
+        if (isFirstChapter || (numberOfSimilarChaptersAfterReroll <= 0))
         {
-            ConfirmRerollChapterSelection();
+            ConfirmRerollChapterSelection(); // Do not show a warning, just reroll right away
         }
         else
         {
-            UIManager.instance.ShowRerollWarningConfirmationPanel(true);
+            UIManager.instance.ShowRerollWarningConfirmationPanel(true); // Show a warning
         }
     }
 
@@ -717,8 +756,8 @@ public class ChapterManager : MonoBehaviour
         chapterSelectionTopText.text = chapterIntro;
 
         isFirstChapter = (currentChapterCount == 0);
-        UpdateRerollPostit();
         NewSelectionOfChapters();
+        UpdateRerollPostit();
 
         // Call the UIManager to display the chapter selection screen
         UIManager.instance.ShowChapterSelectionScreen((chapterCount == 0));

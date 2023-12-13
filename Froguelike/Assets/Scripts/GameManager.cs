@@ -216,15 +216,14 @@ public class GameManager : MonoBehaviour
 
     public void ConfirmReroll()
     {
-        bool isRerollForLevelUp = true;
-        if (isRerollForLevelUp)
+        if (isGameRunning)
         {
-            // Reroll level up items
+            // Reroll level up items (isGameRunning = true means we're in the middle of a run and that reroll is for a level up)
             RunManager.instance.ConfirmRerollLevelUpItemSelection();
         }
         else
         {
-            // Reroll chapters
+            // Reroll chapters (isGameRunning = false means the game stops and we're likely in between chapters, or on the title screen)
             ChapterManager.instance.ConfirmRerollChapterSelection();
         }
     }
