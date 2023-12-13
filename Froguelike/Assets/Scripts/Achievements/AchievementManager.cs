@@ -376,6 +376,13 @@ public class AchievementManager : MonoBehaviour
                                     }
                                     conditionsAreMet &= (ChapterManager.instance.GetUnlockedChaptersCount() >= 10);                                    
                                     break;
+                                case AchievementConditionSpecialKey.UNLOCK_5_CHAPTERS:
+                                    if (!metaAchievements.Contains(achievement))
+                                    {
+                                        metaAchievements.Add(achievement);
+                                    }
+                                    conditionsAreMet &= (ChapterManager.instance.GetUnlockedChaptersCount() >= 5);
+                                    break;
                             }
                             break;
                     }
@@ -416,6 +423,10 @@ public class AchievementManager : MonoBehaviour
                     if (condition.conditionType == AchievementConditionType.SPECIAL && condition.specialKey == AchievementConditionSpecialKey.UNLOCK_10_CHAPTERS)
                     {
                         conditionsAreMet &= (ChapterManager.instance.GetUnlockedChaptersCount() >= 10);
+                    }
+                    if (condition.conditionType == AchievementConditionType.SPECIAL && condition.specialKey == AchievementConditionSpecialKey.UNLOCK_5_CHAPTERS)
+                    {
+                        conditionsAreMet &= (ChapterManager.instance.GetUnlockedChaptersCount() >= 5);
                     }
                 }
                 if (conditionsAreMet)

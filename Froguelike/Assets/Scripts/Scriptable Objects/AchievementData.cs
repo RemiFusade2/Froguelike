@@ -12,7 +12,8 @@ public enum AchievementConditionSpecialKey
     EAT_100000_BUGS = 5,
     GATHER_ALL_FRIENDS = 6,
     UNLOCK_10_CHAPTERS = 7,
-    COMPLETE_1_ACHIEVEMENT = 8
+    COMPLETE_1_ACHIEVEMENT = 8,
+    UNLOCK_5_CHAPTERS = 9
 }
 
 /// <summary>

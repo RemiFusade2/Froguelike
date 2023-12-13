@@ -1464,7 +1464,7 @@ public class EnemiesManager : MonoBehaviour
             for (int i = 0; i < currencyAmountLong; i++)
             {
                 Vector3 froinsSpawnPosition = enemyInstance.enemyTransform.position + 0.4f * Random.onUnitSphere.normalized;
-                CollectiblesManager.instance.SpawnCollectible(froinsSpawnPosition, CollectibleType.FROINS, 10) ;
+                CollectiblesManager.instance.SpawnCollectible(froinsSpawnPosition, CollectibleType.FROINS, DataManager.instance.baseCurrencyValueSpawnFromBugs) ;
             }
 
             PutEnemyInThePool(enemyInstance);
