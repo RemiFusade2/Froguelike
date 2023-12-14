@@ -109,6 +109,7 @@ public class RunManager : MonoBehaviour
     public List<TextMeshProUGUI> levelUpChoicesLevels;
     public List<TextMeshProUGUI> levelUpChoicesDescriptions;
     public List<Image> levelUpChoicesIcons;
+    public List<Animator> levelUpChoicesButtonAnimators;
     [Space]
     public Color defaultUIColor;
     public Color newItemColor;
@@ -1107,6 +1108,10 @@ public class RunManager : MonoBehaviour
             UpdateRerollBanishSkipPostIts();
             SetRerollBanishSkipPostItsEnable(false);
             isUsingBanishForCurrentItemSelection = true;
+            foreach (Animator animator in levelUpChoicesButtonAnimators)
+            {
+                animator.SetBool("Banish", true);
+            }
 
             // Default select first item
             UIManager.instance.SetSelectedButton(levelUpChoicesPanels[0]);
@@ -1121,6 +1126,10 @@ public class RunManager : MonoBehaviour
     public void LevelUP()
     {
         isUsingBanishForCurrentItemSelection = false;
+        foreach (Animator animator in levelUpChoicesButtonAnimators)
+        {
+            animator.SetBool("Banish", false);
+        }
         levelUpChoiceIsVisible = true;
         level++;
         GameManager.instance.SetTimeScale(0);
