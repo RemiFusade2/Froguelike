@@ -389,6 +389,7 @@ MonoBehaviour:
   tongueOutlineLineRenderer: {fileID: 3990334963750023931}
   tongueTip: {fileID: 8591162495376608580}
   colliderRadius: 0.1
+  maximumAcceptedDistanceBetweenTargetOriginPositionAndTargetCurrentPosition: 10
   frogMovementWeightOnTongue:
     serializedVersion: 2
     m_Curve:
@@ -472,7 +473,7 @@ MonoBehaviour:
   tongueWidth: 0.1
   outlineColor: {r: 0, g: 0, b: 0, a: 1}
   outlineWeight: 0.06
-  weaponType: 8
+  tongueType: 0
   cooldown: 1
   damage: 1
   attackSpeed: 1.3
@@ -491,7 +492,7 @@ MonoBehaviour:
   preventAttack: 0
   tongueTypeIndex: 0
   tongueTypeCount: 0
-  activeWeaponsOfSameTypeList: []
+  activeTonguesOfSameTypeList: []
 --- !u!50 &3990334965163639179
 Rigidbody2D:
   serializedVersion: 4

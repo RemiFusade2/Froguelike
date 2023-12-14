@@ -11,6 +11,7 @@ public class TongueLineRendererBehaviour : MonoBehaviour
 
     [Header("Settings")]
     public float colliderRadius = 0.1f;
+    public float maximumAcceptedDistanceBetweenTargetOriginPositionAndTargetCurrentPosition = 4;
 
     [Header("Runtime")]
     public AnimationCurve frogMovementWeightOnTongue;
@@ -67,6 +68,7 @@ public class TongueLineRendererBehaviour : MonoBehaviour
         targetGameObject = null;
         originFrogWhenInitialized = Vector3.zero;
         originTargetWhenInitialized = Vector3.zero;
+        lastTargetMoveVector = Vector3.zero;
         DisableTongue();
     }
 
@@ -191,6 +193,15 @@ public class TongueLineRendererBehaviour : MonoBehaviour
             if (!targetGameObject.name.Equals(EnemiesManager.pooledEnemyNameStr))
             {
                 enemyInfo = EnemiesManager.instance.GetEnemyInstanceFromGameObjectName(targetGameObject.name);
+
+                float distanceBetweenOriginPositionOfTargetAndCurrentPosition = Vector3.Distance(targetGameObject.transform.position, originTargetWhenInitialized);
+                if (distanceBetweenOriginPositionOfTargetAndCurrentPosition >= maximumAcceptedDistanceBetweenTargetOriginPositionAndTargetCurrentPosition)
+                {
+                    // Forget about target, it's moving too fast
+                    followTarget = false;
+                    targetGameObject = null;
+                    enemyInfo = null;
+                }
             }
 
             if (enemyInfo == null || !enemyInfo.active || !enemyInfo.alive)
@@ -202,6 +213,10 @@ public class TongueLineRendererBehaviour : MonoBehaviour
                 targetMovementVector = targetGameObject.transform.position - originTargetWhenInitialized;
                 lastTargetMoveVector = targetMovementVector;
             }
+        }
+        else
+        {
+            targetMovementVector = lastTargetMoveVector;
         }
 
         tongueLineRenderer.positionCount = Mathf.RoundToInt(tonguePositionsList.Count * t);

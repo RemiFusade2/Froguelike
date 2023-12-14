@@ -307,6 +307,10 @@ public class FriendsManager : MonoBehaviour
                                 }
                                 else
                                 {
+                                    // Reset tongue
+                                    friend.TongueScript.ResetTongue();
+
+                                    // Teleport friend
                                     friend.FriendGameObject.transform.position = teleportPosition;
                                 }
                             }
