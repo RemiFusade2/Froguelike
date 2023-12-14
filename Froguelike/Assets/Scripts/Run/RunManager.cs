@@ -1128,7 +1128,10 @@ public class RunManager : MonoBehaviour
         isUsingBanishForCurrentItemSelection = false;
         foreach (Animator animator in levelUpChoicesButtonAnimators)
         {
-            animator.SetBool("Banish", false);
+            if (levelUpPanel.activeSelf)
+            {
+                animator.SetBool("Banish", false);
+            }
         }
         levelUpChoiceIsVisible = true;
         level++;
