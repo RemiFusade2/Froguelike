@@ -62,6 +62,7 @@ public class RunItemManager : MonoBehaviour
     public List<RunWeaponItemData> allRunWeaponsItemsScriptableObjects;
     public List<RunStatItemData> allRunStatsItemsScriptableObjects;
     public List<RunConsumableItemData> allConsumableRunItemsScriptableObjects;
+    public RunConsumableItemData nothingRunItemScriptableObject;
 
     [Header("Runtime")]
     public RunItemsSaveData runItemsData; // Will be loaded and saved when needed
@@ -174,20 +175,29 @@ public class RunItemManager : MonoBehaviour
             }
         }
         
-        // Fill the rest with consumable items until we reach the minimum item count
-        bool atLeastOneConsumableItemAvailable = allConsumableRunItemsScriptableObjects.Count > 0;
-        while (runItemsPool.Count < minimumItemCount && atLeastOneConsumableItemAvailable)
+        // Fill the rest with consumable items
+        foreach (RunConsumableItemData consumableItem in allConsumableRunItemsScriptableObjects)
         {
-            atLeastOneConsumableItemAvailable = false;
-            foreach (RunConsumableItemData consumableItem in allConsumableRunItemsScriptableObjects)
+            if (runItemsPool.Count >= minimumItemCount)
             {
-                if (!runItemsPool.Contains(consumableItem))
-                {
-                    runItemsPool.Add(consumableItem);
-                    atLeastOneConsumableItemAvailable = true;
-                    break;
-                }
+                break; // Stop when the pool is big enough
             }
+
+            if (RunManager.instance.IsRunItemBanished(consumableItem))
+            {
+                continue; // Ignore banished items
+            }
+
+            if (!runItemsPool.Contains(consumableItem))
+            {
+                runItemsPool.Add(consumableItem); // Add consumable item to the pool
+            }
+        }
+
+        // If the list is still empty, add one last item as a failsafe
+        if (runItemsPool.Count == 0)
+        {
+            runItemsPool.Add(nothingRunItemScriptableObject);
         }
 
         return runItemsPool;
