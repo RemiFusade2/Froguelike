@@ -978,7 +978,7 @@ public class EnemiesManager : MonoBehaviour
                         {
                             // Enemy is too far, either it is despawned or it is immediately move and spawned again
                             bool despawnEnemy = despawnEnemiesThatGoTooFar; // Despawn enemies? (an option in the settings)
-                            despawnEnemy |= !enemy.wave.Equals(RunManager.instance.GetCurrentWave()); // Enemy despawn if it is not part of current wave
+                            despawnEnemy |= (enemy.wave != null && !enemy.wave.Equals(RunManager.instance.GetCurrentWave())); // Enemy despawn if it is not part of current wave
                             despawnEnemy |= (enemy.movePattern.movePatternType == EnemyMovePatternType.STRAIGHT_LINE); // Enemy despawn if it goes in a straight line
                             despawnEnemy |= (enemy.movePattern.movePatternType == EnemyMovePatternType.BOUNCE_ON_EDGES); // Enemy despawn if it bounces on edges
 
