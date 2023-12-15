@@ -122,6 +122,7 @@ public class ChapterManager : MonoBehaviour
 
     [Header("Data - Chapters scriptable objects")]
     public List<ChapterData> chaptersScriptableObjectsList;
+    public ChapterData tutorialChapterScriptableObject;
 
     [Header("UI - Chapter Selection screen")]
     public TextMeshProUGUI chapterSelectionTopText;
@@ -440,14 +441,18 @@ public class ChapterManager : MonoBehaviour
     private void UpdateRerollPostit()
     {
         bool rerollWouldGiveAtLeastOneNewChapter = WouldChapterRerollGiveAtLeastOneNewChapter(out int numberOfSimilarChaptersAfterReroll);
+        bool hasAtLeastOneReroll = (GameManager.instance.player.rerolls > 0);
 
-        rerollInfinitePostIt.SetActive(isFirstChapter);
-        rerollPostIt.SetActive(!isFirstChapter);
+        rerollInfinitePostIt.SetActive(isFirstChapter && rerollWouldGiveAtLeastOneNewChapter && GameManager.instance.gameData.attempts > 0);
+        rerollInfinitePostIt.GetComponent<CanvasGroup>().blocksRaycasts = rerollInfinitePostIt.activeSelf;
+        
+
+        rerollPostIt.SetActive(!isFirstChapter && hasAtLeastOneReroll);
         rerollPostItCountTextMesh.SetText($"x{GameManager.instance.player.rerolls}");
-        rerollPostItButton.interactable = (GameManager.instance.player.rerolls > 0) && rerollWouldGiveAtLeastOneNewChapter;
+        rerollPostItButton.interactable = hasAtLeastOneReroll && rerollWouldGiveAtLeastOneNewChapter;
         if (rerollPostIt.activeSelf)
         {
-            rerollPostIt.GetComponent<CanvasGroup>().blocksRaycasts = (GameManager.instance.player.rerolls > 0) && rerollWouldGiveAtLeastOneNewChapter;
+            rerollPostIt.GetComponent<CanvasGroup>().blocksRaycasts = !isFirstChapter && hasAtLeastOneReroll && rerollWouldGiveAtLeastOneNewChapter;
         }
     }
 
@@ -461,8 +466,17 @@ public class ChapterManager : MonoBehaviour
     {
         int numberOfChaptersInSelection = chaptersData.chapterCountInSelection;
 
-        // Choose a number of chapters from the list of available chapters
-        SelectNextPossibleChapters(numberOfChaptersInSelection);
+        if (GameManager.instance.gameData.attempts == 0 && isFirstChapter)
+        {
+            // This is the very first chapter of the very first run, so the only available chapter is the tutorial
+            selectionOfNextChaptersList = new List<Chapter>();
+            selectionOfNextChaptersList.Add(allChaptersDico[tutorialChapterScriptableObject.chapterID]);
+        }
+        else
+        {
+            // Choose a number of chapters from the list of available chapters
+            SelectNextPossibleChapters(numberOfChaptersInSelection);
+        }
 
         // Show the chapters selection
         foreach (ChapterButtonBehaviour chapterButton in chapterButtonsList)

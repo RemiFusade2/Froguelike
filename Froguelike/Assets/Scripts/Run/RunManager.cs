@@ -1102,11 +1102,44 @@ public class RunManager : MonoBehaviour
 
     public void BanishLevelUpItemSelection()
     {
-        if (player.banishs > 0)
+        if (isUsingBanishForCurrentItemSelection)
         {
-            player.banishs--;
+            // Banish was active, we toggle it back to OFF
+            isUsingBanishForCurrentItemSelection = false;
+
+            player.banishs++;
+
+            // Update post its values
             UpdateRerollBanishSkipPostIts();
+
+            foreach (Animator animator in levelUpChoicesButtonAnimators)
+            {
+                animator.SetBool("Banish", false);
+            }
+
+            // Default select first item
+            UIManager.instance.SetSelectedButton(levelUpChoicesPanels[0]);
+
+            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log("Cancel banish on level up item selection");
+            }
+        }
+        else if (player.banishs > 0)
+        {
+            // Banish was inactive, we toggle it ON
+            player.banishs--;
+            
+            // Update post its values
+            UpdateRerollBanishSkipPostIts();
+            
+            // Disable all post-its
             SetRerollBanishSkipPostItsEnable(false);
+
+            // Enable only Banish post-it (in case you want to cancel the banish)
+            banishButton.interactable = true;
+            banishPostit.GetComponent<CanvasGroup>().blocksRaycasts = true;
+
             isUsingBanishForCurrentItemSelection = true;
             foreach (Animator animator in levelUpChoicesButtonAnimators)
             {
@@ -1177,10 +1210,10 @@ public class RunManager : MonoBehaviour
     private void SetRerollBanishSkipPostItsEnable(bool enabled)
     {
         rerollButton.interactable = enabled;
-        banishButton.interactable = enabled;
-        skipButton.interactable = enabled;
         rerollPostit.GetComponent<CanvasGroup>().blocksRaycasts = enabled;
+        banishButton.interactable = enabled;
         banishPostit.GetComponent<CanvasGroup>().blocksRaycasts = enabled;
+        skipButton.interactable = enabled;
         skipPostit.GetComponent<CanvasGroup>().blocksRaycasts = enabled;
     }
 

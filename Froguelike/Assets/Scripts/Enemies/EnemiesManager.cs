@@ -175,6 +175,17 @@ public class EnemyInstance
             enemyRigidbody.mass = mass;
         }
     }
+
+    public void ForceStopAllStatusEffects()
+    {
+        curseRemainingTime = 0;
+        freezeRemainingTime = 0;
+        poisonRemainingTime = 0;
+
+        enemyCurseParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        enemyFreezeParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        enemyPoisonParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+    }
 }
 
 public class EnemiesManager : MonoBehaviour
@@ -206,7 +217,7 @@ public class EnemiesManager : MonoBehaviour
     public int findSpawnPositionMaxAttempts = 10;
     [Space]
     public float maxDistanceBeforeUnspawn = 40;
-    public bool unspawnEnemiesThatGoTooFar = false;
+    public bool despawnEnemiesThatGoTooFar = false;
 
     [Header("Settings - Pooling")]
     public int maxDamageTexts = 300;
@@ -225,6 +236,8 @@ public class EnemiesManager : MonoBehaviour
 
     [Header("Settings - Movement")]
     public float delayBetweenRandomChangeOfDirection = 1.5f;
+    public bool enableAggroForRandomMovementBugs = true;
+    public float aggroDistanceFromRandomMovementBugs = 5;
     [Space]
     public float knockbackDuration = 0.2f;
 
@@ -957,13 +970,22 @@ public class EnemiesManager : MonoBehaviour
                     }
                     else
                     {
-                        // enemy is alive
+                        // Enemy is alive
 
                         // Check distance (if enemy is too far, unspawn it)
                         float distanceWithFrog = Vector2.Distance(frogPosition, enemy.enemyTransform.position);
                         if (distanceWithFrog > maxDistanceBeforeUnspawn)
                         {
-                            if (unspawnEnemiesThatGoTooFar || (!enemy.neverDespawn && !enemy.wave.Equals(RunManager.instance.GetCurrentWave())))
+                            // Enemy is too far, either it is despawned or it is immediately move and spawned again
+                            bool despawnEnemy = despawnEnemiesThatGoTooFar; // Despawn enemies? (an option in the settings)
+                            despawnEnemy |= !enemy.wave.Equals(RunManager.instance.GetCurrentWave()); // Enemy despawn if it is not part of current wave
+                            despawnEnemy |= (enemy.movePattern.movePatternType == EnemyMovePatternType.STRAIGHT_LINE); // Enemy despawn if it goes in a straight line
+                            despawnEnemy |= (enemy.movePattern.movePatternType == EnemyMovePatternType.BOUNCE_ON_EDGES); // Enemy despawn if it bounces on edges
+
+                            // Special case: this enemy never despawn (maybe it is a bounty)
+                            despawnEnemy &= !enemy.neverDespawn;
+
+                            if (despawnEnemy)
                             {
                                 // Unspawn enemy
                                 enemy.enemyRenderer.enabled = false;
@@ -976,7 +998,11 @@ public class EnemiesManager : MonoBehaviour
                                 // Place enemy in front of frog (as if it was spawned again)
                                 if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out Vector2 spawnPosition))
                                 {
+                                    // Teleport
                                     enemy.enemyTransform.position = spawnPosition;
+
+                                    // Reset status effects
+                                    enemy.ForceStopAllStatusEffects();
                                 }
 
                                 // Make sure its direction is reset
@@ -1000,6 +1026,17 @@ public class EnemiesManager : MonoBehaviour
                         }
                         else
                         {
+                            if (enableAggroForRandomMovementBugs && enemy.movePattern.movePatternType == EnemyMovePatternType.DIRECTIONLESS)
+                            {
+                                if (distanceWithFrog <= aggroDistanceFromRandomMovementBugs)
+                                {
+                                    // Change move pattern from DIRECTIONLESS to FOLLOW_PLAYER
+                                    enemy.movePattern = new EnemyMovePattern(enemy.movePattern);
+                                    enemy.movePattern.movePatternType = EnemyMovePatternType.FOLLOW_PLAYER;
+                                    enemy.movePattern.speedFactor *= 1.5f;
+                                }
+                            }
+
                             // Move 
                             if (enemy.knockbackCooldown > 0)
                             {
@@ -1131,6 +1168,7 @@ public class EnemiesManager : MonoBehaviour
     private void PutEnemyInThePool(EnemyInstance enemy)
     {
         inactiveEnemiesPool.Enqueue(enemy);
+        enemy.ForceStopAllStatusEffects();
         enemy.HP = 10000;
         enemy.poisonDamage = 0;
         enemy.enemyTransform.name = pooledEnemyNameStr;
@@ -1142,9 +1180,6 @@ public class EnemiesManager : MonoBehaviour
         enemy.enemyCollider.enabled = false;
         enemy.bountyBug = null;
 
-        enemy.enemyCurseParticles.Stop();
-        enemy.enemyFreezeParticles.Stop();
-        enemy.enemyPoisonParticles.Stop();
     }
 
     public void AddPoisonDamageToEnemy(string enemyGoName, float poisonDamage, float poisonDuration)
