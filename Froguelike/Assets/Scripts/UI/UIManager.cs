@@ -194,9 +194,15 @@ public class UIManager : MonoBehaviour
         settingsScreen.SetActive(false);
         creditsScreen.gameObject.SetActive(false);
 
+        rerollWarningConfirmationPanel.SetActive(false);
+        clearSaveFileConfirmationPanel.SetActive(false);
+        backToTitleScreenConfirmationPanel.SetActive(false);
+
+        /*
         ShowRerollWarningConfirmationPanel(false);
         ShowClearSaveFileConfirmationPanel(false);
         ShowBackToTitleScreenConfirmationPanel(false);
+        */
     }
 
     public void UpdateDemoLimitationSticker()
