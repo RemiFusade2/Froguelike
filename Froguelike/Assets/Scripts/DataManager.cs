@@ -87,26 +87,6 @@ public enum CollectibleType
 }
 
 [System.Serializable]
-public class FriendInfo
-{
-    public FriendType friendType;
-
-    public Sprite sprite;
-    public int style; // for animator
-
-    // Rigidbody:
-    public float Mass;
-    public float LinearDrag;
-
-    // Tongue type and base stats
-    public TongueType tongueType;
-    public TongueStatsWrapper tongueBaseStats;
-
-    public float hopForce;
-    public float timeBetweenDirectionChange;
-}
-
-[System.Serializable]
 public class HatInfo
 {
     public HatType hatType;
@@ -229,7 +209,7 @@ public class DataManager : MonoBehaviour
     public List<HatInfo> hatInfoList;
 
     [Header("Friends")]
-    public List<FriendInfo> friendInfoList;
+    public List<FriendData> friendsDataList;
 
     [Header("Chapter Icons")]
     public List<ChapterIconData> chapterIconsList;
@@ -241,7 +221,7 @@ public class DataManager : MonoBehaviour
 
     private Dictionary<TongueEffect, Color> weaponEffectColorDico;
     private Dictionary<HatType, HatInfo> hatsDictionary;
-    private Dictionary<FriendType, FriendInfo> friendsDictionary;
+    private Dictionary<FriendType, FriendData> friendsDictionary;
     private Dictionary<Sprite, ChapterIconData> chapterIconsDictionary;
 
     private void Awake()
@@ -347,8 +327,8 @@ public class DataManager : MonoBehaviour
         {
             hatsDictionary.Add(hatInfo.hatType, hatInfo);
         }
-        friendsDictionary = new Dictionary<FriendType, FriendInfo>();
-        foreach (FriendInfo friendInfo in friendInfoList)
+        friendsDictionary = new Dictionary<FriendType, FriendData>();
+        foreach (FriendData friendInfo in friendsDataList)
         {
             friendsDictionary.Add(friendInfo.friendType, friendInfo);
         }
@@ -369,23 +349,23 @@ public class DataManager : MonoBehaviour
         return info.tooltip;
     }
 
-    public FriendInfo GetInfoForFriend(FriendType friendType)
+    public FriendData GetDataForFriend(FriendType friendType)
     {
-        FriendInfo info = null;
+        FriendData data = null;
         if (friendsDictionary.ContainsKey(friendType))
         {
-            info = friendsDictionary[friendType];
+            data = friendsDictionary[friendType];
         }
-        return info;
+        return data;
     }
 
     public Sprite GetSpriteForFriend(FriendType friendType)
     {
-        FriendInfo info = GetInfoForFriend(friendType);
+        FriendData data = GetDataForFriend(friendType);
         Sprite result = collectibleDefaultSprite;
-        if (info != null)
+        if (data != null)
         {
-            result = info.sprite;
+            result = data.sprite;
         }
         return result;
     }

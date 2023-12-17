@@ -27,6 +27,8 @@ public class GameSaveData : SaveData
 
     public int compassLevel;
 
+    public bool isFullGame;
+
     public GameSaveData()
     {
         Reset();
@@ -351,6 +353,7 @@ public class GameManager : MonoBehaviour
     public void SetGameData(GameSaveData saveData)
     {
         gameData = saveData;
+        gameData.isFullGame = !this.demoBuild;
         UIManager.instance.UpdateCurrencyDisplay();
     }
 

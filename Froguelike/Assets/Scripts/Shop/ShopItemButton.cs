@@ -58,7 +58,7 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
             Destroy(levelChild.gameObject);
         }
 
-        for (int i = 0; i < item.maxLevel; i++)
+        for (int i = 0; i < item.GetMaxLevel(); i++)
         {
             bool levelIsBought = i < item.currentLevel;
 

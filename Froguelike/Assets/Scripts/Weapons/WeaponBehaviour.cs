@@ -564,6 +564,16 @@ public class WeaponBehaviour : MonoBehaviour
                 float loopBigRadius = 1.8f;
                 float loopSmallRadius = 0.8f;
                 float loopMediumRadius = 1.3f;
+
+                // These loop radiuses work for a range of about 3
+                // Let's adapt the values to work with lower ranges
+                if (actualRange < 3)
+                {
+                    loopBigRadius *= (actualRange / 3);
+                    loopSmallRadius *= (actualRange / 3);
+                    loopMediumRadius *= (actualRange / 3);
+                }
+
                 float loopRadius = loopBigRadius;
 
                 while (distanceFromFrog < actualRange && (!stopAtTarget || distanceFromFrog < distanceToTarget))

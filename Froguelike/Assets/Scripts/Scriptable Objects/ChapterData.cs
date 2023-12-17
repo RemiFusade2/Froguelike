@@ -40,18 +40,6 @@ public enum HatType
 }
 
 /// <summary>
-/// A chapter can add a Friend helping you. Here are the different friends available.
-/// </summary>
-[System.Serializable]
-public enum FriendType
-{
-    FROG,
-    TOAD,
-    GHOST,
-    POISONOUS
-}
-
-/// <summary>
 /// A Fixed Collectible is a collectible that is not affected by the magnet.
 /// You have to walk on it to catch it.
 /// </summary>

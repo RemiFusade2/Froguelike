@@ -55,7 +55,7 @@ public class PauseScreen : MonoBehaviour
 
             thingSlotsParent.GetChild(thingSlot).transform.GetChild(0).gameObject.SetActive(true);
             thingSlotImage = thingSlotsParent.GetChild(thingSlot).GetComponentInChildren<Image>();
-            thingSlotImage.sprite = friend.Info.sprite;
+            thingSlotImage.sprite = friend.data.sprite;
             thingSlotImage.SetNativeSize();
 
             thingSlot++;

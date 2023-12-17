@@ -54,30 +54,58 @@ public class CombinedSaveData
     {
         if (saveData.gameSaveData != null)
         {
+            if (SaveDataManager.instance.verbose == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log($"Debug info - Calling GameManager.instance.SetGameData({saveData.gameSaveData})");
+            }
             GameManager.instance.SetGameData(saveData.gameSaveData);
         }
         if (saveData.shopSaveData != null)
         {
+            if (SaveDataManager.instance.verbose == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log($"Debug info - Calling ShopManager.instance.SetShopData({saveData.shopSaveData})");
+            }
             ShopManager.instance.SetShopData(saveData.shopSaveData);
         }
         if (saveData.charactersSaveData != null)
         {
+            if (SaveDataManager.instance.verbose == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log($"Debug info - Calling CharacterManager.instance.SetCharactersData({saveData.charactersSaveData})");
+            }
             CharacterManager.instance.SetCharactersData(saveData.charactersSaveData);
         }
         if (saveData.enemiesSaveData != null)
         {
+            if (SaveDataManager.instance.verbose == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log($"Debug info - Calling EnemiesManager.instance.SetEnemiesData({saveData.enemiesSaveData})");
+            }
             EnemiesManager.instance.SetEnemiesData(saveData.enemiesSaveData);
         }
         if (saveData.chaptersSaveData != null)
         {
+            if (SaveDataManager.instance.verbose == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log($"Debug info - Calling ChapterManager.instance.SetChaptersData({saveData.chaptersSaveData})");
+            }
             ChapterManager.instance.SetChaptersData(saveData.chaptersSaveData);
         }
         if (saveData.runItemsSaveData != null)
         {
+            if (SaveDataManager.instance.verbose == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log($"Debug info - Calling RunItemManager.instance.SetRunItemsData({saveData.runItemsSaveData})");
+            }
             RunItemManager.instance.SetRunItemsData(saveData.runItemsSaveData);
         }
         if (saveData.achievementsSaveData != null)
         {
+            if (SaveDataManager.instance.verbose == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log($"Debug info - Calling AchievementManager.instance.SetAchievementsData({saveData.achievementsSaveData})");
+            }
             AchievementManager.instance.SetAchievementsData(saveData.achievementsSaveData);
         }
     }

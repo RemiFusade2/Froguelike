@@ -29,6 +29,18 @@ public class ShopItem
     public int maxLevel; // maxLevel = 0 means the item is displayed but out of stock.
 
     public bool hidden; // is the item visible in the shop?
+
+    public int GetMaxLevel()
+    {
+        if (GameManager.instance.demoBuild)
+        {
+            return Mathf.Clamp(maxLevel + data.maxLevelDemoOffset, 0, 20);
+        }
+        else
+        {
+            return maxLevel;
+        }
+    }
 }
 
 /// <summary>
@@ -247,18 +259,21 @@ public class ShopManager : MonoBehaviour
             // For each item...
             for (int level = 0; level < item.currentLevel; level++)
             {
-                // Apply its bonus once for each level
-                foreach (StatValue statIncrease in item.data.statIncreaseList)
+                // Apply its bonus once for each level under max level
+                if (level < item.GetMaxLevel())
                 {
-                    if (statsBonuses.Contains(statIncrease))
+                    foreach (StatValue statIncrease in item.data.statIncreaseList)
                     {
-                        // There was a bonus for this stat already, so we increase this bonus (don't duplicate that stat)
-                        statsBonuses.First(x => x.stat == statIncrease.stat).value += statIncrease.value;
-                    }
-                    else
-                    {
-                        // This is the first bonus for this stat, so add the stat bonus as a new element in the list
-                        statsBonuses.Add(new StatValue(statIncrease));
+                        if (statsBonuses.Contains(statIncrease))
+                        {
+                            // There was a bonus for this stat already, so we increase this bonus (don't duplicate that stat)
+                            statsBonuses.First(x => x.stat == statIncrease.stat).value += statIncrease.value;
+                        }
+                        else
+                        {
+                            // This is the first bonus for this stat, so add the stat bonus as a new element in the list
+                            statsBonuses.Add(new StatValue(statIncrease));
+                        }
                     }
                 }
             }
@@ -334,12 +349,12 @@ public class ShopManager : MonoBehaviour
         int buttonCount = 0;
         foreach (ShopItem item in shopData.shopItems)
         {
-            bool itemHasNoLevel = (item.maxLevel == 0);
+            bool itemHasNoLevel = (item.GetMaxLevel() == 0);
             bool itemIsHiddenDueToNotHavingAnIcon = (GameManager.instance.thingsWithMissingSpritesAreHidden && item.data.icon == null);
             if (!item.hidden && !itemHasNoLevel && !itemIsHiddenDueToNotHavingAnIcon)
             {
-                bool itemIsAvailable = item.currentLevel < item.maxLevel;
-                bool itemIsMaxedOut = item.currentLevel == item.maxLevel;
+                bool itemIsAvailable = item.currentLevel < item.GetMaxLevel();
+                bool itemIsMaxedOut = item.currentLevel >= item.GetMaxLevel();
 
                 // Check if item can be bought.
                 bool availableButCantBuy = false;
@@ -351,6 +366,8 @@ public class ShopManager : MonoBehaviour
 
                 if (itemIsAvailable && !availableButCantBuy)
                 {
+                    // Item is available, we add a button for it
+                    // Item may still not be affordable
                     GameObject shopItemButtonGo = Instantiate(availableShopItemPanelPrefab, shopPanel);
                     ShopItemButton shopItemButton = shopItemButtonGo.GetComponent<ShopItemButton>();
                     shopItemButton.buyButton.onClick.AddListener(delegate { BuyItem(item); });
@@ -359,6 +376,7 @@ public class ShopManager : MonoBehaviour
                 }
                 else if (itemIsMaxedOut || (itemIsAvailable && availableButCantBuy))
                 {
+                    // Item is "sold out" (we already bought all available upgrades)
                     GameObject shopItemButtonGo = Instantiate(soldOutShopItemPanelPrefab, shopPanel);
                     ShopItemButton shopItemButton = shopItemButtonGo.GetComponent<ShopItemButton>();
                     shopItemButton.Initialize(item, availableButCantBuy, currentFee);
@@ -437,7 +455,15 @@ public class ShopManager : MonoBehaviour
             {
                 item.currentLevel = itemFromSave.currentLevel;
                 item.maxLevel = itemFromSave.maxLevel;
+                if (item.data != null && item.data.maxLevelAtStart > itemFromSave.maxLevel)
+                {
+                    item.maxLevel = item.data.maxLevelAtStart;
+                }
                 item.hidden = itemFromSave.hidden;
+                if (SaveDataManager.instance.verbose == VerboseLevel.MAXIMAL)
+                {
+                    Debug.Log($"Debug - Loaded shop item: {item.itemName}. Max level loaded = {itemFromSave.maxLevel}. Max level used = {item.maxLevel}");
+                }
             }
         }
         // Compute new starting stats bonuses

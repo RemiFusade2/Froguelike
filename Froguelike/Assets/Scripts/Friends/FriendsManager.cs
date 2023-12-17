@@ -13,7 +13,7 @@ using static UnityEngine.Rendering.DebugUI;
 public class FriendInstance
 {
     // Data about friend
-    public FriendInfo Info;
+    public FriendData data;
 
     // Is friend active of pooled
     public bool active;
@@ -282,8 +282,8 @@ public class FriendsManager : MonoBehaviour
                     {
                         float distanceWithFrog = Vector2.Distance(frogPosition, friend.FriendGameObject.transform.position);
 
-                        float hopForce = friend.Info.hopForce;
-                        float timeBetweenDirectionChange = friend.Info.timeBetweenDirectionChange;
+                        float hopForce = friend.data.hopForce;
+                        float timeBetweenDirectionChange = friend.data.timeBetweenDirectionChange;
 
                         if (distanceWithFrog > maxDistanceUntilDespawn)
                         {
@@ -404,7 +404,7 @@ public class FriendsManager : MonoBehaviour
 
     public void AddActiveFriend(FriendType friendType, Vector2 friendPosition, bool temporary = false, float lifespan = 0)
     {
-        FriendInfo friendInfo = DataManager.instance.GetInfoForFriend(friendType);
+        FriendData friendData = DataManager.instance.GetDataForFriend(friendType);
 
         if (inactiveFriendsPool.TryDequeue(out FriendInstance friend))
         {
@@ -414,17 +414,17 @@ public class FriendsManager : MonoBehaviour
             // Position friend on the given position
             friend.FriendGameObject.transform.position = friendPosition;
 
-            friend.Info = friendInfo;
+            friend.data = friendData;
 
             // Setup Rigidbody
-            friend.FriendRigidbody.mass = friendInfo.Mass;
-            friend.FriendRigidbody.drag = friendInfo.LinearDrag;
+            friend.FriendRigidbody.mass = friendData.Mass;
+            friend.FriendRigidbody.drag = friendData.LinearDrag;
 
             // Activate all components
             SetFriendsComponentsEnabled(friend, true);
 
             // Setup Tongue
-            friend.TongueScript.Initialize(friend.Info.tongueType, friend.Info.tongueBaseStats);
+            friend.TongueScript.Initialize(friend.data.tongueType, friend.data.tongueBaseStats);
             friend.TongueScript.ResetTongue();
 
             friend.temporary = temporary;
@@ -432,7 +432,7 @@ public class FriendsManager : MonoBehaviour
 
             friend.spawnTime = Time.time;
 
-            friend.FriendAnimator.SetInteger("Style", friendInfo.style);
+            friend.FriendAnimator.SetInteger("Style", friendData.style);
 
             friend.active = true;
 
@@ -480,7 +480,7 @@ public class FriendsManager : MonoBehaviour
         bool friendIsActive = false;
         foreach (FriendInstance friend in permanentFriendsList)
         {
-            friendIsActive |= (friend.Info.friendType == friendType && friend.active);
+            friendIsActive |= (friend.data.friendType == friendType && friend.active);
             if (friendIsActive) 
                 break;
         }

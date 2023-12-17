@@ -5707,11 +5707,11 @@ MonoBehaviour:
     Path: event:/UI/BookSounds/BookSlide
   <takeDamageSound>k__BackingField:
     Guid:
-      Data1: 172951897
-      Data2: 1295469370
-      Data3: -140490354
-      Data4: 2014029881
-    Path: event:/NothingYet
+      Data1: 1169597055
+      Data2: 1285901863
+      Data3: 1271460020
+      Data4: 1696885205
+    Path: event:/InRun/TakeDamageLoop
   <healSound>k__BackingField:
     Guid:
       Data1: 337806820
@@ -5749,18 +5749,18 @@ MonoBehaviour:
     Path: event:/InRun/LevelUp
   <buyItemInShopSound>k__BackingField:
     Guid:
-      Data1: 172951897
-      Data2: 1295469370
-      Data3: -140490354
-      Data4: 2014029881
-    Path: event:/NothingYet
+      Data1: -344999570
+      Data2: 1287332941
+      Data3: 711099287
+      Data4: -1988856287
+    Path: event:/Shop/ShopBuy
   <refundShopSound>k__BackingField:
     Guid:
-      Data1: 172951897
-      Data2: 1295469370
-      Data3: -140490354
-      Data4: 2014029881
-    Path: event:/NothingYet
+      Data1: -1478747350
+      Data2: 1167292571
+      Data3: 209600687
+      Data4: -1194853322
+    Path: event:/Shop/ShopRefund
   <rerollSound>k__BackingField:
     Guid:
       Data1: 172951897
@@ -5784,11 +5784,11 @@ MonoBehaviour:
     Path: event:/InRun/EatBounty
   <eatBugSound>k__BackingField:
     Guid:
-      Data1: 172951897
-      Data2: 1295469370
-      Data3: -140490354
-      Data4: 2014029881
-    Path: event:/NothingYet
+      Data1: 1263737734
+      Data2: 1085062552
+      Data3: 133591693
+      Data4: -779476967
+    Path: event:/InRun/EatBug
   <powerUpFreezeAllSound>k__BackingField:
     Guid:
       Data1: 832113068
@@ -8137,12 +8137,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   logsVerboseLevel: 0
   demoBuild: 0
-  showDemoDisclaimer: 0
+  showDemoDisclaimer: 1
   demoLimitationType: 0
   demoTimeLimit: 0
   demoRunCountLimit: 0
   demoSaveProgress: 1
-  cheatsAreEnabled: 0
+  cheatsAreEnabled: 1
   everythingIsUnlocked: 0
   thingsWithMissingSpritesAreHidden: 0
   player: {fileID: 1127068952}
@@ -8158,6 +8158,7 @@ MonoBehaviour:
     availableCurrency: 0
     totalSpentCurrency: 0
     compassLevel: 0
+    isFullGame: 0
   hasGameStarted: 0
   isGameRunning: 0
   gameIsPaused: 0
@@ -33400,8 +33401,28 @@ PrefabInstance:
       value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[2].LinearDrag
+      value: 0.93
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[2].tongueType
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
       propertyPath: powerUpFriendsFrenzySpawnDistanceFromPlayer
       value: 23
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[2].tongueBaseStats.statsList.Array.data[9].stat
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[2].tongueBaseStats.statsList.Array.data[0].value
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[2].tongueBaseStats.statsList.Array.data[9].value
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1633024039481550883, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
       propertyPath: m_Name

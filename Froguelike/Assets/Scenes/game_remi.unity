@@ -8137,7 +8137,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   logsVerboseLevel: 0
   demoBuild: 0
-  showDemoDisclaimer: 0
+  showDemoDisclaimer: 1
   demoLimitationType: 0
   demoTimeLimit: 0
   demoRunCountLimit: 0
@@ -8158,6 +8158,7 @@ MonoBehaviour:
     availableCurrency: 0
     totalSpentCurrency: 0
     compassLevel: 0
+    isFullGame: 0
   hasGameStarted: 0
   isGameRunning: 0
   gameIsPaused: 0
@@ -33400,8 +33401,28 @@ PrefabInstance:
       value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[2].LinearDrag
+      value: 0.93
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[2].tongueType
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
       propertyPath: powerUpFriendsFrenzySpawnDistanceFromPlayer
       value: 23
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[2].tongueBaseStats.statsList.Array.data[9].stat
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[2].tongueBaseStats.statsList.Array.data[0].value
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: friendInfoList.Array.data[2].tongueBaseStats.statsList.Array.data[9].value
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1633024039481550883, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
       propertyPath: m_Name
