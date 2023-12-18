@@ -159,6 +159,7 @@ public class DataManager : MonoBehaviour
     public float capturedCollectiblesSpeed = 12;
 
     [Header("Weapon effects colors")]
+    public Color defaultWeaponEffectColor;
     public List<TongueEffectData> allWeaponEffectsDataList;
 
     [Header("Stats info")]
@@ -312,7 +313,11 @@ public class DataManager : MonoBehaviour
 
     public Color GetColorForWeaponEffect(TongueEffect effect)
     {
-        return weaponEffectColorDico[effect];
+        if (weaponEffectColorDico != null && weaponEffectColorDico.ContainsKey(effect))
+        {
+            return weaponEffectColorDico[effect];
+        }
+        return defaultWeaponEffectColor;
     }
 
     private void InitializeData()
