@@ -23,8 +23,11 @@ public class CreditsFrogBehaviour : MonoBehaviour
     {
         angle = 0;
         frogTransform.localRotation = Quaternion.Euler(0, 0, angle);
-        frogAnimator.SetTrigger("Reset");
-        frogAnimator.ResetTrigger("Jump");
+        if (frogAnimator.gameObject.activeInHierarchy)
+        {
+            frogAnimator.SetTrigger("Reset");
+            frogAnimator.ResetTrigger("Jump");
+        }
     }
 
     public void FrogTurnsAround()
