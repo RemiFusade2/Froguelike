@@ -37,6 +37,8 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 0}
+      minFriendsCount: 0
+      maxFriendsCount: 10
     - conditionType: 7
       not: 0
       chapterData: {fileID: 11400000, guid: 43f09859ce95d714c8b9c003903e217e, type: 2}
@@ -47,7 +49,9 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 11400000, guid: 63cab506d07186443bfd2babb7702689, type: 2}
-    - conditionType: 5
+      minFriendsCount: 0
+      maxFriendsCount: 10
+    - conditionType: 8
       not: 0
       chapterData: {fileID: 11400000, guid: 43f09859ce95d714c8b9c003903e217e, type: 2}
       minChapterCount: 5
@@ -57,36 +61,8 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 11400000, guid: 63cab506d07186443bfd2babb7702689, type: 2}
-    - conditionType: 5
-      not: 0
-      chapterData: {fileID: 11400000, guid: 43f09859ce95d714c8b9c003903e217e, type: 2}
-      minChapterCount: 5
-      maxChapterCount: 5
-      environmentType: 0
-      hatType: 0
-      friendType: 1
-      itemName: {fileID: 0}
-      characterData: {fileID: 11400000, guid: 63cab506d07186443bfd2babb7702689, type: 2}
-    - conditionType: 5
-      not: 0
-      chapterData: {fileID: 11400000, guid: 43f09859ce95d714c8b9c003903e217e, type: 2}
-      minChapterCount: 5
-      maxChapterCount: 5
-      environmentType: 0
-      hatType: 0
-      friendType: 2
-      itemName: {fileID: 0}
-      characterData: {fileID: 11400000, guid: 63cab506d07186443bfd2babb7702689, type: 2}
-    - conditionType: 5
-      not: 0
-      chapterData: {fileID: 11400000, guid: 43f09859ce95d714c8b9c003903e217e, type: 2}
-      minChapterCount: 5
-      maxChapterCount: 5
-      environmentType: 0
-      hatType: 0
-      friendType: 3
-      itemName: {fileID: 0}
-      characterData: {fileID: 11400000, guid: 63cab506d07186443bfd2babb7702689, type: 2}
+      minFriendsCount: 2
+      maxFriendsCount: 10
     - conditionType: 1
       not: 1
       chapterData: {fileID: 11400000, guid: bfa2ad6af52d03b4a8489be5d9dad3df, type: 2}
@@ -97,12 +73,67 @@ MonoBehaviour:
       friendType: 3
       itemName: {fileID: 0}
       characterData: {fileID: 11400000, guid: 63cab506d07186443bfd2babb7702689, type: 2}
+      minFriendsCount: 0
+      maxFriendsCount: 10
   rocksSpawnFrequency: 0
   pondsSpawnFrequency: 2
   coinsSpawnFrequency: 2
   healthSpawnFrequency: 1
   levelUpSpawnFrequency: 0
-  specialCollectiblesOnTheMap: []
+  otherCollectibleSpawnFrequenciesList: []
+  specialCollectiblesOnTheMap:
+  - tileCoordinates: {x: 12, y: -3}
+    tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
+    collectibleName: Berenice
+    collectibleDescription: She seems friendly
+    collectibleType: 3
+    collectibleStatItemData: {fileID: 0}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 0
+    foundCollectibleTitle: You met
+    acceptCollectibleStr: Hop in!
+    refuseCollectibleStr: Good bye
+    compassLevel: 0
+  - tileCoordinates: {x: -12, y: 3}
+    tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
+    collectibleName: James
+    collectibleDescription: He seems friendly
+    collectibleType: 3
+    collectibleStatItemData: {fileID: 0}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 1
+    foundCollectibleTitle: You met
+    acceptCollectibleStr: Hop in!
+    refuseCollectibleStr: Good bye
+    compassLevel: 0
+  - tileCoordinates: {x: -3, y: 12}
+    tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
+    collectibleName: Caroline
+    collectibleDescription: She seems friendly
+    collectibleType: 3
+    collectibleStatItemData: {fileID: 0}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 3
+    foundCollectibleTitle: You met
+    acceptCollectibleStr: Hop in!
+    refuseCollectibleStr: Good bye
+    compassLevel: 0
+  - tileCoordinates: {x: 3, y: -12}
+    tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
+    collectibleName: Elsa
+    collectibleDescription: She seems friendly
+    collectibleType: 3
+    collectibleStatItemData: {fileID: 0}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 4
+    foundCollectibleTitle: You met
+    acceptCollectibleStr: Hop in!
+    refuseCollectibleStr: Good bye
+    compassLevel: 0
   environmentChange: 0
   characterStyleChange: 0
   waves:
@@ -111,4 +142,50 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4c6bb2072e017d24ba4df59384401e69, type: 2}
   - {fileID: 11400000, guid: f61d0916d0431ec40acc6af5bdf3cb8d, type: 2}
   - {fileID: 11400000, guid: 36fdaffe3e61a244ba6b7d281062ab0f, type: 2}
+  bountyBugs:
+  - spawnTime: 30
+    enemyType: 0
+    tierFormula: 3
+    hpMultiplier: 100
+    damageMultiplier: 4
+    xpMultiplier: 20
+    movePattern:
+      movePatternType: 2
+      speedFactor: 2
+      bouncecount: 0
+    outlineThicknessOverride: 1
+    outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
+    bountyList:
+    - collectibleType: 3
+      amount: 3
+  - spawnTime: 60
+    enemyType: 0
+    tierFormula: 4
+    hpMultiplier: 100
+    damageMultiplier: 4
+    xpMultiplier: 20
+    movePattern:
+      movePatternType: 2
+      speedFactor: 2
+      bouncecount: 0
+    outlineThicknessOverride: 1
+    outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
+    bountyList:
+    - collectibleType: 3
+      amount: 5
+  - spawnTime: 90
+    enemyType: 0
+    tierFormula: 5
+    hpMultiplier: 100
+    damageMultiplier: 4
+    xpMultiplier: 20
+    movePattern:
+      movePatternType: 2
+      speedFactor: 2
+      bouncecount: 0
+    outlineThicknessOverride: 1
+    outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
+    bountyList:
+    - collectibleType: 3
+      amount: 8
   weightChanges: []

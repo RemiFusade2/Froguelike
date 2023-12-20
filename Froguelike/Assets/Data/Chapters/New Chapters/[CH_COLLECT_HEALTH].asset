@@ -24,7 +24,7 @@ MonoBehaviour:
   chapterLengthInSeconds: 300
   startingUnlockState: 1
   startingWeight: 1
-  canBePlayedMultipleTimesInOneRun: 1
+  canBePlayedMultipleTimesInOneRun: 0
   conditions:
   - conditionsList:
     - conditionType: 2
@@ -37,6 +37,8 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 0}
+      minFriendsCount: 0
+      maxFriendsCount: 10
   rocksSpawnFrequency: 2
   pondsSpawnFrequency: 2
   coinsSpawnFrequency: 0
@@ -44,7 +46,7 @@ MonoBehaviour:
   levelUpSpawnFrequency: 0
   otherCollectibleSpawnFrequenciesList: []
   specialCollectiblesOnTheMap:
-  - tileCoordinates: {x: 15, y: 5}
+  - tileCoordinates: {x: 10, y: 5}
     tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
     collectibleName: A Lingonberry
     collectibleDescription: 
@@ -57,12 +59,12 @@ MonoBehaviour:
     acceptCollectibleStr: Take it
     refuseCollectibleStr: Leave it
     compassLevel: 1
-  - tileCoordinates: {x: 25, y: -5}
+  - tileCoordinates: {x: -10, y: -5}
     tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
-    collectibleName: Some Moss
+    collectibleName: A Lingonberry
     collectibleDescription: 
     collectibleType: 0
-    collectibleStatItemData: {fileID: 11400000, guid: 4f94eda1e628c8544bdbe476f6718bac, type: 2}
+    collectibleStatItemData: {fileID: 11400000, guid: b139953497217ef4986fe0ace1910a22, type: 2}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
     collectibleFriendType: 0
@@ -84,7 +86,7 @@ MonoBehaviour:
     tierFormula: 1
     hpMultiplier: 100
     damageMultiplier: 4
-    xpMultiplier: 2
+    xpMultiplier: 20
     movePattern:
       movePatternType: 2
       speedFactor: 2
@@ -93,7 +95,5 @@ MonoBehaviour:
     outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
     bountyList:
     - collectibleType: 3
-      amount: 10
-  weightChanges:
-  - chapter: {fileID: 11400000}
-    weightChange: -0.2
+      amount: 6
+  weightChanges: []

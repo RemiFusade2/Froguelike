@@ -101,6 +101,19 @@ public class ChapterConditionDrawer : PropertyDrawer
             EditorGUI.LabelField(labelRect, new GUIContent("Character:"));
             EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("characterData"), GUIContent.none);
         }
+        else if (conditionType.enumValueFlag == (int)ChapterConditionType.FRIEND_COUNT)
+        {
+            // Choose friend count Min and Max values  
+            float labelWidth = 40;
+            Rect friendCountMinLabelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+            Rect friendCountMinRect = new Rect(position.x + labelWidth, position.y, position.width / 2 - labelWidth - 10, EditorGUIUtility.singleLineHeight);
+            Rect friendCountMaxLabelRect = new Rect(position.x + position.width / 2 + 10, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+            Rect friendCountMaxRect = new Rect(position.x + position.width / 2 + labelWidth + 10, position.y, position.width / 2 - labelWidth - 10, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(friendCountMinLabelRect, new GUIContent("Min:"));
+            EditorGUI.PropertyField(friendCountMinRect, property.FindPropertyRelative("minFriendsCount"), GUIContent.none);
+            EditorGUI.LabelField(friendCountMaxLabelRect, new GUIContent("Max:"));
+            EditorGUI.PropertyField(friendCountMaxRect, property.FindPropertyRelative("maxFriendsCount"), GUIContent.none);
+        }
 
         EditorGUI.EndProperty();
     }

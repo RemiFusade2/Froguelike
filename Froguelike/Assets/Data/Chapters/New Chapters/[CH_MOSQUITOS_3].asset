@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bad41dd93f187774b8bdbe4c23a9cc6f, type: 3}
-  m_Name: '[CH_FLIES_2]'
+  m_Name: '[CH_MOSQUITOS_3]'
   m_EditorClassIdentifier: 
-  chapterID: '[CH_FLIES_2]'
-  partOfDemo: 1
-  chapterTitle: Flies fight back
+  chapterID: '[CH_MOSQUITOS_3]'
+  partOfDemo: 0
+  chapterTitle: Home Sweet Home
   chapterLore:
-  - Flies were unhappy to become frog food. They started to come up with strategies
-    to fight back! They became stronger and more numerous. But I managed...
+  - I brought the mosquitos in the deeper area of the swamp, were there are many
+    ponds. They seem happier now!
   icons: []
   startingStatBonuses:
     statsList: []
@@ -30,8 +30,8 @@ MonoBehaviour:
     - conditionType: 2
       not: 0
       chapterData: {fileID: 0}
-      minChapterCount: 2
-      maxChapterCount: 3
+      minChapterCount: 3
+      maxChapterCount: 5
       environmentType: 0
       hatType: 0
       friendType: 0
@@ -41,9 +41,9 @@ MonoBehaviour:
       maxFriendsCount: 10
     - conditionType: 1
       not: 0
-      chapterData: {fileID: 11400000, guid: 2ff42962157659a47913bb838403dc8d, type: 2}
-      minChapterCount: 3
-      maxChapterCount: 3
+      chapterData: {fileID: 11400000, guid: 790d736fd6d88b74eb474fbb40d7abac, type: 2}
+      minChapterCount: 2
+      maxChapterCount: 4
       environmentType: 0
       hatType: 0
       friendType: 0
@@ -51,52 +51,54 @@ MonoBehaviour:
       characterData: {fileID: 0}
       minFriendsCount: 0
       maxFriendsCount: 10
-  rocksSpawnFrequency: 1
+  rocksSpawnFrequency: 0
   pondsSpawnFrequency: 3
   coinsSpawnFrequency: 1
-  healthSpawnFrequency: 1
-  levelUpSpawnFrequency: 0
+  healthSpawnFrequency: 0
+  levelUpSpawnFrequency: 1
   otherCollectibleSpawnFrequenciesList: []
   specialCollectiblesOnTheMap: []
   environmentChange: 0
   characterStyleChange: 0
   waves:
-  - {fileID: 11400000, guid: 52fd18ac9b5027b4e84739340f6e9112, type: 2}
-  - {fileID: 11400000, guid: 10d595febffe66941807506592061cdf, type: 2}
-  - {fileID: 11400000, guid: d28f11154e074bf4e8ce9ed038ffc34a, type: 2}
-  - {fileID: 11400000, guid: ebfd6f35e631c434ca87ea56718f1a1f, type: 2}
-  - {fileID: 11400000, guid: 126d4ffd2556b124d94363d4a4b2df7e, type: 2}
+  - {fileID: 11400000, guid: c755db545eb6d8948962cf5e305c24bf, type: 2}
+  - {fileID: 11400000, guid: 14b66d3d4518ea74e99f59229636d276, type: 2}
+  - {fileID: 11400000, guid: 86840b034cbad514fbc5c66e16b51951, type: 2}
+  - {fileID: 11400000, guid: c755db545eb6d8948962cf5e305c24bf, type: 2}
+  - {fileID: 11400000, guid: 14b66d3d4518ea74e99f59229636d276, type: 2}
   bountyBugs:
-  - spawnTime: 150
-    enemyType: 0
-    tierFormula: 2
+  - spawnTime: 0
+    enemyType: 5
+    tierFormula: 5
     hpMultiplier: 100
     damageMultiplier: 4
-    xpMultiplier: 2
+    xpMultiplier: 20
     movePattern:
       movePatternType: 2
       speedFactor: 2
       bouncecount: 0
     outlineThicknessOverride: 1
-    outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
+    outlineColorOverride: {r: 0.9843138, g: 0.9921569, b: 0.9843138, a: 1}
     bountyList:
-    - collectibleType: 1
+    - collectibleType: 2
+      amount: 1
+    - collectibleType: 3
       amount: 5
-  - spawnTime: 150
-    enemyType: 0
-    tierFormula: 2
+  - spawnTime: 0
+    enemyType: 5
+    tierFormula: 5
     hpMultiplier: 100
     damageMultiplier: 4
-    xpMultiplier: 2
+    xpMultiplier: 20
     movePattern:
       movePatternType: 2
       speedFactor: 2
       bouncecount: 0
     outlineThicknessOverride: 1
-    outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
+    outlineColorOverride: {r: 0.9843138, g: 0.9921569, b: 0.9843138, a: 1}
     bountyList:
-    - collectibleType: 1
+    - collectibleType: 2
+      amount: 1
+    - collectibleType: 3
       amount: 5
-  weightChanges:
-  - chapter: {fileID: 11400000, guid: 6ca31599c7f165b4b8de5a21886a139c, type: 2}
-    weightChange: 2
+  weightChanges: []

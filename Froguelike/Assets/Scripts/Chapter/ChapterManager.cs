@@ -316,6 +316,10 @@ public class ChapterManager : MonoBehaviour
                             case ChapterConditionType.UNLOCKED:
                                 conditionChunkIsValid = currentChapter.unlocked;
                                 break;
+                            case ChapterConditionType.FRIEND_COUNT:
+                                int friendsCount = FriendsManager.instance.HasPermanentFriendsCount();
+                                conditionChunkIsValid = (friendsCount >= condition.minFriendsCount) && (condition.maxFriendsCount == 10 || friendsCount <= condition.maxFriendsCount);
+                                break;
                         }
                         conditionChunkIsValid = condition.not ? (!conditionChunkIsValid) : (conditionChunkIsValid); // apply a NOT if needed
                         if (!conditionChunkIsValid)

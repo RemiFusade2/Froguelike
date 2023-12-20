@@ -85,7 +85,8 @@ public enum ChapterConditionType
     HAT,
     FRIEND,
     RUN_ITEM,
-    CHARACTER
+    CHARACTER,
+    FRIEND_COUNT
 }
 
 #endregion
@@ -176,6 +177,13 @@ public class ChapterCondition
 
     [Tooltip("The current played Character")]
     public CharacterData characterData;
+
+    [Tooltip("This chapter can appear only if you have at least this amount of friends")]
+    [Range(0, 10)]
+    public int minFriendsCount = 0;
+    [Tooltip("This chapter can appear only if you have at most this amount of friends")]
+    [Range(0, 10)]
+    public int maxFriendsCount = 10;
 }
 
 /// <summary>
