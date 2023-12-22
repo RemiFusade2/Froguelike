@@ -1,0 +1,104 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bad41dd93f187774b8bdbe4c23a9cc6f, type: 3}
+  m_Name: '[CH_MOSQUITOS_3]'
+  m_EditorClassIdentifier: 
+  chapterID: '[CH_MOSQUITOS_3]'
+  partOfDemo: 0
+  chapterTitle: Home Sweet Home
+  chapterLore:
+  - I brought the mosquitos in the deeper area of the swamp, were there are many
+    ponds. They seem happier now!
+  icons: []
+  startingStatBonuses:
+    statsList: []
+  chapterLengthInSeconds: 300
+  startingUnlockState: 1
+  startingWeight: 1
+  canBePlayedMultipleTimesInOneRun: 0
+  conditions:
+  - conditionsList:
+    - conditionType: 2
+      not: 0
+      chapterData: {fileID: 0}
+      minChapterCount: 3
+      maxChapterCount: 5
+      environmentType: 0
+      hatType: 0
+      friendType: 0
+      itemName: {fileID: 0}
+      characterData: {fileID: 0}
+      minFriendsCount: 0
+      maxFriendsCount: 10
+    - conditionType: 1
+      not: 0
+      chapterData: {fileID: 11400000, guid: 790d736fd6d88b74eb474fbb40d7abac, type: 2}
+      minChapterCount: 2
+      maxChapterCount: 4
+      environmentType: 0
+      hatType: 0
+      friendType: 0
+      itemName: {fileID: 0}
+      characterData: {fileID: 0}
+      minFriendsCount: 0
+      maxFriendsCount: 10
+  rocksSpawnFrequency: 0
+  pondsSpawnFrequency: 3
+  coinsSpawnFrequency: 1
+  healthSpawnFrequency: 0
+  levelUpSpawnFrequency: 1
+  otherCollectibleSpawnFrequenciesList: []
+  specialCollectiblesOnTheMap: []
+  environmentChange: 0
+  characterStyleChange: 0
+  waves:
+  - {fileID: 11400000, guid: c755db545eb6d8948962cf5e305c24bf, type: 2}
+  - {fileID: 11400000, guid: 14b66d3d4518ea74e99f59229636d276, type: 2}
+  - {fileID: 11400000, guid: 86840b034cbad514fbc5c66e16b51951, type: 2}
+  - {fileID: 11400000, guid: c755db545eb6d8948962cf5e305c24bf, type: 2}
+  - {fileID: 11400000, guid: 14b66d3d4518ea74e99f59229636d276, type: 2}
+  bountyBugs:
+  - spawnTime: 0
+    enemyType: 5
+    tierFormula: 5
+    hpMultiplier: 100
+    damageMultiplier: 4
+    xpMultiplier: 20
+    movePattern:
+      movePatternType: 2
+      speedFactor: 2
+      bouncecount: 0
+    outlineThicknessOverride: 1
+    outlineColorOverride: {r: 0.9843138, g: 0.9921569, b: 0.9843138, a: 1}
+    bountyList:
+    - collectibleType: 2
+      amount: 1
+    - collectibleType: 3
+      amount: 5
+  - spawnTime: 0
+    enemyType: 5
+    tierFormula: 5
+    hpMultiplier: 100
+    damageMultiplier: 4
+    xpMultiplier: 20
+    movePattern:
+      movePatternType: 2
+      speedFactor: 2
+      bouncecount: 0
+    outlineThicknessOverride: 1
+    outlineColorOverride: {r: 0.9843138, g: 0.9921569, b: 0.9843138, a: 1}
+    bountyList:
+    - collectibleType: 2
+      amount: 1
+    - collectibleType: 3
+      amount: 5
+  weightChanges: []

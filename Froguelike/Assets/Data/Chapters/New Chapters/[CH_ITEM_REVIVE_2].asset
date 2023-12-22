@@ -31,13 +31,15 @@ MonoBehaviour:
     - conditionType: 2
       not: 0
       chapterData: {fileID: 0}
-      minChapterCount: 3
+      minChapterCount: 2
       maxChapterCount: 4
       environmentType: 0
       hatType: 0
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 0}
+      minFriendsCount: 0
+      maxFriendsCount: 10
     - conditionType: 1
       not: 0
       chapterData: {fileID: 11400000, guid: 5e291b4b69c406a41840b5699666ff17, type: 2}
@@ -48,11 +50,14 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 0}
+      minFriendsCount: 0
+      maxFriendsCount: 10
   rocksSpawnFrequency: 1
   pondsSpawnFrequency: 2
   coinsSpawnFrequency: 1
   healthSpawnFrequency: 1
   levelUpSpawnFrequency: 0
+  otherCollectibleSpawnFrequenciesList: []
   specialCollectiblesOnTheMap: []
   environmentChange: 0
   characterStyleChange: 0
@@ -62,6 +67,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: cc301faf80c8f85468b0cff961d9eda8, type: 2}
   - {fileID: 11400000, guid: 958373baa275dc245aefd6b059638881, type: 2}
   - {fileID: 11400000, guid: ab1a41fb24089684fb517eaf98e9cb5d, type: 2}
+  bountyBugs: []
   weightChanges:
   - chapter: {fileID: 11400000, guid: 54438f451dbe8d44bb459414183cacf7, type: 2}
     weightChange: 5

@@ -37,6 +37,8 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 0}
+      minFriendsCount: 0
+      maxFriendsCount: 10
     - conditionType: 7
       not: 0
       chapterData: {fileID: 11400000, guid: 43f09859ce95d714c8b9c003903e217e, type: 2}
@@ -47,8 +49,10 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 11400000, guid: 8532a20df8a530548b6aa40feab1c90b, type: 2}
-    - conditionType: 5
-      not: 1
+      minFriendsCount: 0
+      maxFriendsCount: 10
+    - conditionType: 8
+      not: 0
       chapterData: {fileID: 11400000, guid: 43f09859ce95d714c8b9c003903e217e, type: 2}
       minChapterCount: 5
       maxChapterCount: 5
@@ -57,36 +61,8 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 11400000, guid: 8532a20df8a530548b6aa40feab1c90b, type: 2}
-    - conditionType: 5
-      not: 1
-      chapterData: {fileID: 11400000, guid: 43f09859ce95d714c8b9c003903e217e, type: 2}
-      minChapterCount: 5
-      maxChapterCount: 5
-      environmentType: 0
-      hatType: 0
-      friendType: 1
-      itemName: {fileID: 0}
-      characterData: {fileID: 11400000, guid: 8532a20df8a530548b6aa40feab1c90b, type: 2}
-    - conditionType: 5
-      not: 1
-      chapterData: {fileID: 11400000, guid: 43f09859ce95d714c8b9c003903e217e, type: 2}
-      minChapterCount: 5
-      maxChapterCount: 5
-      environmentType: 0
-      hatType: 0
-      friendType: 2
-      itemName: {fileID: 0}
-      characterData: {fileID: 11400000, guid: 8532a20df8a530548b6aa40feab1c90b, type: 2}
-    - conditionType: 5
-      not: 1
-      chapterData: {fileID: 11400000, guid: 43f09859ce95d714c8b9c003903e217e, type: 2}
-      minChapterCount: 5
-      maxChapterCount: 5
-      environmentType: 0
-      hatType: 0
-      friendType: 3
-      itemName: {fileID: 0}
-      characterData: {fileID: 11400000, guid: 8532a20df8a530548b6aa40feab1c90b, type: 2}
+      minFriendsCount: 0
+      maxFriendsCount: 0
     - conditionType: 1
       not: 1
       chapterData: {fileID: 11400000, guid: b8f87ed24d6ad564e82ef384ec2da04d, type: 2}
@@ -97,11 +73,14 @@ MonoBehaviour:
       friendType: 3
       itemName: {fileID: 0}
       characterData: {fileID: 11400000, guid: 8532a20df8a530548b6aa40feab1c90b, type: 2}
+      minFriendsCount: 0
+      maxFriendsCount: 10
   rocksSpawnFrequency: 2
   pondsSpawnFrequency: 2
   coinsSpawnFrequency: 1
   healthSpawnFrequency: 0
   levelUpSpawnFrequency: 1
+  otherCollectibleSpawnFrequenciesList: []
   specialCollectiblesOnTheMap: []
   environmentChange: 0
   characterStyleChange: 0
@@ -111,4 +90,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 883b3cf4ec2c9cf42b3b7c50ca3fc437, type: 2}
   - {fileID: 11400000, guid: 86840b034cbad514fbc5c66e16b51951, type: 2}
   - {fileID: 11400000, guid: dcff4c13d4b20aa41afb36e84396958a, type: 2}
+  bountyBugs: []
   weightChanges: []

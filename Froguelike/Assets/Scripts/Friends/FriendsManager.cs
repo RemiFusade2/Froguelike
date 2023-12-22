@@ -486,4 +486,9 @@ public class FriendsManager : MonoBehaviour
         }
         return friendIsActive;
     }
+
+    public int HasPermanentFriendsCount()
+    {
+        return permanentFriendsList.Count;
+    }
 }

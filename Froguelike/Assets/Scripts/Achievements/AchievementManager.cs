@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.Analytics;
 
 /// <summary>
 /// Achievement describes an achievement in its current state.
@@ -182,6 +183,7 @@ public class AchievementManager : MonoBehaviour
                 }
             }
         }
+        CommitSteamAchievements();
     }
 
     #endregion
@@ -278,6 +280,32 @@ public class AchievementManager : MonoBehaviour
             Debug.Log(log);
         }
         return achievementUnlocked;
+    }
+
+    public void CommitSteamAchievements()
+    {
+        string log = $"Achievement Manager - CommitSteamAchievements ";
+        if (SteamManager.Initialized && !GameManager.instance.demoBuild)
+        {
+#if !DISABLESTEAMWORKS
+            try
+            {
+                Steamworks.SteamUserStats.StoreStats();
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError(e.Message);
+            }
+#endif
+        }
+        else
+        {
+            log += "can't be done because Steam manager has not been initialized.";
+        }
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log(log);
+        }
     }
 
     #endregion
@@ -437,6 +465,8 @@ public class AchievementManager : MonoBehaviour
                 }
             }
         }
+
+        CommitSteamAchievements();
 
         return unlockedAchievementsList;
     }
