@@ -26,6 +26,7 @@ public class SoundManager : MonoBehaviour
     [field: SerializeField] public EventReference levelUpSound { get; private set; }
 
     [field: SerializeField] public EventReference buyItemInShopSound { get; private set; }
+    [field: SerializeField] public EventReference cantBuyItemInShopSound { get; private set; }
     [field: SerializeField] public EventReference refundShopSound { get; private set; }
 
     [field: SerializeField] public EventReference rerollSound { get; private set; }
@@ -186,7 +187,7 @@ public class SoundManager : MonoBehaviour
     public void PlayPickUpXPSound(float xpValue) // TODO
     {
         // TODO could have a parameter for the volume multiplier, it was set up to be louder if it is more xp with the old system.
-        int parameterValue; 
+        int parameterValue;
         if (xpValue < 6)
         {
             parameterValue = 0;
@@ -224,6 +225,11 @@ public class SoundManager : MonoBehaviour
     public void PlayBuyItemInShopSound()
     {
         RuntimeManager.PlayOneShot(buyItemInShopSound);
+    }
+
+    public void PlayCantBuyItemInShopSound()
+    {
+        RuntimeManager.PlayOneShot(cantBuyItemInShopSound);
     }
 
     public void PlayRefundShopSound()
