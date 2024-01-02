@@ -202,22 +202,21 @@ public class CollectiblesManager : MonoBehaviour
             CollectibleInfo collectibleInfo = DataManager.instance.GetCollectibleInfoFromType(collectibleType);
 
             // Set Icon
-            // For XP and Froins, there are multiple icons depending on the value of XP and Froins this collectible has
             int iconIndex = 0;
-            // TODO: make it so it's possible to choose the values from which we change icons
-            switch (collectibleType)
+            if (collectibleInfo.MinValueForIcons != null && collectibleInfo.MinValueForIcons.Count > 0)
             {
-                case CollectibleType.XP_BONUS:
-                    float maxXpBonusValue = 10;
-                    iconIndex = Mathf.FloorToInt((bonusValue / maxXpBonusValue) * collectibleInfo.Icons.Count);
-                    iconIndex = Mathf.Clamp(iconIndex, 0, collectibleInfo.Icons.Count - 1);
-                    break;
-                case CollectibleType.FROINS:
-                    float maxfroinsBonusValue = 10;
-                    iconIndex = Mathf.FloorToInt((bonusValue / maxfroinsBonusValue) * collectibleInfo.Icons.Count);
-                    iconIndex = Mathf.Clamp(iconIndex, 0, collectibleInfo.Icons.Count - 1);
-                    break;
+                int index = 0;
+                foreach (float minValue in collectibleInfo.MinValueForIcons)
+                {
+                    if (bonusValue >= minValue)
+                    {
+                        iconIndex = index;
+                    }
+                    index++;
+                }
             }
+            iconIndex = Mathf.Clamp(iconIndex, 0, collectibleInfo.Icons.Count - 1);
+
             Sprite collectibleIcon = collectibleInfo.Icons[iconIndex];
             collectible.collectibleRenderer.sprite = collectibleIcon;
             collectible.collectibleRenderer.enabled = true;

@@ -135,6 +135,7 @@ public class CollectibleInfo
     public string Name;
     public CollectibleType Type;
     public List<Sprite> Icons;
+    public List<int> MinValueForIcons;
 }
 
 /// <summary>
