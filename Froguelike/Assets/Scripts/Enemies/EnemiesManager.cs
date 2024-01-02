@@ -643,6 +643,9 @@ public class EnemiesManager : MonoBehaviour
 
             enemyFromPool.enemyTransform.position = position;
 
+            // Set random orientation
+            enemyFromPool.enemyTransform.rotation = Quaternion.Euler(0, 0, Random.Range(0,4) * 90);
+
             enemyFromPool.wave = originWave;
             enemyFromPool.difficultyTier = difficultyTier;
             enemyFromPool.neverDespawn = neverDespawn;
@@ -1340,7 +1343,7 @@ public class EnemiesManager : MonoBehaviour
             enemy.enemyRigidbody.mass = 1000;
         }
 
-        if (changeSpeedFactor > 0)
+        if (changeSpeedFactor > 0 && enemy.movePattern.movePatternType != EnemyMovePatternType.NO_MOVEMENT)
         {
             // Set orientation
             float angle = -Vector2.SignedAngle(enemy.moveDirection, Vector2.right);
