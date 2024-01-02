@@ -26,6 +26,7 @@ public class SoundManager : MonoBehaviour
     [field: SerializeField] public EventReference levelUpSound { get; private set; }
 
     [field: SerializeField] public EventReference buyItemInShopSound { get; private set; }
+    [field: SerializeField] public EventReference cantBuyItemInShopSound { get; private set; }
     [field: SerializeField] public EventReference refundShopSound { get; private set; }
 
     [field: SerializeField] public EventReference rerollSound { get; private set; }
@@ -37,7 +38,7 @@ public class SoundManager : MonoBehaviour
     [field: SerializeField] public EventReference powerUpFreezeAllSound { get; private set; }
 
     private EventInstance takeDamageEvent;
-
+    private EventInstance pickUpXPEvent;
 
     private Bus musicBus;
     private Bus SFXBus;
@@ -62,6 +63,7 @@ public class SoundManager : MonoBehaviour
     private void Start()
     {
         takeDamageEvent = RuntimeManager.CreateInstance(takeDamageSound);
+        pickUpXPEvent = RuntimeManager.CreateInstance(pickUpXPSound);
     }
 
     // Settings.
@@ -185,6 +187,28 @@ public class SoundManager : MonoBehaviour
     public void PlayPickUpXPSound(float xpValue) // TODO
     {
         // TODO could have a parameter for the volume multiplier, it was set up to be louder if it is more xp with the old system.
+        int parameterValue;
+        if (xpValue < 6)
+        {
+            parameterValue = 0;
+        }
+        else if (xpValue < 11)
+        {
+            parameterValue = 1;
+        }
+        else if (xpValue < 20)
+        {
+            parameterValue = 2;
+        }
+        else if (xpValue < 30)
+        {
+            parameterValue = 3;
+        }
+        else
+        {
+            parameterValue = 4;
+        }
+        pickUpXPEvent.setParameterByName("Amount of XP", parameterValue);
         RuntimeManager.PlayOneShot(pickUpXPSound);
     }
 
@@ -201,6 +225,11 @@ public class SoundManager : MonoBehaviour
     public void PlayBuyItemInShopSound()
     {
         RuntimeManager.PlayOneShot(buyItemInShopSound);
+    }
+
+    public void PlayCantBuyItemInShopSound()
+    {
+        RuntimeManager.PlayOneShot(cantBuyItemInShopSound);
     }
 
     public void PlayRefundShopSound()

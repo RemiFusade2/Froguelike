@@ -178,7 +178,7 @@ public class ShopManager : MonoBehaviour
 
     private void ComputeCurrentFee()
     {
-        currentFee = baseFee * shopData.shopItems.Sum(x => x.currentLevel);       
+        currentFee = baseFee * shopData.shopItems.Sum(x => x.currentLevel);
     }
 
     /// <summary>
@@ -226,6 +226,10 @@ public class ShopManager : MonoBehaviour
                 {
                     Debug.Log("Shop - Buy item " + item.itemName + " to level " + item.currentLevel + " for a cost of " + itemCost + " Froins. Remaining available currency is " + GameManager.instance.gameData.availableCurrency + " Froins");
                 }
+            }
+            else
+            {
+                SoundManager.instance.PlayCantBuyItemInShopSound();
             }
         }
     }
@@ -379,6 +383,7 @@ public class ShopManager : MonoBehaviour
                     // Item is "sold out" (we already bought all available upgrades)
                     GameObject shopItemButtonGo = Instantiate(soldOutShopItemPanelPrefab, shopPanel);
                     ShopItemButton shopItemButton = shopItemButtonGo.GetComponent<ShopItemButton>();
+                    shopItemButton.buyButton.onClick.AddListener(delegate { SoundManager.instance.PlayCantBuyItemInShopSound(); });
                     shopItemButton.Initialize(item, availableButCantBuy, currentFee);
                     buttonCount++;
                 }
