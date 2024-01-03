@@ -16,7 +16,7 @@ public class CreditsFrogBehaviour : MonoBehaviour
 
     public void PlaySound()
     {
-        SoundManager.instance.PlayBuyItemInShopSound();
+        SoundManager.instance.PlayCreditFrogCroakingSound();
     }
 
     public void ResetFrog()

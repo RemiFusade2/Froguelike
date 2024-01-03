@@ -263,5 +263,10 @@ public class SoundManager : MonoBehaviour
         RuntimeManager.PlayOneShot(powerUpFreezeAllSound);
     }
 
+    public void PlayCreditFrogCroakingSound()
+    {
+        //RuntimeManager.PlayOneShot(buyItemInShopSound);
+    }
+
     #endregion
 }
