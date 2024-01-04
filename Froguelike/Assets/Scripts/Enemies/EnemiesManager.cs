@@ -258,6 +258,8 @@ public class EnemiesManager : MonoBehaviour
     private Queue<EnemyInstance> inactiveEnemiesPool;
     private Queue<GameObject> damageTextsPool;
 
+    private HashSet<GameObject> visibleDamageTexts;
+
     private HashSet<int> spawnedBugsWithBountiesIDs;
 
     public const string pooledEnemyNameStr = "Pooled";
@@ -335,6 +337,7 @@ public class EnemiesManager : MonoBehaviour
 
         // Instantiate all damage text in game and put them in the pool
         damageTextsPool = new Queue<GameObject>();
+        visibleDamageTexts = new HashSet<GameObject>();
         for (int i = 0; i < maxDamageTexts; i++)
         {
             GameObject damageText = Instantiate(damageTextPrefab, DataManager.instance.GetFarAwayPosition(), Quaternion.identity, damageTextsParent);
@@ -825,7 +828,8 @@ public class EnemiesManager : MonoBehaviour
                 vampireEffect = true;
                 damageText.GetComponent<ParticleSystem>().Play();
             }
-            StartCoroutine(PutDamageTextIntoPool(damageText, 1.0f));
+            visibleDamageTexts.Add(damageText);
+            StartCoroutine(PutDamageTextIntoPoolAsync(damageText, 1.0f));
         }
 
         bool enemyDied = false;
@@ -863,13 +867,22 @@ public class EnemiesManager : MonoBehaviour
         return enemyDied;
     }
 
-    private IEnumerator PutDamageTextIntoPool(GameObject damageText, float delay)
+    private IEnumerator PutDamageTextIntoPoolAsync(GameObject damageText, float delay)
     {
         yield return new WaitForSeconds(delay);
+        HideDamageText(damageText);
+        if (visibleDamageTexts.Contains(damageText))
+        {
+            visibleDamageTexts.Remove(damageText);
+            damageTextsPool.Enqueue(damageText);
+        }
+    }
+
+    private void HideDamageText(GameObject damageText)
+    {
         damageText.GetComponent<MeshRenderer>().enabled = false;
         damageText.GetComponent<Rigidbody2D>().simulated = false;
         damageText.transform.position = DataManager.instance.GetFarAwayPosition();
-        damageTextsPool.Enqueue(damageText);
     }
 
     // Return true if enemy dieded
@@ -877,6 +890,14 @@ public class EnemiesManager : MonoBehaviour
     {
         int index = int.Parse(enemyGoName);
         return DamageEnemy(index, damage, weapon, applyVampireEffect);
+    }
+
+    public void ClearAllDamageTexts()
+    {
+        foreach (GameObject damageTextGameObject in visibleDamageTexts)
+        {
+            HideDamageText(damageTextGameObject);
+        }
     }
 
     public void ClearAllEnemies(bool ignoreBounties = false)

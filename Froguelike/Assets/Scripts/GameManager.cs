@@ -306,22 +306,90 @@ public class GameManager : MonoBehaviour
 
     public void Pause(bool pause)
     {
-        gameIsPaused = pause;
-        if (!RunManager.instance.levelUpChoiceIsVisible && !ChapterManager.instance.chapterChoiceIsVisible)
+        if (!UIManager.instance.IsSettingsScreenVisible() && !UIManager.instance.IsBackToTitleScreenConfirmationPanelActive() && !RunManager.instance.fixedCollectibleFoundPanelIsVisible)
         {
-            SetTimeScale(pause ? 0 : 1);
-        }
-        if (pause)
-        {
-            UIManager.instance.ShowPauseScreen();
-        }
-        else
-        {
-            UIManager.instance.HidePauseScreen();
+            gameIsPaused = pause;
+            if (!RunManager.instance.levelUpChoiceIsVisible && !ChapterManager.instance.chapterChoiceIsVisible)
+            {
+                SetTimeScale(pause ? 0 : 1);
+            }
+            if (pause)
+            {
+                UIManager.instance.ShowPauseScreen();
+            }
+            else
+            {
+                UIManager.instance.HidePauseScreen();
+            }
         }
     }
 
     #endregion
+
+    public void UICancel()
+    {
+        if (UIManager.instance.IsClearSaveFileConfirmationPanelActive())
+        {
+            // Confirmation for clearing save file is visible, we cancel it
+            UIManager.instance.ShowClearSaveFileConfirmationPanel(false);
+        }
+        else if(UIManager.instance.IsBackToTitleScreenConfirmationPanelActive())
+        {
+            // Confirmation for ending run is visible, we cancel it
+            UIManager.instance.ShowBackToTitleScreenConfirmationPanel(false);
+        }
+        else if (UIManager.instance.IsRerollWarningConfirmationPanelActive())
+        {
+            // Reroll warning is visible, we cancel it
+            UIManager.instance.ShowRerollWarningConfirmationPanel(false);
+        }
+        else if (UIManager.instance.IsSettingsScreenVisible())
+        {
+            // Settings are open, we hide settings
+            UIManager.instance.HideSettingsScreen();
+        }
+        else if (UIManager.instance.IsShopScreenVisible())
+        {
+            // Shop is open, we hide shop
+            UIManager.instance.HideShop();
+        }
+        else if (UIManager.instance.IsAchievementScreenVisible())
+        {
+            // Quests are open, we hide quests
+            UIManager.instance.HideAchievements();
+        }
+        else if (UIManager.instance.IsCreditsScreenVisible())
+        {
+            // Credits are open, we hide credits
+            UIManager.instance.HideCreditsScreen();
+        }
+        else if (UIManager.instance.IsCharacterSelectionScreenVisible())
+        {
+            // Character selection is open, we go back to title
+            UIManager.instance.ShowTitleScreen();
+        }
+        else if (UIManager.instance.IsChapterSelectionScreenVisible(out bool isTitleScreenVisibleToo) && isTitleScreenVisibleToo)
+        {
+            // Chapter selection is open, we go back to character selection if it's chapter 1 selection (otherwise we do nothing)
+            UIManager.instance.ShowTitleScreen();
+        }
+        else if (UIManager.instance.IsScoreScreenVisible())
+        {
+            // Score screen is open, we go back to title screen
+            UIManager.instance.ShowTitleScreen();
+        }
+        else if (isGameRunning && RunManager.instance.fixedCollectibleFoundPanelIsVisible)
+        {
+            // An item has been found, we don't want it
+            RunManager.instance.CollectFixedCollectible(false);
+        }
+        else if (isGameRunning && gameIsPaused)
+        {
+            // Game is running, pause screen is visible but not setting screen
+            // Unpause the game!
+            Pause(false);
+        }
+    }
 
     public void ClearSaveFile()
     {

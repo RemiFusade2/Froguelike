@@ -347,6 +347,11 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public bool IsCharacterSelectionScreenVisible()
+    {
+        return characterSelectionScreen.activeInHierarchy;
+    }
+
     public void ShowChapterSelectionScreen(bool forceTitleScreen = false)
     {
         HideAllScreens();
@@ -365,6 +370,12 @@ public class UIManager : MonoBehaviour
         {
             Debug.Log("UI - Display Chapter selection screen");
         }
+    }
+
+    public bool IsChapterSelectionScreenVisible(out bool isTitleScreenAlsoVisible)
+    {
+        isTitleScreenAlsoVisible = titleScreen.activeInHierarchy;
+        return chapterSelectionScreen.activeInHierarchy;
     }
 
     public void ShowChapterStart()
@@ -396,6 +407,11 @@ public class UIManager : MonoBehaviour
         {
             Debug.Log("UI - Display Score screen");
         }
+    }
+
+    public bool IsScoreScreenVisible()
+    {
+        return scoreScreen.activeInHierarchy;
     }
 
     public void ShowGameUI()
@@ -479,6 +495,8 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    #region Shop
+
     public void ShowShop()
     {
         SavePreviousSelectedButton();
@@ -504,6 +522,15 @@ public class UIManager : MonoBehaviour
         SetPreviousSelectedButton();
     }
 
+    public bool IsShopScreenVisible()
+    {
+        return shopScreen.activeInHierarchy;
+    }
+
+    #endregion
+
+    #region Quests
+
     public void ShowAchievements()
     {
         SavePreviousSelectedButton();
@@ -527,6 +554,15 @@ public class UIManager : MonoBehaviour
         SetPreviousSelectedButton();
     }
 
+    public bool IsAchievementScreenVisible()
+    {
+        return achievementsScreen.activeInHierarchy;
+    }
+
+    #endregion
+
+    #region Credits
+
     public void ShowCreditsScreen()
     {
         SavePreviousSelectedButton();
@@ -541,6 +577,13 @@ public class UIManager : MonoBehaviour
         SetScreenInteractability(menuButtonsGroup, true);
         SetPreviousSelectedButton();
     }
+
+    public bool IsCreditsScreenVisible()
+    {
+        return creditsScreen.gameObject.activeInHierarchy;
+    }
+
+    #endregion
 
 
     #region Confirmation Panels
@@ -565,6 +608,11 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public bool IsRerollWarningConfirmationPanelActive()
+    {
+        return rerollWarningConfirmationPanel.activeInHierarchy;
+    }
+
     public void ShowBackToTitleScreenConfirmationPanel(bool active)
     {
         backToTitleScreenConfirmationPanel.SetActive(active);
@@ -583,6 +631,11 @@ public class UIManager : MonoBehaviour
         {
             Debug.Log($"UI - Display Go back to Title confirmation screen: {active}");
         }
+    }
+
+    public bool IsBackToTitleScreenConfirmationPanelActive()
+    {
+        return backToTitleScreenConfirmationPanel.activeInHierarchy;
     }
 
     public void ShowClearSaveFileConfirmationPanel(bool active)
@@ -605,7 +658,14 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public bool IsClearSaveFileConfirmationPanelActive()
+    {
+        return clearSaveFileConfirmationPanel.activeInHierarchy;
+    }
+
     #endregion Confirmation Panels
+
+    #region Demo disclaimer & end of demo
 
     private string GetDemoDisclaimerString(DemoLimitationType limitationType, bool gameIsSaved, int numberOfRuns = 0, float timer = 0)
     {
@@ -706,6 +766,10 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Settings
+
     public void ShowSettingsScreen()
     {
         settingsScreen.SetActive(true);
@@ -728,6 +792,13 @@ public class UIManager : MonoBehaviour
             Debug.Log("UI - Hide Settings screen");
         }
     }
+
+    public bool IsSettingsScreenVisible()
+    {
+        return settingsScreen.activeInHierarchy;
+    }
+
+    #endregion
 
     #region Buttons
 

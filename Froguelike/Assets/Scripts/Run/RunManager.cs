@@ -625,6 +625,9 @@ public class RunManager : MonoBehaviour
         player.StopTakeDamageEffect();
         SoundManager.instance.StopAllLoops();
 
+        // Remove damage texts on screen
+        EnemiesManager.instance.ClearAllDamageTexts();
+
         // Stop time
         GameManager.instance.SetTimeScale(0);
 
@@ -1568,9 +1571,6 @@ public class RunManager : MonoBehaviour
     {
         // Hide UI Panel
         HideCollectFixedCollectiblePanel();
-
-        // Set Time Scale back to 1
-        GameManager.instance.SetTimeScale(1);
     }
     public void CollectFixedCollectible(bool accepted)
     {
@@ -1595,11 +1595,24 @@ public class RunManager : MonoBehaviour
             }
         }
 
-        // Close UI panel and unpause the game
+        // Close UI panel
         CloseCollectFixedCollectiblePanel();
 
-        // Unpause sounds
-        SoundManager.instance.UnpauseInGameLoopedSFX();
+        // If there's no level up happening at the same time, game plays again
+        if (!levelUpChoiceIsVisible)
+        {
+            // Set Time Scale back to 1
+            GameManager.instance.SetTimeScale(1);
+
+            // Unpause sounds
+            SoundManager.instance.UnpauseInGameLoopedSFX();
+        }
+        else
+        {
+            // Select first choice on level up panel
+            levelUpPanel.GetComponent<CanvasGroup>().interactable = true;
+            EventSystem.current.SetSelectedGameObject(levelUpChoicesPanels[0]);
+        }
     }
     public void ShowCollectSuperCollectiblePanel(FixedCollectible collectibleInfo)
     {
@@ -1712,6 +1725,8 @@ public class RunManager : MonoBehaviour
         fixedCollectibleInfo = collectibleInfo;
 
         // Select Accept button by default
+        fixedCollectibleFoundPanel.GetComponent<CanvasGroup>().interactable = true;
+        EventSystem.current.SetSelectedGameObject(fixedCollectibleAcceptButton.gameObject);
         fixedCollectibleAcceptButton.Select();
 
         // Stop sounds
