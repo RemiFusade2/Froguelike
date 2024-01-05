@@ -76,6 +76,9 @@ public class FrogCharacterController : MonoBehaviour
     public string verticalInputName = "vertical";
     public string pauseInputName = "pause";
     [Space]
+    public string uiSubmitInputName = "UISubmit";
+    public string uiCancelInputName = "UICancel";
+    [Space]
     public string levelUpCheatInputName = "levelupcheat";
     public string froinsCheatInputName = "froinscheat";
     public string skipChapterCheatInputName = "skipchaptercheat";
@@ -150,12 +153,16 @@ public class FrogCharacterController : MonoBehaviour
             AchievementManager.instance.ClearAllSteamAchievements();
         }
 
+        bool ignoreUICancelInput = false;
+
+
         if (GameManager.instance.isGameRunning)
         {
             // Get Pause input
             if (GetPauseInput())
             {
                 GameManager.instance.TogglePause();
+                ignoreUICancelInput = true;
             }
 
             // Attempt to attack with all active tongues
@@ -170,6 +177,11 @@ public class FrogCharacterController : MonoBehaviour
 
             // Check for Game Over condition or critical health status
             CheckHealthStatus();
+        }
+
+        if (!ignoreUICancelInput && GetUICancelInput())
+        {
+            GameManager.instance.UICancel();
         }
     }
 
@@ -672,6 +684,11 @@ public class FrogCharacterController : MonoBehaviour
     private bool GetPauseInput()
     {
         return rewiredPlayer.GetButtonDown(pauseInputName);
+    }
+
+    private bool GetUICancelInput()
+    {
+        return rewiredPlayer.GetButtonDown(uiCancelInputName);
     }
 
     private bool GetLevelUpCheatInput()
