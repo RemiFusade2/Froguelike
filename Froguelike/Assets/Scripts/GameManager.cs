@@ -371,12 +371,7 @@ public class GameManager : MonoBehaviour
         else if (UIManager.instance.IsChapterSelectionScreenVisible(out bool isTitleScreenVisibleToo) && isTitleScreenVisibleToo)
         {
             // Chapter selection is open, we go back to character selection if it's chapter 1 selection (otherwise we do nothing)
-            UIManager.instance.ShowTitleScreen();
-        }
-        else if (UIManager.instance.IsScoreScreenVisible())
-        {
-            // Score screen is open, we go back to title screen
-            UIManager.instance.ShowTitleScreen();
+            UIManager.instance.ShowCharacterSelectionScreen(false);            
         }
         else if (isGameRunning && RunManager.instance.fixedCollectibleFoundPanelIsVisible)
         {
