@@ -10,12 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f3dac8d5f33a52541b2181b63b7a8fe5, type: 3}
-  m_Name: 3_Medium_60_ButterflyBeetle_straightandfollow
+  m_Name: 4_Hard_60_ButterflyBeetleWasps_straightfollowandbounce
   m_EditorClassIdentifier: 
   duration: 60
   enemies:
+  - enemyType: 4
+    tierFormula: chapter+1
+    movePattern:
+      movePatternType: 4
+      speedFactor: 2
+      bouncecount: 3
+    spawnPattern:
+      spawnPatternType: 0
+      spawnPatternShape: 0
+      spawnAmount: 5
+      multipleSpawnDelay: 0
+    spawnCooldown: 10
   - enemyType: 3
-    tierFormula: chapter
+    tierFormula: chapter+1
     movePattern:
       movePatternType: 2
       speedFactor: 1
@@ -25,28 +37,28 @@ MonoBehaviour:
       spawnPatternShape: 0
       spawnAmount: 1
       multipleSpawnDelay: 0
-    spawnCooldown: 0.25
+    spawnCooldown: 0.3
   - enemyType: 1
     tierFormula: chapter+1
     movePattern:
       movePatternType: 1
-      speedFactor: 2
-      bouncecount: 0
-    spawnPattern:
-      spawnPatternType: 0
-      spawnPatternShape: 0
-      spawnAmount: 1
-      multipleSpawnDelay: 0
-    spawnCooldown: 0.6
-  - enemyType: 1
-    tierFormula: chapter+2
-    movePattern:
-      movePatternType: 1
-      speedFactor: 3
+      speedFactor: 2.5
       bouncecount: 0
     spawnPattern:
       spawnPatternType: 2
       spawnPatternShape: 0
-      spawnAmount: 4
+      spawnAmount: 10
       multipleSpawnDelay: 0
-    spawnCooldown: 3
+    spawnCooldown: 2.5
+  - enemyType: 3
+    tierFormula: chapter
+    movePattern:
+      movePatternType: 3
+      speedFactor: 0.5
+      bouncecount: 0
+    spawnPattern:
+      spawnPatternType: 2
+      spawnPatternShape: 0
+      spawnAmount: 5
+      multipleSpawnDelay: 0
+    spawnCooldown: 0.5
