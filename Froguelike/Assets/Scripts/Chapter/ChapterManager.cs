@@ -1107,7 +1107,11 @@ public class ChapterManager : MonoBehaviour
     /// <param name="saveData"></param>
     public void SetChaptersData(ChaptersSaveData saveData)
     {
-        chaptersData.chapterCountInSelection = saveData.chapterCountInSelection;
+        chaptersData.chapterCountInSelection = 3;
+        if (saveData.chapterCountInSelection >= 3)
+        {
+            chaptersData.chapterCountInSelection = saveData.chapterCountInSelection;
+        }
         foreach (Chapter chapter in chaptersData.chaptersList)
         {
             Chapter chapterFromSave = saveData.chaptersList.FirstOrDefault(x => x.chapterID.Equals(chapter.chapterID));
