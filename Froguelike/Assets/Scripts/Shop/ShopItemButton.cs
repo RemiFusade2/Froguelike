@@ -95,7 +95,10 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        buyButton.Select();
+        if (eventData.delta.x != 0 || eventData.delta.y != 0)
+        {
+            buyButton.Select();
+        }
     }
 
     public void OnDeselect(BaseEventData eventData)

@@ -127,8 +127,12 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        characterButton.Select();
+        if (eventData.delta.x != 0 || eventData.delta.y != 0)
+        {
+            characterButton.Select();
+        }
     }
+
     public void OnDeselect(BaseEventData eventData)
     {
         characterButton.GetComponent<Animator>().SetTrigger("Normal");
