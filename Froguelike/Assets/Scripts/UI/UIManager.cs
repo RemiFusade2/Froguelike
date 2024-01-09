@@ -269,8 +269,23 @@ public class UIManager : MonoBehaviour
         HideAllScreens();
         UpdateTitleScreenCurrencyText(GameManager.instance.gameData.availableCurrency);
 
-        shopButton.SetActive(ShopManager.instance.IsShopUnlocked());
-        achievementsButton.SetActive(AchievementManager.instance.IsAchievementsListUnlocked());
+        bool shopAndQuestsButtonsAreAlwaysVisible = true;
+        if (shopAndQuestsButtonsAreAlwaysVisible)
+        {
+            shopButton.SetActive(true);
+            shopButton.GetComponent<Button>().interactable = ShopManager.instance.IsShopUnlocked();
+            if (!ShopManager.instance.IsShopUnlocked())
+            {
+                titleScreenCurrencyText.text = "BRB";
+            }
+            achievementsButton.SetActive(true);
+            achievementsButton.GetComponent<Button>().interactable = true; // AchievementManager.instance.IsAchievementsListUnlocked();
+        }
+        else
+        {
+            shopButton.SetActive(ShopManager.instance.IsShopUnlocked());
+            achievementsButton.SetActive(AchievementManager.instance.IsAchievementsListUnlocked());
+        }
 
         titleScreen.SetActive(true);
         SetScreenInteractability(menuButtonsGroup, true);

@@ -5,6 +5,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine.Analytics;
+using UnityEngine.SocialPlatforms.Impl;
 
 /// <summary>
 /// Achievement describes an achievement in its current state.
@@ -124,6 +125,7 @@ public class AchievementManager : MonoBehaviour
     public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
 
     [Header("Data")]
+    public List<AchievementData> alwaysVisibleAchievementsScriptableObjectsList;
     public List<AchievementData> achievementsScriptableObjectsList;
 
     [Header("UI")]
@@ -554,49 +556,88 @@ public class AchievementManager : MonoBehaviour
     /// </summary>
     public void DisplayAchievementsScreen()
     {
-        List<Achievement> orderedAchievements = SortAchievementList(achievementsData.achievementsList);
+        List<Achievement> orderedAchievements = SortAchievementList(achievementsData.achievementsList); ;
 
         // OLD CODE: this was used to only display achievements that have icons and are part of the demo
-        int allAchievementsCount = orderedAchievements.Count(x => !IsAchievementLockedBehindDemo(x) && !IsAchievementLockedBehindMissingIcon(x));
-        int allUnlockedAchievementsCount = orderedAchievements.Count(x => !IsAchievementLockedBehindDemo(x) && !IsAchievementLockedBehindMissingIcon(x) && x.unlocked);
+        //int allAchievementsCount = orderedAchievements.Count(x => !IsAchievementLockedBehindDemo(x) && !IsAchievementLockedBehindMissingIcon(x));
+        //int allUnlockedAchievementsCount = orderedAchievements.Count(x => !IsAchievementLockedBehindDemo(x) && !IsAchievementLockedBehindMissingIcon(x) && x.unlocked);
 
         // NEW CODE: we display every achievement, regardless of missing icons or demo stuff
         // It is way better to have many achievements to show in the list!
-        allAchievementsCount = orderedAchievements.Count();
-        allUnlockedAchievementsCount = orderedAchievements.Count(x => x.unlocked);
+        int allAchievementsCount = 2;
+        int allUnlockedAchievementsCount = 0;
 
-        achievementCountTextMesh.text = $"{allUnlockedAchievementsCount} / {allAchievementsCount}";
-        
         // Remove previous buttons except the first empty one
+        GameObject emptySlot = null;
         foreach (Transform child in achievementScrollEntriesParent)
         {
             if (!child.name.Contains("DO NOT DESTROY"))
             {
                 Destroy(child.gameObject);
             }
-        }
-        
-        // Create new entries
-        int entryCount = 1;
-        foreach (Achievement achievement in orderedAchievements)
-        {
-            bool achievementIsLockedBehindDemo = IsAchievementLockedBehindDemo(achievement);
-            bool achievementIsLockedBehindMissingIcon = IsAchievementLockedBehindMissingIcon(achievement);
-            bool achievementIsNotSetup = (achievement.achievementData.reward.rewardType == AchievementRewardType.RUN_ITEM && achievement.achievementData.reward.runItem == null)
-                || (achievement.achievementData.reward.rewardType == AchievementRewardType.SHOP_ITEM && achievement.achievementData.reward.shopItem == null);
-
-            bool addThisAchievementToTheList = !achievementIsNotSetup;
-            // addThisAchievementToTheList &= !achievementIsLockedBehindDemo && !achievementIsLockedBehindMissingIcon;
-
-            if (addThisAchievementToTheList)
+            else if (emptySlot == null)
             {
+                emptySlot = child.gameObject;
+            }
+        }
+
+        int entryCount = 1;
+
+        if (IsAchievementsListUnlocked())
+        {
+            orderedAchievements = SortAchievementList(achievementsData.achievementsList);
+            allAchievementsCount = orderedAchievements.Count();
+            allUnlockedAchievementsCount = orderedAchievements.Count(x => x.unlocked);
+            achievementCountTextMesh.text = $"{allUnlockedAchievementsCount} / {allAchievementsCount}";
+
+            // Create new entries
+            foreach (Achievement achievement in orderedAchievements)
+            {
+                bool achievementIsLockedBehindDemo = IsAchievementLockedBehindDemo(achievement);
+                bool achievementIsLockedBehindMissingIcon = IsAchievementLockedBehindMissingIcon(achievement);
+                bool achievementIsNotSetup = (achievement.achievementData.reward.rewardType == AchievementRewardType.RUN_ITEM && achievement.achievementData.reward.runItem == null)
+                    || (achievement.achievementData.reward.rewardType == AchievementRewardType.SHOP_ITEM && achievement.achievementData.reward.shopItem == null);
+
+                bool addThisAchievementToTheList = !achievementIsNotSetup;
+                // addThisAchievementToTheList &= !achievementIsLockedBehindDemo && !achievementIsLockedBehindMissingIcon;
+
+                if (addThisAchievementToTheList)
+                {
+                    GameObject achievementEntryGo = Instantiate(achievementEntryPrefab, achievementScrollEntriesParent);
+                    AchievementEntryPanelBehaviour achievementEntryScript = achievementEntryGo.GetComponent<AchievementEntryPanelBehaviour>();
+                    bool darkerBkg = (entryCount / 2) % 2 == 0;
+                    bool canAchieve = IsAchievementAvailable(achievement);
+                    achievementEntryScript.Initialize(achievement, darkerBkg, canAchieve);
+                    entryCount++;
+                }
+            }
+        }
+        else
+        {
+            achievementCountTextMesh.text = "0 / ???";
+            entryCount = 4; // 2 quests + 2 empty slots
+
+            foreach (AchievementData achievementData in alwaysVisibleAchievementsScriptableObjectsList)
+            {
+                // Add an empty slot
+                GameObject newEmptySlot = Instantiate(emptySlot, achievementScrollEntriesParent);
+                newEmptySlot.name = "Empty Slot";
+
+                // Add the quest button
                 GameObject achievementEntryGo = Instantiate(achievementEntryPrefab, achievementScrollEntriesParent);
                 AchievementEntryPanelBehaviour achievementEntryScript = achievementEntryGo.GetComponent<AchievementEntryPanelBehaviour>();
                 bool darkerBkg = (entryCount / 2) % 2 == 0;
-                bool canAchieve = IsAchievementAvailable(achievement);
+                bool canAchieve = true;
+                Achievement achievement = new Achievement();
+                achievement.achievementData = achievementData;
+                achievement.unlocked = false;
+                achievement.achievementID = achievementData.achievementID;
                 achievementEntryScript.Initialize(achievement, darkerBkg, canAchieve);
                 entryCount++;
+
+                entryCount += 2;
             }
+            entryCount = 11; // to make sure container size is correct
         }
 
         // Set size of container panel
