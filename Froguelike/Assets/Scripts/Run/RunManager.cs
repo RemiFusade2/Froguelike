@@ -728,10 +728,11 @@ public class RunManager : MonoBehaviour
         List<FixedCollectible> fixedCollectiblesList = currentChapter.chapterData.specialCollectiblesOnTheMap;
         foreach (FixedCollectible collectible in fixedCollectiblesList)
         {
-            if (ChapterManager.instance.IsFixedCollectibleShownByCompassInChapter(currentChapter, collectible))
+            if (ChapterManager.instance.IsFixedCollectibleShownByCompassInChapter(currentChapter, collectible, out bool collectibleHasBeenFoundOnce))
             {
                 GameObject arrow = Instantiate(compassArrowPrefab, compassParent);
                 arrow.GetComponent<CompassArrowBehaviour>().SetCollectibleTileCoordinates(collectible.tileCoordinates);
+                arrow.GetComponent<CompassArrowBehaviour>().SetCollectibleHasBeenFound(collectibleHasBeenFoundOnce);
                 compassArrowsList.Add(arrow.GetComponent<CompassArrowBehaviour>());
             }
         }

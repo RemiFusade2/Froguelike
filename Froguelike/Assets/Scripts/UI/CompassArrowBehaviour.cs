@@ -16,6 +16,8 @@ public class CompassArrowBehaviour : MonoBehaviour
     [Space]
     public Vector3 currentArrowPosition;
     public Vector3 targetArrowPosition;
+    [Space]
+    public bool knownItem;
 
     private void Awake()
     {
@@ -67,6 +69,7 @@ public class CompassArrowBehaviour : MonoBehaviour
             // Update animator using collectible direction
             float angle = Vector3.SignedAngle(targetDirection, Vector3.up, Vector3.forward);
             arrowAnimator.SetFloat("angle", angle);
+            arrowAnimator.SetBool("knownItem", knownItem);
 
             RaycastHit2D hit = Physics2D.Raycast(GameManager.instance.player.transform.position, targetDirection, targetDistance, LayerMask.GetMask("CompassFrameTriggers"));
             if (hit.collider != null)
@@ -92,7 +95,7 @@ public class CompassArrowBehaviour : MonoBehaviour
 
             if (collectibleTransform != null)
             {
-                collectibleTransform.GetComponent<FixedCollectibleBehaviour>().SetArrowVisibility(!arrowImage.enabled);
+                collectibleTransform.GetComponent<FixedCollectibleBehaviour>().SetArrowVisibility(!arrowImage.enabled, knownItem);
             }
         }
     }
@@ -105,5 +108,10 @@ public class CompassArrowBehaviour : MonoBehaviour
     public void SetCollectibleTransform(Transform collectibleTransform)
     {
         this.collectibleTransform = collectibleTransform;
+    }
+
+    public void SetCollectibleHasBeenFound(bool hasBeenFound)
+    {
+        knownItem = hasBeenFound;
     }
 }

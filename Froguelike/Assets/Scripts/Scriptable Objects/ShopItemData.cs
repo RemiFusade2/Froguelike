@@ -29,6 +29,8 @@ public class ShopItemData : ScriptableObject
 
     [Tooltip("Which stats are this item increasing")]
     public List<StatValue> statIncreaseList;
+    [Tooltip("Does this item increase compass level")]
+    public bool compassLevelIncrease;
 
     [Tooltip("How much each level of this item costs")]
     public List<int> costForEachLevel;

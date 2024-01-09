@@ -844,12 +844,12 @@ public class ChapterManager : MonoBehaviour
         SaveDataManager.instance.isSaveDataDirty = true;
     }
 
-    public bool IsFixedCollectibleShownByCompassInChapter(Chapter chapter, FixedCollectible collectible)
+    public bool IsFixedCollectibleShownByCompassInChapter(Chapter chapter, FixedCollectible collectible, out bool collectibleHasBeenFoundOnce)
     {
         // Get information about the collectible being found
         FixedCollectibleFound collectibleFound = chapter.fixedCollectiblesFoundList.FirstOrDefault(x => x.collectibleIdentifier.Equals(FixedCollectibleFound.GetIdentifierFromCoordinates(collectible.tileCoordinates)));
-        bool compassShowsCollectible = (collectibleFound != null && collectibleFound.hasBeenFoundOnce);
-
+        collectibleHasBeenFoundOnce = (collectibleFound != null && collectibleFound.hasBeenFoundOnce); 
+        bool compassShowsCollectible = collectibleHasBeenFoundOnce;
         if (!compassShowsCollectible)
         {
             compassShowsCollectible = (GameManager.instance.GetCompassLevel() >= collectible.compassLevel);

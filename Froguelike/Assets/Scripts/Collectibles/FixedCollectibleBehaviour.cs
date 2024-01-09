@@ -6,7 +6,8 @@ public class FixedCollectibleBehaviour : MonoBehaviour
 {
     [Header("References")]
     public SpriteRenderer collectibleRenderer;
-    public SpriteRenderer arrowRenderer;
+    public SpriteRenderer arrowRendererUnknownItem;
+    public SpriteRenderer arrowRendererKnownItem;
 
     [HideInInspector]
     public FixedCollectible collectibleInfo;
@@ -17,9 +18,18 @@ public class FixedCollectibleBehaviour : MonoBehaviour
         collectibleRenderer.sprite = DataManager.instance.GetSpriteForCollectible(collectible);
     }
 
-    public void SetArrowVisibility(bool visible)
+    public void SetArrowVisibility(bool visible, bool knownItem)
     {
-        arrowRenderer.enabled = visible;
+        arrowRendererUnknownItem.enabled = false;
+        arrowRendererKnownItem.enabled = false;
+        if (knownItem)
+        {
+            arrowRendererKnownItem.enabled = visible;
+        }
+        else
+        {
+            arrowRendererUnknownItem.enabled = visible;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

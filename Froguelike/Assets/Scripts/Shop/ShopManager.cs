@@ -258,6 +258,8 @@ public class ShopManager : MonoBehaviour
     {
         // Remove all previous bonuses
         statsBonuses.Clear();
+        // Reset compass level
+        int compassLevel = 0;
         foreach (ShopItem item in shopData.shopItems)
         {
             // For each item...
@@ -279,9 +281,15 @@ public class ShopManager : MonoBehaviour
                             statsBonuses.Add(new StatValue(statIncrease));
                         }
                     }
+
+                    if (item.data.compassLevelIncrease)
+                    {
+                        compassLevel++;
+                    }
                 }
             }
         }
+        GameManager.instance.gameData.compassLevel = compassLevel;
     }
 
     /// <summary>
@@ -314,6 +322,9 @@ public class ShopManager : MonoBehaviour
                 item.currentLevel = 0;
             }
         }
+
+        // The compass level is reset too
+        GameManager.instance.gameData.compassLevel = 0;
 
         shopData.currencySpentInShop = 0;
         SaveDataManager.instance.isSaveDataDirty = true;

@@ -280,7 +280,8 @@ public class UIManager : MonoBehaviour
                 titleScreenCurrencyText.text = "BRB";
             }
             achievementsButton.SetActive(true);
-            achievementsButton.GetComponent<Button>().interactable = true; // AchievementManager.instance.IsAchievementsListUnlocked();
+            achievementsButton.GetComponent<Button>().interactable = AchievementManager.instance.IsAchievementsListUnlocked();
+            achievementsButton.GetComponent<CanvasGroup>().blocksRaycasts = AchievementManager.instance.IsAchievementsListUnlocked();
         }
         else
         {
