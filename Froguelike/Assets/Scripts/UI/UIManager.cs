@@ -446,6 +446,7 @@ public class UIManager : MonoBehaviour
         SoundManager.instance.PauseInGameLoopedSFX();
         gameOverPanel.GetComponent<GameOverScreen>().UpdateGameOverScreen();
         gameOverRespawnButton.GetComponent<Button>().interactable = respawnAvailable;
+        gameOverRespawnButton.GetComponent<CanvasGroup>().blocksRaycasts = respawnAvailable;
         gameOverPanel.SetActive(true);
         SetSelectedButton(respawnAvailable ? gameOverRespawnButton : gameOverGiveUpButton);
 
