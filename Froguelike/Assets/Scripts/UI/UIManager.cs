@@ -274,6 +274,7 @@ public class UIManager : MonoBehaviour
         {
             shopButton.SetActive(true);
             shopButton.GetComponent<Button>().interactable = ShopManager.instance.IsShopUnlocked();
+            shopButton.GetComponent<CanvasGroup>().blocksRaycasts = ShopManager.instance.IsShopUnlocked();
             if (!ShopManager.instance.IsShopUnlocked())
             {
                 titleScreenCurrencyText.text = "BRB";

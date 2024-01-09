@@ -547,7 +547,15 @@ public class AchievementManager : MonoBehaviour
 
     private List<Achievement> SortAchievementList(List<Achievement> achievements)
     {
-        List<Achievement> result = achievements.OrderBy(x => x.achievementID).OrderBy(x => (x.achievementData.isSecret && !x.unlocked)).OrderByDescending(x => IsAchievementAvailable(x)).OrderBy(x => IsAchievementLockedBehindDemo(x)).ToList();
+        // Special order for achievements that show up first
+        List<string> firstAchievementsIDList = new List<string>();
+        firstAchievementsIDList.Add("ACH_SPECIAL_CONDITION_UNLOCK_ONE_CHARACTER_UNLOCK_FEATURE_CHARACTER_SELECTION");
+        firstAchievementsIDList.Add("ACH_SPECIAL_CONDITION_GET_100_FROINS_UNLOCK_FEATURE_SHOP");
+        firstAchievementsIDList.Add("ACH_SPECIAL_CONDITION_UNLOCK_10_CHAPTERS_UNLOCK_FEATURE_5_CHAPTERS_SELECTION");
+        firstAchievementsIDList.Add("ACH_SPECIAL_CONDITION_COMPLETE_1_ACHIEVEMENT_UNLOCK_FEATURE_ACHIEVEMENT_LIST");
+
+        List<Achievement> result = achievements.OrderBy(x => x.achievementID).OrderBy(x => (firstAchievementsIDList.Contains(x.achievementID) ? firstAchievementsIDList.IndexOf(x.achievementID) : firstAchievementsIDList.Count)).OrderBy(x => (x.achievementData.isSecret && !x.unlocked)).OrderByDescending(x => IsAchievementAvailable(x)).OrderBy(x => IsAchievementLockedBehindDemo(x)).ToList();
+                
         return result;
     }
 
@@ -615,13 +623,14 @@ public class AchievementManager : MonoBehaviour
         else
         {
             achievementCountTextMesh.text = "0 / ???";
-            entryCount = 4; // 2 quests + 2 empty slots
+            entryCount = 1; // 2 quests + 2 empty slots
 
             foreach (AchievementData achievementData in alwaysVisibleAchievementsScriptableObjectsList)
             {
                 // Add an empty slot
                 GameObject newEmptySlot = Instantiate(emptySlot, achievementScrollEntriesParent);
                 newEmptySlot.name = "Empty Slot";
+                entryCount++;
 
                 // Add the quest button
                 GameObject achievementEntryGo = Instantiate(achievementEntryPrefab, achievementScrollEntriesParent);
@@ -635,7 +644,6 @@ public class AchievementManager : MonoBehaviour
                 achievementEntryScript.Initialize(achievement, darkerBkg, canAchieve);
                 entryCount++;
 
-                entryCount += 2;
             }
             entryCount = 11; // to make sure container size is correct
         }
