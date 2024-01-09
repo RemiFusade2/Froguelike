@@ -16,7 +16,7 @@ MonoBehaviour:
   partOfDemo: 1
   chapterTitle: Graceful flutters
   chapterLore:
-  - Butterflies are magestic creatures, but poorly coordinated and sometimes a bit
+  - Butterflies are majestic creatures, but poorly coordinated and sometimes a bit
     messy. They wish to learn how to dance!\nCan you help them?
   icons: []
   startingStatBonuses:
@@ -37,6 +37,8 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 0}
+      minFriendsCount: 0
+      maxFriendsCount: 10
     - conditionType: 2
       not: 0
       chapterData: {fileID: 0}
@@ -47,11 +49,14 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 0}
+      minFriendsCount: 0
+      maxFriendsCount: 10
   rocksSpawnFrequency: 1
   pondsSpawnFrequency: 1
   coinsSpawnFrequency: 0
   healthSpawnFrequency: 2
   levelUpSpawnFrequency: 0
+  otherCollectibleSpawnFrequenciesList: []
   specialCollectiblesOnTheMap: []
   environmentChange: 0
   characterStyleChange: 0
@@ -61,6 +66,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 315b0e121248fb0438410667cc88e42d, type: 2}
   - {fileID: 11400000, guid: 0190c50df5889894d9f92d88e5e3e97f, type: 2}
   - {fileID: 11400000, guid: 85b8cc57d9d0d5945adf748dade81b0f, type: 2}
+  bountyBugs: []
   weightChanges:
   - chapter: {fileID: 11400000, guid: b72650fb391196c44a63ca6c23f169ff, type: 2}
     weightChange: 1
