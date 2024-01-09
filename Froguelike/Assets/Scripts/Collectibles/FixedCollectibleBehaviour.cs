@@ -16,6 +16,8 @@ public class FixedCollectibleBehaviour : MonoBehaviour
     {
         collectibleInfo = collectible;
         collectibleRenderer.sprite = DataManager.instance.GetSpriteForCollectible(collectible);
+        arrowRendererUnknownItem.enabled = true;
+        arrowRendererKnownItem.enabled = false;
     }
 
     public void SetArrowVisibility(bool visible, bool knownItem)
