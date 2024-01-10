@@ -37,6 +37,8 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 0}
+      minFriendsCount: 0
+      maxFriendsCount: 10
     - conditionType: 2
       not: 0
       chapterData: {fileID: 0}
@@ -47,6 +49,8 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 0}
+      minFriendsCount: 0
+      maxFriendsCount: 10
     - conditionType: 7
       not: 0
       chapterData: {fileID: 0}
@@ -57,6 +61,8 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 11400000, guid: 8532a20df8a530548b6aa40feab1c90b, type: 2}
+      minFriendsCount: 0
+      maxFriendsCount: 10
   rocksSpawnFrequency: 2
   pondsSpawnFrequency: 2
   coinsSpawnFrequency: 1
@@ -65,7 +71,7 @@ MonoBehaviour:
   otherCollectibleSpawnFrequenciesList: []
   specialCollectiblesOnTheMap:
   - tileCoordinates: {x: 0, y: 15}
-    tilePrefab: {fileID: 799068813537004447, guid: 3577fff562b74ae4cb6c4b7340b8b689, type: 3}
+    tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
     collectibleName: Some Moss
     collectibleDescription: 
     collectibleType: 0
@@ -73,10 +79,23 @@ MonoBehaviour:
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
     collectibleFriendType: 0
-    foundCollectibleTitle: You found
-    acceptCollectibleStr: Take it
-    refuseCollectibleStr: Ew...
+    foundCollectibleTitle: You find
+    acceptCollectibleStr: Take
+    refuseCollectibleStr: Leave
     compassLevel: 1
+  - tileCoordinates: {x: 0, y: -15}
+    tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
+    collectibleName: A Poison Tongue
+    collectibleDescription: 
+    collectibleType: 1
+    collectibleStatItemData: {fileID: 11400000, guid: 4f94eda1e628c8544bdbe476f6718bac, type: 2}
+    collectibleWeaponItemData: {fileID: 11400000, guid: 190382d4fe184964894da4982575bbf2, type: 2}
+    collectibleHatType: 0
+    collectibleFriendType: 0
+    foundCollectibleTitle: You find
+    acceptCollectibleStr: Take
+    refuseCollectibleStr: Ew!
+    compassLevel: 3
   environmentChange: 0
   characterStyleChange: 0
   waves:

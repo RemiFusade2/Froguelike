@@ -37,6 +37,8 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 0}
+      minFriendsCount: 0
+      maxFriendsCount: 10
     - conditionType: 2
       not: 0
       chapterData: {fileID: 0}
@@ -47,12 +49,28 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 0}
+      minFriendsCount: 0
+      maxFriendsCount: 10
   rocksSpawnFrequency: 1
   pondsSpawnFrequency: 1
   coinsSpawnFrequency: 1
   healthSpawnFrequency: 1
   levelUpSpawnFrequency: 0
-  specialCollectiblesOnTheMap: []
+  otherCollectibleSpawnFrequenciesList: []
+  specialCollectiblesOnTheMap:
+  - tileCoordinates: {x: 0, y: -15}
+    tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
+    collectibleName: Lengthy
+    collectibleDescription: 
+    collectibleType: 0
+    collectibleStatItemData: {fileID: 11400000, guid: 994785b8f00f93e4183c975adfcc2b86, type: 2}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 0
+    foundCollectibleTitle: You feel
+    acceptCollectibleStr: Cool
+    refuseCollectibleStr: Meh
+    compassLevel: 3
   environmentChange: 0
   characterStyleChange: 0
   waves:
@@ -61,6 +79,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b8f06a518fdec8a408c2b2393ef3bd59, type: 2}
   - {fileID: 11400000, guid: d28f11154e074bf4e8ce9ed038ffc34a, type: 2}
   - {fileID: 11400000, guid: 3570d11f1c96dfa44bc51ac49f3f5485, type: 2}
+  bountyBugs: []
   weightChanges:
   - chapter: {fileID: 11400000, guid: 8b750f8a528f91d4f8e5259a1cba1b7d, type: 2}
     weightChange: 2

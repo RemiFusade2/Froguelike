@@ -37,6 +37,8 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 0}
+      minFriendsCount: 0
+      maxFriendsCount: 10
     - conditionType: 1
       not: 1
       chapterData: {fileID: 11400000, guid: 8b750f8a528f91d4f8e5259a1cba1b7d, type: 2}
@@ -47,6 +49,8 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 0}
+      minFriendsCount: 0
+      maxFriendsCount: 10
     - conditionType: 2
       not: 0
       chapterData: {fileID: 11400000, guid: b874fa8e4f4f3af4fb96fd5f6abcca0d, type: 2}
@@ -57,12 +61,28 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 0}
+      minFriendsCount: 0
+      maxFriendsCount: 10
   rocksSpawnFrequency: 2
   pondsSpawnFrequency: 1
   coinsSpawnFrequency: 1
   healthSpawnFrequency: 1
   levelUpSpawnFrequency: 1
-  specialCollectiblesOnTheMap: []
+  otherCollectibleSpawnFrequenciesList: []
+  specialCollectiblesOnTheMap:
+  - tileCoordinates: {x: 12, y: 4}
+    tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
+    collectibleName: A Sun hat
+    collectibleDescription: It will help with the heat
+    collectibleType: 2
+    collectibleStatItemData: {fileID: 0}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 2
+    collectibleFriendType: 0
+    foundCollectibleTitle: You find
+    acceptCollectibleStr: Take
+    refuseCollectibleStr: Leave
+    compassLevel: 1
   environmentChange: 0
   characterStyleChange: 0
   waves:
@@ -71,6 +91,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 86840b034cbad514fbc5c66e16b51951, type: 2}
   - {fileID: 11400000, guid: ab1a41fb24089684fb517eaf98e9cb5d, type: 2}
   - {fileID: 11400000, guid: 8a29402dd70a4714bb1b5a9e8b2192d5, type: 2}
+  bountyBugs: []
   weightChanges:
   - chapter: {fileID: 11400000, guid: 243e2d7e1c255264bafd39d2cf436173, type: 2}
     weightChange: 5

@@ -37,6 +37,8 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 0}
+      minFriendsCount: 0
+      maxFriendsCount: 10
     - conditionType: 1
       not: 0
       chapterData: {fileID: 11400000, guid: ec1bec140d328ee48aa0b3337bf84583, type: 2}
@@ -47,12 +49,41 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 0}
+      minFriendsCount: 0
+      maxFriendsCount: 10
   rocksSpawnFrequency: 1
   pondsSpawnFrequency: 0
   coinsSpawnFrequency: 1
   healthSpawnFrequency: 1
   levelUpSpawnFrequency: 0
-  specialCollectiblesOnTheMap: []
+  otherCollectibleSpawnFrequenciesList: []
+  specialCollectiblesOnTheMap:
+  - tileCoordinates: {x: -12, y: -8}
+    tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
+    collectibleName: Lengthy
+    collectibleDescription: 
+    collectibleType: 0
+    collectibleStatItemData: {fileID: 11400000, guid: 994785b8f00f93e4183c975adfcc2b86, type: 2}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 0
+    foundCollectibleTitle: You feel
+    acceptCollectibleStr: Cool
+    refuseCollectibleStr: Meh
+    compassLevel: 2
+  - tileCoordinates: {x: 15, y: 12}
+    tilePrefab: {fileID: 799068813537004447, guid: 3577fff562b74ae4cb6c4b7340b8b689, type: 3}
+    collectibleName: Bubblo
+    collectibleDescription: They seem friendly
+    collectibleType: 3
+    collectibleStatItemData: {fileID: 11400000, guid: 994785b8f00f93e4183c975adfcc2b86, type: 2}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 4
+    foundCollectibleTitle: You meet
+    acceptCollectibleStr: Hello
+    refuseCollectibleStr: Good bye
+    compassLevel: 3
   environmentChange: 0
   characterStyleChange: 0
   waves:

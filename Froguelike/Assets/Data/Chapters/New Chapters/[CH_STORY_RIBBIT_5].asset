@@ -38,6 +38,8 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 0}
+      minFriendsCount: 0
+      maxFriendsCount: 10
     - conditionType: 7
       not: 0
       chapterData: {fileID: 0}
@@ -48,6 +50,8 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 11400000, guid: 8532a20df8a530548b6aa40feab1c90b, type: 2}
+      minFriendsCount: 0
+      maxFriendsCount: 10
     - conditionType: 1
       not: 0
       chapterData: {fileID: 11400000, guid: c97c079fa8fb0f84cb3522fe6bca439d, type: 2}
@@ -58,12 +62,41 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 11400000, guid: 8532a20df8a530548b6aa40feab1c90b, type: 2}
+      minFriendsCount: 0
+      maxFriendsCount: 10
   rocksSpawnFrequency: 1
   pondsSpawnFrequency: 2
   coinsSpawnFrequency: 0
   healthSpawnFrequency: 3
   levelUpSpawnFrequency: 0
-  specialCollectiblesOnTheMap: []
+  otherCollectibleSpawnFrequenciesList: []
+  specialCollectiblesOnTheMap:
+  - tileCoordinates: {x: -8, y: 7}
+    tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
+    collectibleName: A Poison Tongue
+    collectibleDescription: 
+    collectibleType: 1
+    collectibleStatItemData: {fileID: 0}
+    collectibleWeaponItemData: {fileID: 11400000, guid: 190382d4fe184964894da4982575bbf2, type: 2}
+    collectibleHatType: 0
+    collectibleFriendType: 0
+    foundCollectibleTitle: You find
+    acceptCollectibleStr: Grab
+    refuseCollectibleStr: Ew!
+    compassLevel: 1
+  - tileCoordinates: {x: 13, y: -11}
+    tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
+    collectibleName: A Fancy hat
+    collectibleDescription: It looks good
+    collectibleType: 2
+    collectibleStatItemData: {fileID: 0}
+    collectibleWeaponItemData: {fileID: 11400000, guid: 190382d4fe184964894da4982575bbf2, type: 2}
+    collectibleHatType: 0
+    collectibleFriendType: 0
+    foundCollectibleTitle: You find
+    acceptCollectibleStr: Grab
+    refuseCollectibleStr: Leave
+    compassLevel: 3
   environmentChange: 0
   characterStyleChange: 0
   waves:
@@ -72,4 +105,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0d74991de3ac18c46b450e2e4ea113c0, type: 2}
   - {fileID: 11400000, guid: 206b598e29673a541a9190ef41025775, type: 2}
   - {fileID: 11400000, guid: 9406d3aeba2d068469885dd18319f971, type: 2}
+  bountyBugs: []
   weightChanges: []

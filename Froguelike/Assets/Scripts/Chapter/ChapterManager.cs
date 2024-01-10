@@ -878,14 +878,30 @@ public class ChapterManager : MonoBehaviour
 
     public bool DoesChapterContainFixedItemsThatHaveNeverBeenFound(Chapter chapter)
     {
-        bool result = chapter.fixedCollectiblesFoundList.Count() < chapter.chapterData.specialCollectiblesOnTheMap.Count();
+        bool thereAreItemsThatWereNeverFound = chapter.fixedCollectiblesFoundList.Count() < chapter.chapterData.specialCollectiblesOnTheMap.Count();
+
+        if (!thereAreItemsThatWereNeverFound)
+        {
+            // We found more collectibles than the collectibles in that chapter
+            // We have to check them one by one
+            foreach (FixedCollectible collectible in chapter.chapterData.specialCollectiblesOnTheMap)
+            {
+                string collectibleIdentifier = FixedCollectibleFound.GetIdentifierFromCoordinates(collectible.tileCoordinates);
+                FixedCollectibleFound collectibleFoundInfo = chapter.fixedCollectiblesFoundList.FirstOrDefault(x => x.collectibleIdentifier.Equals(collectibleIdentifier));
+                if (collectibleFoundInfo == null || !collectibleFoundInfo.hasBeenFoundOnce)
+                {
+                    thereAreItemsThatWereNeverFound = true;
+                    break;
+                }
+            }
+        }
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
-            Debug.Log($"Chapter Manager - DoesChapterContainFixedItemsThatHaveNeverBeenFound for chapter {chapter.chapterID} returned {result}");
+            Debug.Log($"Chapter Manager - DoesChapterContainFixedItemsThatHaveNeverBeenFound for chapter {chapter.chapterID} returned {thereAreItemsThatWereNeverFound}");
         }
 
-        return result;
+        return thereAreItemsThatWereNeverFound;
     }
 
     public bool DoesChapterUnlockAnAchievementOrAnUnplayedChapter(Chapter chapter, int chapterCount)

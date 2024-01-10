@@ -37,6 +37,8 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 0}
+      minFriendsCount: 0
+      maxFriendsCount: 10
     - conditionType: 7
       not: 0
       chapterData: {fileID: 0}
@@ -47,6 +49,8 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 11400000, guid: 8532a20df8a530548b6aa40feab1c90b, type: 2}
+      minFriendsCount: 0
+      maxFriendsCount: 10
     - conditionType: 1
       not: 0
       chapterData: {fileID: 11400000, guid: b8f87ed24d6ad564e82ef384ec2da04d, type: 2}
@@ -57,6 +61,8 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 11400000, guid: 8532a20df8a530548b6aa40feab1c90b, type: 2}
+      minFriendsCount: 0
+      maxFriendsCount: 10
   rocksSpawnFrequency: 2
   pondsSpawnFrequency: 1
   coinsSpawnFrequency: 1
@@ -73,23 +79,23 @@ MonoBehaviour:
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
     collectibleFriendType: 0
-    foundCollectibleTitle: You found
-    acceptCollectibleStr: Take it
-    refuseCollectibleStr: Ew...
-    compassLevel: 1
+    foundCollectibleTitle: You find
+    acceptCollectibleStr: Take
+    refuseCollectibleStr: Leave
+    compassLevel: 2
   - tileCoordinates: {x: 10, y: 10}
     tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
-    collectibleName: Some Moss
+    collectibleName: A Poison Tongue
     collectibleDescription: 
-    collectibleType: 0
+    collectibleType: 1
     collectibleStatItemData: {fileID: 11400000, guid: 4f94eda1e628c8544bdbe476f6718bac, type: 2}
-    collectibleWeaponItemData: {fileID: 0}
+    collectibleWeaponItemData: {fileID: 11400000, guid: 190382d4fe184964894da4982575bbf2, type: 2}
     collectibleHatType: 0
     collectibleFriendType: 0
-    foundCollectibleTitle: You found
-    acceptCollectibleStr: Take it
-    refuseCollectibleStr: Ew...
-    compassLevel: 1
+    foundCollectibleTitle: You find
+    acceptCollectibleStr: Take
+    refuseCollectibleStr: Ew!
+    compassLevel: 3
   environmentChange: 0
   characterStyleChange: 0
   waves:

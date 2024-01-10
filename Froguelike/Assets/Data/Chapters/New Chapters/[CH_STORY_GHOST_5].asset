@@ -37,6 +37,8 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 0}
+      minFriendsCount: 0
+      maxFriendsCount: 10
     - conditionType: 1
       not: 0
       chapterData: {fileID: 11400000, guid: f0abfad847e31be46880bde38644356f, type: 2}
@@ -47,6 +49,8 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 11400000, guid: 2d0ffd1520e0bd243a6ee158e1719242, type: 2}
+      minFriendsCount: 0
+      maxFriendsCount: 10
     - conditionType: 7
       not: 0
       chapterData: {fileID: 11400000, guid: 9e5fc620729d61d43b9bd67c200dc831, type: 2}
@@ -57,6 +61,8 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 11400000, guid: 2d0ffd1520e0bd243a6ee158e1719242, type: 2}
+      minFriendsCount: 0
+      maxFriendsCount: 10
   rocksSpawnFrequency: 2
   pondsSpawnFrequency: 0
   coinsSpawnFrequency: 0
@@ -73,8 +79,8 @@ MonoBehaviour:
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
     collectibleFriendType: 2
-    foundCollectibleTitle: You met
-    acceptCollectibleStr: Hi!
+    foundCollectibleTitle: You meet
+    acceptCollectibleStr: Hello
     refuseCollectibleStr: Good bye
     compassLevel: 1
   - tileCoordinates: {x: -4, y: 8}
@@ -86,8 +92,8 @@ MonoBehaviour:
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
     collectibleFriendType: 2
-    foundCollectibleTitle: You met
-    acceptCollectibleStr: Hi!
+    foundCollectibleTitle: You meet
+    acceptCollectibleStr: Hello
     refuseCollectibleStr: Good bye
     compassLevel: 1
   - tileCoordinates: {x: -8, y: -4}
@@ -99,10 +105,10 @@ MonoBehaviour:
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
     collectibleFriendType: 2
-    foundCollectibleTitle: You met
-    acceptCollectibleStr: Hi!
+    foundCollectibleTitle: You meet
+    acceptCollectibleStr: Hello
     refuseCollectibleStr: Good bye
-    compassLevel: 1
+    compassLevel: 2
   - tileCoordinates: {x: 4, y: -8}
     tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
     collectibleName: Nubi
@@ -112,10 +118,62 @@ MonoBehaviour:
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
     collectibleFriendType: 2
-    foundCollectibleTitle: You met
-    acceptCollectibleStr: Hi!
+    foundCollectibleTitle: You meet
+    acceptCollectibleStr: Hello
     refuseCollectibleStr: Good bye
-    compassLevel: 1
+    compassLevel: 2
+  - tileCoordinates: {x: -10, y: 1}
+    tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
+    collectibleName: Mrs. Gogly
+    collectibleDescription: She seems friendly
+    collectibleType: 3
+    collectibleStatItemData: {fileID: 0}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 2
+    foundCollectibleTitle: You meet
+    acceptCollectibleStr: Hello
+    refuseCollectibleStr: Good bye
+    compassLevel: 3
+  - tileCoordinates: {x: -10, y: -1}
+    tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
+    collectibleName: Mr. Gogly
+    collectibleDescription: He seems friendly
+    collectibleType: 3
+    collectibleStatItemData: {fileID: 0}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 2
+    foundCollectibleTitle: You meet
+    acceptCollectibleStr: Hello
+    refuseCollectibleStr: Good bye
+    compassLevel: 3
+  - tileCoordinates: {x: 12, y: -4}
+    tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
+    collectibleName: Jennifly
+    collectibleDescription: She seems friendly
+    collectibleType: 3
+    collectibleStatItemData: {fileID: 0}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 2
+    foundCollectibleTitle: You meet
+    acceptCollectibleStr: Hello
+    refuseCollectibleStr: Good bye
+    compassLevel: 3
+  - tileCoordinates: {x: 10, y: 6}
+    tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
+    collectibleName: Tad-Paul
+    collectibleDescription: He seems friendly
+    collectibleType: 3
+    collectibleStatItemData: {fileID: 0}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 2
+    foundCollectibleTitle: You meet
+    acceptCollectibleStr: Hello
+    refuseCollectibleStr: Good bye
+    compassLevel: 3
   environmentChange: 0
   characterStyleChange: 0
   waves:

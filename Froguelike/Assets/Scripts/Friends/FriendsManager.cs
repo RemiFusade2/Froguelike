@@ -411,8 +411,8 @@ public class FriendsManager : MonoBehaviour
             // Place parent at zero
             friend.ParentGameObject.transform.position = Vector3.zero;
 
-            // Position friend on the given position
-            friend.FriendGameObject.transform.position = friendPosition;
+            // Position friend on the given position, add a slight offset to prevent weird collisions
+            friend.FriendGameObject.transform.position = friendPosition + Random.insideUnitCircle * 0.2f;
 
             friend.data = friendData;
 
