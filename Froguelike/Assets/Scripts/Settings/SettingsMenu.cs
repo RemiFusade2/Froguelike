@@ -46,6 +46,15 @@ public class SettingsMenu : MonoBehaviour
     private float previousSFXVolume;
     private float previousMusicVolume;
 
+    private bool savedSFXOn;
+    private string savedSFXOnKey = "Froguelike SFX on";
+    private float savedSFXVolume;
+    private string savedSFXVolumeKey = "Froguelike SFX volume";
+    private bool savedMusicOn;
+    private string savedMusicOnKey = "Froguelike music on";
+    private float savedMusicVolume;
+    private string savedMusicVolumeKey = "Froguelike music volume";
+
     #endregion Sound
 
     // Start is called before the first frame update
@@ -63,6 +72,8 @@ public class SettingsMenu : MonoBehaviour
         FindAllowedResolutions();
 
         startUpDone = true;
+
+        LoadAudioSettings();
     }
 
     // Update is called once per frame
@@ -101,6 +112,37 @@ public class SettingsMenu : MonoBehaviour
         {
             isChangingFullscreen = false;
         }
+    }
+
+    public void LoadAudioSettings()
+    {
+        savedSFXOn = PlayerPrefs.GetInt(savedSFXOnKey) == 1;
+        if (savedSFXOn)
+        {
+            savedSFXVolume = PlayerPrefs.GetFloat(savedSFXVolumeKey);
+            SetSFXVolume(savedSFXVolume);
+            SFXSlider.SetValueWithoutNotify(savedSFXVolume);
+        }
+        else
+        {
+            previousSFXVolume = PlayerPrefs.GetFloat(savedSFXVolumeKey);
+            SFXSlider.SetValueWithoutNotify(previousSFXVolume);
+        }
+        SFXToggle.isOn = savedSFXOn;
+
+        savedMusicOn = PlayerPrefs.GetInt(savedMusicOnKey) == 1;
+        if (savedMusicOn)
+        {
+            savedMusicVolume = PlayerPrefs.GetFloat(savedMusicVolumeKey);
+            SetMusicVolume(savedMusicVolume);
+            musicSlider.SetValueWithoutNotify(savedMusicVolume);
+        }
+        else
+        {
+            previousMusicVolume = PlayerPrefs.GetFloat(savedMusicVolumeKey);
+            musicSlider.SetValueWithoutNotify(previousMusicVolume);
+        }
+        musicToggle.isOn = savedMusicOn;
     }
 
     #region Resolution
@@ -236,14 +278,14 @@ public class SettingsMenu : MonoBehaviour
     // Turns SFX on with true, turns sound of with false.
     public void SFXOn(bool on)
     {
+        PlayerPrefs.SetInt(savedSFXOnKey, on ? 1 : 0);
+
         if (on)
         {
             SetSFXVolume(previousSFXVolume);
             SFXSlider.SetValueWithoutNotify(previousSFXVolume);
-
-            SoundManager.instance.MuteSFXBus(false);
         }
-        else if (!on)
+        else
         {
             if (SFXSlider.value == SFXSlider.minValue)
             {
@@ -255,21 +297,23 @@ public class SettingsMenu : MonoBehaviour
                 SFXSlider.SetValueWithoutNotify(SFXSlider.minValue);
             }
 
-            SoundManager.instance.MuteSFXBus(true);
+            PlayerPrefs.SetFloat(savedSFXVolumeKey, previousSFXVolume);
         }
+
+        SoundManager.instance.MuteSFXBus(!on);
     }
 
     // Turns music on with true, turns sound of with false.
     public void MusicOn(bool on)
     {
+        PlayerPrefs.SetInt(savedMusicOnKey, on ? 1 : 0);
+
         if (on)
         {
             SetMusicVolume(previousMusicVolume);
             musicSlider.SetValueWithoutNotify(previousMusicVolume);
-
-            SoundManager.instance.MuteMusicBus(false);
         }
-        else if (!on)
+        else
         {
             if (musicSlider.value == musicSlider.minValue)
             {
@@ -281,15 +325,18 @@ public class SettingsMenu : MonoBehaviour
                 musicSlider.SetValueWithoutNotify(musicSlider.minValue);
             }
 
-            SoundManager.instance.MuteMusicBus(true);
+            PlayerPrefs.SetFloat(savedMusicVolumeKey, previousMusicVolume);
         }
+
+        SoundManager.instance.MuteMusicBus(!on);
     }
 
     // Sets volume and updates the check box if necessary.
     public void SetSFXVolume(float volume)
     {
-        float newVolume = volume / SFXSlider.maxValue * 2;
+        PlayerPrefs.SetFloat(savedSFXVolumeKey, volume);
 
+        float newVolume = volume / SFXSlider.maxValue * 2;
 
         if (newVolume == SFXSlider.minValue)
         {
@@ -314,8 +361,9 @@ public class SettingsMenu : MonoBehaviour
     // Sets volume and updates the check box if necessary.
     public void SetMusicVolume(float volume)
     {
-        float newVolume = volume / musicSlider.maxValue * 2;
+        PlayerPrefs.SetFloat(savedMusicVolumeKey, volume);
 
+        float newVolume = volume / musicSlider.maxValue * 2;
 
         if (newVolume == musicSlider.minValue)
         {
