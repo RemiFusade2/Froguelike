@@ -23,6 +23,8 @@ public class UIManager : MonoBehaviour
     public GameObject titleScreen;
     public GameObject menuButtonsGroup;
     public GameObject selectedButtonTitleScreen;
+    public GameObject shopButtonActiveNote;
+    public GameObject shopButtonLockedNote;
     public TextMeshProUGUI titleScreenCurrencyText;
     public TextMeshProUGUI titleScreenWelcomeMessageText;
     public TextMeshProUGUI titleScreenSaveLocationText;
@@ -277,8 +279,15 @@ public class UIManager : MonoBehaviour
             shopButton.GetComponent<CanvasGroup>().blocksRaycasts = ShopManager.instance.IsShopUnlocked();
             if (!ShopManager.instance.IsShopUnlocked())
             {
-                titleScreenCurrencyText.text = "BRB";
+                shopButtonActiveNote.SetActive(false);
+                shopButtonLockedNote.SetActive(true);
             }
+            else
+            {
+                shopButtonActiveNote.SetActive(true);
+                shopButtonLockedNote.SetActive(false);
+            }
+
             achievementsButton.SetActive(true);
             achievementsButton.GetComponent<Button>().interactable = AchievementManager.instance.IsAchievementsListUnlocked();
             achievementsButton.GetComponent<CanvasGroup>().blocksRaycasts = AchievementManager.instance.IsAchievementsListUnlocked();
