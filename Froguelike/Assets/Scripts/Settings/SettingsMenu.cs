@@ -116,21 +116,23 @@ public class SettingsMenu : MonoBehaviour
 
     public void LoadAudioSettings()
     {
-        savedSFXOn = PlayerPrefs.GetInt(savedSFXOnKey) == 1;
+        // SFX.
+        savedSFXOn = PlayerPrefs.GetInt(savedSFXOnKey, 1) == 1;
         if (savedSFXOn)
         {
-            savedSFXVolume = PlayerPrefs.GetFloat(savedSFXVolumeKey);
+            savedSFXVolume = PlayerPrefs.GetFloat(savedSFXVolumeKey, 15);
             SetSFXVolume(savedSFXVolume);
             SFXSlider.SetValueWithoutNotify(savedSFXVolume);
         }
         else
         {
-            previousSFXVolume = PlayerPrefs.GetFloat(savedSFXVolumeKey);
+            previousSFXVolume = PlayerPrefs.GetFloat(savedSFXVolumeKey, 15);
             SFXSlider.SetValueWithoutNotify(previousSFXVolume);
         }
         SFXToggle.isOn = savedSFXOn;
 
-        savedMusicOn = PlayerPrefs.GetInt(savedMusicOnKey) == 1;
+        // Music.
+        savedMusicOn = PlayerPrefs.GetInt(savedMusicOnKey, 1) == 1;
         if (savedMusicOn)
         {
             savedMusicVolume = PlayerPrefs.GetFloat(savedMusicVolumeKey);
@@ -351,6 +353,7 @@ public class SettingsMenu : MonoBehaviour
             if (!SFXToggle.isOn)
             {
                 SFXToggle.SetIsOnWithoutNotify(true);
+                PlayerPrefs.SetInt(savedSFXOnKey, 1);
                 SoundManager.instance.MuteSFXBus(false);
             }
         }
@@ -378,6 +381,7 @@ public class SettingsMenu : MonoBehaviour
             if (!musicToggle.isOn)
             {
                 musicToggle.SetIsOnWithoutNotify(true);
+                PlayerPrefs.SetInt(savedMusicOnKey, 1);
                 SoundManager.instance.MuteMusicBus(false);
             }
         }
