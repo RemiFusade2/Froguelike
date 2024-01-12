@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System;
 
 public class PauseScreen : MonoBehaviour
 {
@@ -24,67 +25,114 @@ public class PauseScreen : MonoBehaviour
 
     public void UpdatePauseScreen()
     {
-        // Character image.
-        characterImage.sprite = runManager.currentPlayedCharacter.characterData.characterSprite;
-        characterImage.SetNativeSize();
-
-        // Character name.
-        characterNameText.SetText(runManager.currentPlayedCharacter.characterData.characterName);
-
-        // Hats + friends
-        int thingSlot = 0;
-        Image thingSlotImage;
-
-        int nrOfHats = runManager.player.hatsParent.childCount;
-        for (int hat = 0; hat < nrOfHats; hat++)
+        try
         {
-            if (thingSlot >= thingSlotsParent.childCount) break;
-
-            thingSlotImage = thingSlotsParent.GetChild(thingSlot).GetComponentInChildren<Image>();
-            thingSlotImage.sprite = runManager.player.hatsParent.GetComponentsInChildren<SpriteRenderer>()[hat].sprite;
-            thingSlotImage.SetNativeSize();
-            thingSlotImage.gameObject.SetActive(true);
-
-            thingSlot++;
+            // Character image.
+            characterImage.sprite = runManager.currentPlayedCharacter.characterData.characterSprite;
+            characterImage.SetNativeSize();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Exception in UpdatePauseScreen() - updating character image: {e.Message}");
         }
 
-        int nrOfFriends = FriendsManager.instance.transform.childCount;
-        foreach (FriendInstance friend in FriendsManager.instance.permanentFriendsList)
+        try
         {
-            if (thingSlot >= thingSlotsParent.childCount) break;
-
-            thingSlotsParent.GetChild(thingSlot).transform.GetChild(0).gameObject.SetActive(true);
-            thingSlotImage = thingSlotsParent.GetChild(thingSlot).GetComponentInChildren<Image>();
-            thingSlotImage.sprite = friend.data.sprite;
-            thingSlotImage.SetNativeSize();
-
-            thingSlot++;
+            // Character name.
+            characterNameText.SetText(runManager.currentPlayedCharacter.characterData.characterName);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Exception in UpdatePauseScreen() - updating character name: {e.Message}");
         }
 
-        while (thingSlot < thingSlotsParent.childCount)
+        try
         {
-            thingSlotImage = thingSlotsParent.GetChild(thingSlot).GetComponentInChildren<Image>();
-            if (thingSlotImage != null)
+            // Hats + friends
+            int thingSlot = 0;
+            Image thingSlotImage;
+
+            int nrOfHats = runManager.player.hatsParent.childCount;
+            for (int hat = 0; hat < nrOfHats; hat++)
             {
-                thingSlotImage.gameObject.SetActive(false);
-            }
-            else
-            {
-                break;
+                if (thingSlot >= thingSlotsParent.childCount) break;
+
+                thingSlotImage = thingSlotsParent.GetChild(thingSlot).GetComponentInChildren<Image>();
+                SpriteRenderer[] hatsSpriteRenderersArray = runManager.player.hatsParent.GetComponentsInChildren<SpriteRenderer>();
+                thingSlotImage.sprite = hatsSpriteRenderersArray[hat].sprite;
+                thingSlotImage.SetNativeSize();
+
+                thingSlotImage.gameObject.SetActive(true);
+                thingSlotImage.enabled = true;
+
+                thingSlot++;
             }
 
-            thingSlot++;
+            int nrOfFriends = FriendsManager.instance.transform.childCount;
+            foreach (FriendInstance friend in FriendsManager.instance.permanentFriendsList)
+            {
+                if (thingSlot >= thingSlotsParent.childCount) break;
+
+                thingSlotImage = thingSlotsParent.GetChild(thingSlot).GetComponentInChildren<Image>();
+                thingSlotImage.sprite = friend.data.sprite;
+                thingSlotImage.SetNativeSize();
+
+                thingSlotImage.gameObject.SetActive(true);
+                thingSlotImage.enabled = true;
+
+                thingSlot++;
+            }
+
+            while (thingSlot < thingSlotsParent.childCount)
+            {
+                thingSlotImage = thingSlotsParent.GetChild(thingSlot).GetComponentInChildren<Image>();
+                if (thingSlotImage != null)
+                {
+                    thingSlotImage.GetComponent<Image>().enabled = false;
+                }
+                else
+                {
+                    break;
+                }
+
+                thingSlot++;
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Exception in UpdatePauseScreen() - updating hats and friends: {e.Message}");
         }
 
-        // Chapter number + name.
-        chapterText.SetText("Chapter " + runManager.GetChapterCount().ToString() + "<br>" + runManager.currentChapter.chapterData.chapterTitle);
+        try
+        {
+            // Chapter number + name.
+            chapterText.SetText("Chapter " + runManager.GetChapterCount().ToString() + "<br>" + runManager.currentChapter.chapterData.chapterTitle);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Exception in UpdatePauseScreen() - updating chapter number and name: {e.Message}");
+        }
 
-        // Tongue slots, sprite + level.
-        // Item slots, sprite + level.
-        UpdateRunItemSlots();
+        try
+        {
+            // Tongue slots, sprite + level.
+            // Item slots, sprite + level.
+            UpdateRunItemSlots();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Exception in UpdatePauseScreen() - updating tongues and items slots: {e.Message}");
+        }
 
-        // Extra lives count.
-        livesCountText.SetText("Extra lives: " + runManager.extraLivesCountText.text);
+        try
+        {
+            // Extra lives count.
+            livesCountText.SetText("Extra lives: " + runManager.extraLivesCountText.text);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Exception in UpdatePauseScreen() - updating extra lives count: {e.Message}");
+        }
     }
 
     private void UpdateRunItemSlots()

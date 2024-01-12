@@ -462,23 +462,38 @@ public class UIManager : MonoBehaviour
 
     public void ShowPauseScreen()
     {
-        // Tell the pause screen to update its information.
-        pausePanel.GetComponent<PauseScreen>().UpdatePauseScreen();
-
-        // Set up start button and navigation.
-        SetScreenInteractability(pausePanel, true);
-        if (levelUpPanel.GetComponent<CanvasGroup>().interactable)
+        try
         {
-            SetScreenInteractability(levelUpPanel, false);
-            makeLevelUpPanelInteractableAfterClosingPausePanel = true;
-            SavePreviousSelectedButton();
+            // Tell the pause screen to update its information.
+            pausePanel.GetComponent<PauseScreen>().UpdatePauseScreen();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Exception when calling UpdatePauseScreen(): {e.Message}");
         }
 
-        SetSelectedButton(selectedButtonPausePanel);
+        try
+        {
+            // Set up start button and navigation.
+            SetScreenInteractability(pausePanel, true);
+            if (levelUpPanel.GetComponent<CanvasGroup>().interactable)
+            {
+                SetScreenInteractability(levelUpPanel, false);
+                makeLevelUpPanelInteractableAfterClosingPausePanel = true;
+                SavePreviousSelectedButton();
+            }
+
+            SetSelectedButton(selectedButtonPausePanel);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Exception when attempting to set up start button and navigation: {e.Message}");
+        }
 
         SoundManager.instance.PauseInGameLoopedSFX();
-        // MusicManager.instance.PauseMusic(); // I took this away because I think teh music should still be playing (Johanna). // I agree that this is better but SFX should be stopped no? (R�mi)
+        // MusicManager.instance.PauseMusic(); // I took this away because I think teh music should still be playing (Johanna). // I agree that this is better but SFX should be stopped no? (Remi)
         // Show the pause screen.
+
         pausePanel.SetActive(true);
         pausePanelAnimator.SetBool("Visible", true);
 
