@@ -306,4 +306,20 @@ public class RunItemManager : MonoBehaviour
         }
         return itemNewlyUnlocked;
     }
+
+    public void ApplyDemoLimitationToRunItems()
+    {
+        // For each item in saved data...
+        foreach (RunItemSaveInfo itemSaveInfo in runItemsData.runItemsList)
+        {
+            // Get the corresponding data
+            RunItemData itemData = runItemDataDictionary[itemSaveInfo.itemName];
+
+            // If item was unlocked but is not part of Demo, then lock it
+            if (itemSaveInfo.unlocked && !itemData.partOfDemo)
+            {
+                itemSaveInfo.unlocked = false;
+            }
+        }
+    }
 }

@@ -20,9 +20,11 @@ public class ShopItemData : ScriptableObject
     public Sprite icon;
 
     [Tooltip("How many level of this item can you buy at the start of the game (this max level can be increased with achievements later)")]
-    public int maxLevelAtStart;
-    [Tooltip("How many more/less levels of this item can you buy in the demo compared to full game")]
-    public int maxLevelDemoOffset;
+    public int maxLevelAtStart_EA;
+    [Tooltip("How many level of this item can you buy at the start of the demo (this max level can be increased with achievements later)")]
+    public int maxLevelAtStart_Demo;
+    [Tooltip("How many level of this item can you have in the demo")]
+    public int maxLevel_Demo;
 
     [Tooltip("Is this item hidden at the start (if yes, it would be unlocked later with achievements)")]
     public bool hiddenAtStart;

@@ -96,7 +96,7 @@ public class Achievement
 
 /// <summary>
 /// AchievementsSaveData contains all information that must be saved about the achievements.
-/// - achievementsList is the list of achievements in their current state
+/// - loadedAchievementsList is the list of achievements in their current state
 /// </summary>
 [System.Serializable]
 public class AchievementsSaveData : SaveData
@@ -122,7 +122,7 @@ public class AchievementManager : MonoBehaviour
     public static AchievementManager instance;
 
     [Header("Settings - logs")]
-    public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
+    public VerboseLevel verbose = VerboseLevel.NONE;
 
     [Header("Data")]
     public List<AchievementData> alwaysVisibleAchievementsScriptableObjectsList;
@@ -236,7 +236,7 @@ public class AchievementManager : MonoBehaviour
         {
             log += "can't be checked because Steam manager has not been initialized";
         }
-        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        if (verbose == VerboseLevel.MAXIMAL)
         {
             Debug.Log(log);
         }
@@ -277,7 +277,7 @@ public class AchievementManager : MonoBehaviour
         {
             log += "can't be checked because Steam manager has not been initialized, or this is the demo build";
         }
-        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        if (verbose == VerboseLevel.MAXIMAL)
         {
             Debug.Log(log);
         }
@@ -304,7 +304,7 @@ public class AchievementManager : MonoBehaviour
         {
             log += "can't be done because Steam manager has not been initialized.";
         }
-        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        if (verbose == VerboseLevel.MAXIMAL)
         {
             Debug.Log(log);
         }
@@ -476,6 +476,38 @@ public class AchievementManager : MonoBehaviour
         return unlockedAchievementsList;
     }
 
+    public void UnlockListOfAchievements(List<Achievement> loadedAchievementsList)
+    {
+        if (verbose == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"Achievement Manager - Calling UnlockListOfAchievements()");
+        }
+
+        // Go through every achievement
+        foreach (Achievement achievement in achievementsData.achievementsList)
+        {
+            bool isDemoBuildAndAchievementIsNotPartOfDemo = IsAchievementLockedBehindDemo(achievement);
+
+            if (!isDemoBuildAndAchievementIsNotPartOfDemo && loadedAchievementsList.Contains(achievement))
+            {
+                // Achievement is not locked and the loaded list contains this achievement
+                Achievement loadedAchievement = loadedAchievementsList.FirstOrDefault(x => x.achievementID == achievement.achievementID);
+
+                if (verbose == VerboseLevel.MAXIMAL)
+                {
+                    Debug.Log($"Achievement Manager - Achievement {achievement.achievementID} should be unlocked");
+                }
+
+                if (loadedAchievement != null && loadedAchievement.unlocked && !achievement.unlocked)
+                {
+                    // Loaded achievement is unlocked in save file but not in-game (we need to unlock it now)
+                    UnlockAchievement(achievement);
+                }
+            }
+        }
+        CommitSteamAchievements();
+    }
+
     private void UnlockAchievement(Achievement achievement)
     {
         string unlockLog = $"Achievements Manager - Unlocking {achievement.achievementID}: ";
@@ -509,7 +541,7 @@ public class AchievementManager : MonoBehaviour
                 unlockLog = $"Restock shop item {reward.shopItem.itemName}";
                 break;
         }
-        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        if (verbose == VerboseLevel.MAXIMAL)
         {
             Debug.Log(unlockLog);
         }
@@ -677,7 +709,7 @@ public class AchievementManager : MonoBehaviour
             bool achievementIsAvailable = IsAchievementAvailable(achievement);
             bool achievementIsLocked = (!newUnlockedAchievementsSoFar.Contains(achievement) && !achievement.unlocked);
 
-            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+            if (verbose == VerboseLevel.MAXIMAL)
             {
                 string log = $"Achievement Manager - isDemoBuildAndAchievementIsNotPartOfDemo for chapter {chapter.chapterID} returned {isDemoBuildAndAchievementIsNotPartOfDemo}\n";
                 log += $"achievementIsLockedBehindMissingIcon for chapter {chapter.chapterID} returned {achievementIsLockedBehindMissingIcon}\n";
@@ -729,5 +761,19 @@ public class AchievementManager : MonoBehaviour
     {
         int lockedDemoAchievements = achievementsData.achievementsList.Count(x => x.achievementData.partOfDemo && !x.unlocked);
         return (lockedDemoAchievements == 0);
+    }
+
+    /// <summary>
+    /// Lock all achievements that are not part of the demo.
+    /// </summary>
+    public void ApplyDemoLimitationToAchievements()
+    {
+        foreach (Achievement achievement in achievementsData.achievementsList)
+        {
+            if (achievement.unlocked && !achievement.achievementData.partOfDemo)
+            {
+                achievement.unlocked = false;
+            }
+        }
     }
 }

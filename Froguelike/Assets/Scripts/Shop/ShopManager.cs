@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
+using static UnityEditor.Progress;
 
 /// <summary>
 /// ShopItem describes an item in the shop in its current state.
@@ -32,14 +33,7 @@ public class ShopItem
 
     public int GetMaxLevel()
     {
-        if (GameManager.instance.demoBuild)
-        {
-            return Mathf.Clamp(maxLevel + data.maxLevelDemoOffset, 0, 20);
-        }
-        else
-        {
-            return maxLevel;
-        }
+        return maxLevel;
     }
 }
 
@@ -311,7 +305,14 @@ public class ShopManager : MonoBehaviour
             shopData.shopItems.Clear();
             foreach (ShopItemData itemData in availableItemDataList)
             {
-                shopData.shopItems.Add(new ShopItem() { data = itemData, currentLevel = 0, maxLevel = itemData.maxLevelAtStart, itemName = itemData.itemName, hidden = itemData.hiddenAtStart });
+                ShopItem newShopItem = new ShopItem() { data = itemData, currentLevel = 0, maxLevel = itemData.maxLevelAtStart_EA, itemName = itemData.itemName, hidden = itemData.hiddenAtStart };
+
+                if (GameManager.instance.demoBuild)
+                {
+                    newShopItem.maxLevel = itemData.maxLevelAtStart_Demo;
+                }
+
+                shopData.shopItems.Add(newShopItem);
             }
         }
         else
@@ -471,10 +472,6 @@ public class ShopManager : MonoBehaviour
             {
                 item.currentLevel = itemFromSave.currentLevel;
                 item.maxLevel = itemFromSave.maxLevel;
-                if (item.data != null && item.data.maxLevelAtStart > itemFromSave.maxLevel)
-                {
-                    item.maxLevel = item.data.maxLevelAtStart;
-                }
                 item.hidden = itemFromSave.hidden;
                 if (SaveDataManager.instance.verbose == VerboseLevel.MAXIMAL)
                 {
@@ -482,6 +479,29 @@ public class ShopManager : MonoBehaviour
                 }
             }
         }
+        // Compute new starting stats bonuses
+        ComputeStatsBonuses();
+        // Compute current fee
+        ComputeCurrentFee();
+        // Update the shop display
+        DisplayShop(false);
+    }
+
+    public void ApplyDemoLimitationToRestocks()
+    {
+        // Clamp max level of items to max level of demo for these items
+        foreach (ShopItem item in shopData.shopItems)
+        {
+            if (item.maxLevel > item.data.maxLevel_Demo)
+            {
+                item.maxLevel = item.data.maxLevel_Demo;
+                if (item.currentLevel > item.maxLevel)
+                {
+                    item.currentLevel = item.maxLevel;
+                }
+            }
+        }
+
         // Compute new starting stats bonuses
         ComputeStatsBonuses();
         // Compute current fee

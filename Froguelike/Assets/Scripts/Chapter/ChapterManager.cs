@@ -1149,4 +1149,20 @@ public class ChapterManager : MonoBehaviour
     }
 
     #endregion
+
+    /// <summary>
+    /// Lock all chapters that were unlocked but are not part of the demo.
+    /// Also make sure the selection of chapters only show 3 chapters at most.
+    /// </summary>
+    public void ApplyDemoLimitationToChapters()
+    {
+        SetChapterCountInSelection(3);
+        foreach (Chapter chapter in chaptersData.chaptersList)
+        {
+            if (chapter.unlocked && !chapter.chapterData.partOfDemo)
+            {
+                chapter.unlocked = false;
+            }
+        }
+    }
 }

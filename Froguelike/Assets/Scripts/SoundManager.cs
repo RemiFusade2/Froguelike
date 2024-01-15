@@ -265,7 +265,8 @@ public class SoundManager : MonoBehaviour
 
     public void PlayCreditFrogCroakingSound()
     {
-        //RuntimeManager.PlayOneShot(buyItemInShopSound);
+        // TODO: have a specific sound for when you click on a frog on the credits screen?
+        RuntimeManager.PlayOneShot(cantBuyItemInShopSound);
     }
 
     #endregion

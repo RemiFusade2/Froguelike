@@ -17,6 +17,9 @@ public class UIManager : MonoBehaviour
     [Header("Settings")]
     public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
 
+    [Header("Version")]
+    public TextMeshProUGUI versionNumberText;
+
     #region Title Screen / Start Game
 
     [Header("Title")]
@@ -155,6 +158,9 @@ public class UIManager : MonoBehaviour
     {
         UpdateDemoPanels();
         SetScreenInteractability(pausePanel, false);
+
+        string versionNumber = GameManager.instance.demoBuild ? "Demo." : "Early Access.";
+        versionNumberText.text = versionNumber + GameManager.instance.versionNumber;
     }
 
     private void Update()

@@ -1199,7 +1199,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Early Access.0.1.2
+  m_text: Version number
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 58beee67797690f4988527fa11199205, type: 2}
   m_sharedMaterial: {fileID: -1043033102448062061, guid: 58beee67797690f4988527fa11199205, type: 2}
@@ -3228,6 +3228,20 @@ PrefabInstance:
     - target: {fileID: 371073636462473328, guid: e2eaf0d69aee26c4e857aed7d3970d64, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: HideEndOfDemoScreen
+      objectReference: {fileID: 0}
+    - target: {fileID: 371073637031157776, guid: e2eaf0d69aee26c4e857aed7d3970d64, type: 3}
+      propertyPath: m_text
+      value: 'Thank you for playing our demo.
+
+        We hope you had fun!
+
+        If
+        you wish to play more, please consider buying Froguelike (Early Access) on
+        Steam!'
+      objectReference: {fileID: 0}
+    - target: {fileID: 371073637031157783, guid: e2eaf0d69aee26c4e857aed7d3970d64, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 180
       objectReference: {fileID: 0}
     - target: {fileID: 371073637708022516, guid: e2eaf0d69aee26c4e857aed7d3970d64, type: 3}
       propertyPath: m_Pivot.x
@@ -6992,6 +7006,10 @@ PrefabInstance:
       value: Achievement Manager
       objectReference: {fileID: 0}
     - target: {fileID: 8163245621343275615, guid: 2739f4850b1d3a148b0e31bfda809591, type: 3}
+      propertyPath: verbose
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8163245621343275615, guid: 2739f4850b1d3a148b0e31bfda809591, type: 3}
       propertyPath: achievementsScrollbar
       value: 
       objectReference: {fileID: 961212055}
@@ -8271,6 +8289,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   logsVerboseLevel: 0
+  versionNumber: 0.1.3
   demoBuild: 0
   showDemoDisclaimer: 1
   demoLimitationType: 0
@@ -8294,6 +8313,7 @@ MonoBehaviour:
     totalSpentCurrency: 0
     compassLevel: 0
     isFullGame: 0
+    versionNumber: 
   hasGameStarted: 0
   isGameRunning: 0
   gameIsPaused: 0
@@ -11316,6 +11336,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   logsVerboseLevel: 0
+  versionNumberText: {fileID: 107215344}
   titleScreen: {fileID: 886136328}
   menuButtonsGroup: {fileID: 1435172360}
   selectedButtonTitleScreen: {fileID: 1461611189}
@@ -11420,7 +11441,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2080933506278319173, guid: dc1640719ca88da43a9cfcb7845f1f4c, type: 3}
       propertyPath: m_text
-      value: The full game will have more items!
+      value: The full game has more items!
       objectReference: {fileID: 0}
     - target: {fileID: 2931047283333013694, guid: dc1640719ca88da43a9cfcb7845f1f4c, type: 3}
       propertyPath: m_Colors.m_DisabledColor.b
@@ -12200,7 +12221,7 @@ PrefabInstance:
       objectReference: {fileID: 464157710}
     - target: {fileID: 8433150500378717946, guid: f81f3185faf9c134fa81ebd9d1775605, type: 3}
       propertyPath: m_text
-      value: Wishlist the game!
+      value: Buy the game!
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f81f3185faf9c134fa81ebd9d1775605, type: 3}
@@ -12813,9 +12834,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6473137063085689576, guid: 847995bcdd794db4ea8e77701c390c57, type: 3}
       propertyPath: m_text
-      value: 'I would rather wait
-
-        for the full game'
+      value: "I would rather \nbuy the full game"
+      objectReference: {fileID: 0}
+    - target: {fileID: 7567315775481858008, guid: 847995bcdd794db4ea8e77701c390c57, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 37
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 847995bcdd794db4ea8e77701c390c57, type: 3}
@@ -15022,6 +15045,14 @@ PrefabInstance:
       propertyPath: availableItemDataList.Array.size
       value: 20
       objectReference: {fileID: 0}
+    - target: {fileID: 4919826508944035819, guid: abeb0f41db396bd45a4db2a535d395f8, type: 3}
+      propertyPath: availableItemDataList.Array.data[13]
+      value: 
+      objectReference: {fileID: 11400000, guid: c0d8bc11b8b887c47ba437759e9fccff, type: 2}
+    - target: {fileID: 4919826508944035819, guid: abeb0f41db396bd45a4db2a535d395f8, type: 3}
+      propertyPath: availableItemDataList.Array.data[14]
+      value: 
+      objectReference: {fileID: 11400000, guid: 5e9861e99a373b74dacc87b7dd347874, type: 2}
     - target: {fileID: 4919826508944035819, guid: abeb0f41db396bd45a4db2a535d395f8, type: 3}
       propertyPath: availableItemDataList.Array.data[19]
       value: 
@@ -19888,7 +19919,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4262255482148489706, guid: bbb97757cb446d64ba91a472ddb0b054, type: 3}
       propertyPath: m_text
-      value: The full game will have more tasks!
+      value: The full game has more quests!
       objectReference: {fileID: 0}
     - target: {fileID: 4933554397343005856, guid: bbb97757cb446d64ba91a472ddb0b054, type: 3}
       propertyPath: m_SizeDelta.x
@@ -35184,7 +35215,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3996756539374428296, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
       propertyPath: m_text
-      value: The full game will have more frogs!
+      value: The full game has more frogs!
       objectReference: {fileID: 0}
     - target: {fileID: 4132282931289134448, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
       propertyPath: m_Navigation.m_SelectOnUp
@@ -36278,6 +36309,12 @@ PrefabInstance:
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: PlayButtonSound
       objectReference: {fileID: 0}
+    - target: {fileID: 1593025153270319319, guid: b783532483f5f8549b7a92b862a3dc21, type: 3}
+      propertyPath: m_text
+      value: 'Wanna support us?
+
+        Buy our game!'
+      objectReference: {fileID: 0}
     - target: {fileID: 1598907536452008093, guid: b783532483f5f8549b7a92b862a3dc21, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -36416,7 +36453,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1904004649248622088, guid: b783532483f5f8549b7a92b862a3dc21, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -88
+      value: -99
       objectReference: {fileID: 0}
     - target: {fileID: 2177766155171775604, guid: b783532483f5f8549b7a92b862a3dc21, type: 3}
       propertyPath: m_AnchorMax.y
@@ -36494,6 +36531,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 813424181}
+    - target: {fileID: 2795114317708363239, guid: b783532483f5f8549b7a92b862a3dc21, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -3
+      objectReference: {fileID: 0}
     - target: {fileID: 3455988123764348121, guid: b783532483f5f8549b7a92b862a3dc21, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -36568,7 +36609,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3949334234802022036, guid: b783532483f5f8549b7a92b862a3dc21, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -77
+      value: -88
       objectReference: {fileID: 0}
     - target: {fileID: 4558468696913056402, guid: b783532483f5f8549b7a92b862a3dc21, type: 3}
       propertyPath: m_AnchorMax.y
@@ -37085,6 +37126,30 @@ PrefabInstance:
     - target: {fileID: 7423515871509969075, guid: b783532483f5f8549b7a92b862a3dc21, type: 3}
       propertyPath: m_VerticalScrollbarVisibility
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7473317159243600073, guid: b783532483f5f8549b7a92b862a3dc21, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7473317159243600073, guid: b783532483f5f8549b7a92b862a3dc21, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7473317159243600073, guid: b783532483f5f8549b7a92b862a3dc21, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 206
+      objectReference: {fileID: 0}
+    - target: {fileID: 7473317159243600073, guid: b783532483f5f8549b7a92b862a3dc21, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 7473317159243600073, guid: b783532483f5f8549b7a92b862a3dc21, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 103
+      objectReference: {fileID: 0}
+    - target: {fileID: 7473317159243600073, guid: b783532483f5f8549b7a92b862a3dc21, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -77
       objectReference: {fileID: 0}
     - target: {fileID: 8361495162495877838, guid: b783532483f5f8549b7a92b862a3dc21, type: 3}
       propertyPath: m_AnchorMax.x

@@ -32,6 +32,9 @@ public class RunItemData : ScriptableObject
     [Space]
     [Tooltip("Is this item unlocked from the start of the game? It may be unlocked later with an achievement")]
     public bool unlockedFromStart;
+    [Space]
+    [Tooltip("Is this item available in the demo?")]
+    public bool partOfDemo;
 
     #region overrides
 

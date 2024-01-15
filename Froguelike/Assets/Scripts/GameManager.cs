@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System;
+using UnityEngine.Playables;
 
 [System.Serializable]
 public enum DemoLimitationType
@@ -28,6 +29,8 @@ public class GameSaveData : SaveData
     public int compassLevel;
 
     public bool isFullGame;
+
+    public string versionNumber;
 
     public GameSaveData()
     {
@@ -77,7 +80,9 @@ public class GameManager : MonoBehaviour
     public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
 
     [Header("Settings - Build")]
+    public string versionNumber = "0.0.0";
     public bool demoBuild = false;
+    [Space]
     public bool showDemoDisclaimer = false;
     public DemoLimitationType demoLimitationType;
     public float demoTimeLimit = 0; // In seconds
@@ -417,6 +422,7 @@ public class GameManager : MonoBehaviour
     {
         gameData = saveData;
         gameData.isFullGame = !this.demoBuild;
+        gameData.versionNumber = this.versionNumber;
         UIManager.instance.UpdateCurrencyDisplay();
     }
 
