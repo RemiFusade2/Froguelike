@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
-using static UnityEditor.Progress;
 
 /// <summary>
 /// ShopItem describes an item in the shop in its current state.

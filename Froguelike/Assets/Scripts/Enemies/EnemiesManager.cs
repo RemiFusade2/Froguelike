@@ -1353,16 +1353,19 @@ public class EnemiesManager : MonoBehaviour
     {
         // Set speed factor
         float changeSpeedFactor = 1;
+        enemy.enemyRigidbody.simulated = true;
+        float newMass = enemy.mass;
         if (enemy.freezeRemainingTime > 0 || applyGlobalFreeze)
         {
             changeSpeedFactor = 0;
-            enemy.enemyRigidbody.mass = 10000;
+            newMass = 10000;
         }
         else if (enemy.curseRemainingTime > 0 || applyGlobalCurse)
         {
             changeSpeedFactor = 3;
-            enemy.enemyRigidbody.mass = 1000;
+            newMass = 1000;
         }
+        enemy.enemyRigidbody.mass = newMass;
 
         if (changeSpeedFactor > 0 && enemy.movePattern.movePatternType != EnemyMovePatternType.NO_MOVEMENT)
         {
