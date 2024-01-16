@@ -1,4 +1,5 @@
 using Rewired;
+using Steamworks;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -681,6 +682,40 @@ public class EnemiesManager : MonoBehaviour
             {
                 enemyFromPool.moveDirection = moveDirection.Value;
                 SetEnemyVelocity(enemyFromPool, 0);
+            }
+        }
+    }
+
+    public void CheatSpawnRandomBugs(int count, int tier = 0, float speed = 1)
+    {
+        // Prepare spawn pattern (follow player)
+        EnemyMovePattern movePatternFollowPlayer = new EnemyMovePattern(EnemyMovePatternType.FOLLOW_PLAYER, speedFactor: speed);
+
+        EnemyType randomEnemyType = EnemyType.FLY;
+        int difficultyTier = 1;
+        EnemyData enemyData;
+        GameObject enemyPrefab;
+        for (int i = 0; i < count; i++)
+        {
+            // Pick random type of bug
+            do {
+                randomEnemyType = (EnemyType)(Random.Range(0, 6));
+            } while (randomEnemyType == EnemyType.PLANT);
+            if (tier <= 0)
+            {
+                difficultyTier = Random.Range(1, 6);
+            }
+            else
+            {
+                difficultyTier = tier;
+            }
+            enemyData = GetEnemyDataFromTypeAndDifficultyTier(randomEnemyType, difficultyTier);
+            enemyPrefab = enemyData.prefab;
+
+            // Spawn bug
+            if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out Vector2 spawnPosition))
+            {
+                StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, movePatternFollowPlayer, originWave: null, delay: 0, difficultyTier: difficultyTier));
             }
         }
     }

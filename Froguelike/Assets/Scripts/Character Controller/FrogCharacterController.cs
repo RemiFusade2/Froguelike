@@ -79,13 +79,33 @@ public class FrogCharacterController : MonoBehaviour
     public string uiSubmitInputName = "UISubmit";
     public string uiCancelInputName = "UICancel";
     [Space]
-    public string levelUpCheatInputName = "levelupcheat";
-    public string froinsCheatInputName = "froinscheat";
-    public string skipChapterCheatInputName = "skipchaptercheat";
-    public string unlockAllCheatInputName = "unlockallcheat";
-    public string removeAchievementsCheatInputName = "removeachievementscheat";
-    [Space]
     public float inputAxisDeadZone = 0.3f;
+
+    [Header("Settings - cheat controls")]
+    public string cheat_inRun_levelUp = "cheat_inRun_levelUp";
+    public string cheat_inRun_endChapter = "cheat_inRun_endChapter";
+    public string cheat_inRun_spawnBugs_tier1 = "cheat_inRun_spawnBugs_tier1";
+    public string cheat_inRun_spawnBugs_tier2 = "cheat_inRun_spawnBugs_tier2";
+    public string cheat_inRun_spawnBugs_tier3 = "cheat_inRun_spawnBugs_tier3";
+    public string cheat_inRun_spawnBugs_tier4 = "cheat_inRun_spawnBugs_tier4";
+    public string cheat_inRun_spawnBugs_tier5 = "cheat_inRun_spawnBugs_tier5";
+    public string cheat_inRun_removeBugs = "cheat_inRun_removeBugs";
+    public string cheat_inRun_fullHeal = "cheat_inRun_fullHeal";
+    public string cheat_inRun_speedUp = "cheat_inRun_speedUp";
+    public string cheat_inRun_addRerolls = "cheat_inRun_addRerolls";
+    public string cheat_inRun_megaMagnet = "cheat_inRun_megaMagnet";
+    public string cheat_inRun_armorPlus = "cheat_inRun_armorPlus";
+    public string cheat_inRun_rangePlus = "cheat_inRun_rangePlus";
+    public string cheat_inRun_scorePlus = "cheat_inRun_scorePlus";
+    public string cheat_inRun_maxHPPlus = "cheat_inRun_maxHPPlus";
+    public string cheat_inRun_addHat = "cheat_inRun_addHat";
+    public string cheat_inRun_removeHats = "cheat_inRun_removeHats";
+    public string cheat_inRun_addFrend = "cheat_inRun_addFrend";
+    public string cheat_inRun_removeFrends = "cheat_inRun_removeFrends";
+    [Space]
+    public string cheat_getFroins = "cheat_getFroins";
+    public string cheat_unlockAllQuests = "cheat_unlockAllQuests";
+    public string cheat_toggleVersionNumber = "cheat_toggleVersionNumber";
 
 
     private Player rewiredPlayer;
@@ -125,36 +145,12 @@ public class FrogCharacterController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (GameManager.instance.cheatsAreEnabled && GetFroinsCheatInput())
+        if (GameManager.instance.cheatsAreEnabled)
         {
-            GameManager.instance.ChangeAvailableCurrency(10000);
-            UIManager.instance.UpdateCurrencyDisplay();
-        }
-        if (GameManager.instance.cheatsAreEnabled && GetLevelUpCheatInput())
-        {
-            if (GameManager.instance.isGameRunning)
-            {
-                RunManager.instance.IncreaseXP(RunManager.instance.nextLevelXp);
-            }
-        }
-        if (GameManager.instance.cheatsAreEnabled && GetSkipChapterCheatInput())
-        {
-            if (GameManager.instance.isGameRunning)
-            {
-                RunManager.instance.chapterRemainingTime = 0.1f;
-            }
-        }
-        if (GameManager.instance.cheatsAreEnabled && GetUnlockAllCheatInput())
-        {
-            AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true, true);
-        }
-        if (GameManager.instance.cheatsAreEnabled && GetRemoveAchievementCheatInput())
-        {
-            AchievementManager.instance.ClearAllSteamAchievements();
+            DealWithCheatInputs();
         }
 
         bool ignoreUICancelInput = false;
-
 
         if (GameManager.instance.isGameRunning)
         {
@@ -691,31 +687,6 @@ public class FrogCharacterController : MonoBehaviour
         return rewiredPlayer.GetButtonDown(uiCancelInputName);
     }
 
-    private bool GetLevelUpCheatInput()
-    {
-        return rewiredPlayer.GetButtonDown(levelUpCheatInputName);
-    }
-
-    private bool GetFroinsCheatInput()
-    {
-        return rewiredPlayer.GetButtonDown(froinsCheatInputName);
-    }
-
-    private bool GetSkipChapterCheatInput()
-    {
-        return rewiredPlayer.GetButtonDown(skipChapterCheatInputName);
-    }
-
-    private bool GetUnlockAllCheatInput()
-    {
-        return rewiredPlayer.GetButtonDown(unlockAllCheatInputName);
-    }
-
-    private bool GetRemoveAchievementCheatInput()
-    {
-        return rewiredPlayer.GetButtonDown(removeAchievementsCheatInputName);
-    }
-
     #endregion
 
     // This method is called every physics frame when colliders are touching or player collider is in enemy trigger
@@ -871,4 +842,147 @@ public class FrogCharacterController : MonoBehaviour
         yield return new WaitForSeconds(duration);
         applyGodMode = active;
     }
+
+    #region Cheat codes
+
+    public void DealWithCheatInputs()
+    {
+        if (GameManager.instance.isGameRunning)
+        {
+            // In Run Cheats
+            if (rewiredPlayer.GetButtonDown(cheat_inRun_levelUp))
+            {
+                // Level Up
+                RunManager.instance.IncreaseXP(RunManager.instance.nextLevelXp);
+            }
+            if (rewiredPlayer.GetButtonDown(cheat_inRun_endChapter))
+            {
+                // End Chapter
+                RunManager.instance.chapterRemainingTime = 0.01f;
+            }
+            if (rewiredPlayer.GetButtonDown(cheat_inRun_spawnBugs_tier1))
+            {
+                // Spawn 100 tier 1 bugs
+                EnemiesManager.instance.CheatSpawnRandomBugs(100, tier: 1);
+            }
+            if (rewiredPlayer.GetButtonDown(cheat_inRun_spawnBugs_tier2))
+            {
+                // Spawn 100 tier 2 bugs
+                EnemiesManager.instance.CheatSpawnRandomBugs(100, tier: 2);
+            }
+            if (rewiredPlayer.GetButtonDown(cheat_inRun_spawnBugs_tier3))
+            {
+                // Spawn 100 tier 3 bugs
+                EnemiesManager.instance.CheatSpawnRandomBugs(100, tier: 3, speed: 0.9f);
+            }
+            if (rewiredPlayer.GetButtonDown(cheat_inRun_spawnBugs_tier4))
+            {
+                // Spawn 100 tier 4 bugs
+                EnemiesManager.instance.CheatSpawnRandomBugs(100, tier: 4, speed: 0.8f);
+            }
+            if (rewiredPlayer.GetButtonDown(cheat_inRun_spawnBugs_tier5))
+            {
+                // Spawn 100 tier 5 bugs
+                EnemiesManager.instance.CheatSpawnRandomBugs(100, tier: 5, speed: 0.8f);
+            }
+            if (rewiredPlayer.GetButtonDown(cheat_inRun_removeBugs))
+            {
+                // Unspawn all bugs
+                EnemiesManager.instance.ClearAllEnemies();
+            }
+            if (rewiredPlayer.GetButtonDown(cheat_inRun_fullHeal))
+            {
+                // Full Heal
+                Heal(100000);
+            }
+            if (rewiredPlayer.GetButtonDown(cheat_inRun_speedUp))
+            {
+                // Speed +10%
+                walkSpeedBoost += 0.1f;
+                swimSpeedBoost += 0.1f;
+            }
+            if (rewiredPlayer.GetButtonDown(cheat_inRun_addRerolls))
+            {
+                // +10 rerolls
+                rerolls += 10;
+                RunManager.instance.rerollsAvailable = true;
+            }
+            if (rewiredPlayer.GetButtonDown(cheat_inRun_megaMagnet))
+            {
+                // Mega Magnet!
+                CollectiblesManager.instance.ApplyMegaMagnet();
+            }
+            if (rewiredPlayer.GetButtonDown(cheat_inRun_armorPlus))
+            {
+                // +1 Armor
+                armor += 1;
+            }
+            if (rewiredPlayer.GetButtonDown(cheat_inRun_rangePlus))
+            {
+                // +10% range
+                attackRangeBoost += 0.1f;
+            }
+            if (rewiredPlayer.GetButtonDown(cheat_inRun_scorePlus))
+            {
+                // +100 score (kills)
+                RunManager.instance.IncreaseKillCount(100);
+            }
+            if (rewiredPlayer.GetButtonDown(cheat_inRun_maxHPPlus))
+            {
+                // +25 Max HP
+                healthBar.IncreaseMaxHealth(25);
+            }
+            if (rewiredPlayer.GetButtonDown(cheat_inRun_addHat))
+            {
+                // Add a random hat
+                AddHat((HatType)(Random.Range(0, 3)));
+            }
+            if (rewiredPlayer.GetButtonDown(cheat_inRun_removeHats))
+            {
+                // Clear hats
+                ClearHats();
+            }
+            if (rewiredPlayer.GetButtonDown(cheat_inRun_addFrend))
+            {
+                // Add a random frend                
+                FriendType friendType = (FriendType)(Random.Range(0, System.Enum.GetValues(typeof(FriendType)).Length));
+                Vector2 frogPosition = new Vector2(this.transform.position.x, this.transform.position.y);
+                FriendsManager.instance.AddActiveFriend(friendType, frogPosition + Random.insideUnitCircle.normalized);
+            }
+            if (rewiredPlayer.GetButtonDown(cheat_inRun_removeFrends))
+            {
+                // Clear frends
+                FriendsManager.instance.ClearAllFriends();
+            }
+        }
+
+        // Anytime Cheats
+        if (rewiredPlayer.GetButtonDown(cheat_getFroins))
+        {
+            // Get 10k Froins
+            GameManager.instance.ChangeAvailableCurrency(10000);
+            UIManager.instance.UpdateCurrencyDisplay();
+        }
+        if (rewiredPlayer.GetButtonDown(cheat_unlockAllQuests))
+        {
+            // Unlock all quests/achievements
+            AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true, true);
+        }
+        if (rewiredPlayer.GetButtonDown(cheat_toggleVersionNumber))
+        {
+            // Show/Hide version number
+            UIManager.instance.ToggleVersionNumberVisible();
+        }
+
+        /*
+        if (rewiredPlayer.GetButtonDown(cheat_steam_clearAchievements))
+        {
+            // Clear all achievements on Steam
+            AchievementManager.instance.ClearAllSteamAchievements();
+        }*/
+
+        return ;
+    }
+
+    #endregion
 }

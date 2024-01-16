@@ -891,4 +891,9 @@ public class UIManager : MonoBehaviour
             Debug.Log(screen.name + " doesn't have a canvas group");
         }
     }
+
+    public void ToggleVersionNumberVisible()
+    {
+        versionNumberText.enabled = !versionNumberText.enabled;
+    }
 }
