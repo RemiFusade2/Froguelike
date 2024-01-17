@@ -1,8 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.EventSystems;
 
 
 /// <summary>
@@ -17,13 +16,17 @@ public class CollectibleInstance
     public bool active;
     public bool captured;
 
+    public bool usesMagnet;
+    public bool runsAwayFromFrog;
+
     public Vector2 moveDirection;
-    public float lastUpdateTime;
+    public float lastChangeOfDirectionTime;
 
     // References to Components
     public Transform collectibleTransform;
     public Rigidbody2D collectibleRigidbody;
     public SpriteRenderer collectibleRenderer;
+    public Animator collectibleAnimator;
     public Collider2D collectibleCollider;
 }
 
@@ -60,6 +63,13 @@ public class CollectiblesManager : MonoBehaviour
     [Header("Settings - Magnet")]
     public float collectMinDistance = 1.5f;
 
+    [Header("Settings - Moving collectibles")]
+    public float movingCollectiblesDefaultSpeed = 1;
+    public float movingCollectiblesDelayBetweenDirectionChange = 2;
+    [Space]
+    public float movingCollectiblesSafeDistanceWithFrog = 8;
+    public float movingCollectiblesEscapeSpeed = 4;
+
     [Header("Settings - Spawn")]
     public float collectibleSpawnMinPushForce = 5;
     public float collectibleSpawnMaxPushForce = 7;
@@ -71,6 +81,8 @@ public class CollectiblesManager : MonoBehaviour
     private Queue<CollectibleInstance> inactiveCollectiblesPool; // Used to grab an inactive collectible instance and use it
 
     private Queue<CollectibleInstance> capturedCollectiblesQueue; // Used to update all captured collectibles and move them towards the frog
+
+    private Queue<CollectibleInstance> movingCollectiblesQueue; // Used to update collectibles that always move (like bugs) and try to escape the frog
 
     private Coroutine updateCollectiblesCoroutine;
 
@@ -89,6 +101,7 @@ public class CollectiblesManager : MonoBehaviour
         }
 
         capturedCollectiblesQueue = new Queue<CollectibleInstance>();
+        movingCollectiblesQueue = new Queue<CollectibleInstance>();
     }
 
     private void Start()
@@ -140,6 +153,7 @@ public class CollectiblesManager : MonoBehaviour
             collectible.collectibleRigidbody = collectibleGameObject.GetComponent<Rigidbody2D>();
             collectible.collectibleCollider = collectibleGameObject.GetComponent<Collider2D>();
             collectible.collectibleRenderer = collectibleGameObject.GetComponent<SpriteRenderer>();
+            collectible.collectibleAnimator = collectibleGameObject.GetComponent<Animator>();
 
             PutCollectibleInThePool(collectible);
         }
@@ -154,6 +168,7 @@ public class CollectiblesManager : MonoBehaviour
 
         collectible.collectibleTransform.position = DataManager.instance.GetFarAwayPosition();
         collectible.collectibleRenderer.enabled = false;
+        collectible.collectibleAnimator.SetInteger("style", 0);
         collectible.collectibleRigidbody.velocity = Vector2.zero;
         collectible.collectibleRigidbody.simulated = false;
         collectible.collectibleCollider.enabled = false;
@@ -172,6 +187,7 @@ public class CollectiblesManager : MonoBehaviour
     {
         // Clear Magnet collectibles
         capturedCollectiblesQueue.Clear();
+        movingCollectiblesQueue.Clear();
         foreach (CollectibleInstance collectible in allCollectibles)
         {
             if (collectible.active)
@@ -201,8 +217,8 @@ public class CollectiblesManager : MonoBehaviour
         {
             CollectibleInfo collectibleInfo = DataManager.instance.GetCollectibleInfoFromType(collectibleType);
 
-            // Set Icon
-            int iconIndex = 0;
+            // Set Animation style (appearance)
+            int animationIndex = 0;
             if (collectibleInfo.MinValueForIcons != null && collectibleInfo.MinValueForIcons.Count > 0)
             {
                 int index = 0;
@@ -210,16 +226,16 @@ public class CollectiblesManager : MonoBehaviour
                 {
                     if (bonusValue >= minValue)
                     {
-                        iconIndex = index;
+                        animationIndex = index;
                     }
                     index++;
                 }
             }
-            iconIndex = Mathf.Clamp(iconIndex, 0, collectibleInfo.Icons.Count - 1);
+            animationIndex = Mathf.Clamp(animationIndex, 0, collectibleInfo.AnimationStyles.Count - 1);
 
-            Sprite collectibleIcon = collectibleInfo.Icons[iconIndex];
-            collectible.collectibleRenderer.sprite = collectibleIcon;
             collectible.collectibleRenderer.enabled = true;
+            int animationStyle = collectibleInfo.AnimationStyles[animationIndex];
+            collectible.collectibleAnimator.SetInteger("style", animationStyle);
 
             // Set type and value
             collectible.collectibleType = collectibleType;
@@ -227,6 +243,38 @@ public class CollectiblesManager : MonoBehaviour
 
             // Set position
             collectible.collectibleTransform.position = position;
+
+            // Set movement behaviour
+            switch (collectibleType)
+            {
+                case CollectibleType.XP_BONUS:
+                case CollectibleType.FROINS:
+                case CollectibleType.HEALTH:
+                case CollectibleType.LEVEL_UP:
+                    collectible.usesMagnet = true;
+                    collectible.runsAwayFromFrog = false;
+                    break;
+                case CollectibleType.POWERUP_MEGAMAGNET:
+                case CollectibleType.POWERUP_FRIENDSFRENZY:
+                case CollectibleType.POWERUP_FREEZEALL:
+                case CollectibleType.POWERUP_POISONALL:
+                case CollectibleType.POWERUP_CURSEALL:
+                case CollectibleType.POWERUP_GODMODE:
+                case CollectibleType.POWERUP_LEVELDOWNBUGS:
+                case CollectibleType.POWERUP_LEVELUPBUGS:
+                    collectible.usesMagnet = false;
+                    collectible.active = true;
+                    collectible.runsAwayFromFrog = true;
+                    // Set a default move direction that goes away from the frog
+                    collectible.moveDirection = (collectible.collectibleTransform.position - GameManager.instance.player.transform.position).normalized;
+                    collectible.collectibleRigidbody.velocity = collectible.moveDirection * movingCollectiblesDefaultSpeed;
+                    movingCollectiblesQueue.Enqueue(collectible);
+                    if (verboseLevel == VerboseLevel.MAXIMAL)
+                    {
+                        Debug.Log($"Enqueue moving collectible {collectible.collectibleTransform.name}");
+                    }
+                    break;
+            }
 
             if (pushAwayForce > 0)
             {
@@ -303,7 +351,7 @@ public class CollectiblesManager : MonoBehaviour
     public void CaptureCollectible(Transform collectibleTransform)
     {
         CollectibleInstance collectible = GetCollectibleInstanceFromGameObject(collectibleTransform.gameObject);
-        if (collectible != null)
+        if (collectible != null && collectible.usesMagnet)
         {
             CaptureCollectible(collectible);
         }
@@ -370,8 +418,82 @@ public class CollectiblesManager : MonoBehaviour
     {
         while (true)
         {
+            UpdateMovingCollectibles(updateCollectiblesCount);
             UpdateCapturedCollectibles(updateCollectiblesCount);
             yield return new WaitForSeconds(delay);
+        }
+    }
+
+    /// <summary>
+    /// Move the collectibles that try to escape the frog.
+    /// </summary>
+    private void UpdateMovingCollectibles(int maxCount)
+    {
+        if (GameManager.instance.isGameRunning)
+        {
+            // Update velocity of all moving collectibles:
+            // Far from the frog = moves around randomly
+            // Close to the frog = attempt to move away from it 
+            Transform playerTransform = GameManager.instance.player.transform;
+
+            int collectiblesToUpdateCount = Mathf.Min(movingCollectiblesQueue.Count, maxCount);
+            float distanceWithFrog;
+            Vector2 directionTowardsFrog;
+            for (int i = 0; i < collectiblesToUpdateCount; i++)
+            {
+                if (movingCollectiblesQueue.TryDequeue(out CollectibleInstance collectible))
+                {
+                    // Get distance with Frog
+                    directionTowardsFrog = (playerTransform.position - collectible.collectibleTransform.position);
+                    distanceWithFrog = directionTowardsFrog.magnitude;
+
+                    if (distanceWithFrog < collectMinDistance)
+                    {
+                        // Collect
+                        if (verboseLevel == VerboseLevel.MAXIMAL)
+                        {
+                            Debug.Log($"Collect moving collectible {collectible.collectibleTransform.name}");
+                        }
+                        RunManager.instance.CollectCollectible(collectible.collectibleType, collectible.collectibleValue);
+                        PutCollectibleInThePool(collectible);
+                    }
+                    else if (distanceWithFrog < movingCollectiblesSafeDistanceWithFrog)
+                    {
+                        // Collectible attempts to escape frog
+                        collectible.moveDirection = -directionTowardsFrog.normalized;
+                        collectible.collectibleRigidbody.velocity = collectible.moveDirection * movingCollectiblesEscapeSpeed;
+                        collectible.collectibleAnimator.SetFloat("speed", movingCollectiblesEscapeSpeed);
+                        collectible.lastChangeOfDirectionTime = Time.time;
+                    }
+                    else
+                    {
+                        // Collectible moves around randomly
+                        if (Time.time - collectible.lastChangeOfDirectionTime > movingCollectiblesDelayBetweenDirectionChange)
+                        {
+                            // Set new random direction
+                            collectible.moveDirection = Random.insideUnitCircle.normalized;
+                            collectible.collectibleRigidbody.velocity = collectible.moveDirection * movingCollectiblesDefaultSpeed;
+                            collectible.lastChangeOfDirectionTime = Time.time;
+                            if (verboseLevel == VerboseLevel.MAXIMAL)
+                            {
+                                Debug.Log($"Changed direction of moving collectible {collectible.collectibleTransform.name} to {collectible.moveDirection.ToString()}");
+                            }
+                        }
+                        else
+                        {
+                            // Keep moving in the same direction
+                            collectible.collectibleRigidbody.velocity = collectible.moveDirection * movingCollectiblesDefaultSpeed;
+                        }
+                        collectible.collectibleAnimator.SetFloat("speed", movingCollectiblesDefaultSpeed);
+                    }
+
+                    // If that collectible is still active, we'll update it again next time
+                    if (collectible.active)
+                    {
+                        movingCollectiblesQueue.Enqueue(collectible);
+                    }
+                }
+            }
         }
     }
 

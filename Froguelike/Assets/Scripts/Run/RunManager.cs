@@ -1502,13 +1502,21 @@ public class RunManager : MonoBehaviour
                 }
                 break;
             case CollectibleType.POWERUP_FRIENDSFRENZY:
-                // Spawn a bunch of friends of any type around the frog
+                // Spawn a bunch of friends around the frog
                 // They will behave as "temporary friends" = stick around for a short time and then wander away
                 for (int i = 0; i < DataManager.instance.powerUpFriendsFrenzyAmount; i++)
                 {
                     Vector2 friendPosition = GameManager.instance.player.transform.position;
                     friendPosition += Random.insideUnitCircle.normalized * DataManager.instance.powerUpFriendsFrenzySpawnDistanceFromPlayer;
-                    FriendType friendType = (FriendType)Random.Range(0, System.Enum.GetValues(typeof(FriendType)).Length);
+                    FriendType friendType = FriendType.GHOST; // Default is Ghost
+                    if (!currentPlayedCharacter.characterID.Equals("GHOST"))
+                    {
+                        // If we're not playing as Ghost, then friends can be any frog but ghosts
+                        do {
+                            friendType = (FriendType)Random.Range(0, System.Enum.GetValues(typeof(FriendType)).Length);
+                        } while (friendType == FriendType.GHOST);
+                    }
+
                     FriendsManager.instance.AddActiveFriend(friendType, friendPosition, temporary: true, lifespan: DataManager.instance.powerUpFriendsFrenzyLifespan);
                 }
                 SoundManager.instance.PlayFreezeAllSound();
