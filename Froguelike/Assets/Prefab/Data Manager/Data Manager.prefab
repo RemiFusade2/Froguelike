@@ -52,9 +52,8 @@ MonoBehaviour:
   defaultStatItemSlotCount: 4
   defaultWeaponSlotCount: 4
   baseCurrencyProbabilitySpawnFromBugs: 0.1
-  baseCurrencyValueSpawnFromBugs: 1
   capturedCollectiblesSpeed: 12
-  defaultWeaponEffectColor: {r: 0, g: 0, b: 0, a: 0}
+  defaultWeaponEffectColor: {r: 0.91372555, g: 0.53333336, b: 0.8117648, a: 1}
   allWeaponEffectsDataList:
   - effect: 0
     color: {r: 0.91372555, g: 0.53333336, b: 0.8117648, a: 1}
@@ -285,9 +284,9 @@ MonoBehaviour:
   - frequency: 1
     probability: {x: 0, y: 0.02}
   - frequency: 2
-    probability: {x: 0.05, y: 0.3}
+    probability: {x: 0.05, y: 0.2}
   - frequency: 3
-    probability: {x: 0.5, y: 1}
+    probability: {x: 0.2, y: 0.4}
   collectibleLevelUpSpawnProbabilities:
   - frequency: 1
     probability: {x: 0, y: 0.01}
@@ -306,9 +305,9 @@ MonoBehaviour:
   powerUpPoisonDuration: 10
   powerUpCurseDuration: 10
   powerUpGodModeDuration: 10
-  powerUpFriendsFrenzyAmount: 100
+  powerUpFriendsFrenzyAmount: 80
   powerUpFriendsFrenzyLifespan: 15
-  powerUpFriendsFrenzySpawnDistanceFromPlayer: 30
+  powerUpFriendsFrenzySpawnDistanceFromPlayer: 23
   collectibleDefaultSprite: {fileID: 21300000, guid: 68abefe47b6919f45b674f7fa1fc656e, type: 3}
   achievementLockedDefaultSprite: {fileID: 0}
   achievementUnlockedDefaultSprite: {fileID: 0}
@@ -321,73 +320,55 @@ MonoBehaviour:
   magnetCollectiblesIconsList:
   - Name: Froins
     Type: 0
-    Icons:
-    - {fileID: -1520487074, guid: 8076b5f5641054155974be4391c7f9c2, type: 3}
-    - {fileID: -1045211891, guid: 07c3e0dd384be4cc493ab32ee834375b, type: 3}
-    - {fileID: 642768203, guid: 4abef6a5bcf1341e99a911e0a7b3fae0, type: 3}
-    MinValueForIcons: 
+    AnimationStyles: 150000001600000017000000
+    MinValueForIcons: 00000000050000000a000000
   - Name: XP
     Type: 1
-    Icons:
-    - {fileID: 1638368131, guid: 2e5dace59f3134be2a18be4c0c965277, type: 3}
-    - {fileID: -1901956748, guid: 49f8300deb4714f30b0d384925e83d8f, type: 3}
-    - {fileID: 1600579060, guid: dc7e7c3d613094b88ab555a1e82135f7, type: 3}
-    - {fileID: -2007735545, guid: 4a376f5674cfe490b9ba45204e87ef21, type: 3}
-    MinValueForIcons: 
+    AnimationStyles: 0b0000000c0000000d0000000e000000
+    MinValueForIcons: 00000000050000001900000032000000
   - Name: LevelUp
     Type: 2
-    Icons:
-    - {fileID: -2082168471, guid: e9863cd36f31645eaa5aa26f082773d5, type: 3}
+    AnimationStyles: 28000000
     MinValueForIcons: 
   - Name: HP
     Type: 3
-    Icons:
-    - {fileID: 21300000, guid: 8ebbcd0a99ccd4019ab30231da9f218a, type: 3}
-    MinValueForIcons: 
-  - Name: FreezeAll
-    Type: 4
-    Icons:
-    - {fileID: 21300000, guid: 26c990268b83ee943b7f58b3084e5f50, type: 3}
-    MinValueForIcons: 
-  - Name: PoisonAll
-    Type: 5
-    Icons:
-    - {fileID: 21300000, guid: 045f00d928b2d3d4082fbd2b7fe6e79e, type: 3}
-    MinValueForIcons: 
-  - Name: CurseAll
-    Type: 6
-    Icons:
-    - {fileID: 21300000, guid: 4c6f4120e7a69364da1a4c828a76ad98, type: 3}
-    MinValueForIcons: 
-  - Name: GodMode
-    Type: 7
-    Icons:
-    - {fileID: 21300000, guid: 0dfbde84a31a228499723094d03ae7a5, type: 3}
+    AnimationStyles: 1f000000200000002100000022000000
+    MinValueForIcons: 000000001400000064000000e8030000
+  - Name: MegaMagnet
+    Type: 9
+    AnimationStyles: 32000000
     MinValueForIcons: 
   - Name: FriendsFrenzy
     Type: 8
-    Icons:
-    - {fileID: 21300000, guid: 2187e0c6de7b4404086a7132b4f5d297, type: 3}
+    AnimationStyles: 33000000
     MinValueForIcons: 
-  - Name: MegaMagnet
-    Type: 9
-    Icons:
-    - {fileID: 21300000, guid: 7ebd3b02491cbb74296091e093f0b258, type: 3}
+  - Name: CurseAll
+    Type: 6
+    AnimationStyles: 34000000
+    MinValueForIcons: 
+  - Name: FreezeAll
+    Type: 4
+    AnimationStyles: 35000000
+    MinValueForIcons: 
+  - Name: PoisonAll
+    Type: 5
+    AnimationStyles: 36000000
+    MinValueForIcons: 
+  - Name: GodMode
+    Type: 7
+    AnimationStyles: 37000000
     MinValueForIcons: 
   - Name: LevelUpBugs
     Type: 10
-    Icons:
-    - {fileID: 21300000, guid: 43cb194d915dd2943acfafc812ddf4d0, type: 3}
+    AnimationStyles: 38000000
     MinValueForIcons: 
   - Name: LevelDownBugs
     Type: 11
-    Icons:
-    - {fileID: 21300000, guid: 21882d01251953140ab42aced0029a27, type: 3}
+    AnimationStyles: 39000000
     MinValueForIcons: 
   - Name: Teleport
     Type: 12
-    Icons:
-    - {fileID: 21300000, guid: 9e841501a14e22f488f00bf33a574496, type: 3}
+    AnimationStyles: 3a000000
     MinValueForIcons: 
   hatInfoList:
   - hatType: 0

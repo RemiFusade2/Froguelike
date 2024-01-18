@@ -1364,16 +1364,16 @@ public class EnemiesManager : MonoBehaviour
                 else if (newTier > 5)
                 {
                     // Spawn the same enemy but with a bounty
-                    BountyBug bountyBug = new BountyBug(enemyData.enemyType, 100, 5, 2, enemyMovePattern);
-                    bountyBug.bountyList.Add( new Bounty() { collectibleType = CollectibleType.FROINS, amount = 10 });
-                    bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 5 });
-                    StartCoroutine(SpawnEnemyAsync(enemyData.prefab, enemyPosition, enemyData, enemyMovePattern, enemyInstance.wave, 0.01f, 5, neverDespawn: true, bounty: bountyBug, forceMovementDirection: true, moveDirection: enemyMoveDirection));
+                    BountyBug bountyBug = new BountyBug(enemyData.enemyType, 100, 2, 20, enemyMovePattern);
+                    bountyBug.bountyList.Add( new Bounty() { collectibleType = CollectibleType.FROINS, amount = 10, value = 10 });
+                    bountyBug.bountyList.Add( new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 10, value = 50 });
+                    StartCoroutine(SpawnEnemyAsync(enemyData.prefab, enemyPosition, enemyData, enemyMovePattern, enemyInstance.wave, delay: 0.01f, difficultyTier: 5, neverDespawn: true, bounty: bountyBug, forceMovementDirection: true, moveDirection: enemyMoveDirection));
                 }
                 else
                 {
                     // Spawn a new enemy with new tier
                     GameObject enemyPrefab = enemyData.prefab;
-                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, enemyPosition, enemyData, enemyMovePattern, enemyInstance.wave, 0.01f, newTier, forceMovementDirection: true, moveDirection: enemyMoveDirection));
+                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, enemyPosition, enemyData, enemyMovePattern, enemyInstance.wave, delay: 0.01f, newTier, forceMovementDirection: true, moveDirection: enemyMoveDirection));
                 }
                 // Unspawn that enemy
                 enemyInstance.enemyRenderer.enabled = false;
@@ -1522,11 +1522,7 @@ public class EnemiesManager : MonoBehaviour
                 {
                     for (int i = 0; i < bounty.amount; i++)
                     {
-                        int value = 1;
-                        value = (bounty.collectibleType == CollectibleType.HEALTH ? 100 : value);
-                        value = (bounty.collectibleType == CollectibleType.FROINS ? 10 : value);
-                        value = (bounty.collectibleType == CollectibleType.XP_BONUS ? 10 : value);
-                        CollectiblesManager.instance.SpawnCollectible(enemyInstance.enemyTransform.position, bounty.collectibleType, value, pushAwayForce: bounty.amount);
+                        CollectiblesManager.instance.SpawnCollectible(enemyInstance.enemyTransform.position, bounty.collectibleType, bounty.value, pushAwayForce: bounty.amount);
                     }
                 }
 
@@ -1554,14 +1550,22 @@ public class EnemiesManager : MonoBehaviour
             CollectiblesManager.instance.SpawnCollectible(xpSpawnPosition, CollectibleType.XP_BONUS, XPEarned);
 
             // Spawn Froins (a chance to get froins when killing a bug)
-            Vector2 currencyProbabilityMinMax = new Vector2(0, DataManager.instance.baseCurrencyProbabilitySpawnFromBugs * (1 + GameManager.instance.player.currencyBoost));
-            float currencyProba = Random.Range(currencyProbabilityMinMax.x, currencyProbabilityMinMax.y);
-            float currencyAmount = Mathf.Floor(currencyProba) + ((Random.Range(Mathf.Floor(currencyProba), Mathf.Ceil(currencyProba)) < currencyProba) ? 1 : 0);
-            long currencyAmountLong = (long)Mathf.RoundToInt(currencyAmount);
-            for (int i = 0; i < currencyAmountLong; i++)
+            float probabilityToSpawn1SmolFroin = DataManager.instance.baseCurrencyProbabilitySpawnFromBugs * (1 + GameManager.instance.player.currencyBoost); // worth 1 Froin
+            float probabilityToSpawn1BigFroin = probabilityToSpawn1SmolFroin / 10; // worth 5 Froins
+            float spawnFroinsRoll = Random.Range(0, 1f);
+            float valueOfFroinSpawned = 0;
+            if (spawnFroinsRoll <= probabilityToSpawn1BigFroin)
             {
-                Vector3 froinsSpawnPosition = enemyInstance.enemyTransform.position + 0.4f * Random.onUnitSphere.normalized;
-                CollectiblesManager.instance.SpawnCollectible(froinsSpawnPosition, CollectibleType.FROINS, DataManager.instance.baseCurrencyValueSpawnFromBugs) ;
+                valueOfFroinSpawned = 5;
+            } else if (spawnFroinsRoll <= probabilityToSpawn1SmolFroin)
+            {
+                valueOfFroinSpawned = 1;
+            }
+            if (valueOfFroinSpawned > 0)
+            {
+                // Spawn froin
+                Vector3 froinsSpawnPosition = enemyInstance.enemyTransform.position;
+                CollectiblesManager.instance.SpawnCollectible(froinsSpawnPosition, CollectibleType.FROINS, bonusValue: valueOfFroinSpawned, pushAwayForce: 1);
             }
 
             PutEnemyInThePool(enemyInstance);

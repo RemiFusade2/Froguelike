@@ -154,8 +154,7 @@ public class DataManager : MonoBehaviour
     public float defaultMagnetRange = 3.0f;
     public int defaultStatItemSlotCount = 4;
     public int defaultWeaponSlotCount = 4;
-    public float baseCurrencyProbabilitySpawnFromBugs = 0.1f; // 10% chance to drop 1 froin when eating a bug
-    public float baseCurrencyValueSpawnFromBugs = 1;
+    public float baseCurrencyProbabilitySpawnFromBugs = 0.25f; // 25% chance to drop 1 froin when eating a bug
     [Space]
     public float capturedCollectiblesSpeed = 12;
 

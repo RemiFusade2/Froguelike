@@ -79,6 +79,7 @@ public class RunManager : MonoBehaviour
     public FrogCharacterController player;
     public Transform fliesParent;
     public ParticleSystem levelUpParticleSystem;
+    public ParticleSystem confettiParticleSystem;
 
     [Header("References - UI")]
     public Slider xpSlider;
@@ -1437,7 +1438,7 @@ public class RunManager : MonoBehaviour
         switch (collectibleType)
         {
             case CollectibleType.FROINS:
-                int collectedCurrency = Mathf.RoundToInt(collectibleValue * (1 + player.currencyBoost));
+                int collectedCurrency = Mathf.RoundToInt(collectibleValue);
                 IncreaseCollectedCurrency(collectedCurrency);
                 SoundManager.instance.PlayPickUpFroinsSound();
 
@@ -1504,6 +1505,8 @@ public class RunManager : MonoBehaviour
             case CollectibleType.POWERUP_FRIENDSFRENZY:
                 // Spawn a bunch of friends around the frog
                 // They will behave as "temporary friends" = stick around for a short time and then wander away
+                PlayConfettis();
+                SoundManager.instance.PlayPartySound();
                 for (int i = 0; i < DataManager.instance.powerUpFriendsFrenzyAmount; i++)
                 {
                     Vector2 friendPosition = GameManager.instance.player.transform.position;
@@ -1519,7 +1522,6 @@ public class RunManager : MonoBehaviour
 
                     FriendsManager.instance.AddActiveFriend(friendType, friendPosition, temporary: true, lifespan: DataManager.instance.powerUpFriendsFrenzyLifespan);
                 }
-                SoundManager.instance.PlayFreezeAllSound();
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                 {
                     Debug.Log("Run - Collected Friends Frenzy power-up");
@@ -1746,4 +1748,12 @@ public class RunManager : MonoBehaviour
     }
 
     #endregion
+
+    /// <summary>
+    /// Play the confetti particle effect
+    /// </summary>
+    public void PlayConfettis()
+    {
+        confettiParticleSystem.Play();
+    }
 }

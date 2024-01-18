@@ -263,6 +263,12 @@ public class SoundManager : MonoBehaviour
         RuntimeManager.PlayOneShot(powerUpFreezeAllSound);
     }
 
+    public void PlayPartySound()
+    {
+        // TODO: have a specific sound for when you start a party (pick up the Friend Frenzy collectible)
+        RuntimeManager.PlayOneShot(powerUpFreezeAllSound);
+    }
+
     public void PlayCreditFrogCroakingSound()
     {
         // TODO: have a specific sound for when you click on a frog on the credits screen?

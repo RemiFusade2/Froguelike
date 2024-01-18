@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 /// <summary>
 /// MapBehaviour is the class that generates the map as the character moves.
@@ -160,27 +161,49 @@ public class MapBehaviour : MonoBehaviour
 
             // generate currency collectibles
             Vector2 currencyMinMax = DataManager.instance.GetSpawnProbability("currency", currentPlayedChapter.chapterData.coinsSpawnFrequency);
-            float currencyProba = Random.Range(currencyMinMax.x, currencyMinMax.y);
+            float currencyBonusFactor = 1 + RunManager.instance.player.currencyBoost;
+            float currencyProba = Random.Range(currencyMinMax.x * currencyBonusFactor, currencyMinMax.y * currencyBonusFactor);
             float currencyAmount = Mathf.Floor(currencyProba) + ((Random.Range(Mathf.Floor(currencyProba), Mathf.Ceil(currencyProba)) < currencyProba) ? 1 : 0);
-            for (int i = 0; i < currencyAmount; i++)
+            currencyAmount *= 10;
+            float spawnedCurrency = 0;
+            while (spawnedCurrency < currencyAmount)
             {
                 if (GetRandomSpawnPositionOnTile(tileCoordinates, out Vector2 position))
                 {
-                    int chapterMultiplicator = 1; // RunManager.instance.completedChaptersList.Count + 1;
-                    int bonusValue = chapterMultiplicator * 10;
+                    int bonusValue = Random.Range(1, 3) * 5;
                     CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.FROINS, bonusValue);
+                    spawnedCurrency += bonusValue;
                 }
             }
 
             // generate health collectibles
             Vector2 healthMinMax = DataManager.instance.GetSpawnProbability("health", currentPlayedChapter.chapterData.healthSpawnFrequency);
-            float healthProba = Random.Range(healthMinMax.x, healthMinMax.y);
-            float healthAmount = Mathf.Floor(healthProba) + ((Random.Range(Mathf.Floor(healthProba), Mathf.Ceil(healthProba)) < healthProba) ? 1 : 0);
-            for (int i = 0; i < healthAmount; i++)
+            float healthAmount = Random.Range(healthMinMax.x, healthMinMax.y) * 100;
+            float smolHealthValue = 20;
+            float bigHealthValue = 100;
+            bool skipBigHealth = false;
+            while (healthAmount > 0)
             {
-                if (GetRandomSpawnPositionOnTile(tileCoordinates, out Vector2 position))
+                skipBigHealth = (Random.Range(0, 2) == 0);
+                if (!skipBigHealth && Random.Range(0, bigHealthValue) < healthAmount)
                 {
-                    CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.HEALTH, 200);
+                    if (GetRandomSpawnPositionOnTile(tileCoordinates, out Vector2 position))
+                    {
+                        CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.HEALTH, bigHealthValue);
+                        healthAmount -= bigHealthValue;
+                    }
+                }
+                else if (smolHealthValue < healthAmount || Random.Range(0, smolHealthValue) < healthAmount)
+                {
+                    if (GetRandomSpawnPositionOnTile(tileCoordinates, out Vector2 position))
+                    {
+                        CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.HEALTH, smolHealthValue);
+                        healthAmount -= smolHealthValue;
+                    }
+                }
+                else
+                {
+                    healthAmount -= smolHealthValue;
                 }
             }
 

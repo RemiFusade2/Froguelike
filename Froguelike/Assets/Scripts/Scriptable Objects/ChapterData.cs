@@ -219,8 +219,10 @@ public class Bounty
 {
     [Tooltip("Type of reward")]
     public CollectibleType collectibleType;
-    [Tooltip("Amount of reward")]
+    [Tooltip("Amount of rewards")]
     public int amount;
+    [Tooltip("Value of rewards")]
+    public int value;
 }
 
 /// <summary>
