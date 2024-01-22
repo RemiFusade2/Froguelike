@@ -16,8 +16,9 @@ MonoBehaviour:
   partOfDemo: 1
   chapterTitle: Wasp Retribution
   chapterLore:
-  - Wasps are good friends with flies, and you ate so many flies! Now Wasps seek
-    revenge. Their powerful sting will chase you to the end of the swamp.
+  - Wasps are good friends with flies, and I ate so many flies... Now Wasps seek
+    to avenge their friends! Their powerful stings are ready to chase me to the end
+    of the swamp.
   icons: []
   startingStatBonuses:
     statsList: []
@@ -56,7 +57,11 @@ MonoBehaviour:
   coinsSpawnFrequency: 1
   healthSpawnFrequency: 0
   levelUpSpawnFrequency: 1
-  otherCollectibleSpawnFrequenciesList: []
+  otherCollectibleSpawnFrequenciesList:
+  - Type: 4
+    Frequency: 1
+  - Type: 5
+    Frequency: 2
   specialCollectiblesOnTheMap:
   - tileCoordinates: {x: 0, y: 15}
     tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
@@ -93,12 +98,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8c8d59ae3e03f7f46b999f5c8086a0fd, type: 2}
   - {fileID: 11400000, guid: f2780a5be1fb8264bb66d1f8f568b837, type: 2}
   bountyBugs:
-  - spawnTime: 180
+  - spawnTime: 90
     enemyType: 4
     tierFormula: 1
     hpMultiplier: 100
-    damageMultiplier: 4
-    xpMultiplier: 2
+    damageMultiplier: 2
+    xpMultiplier: 20
     movePattern:
       movePatternType: 2
       speedFactor: 2
@@ -108,21 +113,13 @@ MonoBehaviour:
     bountyList:
     - collectibleType: 1
       amount: 10
-  - spawnTime: 180
-    enemyType: 4
-    tierFormula: 1
-    hpMultiplier: 100
-    damageMultiplier: 4
-    xpMultiplier: 2
-    movePattern:
-      movePatternType: 2
-      speedFactor: 2
-      bouncecount: 0
-    outlineThicknessOverride: 1
-    outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
-    bountyList:
+      value: 5
     - collectibleType: 1
-      amount: 10
+      amount: 8
+      value: 25
+    - collectibleType: 1
+      amount: 3
+      value: 50
   weightChanges:
   - chapter: {fileID: 11400000, guid: 56d529373366da340a168a51ed08a211, type: 2}
     weightChange: 1

@@ -16,8 +16,8 @@ MonoBehaviour:
   partOfDemo: 0
   chapterTitle: Anything is possible
   chapterLore:
-  - Stanley's friends called their friends, who then called their friends!\nNothing
-    is impossible when you have the support from that many frogs!
+  - My friends called their friends, who then called their friends!\nNothing is impossible
+    when you have the support from that many frogs!
   icons: []
   startingStatBonuses:
     statsList: []
@@ -73,14 +73,18 @@ MonoBehaviour:
       friendType: 0
       itemName: {fileID: 0}
       characterData: {fileID: 11400000, guid: 63cab506d07186443bfd2babb7702689, type: 2}
-      minFriendsCount: 4
+      minFriendsCount: 2
       maxFriendsCount: 10
   rocksSpawnFrequency: 1
   pondsSpawnFrequency: 2
   coinsSpawnFrequency: 1
   healthSpawnFrequency: 2
   levelUpSpawnFrequency: 0
-  otherCollectibleSpawnFrequenciesList: []
+  otherCollectibleSpawnFrequenciesList:
+  - Type: 9
+    Frequency: 1
+  - Type: 8
+    Frequency: 2
   specialCollectiblesOnTheMap:
   - tileCoordinates: {x: -5, y: -5}
     tilePrefab: {fileID: 2605690503437856400, guid: 0e64426fb7f518e4cb73888eba1c6545, type: 3}
@@ -199,17 +203,24 @@ MonoBehaviour:
     enemyType: 1
     tierFormula: 4
     hpMultiplier: 100
-    damageMultiplier: 3
-    xpMultiplier: 2
+    damageMultiplier: 2
+    xpMultiplier: 20
     movePattern:
       movePatternType: 1
-      speedFactor: 6
+      speedFactor: 3
       bouncecount: 0
     outlineThicknessOverride: 1
     outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
     bountyList:
     - collectibleType: 1
       amount: 30
+      value: 5
+    - collectibleType: 1
+      amount: 10
+      value: 25
+    - collectibleType: 1
+      amount: 5
+      value: 50
   weightChanges:
   - chapter: {fileID: 11400000, guid: b631c4e35cfaba542ac51b0cec2b02ff, type: 2}
     weightChange: 5

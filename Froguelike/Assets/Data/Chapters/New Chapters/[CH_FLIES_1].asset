@@ -16,8 +16,8 @@ MonoBehaviour:
   partOfDemo: 1
   chapterTitle: Flies pie
   chapterLore:
-  - There were many bugs living in my swamp. Flies were one of those. Today was the
-    day I realized how tasty these flies were!\nI was having my breakfast, until...
+  - There were many bugs living in my swamp.\nFlies were one of those. Today was
+    the day I realized how tasty these flies were!\nI was having my breakfast, until...
   icons: []
   startingStatBonuses:
     statsList: []
@@ -44,7 +44,11 @@ MonoBehaviour:
   coinsSpawnFrequency: 1
   healthSpawnFrequency: 1
   levelUpSpawnFrequency: 1
-  otherCollectibleSpawnFrequenciesList: []
+  otherCollectibleSpawnFrequenciesList:
+  - Type: 9
+    Frequency: 1
+  - Type: 5
+    Frequency: 2
   specialCollectiblesOnTheMap:
   - tileCoordinates: {x: 10, y: 9}
     tilePrefab: {fileID: 799068813537004447, guid: 3577fff562b74ae4cb6c4b7340b8b689, type: 3}

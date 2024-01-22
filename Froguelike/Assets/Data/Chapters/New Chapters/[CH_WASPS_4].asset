@@ -56,7 +56,13 @@ MonoBehaviour:
   coinsSpawnFrequency: 2
   healthSpawnFrequency: 0
   levelUpSpawnFrequency: 1
-  otherCollectibleSpawnFrequenciesList: []
+  otherCollectibleSpawnFrequenciesList:
+  - Type: 9
+    Frequency: 1
+  - Type: 6
+    Frequency: 1
+  - Type: 4
+    Frequency: 2
   specialCollectiblesOnTheMap:
   - tileCoordinates: {x: 12, y: 0}
     tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
@@ -111,14 +117,18 @@ MonoBehaviour:
     tierFormula: 5
     hpMultiplier: 100
     damageMultiplier: 2
-    xpMultiplier: 2
+    xpMultiplier: 20
     movePattern:
       movePatternType: 4
-      speedFactor: 5
+      speedFactor: 3
       bouncecount: 10
     outlineThicknessOverride: 1
     outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
     bountyList:
     - collectibleType: 2
       amount: 3
+      value: 1
+    - collectibleType: 1
+      amount: 10
+      value: 5
   weightChanges: []

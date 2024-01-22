@@ -16,8 +16,8 @@ MonoBehaviour:
   partOfDemo: 0
   chapterTitle: Love of Nature
   chapterLore:
-  - The frog spent days admiring the beauty of the garden. They began to appreciate
-    the role that their own toxicity played in the delicate balance of this ecosystem.
+  - I spent days admiring the beauty of that garden.\nI started to appreciate the
+    role that my own toxicity played in the delicate balance of this ecosystem.
   icons: []
   startingStatBonuses:
     statsList: []
@@ -68,7 +68,11 @@ MonoBehaviour:
   coinsSpawnFrequency: 1
   healthSpawnFrequency: 0
   levelUpSpawnFrequency: 1
-  otherCollectibleSpawnFrequenciesList: []
+  otherCollectibleSpawnFrequenciesList:
+  - Type: 9
+    Frequency: 1
+  - Type: 5
+    Frequency: 2
   specialCollectiblesOnTheMap:
   - tileCoordinates: {x: -9, y: 0}
     tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
@@ -107,154 +111,82 @@ MonoBehaviour:
   bountyBugs:
   - spawnTime: 1
     enemyType: 2
-    tierFormula: 3
+    tierFormula: 2
     hpMultiplier: 100
-    damageMultiplier: 3
-    xpMultiplier: 2
+    damageMultiplier: 2
+    xpMultiplier: 20
     movePattern:
       movePatternType: 2
-      speedFactor: 10
+      speedFactor: 4
       bouncecount: 0
     outlineThicknessOverride: 1
     outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
     bountyList:
-    - collectibleType: 2
-      amount: 1
-  - spawnTime: 1
+    - collectibleType: 1
+      amount: 15
+      value: 5
+    - collectibleType: 1
+      amount: 10
+      value: 25
+    - collectibleType: 3
+      amount: 10
+      value: 20
+  - spawnTime: 60
     enemyType: 2
     tierFormula: 3
     hpMultiplier: 100
-    damageMultiplier: 3
-    xpMultiplier: 2
+    damageMultiplier: 2
+    xpMultiplier: 20
     movePattern:
       movePatternType: 2
-      speedFactor: 10
+      speedFactor: 4
       bouncecount: 0
     outlineThicknessOverride: 1
     outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
     bountyList:
-    - collectibleType: 2
+    - collectibleType: 1
+      amount: 20
+      value: 5
+    - collectibleType: 1
+      amount: 15
+      value: 25
+    - collectibleType: 1
+      amount: 5
+      value: 50
+    - collectibleType: 3
+      amount: 10
+      value: 20
+    - collectibleType: 3
       amount: 1
-  - spawnTime: 1
-    enemyType: 2
-    tierFormula: 3
-    hpMultiplier: 100
-    damageMultiplier: 3
-    xpMultiplier: 2
-    movePattern:
-      movePatternType: 2
-      speedFactor: 10
-      bouncecount: 0
-    outlineThicknessOverride: 1
-    outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
-    bountyList:
-    - collectibleType: 2
-      amount: 1
-  - spawnTime: 1
-    enemyType: 2
-    tierFormula: 3
-    hpMultiplier: 100
-    damageMultiplier: 3
-    xpMultiplier: 2
-    movePattern:
-      movePatternType: 2
-      speedFactor: 10
-      bouncecount: 0
-    outlineThicknessOverride: 1
-    outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
-    bountyList:
-    - collectibleType: 2
-      amount: 1
-  - spawnTime: 1
-    enemyType: 2
-    tierFormula: 3
-    hpMultiplier: 100
-    damageMultiplier: 3
-    xpMultiplier: 2
-    movePattern:
-      movePatternType: 2
-      speedFactor: 10
-      bouncecount: 0
-    outlineThicknessOverride: 1
-    outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
-    bountyList:
-    - collectibleType: 2
-      amount: 1
-  - spawnTime: 1
+      value: 100
+  - spawnTime: 120
     enemyType: 2
     tierFormula: 4
     hpMultiplier: 100
-    damageMultiplier: 3
-    xpMultiplier: 2
+    damageMultiplier: 2
+    xpMultiplier: 20
     movePattern:
       movePatternType: 2
-      speedFactor: 10
+      speedFactor: 4
       bouncecount: 0
     outlineThicknessOverride: 1
     outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
     bountyList:
-    - collectibleType: 2
-      amount: 1
-  - spawnTime: 1
-    enemyType: 2
-    tierFormula: 4
-    hpMultiplier: 100
-    damageMultiplier: 3
-    xpMultiplier: 2
-    movePattern:
-      movePatternType: 2
-      speedFactor: 10
-      bouncecount: 0
-    outlineThicknessOverride: 1
-    outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
-    bountyList:
-    - collectibleType: 2
-      amount: 1
-  - spawnTime: 1
-    enemyType: 2
-    tierFormula: 4
-    hpMultiplier: 100
-    damageMultiplier: 3
-    xpMultiplier: 2
-    movePattern:
-      movePatternType: 2
-      speedFactor: 10
-      bouncecount: 0
-    outlineThicknessOverride: 1
-    outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
-    bountyList:
-    - collectibleType: 2
-      amount: 1
-  - spawnTime: 1
-    enemyType: 2
-    tierFormula: 4
-    hpMultiplier: 100
-    damageMultiplier: 3
-    xpMultiplier: 2
-    movePattern:
-      movePatternType: 2
-      speedFactor: 10
-      bouncecount: 0
-    outlineThicknessOverride: 1
-    outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
-    bountyList:
-    - collectibleType: 2
-      amount: 1
-  - spawnTime: 1
-    enemyType: 2
-    tierFormula: 4
-    hpMultiplier: 100
-    damageMultiplier: 3
-    xpMultiplier: 2
-    movePattern:
-      movePatternType: 2
-      speedFactor: 10
-      bouncecount: 0
-    outlineThicknessOverride: 1
-    outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
-    bountyList:
-    - collectibleType: 2
-      amount: 1
+    - collectibleType: 1
+      amount: 25
+      value: 5
+    - collectibleType: 1
+      amount: 20
+      value: 25
+    - collectibleType: 1
+      amount: 7
+      value: 50
+    - collectibleType: 3
+      amount: 15
+      value: 20
+    - collectibleType: 3
+      amount: 2
+      value: 100
   weightChanges:
   - chapter: {fileID: 11400000, guid: c97c079fa8fb0f84cb3522fe6bca439d, type: 2}
     weightChange: 5

@@ -16,9 +16,9 @@ MonoBehaviour:
   partOfDemo: 0
   chapterTitle: The Hero
   chapterLore:
-  - Ribbit began to eat the invasive plant. The plant was toxic, but they were immune
-    to its effects! Only Ribbit could save the garden, his toxicity was not a curse,
-    but a gift.
+  - I ate the invasive plant. The plant was toxic, but I was immune to its effects!
+    Only I could save the garden. This is the day I understood my toxicity was not
+    a curse, but a gift.
   icons: []
   startingStatBonuses:
     statsList: []
@@ -69,7 +69,13 @@ MonoBehaviour:
   coinsSpawnFrequency: 0
   healthSpawnFrequency: 3
   levelUpSpawnFrequency: 0
-  otherCollectibleSpawnFrequenciesList: []
+  otherCollectibleSpawnFrequenciesList:
+  - Type: 9
+    Frequency: 2
+  - Type: 7
+    Frequency: 2
+  - Type: 11
+    Frequency: 1
   specialCollectiblesOnTheMap:
   - tileCoordinates: {x: -8, y: 7}
     tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
@@ -105,5 +111,30 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0d74991de3ac18c46b450e2e4ea113c0, type: 2}
   - {fileID: 11400000, guid: 206b598e29673a541a9190ef41025775, type: 2}
   - {fileID: 11400000, guid: 9406d3aeba2d068469885dd18319f971, type: 2}
-  bountyBugs: []
+  bountyBugs:
+  - spawnTime: 1
+    enemyType: 2
+    tierFormula: 3
+    hpMultiplier: 100
+    damageMultiplier: 2
+    xpMultiplier: 20
+    movePattern:
+      movePatternType: 2
+      speedFactor: 4
+      bouncecount: 0
+    outlineThicknessOverride: 1
+    outlineColorOverride: {r: 0.9843138, g: 0.9921569, b: 0.9843138, a: 1}
+    bountyList:
+    - collectibleType: 0
+      amount: 30
+      value: 5
+    - collectibleType: 0
+      amount: 25
+      value: 10
+    - collectibleType: 3
+      amount: 10
+      value: 20
+    - collectibleType: 3
+      amount: 2
+      value: 100
   weightChanges: []

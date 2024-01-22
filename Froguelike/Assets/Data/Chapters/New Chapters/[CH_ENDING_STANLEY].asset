@@ -16,8 +16,8 @@ MonoBehaviour:
   partOfDemo: 0
   chapterTitle: Party
   chapterLore:
-  - Stanley has found his family again!\nA cat accompanied by frogs.\nLet's throw
-    a party for everyone! An all-you-can-eat flying buffet, and party hats!
+  - Stanley has found a new family!\nA cat accompanied by frogs.\nLet's throw a party
+    for everyone! An all-you-can-eat flying buffet, and party hats!
   icons: []
   startingStatBonuses:
     statsList: []
@@ -80,7 +80,13 @@ MonoBehaviour:
   coinsSpawnFrequency: 2
   healthSpawnFrequency: 1
   levelUpSpawnFrequency: 0
-  otherCollectibleSpawnFrequenciesList: []
+  otherCollectibleSpawnFrequenciesList:
+  - Type: 9
+    Frequency: 1
+  - Type: 8
+    Frequency: 3
+  - Type: 7
+    Frequency: 1
   specialCollectiblesOnTheMap:
   - tileCoordinates: {x: 12, y: -3}
     tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
@@ -173,7 +179,7 @@ MonoBehaviour:
     enemyType: 0
     tierFormula: 3
     hpMultiplier: 100
-    damageMultiplier: 4
+    damageMultiplier: 2
     xpMultiplier: 20
     movePattern:
       movePatternType: 2
@@ -183,12 +189,19 @@ MonoBehaviour:
     outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
     bountyList:
     - collectibleType: 3
-      amount: 3
+      amount: 10
+      value: 20
+    - collectibleType: 0
+      amount: 10
+      value: 5
+    - collectibleType: 0
+      amount: 5
+      value: 10
   - spawnTime: 60
     enemyType: 0
     tierFormula: 4
     hpMultiplier: 100
-    damageMultiplier: 4
+    damageMultiplier: 2
     xpMultiplier: 20
     movePattern:
       movePatternType: 2
@@ -198,12 +211,19 @@ MonoBehaviour:
     outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
     bountyList:
     - collectibleType: 3
-      amount: 5
+      amount: 15
+      value: 20
+    - collectibleType: 0
+      amount: 20
+      value: 5
+    - collectibleType: 0
+      amount: 10
+      value: 10
   - spawnTime: 90
     enemyType: 0
     tierFormula: 5
     hpMultiplier: 100
-    damageMultiplier: 4
+    damageMultiplier: 2
     xpMultiplier: 20
     movePattern:
       movePatternType: 2
@@ -213,5 +233,12 @@ MonoBehaviour:
     outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
     bountyList:
     - collectibleType: 3
-      amount: 8
+      amount: 20
+      value: 20
+    - collectibleType: 0
+      amount: 30
+      value: 5
+    - collectibleType: 0
+      amount: 20
+      value: 10
   weightChanges: []

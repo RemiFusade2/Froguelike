@@ -16,8 +16,8 @@ MonoBehaviour:
   partOfDemo: 1
   chapterTitle: Steady glide
   chapterLore:
-  - You decide to take the matter into your palms! You will teach those butterflies
-    to dance. The first step would be to teach them how to fly in a straight line...
+  - I decided to take the matter into my palms!\nI will teach those butterflies to
+    dance.\nThe first step would be to teach them how to fly in a straight line...
   icons: []
   startingStatBonuses:
     statsList: []
@@ -56,7 +56,9 @@ MonoBehaviour:
   coinsSpawnFrequency: 1
   healthSpawnFrequency: 1
   levelUpSpawnFrequency: 0
-  otherCollectibleSpawnFrequenciesList: []
+  otherCollectibleSpawnFrequenciesList:
+  - Type: 4
+    Frequency: 2
   specialCollectiblesOnTheMap:
   - tileCoordinates: {x: 14, y: 18}
     tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
@@ -84,19 +86,21 @@ MonoBehaviour:
     enemyType: 1
     tierFormula: chapter
     hpMultiplier: 100
-    damageMultiplier: 3
-    xpMultiplier: 2
+    damageMultiplier: 2
+    xpMultiplier: 20
     movePattern:
       movePatternType: 1
-      speedFactor: 4
+      speedFactor: 2.5
       bouncecount: 0
     outlineThicknessOverride: 1
     outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
     bountyList:
     - collectibleType: 1
-      amount: 5
+      amount: 10
+      value: 10
     - collectibleType: 3
-      amount: 5
+      amount: 10
+      value: 20
   weightChanges:
   - chapter: {fileID: 11400000, guid: 96daba5b3ec57b348b27d9c0aee2240f, type: 2}
     weightChange: 3

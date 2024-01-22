@@ -16,7 +16,7 @@ MonoBehaviour:
   partOfDemo: 1
   chapterTitle: The froggy grail
   chapterLore:
-  - I am getting close, I can feel it! Only the last piece of the puzzle remains:\n"Don't
+  - I am getting close, I can feel it!\nOnly the last piece of the puzzle remains:\n"Don't
     wander, head straight North,\nBe rightful and find your worth."
   icons: []
   startingStatBonuses:
@@ -56,7 +56,11 @@ MonoBehaviour:
   coinsSpawnFrequency: 1
   healthSpawnFrequency: 2
   levelUpSpawnFrequency: 0
-  otherCollectibleSpawnFrequenciesList: []
+  otherCollectibleSpawnFrequenciesList:
+  - Type: 9
+    Frequency: 1
+  - Type: 7
+    Frequency: 1
   specialCollectiblesOnTheMap:
   - tileCoordinates: {x: 0, y: 9}
     tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
@@ -80,12 +84,31 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c755db545eb6d8948962cf5e305c24bf, type: 2}
   - {fileID: 11400000, guid: a3d15b14ba2cf8d4baddb3be35fbcf60, type: 2}
   bountyBugs:
+  - spawnTime: 30
+    enemyType: 5
+    tierFormula: 1
+    hpMultiplier: 100
+    damageMultiplier: 2
+    xpMultiplier: 20
+    movePattern:
+      movePatternType: 2
+      speedFactor: 2
+      bouncecount: 0
+    outlineThicknessOverride: 1
+    outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
+    bountyList:
+    - collectibleType: 3
+      amount: 5
+      value: 20
+    - collectibleType: 1
+      amount: 10
+      value: 5
   - spawnTime: 60
     enemyType: 5
-    tierFormula: 5
+    tierFormula: 2
     hpMultiplier: 100
-    damageMultiplier: 3
-    xpMultiplier: 2
+    damageMultiplier: 2
+    xpMultiplier: 20
     movePattern:
       movePatternType: 2
       speedFactor: 2
@@ -95,12 +118,16 @@ MonoBehaviour:
     bountyList:
     - collectibleType: 3
       amount: 10
-  - spawnTime: 60
+      value: 20
+    - collectibleType: 1
+      amount: 15
+      value: 5
+  - spawnTime: 90
     enemyType: 5
-    tierFormula: 5
+    tierFormula: 3
     hpMultiplier: 100
-    damageMultiplier: 3
-    xpMultiplier: 2
+    damageMultiplier: 2
+    xpMultiplier: 20
     movePattern:
       movePatternType: 2
       speedFactor: 2
@@ -110,12 +137,19 @@ MonoBehaviour:
     bountyList:
     - collectibleType: 3
       amount: 10
-  - spawnTime: 60
+      value: 20
+    - collectibleType: 3
+      amount: 1
+      value: 100
+    - collectibleType: 1
+      amount: 10
+      value: 25
+  - spawnTime: 120
     enemyType: 5
-    tierFormula: 5
+    tierFormula: 4
     hpMultiplier: 100
-    damageMultiplier: 3
-    xpMultiplier: 2
+    damageMultiplier: 2
+    xpMultiplier: 20
     movePattern:
       movePatternType: 2
       speedFactor: 2
@@ -125,12 +159,19 @@ MonoBehaviour:
     bountyList:
     - collectibleType: 3
       amount: 10
-  - spawnTime: 60
+      value: 20
+    - collectibleType: 3
+      amount: 2
+      value: 100
+    - collectibleType: 1
+      amount: 10
+      value: 50
+  - spawnTime: 150
     enemyType: 5
     tierFormula: 5
     hpMultiplier: 100
-    damageMultiplier: 3
-    xpMultiplier: 2
+    damageMultiplier: 2
+    xpMultiplier: 20
     movePattern:
       movePatternType: 2
       speedFactor: 2
@@ -140,19 +181,14 @@ MonoBehaviour:
     bountyList:
     - collectibleType: 3
       amount: 10
-  - spawnTime: 60
-    enemyType: 5
-    tierFormula: 5
-    hpMultiplier: 100
-    damageMultiplier: 3
-    xpMultiplier: 2
-    movePattern:
-      movePatternType: 2
-      speedFactor: 2
-      bouncecount: 0
-    outlineThicknessOverride: 1
-    outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
-    bountyList:
+      value: 20
     - collectibleType: 3
-      amount: 10
+      amount: 5
+      value: 100
+    - collectibleType: 1
+      amount: 20
+      value: 50
+    - collectibleType: 2
+      amount: 1
+      value: 1
   weightChanges: []

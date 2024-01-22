@@ -16,8 +16,8 @@ MonoBehaviour:
   partOfDemo: 0
   chapterTitle: A buzzing sound
   chapterLore:
-  - Mosquitos here seem unhappy. I wonder what they are looking for. Maybe I can
-    help!
+  - Mosquitos here seem unhappy.\nYummy, but unhappy.\nI wonder what they are looking
+    for.\nMaybe I can help?
   icons: []
   startingStatBonuses:
     statsList: []
@@ -44,7 +44,11 @@ MonoBehaviour:
   coinsSpawnFrequency: 1
   healthSpawnFrequency: 1
   levelUpSpawnFrequency: 0
-  otherCollectibleSpawnFrequenciesList: []
+  otherCollectibleSpawnFrequenciesList:
+  - Type: 9
+    Frequency: 1
+  - Type: 10
+    Frequency: 1
   specialCollectiblesOnTheMap:
   - tileCoordinates: {x: 20, y: 0}
     tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}

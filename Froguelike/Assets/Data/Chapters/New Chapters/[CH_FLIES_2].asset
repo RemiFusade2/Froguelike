@@ -16,7 +16,7 @@ MonoBehaviour:
   partOfDemo: 1
   chapterTitle: Flies fight back
   chapterLore:
-  - Flies were unhappy to become frog food. They started to come up with strategies
+  - Flies were unhappy to become frog food.\nThey started to come up with strategies
     to fight back! They became stronger and more numerous. But I managed...
   icons: []
   startingStatBonuses:
@@ -56,7 +56,11 @@ MonoBehaviour:
   coinsSpawnFrequency: 1
   healthSpawnFrequency: 1
   levelUpSpawnFrequency: 0
-  otherCollectibleSpawnFrequenciesList: []
+  otherCollectibleSpawnFrequenciesList:
+  - Type: 4
+    Frequency: 2
+  - Type: 11
+    Frequency: 1
   specialCollectiblesOnTheMap:
   - tileCoordinates: {x: 0, y: -22}
     tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
@@ -80,12 +84,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ebfd6f35e631c434ca87ea56718f1a1f, type: 2}
   - {fileID: 11400000, guid: 126d4ffd2556b124d94363d4a4b2df7e, type: 2}
   bountyBugs:
-  - spawnTime: 150
+  - spawnTime: 60
     enemyType: 0
-    tierFormula: 2
+    tierFormula: 1
     hpMultiplier: 100
-    damageMultiplier: 4
-    xpMultiplier: 2
+    damageMultiplier: 2
+    xpMultiplier: 20
     movePattern:
       movePatternType: 2
       speedFactor: 2
@@ -94,13 +98,14 @@ MonoBehaviour:
     outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
     bountyList:
     - collectibleType: 1
-      amount: 5
+      amount: 10
+      value: 20
   - spawnTime: 150
     enemyType: 0
     tierFormula: 2
     hpMultiplier: 100
-    damageMultiplier: 4
-    xpMultiplier: 2
+    damageMultiplier: 2
+    xpMultiplier: 20
     movePattern:
       movePatternType: 2
       speedFactor: 2
@@ -109,7 +114,11 @@ MonoBehaviour:
     outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
     bountyList:
     - collectibleType: 1
+      amount: 10
+      value: 20
+    - collectibleType: 1
       amount: 5
+      value: 50
   weightChanges:
   - chapter: {fileID: 11400000, guid: 6ca31599c7f165b4b8de5a21886a139c, type: 2}
     weightChange: 2

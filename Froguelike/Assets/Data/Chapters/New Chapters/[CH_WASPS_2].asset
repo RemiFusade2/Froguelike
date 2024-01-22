@@ -17,7 +17,7 @@ MonoBehaviour:
   chapterTitle: Precision Flight
   chapterLore:
   - Wasps realized that they were very good at flying in a straight line, right towards
-    the frog! Be quick and evade them before they sting you!
+    me!\nI need to be quick and evade them before they sting me.
   icons: []
   startingStatBonuses:
     statsList: []
@@ -56,7 +56,11 @@ MonoBehaviour:
   coinsSpawnFrequency: 1
   healthSpawnFrequency: 1
   levelUpSpawnFrequency: 0
-  otherCollectibleSpawnFrequenciesList: []
+  otherCollectibleSpawnFrequenciesList:
+  - Type: 7
+    Frequency: 1
+  - Type: 10
+    Frequency: 1
   specialCollectiblesOnTheMap:
   - tileCoordinates: {x: -12, y: -8}
     tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
@@ -97,8 +101,8 @@ MonoBehaviour:
     enemyType: 4
     tierFormula: chapter
     hpMultiplier: 100
-    damageMultiplier: 5
-    xpMultiplier: 2
+    damageMultiplier: 2
+    xpMultiplier: 20
     movePattern:
       movePatternType: 2
       speedFactor: 2
@@ -107,26 +111,17 @@ MonoBehaviour:
     outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
     bountyList:
     - collectibleType: 3
-      amount: 3
+      amount: 8
+      value: 20
     - collectibleType: 1
       amount: 10
-  - spawnTime: 60
-    enemyType: 4
-    tierFormula: chapter
-    hpMultiplier: 100
-    damageMultiplier: 5
-    xpMultiplier: 2
-    movePattern:
-      movePatternType: 2
-      speedFactor: 2
-      bouncecount: 0
-    outlineThicknessOverride: 1
-    outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
-    bountyList:
-    - collectibleType: 3
-      amount: 3
+      value: 5
     - collectibleType: 1
-      amount: 10
+      amount: 8
+      value: 25
+    - collectibleType: 1
+      amount: 2
+      value: 50
   weightChanges:
   - chapter: {fileID: 11400000, guid: 432504ee85d215a4b8978fc409b66188, type: 2}
     weightChange: 2

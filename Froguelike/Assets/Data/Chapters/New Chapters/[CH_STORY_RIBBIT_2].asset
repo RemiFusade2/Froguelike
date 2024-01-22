@@ -16,8 +16,8 @@ MonoBehaviour:
   partOfDemo: 0
   chapterTitle: The Secret Garden
   chapterLore:
-  - One day, the frog stumbled upon a hidden garden deep in the swamp.\nThe garden
-    was full of exotic flowers and plants that the frog had never seen before.
+  - One day, I stumbled upon a hidden garden deep in the swamp.\nThe garden was full
+    of exotic flowers and plants that I had never seen before!
   icons: []
   startingStatBonuses:
     statsList: []
@@ -68,7 +68,11 @@ MonoBehaviour:
   coinsSpawnFrequency: 1
   healthSpawnFrequency: 0
   levelUpSpawnFrequency: 0
-  otherCollectibleSpawnFrequenciesList: []
+  otherCollectibleSpawnFrequenciesList:
+  - Type: 5
+    Frequency: 2
+  - Type: 7
+    Frequency: 1
   specialCollectiblesOnTheMap:
   - tileCoordinates: {x: -10, y: 10}
     tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
@@ -109,77 +113,43 @@ MonoBehaviour:
     enemyType: 2
     tierFormula: 1
     hpMultiplier: 100
-    damageMultiplier: 4
-    xpMultiplier: 2
+    damageMultiplier: 2
+    xpMultiplier: 20
     movePattern:
       movePatternType: 2
-      speedFactor: 10
+      speedFactor: 4
       bouncecount: 0
     outlineThicknessOverride: 1
     outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
     bountyList:
     - collectibleType: 1
+      amount: 15
+      value: 5
+    - collectibleType: 1
       amount: 10
-  - spawnTime: 60
+      value: 25
+  - spawnTime: 120
     enemyType: 2
-    tierFormula: 1
+    tierFormula: 2
     hpMultiplier: 100
-    damageMultiplier: 4
-    xpMultiplier: 2
+    damageMultiplier: 2
+    xpMultiplier: 20
     movePattern:
       movePatternType: 2
-      speedFactor: 10
+      speedFactor: 4
       bouncecount: 0
     outlineThicknessOverride: 1
     outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
     bountyList:
     - collectibleType: 1
-      amount: 10
-  - spawnTime: 60
-    enemyType: 2
-    tierFormula: 1
-    hpMultiplier: 100
-    damageMultiplier: 4
-    xpMultiplier: 2
-    movePattern:
-      movePatternType: 2
-      speedFactor: 10
-      bouncecount: 0
-    outlineThicknessOverride: 1
-    outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
-    bountyList:
+      amount: 20
+      value: 5
     - collectibleType: 1
-      amount: 10
-  - spawnTime: 60
-    enemyType: 2
-    tierFormula: 1
-    hpMultiplier: 100
-    damageMultiplier: 4
-    xpMultiplier: 2
-    movePattern:
-      movePatternType: 2
-      speedFactor: 10
-      bouncecount: 0
-    outlineThicknessOverride: 1
-    outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
-    bountyList:
+      amount: 15
+      value: 25
     - collectibleType: 1
-      amount: 10
-  - spawnTime: 60
-    enemyType: 2
-    tierFormula: 1
-    hpMultiplier: 100
-    damageMultiplier: 4
-    xpMultiplier: 2
-    movePattern:
-      movePatternType: 2
-      speedFactor: 10
-      bouncecount: 0
-    outlineThicknessOverride: 1
-    outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
-    bountyList:
-    - collectibleType: 1
-      amount: 10
+      amount: 5
+      value: 50
   weightChanges:
   - chapter: {fileID: 11400000, guid: b5bb837b0c90be24fb17c3fc90f9f249, type: 2}
     weightChange: 5

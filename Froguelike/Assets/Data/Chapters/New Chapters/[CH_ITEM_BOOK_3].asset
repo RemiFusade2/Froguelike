@@ -16,7 +16,7 @@ MonoBehaviour:
   partOfDemo: 0
   chapterTitle: Finding the Truth
   chapterLore:
-  - Finally! The spices of knowledge are now right in front of me! I wonder what
+  - Finally! The Spices of Knowledge are now right in front of me!\nI wonder what
     amazing secrets they hold.\nI must first get rid of these plants though...
   icons: []
   startingStatBonuses:
@@ -56,7 +56,11 @@ MonoBehaviour:
   coinsSpawnFrequency: 1
   healthSpawnFrequency: 0
   levelUpSpawnFrequency: 2
-  otherCollectibleSpawnFrequenciesList: []
+  otherCollectibleSpawnFrequenciesList:
+  - Type: 9
+    Frequency: 1
+  - Type: 7
+    Frequency: 1
   specialCollectiblesOnTheMap:
   - tileCoordinates: {x: 0, y: 1}
     tilePrefab: {fileID: 2605690503437856400, guid: 0e64426fb7f518e4cb73888eba1c6545, type: 3}
@@ -84,8 +88,8 @@ MonoBehaviour:
     enemyType: 5
     tierFormula: 5
     hpMultiplier: 100
-    damageMultiplier: 3
-    xpMultiplier: 2
+    damageMultiplier: 2
+    xpMultiplier: 20
     movePattern:
       movePatternType: 2
       speedFactor: 2
@@ -94,13 +98,20 @@ MonoBehaviour:
     outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
     bountyList:
     - collectibleType: 1
-      amount: 15
+      amount: 20
+      value: 5
+    - collectibleType: 1
+      amount: 10
+      value: 25
+    - collectibleType: 1
+      amount: 5
+      value: 50
   - spawnTime: 60
-    enemyType: 5
+    enemyType: 0
     tierFormula: 5
     hpMultiplier: 100
-    damageMultiplier: 3
-    xpMultiplier: 2
+    damageMultiplier: 2
+    xpMultiplier: 20
     movePattern:
       movePatternType: 2
       speedFactor: 2
@@ -109,50 +120,12 @@ MonoBehaviour:
     outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
     bountyList:
     - collectibleType: 1
-      amount: 15
-  - spawnTime: 60
-    enemyType: 5
-    tierFormula: 5
-    hpMultiplier: 100
-    damageMultiplier: 3
-    xpMultiplier: 2
-    movePattern:
-      movePatternType: 2
-      speedFactor: 2
-      bouncecount: 0
-    outlineThicknessOverride: 1
-    outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
-    bountyList:
+      amount: 20
+      value: 5
     - collectibleType: 1
-      amount: 15
-  - spawnTime: 60
-    enemyType: 5
-    tierFormula: 5
-    hpMultiplier: 100
-    damageMultiplier: 3
-    xpMultiplier: 2
-    movePattern:
-      movePatternType: 2
-      speedFactor: 2
-      bouncecount: 0
-    outlineThicknessOverride: 1
-    outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
-    bountyList:
+      amount: 10
+      value: 25
     - collectibleType: 1
-      amount: 15
-  - spawnTime: 60
-    enemyType: 5
-    tierFormula: 5
-    hpMultiplier: 100
-    damageMultiplier: 3
-    xpMultiplier: 2
-    movePattern:
-      movePatternType: 2
-      speedFactor: 2
-      bouncecount: 0
-    outlineThicknessOverride: 1
-    outlineColorOverride: {r: 0.9843137, g: 0.99215686, b: 0.9843137, a: 1}
-    bountyList:
-    - collectibleType: 1
-      amount: 15
+      amount: 5
+      value: 50
   weightChanges: []

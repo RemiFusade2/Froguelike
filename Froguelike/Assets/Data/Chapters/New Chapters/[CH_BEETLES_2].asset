@@ -16,7 +16,7 @@ MonoBehaviour:
   partOfDemo: 0
   chapterTitle: Help from above
   chapterLore:
-  - I didn't expect the beetles to get help from the butterflies! They took me by
+  - I didn't expect the beetles to get help from the butterflies!\nThey took me by
     surprise, but I'm ready now!
   icons: []
   startingStatBonuses:
@@ -56,7 +56,9 @@ MonoBehaviour:
   coinsSpawnFrequency: 1
   healthSpawnFrequency: 1
   levelUpSpawnFrequency: 0
-  otherCollectibleSpawnFrequenciesList: []
+  otherCollectibleSpawnFrequenciesList:
+  - Type: 7
+    Frequency: 1
   specialCollectiblesOnTheMap:
   - tileCoordinates: {x: 16, y: -5}
     tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
@@ -84,7 +86,7 @@ MonoBehaviour:
     enemyType: 1
     tierFormula: 3
     hpMultiplier: 100
-    damageMultiplier: 4
+    damageMultiplier: 2
     xpMultiplier: 20
     movePattern:
       movePatternType: 2
@@ -93,15 +95,23 @@ MonoBehaviour:
     outlineThicknessOverride: 1
     outlineColorOverride: {r: 0.9843138, g: 0.9921569, b: 0.9843138, a: 1}
     bountyList:
+    - collectibleType: 3
+      amount: 10
+      value: 20
+    - collectibleType: 3
+      amount: 1
+      value: 100
+    - collectibleType: 0
+      amount: 20
+      value: 5
     - collectibleType: 0
       amount: 10
-    - collectibleType: 3
-      amount: 2
+      value: 10
   - spawnTime: 120
     enemyType: 1
-    tierFormula: 3
+    tierFormula: 4
     hpMultiplier: 100
-    damageMultiplier: 4
+    damageMultiplier: 2
     xpMultiplier: 20
     movePattern:
       movePatternType: 2
@@ -110,10 +120,18 @@ MonoBehaviour:
     outlineThicknessOverride: 1
     outlineColorOverride: {r: 0.9843138, g: 0.9921569, b: 0.9843138, a: 1}
     bountyList:
-    - collectibleType: 0
-      amount: 10
+    - collectibleType: 3
+      amount: 15
+      value: 20
     - collectibleType: 3
       amount: 2
+      value: 100
+    - collectibleType: 0
+      amount: 30
+      value: 5
+    - collectibleType: 0
+      amount: 15
+      value: 10
   weightChanges:
   - chapter: {fileID: 11400000, guid: 62b165488de677049973f49fd7a7f4bf, type: 2}
     weightChange: 1
