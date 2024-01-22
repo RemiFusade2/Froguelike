@@ -227,6 +227,15 @@ public class EnemiesManager : MonoBehaviour
     [Header("Settings - Update")]
     public int updateAllEnemiesCount = 500;
 
+    [Header("Settings - Damage texts")]
+    public Color damageTextColor_smol;
+    public Color damageTextColor_medium;
+    public Color damageTextColor_big;
+    public Color damageTextColor_huge;
+    [Space]
+    public Color damageTextColor_poison;
+    public Color damageTextColor_vampire;
+
     [Header("Settings - Effects (poison, frozen, etc.)")]
     public Color poisonedOverlayColor;
     public Color frozenOverlayColor;
@@ -839,21 +848,80 @@ public class EnemiesManager : MonoBehaviour
     /// <param name="damage"></param>
     /// <param name="weapon"></param>
     /// <returns></returns>
-    public bool DamageEnemy(int enemyIndex, float damage, Transform weapon, bool applyVampireEffect = false)
+    public bool DamageEnemy(int enemyIndex, float damage, Transform weapon, bool applyVampireEffect = false, bool poisonSource = false)
     {
         EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
-        enemy.HP -= damage;
+
+        float randomizedDamage = damage * Random.Range(0.9f, 1.1f);
+        enemy.HP -= randomizedDamage;
 
         bool knockback = false;
         bool vampireEffect = false;
 
+        float visualDamageAmount = randomizedDamage * 10;
+        int visualDamageAmountInt = Mathf.RoundToInt(visualDamageAmount);
+
         // Display damage text
         GameObject damageText = null;
-        if (Mathf.RoundToInt(damage) > 0 && damageTextsPool.TryDequeue(out damageText))
+        if (visualDamageAmountInt > 0 && damageTextsPool.TryDequeue(out damageText))
         {
             Vector2 position = (Vector2)enemy.enemyTransform.position + 0.1f * Random.insideUnitCircle;
             damageText.transform.position = position;
-            damageText.GetComponent<TMPro.TextMeshPro>().text = Mathf.RoundToInt(damage).ToString();
+            TMPro.TextMeshPro damageTMPScript = damageText.GetComponent<TMPro.TextMeshPro>();
+
+            string damageAmountStr = visualDamageAmountInt.ToString();
+
+            // Todo: Fractions!
+            /*
+            int randomMultiplier = Random.Range(2, 9);
+            damageAmountStr =  $"{visualDamageAmountInt * randomMultiplier}\n-\n{randomMultiplier+1}";*/
+
+            damageTMPScript.text = damageAmountStr;
+            float fontSize = 10;
+            if (poisonSource)
+            {
+                // poison damage
+                damageTMPScript.color = damageTextColor_poison;
+            }
+            else if (visualDamageAmount < 50)
+            {
+                // Smol text
+                damageTMPScript.color = damageTextColor_smol;
+            }
+            else if (visualDamageAmount < 200)
+            {
+                // Medium text
+                damageTMPScript.color = damageTextColor_medium;
+            }
+            else if (visualDamageAmount < 1000)
+            {
+                // Big text
+                fontSize = 20; // twice bigger
+                damageTMPScript.color = damageTextColor_big;
+            }
+            else
+            {
+                // Huge text
+                fontSize = 30; // three times bigger
+                damageTMPScript.color = damageTextColor_huge;
+            }
+            if (applyVampireEffect)
+            {
+                damageTMPScript.color = damageTextColor_vampire;
+            }
+            damageTMPScript.fontSize = fontSize;
+
+            int sortedOrderLayer = Random.Range(100, 200);
+            damageTMPScript.sortingOrder = sortedOrderLayer+1;
+
+            // Todo: implement a proper outline and remove this shit
+            foreach (Transform child in damageText.transform)
+            {
+                child.GetComponent<TMPro.TextMeshPro>().text = damageAmountStr;
+                child.GetComponent<TMPro.TextMeshPro>().fontSize = fontSize;
+                child.GetComponent<TMPro.TextMeshPro>().sortingOrder = sortedOrderLayer;
+            }
+
             damageText.GetComponent<MeshRenderer>().enabled = true;
             damageText.GetComponent<Rigidbody2D>().simulated = true;
             damageText.GetComponent<Rigidbody2D>().velocity = Vector2.up;
@@ -1186,8 +1254,8 @@ public class EnemiesManager : MonoBehaviour
                                 // Poison effect is on, and cooldown since last poison damage is over
                                 float poisonDamage = enemy.poisonDamage;
                                 if (applyGlobalPoison)
-                                    poisonDamage = 1;
-                                bool enemyIsDead = DamageEnemy(enemy.enemyID, poisonDamage, null);
+                                    poisonDamage = 0.1f;
+                                bool enemyIsDead = DamageEnemy(enemy.enemyID, poisonDamage, null, poisonSource: true);
                                 enemy.lastPoisonDamageTime = Time.time;
 
                                 /*
@@ -1397,7 +1465,7 @@ public class EnemiesManager : MonoBehaviour
         }
         else if (enemy.curseRemainingTime > 0 || applyGlobalCurse)
         {
-            changeSpeedFactor = 3;
+            changeSpeedFactor = 2;
             newMass = 1000;
         }
         enemy.enemyRigidbody.mass = newMass;
