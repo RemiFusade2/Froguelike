@@ -159,8 +159,8 @@ public class UIManager : MonoBehaviour
         UpdateDemoPanels();
         SetScreenInteractability(pausePanel, false);
 
-        string versionNumber = GameManager.instance.demoBuild ? "Demo." : "Early Access.";
-        versionNumberText.text = versionNumber + GameManager.instance.versionNumber;
+        string versionNumber = BuildManager.instance.demoBuild ? "Demo." : "Early Access.";
+        versionNumberText.text = versionNumber + BuildManager.instance.versionNumber;
     }
 
     private void Update()
@@ -181,8 +181,8 @@ public class UIManager : MonoBehaviour
     {
         foreach (GameObject demoPanel in demoPanelsList)
         {
-            demoPanel.GetComponentInChildren<Button>().interactable = GameManager.instance.demoBuild;
-            demoPanel.SetActive(GameManager.instance.demoBuild);
+            demoPanel.GetComponentInChildren<Button>().interactable = BuildManager.instance.demoBuild;
+            demoPanel.SetActive(BuildManager.instance.demoBuild);
         }
     }
 
@@ -216,21 +216,21 @@ public class UIManager : MonoBehaviour
     public void UpdateDemoLimitationSticker()
     {
         bool showEndOfDemoScreen = false;
-        if (GameManager.instance.demoBuild)
+        if (BuildManager.instance.demoBuild)
         {
-            if (GameManager.instance.demoLimitationType != DemoLimitationType.NONE)
+            if (BuildManager.instance.demoLimitationType != DemoLimitationType.NONE)
             {
                 // Demo limitation sticker must be visible and up to date
                 demoLimitationSticker.SetActive(true);
-                switch (GameManager.instance.demoLimitationType)
+                switch (BuildManager.instance.demoLimitationType)
                 {
                     case DemoLimitationType.NUMBER_OF_RUNS:
-                        int remainingRuns = GameManager.instance.demoRunCountLimit - GameManager.instance.gameData.attempts;
+                        int remainingRuns = BuildManager.instance.demoRunCountLimit - GameManager.instance.gameData.attempts;
                         demoLimitationText.text = demoRunLimitationStr.Replace("DEMO_RUNCOUNT_LIMIT", remainingRuns.ToString());
                         startButton.interactable = (remainingRuns > 0); // disable start button if there are no more runs
                         break;
                     case DemoLimitationType.TIMER:
-                        float remainingTimeFloat = GameManager.instance.demoTimeLimit - (Time.unscaledTime - removedDisclaimerTime);
+                        float remainingTimeFloat = BuildManager.instance.demoTimeLimit - (Time.unscaledTime - removedDisclaimerTime);
                         remainingTimeFloat = Mathf.Clamp(remainingTimeFloat, 0, float.MaxValue);
                         TimeSpan remainingTime = TimeSpan.FromSeconds(remainingTimeFloat);
                         demoLimitationText.text = demoTimeLimitationStr.Replace("DEMO_TIME_LIMIT", remainingTime.ToString(@"mm\:ss"));

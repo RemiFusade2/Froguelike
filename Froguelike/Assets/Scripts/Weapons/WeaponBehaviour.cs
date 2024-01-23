@@ -1219,11 +1219,12 @@ public class WeaponBehaviour : MonoBehaviour
                 }
             }
 
-            bool applyVampireEffect = (activeEffect == TongueEffect.VAMPIRE);
-            bool enemyIsDead = EnemiesManager.instance.DamageEnemy(enemyName, actualDamage, this.transform, applyVampireEffect);
+            bool vampireEffect = (activeEffect == TongueEffect.VAMPIRE);
+            bool enemyIsDead = EnemiesManager.instance.DamageEnemy(enemyName, actualDamage, this.transform, 
+                applyVampireEffect: vampireEffect, applyFreezeEffect: (activeEffect == TongueEffect.FREEZE), applyCurse: isCursed, poisonSource: false);
 
             // vampire part, absorb part of damage done
-            if (applyVampireEffect)
+            if (vampireEffect)
             {
                 float healAmount = actualDamage * healthAbsorbRatio;
                 GameManager.instance.player.Heal(healAmount);

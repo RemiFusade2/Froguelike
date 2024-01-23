@@ -306,7 +306,7 @@ public class ShopManager : MonoBehaviour
             {
                 ShopItem newShopItem = new ShopItem() { data = itemData, currentLevel = 0, maxLevel = itemData.maxLevelAtStart_EA, itemName = itemData.itemName, hidden = itemData.hiddenAtStart };
 
-                if (GameManager.instance.demoBuild)
+                if (BuildManager.instance.demoBuild)
                 {
                     newShopItem.maxLevel = itemData.maxLevelAtStart_Demo;
                 }
@@ -365,7 +365,7 @@ public class ShopManager : MonoBehaviour
         foreach (ShopItem item in shopData.shopItems)
         {
             bool itemHasNoLevel = (item.GetMaxLevel() == 0);
-            bool itemIsHiddenDueToNotHavingAnIcon = (GameManager.instance.thingsWithMissingSpritesAreHidden && item.data.icon == null);
+            bool itemIsHiddenDueToNotHavingAnIcon = (BuildManager.instance.thingsWithMissingSpritesAreHidden && item.data.icon == null);
             if (!item.hidden && !itemHasNoLevel && !itemIsHiddenDueToNotHavingAnIcon)
             {
                 bool itemIsAvailable = item.currentLevel < item.GetMaxLevel();

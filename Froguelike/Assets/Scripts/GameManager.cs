@@ -1,17 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
-using System;
-using UnityEngine.Playables;
 
-[System.Serializable]
-public enum DemoLimitationType
-{
-    NONE,
-    NUMBER_OF_RUNS,
-    TIMER
-}
 
 [System.Serializable]
 public class GameSaveData : SaveData
@@ -79,20 +69,6 @@ public class GameManager : MonoBehaviour
     [Header("Settings - Log")]
     public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
 
-    [Header("Settings - Build")]
-    public string versionNumber = "0.0.0";
-    public bool demoBuild = false;
-    [Space]
-    public bool showDemoDisclaimer = false;
-    public DemoLimitationType demoLimitationType;
-    public float demoTimeLimit = 0; // In seconds
-    public int demoRunCountLimit = 0;
-    public bool demoSaveProgress = false;
-    [Space]
-    public bool cheatsAreEnabled = false;
-    public bool everythingIsUnlocked = false;
-    public bool thingsWithMissingSpritesAreHidden = false;
-
     [Header("References")]
     public FrogCharacterController player;
     public MainCamera gameCamera;
@@ -131,8 +107,8 @@ public class GameManager : MonoBehaviour
         InitializeStuff();
         BackToTitleScreen();
 
-        //UIManager.instance.HideEndOfDemoScreen();
-        UIManager.instance.ShowDemoDisclaimerScreen(demoBuild && showDemoDisclaimer, demoLimitationType, demoSaveProgress, demoRunCountLimit, demoTimeLimit);
+        //UIManager.instance.HideEndOfDemoScreen();        
+        UIManager.instance.ShowDemoDisclaimerScreen(BuildManager.instance.demoBuild && BuildManager.instance.showDemoDisclaimer, BuildManager.instance.demoLimitationType, BuildManager.instance.demoSaveProgress, BuildManager.instance.demoRunCountLimit, BuildManager.instance.demoTimeLimit);
     }
 
     private void Update()
@@ -403,7 +379,7 @@ public class GameManager : MonoBehaviour
         SaveDataManager.instance.CreateEmptySaveFile();
 
         // In case this is a demo build, also reset the demo timer
-        if (demoBuild && demoLimitationType == DemoLimitationType.TIMER)
+        if (BuildManager.instance.demoBuild && BuildManager.instance.demoLimitationType == DemoLimitationType.TIMER)
         {
             UIManager.instance.StartDemoTimer();
         }
@@ -421,8 +397,8 @@ public class GameManager : MonoBehaviour
     public void SetGameData(GameSaveData saveData)
     {
         gameData = saveData;
-        gameData.isFullGame = !this.demoBuild;
-        gameData.versionNumber = this.versionNumber;
+        gameData.isFullGame = !BuildManager.instance.demoBuild;
+        gameData.versionNumber = BuildManager.instance.versionNumber;
         UIManager.instance.UpdateCurrencyDisplay();
     }
 

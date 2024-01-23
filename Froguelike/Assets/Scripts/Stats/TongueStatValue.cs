@@ -211,6 +211,10 @@ public class TongueStatsWrapper
                 string statNameStr = longName;
                 string plusSign = (statValue.value < 0) ? "" : "+";
                 string statValueStr = statValue.value.ToString("0");
+                if (statValue.stat == TongueStat.DAMAGE || statValue.stat == TongueStat.POISON_DAMAGE)
+                {
+                    statValueStr = (statValue.value * 10).ToString("0");
+                }
                 if (usePercent)
                 {
                     statValueStr = statValue.value.ToString("P0").Replace(" ٪", "%");

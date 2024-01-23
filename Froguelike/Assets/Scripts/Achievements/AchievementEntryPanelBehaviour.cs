@@ -67,7 +67,7 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
         //string achievementTitle = achievement.achievementData.achievementTitle;
 
         // If current build is Demo build and achievement is not part of demo
-        bool isDemoBuildAndAchievementIsNotPartOfDemo = (GameManager.instance.demoBuild && !achievement.achievementData.partOfDemo);
+        bool isDemoBuildAndAchievementIsNotPartOfDemo = (BuildManager.instance.demoBuild && !achievement.achievementData.partOfDemo);
 
         if (achievement.unlocked)
         {

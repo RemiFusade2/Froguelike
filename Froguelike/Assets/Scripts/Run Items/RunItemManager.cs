@@ -140,7 +140,7 @@ public class RunItemManager : MonoBehaviour
 
             // Unlocked
             bool unlocked = itemSaveInfo.unlocked;
-            if (GameManager.instance.thingsWithMissingSpritesAreHidden && itemData.icon == null)
+            if (BuildManager.instance.thingsWithMissingSpritesAreHidden && itemData.icon == null)
             {
                 unlocked = false;
             }
@@ -161,7 +161,7 @@ public class RunItemManager : MonoBehaviour
             }
             else if (itemData is RunWeaponItemData)
             {
-                // weapon
+                // tongue
                 RunWeaponItemData weaponItemData = (itemData as RunWeaponItemData);
                 int itemLevel = RunManager.instance.GetLevelForItem(weaponItemData);
                 int maxItemLevel = weaponItemData.GetMaxLevelCount() + 1;

@@ -336,7 +336,7 @@ public class ChapterManager : MonoBehaviour
 
                 bool chapterCanBeAddedToTheDeck = chapterConditionsAreMet; // conditions are met
                 chapterCanBeAddedToTheDeck = chapterCanBeAddedToTheDeck && currentChapter.weight > 0; // weight is positive
-                chapterCanBeAddedToTheDeck = chapterCanBeAddedToTheDeck && (!GameManager.instance.demoBuild || currentChapter.chapterData.partOfDemo); // this chapter is part of the demo, or the current build is not the demo
+                chapterCanBeAddedToTheDeck = chapterCanBeAddedToTheDeck && (!BuildManager.instance.demoBuild || currentChapter.chapterData.partOfDemo); // this chapter is part of the demo, or the current build is not the demo
 
                 if (chapterCanBeAddedToTheDeck && !deckOfChapters.Contains(currentChapter))
                 {

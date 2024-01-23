@@ -233,8 +233,10 @@ public class EnemiesManager : MonoBehaviour
     public Color damageTextColor_big;
     public Color damageTextColor_huge;
     [Space]
-    public Color damageTextColor_poison;
     public Color damageTextColor_vampire;
+    public Color damageTextColor_poison;
+    public Color damageTextColor_freeze;
+    public Color damageTextColor_curse;
 
     [Header("Settings - Effects (poison, frozen, etc.)")]
     public Color poisonedOverlayColor;
@@ -848,7 +850,7 @@ public class EnemiesManager : MonoBehaviour
     /// <param name="damage"></param>
     /// <param name="weapon"></param>
     /// <returns></returns>
-    public bool DamageEnemy(int enemyIndex, float damage, Transform weapon, bool applyVampireEffect = false, bool poisonSource = false)
+    public bool DamageEnemy(int enemyIndex, float damage, Transform weapon, bool applyVampireEffect = false, bool applyFreezeEffect = false, bool applyCurse = false, bool poisonSource = false)
     {
         EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
 
@@ -863,7 +865,7 @@ public class EnemiesManager : MonoBehaviour
 
         // Display damage text
         GameObject damageText = null;
-        if (visualDamageAmountInt > 0 && damageTextsPool.TryDequeue(out damageText))
+        if ((visualDamageAmountInt > 0 || applyCurse) && damageTextsPool.TryDequeue(out damageText))
         {
             Vector2 position = (Vector2)enemy.enemyTransform.position + 0.1f * Random.insideUnitCircle;
             damageText.transform.position = position;
@@ -883,12 +885,12 @@ public class EnemiesManager : MonoBehaviour
                 // poison damage
                 damageTMPScript.color = damageTextColor_poison;
             }
-            else if (visualDamageAmount < 50)
+            else if (visualDamageAmount < 100)
             {
                 // Smol text
                 damageTMPScript.color = damageTextColor_smol;
             }
-            else if (visualDamageAmount < 200)
+            else if (visualDamageAmount < 500)
             {
                 // Medium text
                 damageTMPScript.color = damageTextColor_medium;
@@ -908,6 +910,16 @@ public class EnemiesManager : MonoBehaviour
             if (applyVampireEffect)
             {
                 damageTMPScript.color = damageTextColor_vampire;
+            }
+            else if (applyFreezeEffect)
+            {
+                damageTMPScript.color = damageTextColor_freeze;
+            }
+            else if (applyCurse)
+            {
+                damageTMPScript.text = "#";
+                damageAmountStr = "#";
+                damageTMPScript.color = damageTextColor_curse;
             }
             damageTMPScript.fontSize = fontSize;
 
@@ -989,10 +1001,10 @@ public class EnemiesManager : MonoBehaviour
     }
 
     // Return true if enemy dieded
-    public bool DamageEnemy(string enemyGoName, float damage, Transform weapon, bool applyVampireEffect = false)
+    public bool DamageEnemy(string enemyGoName, float damage, Transform weapon, bool applyVampireEffect = false, bool applyFreezeEffect = false, bool applyCurse = false, bool poisonSource = false)
     {
         int index = int.Parse(enemyGoName);
-        return DamageEnemy(index, damage, weapon, applyVampireEffect);
+        return DamageEnemy(index, damage, weapon, applyVampireEffect, applyFreezeEffect, applyCurse, poisonSource);
     }
 
     public void ClearAllDamageTexts()

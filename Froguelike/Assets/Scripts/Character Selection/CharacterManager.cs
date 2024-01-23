@@ -635,7 +635,7 @@ public class CharacterManager : MonoBehaviour
     {
         bool result = false;
         PlayableCharacter unlockedCharacter = charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals(characterID));
-        if (unlockedCharacter != null && unlockedCharacter.unlocked && (!GameManager.instance.demoBuild || unlockedCharacter.characterData.partOfDemo))
+        if (unlockedCharacter != null && unlockedCharacter.unlocked && (!BuildManager.instance.demoBuild || unlockedCharacter.characterData.partOfDemo))
         {
             result = true;
         }

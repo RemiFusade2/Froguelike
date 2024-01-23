@@ -40,8 +40,8 @@ public class CombinedSaveData
     {
         CombinedSaveData saveData = new CombinedSaveData();
 
-        GameManager.instance.gameData.isFullGame = !GameManager.instance.demoBuild;
-        GameManager.instance.gameData.versionNumber = GameManager.instance.versionNumber;
+        GameManager.instance.gameData.isFullGame = !BuildManager.instance.demoBuild;
+        GameManager.instance.gameData.versionNumber = BuildManager.instance.versionNumber;
         saveData.gameSaveData = GameManager.instance.gameData;
 
         saveData.shopSaveData = ShopManager.instance.shopData;

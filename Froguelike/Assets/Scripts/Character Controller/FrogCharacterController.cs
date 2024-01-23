@@ -135,7 +135,7 @@ public class FrogCharacterController : MonoBehaviour
         playerRigidbody = GetComponent<Rigidbody2D>();
         FriendsManager.instance.ClearAllFriends();
 
-        if (GameManager.instance.everythingIsUnlocked)
+        if (BuildManager.instance.everythingIsUnlocked)
         {
             AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true, true);
             //UIManager.instance.ShowTitleScreen();
@@ -145,7 +145,7 @@ public class FrogCharacterController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (GameManager.instance.cheatsAreEnabled)
+        if (BuildManager.instance.cheatsAreEnabled)
         {
             DealWithCheatInputs();
         }

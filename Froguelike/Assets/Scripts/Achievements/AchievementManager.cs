@@ -247,7 +247,7 @@ public class AchievementManager : MonoBehaviour
     {
         bool achievementUnlocked = false;
         string log = $"Achievement Manager - Achievement {achievementSteamKey} ";
-        if (SteamManager.Initialized && !GameManager.instance.demoBuild)
+        if (SteamManager.Initialized && !BuildManager.instance.demoBuild)
         {
             if (Steamworks.SteamUserStats.GetAchievement(achievementSteamKey, out bool achieved))
             {
@@ -287,7 +287,7 @@ public class AchievementManager : MonoBehaviour
     public void CommitSteamAchievements()
     {
         string log = $"Achievement Manager - CommitSteamAchievements ";
-        if (SteamManager.Initialized && !GameManager.instance.demoBuild)
+        if (SteamManager.Initialized && !BuildManager.instance.demoBuild)
         {
 #if !DISABLESTEAMWORKS
             try
@@ -555,12 +555,12 @@ public class AchievementManager : MonoBehaviour
 
     private bool IsAchievementLockedBehindDemo(Achievement achievement)
     {
-        return GameManager.instance.demoBuild && !achievement.achievementData.partOfDemo;
+        return BuildManager.instance.demoBuild && !achievement.achievementData.partOfDemo;
     }
 
     private bool IsAchievementLockedBehindMissingIcon(Achievement achievement)
     {
-        return GameManager.instance.thingsWithMissingSpritesAreHidden && (achievement.achievementData.achievementUnlockedIcon == null || achievement.achievementData.achievementLockedIcon == null);
+        return BuildManager.instance.thingsWithMissingSpritesAreHidden && (achievement.achievementData.achievementUnlockedIcon == null || achievement.achievementData.achievementLockedIcon == null);
     }
 
     private bool IsAchievementAvailable(Achievement achievement)

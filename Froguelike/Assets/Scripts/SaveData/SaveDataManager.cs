@@ -79,7 +79,7 @@ public class SaveDataManager : MonoBehaviour
     public bool EraseSaveFile(bool eraseBackupToo = false)
     {
         bool filesErased = true;
-        if (GameManager.instance.demoBuild)
+        if (BuildManager.instance.demoBuild)
         {
             // Erase demo save file
             filesErased &= EraseSaveFile(demoSaveFileName);
@@ -142,7 +142,7 @@ public class SaveDataManager : MonoBehaviour
     public bool Save()
     {
         bool saveSuccessful = false;
-        if (GameManager.instance.demoBuild && GameManager.instance.demoSaveProgress)
+        if (BuildManager.instance.demoBuild && BuildManager.instance.demoSaveProgress)
         {
             // Demo build
             saveSuccessful = Save(demoSaveFileName);
@@ -218,7 +218,7 @@ public class SaveDataManager : MonoBehaviour
     public bool Load()
     {
         bool saveFileIsLoaded = false;
-        if (GameManager.instance.demoBuild && GameManager.instance.demoSaveProgress)
+        if (BuildManager.instance.demoBuild && BuildManager.instance.demoSaveProgress)
         {
             // Demo build
             // We attempt to load the demo save file if it exists
@@ -329,7 +329,7 @@ public class SaveDataManager : MonoBehaviour
                 // - loaded data come from Early Access build and we're currently playing Demo build: Don't load anything!
                 // - loaded data come from Demo build and we're currently playing Early Access build: New game is initialized, we want to unlock all the achievements and reinitialize the shop with current balance (but no items bought)
 
-                if (GameManager.instance.demoBuild)
+                if (BuildManager.instance.demoBuild)
                 {
                     if (!loadedDataComeFromFullGame)
                     {

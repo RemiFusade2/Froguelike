@@ -221,15 +221,18 @@ public class MapBehaviour : MonoBehaviour
 
             // generate other collectibles
             foreach (CollectibleSpawnFrequency collectibleSpawnFrequency in currentPlayedChapter.chapterData.otherCollectibleSpawnFrequenciesList)
-            {
-                Vector2 powerUpMinMax = DataManager.instance.GetSpawnProbability("powerUp", collectibleSpawnFrequency.Frequency);
-                float powerUpProba = Random.Range(powerUpMinMax.x, powerUpMinMax.y);
-                float powerUpAmount = Mathf.Floor(powerUpProba) + ((Random.Range(Mathf.Floor(powerUpProba), Mathf.Ceil(powerUpProba)) < powerUpProba) ? 1 : 0);
-                for (int i = 0; i < powerUpAmount; i++)
+            {                
+                if (BuildManager.instance.IsCollectibleAvailable(collectibleSpawnFrequency.Type))
                 {
-                    if (GetRandomSpawnPositionOnTile(tileCoordinates, out Vector2 position))
+                    Vector2 powerUpMinMax = DataManager.instance.GetSpawnProbability("powerUp", collectibleSpawnFrequency.Frequency);
+                    float powerUpProba = Random.Range(powerUpMinMax.x, powerUpMinMax.y);
+                    float powerUpAmount = Mathf.Floor(powerUpProba) + ((Random.Range(Mathf.Floor(powerUpProba), Mathf.Ceil(powerUpProba)) < powerUpProba) ? 1 : 0);
+                    for (int i = 0; i < powerUpAmount; i++)
                     {
-                        CollectiblesManager.instance.SpawnCollectible(position, collectibleSpawnFrequency.Type, 1);
+                        if (GetRandomSpawnPositionOnTile(tileCoordinates, out Vector2 position))
+                        {
+                            CollectiblesManager.instance.SpawnCollectible(position, collectibleSpawnFrequency.Type, 1);
+                        }
                     }
                 }
             }
