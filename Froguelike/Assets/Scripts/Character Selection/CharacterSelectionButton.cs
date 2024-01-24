@@ -86,6 +86,7 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
                 characterDescriptionText.color = charactersDefaultTextColor;
                 characterDescriptionText.text = character.characterData.characterDescription.Replace("\\n", "\n");
                 characterIconImage.sprite = character.characterData.characterSprite;
+                characterIconImage.SetNativeSize();
                 tongueIconImage.sprite = character.characterData.startingItems[0].icon;
             }
             else
