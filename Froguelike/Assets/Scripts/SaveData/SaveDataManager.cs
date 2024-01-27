@@ -142,7 +142,7 @@ public class SaveDataManager : MonoBehaviour
     public bool Save()
     {
         bool saveSuccessful = false;
-        if (BuildManager.instance.demoBuild && BuildManager.instance.demoSaveProgress)
+        if (BuildManager.instance.demoBuild)
         {
             // Demo build
             saveSuccessful = Save(demoSaveFileName);
@@ -218,7 +218,7 @@ public class SaveDataManager : MonoBehaviour
     public bool Load()
     {
         bool saveFileIsLoaded = false;
-        if (BuildManager.instance.demoBuild && BuildManager.instance.demoSaveProgress)
+        if (BuildManager.instance.demoBuild)
         {
             // Demo build
             // We attempt to load the demo save file if it exists

@@ -5,13 +5,14 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
+/*
 [System.Serializable]
 public enum DemoLimitationType
 {
     NONE,
     NUMBER_OF_RUNS,
     TIMER
-}
+}*/
 
 [System.Serializable]
 [Flags] public enum PowerUpType
@@ -43,10 +44,10 @@ public class BuildManager : MonoBehaviour
     public bool demoBuild = false;
     [Space]
     public bool showDemoDisclaimer = false;
-    public DemoLimitationType demoLimitationType;
+    /*public DemoLimitationType demoLimitationType;
     public float demoTimeLimit = 0; // In seconds
     public int demoRunCountLimit = 0;
-    public bool demoSaveProgress = false;
+    public bool demoSaveProgress = false;*/
     [Space]
     public PowerUpType availablePowerUpsInDemo;
 

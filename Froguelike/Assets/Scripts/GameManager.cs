@@ -108,7 +108,8 @@ public class GameManager : MonoBehaviour
         BackToTitleScreen();
 
         //UIManager.instance.HideEndOfDemoScreen();        
-        UIManager.instance.ShowDemoDisclaimerScreen(BuildManager.instance.demoBuild && BuildManager.instance.showDemoDisclaimer, BuildManager.instance.demoLimitationType, BuildManager.instance.demoSaveProgress, BuildManager.instance.demoRunCountLimit, BuildManager.instance.demoTimeLimit);
+        UIManager.instance.ShowDemoDisclaimerScreen(BuildManager.instance.demoBuild && BuildManager.instance.showDemoDisclaimer);
+        UIManager.instance.ShowEADisclaimerScreen(!BuildManager.instance.demoBuild && BuildManager.instance.showEADisclaimer);
     }
 
     private void Update()
@@ -377,12 +378,6 @@ public class GameManager : MonoBehaviour
         // Clear save file and create a new one
         bool fileErased = SaveDataManager.instance.EraseSaveFile(true);
         SaveDataManager.instance.CreateEmptySaveFile();
-
-        // In case this is a demo build, also reset the demo timer
-        if (BuildManager.instance.demoBuild && BuildManager.instance.demoLimitationType == DemoLimitationType.TIMER)
-        {
-            UIManager.instance.StartDemoTimer();
-        }
 
         InitializeStuff();
         BackToTitleScreen();
