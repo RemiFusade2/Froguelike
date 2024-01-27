@@ -1134,10 +1134,10 @@ public class RunManager : MonoBehaviour
         {
             // Banish was inactive, we toggle it ON
             player.banishs--;
-            
+
             // Update post its values
             UpdateRerollBanishSkipPostIts();
-            
+
             // Disable all post-its
             SetRerollBanishSkipPostItsEnable(false);
 
@@ -1515,7 +1515,8 @@ public class RunManager : MonoBehaviour
                     if (!currentPlayedCharacter.characterID.Equals("GHOST"))
                     {
                         // If we're not playing as Ghost, then friends can be any frog but ghosts
-                        do {
+                        do
+                        {
                             friendType = (FriendType)Random.Range(0, System.Enum.GetValues(typeof(FriendType)).Length);
                         } while (friendType == FriendType.GHOST);
                     }
@@ -1529,7 +1530,7 @@ public class RunManager : MonoBehaviour
                 break;
             case CollectibleType.POWERUP_MEGAMAGNET:
                 CollectiblesManager.instance.ApplyMegaMagnet();
-                SoundManager.instance.PlayFreezeAllSound();
+                SoundManager.instance.PlayGoopSound();
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                 {
                     Debug.Log("Run - Collected Mega Magnet power-up");

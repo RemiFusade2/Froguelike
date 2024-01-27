@@ -35,7 +35,10 @@ public class SoundManager : MonoBehaviour
     [field: SerializeField] public EventReference eatBountySound { get; private set; } // Not used yet.
     [field: SerializeField] public EventReference eatBugSound { get; private set; } // Not used yet.
 
+    [field: Header("Power ups")]
     [field: SerializeField] public EventReference powerUpFreezeAllSound { get; private set; }
+    [field: SerializeField] public EventReference powerUpPartySound { get; private set; }
+    [field: SerializeField] public EventReference powerUpGoopSound { get; private set; }
 
     private EventInstance takeDamageEvent;
     private EventInstance pickUpXPEvent;
@@ -242,9 +245,8 @@ public class SoundManager : MonoBehaviour
         RuntimeManager.PlayOneShot(eatBountySound);
     }
 
-    public void PlayEatBugSound() // TODO
+    public void PlayEatBugSound()
     {
-        // TODO randomize pitch.
         RuntimeManager.PlayOneShot(eatBugSound);
     }
 
@@ -265,8 +267,12 @@ public class SoundManager : MonoBehaviour
 
     public void PlayPartySound()
     {
-        // TODO: have a specific sound for when you start a party (pick up the Friend Frenzy collectible)
-        RuntimeManager.PlayOneShot(powerUpFreezeAllSound);
+        RuntimeManager.PlayOneShot(powerUpPartySound);
+    }
+
+    public void PlayGoopSound()
+    {
+        RuntimeManager.PlayOneShot(powerUpGoopSound);
     }
 
     public void PlayCreditFrogCroakingSound()
