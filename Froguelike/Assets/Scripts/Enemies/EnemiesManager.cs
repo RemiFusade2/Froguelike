@@ -228,9 +228,22 @@ public class EnemiesManager : MonoBehaviour
     public int updateAllEnemiesCount = 500;
 
     [Header("Settings - Damage texts")]
+    public float damageTextLifespanInSeconds = 0.5f;
+    [Space]
+    public int damageTextFontSize_smol = 10;
+    public float damageTextThreshold_smol = 0;
     public Color damageTextColor_smol;
+    [Space]
+    public int damageTextFontSize_medium = 10;
+    public float damageTextThreshold_medium = 100;
     public Color damageTextColor_medium;
+    [Space]
+    public int damageTextFontSize_big = 10;
+    public float damageTextThreshold_big = 500;
     public Color damageTextColor_big;
+    [Space]
+    public int damageTextFontSize_huge = 10;
+    public float damageTextThreshold_huge = 1000;
     public Color damageTextColor_huge;
     [Space]
     public Color damageTextColor_vampire;
@@ -885,26 +898,28 @@ public class EnemiesManager : MonoBehaviour
                 // poison damage
                 damageTMPScript.color = damageTextColor_poison;
             }
-            else if (visualDamageAmount < 100)
+            else if (visualDamageAmount < damageTextThreshold_medium)
             {
                 // Smol text
+                fontSize = damageTextFontSize_smol;
                 damageTMPScript.color = damageTextColor_smol;
             }
-            else if (visualDamageAmount < 500)
+            else if (visualDamageAmount < damageTextThreshold_big)
             {
                 // Medium text
+                fontSize = damageTextFontSize_medium;
                 damageTMPScript.color = damageTextColor_medium;
             }
-            else if (visualDamageAmount < 1000)
+            else if (visualDamageAmount < damageTextThreshold_huge)
             {
                 // Big text
-                fontSize = 20; // twice bigger
+                fontSize = damageTextFontSize_big;
                 damageTMPScript.color = damageTextColor_big;
             }
             else
             {
                 // Huge text
-                fontSize = 30; // three times bigger
+                fontSize = damageTextFontSize_huge;
                 damageTMPScript.color = damageTextColor_huge;
             }
             if (applyVampireEffect)
@@ -944,7 +959,7 @@ public class EnemiesManager : MonoBehaviour
                 damageText.GetComponent<ParticleSystem>().Play();
             }
             visibleDamageTexts.Add(damageText);
-            StartCoroutine(PutDamageTextIntoPoolAsync(damageText, 1.0f));
+            StartCoroutine(PutDamageTextIntoPoolAsync(damageText, damageTextLifespanInSeconds));
         }
 
         bool enemyDied = false;
