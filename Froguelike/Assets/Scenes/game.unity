@@ -7757,7 +7757,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   versionNumber: 0.1.5
-  showEADisclaimer: 0
+  showEADisclaimer: 1
   availablePowerUpsInEA: -1
   demoBuild: 0
   showDemoDisclaimer: 1
@@ -31163,6 +31163,8 @@ MonoBehaviour:
   settingsScreen: {fileID: 526218496}
   selectedButtonSettingsScreen: {fileID: 1675382835}
   creditsScreen: {fileID: 7139083217329068271}
+  DemoDisclaimerScreen: {fileID: 8758253902685020053}
+  EADisclaimerScreen: {fileID: 7805731368760349077}
   chapterSelectionScreen: {fileID: 157392834}
   chapterSelectionButtons:
   - {fileID: 898068613}
@@ -31195,8 +31197,6 @@ MonoBehaviour:
   - {fileID: 528549234}
   - {fileID: 1562078726}
   - {fileID: 1414643396}
-  demoDisclaimerScreen: {fileID: 0}
-  demoDisclaimerOkButton: {fileID: 0}
   endOfDemoScreen: {fileID: 251311982}
   endOfDemoSteamButton: {fileID: 790063009}
   endOfDemoHasBeenShown: 0
@@ -86049,15 +86049,7 @@ PrefabInstance:
     m_TransformParent: {fileID: 886136329}
     m_Modifications:
     - target: {fileID: 2002743084945548113, guid: 1615ee7cf65a0a54c8c92841bcf89a08, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 813424181}
-    - target: {fileID: 2002743084945548113, guid: 1615ee7cf65a0a54c8c92841bcf89a08, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
-      value: 
-      objectReference: {fileID: 464157710}
-    - target: {fileID: 2002743084945548126, guid: 1615ee7cf65a0a54c8c92841bcf89a08, type: 3}
-      propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 464157710}
     - target: {fileID: 3045489914092389846, guid: 1615ee7cf65a0a54c8c92841bcf89a08, type: 3}
@@ -86148,12 +86140,23 @@ PrefabInstance:
       propertyPath: m_Name
       value: EA Disclaimer
       objectReference: {fileID: 0}
-    - target: {fileID: 3045489914092389849, guid: 1615ee7cf65a0a54c8c92841bcf89a08, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
+    - target: {fileID: 5797237721050402164, guid: 1615ee7cf65a0a54c8c92841bcf89a08, type: 3}
+      propertyPath: settingsMenu
+      value: 
+      objectReference: {fileID: 160061821}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1615ee7cf65a0a54c8c92841bcf89a08, type: 3}
+--- !u!114 &7805731368760349077 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5797237721050402164, guid: 1615ee7cf65a0a54c8c92841bcf89a08, type: 3}
+  m_PrefabInstance: {fileID: 7805731368760349076}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29dd80a8f8020ef4e9a4033964944225, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &7971558600313391989
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -86249,20 +86252,12 @@ PrefabInstance:
       propertyPath: m_Name
       value: Demo Disclaimer
       objectReference: {fileID: 0}
-    - target: {fileID: 1669493828456535278, guid: 8c2997ad87e52054bb5a0df8e4033090, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2784305406251659878, guid: 8c2997ad87e52054bb5a0df8e4033090, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+    - target: {fileID: 2067671053475135615, guid: 8c2997ad87e52054bb5a0df8e4033090, type: 3}
+      propertyPath: settingsMenu
       value: 
-      objectReference: {fileID: 813424181}
+      objectReference: {fileID: 160061821}
     - target: {fileID: 2784305406251659878, guid: 8c2997ad87e52054bb5a0df8e4033090, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
-      value: 
-      objectReference: {fileID: 464157710}
-    - target: {fileID: 2784305406251659881, guid: 8c2997ad87e52054bb5a0df8e4033090, type: 3}
-      propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 464157710}
     m_RemovedComponents: []
@@ -86276,7 +86271,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 7978220894028803650, guid: 59c67d09569c781419f4218687db094f, type: 3}
       propertyPath: verbose
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7978220894028803650, guid: 59c67d09569c781419f4218687db094f, type: 3}
       propertyPath: debugInfo
@@ -86587,3 +86582,14 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1669493828456535265, guid: 8c2997ad87e52054bb5a0df8e4033090, type: 3}
   m_PrefabInstance: {fileID: 7971558600313391989}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8758253902685020053 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2067671053475135615, guid: 8c2997ad87e52054bb5a0df8e4033090, type: 3}
+  m_PrefabInstance: {fileID: 7971558600313391989}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29dd80a8f8020ef4e9a4033964944225, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

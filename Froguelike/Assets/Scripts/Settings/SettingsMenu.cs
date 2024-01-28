@@ -57,6 +57,13 @@ public class SettingsMenu : MonoBehaviour
 
     #endregion Sound
 
+    #region Disclaimer screens
+
+    private string savedShowDemoDisclaimerKey = "Froguelike Demo Disclaimer on";
+    private string savedShowEADisclaimerKey = "Froguelike EA Disclaimer on";
+
+    #endregion
+
     // Start is called before the first frame update
     void Start()
     {
@@ -390,4 +397,28 @@ public class SettingsMenu : MonoBehaviour
     }
 
     #endregion Sound
+
+    #region Disclaimer screens
+
+    public bool IsDemoDisclaimerOn()
+    {
+        return PlayerPrefs.GetInt(savedShowDemoDisclaimerKey, 1) == 1;
+    }
+
+    public void SetDemoDisclaimerOn(bool on)
+    {
+        PlayerPrefs.SetInt(savedShowDemoDisclaimerKey, on ? 1 : 0);
+    }
+
+    public bool IsEADisclaimerOn()
+    {
+        return PlayerPrefs.GetInt(savedShowEADisclaimerKey, 1) == 1;
+    }
+
+    public void SetEADisclaimerOn(bool on)
+    {
+        PlayerPrefs.SetInt(savedShowEADisclaimerKey, on ? 1 : 0);
+    }
+
+    #endregion
 }

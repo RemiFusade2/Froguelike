@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using TMPro;
 using Steamworks;
 using System;
+using Unity.VisualScripting;
 
 /// <summary>
 /// UIManager deals with navigation in the menus, as well as in-game UI.
@@ -55,6 +56,10 @@ public class UIManager : MonoBehaviour
 
     [Header("Credits")]
     public CreditsScreenBehaviour creditsScreen;
+
+    [Header("Disclaimers")]
+    public DisclaimerScreen DemoDisclaimerScreen;
+    public DisclaimerScreen EADisclaimerScreen;
 
     #endregion
 
@@ -108,9 +113,6 @@ public class UIManager : MonoBehaviour
 
     [Header("Demo stuff")]
     public List<GameObject> demoPanelsList;
-    [Space]
-    public GameObject demoDisclaimerScreen;
-    public GameObject demoDisclaimerOkButton;
     [Space]
     public GameObject endOfDemoScreen;
     public GameObject endOfDemoSteamButton;
@@ -630,59 +632,53 @@ public class UIManager : MonoBehaviour
 
     #endregion Confirmation Panels
 
-    #region Demo disclaimer & end of demo
+    #region Disclaimer screens & end of demo 
 
-    public void ShowEADisclaimerScreen(bool active)
+    public void TryShowDisclaimerScreen()
     {
-        // TODO
-    }
-
-    public void ShowDemoDisclaimerScreen(bool active)
-    {
-        if (demoDisclaimerScreen != null)
+        DemoDisclaimerScreen.HideDisclaimer();
+        EADisclaimerScreen.HideDisclaimer();
+        DisclaimerScreen disclaimerScreen = GetDisclaimerScreenForCurrentBuild();
+        if (disclaimerScreen != null)
         {
-            // SetScreenInteractability(titleScreen, !active); // (since this is a parent of the demo disclamer it also makes the demo disclamer not interactable, so I commented it out /J)
-            SetScreenInteractability(menuButtonsGroup, !active);
-            SetScreenInteractability(demoDisclaimerScreen, active);
-            demoDisclaimerScreen.SetActive(active);
-            if (active)
-            {
-                SetSelectedButton(demoDisclaimerOkButton);
-            }
-            else
+            bool isDisclaimerVisible = disclaimerScreen.TryShowDisclaimer();
+            SetScreenInteractability(menuButtonsGroup, !isDisclaimerVisible);
+            SetScreenInteractability(disclaimerScreen.gameObject, isDisclaimerVisible);
+            if (!isDisclaimerVisible)
             {
                 SetSelectedButton(selectedButtonTitleScreen);
             }
-        }
-
-        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
-        {
-            Debug.Log($"UI - Display Demo disclaimer screen: {active}");
+            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log($"UI - Display disclaimer screen: {isDisclaimerVisible}");
+            }
         }
     }
 
-    public void HideDemoDisclaimerScreen()
+    private DisclaimerScreen GetDisclaimerScreenForCurrentBuild()
     {
-        SetScreenInteractability(demoDisclaimerScreen, false);
-        demoDisclaimerScreen.SetActive(false);
-
-        if (endOfDemoScreen.activeInHierarchy)
+        DisclaimerScreen result = null;
+        if (BuildManager.instance != null)
         {
-            SetScreenInteractability(endOfDemoScreen, true);
-            SetSelectedButton(endOfDemoSteamButton);
+            if (BuildManager.instance.demoBuild && BuildManager.instance.showDemoDisclaimer)
+            {
+                result = DemoDisclaimerScreen;
+            }
+            else if (!BuildManager.instance.demoBuild && BuildManager.instance.showEADisclaimer)
+            {
+                result = EADisclaimerScreen;
+            }
         }
-        else
-        {
-            SetScreenInteractability(titleScreen, true);
-            SetScreenInteractability(menuButtonsGroup, true);
-            SetSelectedButton(selectedButtonTitleScreen);
-        }
-
-        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
-        {
-            Debug.Log("UI - Hide Demo disclaimer screen");
-        }
+        return result;
     }
+
+    public void SetTitleScreenInteractableAndDisablePreviousScreen(GameObject previousScreen)
+    {
+        SetScreenInteractability(titleScreen, true);
+        SetScreenInteractability(menuButtonsGroup, true);
+        SetScreenInteractability(previousScreen, false);
+    }
+
 
     public void HideEndOfDemoScreen()
     {

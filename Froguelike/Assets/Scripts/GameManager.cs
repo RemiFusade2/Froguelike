@@ -107,9 +107,7 @@ public class GameManager : MonoBehaviour
         InitializeStuff();
         BackToTitleScreen();
 
-        //UIManager.instance.HideEndOfDemoScreen();        
-        UIManager.instance.ShowDemoDisclaimerScreen(BuildManager.instance.demoBuild && BuildManager.instance.showDemoDisclaimer);
-        UIManager.instance.ShowEADisclaimerScreen(!BuildManager.instance.demoBuild && BuildManager.instance.showEADisclaimer);
+        UIManager.instance.TryShowDisclaimerScreen();
     }
 
     private void Update()
