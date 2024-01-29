@@ -119,6 +119,9 @@ public class UIManager : MonoBehaviour
 
     private List<GameObject> rememberThisButton = new List<GameObject>();
 
+    [Header("Links Settings")]
+    public bool useSteamOverlay = true;
+
     [Header("Runtime")]
     public bool endOfDemoHasBeenShown;
 
@@ -677,6 +680,7 @@ public class UIManager : MonoBehaviour
         SetScreenInteractability(titleScreen, true);
         SetScreenInteractability(menuButtonsGroup, true);
         SetScreenInteractability(previousScreen, false);
+        SetSelectedButton(startButton);
     }
 
 
@@ -732,6 +736,11 @@ public class UIManager : MonoBehaviour
 
     #region Buttons
 
+    public void SetSelectedButton(Button button)
+    {
+        SetSelectedButton(button.gameObject);
+    }
+
     public void SetSelectedButton(GameObject buttonGO)
     {
         if (buttonGO != null) ClearSelectedButton();
@@ -757,7 +766,7 @@ public class UIManager : MonoBehaviour
 
     private void ClearSelectedButton()
     {
-        SetSelectedButton(null);
+        SetSelectedButton(buttonGO: null);
     }
 
     #endregion Buttons
@@ -778,4 +787,26 @@ public class UIManager : MonoBehaviour
     {
         versionNumberText.enabled = !versionNumberText.enabled;
     }
+
+    #region Hyperlinks
+
+    public void OpenSteamPage()
+    {
+        if (useSteamOverlay && SteamManager.Initialized)
+        {
+            Steamworks.AppId_t appId = new Steamworks.AppId_t(2315020);
+            Steamworks.SteamFriends.ActivateGameOverlayToStore(appId, Steamworks.EOverlayToStoreFlag.k_EOverlayToStoreFlag_None);
+        }
+        else
+        {
+            Application.OpenURL("https://store.steampowered.com/app/2315020/Froguelike/");
+        }
+    }
+
+    public void OpenDiscordInvitation()
+    {
+        Application.OpenURL("https://discord.gg/5vMdA97TWp"); // Invite to Froguelike discord server
+    }
+
+    #endregion
 }

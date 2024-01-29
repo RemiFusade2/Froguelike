@@ -59,7 +59,7 @@ public class DisclaimerScreen : MonoBehaviour
         if (showDisclaimer)
         {
             // Select Confirm button by default when disclaimer screen appears
-            UIManager.instance.SetSelectedButton(confirmButton.gameObject);
+            UIManager.instance.SetSelectedButton(confirmButton);
         }
 
         return showDisclaimer;
@@ -95,7 +95,7 @@ public class DisclaimerScreen : MonoBehaviour
         dontShowThisAgainCheckmark.SetActive(!showDisclaimer);
 
         // Select Confirm button
-        UIManager.instance.SetSelectedButton(confirmButton.gameObject);
+        UIManager.instance.SetSelectedButton(confirmButton);
     }
 
     public void TempHideCheckmark()
@@ -109,11 +109,11 @@ public class DisclaimerScreen : MonoBehaviour
 
     public void ClickOnDiscordButton()
     {
-
+        UIManager.instance.OpenDiscordInvitation();
     }
 
     public void ClickOnSteamButton()
     {
-
+        UIManager.instance.OpenSteamPage();
     }
 }
