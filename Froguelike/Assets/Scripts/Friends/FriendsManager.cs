@@ -37,6 +37,7 @@ public class FriendInstance
     public Animator FriendAnimator;
 
     public Transform TonguePositionTransform;
+    public Transform HatParentTransform;
 
     public WeaponBehaviour TongueScript;
 }
@@ -171,6 +172,8 @@ public class FriendsManager : MonoBehaviour
             friend.TonguePositionTransform = friend.FriendGameObject.transform.Find("Tongue start point");
             friend.TongueScript = friend.ParentGameObject.transform.Find("Friend Tongue").GetComponent<WeaponBehaviour>();
 
+            friend.HatParentTransform = friend.FriendGameObject.transform.Find("Hats Parent");
+
             PutFriendInThePool(friend);
         }
     }
@@ -189,6 +192,8 @@ public class FriendsManager : MonoBehaviour
         friend.TongueScript.ResetTongue();
 
         SetFriendsComponentsEnabled(friend, false);
+
+        friend.HatParentTransform.gameObject.SetActive(false);
 
         inactiveFriendsPool.Enqueue(friend);
 
@@ -423,12 +428,15 @@ public class FriendsManager : MonoBehaviour
             // Activate all components
             SetFriendsComponentsEnabled(friend, true);
 
+            friend.temporary = temporary;
+            friend.lifespan = lifespan;
+
+            // Setup Hat
+            friend.HatParentTransform.gameObject.SetActive(temporary);
+
             // Setup Tongue
             friend.TongueScript.Initialize(friend.data.tongueType, friend.data.tongueBaseStats);
             friend.TongueScript.ResetTongue();
-
-            friend.temporary = temporary;
-            friend.lifespan = lifespan;
 
             friend.spawnTime = Time.time;
 
