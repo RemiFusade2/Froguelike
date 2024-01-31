@@ -134,6 +134,9 @@ public class CollectibleInfo
 {
     public string Name;
     public CollectibleType Type;
+    public bool isMoving;
+    public bool fliesAwayFromFrog;
+    public bool fliesTowardsFrog;
     public List<int> AnimationStyles;
     public List<int> MinValueForIcons;
 }

@@ -397,10 +397,8 @@ public class AchievementManager : MonoBehaviour
                                     conditionsAreMet &= (GameManager.instance.gameData.cumulatedScore >= 100000);
                                     break;
                                 case AchievementConditionSpecialKey.GATHER_ALL_FRIENDS:
-                                    conditionsAreMet &= FriendsManager.instance.HasPermanentFriend(FriendType.FROG);
-                                    conditionsAreMet &= FriendsManager.instance.HasPermanentFriend(FriendType.TOAD);
-                                    conditionsAreMet &= FriendsManager.instance.HasPermanentFriend(FriendType.POISONOUS);
-                                    conditionsAreMet &= FriendsManager.instance.HasPermanentFriend(FriendType.BLUE);
+                                    int friendCount = FriendsManager.instance.HasPermanentFriendsCount();
+                                    conditionsAreMet &= (friendCount >= 3);
                                     break;
                                 case AchievementConditionSpecialKey.UNLOCK_10_CHAPTERS:
                                     if (!metaAchievements.Contains(achievement))
@@ -421,7 +419,7 @@ public class AchievementManager : MonoBehaviour
                     }
                     if (!conditionsAreMet)
                     {
-                        break; // if one condition was false, there's no need to check the other ones, let's move on to the next achievement instead
+                        break; // if one achievementCondition was false, there's no need to check the other ones, let's move on to the next achievement instead
                     }
                 }
 
@@ -565,19 +563,48 @@ public class AchievementManager : MonoBehaviour
 
     private bool IsAchievementAvailable(Achievement achievement)
     {
-        bool conditionCanBeFulfilled = true;
-        foreach (AchievementCondition condition in achievement.achievementData.conditionsList)
+        bool achievementConditionsCanBeFulfilled = true;
+        foreach (AchievementCondition achievementCondition in achievement.achievementData.conditionsList)
         {
-            if (condition.conditionType == AchievementConditionType.CHARACTER && condition.playedCharacter != null && !CharacterManager.instance.IsCharacterUnlocked(condition.playedCharacter.characterID))
+            if (achievementCondition.conditionType == AchievementConditionType.CHARACTER && achievementCondition.playedCharacter != null && !CharacterManager.instance.IsCharacterUnlocked(achievementCondition.playedCharacter.characterID))
             {
-                conditionCanBeFulfilled = false;
+                // The achievement requires to play as a character that has not been unlocked yet
+                achievementConditionsCanBeFulfilled = false;
             }
-            if (!conditionCanBeFulfilled)
+            if (achievementCondition.conditionType == AchievementConditionType.CHAPTER && achievementCondition.playedChapter != null)
+            {
+                // The achievement requires to play a specific chapter
+                bool atLeastOneChapterConditionChunkIsValid = false;
+                foreach (ChapterConditionsChunk chapterConditionsChunk in achievementCondition.playedChapter.conditions)
+                {
+                    bool allChapterConditionsAreValid = true;
+                    foreach (ChapterCondition chapterCondition in chapterConditionsChunk.conditionsList)
+                    {
+                        if (chapterCondition.conditionType == ChapterConditionType.CHARACTER && chapterCondition.characterData != null && !CharacterManager.instance.IsCharacterUnlocked(chapterCondition.characterData.characterID))
+                        {
+                            // The condition chunk requires to play as a character that has not been unlocked yet
+                            allChapterConditionsAreValid = false;
+                            break;
+                        }
+                    }
+                    if (allChapterConditionsAreValid)
+                    {
+                        atLeastOneChapterConditionChunkIsValid = true;
+                        break;
+                    }
+                }
+                if (!atLeastOneChapterConditionChunkIsValid)
+                {
+                    achievementConditionsCanBeFulfilled = false;
+                }
+            }
+
+            if (!achievementConditionsCanBeFulfilled)
             {
                 break;
             }
         }
-        return conditionCanBeFulfilled;
+        return achievementConditionsCanBeFulfilled;
     }
 
     private List<Achievement> SortAchievementList(List<Achievement> achievements)
@@ -727,7 +754,7 @@ public class AchievementManager : MonoBehaviour
                         case AchievementConditionType.CHAPTER:
                             if (condition.playedChapter.chapterID != null && condition.playedChapter.chapterID.Equals(chapter.chapterID))
                             {
-                                achievementFound = true; // Finishing that chapter is a condition to unlock this achievement                                
+                                achievementFound = true; // Finishing that chapter is a achievementCondition to unlock this achievement                                
                             }
                             break;
                         case AchievementConditionType.RUNITEM:
@@ -736,7 +763,7 @@ public class AchievementManager : MonoBehaviour
                                 if (collectible.collectibleType == FixedCollectibleType.STATS_ITEM 
                                     && condition.runItem.itemName.Equals(collectible.collectibleStatItemData.itemName))
                                 {
-                                    achievementFound = true; // There's an item in this chapter that is a condition to unlock this achievement
+                                    achievementFound = true; // There's an item in this chapter that is a achievementCondition to unlock this achievement
                                     break;
                                 }
                             }                            

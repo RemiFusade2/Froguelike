@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 
 /// <summary>
@@ -17,7 +16,8 @@ public class CollectibleInstance
     public bool captured;
 
     public bool usesMagnet;
-    public bool runsAwayFromFrog;
+    public bool fliesAwayFromFrog;
+    public bool fliesTowardsFrog;
 
     public Vector2 moveDirection;
     public float lastChangeOfDirectionTime;
@@ -69,6 +69,7 @@ public class CollectiblesManager : MonoBehaviour
     [Space]
     public float movingCollectiblesSafeDistanceWithFrog = 8;
     public float movingCollectiblesEscapeSpeed = 4;
+    public float movingCollectiblesGoTowardsFrogSpeed = 2;
 
     [Header("Settings - Spawn")]
     public float collectibleSpawnMinPushForce = 5;
@@ -245,35 +246,21 @@ public class CollectiblesManager : MonoBehaviour
             collectible.collectibleTransform.position = position;
 
             // Set movement behaviour
-            switch (collectibleType)
+            collectible.usesMagnet = !collectibleInfo.isMoving;
+            collectible.fliesAwayFromFrog = collectibleInfo.fliesAwayFromFrog;
+            collectible.fliesTowardsFrog = collectibleInfo.fliesTowardsFrog;
+
+            if (collectibleInfo.isMoving)
             {
-                case CollectibleType.XP_BONUS:
-                case CollectibleType.FROINS:
-                case CollectibleType.HEALTH:
-                case CollectibleType.LEVEL_UP:
-                    collectible.usesMagnet = true;
-                    collectible.runsAwayFromFrog = false;
-                    break;
-                case CollectibleType.POWERUP_MEGAMAGNET:
-                case CollectibleType.POWERUP_FRIENDSFRENZY:
-                case CollectibleType.POWERUP_FREEZEALL:
-                case CollectibleType.POWERUP_POISONALL:
-                case CollectibleType.POWERUP_CURSEALL:
-                case CollectibleType.POWERUP_GODMODE:
-                case CollectibleType.POWERUP_LEVELDOWNBUGS:
-                case CollectibleType.POWERUP_LEVELUPBUGS:
-                    collectible.usesMagnet = false;
-                    collectible.active = true;
-                    collectible.runsAwayFromFrog = true;
-                    // Set a default move direction that goes away from the frog
-                    collectible.moveDirection = (collectible.collectibleTransform.position - GameManager.instance.player.transform.position).normalized;
-                    collectible.collectibleRigidbody.velocity = collectible.moveDirection * movingCollectiblesDefaultSpeed;
-                    movingCollectiblesQueue.Enqueue(collectible);
-                    if (verboseLevel == VerboseLevel.MAXIMAL)
-                    {
-                        Debug.Log($"Enqueue moving collectible {collectible.collectibleTransform.name}");
-                    }
-                    break;
+                collectible.active = true;
+                // Set a default move direction that goes away from the frog
+                collectible.moveDirection = (collectible.collectibleTransform.position - GameManager.instance.player.transform.position).normalized;
+                collectible.collectibleRigidbody.velocity = collectible.moveDirection * movingCollectiblesDefaultSpeed;
+                movingCollectiblesQueue.Enqueue(collectible);
+                if (verboseLevel == VerboseLevel.MAXIMAL)
+                {
+                    Debug.Log($"Enqueue moving collectible {collectible.collectibleTransform.name}");
+                }
             }
 
             if (pushAwayForce > 0)
@@ -459,11 +446,22 @@ public class CollectiblesManager : MonoBehaviour
                     }
                     else if (distanceWithFrog < movingCollectiblesSafeDistanceWithFrog)
                     {
-                        // Collectible attempts to escape frog
-                        collectible.moveDirection = -directionTowardsFrog.normalized;
-                        collectible.collectibleRigidbody.velocity = collectible.moveDirection * movingCollectiblesEscapeSpeed;
-                        collectible.collectibleAnimator.SetFloat("speed", movingCollectiblesEscapeSpeed);
-                        collectible.lastChangeOfDirectionTime = Time.time;
+                        if (collectible.fliesAwayFromFrog)
+                        {
+                            // Collectible attempts to escape frog
+                            collectible.moveDirection = -directionTowardsFrog.normalized;
+                            collectible.collectibleRigidbody.velocity = collectible.moveDirection * movingCollectiblesEscapeSpeed;
+                            collectible.collectibleAnimator.SetFloat("speed", movingCollectiblesEscapeSpeed);
+                            collectible.lastChangeOfDirectionTime = Time.time;
+                        }
+                        else if (collectible.fliesTowardsFrog)
+                        {
+                            // Collectible attempts to go to the frog
+                            collectible.moveDirection = directionTowardsFrog.normalized;
+                            collectible.collectibleRigidbody.velocity = collectible.moveDirection * movingCollectiblesGoTowardsFrogSpeed;
+                            collectible.collectibleAnimator.SetFloat("speed", movingCollectiblesGoTowardsFrogSpeed);
+                            collectible.lastChangeOfDirectionTime = Time.time;
+                        }
                     }
                     else
                     {
