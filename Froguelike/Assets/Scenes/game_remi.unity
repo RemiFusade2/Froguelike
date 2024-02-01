@@ -7758,7 +7758,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   versionNumber: 0.1.6
   showEADisclaimer: 1
-  availablePowerUpsInEA: 55
+  availablePowerUpsInEA: -1
   demoBuild: 0
   showDemoDisclaimer: 1
   availablePowerUpsInDemo: 0
@@ -29360,6 +29360,17 @@ MonoBehaviour:
         _modifierKey1: 1
         _modifierKey2: 0
         _modifierKey3: 0
+      - _actionCategoryId: 0
+        _actionId: 11
+        _elementType: 1
+        _elementIdentifierId: -1
+        _axisRange: 0
+        _invert: 0
+        _axisContribution: 0
+        _keyboardKeyCode: 122
+        _modifierKey1: 1
+        _modifierKey2: 3
+        _modifierKey3: 0
     mouseMaps: []
     customControllerMaps: []
     customControllers: []
@@ -39943,6 +39954,7 @@ MonoBehaviour:
   cheat_getFroins: cheat_getFroins
   cheat_unlockAllQuests: cheat_unlockAllQuests
   cheat_toggleVersionNumber: cheat_toggleVersionNumber
+  cheat_steam_clearAchievements: cheat_steam_clearAchievements
 --- !u!50 &1127068953
 Rigidbody2D:
   serializedVersion: 4
@@ -74503,7 +74515,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.754717, g: 0, b: 0.059002213, a: 0}
+  m_BackGroundColor: {r: 0.09411766, g: 0.098039225, b: 0.121568635, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0

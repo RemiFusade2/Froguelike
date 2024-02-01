@@ -214,6 +214,7 @@ public class AchievementManager : MonoBehaviour
         {
             ClearSteamAchievementIfPossible(achievement.achievementData.achievementSteamID);
         }
+        Steamworks.SteamUserStats.StoreStats();
     }
 
     private bool ClearSteamAchievementIfPossible(string achievementSteamKey)
@@ -222,14 +223,17 @@ public class AchievementManager : MonoBehaviour
         string log = $"Achievement Manager - Achievement {achievementSteamKey} ";
         if (SteamManager.Initialized)
         {
-            if (Steamworks.SteamUserStats.ClearAchievement(achievementSteamKey))
+            if (Steamworks.SteamUserStats.RequestCurrentStats())
             {
-                achievementCleared = true;
-                log += "has just been reset on Steam!";
-            }
-            else
-            {
-                log += "couldn't be reset on Steam!";
+                if (Steamworks.SteamUserStats.ClearAchievement(achievementSteamKey))
+                {
+                    achievementCleared = true;
+                    log += "has just been reset on Steam!";
+                }
+                else
+                {
+                    log += "couldn't be reset on Steam!";
+                }
             }
         }
         else

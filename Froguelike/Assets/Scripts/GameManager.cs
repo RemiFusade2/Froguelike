@@ -84,6 +84,8 @@ public class GameManager : MonoBehaviour
     public bool hasGameStarted;
     public bool isGameRunning;
 
+    private const string totalBugEatenSteamStatName = "total_bugs_eaten";
+
     private void Awake()
     {
         if (instance == null)
@@ -125,6 +127,9 @@ public class GameManager : MonoBehaviour
             gameData.bestScore = score;
         }
         gameData.cumulatedScore += score;
+
+        // Update the stat on Steam (it's gonna show progress towards the achievement too)
+        SetSteamStatIfPossible(totalBugEatenSteamStatName, gameData.cumulatedScore);
     }
 
     public void OpenCharacterSelection()
@@ -399,4 +404,33 @@ public class GameManager : MonoBehaviour
     {
         return gameData.compassLevel;
     }
+
+    #region Steam
+
+    private void SetSteamStatIfPossible(string statKey, int statValue)
+    {
+        string log = $"Game Manager - Set Steam Stat {statKey} to value {statValue}. ";
+        if (SteamManager.Initialized && !BuildManager.instance.demoBuild)
+        {
+            if (Steamworks.SteamUserStats.SetStat(statKey, statValue))
+            {
+                log += "Success!";
+                Steamworks.SteamUserStats.StoreStats();
+            }
+            else
+            {
+                log += "Failed!";
+            }
+        }
+        else
+        {
+            log += "Abandoned. Steam manager has not been initialized, or this is the demo build.";
+        }
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log(log);
+        }
+    }
+
+    #endregion
 }

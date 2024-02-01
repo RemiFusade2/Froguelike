@@ -106,6 +106,8 @@ public class FrogCharacterController : MonoBehaviour
     public string cheat_getFroins = "cheat_getFroins";
     public string cheat_unlockAllQuests = "cheat_unlockAllQuests";
     public string cheat_toggleVersionNumber = "cheat_toggleVersionNumber";
+    [Space]
+    public string cheat_steam_clearAchievements = "cheat_steam_clearAchievements";
 
 
     private Player rewiredPlayer;
@@ -974,14 +976,13 @@ public class FrogCharacterController : MonoBehaviour
             UIManager.instance.ToggleVersionNumberVisible();
         }
 
-        /*
         if (rewiredPlayer.GetButtonDown(cheat_steam_clearAchievements))
         {
             // Clear all achievements on Steam
             AchievementManager.instance.ClearAllSteamAchievements();
-        }*/
+        }
 
-        return ;
+        return;
     }
 
     #endregion
