@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Rewired;
 using System.Linq;
-
+using static UnityEngine.ParticleSystem;
 
 public class FrogCharacterController : MonoBehaviour
 {
@@ -20,6 +20,10 @@ public class FrogCharacterController : MonoBehaviour
     public Animator animator;
     [Space]
     public SpriteRenderer characterRenderer;
+    [Space]
+    public FrogExplosionBehaviour freezeExplosionEffect;
+    public FrogExplosionBehaviour poisonExplosionEffect;
+    public FrogExplosionBehaviour curseExplosionEffect;
 
     [Header("Hats")]
     public Transform hatsParent;
@@ -81,6 +85,8 @@ public class FrogCharacterController : MonoBehaviour
     [Space]
     public float inputAxisDeadZone = 0.3f;
 
+    #region Cheats
+
     [Header("Settings - cheat controls")]
     public string cheat_inRun_levelUp = "cheat_inRun_levelUp";
     public string cheat_inRun_endChapter = "cheat_inRun_endChapter";
@@ -109,6 +115,7 @@ public class FrogCharacterController : MonoBehaviour
     [Space]
     public string cheat_steam_clearAchievements = "cheat_steam_clearAchievements";
 
+    #endregion 
 
     private Player rewiredPlayer;
     public float HorizontalInput { get; private set; }
@@ -843,6 +850,24 @@ public class FrogCharacterController : MonoBehaviour
     {
         yield return new WaitForSeconds(duration);
         applyGodMode = active;
+    }
+
+    public void TriggerExplosionEffect(CollectibleType statusEffectType)
+    {
+        switch (statusEffectType)
+        {
+            case CollectibleType.POWERUP_FREEZEALL:
+                freezeExplosionEffect.TriggerExplosion();
+                break;
+            case CollectibleType.POWERUP_POISONALL:
+                poisonExplosionEffect.TriggerExplosion();
+                break;
+            case CollectibleType.POWERUP_CURSEALL:
+                curseExplosionEffect.TriggerExplosion();
+                break;
+            default:
+                break;
+        }
     }
 
     #region Cheat codes
