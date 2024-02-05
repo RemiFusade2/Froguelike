@@ -1362,14 +1362,14 @@ public class EnemiesManager : MonoBehaviour
         }
     }
 
-    public void ApplyGlobalFreezeEffect(float duration)
+    public void ApplyGlobalFreezeEffect()
     {
         applyGlobalFreeze = true;
         if (SetGlobalFreezeEffectCoroutine != null)
         {
             StopCoroutine(SetGlobalFreezeEffectCoroutine);
         }
-        SetGlobalFreezeEffectCoroutine = StartCoroutine(SetGlobalFreezeEffect(false, duration));
+        SetGlobalFreezeEffectCoroutine = StartCoroutine(SetGlobalFreezeEffect(false, DataManager.instance.powerUpFreezeDuration));
     }
 
     private IEnumerator SetGlobalFreezeEffect(bool active, float duration)
@@ -1378,14 +1378,14 @@ public class EnemiesManager : MonoBehaviour
         applyGlobalFreeze = active;
     }
 
-    public void ApplyGlobalPoisonEffect(float duration)
+    public void ApplyGlobalPoisonEffect()
     {
         applyGlobalPoison = true;
         if (SetGlobalPoisonEffectCoroutine != null)
         {
             StopCoroutine(SetGlobalPoisonEffectCoroutine);
         }
-        SetGlobalPoisonEffectCoroutine = StartCoroutine(SetGlobalPoisonEffect(false, duration));
+        SetGlobalPoisonEffectCoroutine = StartCoroutine(SetGlobalPoisonEffect(false, DataManager.instance.powerUpPoisonDuration));
     }
 
     private IEnumerator SetGlobalPoisonEffect(bool active, float duration)
@@ -1394,14 +1394,14 @@ public class EnemiesManager : MonoBehaviour
         applyGlobalPoison = active;
     }
 
-    public void ApplyGlobalCurseEffect(float duration)
+    public void ApplyGlobalCurseEffect()
     {
         applyGlobalCurse = true;
         if (SetGlobalCurseEffectCoroutine != null)
         {
             StopCoroutine(SetGlobalCurseEffectCoroutine);
         }
-        SetGlobalCurseEffectCoroutine = StartCoroutine(SetGlobalCurseEffect(false, duration));
+        SetGlobalCurseEffectCoroutine = StartCoroutine(SetGlobalCurseEffect(false, DataManager.instance.powerUpCurseDuration));
     }
 
     private IEnumerator SetGlobalCurseEffect(bool active, float duration)

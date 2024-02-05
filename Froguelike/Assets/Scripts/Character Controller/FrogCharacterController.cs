@@ -857,13 +857,13 @@ public class FrogCharacterController : MonoBehaviour
         switch (statusEffectType)
         {
             case CollectibleType.POWERUP_FREEZEALL:
-                freezeExplosionEffect.TriggerExplosion();
+                freezeExplosionEffect.TriggerExplosion(EnemiesManager.instance.ApplyGlobalFreezeEffect);
                 break;
             case CollectibleType.POWERUP_POISONALL:
-                poisonExplosionEffect.TriggerExplosion();
+                poisonExplosionEffect.TriggerExplosion(EnemiesManager.instance.ApplyGlobalPoisonEffect);
                 break;
             case CollectibleType.POWERUP_CURSEALL:
-                curseExplosionEffect.TriggerExplosion();
+                curseExplosionEffect.TriggerExplosion(EnemiesManager.instance.ApplyGlobalCurseEffect);
                 break;
             default:
                 break;

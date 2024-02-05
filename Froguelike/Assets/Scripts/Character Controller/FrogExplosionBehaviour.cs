@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,17 +17,17 @@ public class FrogExplosionBehaviour : MonoBehaviour
 
     private Coroutine explosionBlowUpCoroutine;
 
-    public void TriggerExplosion()
+    public void TriggerExplosion(Action endOfExplosionAction)
     {
         explosionParticleSystem.Play();
         if (explosionBlowUpCoroutine != null)
         {
             StopCoroutine(explosionBlowUpCoroutine);
         }
-        explosionBlowUpCoroutine = StartCoroutine(ExplosionBlowUpAsync());        
+        explosionBlowUpCoroutine = StartCoroutine(ExplosionBlowUpAsync(endOfExplosionAction));        
     }
 
-    private IEnumerator ExplosionBlowUpAsync()
+    private IEnumerator ExplosionBlowUpAsync(Action endOfExplosionAction)
     {
         float radius = 0;
         ShapeModule shape = explosionParticleSystem.shape;
@@ -42,22 +43,24 @@ public class FrogExplosionBehaviour : MonoBehaviour
         explosionCollider.radius = 0;
         shape.radius = 0;
         explosionParticleSystem.Stop();
+        endOfExplosionAction();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Enemy") && GameManager.instance.isGameRunning)
         {
-            switch(statusEffect)
+            float explosionDuration = (maxRadius / blowUpSpeed); // After explosion effect, the global effect will take over.
+            switch (statusEffect)
             {
                 case TongueEffect.FREEZE:
-                    EnemiesManager.instance.ApplyFreezeEffect(collision.name, 10);
+                    EnemiesManager.instance.ApplyFreezeEffect(collision.name, explosionDuration);
                     break;
                 case TongueEffect.POISON:
-                    EnemiesManager.instance.AddPoisonDamageToEnemy(collision.name, 0.1f, 10);
+                    EnemiesManager.instance.AddPoisonDamageToEnemy(collision.name, 0.1f, explosionDuration);
                     break;
                 case TongueEffect.CURSE:
-                    EnemiesManager.instance.ApplyCurseEffect(collision.name, 10);
+                    EnemiesManager.instance.ApplyCurseEffect(collision.name, explosionDuration);
                     break;
                 default:
                     break;
