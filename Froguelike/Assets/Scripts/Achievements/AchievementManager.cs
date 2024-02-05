@@ -807,4 +807,39 @@ public class AchievementManager : MonoBehaviour
             }
         }
     }
+
+    public void ApplyCharacterStatsIncrementsFromAchievementsIfNeeded()
+    {
+        List<Achievement> unlockedStatIncrementAchievementsList = achievementsData.achievementsList.Where(
+            x => x.unlocked // only unlocked achievements
+            && (!BuildManager.instance.demoBuild || x.achievementData.partOfDemo) // if we're playing the Demo then only achievements that are part of Demo
+            && x.achievementData.reward.rewardType == AchievementRewardType.FEATURE // only achievements that unlock a new "feature"
+            && (x.achievementData.reward.featureID == RewardFeatureType.GHOST_BUFF ||
+                x.achievementData.reward.featureID == RewardFeatureType.RIBBIT_BUFF ||
+                x.achievementData.reward.featureID == RewardFeatureType.STANLEY_BUFF) // only if "feature" is a stat boost for a frog
+            ).ToList();
+
+        foreach (Achievement achievement in unlockedStatIncrementAchievementsList)
+        {
+            PlayableCharacter playableFrog = null;
+            switch(achievement.achievementData.reward.featureID)
+            {
+                case RewardFeatureType.GHOST_BUFF:
+                    playableFrog = CharacterManager.instance.charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals("GHOST"));
+                    break;
+                case RewardFeatureType.RIBBIT_BUFF:
+                    playableFrog = CharacterManager.instance.charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals("POISONOUS_FROG"));
+                    break;
+                case RewardFeatureType.STANLEY_BUFF:
+                    playableFrog = CharacterManager.instance.charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals("STANLEY"));
+                    break;
+                default:
+                    break;
+            }
+            if (playableFrog != null && playableFrog.unlocked && playableFrog.characterStatsIncrements.statsList.Count <= 0)
+            {
+                GameManager.instance.UnlockFeature(achievement.achievementData.reward.featureID); // Add stat increment
+            }
+        }
+    }
 }

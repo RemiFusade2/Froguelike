@@ -25,15 +25,25 @@ public class PlayableCharacter
     public string characterID;
 
     // All information about current state of the character
-    public StatsWrapper characterStartingStats;
+    public StatsWrapper characterStatsIncrements;
     public bool unlocked;
     public bool hidden;
     public int wonWith;
 
+    public StatsWrapper GetCharacterStartingStats()
+    {
+        if (characterStatsIncrements != null && characterStatsIncrements.statsList != null && characterStatsIncrements.statsList.Count > 0)
+        {
+            StatsWrapper combinedStats = StatsWrapper.JoinLists(characterData.startingStatsList, characterStatsIncrements.statsList);
+            return combinedStats;
+        }
+        return new StatsWrapper(characterData.startingStatsList);
+    }
+
     public bool GetValueForStat(CharacterStat stat, out float value)
     {
         value = 0;
-        StatValue statValue = characterStartingStats.GetStatValue(stat);
+        StatValue statValue = GetCharacterStartingStats().GetStatValue(stat);
         bool statExists = (statValue != null);
         if (statExists)
         {
@@ -351,7 +361,7 @@ public class CharacterManager : MonoBehaviour
 
         // Get all values for stats.
         List<StatValue> statBonusesFromShop = ShopManager.instance.statsBonuses;
-        List<StatValue> currentCharacterStatList = currentSelectedCharacter.characterStartingStats.statsList;
+        List<StatValue> currentCharacterStatList = currentSelectedCharacter.GetCharacterStartingStats().statsList;
         List<StatValue> totalStatList = StatsWrapper.JoinLists(currentCharacterStatList, statBonusesFromShop).statsList;
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
@@ -563,7 +573,7 @@ public class CharacterManager : MonoBehaviour
                 character.unlocked = characterFromSave.unlocked;
                 character.hidden = characterFromSave.hidden;
                 character.wonWith = characterFromSave.wonWith;
-                character.characterStartingStats = characterFromSave.characterStartingStats;
+                character.characterStatsIncrements = characterFromSave.characterStatsIncrements;
             }
         }
 
@@ -585,7 +595,7 @@ public class CharacterManager : MonoBehaviour
             foreach (CharacterData characterData in charactersScriptableObjectsList)
             {
                 PlayableCharacter newCharacter = new PlayableCharacter() { characterData = characterData, characterID = characterData.characterID, unlocked = characterData.startingUnlockState, hidden = characterData.startingHiddenState, wonWith = 0 };
-                newCharacter.characterStartingStats = new StatsWrapper(characterData.startingStatsList);
+                newCharacter.characterStatsIncrements = new StatsWrapper();
                 charactersData.charactersList.Add(newCharacter);
             }
         }
@@ -594,7 +604,7 @@ public class CharacterManager : MonoBehaviour
             // A soft reset will not lock characters that were unlocked, but it will reset their starting stats to start game values
             foreach (PlayableCharacter character in charactersData.charactersList)
             {
-                character.characterStartingStats = new StatsWrapper(character.characterData.startingStatsList);
+                character.characterStatsIncrements = new StatsWrapper();
             }
         }
 
@@ -621,12 +631,12 @@ public class CharacterManager : MonoBehaviour
         return characterNewlyUnlocked;
     }
 
-    public void ChangeCharacterStats(string characterID, List<StatValue> changedStatsValues)
+    public void IncrementCharacterStats(string characterID, List<StatValue> changedStatsValues)
     {
         PlayableCharacter character = charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals(characterID));
         if (character != null)
         {
-            character.characterStartingStats = StatsWrapper.JoinLists(character.characterStartingStats, changedStatsValues);
+            character.characterStatsIncrements = StatsWrapper.JoinLists(character.characterStatsIncrements, changedStatsValues);
             SaveDataManager.instance.isSaveDataDirty = true;
         }
     }

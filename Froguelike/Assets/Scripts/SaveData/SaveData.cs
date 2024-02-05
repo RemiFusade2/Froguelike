@@ -111,6 +111,8 @@ public class CombinedSaveData
                 Debug.Log($"Debug info - Calling AchievementManager.instance.SetAchievementsData({saveData.achievementsSaveData})");
             }
             AchievementManager.instance.SetAchievementsData(saveData.achievementsSaveData);
+
+            AchievementManager.instance.ApplyCharacterStatsIncrementsFromAchievementsIfNeeded();
         }
     }
 

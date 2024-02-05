@@ -377,7 +377,7 @@ public class FrogCharacterController : MonoBehaviour
         characterRenderer.material.SetFloat("_OutlineThickness", 0);
 
         // Starting Stats for this character
-        StatsWrapper allStartingStatsWrapper = StatsWrapper.JoinLists(characterInfo.characterStartingStats, ShopManager.instance.statsBonuses);
+        StatsWrapper allStartingStatsWrapper = StatsWrapper.JoinLists(characterInfo.GetCharacterStartingStats(), ShopManager.instance.statsBonuses);
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
