@@ -266,6 +266,13 @@ public class EnemiesManager : MonoBehaviour
     [Space]
     public float knockbackDuration = 0.2f;
 
+    [Header("Settings - Bounties")]
+    public float bountyDefaultHealthMultiplier = 50;
+    public float bountyDefaultDamageMultiplier = 2;
+    [Space]
+    public int bountyOutlineThickness = 1;
+    public List<Color> bountyOutlineColorsList;
+
     [Header("Runtime")]
     public static int lastKey;
 
@@ -682,8 +689,8 @@ public class EnemiesManager : MonoBehaviour
             Color outlineColor = enemyData.outlineColor;
             if (bounty != null)
             {
-                outlineThickness = bounty.outlineThicknessOverride;
-                outlineColor = bounty.outlineColorOverride;
+                outlineThickness = bountyOutlineThickness;
+                outlineColor = bountyOutlineColorsList[0];
             }
 
             if (outlineThickness > 0)
@@ -800,7 +807,15 @@ public class EnemiesManager : MonoBehaviour
         float hpMultiplier = 1;
         if (bounty != null)
         {
-            hpMultiplier = bounty.hpMultiplier;
+            if (bounty.overrideHealthMultiplier)
+            {
+                hpMultiplier = bounty.healthMultiplier;
+            }
+            else
+            {
+                hpMultiplier = bountyDefaultHealthMultiplier;
+            }
+
             // add bounty to dico
             newEnemy.bountyBug = bounty;
         }
@@ -941,7 +956,7 @@ public class EnemiesManager : MonoBehaviour
             int sortedOrderLayer = Random.Range(100, 200);
             damageTMPScript.sortingOrder = sortedOrderLayer+1;
 
-            // Todo: implement a proper outline and remove this shit
+            // Todo: implement a proper outline for damage text and remove this shit
             foreach (Transform child in damageText.transform)
             {
                 child.GetComponent<TMPro.TextMeshPro>().text = damageAmountStr;
@@ -960,6 +975,25 @@ public class EnemiesManager : MonoBehaviour
             }
             visibleDamageTexts.Add(damageText);
             StartCoroutine(PutDamageTextIntoPoolAsync(damageText, damageTextLifespanInSeconds));
+        }
+
+        // Bunty outline color
+        if (enemy.bountyBug != null && bountyOutlineThickness > 0)
+        {
+            float enemyMaxHP = enemy.enemyInfo.enemyData.maxHP;
+            if (enemy.bountyBug.overrideHealthMultiplier)
+            {
+                enemyMaxHP *= enemy.bountyBug.healthMultiplier;
+            }
+            else
+            {
+                enemyMaxHP *= bountyDefaultHealthMultiplier;
+            }
+
+            int outlineColorIndex = Mathf.FloorToInt(((enemyMaxHP-enemy.HP) / enemyMaxHP) * bountyOutlineColorsList.Count);
+            outlineColorIndex = (outlineColorIndex >= bountyOutlineColorsList.Count) ? (bountyOutlineColorsList.Count - 1) : outlineColorIndex;
+            Color bountyOutlineColor = bountyOutlineColorsList[outlineColorIndex];
+            enemy.SetOutlineColor(bountyOutlineColor, bountyOutlineThickness);
         }
 
         bool enemyDied = false;
@@ -1459,7 +1493,9 @@ public class EnemiesManager : MonoBehaviour
                 else if (newTier > 5)
                 {
                     // Spawn the same enemy but with a bounty
-                    BountyBug bountyBug = new BountyBug(enemyData.enemyType, 100, 2, 20, enemyMovePattern);
+                    BountyBug bountyBug = new BountyBug(enemyData.enemyType, 
+                        overrideHealthMultiplier: false, healthMultiplier: bountyDefaultHealthMultiplier,
+                        2, 20, enemyMovePattern);
                     bountyBug.bountyList.Add( new Bounty() { collectibleType = CollectibleType.FROINS, amount = 10, value = 10 });
                     bountyBug.bountyList.Add( new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 10, value = 50 });
                     StartCoroutine(SpawnEnemyAsync(enemyData.prefab, enemyPosition, enemyData, enemyMovePattern, enemyInstance.wave, delay: 0.01f, difficultyTier: 5, neverDespawn: true, bounty: bountyBug, forceMovementDirection: true, moveDirection: enemyMoveDirection));

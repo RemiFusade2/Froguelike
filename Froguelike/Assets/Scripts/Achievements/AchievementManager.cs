@@ -185,7 +185,7 @@ public class AchievementManager : MonoBehaviour
                 }
             }
         }
-        CommitSteamAchievements();
+        SteamStoreStats();
     }
 
     #endregion
@@ -288,9 +288,9 @@ public class AchievementManager : MonoBehaviour
         return achievementUnlocked;
     }
 
-    public void CommitSteamAchievements()
+    public void SteamStoreStats()
     {
-        string log = $"Achievement Manager - CommitSteamAchievements ";
+        string log = $"Achievement Manager - SteamStoreStats ";
         if (SteamManager.Initialized && !BuildManager.instance.demoBuild)
         {
 #if !DISABLESTEAMWORKS
@@ -397,8 +397,8 @@ public class AchievementManager : MonoBehaviour
                                 case AchievementConditionSpecialKey.DIE_A_BUNCH_OF_TIMES:
                                     conditionsAreMet &= GameManager.instance.gameData.deathCount >= 10;
                                     break;
-                                case AchievementConditionSpecialKey.EAT_100000_BUGS:
-                                    conditionsAreMet &= (GameManager.instance.gameData.cumulatedScore >= 100000);
+                                case AchievementConditionSpecialKey.EAT_20000_BUGS:
+                                    conditionsAreMet &= (GameManager.instance.gameData.cumulatedScore >= 20000);
                                     break;
                                 case AchievementConditionSpecialKey.GATHER_ALL_FRIENDS:
                                     int friendCount = FriendsManager.instance.HasPermanentFriendsCount();
@@ -473,7 +473,7 @@ public class AchievementManager : MonoBehaviour
             }
         }
 
-        CommitSteamAchievements();
+        SteamStoreStats();
 
         return unlockedAchievementsList;
     }
@@ -507,7 +507,7 @@ public class AchievementManager : MonoBehaviour
                 }
             }
         }
-        CommitSteamAchievements();
+        SteamStoreStats();
     }
 
     private void UnlockAchievement(Achievement achievement)

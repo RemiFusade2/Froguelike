@@ -242,8 +242,11 @@ public class BountyBug
     public string tierFormula;
 
     [Header("Stat Multipliers")]
-    [Tooltip("HP Max of bug is multiplied by this value")]
-    public float hpMultiplier;
+    [Tooltip("Override the HP Max factor of that bounty?")]
+    public bool overrideHealthMultiplier = false;
+    [Tooltip("HP Max of bug would be multiplied by this value instead of the default")]
+    public float healthMultiplier = 0;
+    [Space]
     [Tooltip("Damage of bug is multiplied by this value")]
     public float damageMultiplier;
     [Tooltip("XP given by this bug is multiplied by this value")]
@@ -253,27 +256,20 @@ public class BountyBug
     [Tooltip("Which movement pattern this enemy will follow")]
     public EnemyMovePattern movePattern;
 
-    [Header("Appearance")]
-    [Tooltip("Outline thickness of this bug")]
-    public int outlineThicknessOverride = 1;
-    [Tooltip("Outline color of this bug")]
-    public Color outlineColorOverride = new Color(0.984f, 0.992f, 0.984f);
-
     [Header("Bounty")]
     [Tooltip("A list of collectibles + amount that serve as a bounty")]
     public List<Bounty> bountyList;
 
-    public BountyBug(EnemyType enemyType, float hpMultiplier, float damageMultiplier, float xpMultiplier, EnemyMovePattern movePattern)
+    public BountyBug(EnemyType enemyType, bool overrideHealthMultiplier, float healthMultiplier, float damageMultiplier, float xpMultiplier, EnemyMovePattern movePattern)
     {
         this.spawnTime = 0;
         this.enemyType = enemyType;
         this.tierFormula = "";
-        this.hpMultiplier = hpMultiplier;
+        this.overrideHealthMultiplier = overrideHealthMultiplier;
+        this.healthMultiplier = healthMultiplier;
         this.damageMultiplier = damageMultiplier;
         this.xpMultiplier = xpMultiplier;
         this.movePattern = movePattern;
-        this.outlineThicknessOverride = 1;
-        this.outlineColorOverride = new Color(0.984f, 0.992f, 0.984f);
         this.bountyList = new List<Bounty>();
     }
 }

@@ -9,7 +9,7 @@ public enum AchievementConditionSpecialKey
     UNLOCK_A_CHARACTER = 2,
     COMPLETE_10_ACHIEVEMENTS = 3,
     DIE_A_BUNCH_OF_TIMES = 4,
-    EAT_100000_BUGS = 5,
+    EAT_20000_BUGS = 5,
     GATHER_ALL_FRIENDS = 6,
     UNLOCK_10_CHAPTERS = 7,
     COMPLETE_1_ACHIEVEMENT = 8,

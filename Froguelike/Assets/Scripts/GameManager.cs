@@ -130,6 +130,7 @@ public class GameManager : MonoBehaviour
 
         // Update the stat on Steam (it's gonna show progress towards the achievement too)
         SetSteamStatIfPossible(totalBugEatenSteamStatName, gameData.cumulatedScore);
+        AchievementManager.instance.SteamStoreStats();
     }
 
     public void OpenCharacterSelection()
@@ -398,6 +399,8 @@ public class GameManager : MonoBehaviour
         gameData.isFullGame = !BuildManager.instance.demoBuild;
         gameData.versionNumber = BuildManager.instance.versionNumber;
         UIManager.instance.UpdateCurrencyDisplay();
+        SetSteamStatIfPossible(totalBugEatenSteamStatName, gameData.cumulatedScore);
+        AchievementManager.instance.SteamStoreStats();
     }
 
     public int GetCompassLevel()
