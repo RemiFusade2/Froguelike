@@ -189,7 +189,16 @@ public class StatsWrapper
     /// <returns></returns>
     public static StatsWrapper JoinLists(StatsWrapper statsWrapper1, List<StatValue> statsList2)
     {
-        return StatsWrapper.JoinLists(statsWrapper1.statsList, statsList2);
+        StatsWrapper result = null;
+        if (statsWrapper1 != null)
+        {
+            result = StatsWrapper.JoinLists(statsWrapper1.statsList, statsList2);
+        }
+        else
+        {
+            result = new StatsWrapper(statsList2);
+        }
+        return result;
     }
 
     /// <summary>
@@ -203,26 +212,32 @@ public class StatsWrapper
     {
         StatsWrapper result = new StatsWrapper();
 
-        // Copy values from list 1 to result list
-        foreach (StatValue statValue in statsList1)
+        if (statsList1 != null)
         {
-            result.statsList.Add(new StatValue(statValue));
+            // Copy values from list 1 to result list
+            foreach (StatValue statValue in statsList1)
+            {
+                result.statsList.Add(new StatValue(statValue));
+            }
         }
 
-        // Copy values from list 2 to result list
-        // Merge values if needed
-        foreach (StatValue statValue in statsList2)
+        if (statsList2 != null)
         {
-            StatValue statValueInResultList = result.statsList.FirstOrDefault(x => x.stat.Equals(statValue.stat));
-            if (statValueInResultList != null)
+            // Copy values from list 2 to result list
+            // Merge values if needed
+            foreach (StatValue statValue in statsList2)
             {
-                // The list already contains a value for this stat, we must add them together
-                statValueInResultList.value += statValue.value;
-            }
-            else
-            {
-                // The list doesn't contain a value for this stat, we must add that stat to the list
-                result.statsList.Add(new StatValue(statValue));
+                StatValue statValueInResultList = result.statsList.FirstOrDefault(x => x.stat.Equals(statValue.stat));
+                if (statValueInResultList != null)
+                {
+                    // The list already contains a value for this stat, we must add them together
+                    statValueInResultList.value += statValue.value;
+                }
+                else
+                {
+                    // The list doesn't contain a value for this stat, we must add that stat to the list
+                    result.statsList.Add(new StatValue(statValue));
+                }
             }
         }
 
