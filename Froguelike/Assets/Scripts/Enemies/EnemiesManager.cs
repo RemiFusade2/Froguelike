@@ -134,6 +134,7 @@ public class EnemyInstance
     public ParticleSystem enemyFreezeParticles;
     public ParticleSystem enemyPoisonParticles;
     public ParticleSystem enemyCurseParticles;
+public SpriteMask enemySpriteMask;
 
     // A link to the last weapon that hit this enemy
     public Transform lastWeaponHitTransform;
@@ -186,6 +187,8 @@ public class EnemyInstance
         enemyCurseParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         enemyFreezeParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         enemyPoisonParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
+	enemySpriteMask.frontSortingLayerID = 0;
     }
 }
 
@@ -304,7 +307,6 @@ public class EnemiesManager : MonoBehaviour
     private Coroutine SetGlobalPoisonEffectCoroutine;
     private Coroutine SetGlobalCurseEffectCoroutine;
 
-
     #region Unity Callback Methods
 
     private void Awake()
@@ -363,7 +365,7 @@ public class EnemiesManager : MonoBehaviour
             newEnemy.enemyFreezeParticles = newEnemy.enemyTransform.Find("Freeze Particles").GetComponent<ParticleSystem>();
             newEnemy.enemyPoisonParticles = newEnemy.enemyTransform.Find("Poison Particles").GetComponent<ParticleSystem>();
             newEnemy.enemyCurseParticles = newEnemy.enemyTransform.Find("Curse Particles").GetComponent<ParticleSystem>();
-
+newEnemy.enemySpriteMask = enemyGameObject.GetComponent<SpriteMask>();
             PutEnemyInThePool(newEnemy);
         }
 
@@ -1575,6 +1577,7 @@ public class EnemiesManager : MonoBehaviour
                 if (!enemyInstance.enemyFreezeParticles.isPlaying)
                 {
                     enemyInstance.enemyFreezeParticles.Play();
+	enemyInstance.enemySpriteMask.frontSortingLayerID = unchecked((int)999825645);
                 }
             }
             else
@@ -1582,6 +1585,7 @@ public class EnemiesManager : MonoBehaviour
                 if (enemyInstance.enemyFreezeParticles.isPlaying)
                 {
                     enemyInstance.enemyFreezeParticles.Stop();
+	enemyInstance.enemySpriteMask.frontSortingLayerID = 0;
                 }
             }
         }
@@ -1594,6 +1598,7 @@ public class EnemiesManager : MonoBehaviour
                 if (!enemyInstance.enemyCurseParticles.isPlaying)
                 {
                     enemyInstance.enemyCurseParticles.Play();
+	enemyInstance.enemySpriteMask.frontSortingLayerID = unchecked((int)2063062777);
                 }
             }
             else
@@ -1601,6 +1606,7 @@ public class EnemiesManager : MonoBehaviour
                 if (enemyInstance.enemyCurseParticles.isPlaying)
                 {
                     enemyInstance.enemyCurseParticles.Stop();
+	enemyInstance.enemySpriteMask.frontSortingLayerID = 0;
                 }
             }
         }
@@ -1613,6 +1619,7 @@ public class EnemiesManager : MonoBehaviour
                 if (!enemyInstance.enemyPoisonParticles.isPlaying)
                 {
                     enemyInstance.enemyPoisonParticles.Play();
+	enemyInstance.enemySpriteMask.frontSortingLayerID = unchecked((int)930811407);
                 }
             }
             else
@@ -1620,6 +1627,7 @@ public class EnemiesManager : MonoBehaviour
                 if (enemyInstance.enemyPoisonParticles.isPlaying)
                 {
                     enemyInstance.enemyPoisonParticles.Stop();
+	enemyInstance.enemySpriteMask.frontSortingLayerID = 0;
                 }
             }
         }
