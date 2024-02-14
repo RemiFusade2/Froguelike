@@ -7756,9 +7756,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e808e90f5c8a724b8fa58e183c163b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  versionNumber: 0.1.6.1
+  versionNumber: 0.1.7
   showEADisclaimer: 1
-  availablePowerUpsInEA: 48
+  availablePowerUpsInEA: 55
   demoBuild: 0
   showDemoDisclaimer: 1
   availablePowerUpsInDemo: 0
@@ -14195,10 +14195,10 @@ MonoBehaviour:
   damageTextColor_vampire: {r: 0.7960785, g: 0.25882354, b: 0.31764707, a: 1}
   damageTextColor_poison: {r: 0.3254902, g: 0.7176471, b: 0.14509805, a: 1}
   damageTextColor_freeze: {r: 0.56078434, g: 0.9333334, b: 0.9333334, a: 1}
-  damageTextColor_curse: {r: 0.6392157, g: 0.30588236, b: 0.654902, a: 1}
+  damageTextColor_curse: {r: 0.39215687, g: 0.24313726, b: 0.54509807, a: 1}
   poisonedOverlayColor: {r: 0.3254902, g: 0.72156864, b: 0.14509805, a: 1}
   frozenOverlayColor: {r: 0.56078434, g: 0.9333334, b: 0.9333334, a: 1}
-  cursedOverlayColor: {r: 0.6392157, g: 0.30588236, b: 0.654902, a: 1}
+  cursedOverlayColor: {r: 0.39215687, g: 0.24313726, b: 0.54509807, a: 1}
   vampireOverlayColor: {r: 0.7960785, g: 0.25882354, b: 0.31764707, a: 1}
   knockbackOverlayColor: {r: 0.9843138, g: 0.9921569, b: 0.9843138, a: 1}
   delayBetweenPoisonDamage: 0.1
@@ -21203,13 +21203,6 @@ MonoBehaviour:
       Data3: 133591693
       Data4: -779476967
     Path: event:/InRun/EatBug
-  <powerUpFreezeAllSound>k__BackingField:
-    Guid:
-      Data1: 832113068
-      Data2: 1220481949
-      Data3: -1857847394
-      Data4: 1619003891
-    Path: event:/InRun/PowerUpFreeze
   <powerUpPartySound>k__BackingField:
     Guid:
       Data1: -227914992
@@ -21224,6 +21217,27 @@ MonoBehaviour:
       Data3: 1281231793
       Data4: -1547941684
     Path: event:/InRun/PowerUpGoop
+  <powerUpFreezeAllSound>k__BackingField:
+    Guid:
+      Data1: 832113068
+      Data2: 1220481949
+      Data3: -1857847394
+      Data4: 1619003891
+    Path: event:/InRun/PowerUpFreeze
+  <powerUpPoisonAllSound>k__BackingField:
+    Guid:
+      Data1: 832113068
+      Data2: 1220481949
+      Data3: -1857847394
+      Data4: 1619003891
+    Path: event:/InRun/PowerUpFreeze
+  <powerUpCurseAllSound>k__BackingField:
+    Guid:
+      Data1: 832113068
+      Data2: 1220481949
+      Data3: -1857847394
+      Data4: 1619003891
+    Path: event:/InRun/PowerUpFreeze
 --- !u!4 &464157711
 Transform:
   m_ObjectHideFlags: 0
@@ -98970,6 +98984,10 @@ PrefabInstance:
     - target: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
       propertyPath: m_Name
       value: Treasure Tile 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1840373897178454646, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
       propertyPath: m_RootOrder
