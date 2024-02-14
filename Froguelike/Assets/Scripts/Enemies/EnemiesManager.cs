@@ -134,7 +134,7 @@ public class EnemyInstance
     public ParticleSystem enemyFreezeParticles;
     public ParticleSystem enemyPoisonParticles;
     public ParticleSystem enemyCurseParticles;
-public SpriteMask enemySpriteMask;
+    public SpriteMask enemySpriteMask;
 
     // A link to the last weapon that hit this enemy
     public Transform lastWeaponHitTransform;
@@ -188,7 +188,8 @@ public SpriteMask enemySpriteMask;
         enemyFreezeParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         enemyPoisonParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
 
-	enemySpriteMask.frontSortingLayerID = 0;
+	    enemySpriteMask.frontSortingLayerID = 0;
+        enemySpriteMask.backSortingLayerID = 0;
     }
 }
 
@@ -365,7 +366,7 @@ public class EnemiesManager : MonoBehaviour
             newEnemy.enemyFreezeParticles = newEnemy.enemyTransform.Find("Freeze Particles").GetComponent<ParticleSystem>();
             newEnemy.enemyPoisonParticles = newEnemy.enemyTransform.Find("Poison Particles").GetComponent<ParticleSystem>();
             newEnemy.enemyCurseParticles = newEnemy.enemyTransform.Find("Curse Particles").GetComponent<ParticleSystem>();
-newEnemy.enemySpriteMask = enemyGameObject.GetComponent<SpriteMask>();
+            newEnemy.enemySpriteMask = enemyGameObject.GetComponent<SpriteMask>();
             PutEnemyInThePool(newEnemy);
         }
 
@@ -848,7 +849,7 @@ newEnemy.enemySpriteMask = enemyGameObject.GetComponent<SpriteMask>();
         Vector2 vectorTowardsPlayer = (GameManager.instance.player.transform.position - newEnemy.enemyTransform.position).normalized;
         switch (movePattern.movePatternType)
         {
-            case EnemyMovePatternType.BOUNCE_ON_EDGES: // diagonal 45° movement, somewhat towards player
+            case EnemyMovePatternType.BOUNCE_ON_EDGES: // diagonal 45? movement, somewhat towards player
                 // Special move pattern where this enemy should not interact with anything, and would be displayed on top of everything
                 newEnemy.enemyCollider.isTrigger = true;
                 newEnemy.enemyRenderer.sortingOrder = 1000;
@@ -1577,7 +1578,8 @@ newEnemy.enemySpriteMask = enemyGameObject.GetComponent<SpriteMask>();
                 if (!enemyInstance.enemyFreezeParticles.isPlaying)
                 {
                     enemyInstance.enemyFreezeParticles.Play();
-	enemyInstance.enemySpriteMask.frontSortingLayerID = unchecked((int)999825645);
+	                enemyInstance.enemySpriteMask.frontSortingLayerID = unchecked((int)999825645);
+                    enemyInstance.enemySpriteMask.backSortingLayerID = unchecked((int)999825645);
                 }
             }
             else
@@ -1585,7 +1587,8 @@ newEnemy.enemySpriteMask = enemyGameObject.GetComponent<SpriteMask>();
                 if (enemyInstance.enemyFreezeParticles.isPlaying)
                 {
                     enemyInstance.enemyFreezeParticles.Stop();
-	enemyInstance.enemySpriteMask.frontSortingLayerID = 0;
+	                enemyInstance.enemySpriteMask.frontSortingLayerID = 0;
+                    enemyInstance.enemySpriteMask.backSortingLayerID = 0;
                 }
             }
         }
@@ -1598,7 +1601,8 @@ newEnemy.enemySpriteMask = enemyGameObject.GetComponent<SpriteMask>();
                 if (!enemyInstance.enemyCurseParticles.isPlaying)
                 {
                     enemyInstance.enemyCurseParticles.Play();
-	enemyInstance.enemySpriteMask.frontSortingLayerID = unchecked((int)2063062777);
+	                enemyInstance.enemySpriteMask.frontSortingLayerID = unchecked((int)2063062777);
+                    enemyInstance.enemySpriteMask.backSortingLayerID = unchecked((int)2063062777);
                 }
             }
             else
@@ -1606,7 +1610,8 @@ newEnemy.enemySpriteMask = enemyGameObject.GetComponent<SpriteMask>();
                 if (enemyInstance.enemyCurseParticles.isPlaying)
                 {
                     enemyInstance.enemyCurseParticles.Stop();
-	enemyInstance.enemySpriteMask.frontSortingLayerID = 0;
+	                enemyInstance.enemySpriteMask.frontSortingLayerID = 0;
+                    enemyInstance.enemySpriteMask.backSortingLayerID = 0;
                 }
             }
         }
@@ -1619,7 +1624,8 @@ newEnemy.enemySpriteMask = enemyGameObject.GetComponent<SpriteMask>();
                 if (!enemyInstance.enemyPoisonParticles.isPlaying)
                 {
                     enemyInstance.enemyPoisonParticles.Play();
-	enemyInstance.enemySpriteMask.frontSortingLayerID = unchecked((int)930811407);
+	                enemyInstance.enemySpriteMask.frontSortingLayerID = unchecked((int)930811407);
+                    enemyInstance.enemySpriteMask.backSortingLayerID = unchecked((int)930811407);
                 }
             }
             else
@@ -1627,7 +1633,8 @@ newEnemy.enemySpriteMask = enemyGameObject.GetComponent<SpriteMask>();
                 if (enemyInstance.enemyPoisonParticles.isPlaying)
                 {
                     enemyInstance.enemyPoisonParticles.Stop();
-	enemyInstance.enemySpriteMask.frontSortingLayerID = 0;
+	                enemyInstance.enemySpriteMask.frontSortingLayerID = 0;
+                    enemyInstance.enemySpriteMask.backSortingLayerID = 0;
                 }
             }
         }

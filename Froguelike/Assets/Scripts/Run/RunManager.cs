@@ -1491,7 +1491,7 @@ public class RunManager : MonoBehaviour
             case CollectibleType.POWERUP_CURSEALL:
                 //EnemiesManager.instance.ApplyGlobalCurseEffect(DataManager.instance.powerUpCurseDuration);
                 player.TriggerExplosionEffect(CollectibleType.POWERUP_CURSEALL);
-                SoundManager.instance.PlayFreezeAllSound();
+                SoundManager.instance.PlayCurseAllSound();
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                 {
                     Debug.Log("Run - Collected Curse power-up");
