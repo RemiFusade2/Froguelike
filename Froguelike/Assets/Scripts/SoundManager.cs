@@ -36,9 +36,11 @@ public class SoundManager : MonoBehaviour
     [field: SerializeField] public EventReference eatBugSound { get; private set; } // Not used yet.
 
     [field: Header("Power ups")]
-    [field: SerializeField] public EventReference powerUpFreezeAllSound { get; private set; }
     [field: SerializeField] public EventReference powerUpPartySound { get; private set; }
     [field: SerializeField] public EventReference powerUpGoopSound { get; private set; }
+    [field: SerializeField] public EventReference powerUpFreezeAllSound { get; private set; }
+    [field: SerializeField] public EventReference powerUpPoisonAllSound { get; private set; }
+    [field: SerializeField] public EventReference powerUpCurseAllSound { get; private set; }
 
     private EventInstance takeDamageEvent;
     private EventInstance pickUpXPEvent;
@@ -260,10 +262,7 @@ public class SoundManager : MonoBehaviour
         // TODO No sound yet.
     }
 
-    public void PlayFreezeAllSound()
-    {
-        RuntimeManager.PlayOneShot(powerUpFreezeAllSound);
-    }
+    #region Power-ups
 
     public void PlayPartySound()
     {
@@ -274,6 +273,23 @@ public class SoundManager : MonoBehaviour
     {
         RuntimeManager.PlayOneShot(powerUpGoopSound);
     }
+
+    public void PlayFreezeAllSound()
+    {
+        RuntimeManager.PlayOneShot(powerUpFreezeAllSound);
+    }
+
+    public void PlayPoisonAllSound()
+    {
+        RuntimeManager.PlayOneShot(powerUpPoisonAllSound);
+    }
+
+    public void PlayCurseAllSound()
+    {
+        RuntimeManager.PlayOneShot(powerUpCurseAllSound);
+    }
+
+    #endregion Power-ups
 
     public void PlayCreditFrogCroakingSound()
     {
