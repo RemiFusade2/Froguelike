@@ -17,8 +17,15 @@ public class FrogExplosionBehaviour : MonoBehaviour
 
     private Coroutine explosionBlowUpCoroutine;
 
+    private void Start()
+    {
+        explosionCollider.radius = 0;
+        explosionCollider.enabled = false;
+    }
+
     public void TriggerExplosion(Action endOfExplosionAction)
     {
+        explosionCollider.enabled = true;
         explosionParticleSystem.Play();
         if (explosionBlowUpCoroutine != null)
         {
@@ -43,6 +50,7 @@ public class FrogExplosionBehaviour : MonoBehaviour
         explosionCollider.radius = 0;
         shape.radius = 0;
         explosionParticleSystem.Stop();
+        explosionCollider.enabled = false;
         endOfExplosionAction();
     }
 

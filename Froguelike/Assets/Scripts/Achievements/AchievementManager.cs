@@ -836,9 +836,16 @@ public class AchievementManager : MonoBehaviour
                 default:
                     break;
             }
-            if (playableFrog != null && playableFrog.unlocked && playableFrog.characterStatsIncrements.statsList.Count <= 0)
+            if (playableFrog != null && playableFrog.unlocked)
             {
-                GameManager.instance.UnlockFeature(achievement.achievementData.reward.featureID); // Add stat increment
+                if (playableFrog.characterStatsIncrements == null)
+                {
+                    playableFrog.characterStatsIncrements = new StatsWrapper();
+                }
+                if (playableFrog.characterStatsIncrements.statsList.Count <= 0)
+                {
+                    GameManager.instance.UnlockFeature(achievement.achievementData.reward.featureID); // Add stat increment
+                }
             }
         }
     }
