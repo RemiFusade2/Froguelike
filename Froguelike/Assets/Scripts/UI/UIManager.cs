@@ -7,6 +7,8 @@ using TMPro;
 using Steamworks;
 using System;
 using Unity.VisualScripting;
+using System.IO;
+using UnityEditor;
 
 /// <summary>
 /// UIManager deals with navigation in the menus, as well as in-game UI.
@@ -60,6 +62,10 @@ public class UIManager : MonoBehaviour
     [Header("Disclaimers")]
     public DisclaimerScreen DemoDisclaimerScreen;
     public DisclaimerScreen EADisclaimerScreen;
+
+    [Header("Error pop ups")]
+    public GameObject saveFileCorruptedPopUp;
+    public Button saveFileCorruptedPopUpDefaultSelectedButton;
 
     #endregion
 
@@ -190,12 +196,6 @@ public class UIManager : MonoBehaviour
         rerollWarningConfirmationPanel.SetActive(false);
         clearSaveFileConfirmationPanel.SetActive(false);
         backToTitleScreenConfirmationPanel.SetActive(false);
-
-        /*
-        ShowRerollWarningConfirmationPanel(false);
-        ShowClearSaveFileConfirmationPanel(false);
-        ShowBackToTitleScreenConfirmationPanel(false);
-        */
     }
 
 
@@ -675,12 +675,25 @@ public class UIManager : MonoBehaviour
         return result;
     }
 
-    public void SetTitleScreenInteractableAndDisablePreviousScreen(GameObject previousScreen)
+    public void DisableDisclaimerScreen(GameObject previousScreen)
     {
-        SetScreenInteractability(titleScreen, true);
-        SetScreenInteractability(menuButtonsGroup, true);
+        // Disable disclaimer
+        previousScreen.SetActive(false);
         SetScreenInteractability(previousScreen, false);
-        SetSelectedButton(startButton);
+
+        if (saveFileCorruptedPopUp.activeInHierarchy)
+        {
+            // Next screen after disclaimer is the error message, because loading the save file failed
+            SetScreenInteractability(saveFileCorruptedPopUp, true);
+            SetSelectedButton(saveFileCorruptedPopUpDefaultSelectedButton);
+        }
+        else
+        {
+            // No error message, next screen after disclaimer is title screen
+            SetScreenInteractability(titleScreen, true);
+            SetScreenInteractability(menuButtonsGroup, true);
+            SetSelectedButton(startButton);
+        }
     }
 
 
@@ -701,6 +714,23 @@ public class UIManager : MonoBehaviour
     }
 
     #endregion
+
+    #region Error pop ups
+
+    public void ShowSaveFileCorruptedPopUp()
+    {
+        saveFileCorruptedPopUp.SetActive(true);
+        ResetTitleScreenInteractability();
+    }
+
+    public void HideSaveFileCorruptedPopUp()
+    {
+        saveFileCorruptedPopUp.SetActive(false);
+        ResetTitleScreenInteractability();
+    }
+
+    #endregion
+
 
     #region Settings
 
@@ -788,7 +818,7 @@ public class UIManager : MonoBehaviour
         versionNumberText.enabled = !versionNumberText.enabled;
     }
 
-    #region Hyperlinks
+    #region Links to outside of the game
 
     public void OpenSteamPage()
     {
@@ -808,5 +838,47 @@ public class UIManager : MonoBehaviour
         Application.OpenURL("https://discord.gg/5vMdA97TWp"); // Invite to Froguelike discord server
     }
 
+
+    public void OpenSaveFolder()
+    {
+        Application.OpenURL($"file://{SaveDataManager.instance.GetSaveFolderPath()}");
+
+        // The following line works only from Unity Editor:
+        // EditorUtility.RevealInFinder(SaveDataManager.instance.GetSaveFilePath());
+    }
+
     #endregion
+
+    // Check which screens are active on Title screen and reset the interactability properly
+    public void ResetTitleScreenInteractability()
+    {
+        SetScreenInteractability(titleScreen, true);
+        if (EADisclaimerScreen.gameObject.activeInHierarchy)
+        {
+            // Disclaimer is on top, it is interactable
+            SetScreenInteractability(menuButtonsGroup, false);
+            SetScreenInteractability(saveFileCorruptedPopUp, false);
+            SetScreenInteractability(EADisclaimerScreen.gameObject, true);
+        }
+        else if (DemoDisclaimerScreen.gameObject.activeInHierarchy)
+        {
+            // Disclaimer is on top, it is interactable
+            SetScreenInteractability(menuButtonsGroup, false);
+            SetScreenInteractability(saveFileCorruptedPopUp, false);
+            SetScreenInteractability(DemoDisclaimerScreen.gameObject, true);
+        }
+        else if (saveFileCorruptedPopUp.activeInHierarchy)
+        {
+            // Loading error pop up is on top, it is interactable
+            SetScreenInteractability(menuButtonsGroup, false);
+            SetScreenInteractability(saveFileCorruptedPopUp, true);
+            SetSelectedButton(saveFileCorruptedPopUpDefaultSelectedButton);
+        }
+        else if (titleScreen.activeInHierarchy)
+        {
+            // No disclaimer and no pop up, title screen is interactable
+            SetScreenInteractability(menuButtonsGroup, true);
+            SetSelectedButton(startButton);
+        }
+    }
 }

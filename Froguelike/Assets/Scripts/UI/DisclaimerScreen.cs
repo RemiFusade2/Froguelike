@@ -67,8 +67,7 @@ public class DisclaimerScreen : MonoBehaviour
 
     public void HideDisclaimer()
     {
-        this.gameObject.SetActive(false);
-        UIManager.instance.SetTitleScreenInteractableAndDisablePreviousScreen(this.gameObject);
+        UIManager.instance.DisableDisclaimerScreen(this.gameObject);
     }
 
     public void ToggleShowDisclaimerAgain()

@@ -1,8 +1,12 @@
 using Steamworks;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.RegularExpressions;
+using Unity.Mathematics;
 using UnityEngine;
 
 
@@ -36,6 +40,11 @@ public class SaveDataManager : MonoBehaviour
     public SaveMethod saveMethod = SaveMethod.BINARY;
     [Space]
     public bool createBackup = true;
+    public double minimumTimeBetweenBackupsInHours_ifSomethingWentWrong = 0.5;
+    public double minimumTimeBetweenBackupsInHours_ifEverythingIsAlright = 6;
+    [Space]
+    public int deletingOldestBackupsMinimumCount = 30;
+    public double deletingOldestBackupsMinimumAgeInDays = 31; // 1 month
     [Space]
     public float saveFileAttemptDelay = 1.0f;
 
@@ -60,11 +69,12 @@ public class SaveDataManager : MonoBehaviour
 
     private void Start()
     {
-        if (saveFileCoroutine != null)
-        {
-            StopCoroutine(saveFileCoroutine);
-        }
-        saveFileCoroutine = StartCoroutine(AttemptSavingAsync());
+    }
+
+    private void OnDestroy()
+    {
+        isSaveDataDirty = false;
+        //Save();
     }
 
     #endregion
@@ -79,6 +89,7 @@ public class SaveDataManager : MonoBehaviour
     public bool EraseSaveFile(bool eraseBackupToo = false)
     {
         bool filesErased = true;
+        CreateBackupIfNeeded(beforeWipingSave: true);
         if (BuildManager.instance.demoBuild)
         {
             // Erase demo save file
@@ -106,7 +117,10 @@ public class SaveDataManager : MonoBehaviour
         bool result = false;
         try
         {
-            File.Delete(saveFilePath);
+            if (File.Exists(saveFilePath))
+            {
+                File.Delete(saveFilePath);
+            }
             result = true;
             if (verbose != VerboseLevel.NONE)
             {
@@ -124,12 +138,22 @@ public class SaveDataManager : MonoBehaviour
 
     #region Save
 
+    public void RunSavingCoroutine()
+    {
+        if (saveFileCoroutine != null)
+        {
+            StopCoroutine(saveFileCoroutine);
+        }
+        saveFileCoroutine = StartCoroutine(AttemptSavingAsync());
+    }
+
     private IEnumerator AttemptSavingAsync()
     {
         yield return new WaitForSecondsRealtime(saveFileAttemptDelay);
         if (isSaveDataDirty)
         {
             Save();
+            CreateBackupIfNeeded();
         }
         saveFileCoroutine = StartCoroutine(AttemptSavingAsync());
     }
@@ -211,6 +235,8 @@ public class SaveDataManager : MonoBehaviour
 
     #endregion
 
+    #region Load
+
     /// <summary>
     /// Attempt to load data from the save file. Use backup file if the main one fails.
     /// </summary>
@@ -245,7 +271,10 @@ public class SaveDataManager : MonoBehaviour
 
             if (!saveFileIsLoaded)
             {
-                // If it still failed, we try to load the demo save file
+                // If it still failed, we create a backup of that save file that we couldn't load
+                CreateBackupIfNeeded();
+
+                // Then we try to load the demo save file
                 saveFileIsLoaded = Load(demoSaveFileName);
             }
         }
@@ -415,6 +444,14 @@ public class SaveDataManager : MonoBehaviour
                     Debug.Log("File " + fileName + " loaded successfully");
                 }
             }
+            else
+            {
+                if (verbose == VerboseLevel.MAXIMAL)
+                {
+                    Debug.Log("Debug info - Can't load: " + saveFilePath + " because it doesn't exist");
+                    success = false;
+                }
+            }
         }
         catch (System.Exception ex)
         {
@@ -424,6 +461,8 @@ public class SaveDataManager : MonoBehaviour
 
         return success;
     }
+
+    #endregion
 
     /// <summary>
     /// Create empty save file
@@ -451,6 +490,15 @@ public class SaveDataManager : MonoBehaviour
         }
     }
 
+    public string GetSaveFolderPath()
+    {
+        return Application.persistentDataPath;
+    }
+
+    public string GetSaveFilePath()
+    {
+        return GetFilePath(saveFileName);
+    }
 
     /// <summary>
     /// Get the path to the file
@@ -467,7 +515,6 @@ public class SaveDataManager : MonoBehaviour
             steamUserID = steamID.m_SteamID.ToString();
         }*/
 
-        string dataPath = Application.persistentDataPath;
         string fileExtension = "";
         switch(saveMethod)
         {
@@ -479,16 +526,133 @@ public class SaveDataManager : MonoBehaviour
                 break;
         }
 
+        string folderPath = GetSaveFolderPath(); ///user{steamUserID}";
+        //CreateDirectoryIfRequired(folderPath);
 
-        string directoryPath = $"{dataPath}"; ///user{steamUserID}";
-        //CreateDirectoryIfRequired(directoryPath);
-
-        return $"{directoryPath}/{fileName}.{fileExtension}";
+        return $"{folderPath}/{fileName}.{fileExtension}";
     }
 
-    private void OnDestroy()
+    public bool DoesFileExist(string fileName)
     {
-        isSaveDataDirty = false;
-        Save();
+        return File.Exists(GetFilePath(fileName));
+    }
+
+    public bool DoesSaveFileExist()
+    {
+        bool thereIsASaveFileToLoad = false;
+
+        thereIsASaveFileToLoad |= DoesFileExist(demoSaveFileName); // A save file from the demo should be loaded by either demo and full game
+
+        if (!BuildManager.instance.demoBuild)
+        {
+            thereIsASaveFileToLoad |= DoesFileExist(saveFileName); // A save file from the full game would not be loaded by the demo
+            thereIsASaveFileToLoad |= DoesFileExist(backupSaveFileName);
+        }
+
+        return thereIsASaveFileToLoad;
+    }
+
+    public void CreateBackupIfNeeded(bool somethingWentWrong = false, bool beforeWipingSave = false)
+    {
+        string fileName = saveFileName;
+        if (BuildManager.instance.demoBuild)
+        {
+            fileName = demoSaveFileName;
+        }
+        string filePath = GetFilePath(fileName);
+
+        if (File.Exists(filePath))
+        {
+            DateTime dateOfLatestBackup = GetDateTimeOfLatestBackup(fileName);
+            DateTime now = DateTime.Now;
+            double minimumTimeBetweenBackupsInHours = somethingWentWrong ? minimumTimeBetweenBackupsInHours_ifSomethingWentWrong : minimumTimeBetweenBackupsInHours_ifEverythingIsAlright;
+            if (beforeWipingSave || (now - dateOfLatestBackup).TotalHours > minimumTimeBetweenBackupsInHours)
+            {
+                // It's been more than minimum time (or we force a backup creation), let's create a new backup
+                string folderPath = GetSaveFolderPath();
+                string backupFileName = $"{fileName}Backup_{now.ToString("yyyy-MM-dd_HH-mm-ss")}";
+                string backupFileExtension = "bak";
+                if (beforeWipingSave)
+                {
+                    backupFileName += "_BeforeWipe";
+                }
+                string backupFilePath = $"{folderPath}/{backupFileName}.{backupFileExtension}";
+                File.Copy(filePath, backupFilePath);
+                if (verbose == VerboseLevel.MAXIMAL)
+                {
+                    Debug.Log("Debug info - Created a backup: " + backupFilePath);
+                }
+                DeleteOldestBackups();
+            }
+        }
+        else
+        {
+            if (verbose != VerboseLevel.NONE)
+            {
+                Debug.Log("Debug info - Can't created a backup of a file that does not exist: " + filePath);
+            }
+        }
+    }
+
+    private DateTime GetDateTimeOfLatestBackup(string fileName)
+    {
+        DateTime latestDateTime = DateTime.MinValue;
+        string folderPath = GetSaveFolderPath();
+
+        DirectoryInfo dir = new DirectoryInfo(folderPath);
+        FileInfo[] info = dir.GetFiles(fileName+ "Backup*.bak");
+        foreach (FileInfo backupFile in info)
+        {
+            DateTime newDateTime = backupFile.CreationTime;
+            if (newDateTime > latestDateTime)
+            {
+                latestDateTime = newDateTime;
+            }            
+        }
+        return latestDateTime;
+    }
+
+    private void DeleteOldestBackups()
+    {
+        if (verbose == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("Debug info - Deleting oldest backup files");
+        }
+
+        // Get all backup files and sort them by creation date
+        string folderPath = GetSaveFolderPath();
+        DirectoryInfo dir = new DirectoryInfo(folderPath);
+        FileInfo[] backupFiles = dir.GetFiles("*.bak");
+        List<FileInfo> backupFilesList = backupFiles.OrderBy(x => x.CreationTime).ToList();
+        List<FileInfo> backupFilesToDeleteList = new List<FileInfo>();
+
+        // How many files need to be deleted?
+        int filesToDeleteCounter = (backupFilesList.Count - deletingOldestBackupsMinimumCount);
+
+        DateTime now = DateTime.Now;
+        foreach (FileInfo backupFile in backupFilesList)
+        {
+            if (filesToDeleteCounter <= 0)
+            {
+                break; // No more files need to be deleted
+            }
+
+            if ( (now - backupFile.CreationTime).TotalDays > deletingOldestBackupsMinimumAgeInDays )
+            {
+                // This file is old enough to be deleted
+                backupFilesToDeleteList.Add(backupFile);
+                filesToDeleteCounter--;
+            }
+        }
+
+        // Actually delete the files
+        foreach (FileInfo backupFile in backupFilesToDeleteList)
+        {
+            if (verbose != VerboseLevel.NONE)
+            {
+                Debug.Log("Debug info - Delete file: " + backupFile.FullName);
+            }
+            File.Delete(backupFile.FullName);
+        }
     }
 }

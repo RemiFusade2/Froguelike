@@ -1,3 +1,4 @@
+using Rewired.ComponentControls.Data;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -106,10 +107,20 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 0;
 
+        // Initialize managers and data
         InitializeStuff();
+
+        // Attempt loading the save file, show error message if needed
+        TryLoadSaveFile();
+
+        // Show title screen
         BackToTitleScreen();
 
+        // Show disclaimers on top if needed
         UIManager.instance.TryShowDisclaimerScreen();
+
+        // Make sure that the right screen is interactive and others behind it are inactive
+        UIManager.instance.ResetTitleScreenInteractability();
     }
 
     private void Update()
@@ -117,6 +128,64 @@ public class GameManager : MonoBehaviour
         if (isGameRunning)
         {
             RunManager.instance.UpdateTime(Time.deltaTime);
+        }
+    }
+
+
+    public void TryLoadSaveFile()
+    {
+        if (SaveDataManager.instance.DoesSaveFileExist())
+        {
+            // Load save file
+            bool fileLoaded = SaveDataManager.instance.Load();
+
+            // Create a copy of the existing save file if it doesn't already exist
+            SaveDataManager.instance.CreateBackupIfNeeded(somethingWentWrong:!fileLoaded);
+
+            if (fileLoaded)
+            {
+                // Loading went well!
+                SaveDataManager.instance.RunSavingCoroutine();
+
+                UIManager.instance.HideSaveFileCorruptedPopUp();
+
+                // Show title screen
+                BackToTitleScreen();
+
+                if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                {
+                    Debug.Log("Game - Loading worked and started saving coroutine");
+                }
+            }
+            else
+            {
+                // Loading failed!
+
+                // Show save file bugged pop up
+                UIManager.instance.ShowSaveFileCorruptedPopUp();
+
+                if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                {
+                    Debug.Log("Game - Loading failed and showing error pop up");
+                }
+            }
+        }
+        else
+        {
+            // No save file exists, let's create one and start the game
+            SaveDataManager.instance.CreateEmptySaveFile();
+            SaveDataManager.instance.isSaveDataDirty = true;
+            SaveDataManager.instance.RunSavingCoroutine();
+
+            UIManager.instance.HideSaveFileCorruptedPopUp();
+
+            // Show title screen
+            BackToTitleScreen();
+
+            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log("Game - Created empty save file and started saving coroutine");
+            }
         }
     }
 
@@ -270,15 +339,6 @@ public class GameManager : MonoBehaviour
 
         // Setup the achievement manager
         AchievementManager.instance.ResetAchievements();
-
-        // Load save file
-        bool fileLoaded = SaveDataManager.instance.Load();
-        if (!fileLoaded)
-        {
-            SaveDataManager.instance.EraseSaveFile(true);
-            SaveDataManager.instance.CreateEmptySaveFile();
-            SaveDataManager.instance.isSaveDataDirty = true;
-        }
     }
 
     #region Pause
@@ -384,6 +444,10 @@ public class GameManager : MonoBehaviour
         SaveDataManager.instance.CreateEmptySaveFile();
 
         InitializeStuff();
+
+        // Just in case it was visible
+        UIManager.instance.HideSaveFileCorruptedPopUp();
+
         BackToTitleScreen();
     }
 
