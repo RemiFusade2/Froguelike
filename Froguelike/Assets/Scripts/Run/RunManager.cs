@@ -1471,7 +1471,6 @@ public class RunManager : MonoBehaviour
                 }
                 break;
             case CollectibleType.POWERUP_FREEZEALL:
-                //EnemiesManager.instance.ApplyGlobalFreezeEffect(DataManager.instance.powerUpFreezeDuration);
                 player.TriggerExplosionEffect(CollectibleType.POWERUP_FREEZEALL);
                 SoundManager.instance.PlayFreezeAllSound();
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
@@ -1480,7 +1479,6 @@ public class RunManager : MonoBehaviour
                 }
                 break;
             case CollectibleType.POWERUP_POISONALL:
-                //EnemiesManager.instance.ApplyGlobalPoisonEffect(DataManager.instance.powerUpPoisonDuration);
                 player.TriggerExplosionEffect(CollectibleType.POWERUP_POISONALL);
                 SoundManager.instance.PlayFreezeAllSound();
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
@@ -1489,7 +1487,6 @@ public class RunManager : MonoBehaviour
                 }
                 break;
             case CollectibleType.POWERUP_CURSEALL:
-                //EnemiesManager.instance.ApplyGlobalCurseEffect(DataManager.instance.powerUpCurseDuration);
                 player.TriggerExplosionEffect(CollectibleType.POWERUP_CURSEALL);
                 SoundManager.instance.PlayCurseAllSound();
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
@@ -1540,7 +1537,8 @@ public class RunManager : MonoBehaviour
                 }
                 break;
             case CollectibleType.POWERUP_LEVELUPBUGS:
-                EnemiesManager.instance.SwitchTierOfAllEnemies(1);
+                player.TriggerExplosionEffect(CollectibleType.POWERUP_LEVELUPBUGS);
+                //EnemiesManager.instance.SwitchTierOfAllEnemies(1);
                 SoundManager.instance.PlayFreezeAllSound();
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                 {
@@ -1548,7 +1546,8 @@ public class RunManager : MonoBehaviour
                 }
                 break;
             case CollectibleType.POWERUP_LEVELDOWNBUGS:
-                EnemiesManager.instance.SwitchTierOfAllEnemies(-1);
+                player.TriggerExplosionEffect(CollectibleType.POWERUP_LEVELDOWNBUGS);
+                //EnemiesManager.instance.SwitchTierOfAllEnemies(-1);
                 SoundManager.instance.PlayFreezeAllSound();
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                 {

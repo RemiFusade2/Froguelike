@@ -24,6 +24,8 @@ public class FrogCharacterController : MonoBehaviour
     public FrogExplosionBehaviour freezeExplosionEffect;
     public FrogExplosionBehaviour poisonExplosionEffect;
     public FrogExplosionBehaviour curseExplosionEffect;
+    public FrogExplosionBehaviour levelDownBugsExplosionEffect;
+    public FrogExplosionBehaviour levelUpBugsExplosionEffect;
 
     [Header("Hats")]
     public Transform hatsParent;
@@ -34,6 +36,9 @@ public class FrogCharacterController : MonoBehaviour
     public Color characterBeingHitOverlayColor;
 
     [Header("Character data - God Mode Settings")]
+    public int godModeOutlineWidth = 1;
+    public List<Color> godModeOutlineColors;
+    [Space]
     public float godModeWalkSpeedBoost = 1;
     public float godModeSwimSpeedBoost = 1.5f;
     public float godModeMinCooldownBoost = -0.8f;
@@ -864,6 +869,12 @@ public class FrogCharacterController : MonoBehaviour
                 break;
             case CollectibleType.POWERUP_CURSEALL:
                 curseExplosionEffect.TriggerExplosion(EnemiesManager.instance.ApplyGlobalCurseEffect);
+                break;
+            case CollectibleType.POWERUP_LEVELDOWNBUGS:
+                levelDownBugsExplosionEffect.TriggerExplosion(null);
+                break;
+            case CollectibleType.POWERUP_LEVELUPBUGS:
+                levelUpBugsExplosionEffect.TriggerExplosion(null);
                 break;
             default:
                 break;
