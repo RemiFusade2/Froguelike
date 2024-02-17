@@ -39,9 +39,10 @@ public class FrogCharacterController : MonoBehaviour
     public int godModeOutlineWidth = 1;
     public List<Color> godModeOutlineColors;
     [Space]
-    public float godModeWalkSpeedBoost = 1;
-    public float godModeSwimSpeedBoost = 1.5f;
-    public float godModeMinCooldownBoost = -0.8f;
+    public float godModeWalkSpeedBoost = 0.7f;
+    public float godModeSwimSpeedBoost = 0.7f;
+    public float godModeMinCooldownBoost = -0.9f;
+    public float godModeMagnetBoost = 2;
     public float godModeAttackDamageBoost = 2;
     public float godModeAttackRangeBoost = 1.5f;
     public float godModeAttackSizeBoost = 0.5f;
@@ -136,7 +137,7 @@ public class FrogCharacterController : MonoBehaviour
     private float orientationAngle;
 
     private bool applyGodMode;
-    private Coroutine setGodModeCoroutine;
+    private Coroutine godModeCoroutine;
 
     #region Unity Callback Methods
 
@@ -200,9 +201,9 @@ public class FrogCharacterController : MonoBehaviour
         // Get movement input
         UpdateHorizontalInput();
         UpdateVerticalInput();
-        
+
         float moveSpeed = (isOnLand || onlyUseWalkSpeed) ? (DataManager.instance.defaultWalkSpeed * (1 + GetWalkSpeedBoost())) : (DataManager.instance.defaultSwimSpeed * (1 + GetSwimSpeedBoost()));
-                
+
         Vector2 moveInput = (((HorizontalInput * Vector2.right).normalized + (VerticalInput * Vector2.up).normalized)).normalized * moveSpeed;
 
         // If movement input is not zero, then rotate frog
@@ -306,6 +307,14 @@ public class FrogCharacterController : MonoBehaviour
         }
         return attackSpecialDurationBoost;
     }
+    public float GetMagnetRangeBoost()
+    {
+        if (applyGodMode)
+        {
+            return magnetRangeBoost + godModeMagnetBoost;
+        }
+        return magnetRangeBoost;
+    }
 
     #endregion Accessors
 
@@ -364,9 +373,15 @@ public class FrogCharacterController : MonoBehaviour
 
     private void UpdateMagnetRange()
     {
-        magnetTrigger.radius = (DataManager.instance.defaultMagnetRange * (1 + magnetRangeBoost));
+        magnetTrigger.radius = (DataManager.instance.defaultMagnetRange * (1 + GetMagnetRangeBoost()));
         magnetTrigger.gameObject.SetActive(true);
         magnetTrigger.enabled = true;
+    }
+
+    private void SetCharacterOutline(Color newColor, int thickness = 1)
+    {
+        characterRenderer.material.SetFloat("_OutlineThickness", thickness);
+        characterRenderer.material.SetColor("_OutlineColor", newColor);
     }
 
     public void InitializeCharacter(PlayableCharacter characterInfo)
@@ -379,7 +394,7 @@ public class FrogCharacterController : MonoBehaviour
         // Reset sprite overlay & outline
         characterRenderer.material.SetFloat("_OverlayVisible", 0);
         characterRenderer.material.SetColor("_OverlayColor", characterBeingHitOverlayColor);
-        characterRenderer.material.SetFloat("_OutlineThickness", 0);
+        SetCharacterOutline(Color.white, 0);
 
         // Starting Stats for this character
         StatsWrapper allStartingStatsWrapper = StatsWrapper.JoinLists(characterInfo.GetCharacterStartingStats(), ShopManager.instance.statsBonuses);
@@ -841,20 +856,54 @@ public class FrogCharacterController : MonoBehaviour
         }
     }
 
-    public void ApplyGodMode(float duration)
+    public void ApplyGodMode(float totalDuration, float blinkDuration)
     {
         applyGodMode = true;
-        if (setGodModeCoroutine != null)
+        UpdateMagnetRange();
+
+        // Outline
+        SetCharacterOutline(godModeOutlineColors[0], godModeOutlineWidth);
+
+        // Coroutine that will update god mode outline and eventually deactivate the god mode
+        if (godModeCoroutine != null)
         {
-            StopCoroutine(setGodModeCoroutine);
+            StopCoroutine(godModeCoroutine);
         }
-        setGodModeCoroutine = StartCoroutine(SetGodMode(false, duration));
+        godModeCoroutine = StartCoroutine(UpdateGodModeAsync(totalDuration, blinkDuration));
     }
 
-    private IEnumerator SetGodMode(bool active, float duration)
+    private IEnumerator UpdateGodModeAsync(float totalDuration, float blinkDuration)
     {
-        yield return new WaitForSeconds(duration);
-        applyGodMode = active;
+        float t = 0;
+        int outlineColorIndex = 0;
+        int outlineWidth = 0;
+        float delayAfterWhichGodModeIsBlinking = totalDuration - blinkDuration;
+        while (t < totalDuration)
+        {
+            yield return new WaitForEndOfFrame();
+            t += Time.deltaTime;
+            outlineWidth = godModeOutlineWidth;
+            if (t >= delayAfterWhichGodModeIsBlinking)
+            {
+                if (Mathf.RoundToInt(t * 5) % 2 == 0)
+                {
+                    // Every 5th of a second, we toggle the outline (it blinks)
+                    outlineWidth = 0;
+                }
+            }
+            SetCharacterOutline(godModeOutlineColors[outlineColorIndex], outlineWidth);
+
+            if (Mathf.RoundToInt(t * 10) % 2 == 0)
+            {
+                // Every 10th of a second, we change the outline color
+                outlineColorIndex = (outlineColorIndex + 1) % godModeOutlineColors.Count;
+            }
+        }
+
+        // Turn god mode off
+        applyGodMode = false;
+        SetCharacterOutline(godModeOutlineColors[0], 0);
+        UpdateMagnetRange();
     }
 
     public void TriggerExplosionEffect(CollectibleType statusEffectType)

@@ -1495,7 +1495,7 @@ public class RunManager : MonoBehaviour
                 }
                 break;
             case CollectibleType.POWERUP_GODMODE:
-                player.ApplyGodMode(DataManager.instance.powerUpGodModeDuration);
+                player.ApplyGodMode(DataManager.instance.powerUpGodModeTotalDuration, DataManager.instance.powerUpGodModeBlinkingDuration);
                 SoundManager.instance.PlayFreezeAllSound();
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                 {

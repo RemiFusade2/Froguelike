@@ -186,7 +186,8 @@ public class DataManager : MonoBehaviour
     public float powerUpFreezeDuration = 10;
     public float powerUpPoisonDuration = 10;
     public float powerUpCurseDuration = 10;
-    public float powerUpGodModeDuration = 10;
+    public float powerUpGodModeTotalDuration = 10;
+    public float powerUpGodModeBlinkingDuration = 2;
     public int powerUpFriendsFrenzyAmount = 100;
     public float powerUpFriendsFrenzyLifespan = 15;
     public float powerUpFriendsFrenzySpawnDistanceFromPlayer = 30;
