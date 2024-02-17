@@ -355,7 +355,7 @@ public class FrogCharacterController : MonoBehaviour
     {
         isOnLand = true;
         transform.localPosition = Vector3.zero;
-        applyGodMode = false;
+        ResetGodMode();
         Vector2 frogPosition = new Vector2(this.transform.position.x, this.transform.position.y);
         FriendsManager.instance.PlacePermanentFriendsInACircleAroundFrog(frogPosition);
     }
@@ -870,6 +870,17 @@ public class FrogCharacterController : MonoBehaviour
             StopCoroutine(godModeCoroutine);
         }
         godModeCoroutine = StartCoroutine(UpdateGodModeAsync(totalDuration, blinkDuration));
+    }
+
+    public void ResetGodMode()
+    {
+        if (godModeCoroutine != null)
+        {
+            StopCoroutine(godModeCoroutine);
+        }
+        applyGodMode = false;
+        SetCharacterOutline(godModeOutlineColors[0], 0);
+        UpdateMagnetRange();
     }
 
     private IEnumerator UpdateGodModeAsync(float totalDuration, float blinkDuration)
