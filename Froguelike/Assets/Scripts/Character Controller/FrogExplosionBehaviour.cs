@@ -7,7 +7,6 @@ using static UnityEngine.ParticleSystem;
 public class FrogExplosionBehaviour : MonoBehaviour
 {
     [Header("References")]
-    public CircleCollider2D explosionCollider;
     public ParticleSystem explosionParticleSystem;
 
     [Header("Setting")]
@@ -15,18 +14,13 @@ public class FrogExplosionBehaviour : MonoBehaviour
     public float blowUpSpeed = 30;
     public float maxRadius = 30;
 
-    private Coroutine explosionBlowUpCoroutine;
+    [Range(1, 100)]
+    public int splitCount = 20;
 
-    private void Start()
-    {
-        explosionCollider.radius = 0;
-        explosionCollider.enabled = false;
-    }
+    private Coroutine explosionBlowUpCoroutine;
 
     public void TriggerExplosion(Action endOfExplosionAction)
     {
-        explosionCollider.enabled = true;
-        explosionParticleSystem.Play();
         if (explosionBlowUpCoroutine != null)
         {
             StopCoroutine(explosionBlowUpCoroutine);
@@ -38,50 +32,60 @@ public class FrogExplosionBehaviour : MonoBehaviour
     {
         float radius = 0;
         ShapeModule shape = explosionParticleSystem.shape;
+        List<List<EnemyInstance>> enemiesList = EnemiesManager.instance.GetActiveEnemiesSplitByDistanceToFrog(maxRadius, splitCount);
+        explosionParticleSystem.Play();
+        int enemyListIndex = 0;
+        int lastEnemyListIndex = -1;
+        float explosionDuration = maxRadius / blowUpSpeed;
         while (radius < maxRadius)
         {
-            explosionCollider.radius = radius;
             shape.radius = radius;
 
             radius += blowUpSpeed * Time.fixedDeltaTime;
+
+            if (enemyListIndex > lastEnemyListIndex)
+            {
+                // Apply effect on all enemies from that list
+                foreach (EnemyInstance enemy in enemiesList[enemyListIndex])
+                {
+                    ApplyEffectToEnemy(enemy, explosionDuration);
+                }
+                lastEnemyListIndex = enemyListIndex;
+            }
+            enemyListIndex = Mathf.FloorToInt(radius * splitCount / maxRadius);
+
             yield return new WaitForFixedUpdate();
         }
 
-        explosionCollider.radius = 0;
         shape.radius = 0;
         explosionParticleSystem.Stop();
-        explosionCollider.enabled = false;
         if (endOfExplosionAction != null)
         {
             endOfExplosionAction();
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void ApplyEffectToEnemy(EnemyInstance enemy, float duration)
     {
-        if (collision.CompareTag("Enemy") && GameManager.instance.isGameRunning)
+        switch (collectibleType)
         {
-            float explosionDuration = (maxRadius / blowUpSpeed); // After explosion effect, the global effect will take over.
-            switch (collectibleType)
-            {
-                case CollectibleType.POWERUP_FREEZEALL:
-                    EnemiesManager.instance.ApplyFreezeEffect(collision.name, explosionDuration);
-                    break;
-                case CollectibleType.POWERUP_POISONALL:
-                    EnemiesManager.instance.AddPoisonDamageToEnemy(collision.name, 0.1f, explosionDuration);
-                    break;
-                case CollectibleType.POWERUP_CURSEALL:
-                    EnemiesManager.instance.ApplyCurseEffect(collision.name, explosionDuration);
-                    break;
-                case CollectibleType.POWERUP_LEVELDOWNBUGS:
-                    EnemiesManager.instance.SwitchTierOfEnemy(collision.name, -1, explosionDuration);
-                    break;
-                case CollectibleType.POWERUP_LEVELUPBUGS:
-                    EnemiesManager.instance.SwitchTierOfEnemy(collision.name, 1, explosionDuration);
-                    break;
-                default:
-                    break;
-            }
+            case CollectibleType.POWERUP_FREEZEALL:
+                EnemiesManager.instance.ApplyFreezeEffect(enemy, duration);
+                break;
+            case CollectibleType.POWERUP_POISONALL:
+                EnemiesManager.instance.AddPoisonDamageToEnemy(enemy, 0.1f, duration);
+                break;
+            case CollectibleType.POWERUP_CURSEALL:
+                EnemiesManager.instance.ApplyCurseEffect(enemy, duration);
+                break;
+            case CollectibleType.POWERUP_LEVELDOWNBUGS:
+                EnemiesManager.instance.SwitchTierOfEnemy(enemy, -1, duration);
+                break;
+            case CollectibleType.POWERUP_LEVELUPBUGS:
+                EnemiesManager.instance.SwitchTierOfEnemy(enemy, 1, duration);
+                break;
+            default:
+                break;
         }
     }
 }

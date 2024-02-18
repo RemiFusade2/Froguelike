@@ -747,12 +747,14 @@ public class FrogCharacterController : MonoBehaviour
             }
 
             // Compute actual damage
-
-
-            float damage = Mathf.Clamp((enemyData.damage * damageFactor) - armor, 0.1f, float.MaxValue);
-            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+            float damage = 1;
+            if (enemyData != null)
             {
-                Debug.Log("Player - Take damage from " + enemyData.enemyName + ": " + damage.ToString("0.00") + " HP.");
+                damage = Mathf.Clamp((enemyData.damage * damageFactor) - armor, 0.1f, float.MaxValue);
+                if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+                {
+                    Debug.Log("Player - Take damage from " + enemyData.enemyName + ": " + damage.ToString("0.00") + " HP.");
+                }
             }
 
             ChangeHealth(-damage);

@@ -94,6 +94,7 @@ public class EnemyInstance
     public bool active;
     public bool alive;
     public float HP;
+    public float HPMax;
     public Vector2 moveDirection;
     public float lastUpdateTime;
     public float mass; // mass will change during knockback, freeze and curse and must be restored afterwards
@@ -649,15 +650,36 @@ public class EnemiesManager : MonoBehaviour
         }
     }
 
-    private void ResetEnemyValues(EnemyInstance enemyInstance, GameObject prefab, EnemyData enemyData, EnemyMovePattern movePattern, Wave originWave, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null)
+    private void ResetEnemyValues(EnemyInstance enemyInstance, GameObject prefab, EnemyData enemyData, EnemyMovePattern movePattern, Wave originWave, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null, bool preventAnyPhysicsShenanigans = false)
     {
-        // Set all components values to prefab values
-        enemyInstance.enemyTransform.localScale = prefab.GetComponent<Transform>().localScale;
+        // Update dico with proper EnemyData
+        enemiesDataFromNameDico[enemyInstance.enemyTransform.name] = enemyData;
 
-        enemyInstance.enemyCollider.GetComponent<CircleCollider2D>().radius = prefab.GetComponent<CircleCollider2D>().radius;
+        if (!preventAnyPhysicsShenanigans)
+        {
+            enemyInstance.enemyTransform.localScale = prefab.GetComponent<Transform>().localScale;
+            enemyInstance.enemyCollider.GetComponent<CircleCollider2D>().radius = prefab.GetComponent<CircleCollider2D>().radius;
+            enemyInstance.enemyRigidbody.mass = prefab.GetComponent<Rigidbody2D>().mass;
+            enemyInstance.mass = prefab.GetComponent<Rigidbody2D>().mass;
 
-        enemyInstance.enemyRigidbody.mass = prefab.GetComponent<Rigidbody2D>().mass;
-        enemyInstance.mass = prefab.GetComponent<Rigidbody2D>().mass;
+            // Set Velocity if needed
+            if (forceMovementDirection && moveDirection.HasValue)
+            {
+                enemyInstance.moveDirection = moveDirection.Value;
+                SetEnemyVelocity(enemyInstance, 0);
+            }
+        }
+
+        // setup enemy - enemy info
+        EnemyInfo enemyInfo = enemiesData.enemiesList.FirstOrDefault(x => x.enemyName.Equals(enemyData.enemyName));
+        if (enemyInfo == null)
+        {
+            Debug.LogWarning("Initializing enemy instance but EnemyInfo is null!");
+        }
+        enemyInstance.enemyInfo = enemyInfo;
+
+        // setup enemy - data
+        enemyInstance.enemyInfo.enemyData = enemyData;
 
         enemyInstance.enemyAnimator.runtimeAnimatorController = prefab.GetComponent<Animator>().runtimeAnimatorController;
         enemyInstance.enemyAnimator.SetBool("IsDead", false);
@@ -673,6 +695,12 @@ public class EnemiesManager : MonoBehaviour
         enemyInstance.wave = originWave;
         enemyInstance.difficultyTier = difficultyTier;
         enemyInstance.neverDespawn = neverDespawn;
+
+        // Set bounty
+        SetBountyToEnemy(enemyInstance, bounty); // This will set HP Max
+
+        // Set current HP to HPMax
+        enemyInstance.HP = enemyInstance.HPMax;
 
         // Set outline
         int outlineThickness = enemyData.outlineThickness;
@@ -690,13 +718,6 @@ public class EnemiesManager : MonoBehaviour
         else
         {
             enemyInstance.RemoveOutline();
-        }
-
-        // Set Velocity if needed
-        if (forceMovementDirection && moveDirection.HasValue)
-        {
-            enemyInstance.moveDirection = moveDirection.Value;
-            SetEnemyVelocity(enemyInstance, 0);
         }
 
         if (verbose == VerboseLevel.MAXIMAL)
@@ -720,16 +741,14 @@ public class EnemiesManager : MonoBehaviour
             ResetEnemyValues(enemyFromPool, prefab, enemyData, movePattern, originWave, difficultyTier, neverDespawn, bounty, forceMovementDirection, moveDirection);
 
             enemyFromPool.enemyTransform.position = position;
-
-            // Set random orientation
-            enemyFromPool.enemyTransform.rotation = Quaternion.Euler(0, 0, Random.Range(0,4) * 90);
+            enemyFromPool.enemyTransform.rotation = Quaternion.Euler(0, 0, Random.Range(0,4) * 90); // Set random orientation (so static plants don't always face the same way)
 
             if (verbose == VerboseLevel.MAXIMAL)
             {
                 Debug.Log($"Spawning a {enemyData.enemyName} with move pattern {movePattern.movePatternType.ToString()}. Total amount of active enemies = {allActiveEnemiesDico.Count + 1}");
             }
 
-            AddEnemy(enemyFromPool, enemyData, movePattern, bounty);
+            AddEnemy(enemyFromPool, enemyData, movePattern);
         }
     }
 
@@ -802,23 +821,18 @@ public class EnemiesManager : MonoBehaviour
 
     public EnemyData GetEnemyDataFromGameObjectName(string gameObjectName, out BountyBug bountyBug)
     {
-        int ID = int.Parse(gameObjectName);
-        EnemyInstance enemyInstance = GetEnemyInstanceFromID(ID);
-        bountyBug = enemyInstance.bountyBug; // Get potential bounty
-        return enemiesDataFromNameDico[enemyInstance.enemyName];
+        bountyBug = null;
+        if (int.TryParse(gameObjectName, out int ID))
+        {
+            EnemyInstance enemyInstance = GetEnemyInstanceFromID(ID);
+            bountyBug = enemyInstance.bountyBug; // Get potential bounty
+            return enemiesDataFromNameDico[enemyInstance.enemyName];
+        }
+        return null;
     }
 
-    public void AddEnemy(EnemyInstance newEnemy, EnemyData enemyData, EnemyMovePattern movePattern, BountyBug bounty = null)
+    private void SetBountyToEnemy(EnemyInstance enemyInstance, BountyBug bounty = null)
     {
-        // setup enemy - name
-        newEnemy.enemyName = enemyData.enemyName;
-        lastKey++;
-        newEnemy.enemyTransform.gameObject.name = lastKey.ToString();
-
-        // add enemy to dico
-        newEnemy.enemyID = lastKey;
-        allActiveEnemiesDico.Add(lastKey, newEnemy);
-
         // Bounty multipliers
         float hpMultiplier = 1;
         if (bounty != null)
@@ -831,13 +845,28 @@ public class EnemiesManager : MonoBehaviour
             {
                 hpMultiplier = bountyDefaultHealthMultiplier;
             }
-
-            // add bounty to dico
-            newEnemy.bountyBug = bounty;
         }
 
+        // Set bounty (or absence of bounty)
+        enemyInstance.bountyBug = bounty;
+
+        // Set HP Max
+        enemyInstance.HPMax = (enemyInstance.enemyInfo.enemyData.maxHP * hpMultiplier) * (1 + GameManager.instance.player.curse); // Max HP is affected by the curse
+    }
+
+    public void AddEnemy(EnemyInstance newEnemy, EnemyData enemyData, EnemyMovePattern movePattern)
+    {
+        // setup enemy - name
+        newEnemy.enemyName = enemyData.enemyName;
+        lastKey++;
+        newEnemy.enemyTransform.gameObject.name = lastKey.ToString();
+
+        // add enemy to dico
+        newEnemy.enemyID = lastKey;
+        allActiveEnemiesDico.Add(lastKey, newEnemy);
+
         // setup enemy - state
-        newEnemy.HP = (enemyData.maxHP * hpMultiplier) * (1 + GameManager.instance.player.curse); // Max HP is affected by the curse
+        newEnemy.HP = newEnemy.HPMax;
         newEnemy.active = true;
         newEnemy.alive = true;
 
@@ -1392,12 +1421,17 @@ public class EnemiesManager : MonoBehaviour
         if (allActiveEnemiesDico.ContainsKey(enemyIndex))
         {
             EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
-            enemy.poisonDamage = poisonDamage;
-            enemy.poisonRemainingTime = poisonDuration;
-            enemy.lastPoisonDamageTime = Time.time;
-            SetOverlayColor(enemy, poisonedOverlayColor, 0.3f);
-            UpdateStatusParticles(enemy);
+            AddPoisonDamageToEnemy(enemy, poisonDamage, poisonDuration);
         }
+    }
+
+    public void AddPoisonDamageToEnemy(EnemyInstance enemy, float poisonDamage, float poisonDuration)
+    {
+        enemy.poisonDamage = poisonDamage;
+        enemy.poisonRemainingTime = poisonDuration;
+        enemy.lastPoisonDamageTime = Time.time;
+        SetOverlayColor(enemy, poisonedOverlayColor, 0.3f);
+        UpdateStatusParticles(enemy);
     }
 
     public void ApplyFreezeEffect(string enemyGoName, float duration)
@@ -1406,10 +1440,15 @@ public class EnemiesManager : MonoBehaviour
         if (allActiveEnemiesDico.ContainsKey(enemyIndex))
         {
             EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
-            enemy.freezeRemainingTime = duration;
-            SetOverlayColor(enemy, frozenOverlayColor, 0.3f);
-            UpdateStatusParticles(enemy);
+            ApplyFreezeEffect(enemy, duration);
         }
+    }
+
+    public void ApplyFreezeEffect(EnemyInstance enemy, float duration)
+    {
+        enemy.freezeRemainingTime = duration;
+        SetOverlayColor(enemy, frozenOverlayColor, 0.3f);
+        UpdateStatusParticles(enemy);
     }
 
     public void ApplyGlobalFreezeEffect()
@@ -1466,11 +1505,27 @@ public class EnemiesManager : MonoBehaviour
         if (allActiveEnemiesDico.ContainsKey(enemyIndex))
         {
             EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
-            enemy.curseRemainingTime = duration;
-            SetOverlayColor(enemy, cursedOverlayColor, 0.3f);
-            UpdateStatusParticles(enemy);
+            ApplyCurseEffect(enemy, duration);
         }
     }
+
+    public void ApplyCurseEffect(EnemyInstance enemy, float duration)
+    {
+        enemy.curseRemainingTime = duration;
+        SetOverlayColor(enemy, cursedOverlayColor, 0.3f);
+        UpdateStatusParticles(enemy);
+    }
+
+    public void SwitchTierOfEnemy(string enemyGoName, int deltaTier, float explosionDuration)
+    {
+        int enemyIndex = int.Parse(enemyGoName);
+        if (allActiveEnemiesDico.ContainsKey(enemyIndex))
+        {
+            EnemyInstance enemyInstance = allActiveEnemiesDico[enemyIndex];
+            SwitchTierOfEnemy(enemyInstance, deltaTier, explosionDuration);
+        }
+    }
+
 
     /// <summary>
     /// Reset an enemy to another enemy of the same Kind, with a different tier.
@@ -1481,147 +1536,72 @@ public class EnemiesManager : MonoBehaviour
     /// </summary>
     /// <param name="enemyGoName"></param>
     /// <param name="deltaTier"></param>
-    public void SwitchTierOfEnemy(string enemyGoName, int deltaTier, float explosionDuration)
+    public void SwitchTierOfEnemy(EnemyInstance enemyInstance, int deltaTier, float explosionDuration)
     {
-        int enemyIndex = int.Parse(enemyGoName);
-        if (allActiveEnemiesDico.ContainsKey(enemyIndex))
+        int newDifficultyTier = enemyInstance.difficultyTier + deltaTier;
+        EnemyData originEnemyData = GetEnemyDataFromTypeAndDifficultyTier(enemyInstance.enemyInfo.enemyData.enemyType, enemyInstance.difficultyTier);
+        EnemyData newEnemyData = GetEnemyDataFromTypeAndDifficultyTier(enemyInstance.enemyInfo.enemyData.enemyType, Mathf.Clamp(newDifficultyTier, 1, 5));
+        EnemyMovePattern enemyMovePattern = new EnemyMovePattern(enemyInstance.movePattern);
+
+        Vector3 enemyPosition = enemyInstance.enemyTransform.position;
+        Vector2 enemyMoveDirection = enemyInstance.moveDirection;
+
+        if (enemyInstance.bountyBug != null)
         {
-            EnemyInstance enemyInstance = allActiveEnemiesDico[enemyIndex];
-
-            /*
-            if ((Time.time - enemyInstance.spawnTime) < explosionDuration)
+            // Current enemy has a bounty
+            if (deltaTier < 0)
             {
-                // Enemy has been spawned too recently, we don't do anything to it
-                return;
-            }*/
-
-            int newDifficultyTier = enemyInstance.difficultyTier + deltaTier;
-            EnemyData originEnemyData = GetEnemyDataFromTypeAndDifficultyTier(enemyInstance.enemyInfo.enemyData.enemyType, enemyInstance.difficultyTier);
-            EnemyData newEnemyData = GetEnemyDataFromTypeAndDifficultyTier(enemyInstance.enemyInfo.enemyData.enemyType, Mathf.Clamp(newDifficultyTier, 1, 5));
-            EnemyMovePattern enemyMovePattern = new EnemyMovePattern(enemyInstance.movePattern);
-
-            Vector3 enemyPosition = enemyInstance.enemyTransform.position;
-            Vector2 enemyMoveDirection = enemyInstance.moveDirection;
-
-            if (enemyInstance.bountyBug != null)
-            {
-                // Current enemy has a bounty
-                if (deltaTier < 0)
-                {
-                    // Leveling down: the bounty is removed but the enemy keeps the same tier
-                    enemyInstance.bountyBug = null;
-                    enemyInstance.HP = originEnemyData.maxHP;
-                    enemyInstance.RemoveOutline();
-                }
-                else
-                {
-                    // Leveling up: the bounty is healed to full life
-                    float maxHealth = originEnemyData.maxHP * (enemyInstance.bountyBug.overrideHealthMultiplier ? enemyInstance.bountyBug.healthMultiplier : bountyDefaultHealthMultiplier);
-                    enemyInstance.HP = maxHealth;
-                    enemyInstance.SetOutlineColor(bountyOutlineColorsList[0], bountyOutlineThickness);
-                }
+                // Leveling down: the bounty is removed but the enemy keeps the same tier
+                SetBountyToEnemy(enemyInstance, null); // This will set new HP Max
+                enemyInstance.HP = enemyInstance.HPMax;
+                enemyInstance.RemoveOutline();
             }
             else
             {
-                // No bounty
-                if (newDifficultyTier <= 0)
-                {
-                    // Unspawn that enemy
-                    PutEnemyInThePool(allActiveEnemiesDico[enemyIndex]);
-                    allActiveEnemiesDico.Remove(enemyIndex);
-
-                    // Spawn XP instead
-                    float XPEarned = Mathf.Clamp(originEnemyData.xPBonus / 2, 1, 100);
-                    XPEarned *= (1 + GameManager.instance.player.curse);
-                    CollectiblesManager.instance.SpawnCollectible(enemyPosition, CollectibleType.XP_BONUS, XPEarned);
-                }
-                else if (newDifficultyTier <= 5)
-                {
-                    // Reset the enemy to its new difficulty tier
-                    GameObject enemyPrefab = newEnemyData.prefab;
-                    ResetEnemyValues(enemyInstance, newEnemyData.prefab, newEnemyData, enemyMovePattern, enemyInstance.wave, newDifficultyTier, forceMovementDirection: true, moveDirection: enemyMoveDirection);
-                    //StartCoroutine(SpawnEnemyAsync(enemyPrefab, enemyPosition, newEnemyData, enemyMovePattern, enemyInstance.wave, delay: 0.01f, newDifficultyTier, forceMovementDirection: true, moveDirection: enemyMoveDirection));
-                }
-                else
-                {
-                    // New tier is above 5, which means we replace the previous enemy by an enemy of the same tier with a bounty
-                    BountyBug bountyBug = new BountyBug(originEnemyData.enemyType,
-                        overrideHealthMultiplier: false, healthMultiplier: bountyDefaultHealthMultiplier,
-                        bountyDefaultDamageMultiplier, 20, enemyMovePattern);
-                    bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.FROINS, amount = 20, value = 1 });
-                    bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.FROINS, amount = 20, value = 5 });
-                    bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.FROINS, amount = 10, value = 10 });
-                    bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 10, value = 10 });
-                    bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 10, value = 25 });
-                    bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 10, value = 50 });
-                    ResetEnemyValues(enemyInstance, originEnemyData.prefab, originEnemyData, enemyMovePattern, enemyInstance.wave, enemyInstance.difficultyTier, neverDespawn: true, bounty: bountyBug, forceMovementDirection: true, moveDirection: enemyMoveDirection);
-                    //StartCoroutine(SpawnEnemyAsync(originEnemyData.prefab, enemyPosition, originEnemyData, enemyMovePattern, enemyInstance.wave, delay: 0.01f, difficultyTier: enemyInstance.difficultyTier, neverDespawn: true, bounty: bountyBug, forceMovementDirection: true, moveDirection: enemyMoveDirection));
-                }
-
+                // Leveling up: the bounty is healed to full life
+                enemyInstance.HP = enemyInstance.HPMax;
+                enemyInstance.SetOutlineColor(bountyOutlineColorsList[0], bountyOutlineThickness);
             }
+        }
+        else
+        {
+            // No bounty
+            if (newDifficultyTier <= 0)
+            {
+                // Unspawn that enemy                
+                PutEnemyInThePool(enemyInstance);
+                allActiveEnemiesDico.Remove(enemyInstance.enemyID);
+
+                // Spawn XP instead
+                float XPEarned = Mathf.Clamp(originEnemyData.xPBonus / 2, 1, 100);
+                XPEarned *= (1 + GameManager.instance.player.curse);
+                CollectiblesManager.instance.SpawnCollectible(enemyPosition, CollectibleType.XP_BONUS, XPEarned);
+            }
+            else if (newDifficultyTier <= 5)
+            {
+                // Reset the enemy to its new difficulty tier
+                ResetEnemyValues(enemyInstance, newEnemyData.prefab, newEnemyData, enemyMovePattern, enemyInstance.wave, newDifficultyTier, forceMovementDirection: true, moveDirection: enemyMoveDirection, preventAnyPhysicsShenanigans: false);
+                //StartCoroutine(SpawnEnemyAsync(enemyPrefab, enemyPosition, newEnemyData, enemyMovePattern, enemyInstance.wave, delay: 0.01f, newDifficultyTier, forceMovementDirection: true, moveDirection: enemyMoveDirection));
+            }
+            else
+            {
+                // New tier is above 5, which means we replace the previous enemy by an enemy of the same tier with a bounty
+                BountyBug bountyBug = new BountyBug(originEnemyData.enemyType,
+                    overrideHealthMultiplier: false, healthMultiplier: bountyDefaultHealthMultiplier,
+                    bountyDefaultDamageMultiplier, 20, enemyMovePattern);
+                bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.FROINS, amount = 20, value = 1 });
+                bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.FROINS, amount = 20, value = 5 });
+                bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.FROINS, amount = 10, value = 10 });
+                bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 10, value = 10 });
+                bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 10, value = 25 });
+                bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 10, value = 50 });
+                ResetEnemyValues(enemyInstance, originEnemyData.prefab, originEnemyData, enemyMovePattern, enemyInstance.wave, enemyInstance.difficultyTier, neverDespawn: true, bounty: bountyBug, forceMovementDirection: true, moveDirection: enemyMoveDirection, preventAnyPhysicsShenanigans: false);
+                //StartCoroutine(SpawnEnemyAsync(originEnemyData.prefab, enemyPosition, originEnemyData, enemyMovePattern, enemyInstance.wave, delay: 0.01f, difficultyTier: enemyInstance.difficultyTier, neverDespawn: true, bounty: bountyBug, forceMovementDirection: true, moveDirection: enemyMoveDirection));
+            }
+
         }
     }
 
-
-    /*
-    /// <summary>
-    /// Reset every active & alive bug to another bug of the same Kind, with a different tier
-    /// If tier is < 1 and tier should decrease, then the bug is killed (XP is spawned)
-    /// If tier is > 5 and tier should increase, then the bug is turned into a bounty giving extra XP & Froins
-    /// If the bug was a bounty already, then it is not changed
-    /// </summary>
-    /// <param name="deltaTier"></param>
-    public void SwitchTierOfAllEnemies(int deltaTier)
-    {
-        Dictionary<int, EnemyInstance> temporaryAllActiveEnemiesDico = new Dictionary<int, EnemyInstance>(allActiveEnemiesDico);
-        foreach (KeyValuePair<int, EnemyInstance> keyValue in temporaryAllActiveEnemiesDico)
-        {
-            int enemyID = keyValue.Key;
-            EnemyInstance enemyInstance = keyValue.Value;
-
-            if (enemyInstance.bountyBug != null)
-            {
-                // Enemy has a bounty, it is not changed one way or the other
-            }
-            else
-            {
-                // Enemy has no bounty, let's switch its tier!
-                int newTier = enemyInstance.difficultyTier + deltaTier;
-                Vector3 enemyPosition = enemyInstance.enemyTransform.position;
-                Vector2 enemyMoveDirection = enemyInstance.moveDirection;
-                EnemyMovePattern enemyMovePattern = new EnemyMovePattern(enemyInstance.movePattern);
-                EnemyData enemyData = GetEnemyDataFromTypeAndDifficultyTier(enemyInstance.enemyInfo.enemyData.enemyType, Mathf.Clamp(newTier, 1, 5));
-                if (newTier < 1)
-                {
-                    // Spawn XP
-                    float XPEarned = Mathf.Clamp(enemyData.xPBonus / 2, 1, 100);
-                    XPEarned *= (1 + GameManager.instance.player.curse);
-                    CollectiblesManager.instance.SpawnCollectible(enemyPosition, CollectibleType.XP_BONUS, XPEarned);
-                }
-                else if (newTier > 5)
-                {
-                    // Spawn the same enemy but with a bounty
-                    BountyBug bountyBug = new BountyBug(enemyData.enemyType, 
-                        overrideHealthMultiplier: false, healthMultiplier: bountyDefaultHealthMultiplier,
-                        2, 20, enemyMovePattern);
-                    bountyBug.bountyList.Add( new Bounty() { collectibleType = CollectibleType.FROINS, amount = 10, value = 10 });
-                    bountyBug.bountyList.Add( new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 10, value = 50 });
-                    StartCoroutine(SpawnEnemyAsync(enemyData.prefab, enemyPosition, enemyData, enemyMovePattern, enemyInstance.wave, delay: 0.01f, difficultyTier: 5, neverDespawn: true, bounty: bountyBug, forceMovementDirection: true, moveDirection: enemyMoveDirection));
-                }
-                else
-                {
-                    // Spawn a new enemy with new tier
-                    GameObject enemyPrefab = enemyData.prefab;
-                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, enemyPosition, enemyData, enemyMovePattern, enemyInstance.wave, delay: 0.01f, newTier, forceMovementDirection: true, moveDirection: enemyMoveDirection));
-                }
-                // Unspawn that enemy
-                enemyInstance.enemyRenderer.enabled = false;
-                enemyInstance.active = false;
-                PutEnemyInThePool(allActiveEnemiesDico[enemyID]);
-                allActiveEnemiesDico.Remove(enemyID);
-            }
-        }
-    }*/
 
     private void SetEnemyVelocity(EnemyInstance enemy, float updateDeltaTime)
     {
@@ -1650,7 +1630,13 @@ public class EnemiesManager : MonoBehaviour
         }
 
         // Set speed
-        float actualSpeed = GetEnemyDataFromGameObjectName(enemy.enemyTransform.name, out BountyBug bountyBug).moveSpeed * changeSpeedFactor * enemy.movePattern.speedFactor;
+        EnemyData enemyData = GetEnemyDataFromGameObjectName(enemy.enemyTransform.name, out BountyBug bountyBug);
+        float enemyDataSpeed = 1;
+        if (enemyData != null)
+        {
+            enemyDataSpeed = enemyData.moveSpeed;
+        }
+        float actualSpeed = enemyDataSpeed * changeSpeedFactor * enemy.movePattern.speedFactor;
         actualSpeed = Mathf.Clamp(actualSpeed, 0, 30);
         enemy.enemyRigidbody.velocity = enemy.moveDirection * actualSpeed;
         enemy.enemyAnimator.SetFloat("Speed", actualSpeed);
@@ -1867,4 +1853,32 @@ public class EnemiesManager : MonoBehaviour
         }
         SaveDataManager.instance.isSaveDataDirty = true;
     }
+
+    public List<List<EnemyInstance>> GetActiveEnemiesSplitByDistanceToFrog(float maxDistance, int splitsCount)
+    {
+        // Initialize empty list
+        List<List<EnemyInstance>> result = new List<List<EnemyInstance>>();
+        for (int i = 0; i < splitsCount; i++)
+        {
+            result.Add(new List<EnemyInstance>());
+        }
+
+        // Sort every active enemy into the lists
+        Vector3 frogPosition = RunManager.instance.player.transform.position;
+        float distanceToFrog = 0;
+        int listIndex = 0;
+        foreach (KeyValuePair<int, EnemyInstance> enemyKeyValuePair in allActiveEnemiesDico)
+        {
+            distanceToFrog = Vector3.Distance(frogPosition, enemyKeyValuePair.Value.enemyTransform.position);
+            if (distanceToFrog >= maxDistance)
+            {
+                continue;
+            }
+            listIndex = Mathf.FloorToInt(distanceToFrog * splitsCount / maxDistance);
+            result[listIndex].Add(enemyKeyValuePair.Value);
+        }
+
+        return result;
+    }
+
 }

@@ -14177,8 +14177,8 @@ MonoBehaviour:
   maxDistanceBeforeUnspawn: 40
   despawnEnemiesThatGoTooFar: 0
   maxDamageTexts: 1000
-  maxActiveEnemies: 1500
-  updateAllEnemiesCount: 1500
+  maxActiveEnemies: 1000
+  updateAllEnemiesCount: 500
   damageTextLifespanInSeconds: 0.5
   damageTextFontSize_smol: 10
   damageTextThreshold_smol: 0
@@ -33655,7 +33655,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 887174946}
-  - component: {fileID: 887174947}
   - component: {fileID: 887174949}
   - component: {fileID: 887174948}
   - component: {fileID: 887174950}
@@ -33682,22 +33681,6 @@ Transform:
   m_Father: {fileID: 913190561}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!58 &887174947
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 887174945}
-  m_Enabled: 0
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  serializedVersion: 2
-  m_Radius: 0.01
 --- !u!199 &887174948
 ParticleSystemRenderer:
   serializedVersion: 6
@@ -38489,11 +38472,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e6965dbeb2a8b94e870b4a1cecd1a9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  explosionCollider: {fileID: 887174947}
   explosionParticleSystem: {fileID: 887174949}
   collectibleType: 4
   blowUpSpeed: 20
   maxRadius: 35
+  splitCount: 20
 --- !u!50 &887174951
 Rigidbody2D:
   serializedVersion: 4
@@ -38513,7 +38496,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 2
-  m_CollisionDetection: 1
+  m_CollisionDetection: 0
   m_Constraints: 0
 --- !u!114 &889647315 stripped
 MonoBehaviour:
@@ -38825,7 +38808,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 907357115}
-  - component: {fileID: 907357120}
   - component: {fileID: 907357119}
   - component: {fileID: 907357118}
   - component: {fileID: 907357117}
@@ -38871,7 +38853,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 2
-  m_CollisionDetection: 1
+  m_CollisionDetection: 0
   m_Constraints: 0
 --- !u!114 &907357117
 MonoBehaviour:
@@ -38885,11 +38867,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e6965dbeb2a8b94e870b4a1cecd1a9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  explosionCollider: {fileID: 907357120}
   explosionParticleSystem: {fileID: 907357119}
   collectibleType: 5
   blowUpSpeed: 20
   maxRadius: 35
+  splitCount: 20
 --- !u!199 &907357118
 ParticleSystemRenderer:
   serializedVersion: 6
@@ -43669,22 +43651,6 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     vectorLabel1_3: W
---- !u!58 &907357120
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 907357114}
-  m_Enabled: 0
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  serializedVersion: 2
-  m_Radius: 0.01
 --- !u!1 &913190560
 GameObject:
   m_ObjectHideFlags: 0
@@ -64046,7 +64012,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1388429572}
-  - component: {fileID: 1388429577}
   - component: {fileID: 1388429576}
   - component: {fileID: 1388429575}
   - component: {fileID: 1388429574}
@@ -64092,7 +64057,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 2
-  m_CollisionDetection: 1
+  m_CollisionDetection: 0
   m_Constraints: 0
 --- !u!114 &1388429574
 MonoBehaviour:
@@ -64106,11 +64071,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e6965dbeb2a8b94e870b4a1cecd1a9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  explosionCollider: {fileID: 1388429577}
   explosionParticleSystem: {fileID: 1388429576}
   collectibleType: 6
   blowUpSpeed: 20
   maxRadius: 35
+  splitCount: 20
 --- !u!199 &1388429575
 ParticleSystemRenderer:
   serializedVersion: 6
@@ -68890,22 +68855,6 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     vectorLabel1_3: W
---- !u!58 &1388429577
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1388429571}
-  m_Enabled: 0
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  serializedVersion: 2
-  m_Radius: 0.01
 --- !u!1 &1394645190
 GameObject:
   m_ObjectHideFlags: 0
@@ -76413,7 +76362,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1621616515}
-  - component: {fileID: 1621616520}
   - component: {fileID: 1621616519}
   - component: {fileID: 1621616518}
   - component: {fileID: 1621616517}
@@ -76459,7 +76407,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 2
-  m_CollisionDetection: 1
+  m_CollisionDetection: 0
   m_Constraints: 0
 --- !u!114 &1621616517
 MonoBehaviour:
@@ -76473,11 +76421,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e6965dbeb2a8b94e870b4a1cecd1a9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  explosionCollider: {fileID: 1621616520}
   explosionParticleSystem: {fileID: 1621616519}
   collectibleType: 11
   blowUpSpeed: 20
   maxRadius: 50
+  splitCount: 20
 --- !u!199 &1621616518
 ParticleSystemRenderer:
   serializedVersion: 6
@@ -76633,8 +76581,8 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 2.5
-      minScalar: 1.5
+      scalar: 1.2
+      minScalar: 0.8
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -81257,22 +81205,6 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     vectorLabel1_3: W
---- !u!58 &1621616520
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1621616514}
-  m_Enabled: 0
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  serializedVersion: 2
-  m_Radius: 0.01
 --- !u!1 &1630717958
 GameObject:
   m_ObjectHideFlags: 0
@@ -82280,7 +82212,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1683182447}
-  - component: {fileID: 1683182452}
   - component: {fileID: 1683182451}
   - component: {fileID: 1683182450}
   - component: {fileID: 1683182449}
@@ -82326,7 +82257,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 2
-  m_CollisionDetection: 1
+  m_CollisionDetection: 0
   m_Constraints: 0
 --- !u!114 &1683182449
 MonoBehaviour:
@@ -82340,11 +82271,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e6965dbeb2a8b94e870b4a1cecd1a9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  explosionCollider: {fileID: 1683182452}
   explosionParticleSystem: {fileID: 1683182451}
   collectibleType: 10
   blowUpSpeed: 20
   maxRadius: 50
+  splitCount: 20
 --- !u!199 &1683182450
 ParticleSystemRenderer:
   serializedVersion: 6
@@ -82500,8 +82431,8 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 2.5
-      minScalar: 1.5
+      scalar: 1.2
+      minScalar: 0.8
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -87124,22 +87055,6 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     vectorLabel1_3: W
---- !u!58 &1683182452
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1683182446}
-  m_Enabled: 0
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  serializedVersion: 2
-  m_Radius: 0.01
 --- !u!114 &1689290318 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3160326496570467375, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
