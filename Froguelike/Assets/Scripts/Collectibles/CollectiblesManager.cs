@@ -22,6 +22,8 @@ public class CollectibleInstance
     public Vector2 moveDirection;
     public float lastChangeOfDirectionTime;
 
+    public float spawnTime;
+
     // References to Components
     public Transform collectibleTransform;
     public Rigidbody2D collectibleRigidbody;
@@ -204,6 +206,35 @@ public class CollectiblesManager : MonoBehaviour
         }
     }
 
+    private CollectibleInstance DequeueCollectibleInstance()
+    {
+        CollectibleInstance collectibleInstance = null;
+        bool recyclingHappened = false;
+        while (!inactiveCollectiblesPool.TryDequeue(out collectibleInstance) && !recyclingHappened)
+        {
+            // Couldn't dequeue a collectible (pool must be empty)
+
+            // Let's recycle an older collectible
+            float lowestSpawnTime = Time.time;
+            CollectibleInstance oldestCollectibleInstance = allCollectibles[0];
+
+            foreach (CollectibleInstance collectible in allCollectibles)
+            {
+                if (collectible.active && collectible.usesMagnet && !collectible.captured && collectible.spawnTime < lowestSpawnTime)
+                {
+                    lowestSpawnTime = collectible.spawnTime;
+                    oldestCollectibleInstance = collectible;
+                }
+            }
+            if (oldestCollectibleInstance != null)
+            {
+                PutCollectibleInThePool(oldestCollectibleInstance); // put the oldest one in the pool so it can be reused immediately
+            }
+            recyclingHappened = true;
+        }
+        return collectibleInstance;
+    }
+
     /// <summary>
     /// Spawn a collectible (from the pool) at a position on the map.
     /// Optional: add a push force to it
@@ -214,9 +245,13 @@ public class CollectiblesManager : MonoBehaviour
     /// <param name="pushAwayForce"></param>
     public void SpawnCollectible(Vector2 position, CollectibleType collectibleType, float bonusValue, float pushAwayForce = 0)
     {
-        if (inactiveCollectiblesPool.TryDequeue(out CollectibleInstance collectible))
+        CollectibleInstance collectible = DequeueCollectibleInstance();
+
+        if (collectible != null)
         {
             CollectibleInfo collectibleInfo = DataManager.instance.GetCollectibleInfoFromType(collectibleType);
+
+            collectible.spawnTime = Time.time;
 
             // Set Animation style (appearance)
             int animationIndex = 0;
@@ -288,7 +323,7 @@ public class CollectiblesManager : MonoBehaviour
         {
             if (verboseLevel == VerboseLevel.MAXIMAL)
             {
-                Debug.Log("Impossible to spawn collectible because pool is empty");
+                Debug.Log("Impossible to spawn collectible (pool is empty and recycling didn't work)");
             }
         }
     }
@@ -434,7 +469,15 @@ public class CollectiblesManager : MonoBehaviour
                     directionTowardsFrog = (playerTransform.position - collectible.collectibleTransform.position);
                     distanceWithFrog = directionTowardsFrog.magnitude;
 
-                    if (distanceWithFrog < collectMinDistance)
+                    if (distanceWithFrog > collectibleDespawnDistance)
+                    {
+                        if (verboseLevel == VerboseLevel.MAXIMAL)
+                        {
+                            Debug.Log($"Unspawn collectible {collectible.collectibleTransform.name} because it's too far");
+                        }
+                        PutCollectibleInThePool(collectible);
+                    }
+                    else if (distanceWithFrog < collectMinDistance)
                     {
                         // Collect
                         if (verboseLevel == VerboseLevel.MAXIMAL)

@@ -48,7 +48,10 @@ public class FrogExplosionBehaviour : MonoBehaviour
                 // Apply effect on all enemies from that list
                 foreach (EnemyInstance enemy in enemiesList[enemyListIndex])
                 {
-                    ApplyEffectToEnemy(enemy, explosionDuration);
+                    if (enemy.active && enemy.alive)
+                    {
+                        ApplyEffectToEnemy(enemy, explosionDuration);
+                    }
                 }
                 lastEnemyListIndex = enemyListIndex;
             }

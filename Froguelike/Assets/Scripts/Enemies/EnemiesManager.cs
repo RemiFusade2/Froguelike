@@ -286,7 +286,7 @@ public class EnemiesManager : MonoBehaviour
 
     // private
     private List<float> lastSpawnTimesList;
-    private Dictionary<string, EnemyData> enemiesDataFromNameDico;
+    private Dictionary<string, EnemyData> enemiesDataFromNameDico; // Associate enemy name and EnemyData
     private Dictionary<EnemyType, List<EnemyData>> enemiesDataFromTypeDico;
 
     private Dictionary<int, EnemyInstance> allActiveEnemiesDico;
@@ -652,9 +652,6 @@ public class EnemiesManager : MonoBehaviour
 
     private void ResetEnemyValues(EnemyInstance enemyInstance, GameObject prefab, EnemyData enemyData, EnemyMovePattern movePattern, Wave originWave, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null, bool preventAnyPhysicsShenanigans = false)
     {
-        // Update dico with proper EnemyData
-        enemiesDataFromNameDico[enemyInstance.enemyTransform.name] = enemyData;
-
         if (!preventAnyPhysicsShenanigans)
         {
             enemyInstance.enemyTransform.localScale = prefab.GetComponent<Transform>().localScale;
@@ -827,6 +824,10 @@ public class EnemiesManager : MonoBehaviour
             EnemyInstance enemyInstance = GetEnemyInstanceFromID(ID);
             bountyBug = enemyInstance.bountyBug; // Get potential bounty
             return enemiesDataFromNameDico[enemyInstance.enemyName];
+        }
+        else
+        {
+            Debug.LogWarning($"GetEnemyDataFromGameObjectName couldn't find enemy with name: {gameObjectName}");
         }
         return null;
     }
@@ -1635,6 +1636,10 @@ public class EnemiesManager : MonoBehaviour
         if (enemyData != null)
         {
             enemyDataSpeed = enemyData.moveSpeed;
+        }
+        else if (enemy.enemyInfo.enemyData != null)
+        {
+            enemyDataSpeed = enemy.enemyInfo.enemyData.moveSpeed;
         }
         float actualSpeed = enemyDataSpeed * changeSpeedFactor * enemy.movePattern.speedFactor;
         actualSpeed = Mathf.Clamp(actualSpeed, 0, 30);
