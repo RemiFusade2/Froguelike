@@ -18,7 +18,6 @@ public class SettingsMenu : MonoBehaviour
     public PixelPerfectCamera pixelPerfectCamera;
 
     private Vector2Int biggestResolutionForThisScreen;
-    private Vector2 startResolution;
     private List<Vector2Int> allowedResolutions;
 
     int gameWidth;
@@ -102,6 +101,12 @@ public class SettingsMenu : MonoBehaviour
             if (!isChangingFullscreen)
             {
                 fullscreenToggle.SetIsOnWithoutNotify(Screen.fullScreen);
+
+                if (Screen.fullScreen)
+                {
+                    SetWindowResolution(allowedResolutions.Count - 1);
+                    resolutionScrollRect.UpdateScroll(false, currentResolutionIndex + 1);
+                }
             }
         }
 
@@ -196,6 +201,11 @@ public class SettingsMenu : MonoBehaviour
             if (Screen.fullScreen)
             {
                 currentResolutionIndex = Mathf.Max(allowedResolutions.Count - 1, 0);
+                // If the actual current resolution doesn't match, make it match.
+                if (PlayerPrefs.GetInt("Screenmanager Resolution Height") != allowedResolutions[currentResolutionIndex].y || PlayerPrefs.GetInt("Screenmanager Resolution Width") != allowedResolutions[currentResolutionIndex].x)
+                {
+                    SetWindowResolution(currentResolutionIndex);
+                }
             }
             else
             {
@@ -240,10 +250,9 @@ public class SettingsMenu : MonoBehaviour
         resolutionScrollRect.UpdateScroll(false, currentResolutionIndex + 1);
     }
 
+    // Used if the current reolution doesn't match any of the allowed resolutions.
     public void SetWindowResolution(int wantedResolutionIndex)
     {
-        if (startUpDone)
-        {
             currentResolutionIndex = wantedResolutionIndex;
             Vector2Int res = allowedResolutions[Mathf.Max(currentResolutionIndex, 0)];
             if (Screen.fullScreen)
@@ -254,9 +263,9 @@ public class SettingsMenu : MonoBehaviour
             {
                 Screen.SetResolution(res.x, res.y, false);
             }
-        }
     }
 
+    // Used when chaning reolution with the arrows on the setting screen.
     public void SetWindowResolution()
     {
         if (startUpDone)
