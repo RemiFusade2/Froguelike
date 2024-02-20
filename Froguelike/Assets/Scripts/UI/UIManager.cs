@@ -263,7 +263,7 @@ public class UIManager : MonoBehaviour
 
     private void UpdateTitleScreenCurrencyText(long currencyValue)
     {
-        titleScreenCurrencyText.text = Tools.FormatCurrency(currencyValue, DataManager.instance.currencySymbol);
+        titleScreenCurrencyText.text = Tools.FormatCurrency(currencyValue, " " + DataManager.instance.currencyName);
     }
 
     public void ShowCharacterSelectionScreen(bool thenGoToChapterSelection)

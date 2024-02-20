@@ -366,7 +366,7 @@ public class RunManager : MonoBehaviour
 
     private void UpdateInGameCurrencyText(long currencyValue, bool highlight)
     {
-        currencyText.text = Tools.FormatCurrency(currencyValue, DataManager.instance.currencySymbol);
+        currencyText.text = Tools.FormatCurrency(currencyValue, "");
         if (highlight)
         {
             currencyText.color = highlightedTextColor;

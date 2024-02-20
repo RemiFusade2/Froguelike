@@ -169,8 +169,8 @@ public class DataManager : MonoBehaviour
     public List<CharacterStatNameAndRelevantData> characterStatsDataList;
     public List<WeaponStatNameAndRelevantData> weaponStatsDataList;
 
-    [Header("Currency symbol")]
-    public string currencySymbol = "FC";
+    [Header("Currency name")]
+    public string currencyName = "froins";
 
     [Header("Spawn probabilities")]
     public List<SpawnProbability> rocksSpawnProbabilities;

@@ -122,7 +122,7 @@ public class ScoreManager : MonoBehaviour
         totalTimeText.text = totalMinutes.ToString("00") + ":" + totalSeconds.ToString("00");
 
         // Display collected currency.
-        currencyCollectedText.text = Tools.FormatCurrency(currencyCollected, DataManager.instance.currencySymbol);
+        currencyCollectedText.text = Tools.FormatCurrency(currencyCollected, " " + DataManager.instance.currencyName);
 
         // Pick a random moral to display
         string moral = GetRandomMoral();
