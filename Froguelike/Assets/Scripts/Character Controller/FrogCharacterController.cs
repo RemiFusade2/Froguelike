@@ -38,6 +38,7 @@ public class FrogCharacterController : MonoBehaviour
     [Header("Character data - God Mode Settings")]
     public int godModeOutlineWidth = 1;
     public List<Color> godModeOutlineColors;
+    public GameObject superFrogOverlay;
     [Space]
     public float godModeWalkSpeedBoost = 0.7f;
     public float godModeSwimSpeedBoost = 0.7f;
@@ -869,6 +870,7 @@ public class FrogCharacterController : MonoBehaviour
 
         // Outline
         SetCharacterOutline(godModeOutlineColors[0], godModeOutlineWidth);
+        superFrogOverlay.SetActive(true);
 
         // Coroutine that will update god mode outline and eventually deactivate the god mode
         if (godModeCoroutine != null)
@@ -886,6 +888,7 @@ public class FrogCharacterController : MonoBehaviour
         }
         applyGodMode = false;
         SetCharacterOutline(godModeOutlineColors[0], 0);
+        superFrogOverlay.SetActive(false);
         UpdateMagnetRange();
     }
 
@@ -920,6 +923,7 @@ public class FrogCharacterController : MonoBehaviour
         // Turn god mode off
         applyGodMode = false;
         SetCharacterOutline(godModeOutlineColors[0], 0);
+        superFrogOverlay.SetActive(false);
         UpdateMagnetRange();
     }
 
