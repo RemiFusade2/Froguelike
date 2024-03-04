@@ -1021,6 +1021,7 @@ public class EnemiesManager : MonoBehaviour
         // Bounty outline color
         if (enemy.bountyBug != null && bountyOutlineThickness > 0)
         {
+            /*
             float enemyMaxHP = enemy.enemyInfo.enemyData.maxHP;
             if (enemy.bountyBug.overrideHealthMultiplier)
             {
@@ -1029,10 +1030,10 @@ public class EnemiesManager : MonoBehaviour
             else
             {
                 enemyMaxHP *= bountyDefaultHealthMultiplier;
-            }
-
-            int outlineColorIndex = Mathf.FloorToInt(((enemyMaxHP-enemy.HP) / enemyMaxHP) * bountyOutlineColorsList.Count);
-            outlineColorIndex = (outlineColorIndex >= bountyOutlineColorsList.Count) ? (bountyOutlineColorsList.Count - 1) : outlineColorIndex;
+            }*/
+            
+            int outlineColorIndex = Mathf.FloorToInt(((enemy.HPMax - enemy.HP) / enemy.HPMax) * bountyOutlineColorsList.Count);
+            outlineColorIndex = Mathf.Clamp(outlineColorIndex, 0, bountyOutlineColorsList.Count - 1);
             Color bountyOutlineColor = bountyOutlineColorsList[outlineColorIndex];
             enemy.SetOutlineColor(bountyOutlineColor, bountyOutlineThickness);
         }

@@ -73,6 +73,9 @@ public class WeaponBehaviour : MonoBehaviour
 
     private Coroutine sendTongueCoroutine;
 
+    private bool isCurseEffectActive;
+    private int curseEffectActiveCount;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -151,6 +154,8 @@ public class WeaponBehaviour : MonoBehaviour
         isTongueGoingOut = false;
         lastAttackTime = Time.time;
         preventAttack = false;
+        isCurseEffectActive = false;
+        curseEffectActiveCount = 0;
 
         tongueLineRenderer = GetComponent<LineRenderer>();
         outlineLineRenderer = outlineTransform.GetComponent<LineRenderer>();
@@ -434,7 +439,7 @@ public class WeaponBehaviour : MonoBehaviour
         return result;
     }
 
-    private List<Vector2> GetPositionsTowardsEnemy(GameObject targetEnemy, LineShape lineShape = LineShape.STRAIGHT_LINE, bool stopAtTarget = false)
+    private List<Vector2> GetPositionsTowardsEnemy(GameObject targetEnemy, LineShape lineShape = LineShape.STRAIGHT_LINE, bool stopAtTarget = false, bool inverseValues = false)
     {
         List<Vector2> result = new List<Vector2>();
         
@@ -473,7 +478,7 @@ public class WeaponBehaviour : MonoBehaviour
                 t = 0;
                 while (distanceFromFrog < actualRange && (!stopAtTarget || distanceFromFrog < distanceToTarget))
                 {
-                    result.Add(distanceFromFrog * direction + amplitude * Mathf.Sin(t * 2 * Mathf.PI) * upVector);
+                    result.Add(distanceFromFrog * direction + amplitude * Mathf.Sin((t * 2 + (inverseValues ? 1:0)) * Mathf.PI) * upVector);
                     distanceFromFrog += 0.1f;
                     t += 0.1f * frequency;
                 }
@@ -482,6 +487,7 @@ public class WeaponBehaviour : MonoBehaviour
                 frequency = 1.5f;
                 amplitude = 0.5f;
                 t = 0;
+                // TODO: implement inverseValues
                 offsetFromCenterDirection = 1;
                 while (distanceFromFrog < actualRange && (!stopAtTarget || distanceFromFrog < distanceToTarget))
                 {
@@ -514,7 +520,7 @@ public class WeaponBehaviour : MonoBehaviour
 
             case LineShape.SQUARE_LINE:
                 float squareLineMoveState = 0; // 0 is going straight, 1 is going up, -1 is going down
-                bool lastMoveWasUp = false;
+                bool lastMoveWasUp = inverseValues;
                 lastPosition = Vector2.zero;
                 t = 0;
                 result.Add(lastPosition);
@@ -555,7 +561,7 @@ public class WeaponBehaviour : MonoBehaviour
 
             case LineShape.LOOPS_LINE:
 
-                int loopState = 0; // 6 steps
+                int loopState = (inverseValues ? 3 : 0); // 6 steps
                 lastPosition = Vector2.zero;
                 t = 0;
                 result.Add(lastPosition);
@@ -667,6 +673,7 @@ public class WeaponBehaviour : MonoBehaviour
                 direction = Vector2.up;
                 lastPosition = Vector2.zero;
                 float spiralAngle = -5;
+                // TODO: implement inverseValues
                 distanceFromFrog = 0;
                 while (distanceFromFrog < actualRange)
                 {
@@ -760,7 +767,23 @@ public class WeaponBehaviour : MonoBehaviour
                 }
                 else if (tongueType == TongueType.CURSED)
                 {
-                    pos = GetPositionsTowardsEnemy(targetEnemy, LineShape.SQUARE_LINE, false);
+                    // Decide if attack is cursed or not
+                    float curseProbability = curseChance * (1 + GameManager.instance.player.GetAttackSpecialStrengthBoost());
+                    isCurseEffectActive = (Random.Range(0, 1.0f) < curseProbability);
+                    if (isCurseEffectActive)
+                    {
+                        curseEffectActiveCount++;
+                        if (curseEffectActiveCount > 3)
+                        {
+                            isCurseEffectActive = false;
+                            curseEffectActiveCount = 0;
+                        }
+                    }
+                    else
+                    {
+                        curseEffectActiveCount = 0;
+                    }
+                    pos = GetPositionsTowardsEnemy(targetEnemy, LineShape.SQUARE_LINE, stopAtTarget: false, inverseValues: isCurseEffectActive);
                     effects.Add(TongueEffect.CURSE);
                 }
                 else if (tongueType == TongueType.WIDE)
@@ -1191,6 +1214,10 @@ public class WeaponBehaviour : MonoBehaviour
                 case TongueType.RANDOM:
                     TongueLineRendererBehaviour script = this.GetComponent<TongueLineRendererBehaviour>();
                     activeEffect = script.GetEffectFromCollider(collision);
+                    if (activeEffect == TongueEffect.CURSE)
+                    {
+                        isCurseEffectActive = true;
+                    }
                     break;
                 case TongueType.CURSED:
                     activeEffect = TongueEffect.CURSE;
@@ -1207,21 +1234,15 @@ public class WeaponBehaviour : MonoBehaviour
             }
 
             // curse part, increase enemy speed
-            bool isCursed = false;
-            if (activeEffect == TongueEffect.CURSE)
+            if (isCurseEffectActive)
             {
-                // Apply curseFactor as a probability of curse
-                float curseProbability = curseChance * (1 + GameManager.instance.player.GetAttackSpecialStrengthBoost());
-                if (Random.Range(0.0f, 1.0f) < curseProbability)
-                {
-                    isCursed = true;
-                    actualDamage = 0;
-                }
+                activeEffect = TongueEffect.CURSE;
+                actualDamage = 0;
             }
 
             bool vampireEffect = (activeEffect == TongueEffect.VAMPIRE);
             bool enemyIsDead = EnemiesManager.instance.DamageEnemy(enemyName, actualDamage, this.transform, 
-                applyVampireEffect: vampireEffect, applyFreezeEffect: (activeEffect == TongueEffect.FREEZE), applyCurse: isCursed, poisonSource: false);
+                applyVampireEffect: vampireEffect, applyFreezeEffect: (activeEffect == TongueEffect.FREEZE), applyCurse: isCurseEffectActive, poisonSource: false);
 
             // vampire part, absorb part of damage done
             if (vampireEffect)
@@ -1230,24 +1251,26 @@ public class WeaponBehaviour : MonoBehaviour
                 GameManager.instance.player.Heal(healAmount);
             }
 
+            float actualStatusDuration = duration * (1 + GameManager.instance.player.GetAttackDurationBoost());
+            //float actualStatusDuration = duration * (1 + GameManager.instance.player.GetAttackSpecialDurationBoost());
+
             // poison part, add poison damage to enemy
             if (activeEffect == TongueEffect.POISON)
             {
-                float actualPoisonDamage = poisonDamage * (1 + GameManager.instance.player.GetAttackSpecialStrengthBoost());
-                float actualPoisonDuration = duration * (1 + GameManager.instance.player.GetAttackSpecialDurationBoost());
-                EnemiesManager.instance.AddPoisonDamageToEnemy(enemyName, actualPoisonDamage, actualPoisonDuration);
+                float actualPoisonDamage = poisonDamage * (1 + GameManager.instance.player.GetAttackDamageBoost());
+                EnemiesManager.instance.AddPoisonDamageToEnemy(enemyName, actualPoisonDamage, actualStatusDuration);
             }
 
             // freeze part, diminish enemy speed
             if (activeEffect == TongueEffect.FREEZE)
             {
-                float enemyFreezeDuration = duration * (1 + GameManager.instance.player.GetAttackSpecialDurationBoost());
-                EnemiesManager.instance.ApplyFreezeEffect(enemyName, enemyFreezeDuration);
+                EnemiesManager.instance.ApplyFreezeEffect(enemyName, actualStatusDuration);
             }
-            if (isCursed)
+
+            // curse part, increasing enemy speed
+            if (isCurseEffectActive)
             {
-                float enemyCurseDuration = duration * (1 + GameManager.instance.player.GetAttackSpecialDurationBoost());
-                EnemiesManager.instance.ApplyCurseEffect(enemyName, enemyCurseDuration);
+                EnemiesManager.instance.ApplyCurseEffect(enemyName, actualStatusDuration);
             }
 
             if (enemyIsDead)
