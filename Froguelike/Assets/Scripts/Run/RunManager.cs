@@ -154,6 +154,12 @@ public class RunManager : MonoBehaviour
     [Tooltip("This curve will be applied on the xp needed factor. 1 means multiply by the max factor. 0 means multiply by the min factor")]
     public AnimationCurve xpNeededForEachLevelCurve; // curve applied on the xp needed factor
 
+    [Header("Settings - End of chapter")]
+    public float delayAfterEndOfChapter = 5;
+    public float enemiesSpeedFactorAfterEndOfChapter = 4;
+    public Color timerTextColorDuringChapter;
+    public Color timerTextColorAfterEndOfChapter;
+
     [Header("Runtime - XP")]
     public float xp;
     public int level;
@@ -330,6 +336,11 @@ public class RunManager : MonoBehaviour
         return level;
     }
 
+    public bool IsChapterTimeOver()
+    {
+        return chapterRemainingTime <= 0;
+    }
+
     #endregion
 
     public void StartNewRun(PlayableCharacter character)
@@ -498,6 +509,15 @@ public class RunManager : MonoBehaviour
     private void SetTimer(float remainingTime)
     {
         System.TimeSpan time = new System.TimeSpan(0, 0, Mathf.RoundToInt(remainingTime));
+        if (remainingTime > 0)
+        {
+            timerText.color = timerTextColorDuringChapter;
+        }
+        else
+        {
+            timerText.color = timerTextColorAfterEndOfChapter;
+            time = new System.TimeSpan(0, 0, Mathf.RoundToInt(delayAfterEndOfChapter + remainingTime)); // remainingTime is negative
+        }
         timerText.text = timerPrefix + time.ToString("m\\:ss");
     }
 
@@ -605,7 +625,7 @@ public class RunManager : MonoBehaviour
             Debug.Log("Run - Show scores. " + chapterRemainingTime.ToString("0.00") + " seconds left on the timer");
         }
 
-        int playedTimeThisChapter = Mathf.RoundToInt(currentChapter.chapterData.chapterLengthInSeconds - chapterRemainingTime);
+        int playedTimeThisChapter = Mathf.RoundToInt(currentChapter.chapterData.chapterLengthInSeconds - Mathf.Clamp(chapterRemainingTime, 0, currentChapter.chapterData.chapterLengthInSeconds));
 
 
         // Display the score screen
@@ -801,7 +821,7 @@ public class RunManager : MonoBehaviour
     {
         chapterRemainingTime -= Time.deltaTime;
         SetTimer(chapterRemainingTime);
-        if (chapterRemainingTime < 0)
+        if (chapterRemainingTime < -delayAfterEndOfChapter)
         {
             chapterRemainingTime = 0; // float.MaxValue;
             EndChapter();
