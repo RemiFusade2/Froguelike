@@ -525,7 +525,7 @@ public class EnemiesManager : MonoBehaviour
     /// <param name="bountyBugData">EnemyData contains data about the enemy to spawn</param>
     public void TrySpawnBounty(int bountyID, BountyBug bountyBug)
     {
-        if (RunManager.instance.currentChapter != null && RunManager.instance.currentChapter.chapterData != null)
+        if (RunManager.instance.currentChapter != null && RunManager.instance.currentChapter.chapterData != null && !RunManager.instance.IsChapterTimeOver())
         {
             if (spawnedBugsWithBountiesIDs != null && !spawnedBugsWithBountiesIDs.Contains(bountyID))
             {
@@ -550,7 +550,7 @@ public class EnemiesManager : MonoBehaviour
 
     public void TrySpawnWave(Wave currentWave)
     {
-        if (RunManager.instance.currentChapter != null && RunManager.instance.currentChapter.chapterData != null)
+        if (RunManager.instance.currentChapter != null && RunManager.instance.currentChapter.chapterData != null && !RunManager.instance.IsChapterTimeOver())
         {
             double curseDelayFactor = (1 - GameManager.instance.player.curse / 2.0f); // curse will affect the delay negatively (lower delay = more spawns)
             curseDelayFactor = System.Math.Clamp(curseDelayFactor, 0.5, 2.0); // maximum curse would be half delay (so twice the amount of enemies). Negative curse is possible
@@ -1201,6 +1201,8 @@ public class EnemiesManager : MonoBehaviour
                     {
                         // Enemy is alive
 
+                        bool chapterTimerHasEnded = RunManager.instance.IsChapterTimeOver();
+
                         // Check distance (if enemy is too far, unspawn it)
                         float distanceWithFrog = Vector2.Distance(frogPosition, enemy.enemyTransform.position);
                         if (distanceWithFrog > maxDistanceBeforeUnspawn)
@@ -1213,6 +1215,9 @@ public class EnemiesManager : MonoBehaviour
 
                             // Special case: this enemy never despawn (maybe it is a bounty)
                             despawnEnemy &= !enemy.neverDespawn;
+
+                            // Special case: this enemy always despawns if chapter time is over
+                            despawnEnemy |= chapterTimerHasEnded;
 
                             if (despawnEnemy)
                             {
@@ -1255,6 +1260,9 @@ public class EnemiesManager : MonoBehaviour
                         }
                         else
                         {
+                            // Enemy is in range, it is not despawned
+
+                            // Special case for random enemies: they start following the frog if it goes too close
                             if (enableAggroForRandomMovementBugs && enemy.movePattern.movePatternType == EnemyMovePatternType.DIRECTIONLESS)
                             {
                                 if (distanceWithFrog <= aggroDistanceFromRandomMovementBugs)
@@ -1291,14 +1299,40 @@ public class EnemiesManager : MonoBehaviour
                                         enemy.enemyRigidbody.velocity = Vector2.zero;
                                         break;
                                     case EnemyMovePatternType.STRAIGHT_LINE:
-                                        SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
+                                        if (chapterTimerHasEnded)
+                                        {
+                                            // Goes away from frog
+                                            enemy.moveDirection = (enemy.enemyTransform.position - playerTransform.position).normalized;
+                                            SetEnemyVelocity(enemy, enemyUpdateDeltaTime, RunManager.instance.enemiesSpeedFactorAfterEndOfChapter);
+                                        }
+                                        else
+                                        {
+                                            // Stay in the same direction
+                                            SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
+                                        }
                                         break;
                                     case EnemyMovePatternType.FOLLOW_PLAYER:
-                                        enemy.moveDirection = (playerTransform.position - enemy.enemyTransform.position).normalized;
-                                        SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
+                                        if (chapterTimerHasEnded)
+                                        {
+                                            // Goes away from frog
+                                            enemy.moveDirection = (enemy.enemyTransform.position - playerTransform.position).normalized;
+                                            SetEnemyVelocity(enemy, enemyUpdateDeltaTime, RunManager.instance.enemiesSpeedFactorAfterEndOfChapter);
+                                        }
+                                        else
+                                        {
+                                            // Follow frog
+                                            enemy.moveDirection = (playerTransform.position - enemy.enemyTransform.position).normalized;
+                                            SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
+                                        }
                                         break;
                                     case EnemyMovePatternType.BOUNCE_ON_EDGES:
-                                        if (enemy.bounceCount > 0)
+                                        if (chapterTimerHasEnded)
+                                        {
+                                            // Goes away from frog
+                                            enemy.moveDirection = (enemy.enemyTransform.position - playerTransform.position).normalized;
+                                            SetEnemyVelocity(enemy, enemyUpdateDeltaTime, RunManager.instance.enemiesSpeedFactorAfterEndOfChapter);
+                                        }
+                                        else if (enemy.bounceCount > 0)
                                         {
                                             // detect if enemy current position is on an edge of the screen, bounce it in the right direction if it is                                
                                             Vector3 cameraBottomLeftCorner = Camera.main.ScreenToWorldPoint(20 * Vector3.right + 20 * Vector3.up);
@@ -1327,16 +1361,33 @@ public class EnemiesManager : MonoBehaviour
                                                 enemy.moveDirection = (new Vector2(enemy.moveDirection.x, -Mathf.Abs(enemy.moveDirection.y))).normalized;
                                                 enemy.bounceCount--;
                                             }
+                                            SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
                                         }
-                                        SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
+                                        else
+                                        {
+                                            // Stay in the same direction
+                                            SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
+                                        }
                                         break;
                                     case EnemyMovePatternType.DIRECTIONLESS:
-                                        if (Time.time - enemy.lastChangeOfDirectionTime > delayBetweenRandomChangeOfDirection)
+                                        if (chapterTimerHasEnded)
                                         {
+                                            // Goes away from frog
+                                            enemy.moveDirection = (enemy.enemyTransform.position - playerTransform.position).normalized;
+                                            SetEnemyVelocity(enemy, enemyUpdateDeltaTime, RunManager.instance.enemiesSpeedFactorAfterEndOfChapter);
+                                        }
+                                        else if (Time.time - enemy.lastChangeOfDirectionTime > delayBetweenRandomChangeOfDirection)
+                                        {
+                                            // Choose new random direction
                                             enemy.moveDirection = Random.insideUnitCircle.normalized;
                                             enemy.lastChangeOfDirectionTime = Time.time;
+                                            SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
                                         }
-                                        SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
+                                        else
+                                        {
+                                            // Stay in the same direction
+                                            SetEnemyVelocity(enemy, enemyUpdateDeltaTime);
+                                        }
                                         break;
                                 }
                             }
@@ -1408,7 +1459,6 @@ public class EnemiesManager : MonoBehaviour
         enemy.enemyAnimator.enabled = false;
         enemy.enemyCollider.enabled = false;
         enemy.bountyBug = null;
-
     }
 
     public void AddPoisonDamageToEnemy(string enemyGoName, float poisonDamage, float poisonDuration)
@@ -1599,10 +1649,16 @@ public class EnemiesManager : MonoBehaviour
     }
 
 
-    private void SetEnemyVelocity(EnemyInstance enemy, float updateDeltaTime)
+    private void SetEnemyVelocity(EnemyInstance enemy, float updateDeltaTime, float speedFactorOverride = -1)
     {
         // Set speed factor
         float changeSpeedFactor = 1;
+
+        if (speedFactorOverride != -1)
+        {
+            changeSpeedFactor = speedFactorOverride;
+        }
+
         enemy.enemyRigidbody.simulated = true;
         float newMass = enemy.mass;
         if (enemy.freezeRemainingTime > 0 || applyGlobalFreeze)
@@ -1616,6 +1672,7 @@ public class EnemiesManager : MonoBehaviour
             newMass = 1000;
         }
         enemy.enemyRigidbody.mass = newMass;
+
 
         if (changeSpeedFactor > 0 && enemy.movePattern.movePatternType != EnemyMovePatternType.NO_MOVEMENT)
         {
@@ -1637,7 +1694,8 @@ public class EnemiesManager : MonoBehaviour
             enemyDataSpeed = enemy.enemyInfo.enemyData.moveSpeed;
         }
         float actualSpeed = enemyDataSpeed * changeSpeedFactor * enemy.movePattern.speedFactor;
-        actualSpeed = Mathf.Clamp(actualSpeed, 0, 30);
+        float maximumSpeed = 8;
+        actualSpeed = Mathf.Clamp(actualSpeed, 0, maximumSpeed);
         enemy.enemyRigidbody.velocity = enemy.moveDirection * actualSpeed;
         enemy.enemyAnimator.SetFloat("Speed", actualSpeed);
     }

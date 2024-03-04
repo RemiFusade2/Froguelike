@@ -729,6 +729,7 @@ public class FrogCharacterController : MonoBehaviour
         bool enemyCanInflictDamage = (enemy != null); // Enemy exists
         if (enemyCanInflictDamage)
         {
+            enemyCanInflictDamage &= !RunManager.instance.IsChapterTimeOver(); // chapter is not over
             enemyCanInflictDamage &= enemy.active && enemy.alive; // Enemy is active and alive
             enemyCanInflictDamage &= (Time.time - enemy.lastDamageInflictedTime) >= damageCooldown; // This enemy didn't do damage for a while
             enemyCanInflictDamage &= !applyGodMode; // God mode is off
@@ -966,7 +967,7 @@ public class FrogCharacterController : MonoBehaviour
             if (rewiredPlayer.GetButtonDown(cheat_inRun_endChapter))
             {
                 // End Chapter
-                RunManager.instance.chapterRemainingTime = 0.01f;
+                RunManager.instance.chapterRemainingTime = 0.3f;
             }
             if (rewiredPlayer.GetButtonDown(cheat_inRun_spawnBugs_tier1))
             {
