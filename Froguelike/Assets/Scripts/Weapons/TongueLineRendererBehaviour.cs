@@ -298,8 +298,15 @@ public class TongueLineRendererBehaviour : MonoBehaviour
             index++;
         }
 
-        // Add last collider (tip of tongue)
-        tongueTip.SetTipPositionAndRadius(lastPos, actualColliderRadius + 0.1f);
+        // Add last collider (tip of tongue) / or setup polygon collider up to tip of tongue
+        if (tongueTip.useEdgeCollider)
+        {
+            tongueTip.SetTongueEdgeCollider(tongueLineRenderer, lastPos, actualColliderRadius + 0.1f);
+        }
+        else
+        {
+            tongueTip.SetTipPositionAndRadius(lastPos, actualColliderRadius + 0.1f);
+        }
         /*
         if (colliderIndex < tongueColliderComponentsList.Count)
         {

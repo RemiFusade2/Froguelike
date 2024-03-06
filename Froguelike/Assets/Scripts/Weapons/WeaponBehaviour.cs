@@ -561,7 +561,8 @@ public class WeaponBehaviour : MonoBehaviour
 
             case LineShape.LOOPS_LINE:
 
-                int loopState = (inverseValues ? 3 : 0); // 6 steps
+                //int loopState = (inverseValues ? 3 : 0); // 6 steps
+                int loopState = Random.Range(0, 6); // 6 steps, we can start with any
                 lastPosition = Vector2.zero;
                 t = 0;
                 result.Add(lastPosition);
@@ -580,7 +581,8 @@ public class WeaponBehaviour : MonoBehaviour
                     loopMediumRadius *= (actualRange / 3);
                 }
 
-                float loopRadius = loopBigRadius;
+                //float loopRadius = loopBigRadius;
+                float loopRadius = (loopState % 3 == 0) ? loopBigRadius : ((loopState % 3 == 1) ? loopSmallRadius : loopMediumRadius);
 
                 while (distanceFromFrog < actualRange && (!stopAtTarget || distanceFromFrog < distanceToTarget))
                 {

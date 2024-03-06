@@ -1303,7 +1303,8 @@ public class RunManager : MonoBehaviour
                 else if (maxLevelItem)
                 {
                     levelUpChoicesLevels[index].color = maxLevelColor;
-                    levelUpChoicesLevels[index].text = "LVL MAX";
+                    //levelUpChoicesLevels[index].text = $"LVL {nextLevel} (MAX)";
+                    levelUpChoicesLevels[index].text = "LVL " + nextLevel.ToString();
                 }
                 else
                 {

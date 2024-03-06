@@ -29,7 +29,7 @@ public class HealthBarBehaviour : MonoBehaviour
     [Space]
     public float speedApplyHealing = 50; // once healing starts being validated as "current", it moves at this speed (HP/s)
     [Space]
-    public float healthRecoveryDelay = 5; // Time without damage before health starts being recovered
+    public float healthRecoveryDelay = 0; // Time without damage before health starts being recovered
     [Space]
     public float criticalBlinkingDelay = 1;
     public float superCriticalBlinkingDelay = 0.5f;
@@ -42,7 +42,6 @@ public class HealthBarBehaviour : MonoBehaviour
     public float currentHealthTarget; // This is current HP. HP bar shows a line to this amount in a different color.
 
     private float lastDamageTakenTime;
-    private float lastRecoveryTime;
 
     private bool blink;
     private Coroutine blinkCoroutine;
@@ -58,12 +57,10 @@ public class HealthBarBehaviour : MonoBehaviour
     void Update()
     {
         if (!GameManager.instance.gameIsPaused && !ChapterManager.instance.chapterChoiceIsVisible && !RunManager.instance.levelUpChoiceIsVisible
-            && Time.time - lastDamageTakenTime > healthRecoveryDelay
-            && Time.time - lastRecoveryTime > 1)
+            && Time.time - lastDamageTakenTime > healthRecoveryDelay)
         {
             // Recovery is active
-            IncreaseHealth(healthRecovery);
-            lastRecoveryTime = Time.time;
+            IncreaseHealth(healthRecovery * Time.deltaTime);
         }
 
         if (currentHealthShown < currentHealthTarget)
