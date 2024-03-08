@@ -44,7 +44,7 @@ public enum CharacterStat
 
 /// <summary>
 /// StatValue is a handy class storing a CharacterStat with its value.
-/// Storing a list of StatValue should be enough to describe a character.
+/// Storing a list of StatValue should be enough to describe a character's starting stats.
 /// </summary>
 [System.Serializable]
 public class StatValue : IEquatable<StatValue>, ICloneable
@@ -53,6 +53,7 @@ public class StatValue : IEquatable<StatValue>, ICloneable
     public CharacterStat stat;
     [Tooltip("What is the value of this stat?")]
     public double value;
+
 
     /// <summary>
     /// Constructor that just create a default stat (value is zero)

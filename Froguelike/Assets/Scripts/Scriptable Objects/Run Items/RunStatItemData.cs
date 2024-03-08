@@ -11,6 +11,11 @@ public class RunStatItemLevel : RunItemLevel
     [Header("Character Boosts")]
     [Tooltip("A list of Stats that this level improves")]
     public StatsWrapper statUpgrades;
+
+    [Tooltip("Temp: does this upgrade scales with score?")]
+    public bool scaleWithScore;
+    [Tooltip("Temp: how much score to get the upgrade again")]
+    public int scaleWithScoreValue;
 }
 
 /// <summary>

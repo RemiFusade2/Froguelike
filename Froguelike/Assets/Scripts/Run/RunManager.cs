@@ -545,6 +545,30 @@ public class RunManager : MonoBehaviour
         int chapterCount = GetChapterCount();
         playedChaptersKillCounts[chapterCount - 1] += kills;
         SetEatenCount(playedChaptersKillCounts[chapterCount - 1]);
+
+        // Update all stats that scale with score
+        player.UpdateScalingWithScoreStats();
+    }
+
+    public int GetCurrentChapterKillCount()
+    {
+        int killCount = 0;
+        int chapterCount = GetChapterCount();
+        if (playedChaptersKillCounts != null && chapterCount <= playedChaptersKillCounts.Count())
+        {
+            killCount = playedChaptersKillCounts[chapterCount - 1];
+        }
+        return killCount;
+    }
+
+    public int GetTotalKillCount()
+    {
+        int currentScore = 0;
+        foreach (int killCount in playedChaptersKillCounts)
+        {
+            currentScore += killCount;
+        }
+        return currentScore;
     }
 
     public void Respawn()

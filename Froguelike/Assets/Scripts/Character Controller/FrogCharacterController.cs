@@ -3,12 +3,29 @@ using System.Collections.Generic;
 using UnityEngine;
 using Rewired;
 using System.Linq;
-using static UnityEngine.ParticleSystem;
+using Unity.VisualScripting;
+
+[System.Serializable]
+public class StatScoreScaling
+{
+    public StatValue valueIncrease;
+    public int scoreValue;
+
+    public StatScoreScaling(StatValue valueIncrease, int scoreValue)
+    {
+        this.valueIncrease = valueIncrease;
+        this.scoreValue = scoreValue;
+    }
+}
+
 
 public class FrogCharacterController : MonoBehaviour
 {
     [Header("Player id")]
     public int playerID;
+
+    [Header("Settings - Logs")]
+    public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
 
     [Header("References")]
     public Transform weaponsParent;
@@ -78,9 +95,8 @@ public class FrogCharacterController : MonoBehaviour
     [Space]
     public int statItemSlotsCount;
     public int weaponSlotsCount;
-
-    [Header("Settings - Logs")]
-    public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
+    [Space]
+    public List<StatScoreScaling> statScaleWithScoreList; // TEMP
 
     [Header("Settings - controls")]
     public string horizontalInputName = "horizontal";
@@ -226,98 +242,132 @@ public class FrogCharacterController : MonoBehaviour
 
     #endregion
 
+    /// <summary>
+    /// Get the current added bonus scaled with score for request stat type
+    /// </summary>
+    /// <param name="statType"></param>
+    /// <returns></returns>
+    private float GetScoreScaledBoostForStat(CharacterStat statType)
+    {
+        float result = 0;
+        int score = RunManager.instance.GetCurrentChapterKillCount();
+        IEnumerable<StatScoreScaling> statScoreScalingList = statScaleWithScoreList.Where(x => x.valueIncrease.stat.Equals(statType));
+        foreach (StatScoreScaling statScoreScaling in statScoreScalingList)
+        {
+            result += (float)(statScoreScaling.valueIncrease.value * (score / statScoreScaling.scoreValue));
+        }
+        return result;
+    }
+
     #region Accessors
 
     public float GetWalkSpeedBoost()
     {
+        float scaledWalkSpeedBoost = walkSpeedBoost + GetScoreScaledBoostForStat(CharacterStat.WALK_SPEED_BOOST);
         if (applyGodMode)
         {
-            return walkSpeedBoost + godModeWalkSpeedBoost;
+            scaledWalkSpeedBoost += godModeWalkSpeedBoost;
         }
-        return walkSpeedBoost;
+        return scaledWalkSpeedBoost;
     }
     public float GetSwimSpeedBoost()
     {
+        float scaledSwimSpeedBoost = swimSpeedBoost + GetScoreScaledBoostForStat(CharacterStat.SWIM_SPEED_BOOST);
         if (applyGodMode)
         {
-            return swimSpeedBoost + godModeSwimSpeedBoost;
+            scaledSwimSpeedBoost += godModeSwimSpeedBoost;
         }
-        return swimSpeedBoost;
+        return scaledSwimSpeedBoost;
     }
     public float GetAttackCooldownBoost()
     {
+        float scaledCooldownBoost = attackCooldownBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_COOLDOWN_BOOST);        
+        scaledCooldownBoost = Mathf.Clamp(scaledCooldownBoost, -1, 3600); // Maximum scaledCooldownBoost is 1 hour, it's never gonna happen
         if (applyGodMode)
         {
-            return Mathf.Min(godModeMinCooldownBoost, attackCooldownBoost);
+            scaledCooldownBoost = Mathf.Min(godModeMinCooldownBoost, scaledCooldownBoost);
         }
-        return attackCooldownBoost;
+        return scaledCooldownBoost;
     }
     public float GetAttackDamageBoost()
     {
+        float scaledDamageBoost = attackDamageBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_DAMAGE_BOOST);
         if (applyGodMode)
         {
-            return attackDamageBoost + godModeAttackDamageBoost;
+            scaledDamageBoost += godModeAttackDamageBoost;
         }
-        return attackDamageBoost;
+        return scaledDamageBoost;
     }
     public float GetAttackRangeBoost()
     {
+        float scaledRangeBoost = attackRangeBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_RANGE_BOOST);
         if (applyGodMode)
         {
-            return attackRangeBoost + godModeAttackRangeBoost;
+            scaledRangeBoost += godModeAttackRangeBoost;
         }
-        return attackRangeBoost;
+        return scaledRangeBoost;
     }
     public float GetAttackSizeBoost()
     {
+        float scaledSizeBoost = attackSizeBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_SIZE_BOOST);
         if (applyGodMode)
         {
-            return attackSizeBoost + godModeAttackSizeBoost;
+            scaledSizeBoost += godModeAttackSizeBoost;
         }
-        return attackSizeBoost;
+        return scaledSizeBoost;
     }
     public float GetAttackSpeedBoost()
     {
+        float scaledAtkSpeedBoost = attackSpeedBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_SPEED_BOOST);
         if (applyGodMode)
         {
-            return attackSpeedBoost + godModeAttackSpeedBoost;
+            scaledAtkSpeedBoost += godModeAttackSpeedBoost;
         }
-        return attackSpeedBoost;
+        return scaledAtkSpeedBoost;
     }
     public float GetAttackDurationBoost()
     {
+        float scaledAtkDurationBoost = attackDurationBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_DURATION_BOOST);
         if (applyGodMode)
         {
-            return attackDurationBoost + godModeAttackDurationBoost;
+            scaledAtkDurationBoost += godModeAttackDurationBoost;
         }
-        return attackDurationBoost;
+        return scaledAtkDurationBoost;
     }
     public float GetAttackSpecialStrengthBoost()
     {
+        float scaledAttackSpecialStrengthBoost = attackSpecialStrengthBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_SPECIAL_STRENGTH_BOOST);
         if (applyGodMode)
         {
-            return attackSpecialStrengthBoost + godModeAttackSpecialStrengthBoost;
+            scaledAttackSpecialStrengthBoost += godModeAttackSpecialStrengthBoost;
         }
-        return attackSpecialStrengthBoost;
+        return scaledAttackSpecialStrengthBoost;
     }
     public float GetAttackSpecialDurationBoost()
     {
+        float scaledAttackSpecialDurationBoost = attackSpecialDurationBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_SPECIAL_DURATION_BOOST);
         if (applyGodMode)
         {
-            return attackSpecialDurationBoost + godModeAttackSpecialDurationBoost;
+            scaledAttackSpecialDurationBoost += godModeAttackSpecialDurationBoost;
         }
-        return attackSpecialDurationBoost;
+        return scaledAttackSpecialDurationBoost;
     }
     public float GetMagnetRangeBoost()
     {
+        float scaledMagnetRangeBoost = magnetRangeBoost + GetScoreScaledBoostForStat(CharacterStat.MAGNET_RANGE_BOOST);
         if (applyGodMode)
         {
-            return magnetRangeBoost + godModeMagnetBoost;
+            scaledMagnetRangeBoost += godModeMagnetBoost;
         }
-        return magnetRangeBoost;
+        return scaledMagnetRangeBoost;
     }
 
     #endregion Accessors
+
+    public void UpdateScalingWithScoreStats()
+    {
+        UpdateMagnetRange();
+    }
 
     public Rigidbody2D GetRigidbody()
     {
@@ -568,6 +618,9 @@ public class FrogCharacterController : MonoBehaviour
             weaponSlotsCount += Mathf.RoundToInt(weaponSlotsCountIncrease);
         }
 
+        // Clear stats that scale with score
+        statScaleWithScoreList = new List<StatScoreScaling>();
+
         RunManager.instance.SetExtraLives(revivals, false);
 
         healthBar.ResetHealth();
@@ -586,40 +639,75 @@ public class FrogCharacterController : MonoBehaviour
 
     public void ResolvePickedStatItemLevel(RunStatItemLevel itemLevelData)
     {
-        // All of these stats could probably be stored in a better way 
-        // TODO: Use a list<StatValue> instead, or the Wrapper
-        curse += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.CURSE).value;
+        if (itemLevelData.scaleWithScore)
+        {
+            // TEMP thing: this upgrade adds a bonus that scales with score
+            foreach (StatValue statValue in itemLevelData.statUpgrades.statsList)
+            {
+                bool statIncreaseAdded = false;
 
-        // character stats
-        armor += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ARMOR).value;
-        experienceBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.XP_BOOST).value;
-        currencyBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.CURRENCY_BOOST).value;
-        healthBar.IncreaseHealthRecovery((float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.HEALTH_RECOVERY).value);
-        healthBar.IncreaseMaxHealth((float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.MAX_HEALTH).value);
+                StatScoreScaling newStatScoreScaling = new StatScoreScaling(statValue, itemLevelData.scaleWithScoreValue);
 
-        revivals += (int)itemLevelData.statUpgrades.GetStatValue(CharacterStat.REVIVAL).value;
-        RunManager.instance.SetExtraLives(revivals, true);
+                foreach (StatScoreScaling statScoreScaling in statScaleWithScoreList)
+                {
+                    if (statScoreScaling.valueIncrease.Equals(statValue))
+                    {
+                        // That new increase is for a stat that is already in the list, we'll attempt to increment the existing one
+                        if (statScoreScaling.scoreValue == newStatScoreScaling.scoreValue)
+                        {
+                            statScoreScaling.valueIncrease.value += newStatScoreScaling.valueIncrease.value;
+                            statIncreaseAdded = true;
+                            break;
+                        }
+                    }
+                }
+                if (statIncreaseAdded)
+                {
+                    continue;
+                }
+                else
+                {
+                    // We couldn't increment an existing stat so we add this increment to the list
+                    statScaleWithScoreList.Add(newStatScoreScaling);
+                }
+            }
+        }
+        else
+        {
+            // This is a regular level up, no scaling with score
+            curse += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.CURSE).value;
 
-        magnetRangeBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.MAGNET_RANGE_BOOST).value;
-        UpdateMagnetRange();
+            // character stats
+            armor += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ARMOR).value;
+            experienceBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.XP_BOOST).value;
+            currencyBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.CURRENCY_BOOST).value;
+            healthBar.IncreaseHealthRecovery((float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.HEALTH_RECOVERY).value);
+            healthBar.IncreaseMaxHealth((float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.MAX_HEALTH).value);
 
-        walkSpeedBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.WALK_SPEED_BOOST).value;
-        swimSpeedBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.SWIM_SPEED_BOOST).value;
+            revivals += (int)itemLevelData.statUpgrades.GetStatValue(CharacterStat.REVIVAL).value;
+            RunManager.instance.SetExtraLives(revivals, true);
 
-        // attack stuff
-        attackCooldownBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_COOLDOWN_BOOST).value;
-        attackDamageBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_DAMAGE_BOOST).value;
-        attackRangeBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_RANGE_BOOST).value;
-        attackSpeedBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_SPEED_BOOST).value;
-        attackSizeBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_SIZE_BOOST).value;
-        attackDurationBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_DURATION_BOOST).value;
+            magnetRangeBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.MAGNET_RANGE_BOOST).value;
+            UpdateMagnetRange();
 
-        attackSpecialStrengthBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_SPECIAL_STRENGTH_BOOST).value;
-        attackSpecialDurationBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_SPECIAL_DURATION_BOOST).value;
+            walkSpeedBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.WALK_SPEED_BOOST).value;
+            swimSpeedBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.SWIM_SPEED_BOOST).value;
 
-        // item and weapon slots
-        statItemSlotsCount += (int)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ITEM_SLOT).value;
-        weaponSlotsCount += (int)itemLevelData.statUpgrades.GetStatValue(CharacterStat.WEAPON_SLOT).value;
+            // attack stuff
+            attackCooldownBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_COOLDOWN_BOOST).value;
+            attackDamageBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_DAMAGE_BOOST).value;
+            attackRangeBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_RANGE_BOOST).value;
+            attackSpeedBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_SPEED_BOOST).value;
+            attackSizeBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_SIZE_BOOST).value;
+            attackDurationBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_DURATION_BOOST).value;
+
+            attackSpecialStrengthBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_SPECIAL_STRENGTH_BOOST).value;
+            attackSpecialDurationBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_SPECIAL_DURATION_BOOST).value;
+
+            // item and weapon slots
+            statItemSlotsCount += (int)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ITEM_SLOT).value;
+            weaponSlotsCount += (int)itemLevelData.statUpgrades.GetStatValue(CharacterStat.WEAPON_SLOT).value;
+        }
     }
 
     public void Respawn()

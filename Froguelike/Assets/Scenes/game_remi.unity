@@ -7760,7 +7760,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e808e90f5c8a724b8fa58e183c163b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  versionNumber: 0.1.10
+  versionNumber: 0.1.11
   showEADisclaimer: 1
   availablePowerUpsInEA: 255
   demoBuild: 0
@@ -50645,6 +50645,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerID: 0
+  logsVerboseLevel: 0
   weaponsParent: {fileID: 1612635252}
   weaponStartPoint: {fileID: 664096493}
   healthBar: {fileID: 1397104353}
@@ -50697,7 +50698,7 @@ MonoBehaviour:
   attackSpecialDurationBoost: 0
   statItemSlotsCount: 0
   weaponSlotsCount: 0
-  logsVerboseLevel: 0
+  statScaleWithScoreList: []
   horizontalInputName: horizontal
   verticalInputName: vertical
   pauseInputName: pause
@@ -69079,6 +69080,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4066290430001570301, guid: ddbad148ac7bcd64292526d7cb8fc23e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4066290430001570306, guid: ddbad148ac7bcd64292526d7cb8fc23e, type: 3}
+      propertyPath: healthRecoveryDelay
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4066290430350225223, guid: ddbad148ac7bcd64292526d7cb8fc23e, type: 3}

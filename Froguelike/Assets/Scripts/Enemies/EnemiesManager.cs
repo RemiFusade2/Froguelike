@@ -923,7 +923,7 @@ public class EnemiesManager : MonoBehaviour
     {
         EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
 
-        float randomizedDamage = damage * Random.Range(0.9f, 1.1f);
+        float randomizedDamage = Mathf.Floor(10 * damage * Random.Range(0.9f, 1.1f)) / 10.0f; // round up to nearest 0.1
         enemy.HP -= randomizedDamage;
 
         bool knockback = false;
