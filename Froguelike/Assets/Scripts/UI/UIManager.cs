@@ -419,6 +419,10 @@ public class UIManager : MonoBehaviour
                 makeLevelUpPanelInteractableAfterClosingPausePanel = true;
                 SavePreviousSelectedButton();
             }
+            else
+            {
+                makeLevelUpPanelInteractableAfterClosingPausePanel = false;
+            }
 
             SetSelectedButton(selectedButtonPausePanel);
         }

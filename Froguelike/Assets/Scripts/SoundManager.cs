@@ -35,6 +35,8 @@ public class SoundManager : MonoBehaviour
     [field: SerializeField] public EventReference eatBountySound { get; private set; } // Not used yet.
     [field: SerializeField] public EventReference eatBugSound { get; private set; } // Not used yet.
 
+    [field: SerializeField] public EventReference chapterEndSound { get; private set; }
+
     [field: Header("Power ups")]
     [field: SerializeField] public EventReference powerUpPartySound { get; private set; }
     [field: SerializeField] public EventReference powerUpGoopSound { get; private set; }
@@ -71,6 +73,8 @@ public class SoundManager : MonoBehaviour
         pickUpXPEvent = RuntimeManager.CreateInstance(pickUpXPSound);
     }
 
+    #region Settings
+
     // Settings.
     public void SetNewMusicVolume(float volume)
     {
@@ -106,6 +110,8 @@ public class SoundManager : MonoBehaviour
     {
         PauseInGameLoopedSFX(false);
     }
+
+    #endregion Settings
 
     #region Play loops
 
@@ -260,6 +266,11 @@ public class SoundManager : MonoBehaviour
     public void PlaySkipSound()
     {
         // TODO No sound yet.
+    }
+
+    public void PlayChapterEndSound()
+    {
+        RuntimeManager.PlayOneShot(chapterEndSound);
     }
 
     #region Power-ups

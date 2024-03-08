@@ -659,7 +659,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   delayAfterEndOfChapter: 10
-  enemiesSpeedFactorAfterEndOfChapter: 4
+  enemiesSpeedFactorAfterEndOfChapter: 5
   timerTextColorDuringChapter: {r: 0.9960785, g: 0.9686275, b: 0.72156864, a: 1}
   timerTextColorAfterEndOfChapter: {r: 0.9960785, g: 0.74509805, b: 0.20000002, a: 1}
   xp: 0
@@ -21203,6 +21203,13 @@ MonoBehaviour:
       Data3: 133591693
       Data4: -779476967
     Path: event:/InRun/EatBug
+  <chapterEndSound>k__BackingField:
+    Guid:
+      Data1: 1581521184
+      Data2: 1277035217
+      Data3: 844330405
+      Data4: 2062671566
+    Path: event:/InRun/ChapterEnd
   <powerUpPartySound>k__BackingField:
     Guid:
       Data1: -227914992
@@ -108258,7 +108265,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &371073637618088880
 RectTransform:
   m_ObjectHideFlags: 0

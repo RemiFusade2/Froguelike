@@ -844,6 +844,12 @@ public class RunManager : MonoBehaviour
     public void UpdateTime(float deltaTime)
     {
         chapterRemainingTime -= Time.deltaTime;
+
+        if (Mathf.RoundToInt(chapterRemainingTime + Time.deltaTime) > 0 && Mathf.RoundToInt(chapterRemainingTime) <= 0)
+        {
+            SoundManager.instance.PlayChapterEndSound();
+        }
+
         SetTimer(chapterRemainingTime);
         if (chapterRemainingTime < -delayAfterEndOfChapter)
         {
