@@ -118,12 +118,14 @@ public class EnemyInstance
     public float knockbackCooldown;
 
     // Current in-game state - poison
-    public float poisonDamage;
-    public float poisonRemainingTime;
+    public List<float> poisonDamageList;
+    public List<float> poisonRemainingTimeList;
     public float lastPoisonDamageTime;
 
     // Current in-game state - curse
     public float curseRemainingTime;
+
+    // Current in-game state - freeze
     public float freezeRemainingTime;
 
     // References to Components
@@ -140,6 +142,61 @@ public class EnemyInstance
     public Transform lastWeaponHitTransform;
 
     public Coroutine removeOverlayCoroutine;
+
+    public EnemyInstance(GameObject enemyGameObject)
+    {
+        poisonDamageList = new List<float>();
+        poisonRemainingTimeList = new List<float>();
+
+        active = false;
+        alive = false;
+
+        enemyTransform = enemyGameObject.transform;
+        enemyRenderer = enemyGameObject.GetComponent<SpriteRenderer>();
+        enemyRigidbody = enemyGameObject.GetComponent<Rigidbody2D>();
+        enemyAnimator = enemyGameObject.GetComponent<Animator>();
+        enemyCollider = enemyGameObject.GetComponent<Collider2D>();
+
+        enemyFreezeParticles = enemyTransform.Find("Freeze Particles").GetComponent<ParticleSystem>();
+        enemyPoisonParticles = enemyTransform.Find("Poison Particles").GetComponent<ParticleSystem>();
+        enemyCurseParticles = enemyTransform.Find("Curse Particles").GetComponent<ParticleSystem>();
+    }
+
+    public void RemovePoison()
+    {
+        poisonDamageList.Clear();
+        poisonRemainingTimeList.Clear();
+    }
+
+    public void AddPoisonDamage(float damage, float remainingTime)
+    {
+        poisonDamageList.Add(damage);
+        poisonRemainingTimeList.Add(remainingTime);
+    }
+
+    public void DecreasePoisonRemainingTimes(float deltaTime)
+    {
+        for (int i = 0; i < poisonDamageList.Count; i++)
+        {
+            poisonRemainingTimeList[i] -= deltaTime;
+            if (poisonRemainingTimeList[i] <= 0)
+            {
+                poisonRemainingTimeList.RemoveAt(i);
+                poisonDamageList.RemoveAt(i);
+                i--;
+            }
+        }
+    }
+
+    public bool IsAnyPoisonActive()
+    {
+        return poisonDamageList.Count > 0;
+    }
+
+    public float GetActivePoisonDamage()
+    {
+        return poisonDamageList.Sum(x => x);
+    }
 
     public void RemoveOverlay()
     {
@@ -182,7 +239,8 @@ public class EnemyInstance
     {
         curseRemainingTime = 0;
         freezeRemainingTime = 0;
-        poisonRemainingTime = 0;
+
+        RemovePoison();
 
         enemyCurseParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         enemyFreezeParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
@@ -347,22 +405,11 @@ public class EnemiesManager : MonoBehaviour
         inactiveEnemiesPool = new Queue<EnemyInstance>();
         for (int i = 0; i < maxActiveEnemies; i++)
         {
-            EnemyInstance newEnemy = new EnemyInstance();
-            newEnemy.active = false;
-            newEnemy.alive = false;
-
             GameObject firstEnemyPrefab = defaultEnemyPrefab;
             GameObject enemyGameObject = Instantiate(firstEnemyPrefab, DataManager.instance.GetFarAwayPosition(), Quaternion.identity, enemiesParent);
 
-            newEnemy.enemyTransform = enemyGameObject.transform;
-            newEnemy.enemyRenderer = enemyGameObject.GetComponent<SpriteRenderer>();
-            newEnemy.enemyRigidbody = enemyGameObject.GetComponent<Rigidbody2D>();
-            newEnemy.enemyAnimator = enemyGameObject.GetComponent<Animator>();
-            newEnemy.enemyCollider = enemyGameObject.GetComponent<Collider2D>();
+            EnemyInstance newEnemy = new EnemyInstance(enemyGameObject);
 
-            newEnemy.enemyFreezeParticles = newEnemy.enemyTransform.Find("Freeze Particles").GetComponent<ParticleSystem>();
-            newEnemy.enemyPoisonParticles = newEnemy.enemyTransform.Find("Poison Particles").GetComponent<ParticleSystem>();
-            newEnemy.enemyCurseParticles = newEnemy.enemyTransform.Find("Curse Particles").GetComponent<ParticleSystem>();
             PutEnemyInThePool(newEnemy);
         }
 
@@ -552,8 +599,16 @@ public class EnemiesManager : MonoBehaviour
     {
         if (RunManager.instance.currentChapter != null && RunManager.instance.currentChapter.chapterData != null && !RunManager.instance.IsChapterTimeOver())
         {
-            double curseDelayFactor = (1 - GameManager.instance.player.curse / 2.0f); // curse will affect the delay negatively (lower delay = more spawns)
-            curseDelayFactor = System.Math.Clamp(curseDelayFactor, 0.5, 2.0); // maximum curse would be half delay (so twice the amount of enemies). Negative curse is possible
+            // Here's a table to describe the figurine curse:
+            // - Curse -100% =  Spawn halved     =  Spawn cooldown doubled (delay factor = 2) 
+            // - Curse 0%    =  Spawn untouched  =  Spawn cooldown untouched (delay factor = 1)
+            // - Curse 50%   =  Spawn            =  Spawn cooldown
+            // - Curse 100%  =  Spawn doubled    =  Spawn cooldown halved (delay factor = 0.5)
+            // - Curse 200%  =  Spawn tripled    =  Spawn cooldown divided by 3 (delay factor = 0.33f)
+            // - Curse 300%  =  Spawn quadrupled =  Spawn cooldown divided by 4 (delay factor = 0.25f)
+
+            float figurineCurse = System.Math.Clamp(GameManager.instance.player.GetCurse(), -0.99f, 10); // Figurine curse value is between -99% and +1000%
+            float figurineCurseDelayFactor = 1 / (1 + figurineCurse); // Figurine curse will affect the delay negatively (lower delay = more spawns)
 
             int enemyIndex = 0;
             for (int i = 0; i < currentWave.enemies.Count; i++)
@@ -565,7 +620,7 @@ public class EnemiesManager : MonoBehaviour
                 float lastSpawnTime = lastSpawnTimesList[enemyIndex];
 
                 // Get info about spawn delays
-                double delayBetweenSpawns = enemySpawn.spawnCooldown * curseDelayFactor;
+                double delayBetweenSpawns = enemySpawn.spawnCooldown * figurineCurseDelayFactor;
                 delayBetweenSpawns = System.Math.Clamp(delayBetweenSpawns, 0.01, double.MaxValue);
 
                 bool spawn = (Time.time - lastSpawnTime) > delayBetweenSpawns;
@@ -846,8 +901,8 @@ public class EnemiesManager : MonoBehaviour
         // Set bounty (or absence of bounty)
         enemyInstance.bountyBug = bounty;
 
-        // Set HP Max
-        enemyInstance.HPMax = (enemyInstance.enemyInfo.enemyData.maxHP * hpMultiplier) * (1 + GameManager.instance.player.curse); // Max HP is affected by the curse
+        // Set HP Max (not affected by the figurine curse anymore)
+        enemyInstance.HPMax = (enemyInstance.enemyInfo.enemyData.maxHP * hpMultiplier);
     }
 
     public void AddEnemy(EnemyInstance newEnemy, EnemyData enemyData, EnemyMovePattern movePattern)
@@ -1166,8 +1221,7 @@ public class EnemiesManager : MonoBehaviour
                     if (!enemy.alive)
                     {
                         // enemy is dead
-                        enemy.poisonRemainingTime = 0;
-                        enemy.poisonDamage = 0;
+                        enemy.RemovePoison();
                         enemy.lastPoisonDamageTime = float.MinValue;
                         enemy.freezeRemainingTime = 0;
                         enemy.curseRemainingTime = 0;
@@ -1192,7 +1246,9 @@ public class EnemiesManager : MonoBehaviour
                             {
                                 XPEarned *= enemy.bountyBug.xpMultiplier;
                             }
-                            XPEarned *= (1 + GameManager.instance.player.curse);
+
+                            // Todo: does XP increase with Figurine curse?
+                            // XPEarned *= (1 + GameManager.instance.player.GetCurse());
 
                             RunManager.instance.EatEnemy(XPEarned);
                             enemiesToDestroyIDList.Add(enemy.enemyID);
@@ -1394,19 +1450,17 @@ public class EnemiesManager : MonoBehaviour
                             }
 
                             // Poison Damage
-                            enemy.poisonRemainingTime -= enemyUpdateDeltaTime;
-                            if (enemy.poisonRemainingTime <= 0 && !applyGlobalPoison)
+                            enemy.DecreasePoisonRemainingTimes(enemyUpdateDeltaTime);
+                            if (!enemy.IsAnyPoisonActive() && !applyGlobalPoison)
                             {
                                 // No poison effect
-                                enemy.poisonRemainingTime = 0;
-                                enemy.poisonDamage = 0;
                                 enemy.lastPoisonDamageTime = float.MinValue;
                                 UpdateStatusParticles(enemy);
                             }
                             else if (Time.time - enemy.lastPoisonDamageTime > delayBetweenPoisonDamage)
                             {
                                 // Poison effect is on, and cooldown since last poison damage is over
-                                float poisonDamage = enemy.poisonDamage;
+                                float poisonDamage = enemy.GetActivePoisonDamage();
                                 if (applyGlobalPoison)
                                     poisonDamage = 0.1f;
                                 bool enemyIsDead = DamageEnemy(enemy.enemyID, poisonDamage, null, poisonSource: true);
@@ -1451,7 +1505,7 @@ public class EnemiesManager : MonoBehaviour
         inactiveEnemiesPool.Enqueue(enemy);
         enemy.ForceStopAllStatusEffects();
         enemy.HP = 10000;
-        enemy.poisonDamage = 0;
+        enemy.RemovePoison();
         enemy.enemyTransform.name = pooledEnemyNameStr;
         enemy.active = false;
         enemy.enemyTransform.position = DataManager.instance.GetFarAwayPosition();
@@ -1474,8 +1528,7 @@ public class EnemiesManager : MonoBehaviour
 
     public void AddPoisonDamageToEnemy(EnemyInstance enemy, float poisonDamage, float poisonDuration)
     {
-        enemy.poisonDamage = poisonDamage;
-        enemy.poisonRemainingTime = poisonDuration;
+        enemy.AddPoisonDamage(poisonDamage, poisonDuration);
         enemy.lastPoisonDamageTime = Time.time;
         SetOverlayColor(enemy, poisonedOverlayColor, 0.3f);
         UpdateStatusParticles(enemy);
@@ -1621,7 +1674,7 @@ public class EnemiesManager : MonoBehaviour
 
                 // Spawn XP instead
                 float XPEarned = Mathf.Clamp(originEnemyData.xPBonus / 2, 1, 100);
-                XPEarned *= (1 + GameManager.instance.player.curse);
+                //XPEarned *= (1 + GameManager.instance.player.GetCurse());
                 CollectiblesManager.instance.SpawnCollectible(enemyPosition, CollectibleType.XP_BONUS, XPEarned);
             }
             else if (newDifficultyTier <= 5)
@@ -1761,7 +1814,7 @@ public class EnemiesManager : MonoBehaviour
         // Poison effect
         if (enemyInstance.enemyPoisonParticles != null)
         {
-            if (applyGlobalPoison || enemyInstance.poisonRemainingTime > 0)
+            if (applyGlobalPoison || enemyInstance.IsAnyPoisonActive())
             {
                 if (!enemyInstance.enemyPoisonParticles.isPlaying)
                 {
@@ -1830,11 +1883,11 @@ public class EnemiesManager : MonoBehaviour
             {
                 XPEarned *= enemyInstance.bountyBug.xpMultiplier;
             }
-            XPEarned *= (1 + GameManager.instance.player.curse);
+            //XPEarned *= (1 + GameManager.instance.player.GetCurse());
             CollectiblesManager.instance.SpawnCollectible(xpSpawnPosition, CollectibleType.XP_BONUS, XPEarned);
 
             // Spawn Froins (a chance to get froins when killing a bug)
-            float probabilityToSpawn1SmolFroin = DataManager.instance.baseCurrencyProbabilitySpawnFromBugs * (1 + GameManager.instance.player.currencyBoost); // worth 1 Froin
+            float probabilityToSpawn1SmolFroin = DataManager.instance.baseCurrencyProbabilitySpawnFromBugs * (1 + GameManager.instance.player.GetCurrencyBoost()); // worth 1 Froin
             float probabilityToSpawn1BigFroin = probabilityToSpawn1SmolFroin / 10; // worth 5 Froins
             float spawnFroinsRoll = Random.Range(0, 1f);
             float valueOfFroinSpawned = 0;

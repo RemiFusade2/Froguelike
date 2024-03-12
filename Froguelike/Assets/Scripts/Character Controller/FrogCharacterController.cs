@@ -75,10 +75,14 @@ public class FrogCharacterController : MonoBehaviour
     [Space]
     public float magnetRangeBoost = 0;
     [Space]
+    public float maxHealth = 0;
+    public float healthRecovery = 0;
     public float armor = 0;
+    [Space]
     public float experienceBoost = 0;
     public float currencyBoost = 0;
     public float curse = 0;
+    [Space]
     public int revivals = 0;
     public int rerolls = 0;
     public int banishs = 0;
@@ -90,8 +94,6 @@ public class FrogCharacterController : MonoBehaviour
     public float attackSizeBoost = 0;
     public float attackSpeedBoost = 0;
     public float attackDurationBoost = 0;
-    public float attackSpecialStrengthBoost = 0;
-    public float attackSpecialDurationBoost = 0;
     [Space]
     public int statItemSlotsCount;
     public int weaponSlotsCount;
@@ -153,8 +155,8 @@ public class FrogCharacterController : MonoBehaviour
 
     private float orientationAngle;
 
-    private bool applyGodMode;
-    private Coroutine godModeCoroutine;
+    private bool superFrogMode;
+    private Coroutine superFrogCoroutine;
 
     #region Unity Callback Methods
 
@@ -259,114 +261,222 @@ public class FrogCharacterController : MonoBehaviour
         return result;
     }
 
-    #region Accessors
+    #region Stats Accessors
 
+    /// <summary>
+    /// Get current walk speed boost. 
+    /// Scaled with score if needed. Increased with Super Frog if active.
+    /// </summary>
+    /// <returns></returns>
     public float GetWalkSpeedBoost()
     {
         float scaledWalkSpeedBoost = walkSpeedBoost + GetScoreScaledBoostForStat(CharacterStat.WALK_SPEED_BOOST);
-        if (applyGodMode)
+        if (superFrogMode)
         {
             scaledWalkSpeedBoost += godModeWalkSpeedBoost;
         }
         return scaledWalkSpeedBoost;
     }
+
+    /// <summary>
+    /// Get current swim speed boost. 
+    /// Scaled with score if needed. Increased with Super Frog if active.
+    /// </summary>
+    /// <returns></returns>
     public float GetSwimSpeedBoost()
     {
         float scaledSwimSpeedBoost = swimSpeedBoost + GetScoreScaledBoostForStat(CharacterStat.SWIM_SPEED_BOOST);
-        if (applyGodMode)
+        if (superFrogMode)
         {
             scaledSwimSpeedBoost += godModeSwimSpeedBoost;
         }
         return scaledSwimSpeedBoost;
     }
-    public float GetAttackCooldownBoost()
-    {
-        float scaledCooldownBoost = attackCooldownBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_COOLDOWN_BOOST);        
-        scaledCooldownBoost = Mathf.Clamp(scaledCooldownBoost, -1, 3600); // Maximum scaledCooldownBoost is 1 hour, it's never gonna happen
-        if (applyGodMode)
-        {
-            scaledCooldownBoost = Mathf.Min(godModeMinCooldownBoost, scaledCooldownBoost);
-        }
-        return scaledCooldownBoost;
-    }
-    public float GetAttackDamageBoost()
-    {
-        float scaledDamageBoost = attackDamageBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_DAMAGE_BOOST);
-        if (applyGodMode)
-        {
-            scaledDamageBoost += godModeAttackDamageBoost;
-        }
-        return scaledDamageBoost;
-    }
-    public float GetAttackRangeBoost()
-    {
-        float scaledRangeBoost = attackRangeBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_RANGE_BOOST);
-        if (applyGodMode)
-        {
-            scaledRangeBoost += godModeAttackRangeBoost;
-        }
-        return scaledRangeBoost;
-    }
-    public float GetAttackSizeBoost()
-    {
-        float scaledSizeBoost = attackSizeBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_SIZE_BOOST);
-        if (applyGodMode)
-        {
-            scaledSizeBoost += godModeAttackSizeBoost;
-        }
-        return scaledSizeBoost;
-    }
-    public float GetAttackSpeedBoost()
-    {
-        float scaledAtkSpeedBoost = attackSpeedBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_SPEED_BOOST);
-        if (applyGodMode)
-        {
-            scaledAtkSpeedBoost += godModeAttackSpeedBoost;
-        }
-        return scaledAtkSpeedBoost;
-    }
-    public float GetAttackDurationBoost()
-    {
-        float scaledAtkDurationBoost = attackDurationBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_DURATION_BOOST);
-        if (applyGodMode)
-        {
-            scaledAtkDurationBoost += godModeAttackDurationBoost;
-        }
-        return scaledAtkDurationBoost;
-    }
-    public float GetAttackSpecialStrengthBoost()
-    {
-        float scaledAttackSpecialStrengthBoost = attackSpecialStrengthBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_SPECIAL_STRENGTH_BOOST);
-        if (applyGodMode)
-        {
-            scaledAttackSpecialStrengthBoost += godModeAttackSpecialStrengthBoost;
-        }
-        return scaledAttackSpecialStrengthBoost;
-    }
-    public float GetAttackSpecialDurationBoost()
-    {
-        float scaledAttackSpecialDurationBoost = attackSpecialDurationBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_SPECIAL_DURATION_BOOST);
-        if (applyGodMode)
-        {
-            scaledAttackSpecialDurationBoost += godModeAttackSpecialDurationBoost;
-        }
-        return scaledAttackSpecialDurationBoost;
-    }
+
+    /// <summary>
+    /// Get current magnet range boost. 
+    /// Scaled with score if needed. Increased with Super Frog if active.
+    /// </summary>
+    /// <returns></returns>
     public float GetMagnetRangeBoost()
     {
         float scaledMagnetRangeBoost = magnetRangeBoost + GetScoreScaledBoostForStat(CharacterStat.MAGNET_RANGE_BOOST);
-        if (applyGodMode)
+        if (superFrogMode)
         {
             scaledMagnetRangeBoost += godModeMagnetBoost;
         }
         return scaledMagnetRangeBoost;
     }
 
+    /// <summary>
+    /// Get current max health. 
+    /// Scaled with score if needed.
+    /// </summary>
+    /// <returns></returns>
+    public float GetMaxHealth()
+    {
+        float maxHp = maxHealth + GetScoreScaledBoostForStat(CharacterStat.MAX_HEALTH);
+        return maxHp;
+    }
+
+    /// <summary>
+    /// Get current health recovery. 
+    /// Scaled with score if needed.
+    /// </summary>
+    /// <returns></returns>
+    public float GetHealthRecovery()
+    {
+        float recovery = healthRecovery + GetScoreScaledBoostForStat(CharacterStat.HEALTH_RECOVERY);
+        return recovery;
+    }
+
+    /// <summary>
+    /// Get current armor. 
+    /// Scaled with score if needed.
+    /// </summary>
+    /// <returns></returns>
+    public float GetArmor()
+    {
+        float arm = armor + GetScoreScaledBoostForStat(CharacterStat.ARMOR);
+        return arm;
+    }
+
+    /// <summary>
+    /// Get current experience boost. 
+    /// Scaled with score if needed.
+    /// </summary>
+    /// <returns></returns>
+    public float GetExperienceBoost()
+    {
+        float xpBoost = experienceBoost + GetScoreScaledBoostForStat(CharacterStat.XP_BOOST);
+        return xpBoost;
+    }
+
+    /// <summary>
+    /// Get current currency boost. 
+    /// Scaled with score if needed.
+    /// </summary>
+    /// <returns></returns>
+    public float GetCurrencyBoost()
+    {
+        float currBoost = currencyBoost + GetScoreScaledBoostForStat(CharacterStat.CURRENCY_BOOST);
+        return currBoost;
+    }
+
+    /// <summary>
+    /// Get current curse. 
+    /// Scaled with score if needed.
+    /// </summary>
+    /// <returns></returns>
+    public float GetCurse()
+    {
+        float curs = curse + GetScoreScaledBoostForStat(CharacterStat.CURSE);
+        return curs;
+    }
+
+    /// <summary>
+    /// Get current attack cooldown boost. 
+    /// Scaled with score if needed. Decreased with Super Frog if active.
+    /// Minimum is -1 (-100%, meaning no cooldown)
+    /// </summary>
+    /// <returns></returns>
+    public float GetAttackCooldownBoost()
+    {
+        float scaledCooldownBoost = attackCooldownBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_COOLDOWN_BOOST);
+        scaledCooldownBoost = Mathf.Clamp(scaledCooldownBoost, -1, 10000); // Maximum scaledCooldownBoost is +1000000%, it's not gonna happen
+        if (superFrogMode)
+        {
+            scaledCooldownBoost = Mathf.Min(godModeMinCooldownBoost, scaledCooldownBoost);
+        }
+        return scaledCooldownBoost;
+    }
+
+    /// <summary>
+    /// Get current attack damage boost. 
+    /// Scaled with score if needed. Increased with Super Frog if active.
+    /// </summary>
+    /// <returns></returns>
+    public float GetAttackDamageBoost()
+    {
+        float scaledDamageBoost = attackDamageBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_DAMAGE_BOOST);
+        if (superFrogMode)
+        {
+            scaledDamageBoost += godModeAttackDamageBoost;
+        }
+        return scaledDamageBoost;
+    }
+
+    /// <summary>
+    /// Get current attack range boost. 
+    /// Scaled with score if needed. Increased with Super Frog if active.
+    /// </summary>
+    /// <returns></returns>
+    public float GetAttackRangeBoost()
+    {
+        float scaledRangeBoost = attackRangeBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_RANGE_BOOST);
+        if (superFrogMode)
+        {
+            scaledRangeBoost += godModeAttackRangeBoost;
+        }
+        return scaledRangeBoost;
+    }
+
+    /// <summary>
+    /// Get current attack size boost. 
+    /// Scaled with score if needed. Increased with Super Frog if active.
+    /// </summary>
+    /// <returns></returns>
+    public float GetAttackSizeBoost()
+    {
+        float scaledSizeBoost = attackSizeBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_SIZE_BOOST);
+        if (superFrogMode)
+        {
+            scaledSizeBoost += godModeAttackSizeBoost;
+        }
+        return scaledSizeBoost;
+    }
+
+    /// <summary>
+    /// Get current attack speed boost. 
+    /// Scaled with score if needed. Increased with Super Frog if active.
+    /// </summary>
+    /// <returns></returns>
+    public float GetAttackSpeedBoost()
+    {
+        float scaledAtkSpeedBoost = attackSpeedBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_SPEED_BOOST);
+        if (superFrogMode)
+        {
+            scaledAtkSpeedBoost += godModeAttackSpeedBoost;
+        }
+        return scaledAtkSpeedBoost;
+    }
+
+    /// <summary>
+    /// Get current attack duration boost. 
+    /// Scaled with score if needed. Increased with Super Frog if active.
+    /// </summary>
+    /// <returns></returns>
+    public float GetAttackDurationBoost()
+    {
+        float scaledAtkDurationBoost = attackDurationBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_DURATION_BOOST);
+        if (superFrogMode)
+        {
+            scaledAtkDurationBoost += godModeAttackDurationBoost;
+        }
+        return scaledAtkDurationBoost;
+    }
+
     #endregion Accessors
 
+    /// <summary>
+    /// Update magnet range, health recovery and max health.
+    /// If those should scale with score, they do.
+    /// </summary>
     public void UpdateScalingWithScoreStats()
     {
         UpdateMagnetRange();
+        healthBar.SetHealthRecovery(GetHealthRecovery());
+        healthBar.SetMaxHealth(GetMaxHealth());
     }
 
     public Rigidbody2D GetRigidbody()
@@ -456,14 +566,14 @@ public class FrogCharacterController : MonoBehaviour
         }
 
         // MAX HP should always be defined for any character
-        float maxHealth = DataManager.instance.defaultMaxHP;
+        maxHealth = DataManager.instance.defaultMaxHP;
         if (allStartingStatsWrapper.GetValueForStat(CharacterStat.MAX_HEALTH, out float startingMaxHPBonus))
         {
             maxHealth += startingMaxHPBonus;
         }
 
         // HP Recovery
-        float healthRecovery = DataManager.instance.defaultHealthRecovery;
+        healthRecovery = DataManager.instance.defaultHealthRecovery;
         if (allStartingStatsWrapper.GetValueForStat(CharacterStat.HEALTH_RECOVERY, out float startingHPRecoveryBoost))
         {
             healthRecovery += startingHPRecoveryBoost;
@@ -501,12 +611,14 @@ public class FrogCharacterController : MonoBehaviour
         }
 
         // Walk speed
+        walkSpeedBoost = 0;
         if (allStartingStatsWrapper.GetValueForStat(CharacterStat.WALK_SPEED_BOOST, out float startingWalkSpeedBoost))
         {
             walkSpeedBoost = startingWalkSpeedBoost;
         }
 
         // Swim speed
+        swimSpeedBoost = 0;
         if (allStartingStatsWrapper.GetValueForStat(CharacterStat.SWIM_SPEED_BOOST, out float startingSwimSpeedBoost))
         {
             swimSpeedBoost = startingSwimSpeedBoost;
@@ -580,20 +692,6 @@ public class FrogCharacterController : MonoBehaviour
         if (allStartingStatsWrapper.GetValueForStat(CharacterStat.ATK_DURATION_BOOST, out float startingAtkDurationBoost))
         {
             attackDurationBoost = startingAtkDurationBoost;
-        }
-
-        // Atk Special Strength Boost
-        attackSpecialStrengthBoost = 0;
-        if (allStartingStatsWrapper.GetValueForStat(CharacterStat.ATK_SPECIAL_STRENGTH_BOOST, out float startingAtkSpecStrengthBoost))
-        {
-            attackSpecialStrengthBoost = startingAtkSpecStrengthBoost;
-        }
-
-        // Atk Special Strength Boost
-        attackSpecialDurationBoost = 0;
-        if (allStartingStatsWrapper.GetValueForStat(CharacterStat.ATK_SPECIAL_DURATION_BOOST, out float startingAtkSpecDurationBoost))
-        {
-            attackSpecialDurationBoost = startingAtkSpecDurationBoost;
         }
 
         // Magnet Range
@@ -681,14 +779,14 @@ public class FrogCharacterController : MonoBehaviour
             armor += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ARMOR).value;
             experienceBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.XP_BOOST).value;
             currencyBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.CURRENCY_BOOST).value;
-            healthBar.IncreaseHealthRecovery((float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.HEALTH_RECOVERY).value);
-            healthBar.IncreaseMaxHealth((float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.MAX_HEALTH).value);
+
+            maxHealth += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.MAX_HEALTH).value;
+            healthRecovery += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.HEALTH_RECOVERY).value;
 
             revivals += (int)itemLevelData.statUpgrades.GetStatValue(CharacterStat.REVIVAL).value;
             RunManager.instance.SetExtraLives(revivals, true);
 
             magnetRangeBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.MAGNET_RANGE_BOOST).value;
-            UpdateMagnetRange();
 
             walkSpeedBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.WALK_SPEED_BOOST).value;
             swimSpeedBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.SWIM_SPEED_BOOST).value;
@@ -701,17 +799,19 @@ public class FrogCharacterController : MonoBehaviour
             attackSizeBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_SIZE_BOOST).value;
             attackDurationBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_DURATION_BOOST).value;
 
-            attackSpecialStrengthBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_SPECIAL_STRENGTH_BOOST).value;
-            attackSpecialDurationBoost += (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_SPECIAL_DURATION_BOOST).value;
-
             // item and weapon slots
             statItemSlotsCount += (int)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ITEM_SLOT).value;
             weaponSlotsCount += (int)itemLevelData.statUpgrades.GetStatValue(CharacterStat.WEAPON_SLOT).value;
         }
+
+        UpdateScalingWithScoreStats();
     }
+
 
     public void Respawn()
     {
+        healthBar.SetMaxHealth(GetMaxHealth());
+        healthBar.SetHealthRecovery(GetHealthRecovery());
         healthBar.ResetHealth();
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
@@ -820,7 +920,7 @@ public class FrogCharacterController : MonoBehaviour
             enemyCanInflictDamage &= !RunManager.instance.IsChapterTimeOver(); // chapter is not over
             enemyCanInflictDamage &= enemy.active && enemy.alive; // Enemy is active and alive
             enemyCanInflictDamage &= (Time.time - enemy.lastDamageInflictedTime) >= damageCooldown; // This enemy didn't do damage for a while
-            enemyCanInflictDamage &= !applyGodMode; // God mode is off
+            enemyCanInflictDamage &= !superFrogMode; // God mode is off
             enemyCanInflictDamage &= !EnemiesManager.instance.IsGlobalFreezeActive(); // Global freeze is off
             enemyCanInflictDamage &= (enemy.freezeRemainingTime <= 0); // This enemy is not frozen
         }
@@ -844,7 +944,7 @@ public class FrogCharacterController : MonoBehaviour
             float damage = 1;
             if (enemyData != null)
             {
-                damage = Mathf.Clamp((enemyData.damage * damageFactor) - armor, 0.1f, float.MaxValue);
+                damage = Mathf.Clamp((enemyData.damage * damageFactor) - GetArmor(), 0.1f, float.MaxValue);
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                 {
                     Debug.Log("Player - Take damage from " + enemyData.enemyName + ": " + damage.ToString("0.00") + " HP.");
@@ -954,7 +1054,7 @@ public class FrogCharacterController : MonoBehaviour
 
     public void ApplyGodMode(float totalDuration, float blinkDuration)
     {
-        applyGodMode = true;
+        superFrogMode = true;
         UpdateMagnetRange();
 
         // Outline
@@ -962,20 +1062,20 @@ public class FrogCharacterController : MonoBehaviour
         superFrogOverlay.SetActive(true);
 
         // Coroutine that will update god mode outline and eventually deactivate the god mode
-        if (godModeCoroutine != null)
+        if (superFrogCoroutine != null)
         {
-            StopCoroutine(godModeCoroutine);
+            StopCoroutine(superFrogCoroutine);
         }
-        godModeCoroutine = StartCoroutine(UpdateGodModeAsync(totalDuration, blinkDuration));
+        superFrogCoroutine = StartCoroutine(UpdateGodModeAsync(totalDuration, blinkDuration));
     }
 
     public void ResetGodMode()
     {
-        if (godModeCoroutine != null)
+        if (superFrogCoroutine != null)
         {
-            StopCoroutine(godModeCoroutine);
+            StopCoroutine(superFrogCoroutine);
         }
-        applyGodMode = false;
+        superFrogMode = false;
         SetCharacterOutline(godModeOutlineColors[0], 0);
         superFrogOverlay.SetActive(false);
         UpdateMagnetRange();
@@ -1010,7 +1110,7 @@ public class FrogCharacterController : MonoBehaviour
         }
 
         // Turn god mode off
-        applyGodMode = false;
+        superFrogMode = false;
         SetCharacterOutline(godModeOutlineColors[0], 0);
         superFrogOverlay.SetActive(false);
         UpdateMagnetRange();

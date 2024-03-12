@@ -46,9 +46,12 @@ public class HealthBarBehaviour : MonoBehaviour
     private bool blink;
     private Coroutine blinkCoroutine;
 
+    private bool preventHealthRecovery;
+
     // Start is called before the first frame update
     void Start()
     {
+        preventHealthRecovery = false;
         InitializeRenderers();
         SetMaxHealth(50, setHealthToMax: true);
     }
@@ -56,8 +59,11 @@ public class HealthBarBehaviour : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!GameManager.instance.gameIsPaused && !ChapterManager.instance.chapterChoiceIsVisible && !RunManager.instance.levelUpChoiceIsVisible
-            && Time.time - lastDamageTakenTime > healthRecoveryDelay)
+        if (!GameManager.instance.gameIsPaused && 
+            !ChapterManager.instance.chapterChoiceIsVisible && 
+            !RunManager.instance.levelUpChoiceIsVisible && 
+            Time.time - lastDamageTakenTime > healthRecoveryDelay &&
+            !preventHealthRecovery)
         {
             // Recovery is active
             IncreaseHealth(healthRecovery * Time.deltaTime);
@@ -154,6 +160,7 @@ public class HealthBarBehaviour : MonoBehaviour
     {
         currentHealthShown = maxHealth;
         currentHealthTarget = maxHealth;
+        preventHealthRecovery = false;
         UpdateHealthBarView(resizeHealthBar: true);
     }
 
@@ -164,6 +171,12 @@ public class HealthBarBehaviour : MonoBehaviour
     /// <param name="cancelDamage"></param>
     public void IncreaseHealth(float amount)
     {
+        if (amount > 0)
+        {
+            // Just in case Frog was about to die but it found a health pick-up
+            preventHealthRecovery = false;
+        }
+
         // Compute new health target from target health
         currentHealthTarget = Mathf.Clamp(currentHealthTarget + amount, -10, maxHealth);
 
@@ -186,6 +199,12 @@ public class HealthBarBehaviour : MonoBehaviour
 
         // Compute new health target
         currentHealthTarget = Mathf.Clamp(currentHealthTarget - amount, -10, maxHealth);
+
+        if (currentHealthTarget == -10)
+        {
+            // Game over incoming
+            preventHealthRecovery = true;
+        }
 
         if (verbose == VerboseLevel.MAXIMAL)
         {

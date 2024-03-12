@@ -161,7 +161,7 @@ public class MapBehaviour : MonoBehaviour
 
             // generate currency collectibles
             Vector2 currencyMinMax = DataManager.instance.GetSpawnProbability("currency", currentPlayedChapter.chapterData.coinsSpawnFrequency);
-            float currencyBonusFactor = 1 + RunManager.instance.player.currencyBoost;
+            float currencyBonusFactor = 1 + RunManager.instance.player.GetCurrencyBoost();
             float currencyProba = Random.Range(currencyMinMax.x * currencyBonusFactor, currencyMinMax.y * currencyBonusFactor);
             float currencyAmount = Mathf.Floor(currencyProba) + ((Random.Range(Mathf.Floor(currencyProba), Mathf.Ceil(currencyProba)) < currencyProba) ? 1 : 0);
             currencyAmount *= 10;

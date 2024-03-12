@@ -7760,7 +7760,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e808e90f5c8a724b8fa58e183c163b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  versionNumber: 0.1.11
+  versionNumber: 0.1.11.1
   showEADisclaimer: 1
   availablePowerUpsInEA: 255
   demoBuild: 0
@@ -50687,6 +50687,8 @@ MonoBehaviour:
   walkSpeedBoost: 0
   swimSpeedBoost: 0
   magnetRangeBoost: 0
+  maxHealth: 0
+  healthRecovery: 0
   armor: 0
   experienceBoost: 0
   currencyBoost: 0
@@ -50701,8 +50703,6 @@ MonoBehaviour:
   attackSizeBoost: 0
   attackSpeedBoost: 0
   attackDurationBoost: 0
-  attackSpecialStrengthBoost: 0
-  attackSpecialDurationBoost: 0
   statItemSlotsCount: 0
   weaponSlotsCount: 0
   statScaleWithScoreList: []
@@ -108875,6 +108875,14 @@ PrefabInstance:
     - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
       propertyPath: powerUpGodModeBlinkingDuration
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: characterStatsDataList.Array.data[5].longName
+      value: Spawn rate
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
+      propertyPath: characterStatsDataList.Array.data[5].shortName
+      value: SPAWN
       objectReference: {fileID: 0}
     - target: {fileID: 1633024039481550883, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
       propertyPath: m_Name

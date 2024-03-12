@@ -588,10 +588,11 @@ public class RunManager : MonoBehaviour
         // Increase kill count by 1 and display it
         IncreaseKillCount(1);
 
-        IncreaseXP(experiencePoints * (1 + player.experienceBoost));
+        IncreaseXP(experiencePoints * (1 + player.GetExperienceBoost()));
 
         // Also collect some currency when eating a bug
-        Vector2 currencyProbabilityMinMax = new Vector2(player.currencyBoost, (1 + player.currencyBoost));
+        float currencyBoost = player.GetCurrencyBoost();
+        Vector2 currencyProbabilityMinMax = new Vector2(currencyBoost, (1 + currencyBoost));
         float currencyProba = Random.Range(currencyProbabilityMinMax.x, currencyProbabilityMinMax.y);
         float currencyAmount = Mathf.Floor(currencyProba) + ((Random.Range(Mathf.Floor(currencyProba), Mathf.Ceil(currencyProba)) < currencyProba) ? 1 : 0);
         long currencyAmountLong = (long)Mathf.RoundToInt(currencyAmount);
@@ -763,6 +764,10 @@ public class RunManager : MonoBehaviour
 
         // Teleport player to starting position
         player.ResetPosition();
+
+        // Set health to what it's supposed to be
+        player.healthBar.SetMaxHealth(player.GetMaxHealth());
+        player.healthBar.SetHealthRecovery(player.GetHealthRecovery());
         player.healthBar.ResetHealth();
 
         // Clear old map
@@ -1506,7 +1511,7 @@ public class RunManager : MonoBehaviour
                 }
                 break;
             case CollectibleType.XP_BONUS:
-                IncreaseXP(collectibleValue * (1 + player.experienceBoost));
+                IncreaseXP(collectibleValue * (1 + player.GetExperienceBoost()));
                 SoundManager.instance.PlayPickUpXPSound(collectibleValue);
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                 {

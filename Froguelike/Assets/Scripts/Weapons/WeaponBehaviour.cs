@@ -439,7 +439,7 @@ public class WeaponBehaviour : MonoBehaviour
         return result;
     }
 
-    private List<Vector2> GetPositionsTowardsEnemy(GameObject targetEnemy, LineShape lineShape = LineShape.STRAIGHT_LINE, bool stopAtTarget = false, bool inverseValues = false)
+    private List<Vector2> GetPositionsTowardsEnemy(GameObject targetEnemy, LineShape lineShape = LineShape.STRAIGHT_LINE, bool stopAtTarget = false, bool inverseValues = false, bool amplitudeScaleWithRange = false)
     {
         List<Vector2> result = new List<Vector2>();
         
@@ -455,13 +455,16 @@ public class WeaponBehaviour : MonoBehaviour
 
         float distanceFromFrog = 0;
         float frequency = 0.6f;
-        float amplitude = 0.3f;
+        float baseAmplitude = 0.3f;
+        float amplitude = baseAmplitude;
         float t = 0;
         Vector2 upVector = new Vector2(-direction.y, direction.x);
         bool switched = false;
         float offsetFromCenter = 0;
         float offsetFromCenterDirection = 1;
         Vector2 lastPosition = Vector2.zero;
+        float coneAngleInDegrees = 20;
+        float scaleWithAmplitudeFactor = Mathf.Tan(Mathf.Deg2Rad * coneAngleInDegrees);
         switch (lineShape)
         {
             case LineShape.STRAIGHT_LINE:
@@ -474,10 +477,21 @@ public class WeaponBehaviour : MonoBehaviour
 
             case LineShape.SINUSOID_LINE:
                 frequency = 0.6f;
+
+                /*
+                if (amplitudeScaleWithRange)
+                {
+                    frequency = 1.0f;
+                }*/
+
                 amplitude = 0.3f;
                 t = 0;
                 while (distanceFromFrog < actualRange && (!stopAtTarget || distanceFromFrog < distanceToTarget))
                 {
+                    if (amplitudeScaleWithRange)
+                    {
+                        amplitude = baseAmplitude + distanceFromFrog * scaleWithAmplitudeFactor;
+                    }
                     result.Add(distanceFromFrog * direction + amplitude * Mathf.Sin((t * 2 + (inverseValues ? 1:0)) * Mathf.PI) * upVector);
                     distanceFromFrog += 0.1f;
                     t += 0.1f * frequency;
@@ -491,6 +505,11 @@ public class WeaponBehaviour : MonoBehaviour
                 offsetFromCenterDirection = 1;
                 while (distanceFromFrog < actualRange && (!stopAtTarget || distanceFromFrog < distanceToTarget))
                 {
+                    if (amplitudeScaleWithRange)
+                    {
+                        amplitude = baseAmplitude + distanceFromFrog * scaleWithAmplitudeFactor;
+                    }
+
                     result.Add(distanceFromFrog * direction + offsetFromCenter * upVector);
                     if (switched)
                     {
@@ -526,10 +545,17 @@ public class WeaponBehaviour : MonoBehaviour
                 result.Add(lastPosition);
                 while (distanceFromFrog < actualRange && (!stopAtTarget || distanceFromFrog < distanceToTarget))
                 {
+                    if (amplitudeScaleWithRange)
+                    {
+                        amplitude = baseAmplitude + distanceFromFrog * scaleWithAmplitudeFactor;
+                    }
+
                     if (squareLineMoveState == 0)
                     {
                         lastPosition += 0.1f * direction;
                         distanceFromFrog += 0.1f;
+
+
                         t += 0.1f * frequency;
                         if (!lastMoveWasUp && Mathf.Cos(t * 2 * Mathf.PI) < 0)
                         {
@@ -586,7 +612,12 @@ public class WeaponBehaviour : MonoBehaviour
 
                 while (distanceFromFrog < actualRange && (!stopAtTarget || distanceFromFrog < distanceToTarget))
                 {
-                    switch(loopState)
+                    if (amplitudeScaleWithRange)
+                    {
+                        amplitude = baseAmplitude + distanceFromFrog * scaleWithAmplitudeFactor;
+                    }
+
+                    switch (loopState)
                     {
                         case 0:
                             // Move forwards, clockwise
@@ -754,7 +785,7 @@ public class WeaponBehaviour : MonoBehaviour
                 // Set positions
                 if (tongueType == TongueType.POISON)
                 {
-                    pos = GetPositionsTowardsEnemy(targetEnemy, LineShape.SINUSOID_LINE, false);
+                    pos = GetPositionsTowardsEnemy(targetEnemy, LineShape.SINUSOID_LINE, stopAtTarget: false, amplitudeScaleWithRange: true);
                     effects.Add(TongueEffect.POISON);
                 }
                 else if (tongueType == TongueType.FREEZE)
@@ -770,7 +801,7 @@ public class WeaponBehaviour : MonoBehaviour
                 else if (tongueType == TongueType.CURSED)
                 {
                     // Decide if attack is cursed or not
-                    float curseProbability = curseChance * (1 + GameManager.instance.player.GetAttackSpecialStrengthBoost());
+                    float curseProbability = curseChance; // TODO: eventually we could use a "Luck" stat here
                     isCurseEffectActive = (Random.Range(0, 1.0f) < curseProbability);
                     if (isCurseEffectActive)
                     {
