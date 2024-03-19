@@ -270,6 +270,7 @@ public class CollectiblesManager : MonoBehaviour
             animationIndex = Mathf.Clamp(animationIndex, 0, collectibleInfo.AnimationStyles.Count - 1);
 
             collectible.collectibleRenderer.enabled = true;
+            collectible.collectibleRenderer.sortingOrder = Random.Range(7, 10);
             int animationStyle = collectibleInfo.AnimationStyles[animationIndex];
             collectible.collectibleAnimator.SetInteger("style", animationStyle);
 

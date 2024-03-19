@@ -468,6 +468,11 @@ public class FrogCharacterController : MonoBehaviour
 
     #endregion Accessors
 
+    public bool IsOnLand()
+    {
+        return isOnLand;
+    }
+
     /// <summary>
     /// Update magnet range, health recovery and max health.
     /// If those should scale with score, they do.
@@ -1155,7 +1160,14 @@ public class FrogCharacterController : MonoBehaviour
             if (rewiredPlayer.GetButtonDown(cheat_inRun_endChapter))
             {
                 // End Chapter
-                RunManager.instance.chapterRemainingTime = 0.3f;
+                if (RunManager.instance.chapterRemainingTime < 1)
+                {
+                    RunManager.instance.chapterRemainingTime = -9.9f;
+                }
+                else
+                {
+                    RunManager.instance.chapterRemainingTime = 0.9f;
+                }
             }
             if (rewiredPlayer.GetButtonDown(cheat_inRun_spawnBugs_tier1))
             {

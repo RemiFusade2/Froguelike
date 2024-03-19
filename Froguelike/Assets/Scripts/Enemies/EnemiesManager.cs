@@ -1462,7 +1462,9 @@ public class EnemiesManager : MonoBehaviour
                                 // Poison effect is on, and cooldown since last poison damage is over
                                 float poisonDamage = enemy.GetActivePoisonDamage();
                                 if (applyGlobalPoison)
-                                    poisonDamage = 0.1f;
+                                {
+                                    poisonDamage = Mathf.Max(0.1f, poisonDamage);
+                                }
                                 bool enemyIsDead = DamageEnemy(enemy.enemyID, poisonDamage, null, poisonSource: true);
                                 enemy.lastPoisonDamageTime = Time.time;
 
@@ -1674,7 +1676,7 @@ public class EnemiesManager : MonoBehaviour
 
                 // Spawn XP instead
                 float XPEarned = Mathf.Clamp(originEnemyData.xPBonus / 2, 1, 100);
-                //XPEarned *= (1 + GameManager.instance.player.GetCurse());
+
                 CollectiblesManager.instance.SpawnCollectible(enemyPosition, CollectibleType.XP_BONUS, XPEarned);
             }
             else if (newDifficultyTier <= 5)
@@ -1883,8 +1885,17 @@ public class EnemiesManager : MonoBehaviour
             {
                 XPEarned *= enemyInstance.bountyBug.xpMultiplier;
             }
-            //XPEarned *= (1 + GameManager.instance.player.GetCurse());
-            CollectiblesManager.instance.SpawnCollectible(xpSpawnPosition, CollectibleType.XP_BONUS, XPEarned);
+
+            float xpCounter = XPEarned;
+            Vector2 randomPointInCircle = Vector2.zero;
+            do
+            {
+                float xpSpawn = Mathf.Min(xpCounter, 100);
+                xpCounter -= xpSpawn;
+                Vector3 randomizedSpawnPosition = xpSpawnPosition + randomPointInCircle.x * Vector3.right + randomPointInCircle.y * Vector3.up;
+                CollectiblesManager.instance.SpawnCollectible(randomizedSpawnPosition, CollectibleType.XP_BONUS, xpSpawn);
+                randomPointInCircle = 0.5f * Random.insideUnitCircle;
+            } while (xpCounter > 0);
 
             // Spawn Froins (a chance to get froins when killing a bug)
             float probabilityToSpawn1SmolFroin = DataManager.instance.baseCurrencyProbabilitySpawnFromBugs * (1 + GameManager.instance.player.GetCurrencyBoost()); // worth 1 Froin

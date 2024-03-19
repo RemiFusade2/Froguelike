@@ -66,7 +66,18 @@ public class HealthBarBehaviour : MonoBehaviour
             !preventHealthRecovery)
         {
             // Recovery is active
-            IncreaseHealth(healthRecovery * Time.deltaTime);
+            float actualHealthRecovery = healthRecovery;
+            if (IsCritical())
+            {
+                // When frog is in critical health, we increase its health recovery
+                actualHealthRecovery += 1;
+            }
+            if (RunManager.instance.currentPlayedCharacter.characterID.Equals("SWIMMING_FROG") && !RunManager.instance.player.IsOnLand())
+            {
+                // If we play as Kermit and are in a pond right now, health recovery is increased
+                actualHealthRecovery += 2;
+            }
+            IncreaseHealth(actualHealthRecovery * Time.deltaTime);
         }
 
         if (currentHealthShown < currentHealthTarget)
@@ -149,11 +160,6 @@ public class HealthBarBehaviour : MonoBehaviour
     public void SetHealthRecovery(float newHealthRecovery)
     {
         healthRecovery = newHealthRecovery;
-    }
-
-    public void IncreaseHealthRecovery(float healthRecoveryIncrease)
-    {
-        healthRecovery += healthRecoveryIncrease;
     }
 
     public void ResetHealth()

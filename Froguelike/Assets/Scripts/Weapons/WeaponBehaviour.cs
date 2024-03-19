@@ -897,6 +897,8 @@ public class WeaponBehaviour : MonoBehaviour
 
         float angle = 0;
         angle += (tongueTypeIndex * 2 * Mathf.PI / tongueTypeCount);
+
+        float tongueGoingInAndOutSpeedFactor = 0.5f;
         
         while (isTongueGoingOut)
         {
@@ -913,7 +915,7 @@ public class WeaponBehaviour : MonoBehaviour
             if (t <= 1)
             {
                 tongueScript.DisplayTongue(t);
-                t += (Time.fixedDeltaTime * (actualAttackSpeed / tongueLength));
+                t += (Time.fixedDeltaTime * actualAttackSpeed * tongueGoingInAndOutSpeedFactor);
             }
             else
             {
@@ -955,7 +957,7 @@ public class WeaponBehaviour : MonoBehaviour
             }
 
             tongueScript.DisplayTongue(t);
-            t -= (Time.fixedDeltaTime * (actualAttackSpeed / tongueLength));
+            t -= (Time.fixedDeltaTime * actualAttackSpeed * tongueGoingInAndOutSpeedFactor);
 
             actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.GetAttackSpeedBoost());
             angle += actualAttackSpeed * Time.fixedDeltaTime;
@@ -1291,6 +1293,11 @@ public class WeaponBehaviour : MonoBehaviour
             if (activeEffect == TongueEffect.POISON)
             {
                 float actualPoisonDamage = poisonDamage * (1 + GameManager.instance.player.GetAttackDamageBoost());
+                if (RunManager.instance.currentPlayedCharacter.characterID.Equals("POISONOUS_FROG") && enemy.enemyInfo.enemyData.enemyType == EnemyType.PLANT)
+                {
+                    // Special: Ribbit does more poison damage to plants
+                    actualPoisonDamage *= 3;
+                }
                 EnemiesManager.instance.AddPoisonDamageToEnemy(enemyName, actualPoisonDamage, actualStatusDuration);
             }
 
