@@ -7760,13 +7760,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e808e90f5c8a724b8fa58e183c163b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  versionNumber: 0.1.11.1
+  versionNumber: 0.1.12
   showEADisclaimer: 1
   availablePowerUpsInEA: 255
   demoBuild: 0
   showDemoDisclaimer: 1
   availablePowerUpsInDemo: 0
-  cheatsAreEnabled: 0
+  cheatsAreEnabled: 1
   everythingIsUnlocked: 0
   thingsWithMissingSpritesAreHidden: 0
 --- !u!4 &191903569
@@ -31935,6 +31935,14 @@ PrefabInstance:
     - target: {fileID: 798796871559645623, guid: dc1640719ca88da43a9cfcb7845f1f4c, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: ShopManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 1597419226039318627, guid: dc1640719ca88da43a9cfcb7845f1f4c, type: 3}
+      propertyPath: m_RootOrder
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1952370037566054899, guid: dc1640719ca88da43a9cfcb7845f1f4c, type: 3}
+      propertyPath: m_RootOrder
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2080933506278319173, guid: dc1640719ca88da43a9cfcb7845f1f4c, type: 3}
       propertyPath: m_text
@@ -108547,18 +108555,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Run Items Manager
       objectReference: {fileID: 0}
-    - target: {fileID: 673547082950043339, guid: b74aeccc4e8fb0b45bee3afaa11a3c1b, type: 3}
-      propertyPath: maxStatItemCount
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 673547082950043339, guid: b74aeccc4e8fb0b45bee3afaa11a3c1b, type: 3}
-      propertyPath: allRunStatsItems.Array.size
-      value: 12
-      objectReference: {fileID: 0}
-    - target: {fileID: 673547082950043339, guid: b74aeccc4e8fb0b45bee3afaa11a3c1b, type: 3}
-      propertyPath: nothingRunItemScriptableObject
-      value: 
-      objectReference: {fileID: 11400000, guid: fd8966feb5453f340b9d5ec591c9774e, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b74aeccc4e8fb0b45bee3afaa11a3c1b, type: 3}
 --- !u!114 &864393247287051736 stripped
@@ -108867,22 +108863,6 @@ PrefabInstance:
     - target: {fileID: 1633024039481550880, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
-      propertyPath: powerUpGodModeTotalDuration
-      value: 15
-      objectReference: {fileID: 0}
-    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
-      propertyPath: powerUpGodModeBlinkingDuration
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
-      propertyPath: characterStatsDataList.Array.data[5].longName
-      value: Spawn rate
-      objectReference: {fileID: 0}
-    - target: {fileID: 1633024039481550881, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
-      propertyPath: characterStatsDataList.Array.data[5].shortName
-      value: SPAWN
       objectReference: {fileID: 0}
     - target: {fileID: 1633024039481550883, guid: a16fb72ee2c31c941b22c805069fbf6a, type: 3}
       propertyPath: m_Name
