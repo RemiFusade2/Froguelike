@@ -108,13 +108,13 @@ public enum SpawnPatternType
 [System.Serializable]
 public class SpawnPattern
 {
-    [Header("Spawn type")]
+    //[Header("Spawn type")]
     [Tooltip("The type of spawn pattern (random, chunk, shape)")]
     public SpawnPatternType spawnPatternType = SpawnPatternType.RANDOM;
     [Tooltip("Only if the type is Shape, then which Shape? (optional)")]
     public SpawnShape spawnPatternShape = SpawnShape.NONE;
 
-    [Header("Multiple spawns")]
+    //[Header("Multiple spawns")]
     [Tooltip("How many enemies will spawn at the same time")]
     public int spawnAmount = 1;
     [Tooltip("The delay between these spawns")]
@@ -128,18 +128,15 @@ public class SpawnPattern
 [System.Serializable]
 public class EnemySpawn
 {
-    [Header("Enemy")]
     [Tooltip("The type of enemy that would spawn (combined with its tier, we'd know what enemy spawns exactly)")]
     public EnemyType enemyType;
 
     [Tooltip("Formula that would give a value between 1 and 5. You can use the keyword \"chapter\" to adapt the enemy tier to the current chapter count.")]
     public string tierFormula;
 
-    [Header("Movement")]
     [Tooltip("Which movement pattern this enemy will follow")]
     public EnemyMovePattern movePattern;
 
-    [Header("Spawn")]
     [Tooltip("Describe its spawn pattern")]
     public SpawnPattern spawnPattern;
 
@@ -148,11 +145,24 @@ public class EnemySpawn
 }
 
 /// <summary>
-/// A Wave describes a set of enemies to spawn during a specified time.
+/// A Wave describes a set of enemies to spawn during a specified time. (deprecated: we won't use scriptable objects for waves anymore)
 /// </summary>
 [System.Serializable]
 [CreateAssetMenu(fileName = "Wave Data", menuName = "ScriptableObjects/Froguelike/Wave Data", order = 1)]
 public class Wave : ScriptableObject
+{
+    [Tooltip("Duration of that wave")]
+    public float duration;
+
+    [Tooltip("All information about the enemies to spawn")]
+    public List<EnemySpawn> enemies;
+}
+
+/// <summary>
+/// A Wave describes a set of enemies to spawn during a specified time.
+/// </summary>
+[System.Serializable]
+public class WaveData
 {
     [Tooltip("Duration of that wave")]
     public float duration;
