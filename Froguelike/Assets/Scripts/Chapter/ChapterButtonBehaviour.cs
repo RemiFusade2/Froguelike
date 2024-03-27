@@ -8,7 +8,6 @@ public class ChapterButtonBehaviour : MonoBehaviour
 {
     [Header("References - Title & Description")]
     public TextMeshProUGUI titleTextMesh;
-    public TextMeshProUGUI descriptionTextMesh;
 
     [Header("References - NEW")]
     public GameObject newKeywordGameObject;
@@ -27,7 +26,6 @@ public class ChapterButtonBehaviour : MonoBehaviour
     {
         // Title and description
         titleTextMesh.SetText(chapter.chapterData.chapterTitle);
-        descriptionTextMesh.SetText(chapter.chapterData.chapterLore[0].Replace("\\n", "\n"));
 
         // "New" keyword if chapter has never been played
         bool isChapterNew = true;

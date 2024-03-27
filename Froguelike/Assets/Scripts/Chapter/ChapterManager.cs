@@ -128,6 +128,8 @@ public class ChapterManager : MonoBehaviour
     public TextMeshProUGUI chapterSelectionTopText;
     public List<ChapterButtonBehaviour> chapterButtonsList;
     public Button backButton;
+    public TextMeshProUGUI infoTitleTextMesh;
+    public TextMeshProUGUI infoDescriptionTextMesh;
 
     [Header("UI - Chapter Selection screen - Post its")]
     public GameObject rerollInfinitePostIt;
@@ -154,6 +156,8 @@ public class ChapterManager : MonoBehaviour
     private Dictionary<string, Chapter> allChaptersDico; // This dictionary is a handy way to get the Chapter object from its ID
 
     private Coroutine fadeOutChapterStartScreenCoroutine;
+
+    private int displayedChapterIndex;
 
     #region Unity Callback methods
 
@@ -731,9 +735,11 @@ public class ChapterManager : MonoBehaviour
             if (GameManager.instance.player.rerolls < 1)
             {
                 // Set new selected button.
-                UIManager.instance.SetSelectedButton(selectionOfNextChaptersList.Count >= 4 ? chapterButtonsList[4].gameObject : chapterButtonsList[0].gameObject);
+                UIManager.instance.SetSelectedButton(chapterButtonsList[0].gameObject);
             }
         }
+
+        DisplayChapter(0);
     }
 
     public void RerollChapterSelection()
@@ -773,9 +779,24 @@ public class ChapterManager : MonoBehaviour
         isFirstChapter = (currentChapterCount == 0);
         NewSelectionOfChapters();
         UpdateRerollPostit();
+        DisplayChapter(0);
 
         // Call the UIManager to display the chapter selection screen
         UIManager.instance.ShowChapterSelectionScreen((chapterCount == 0));
+    }
+
+    public void PlaySelectedChapter()
+    {
+        SelectChapter(displayedChapterIndex);
+    }
+
+    public void DisplayChapter(int index)
+    {
+        displayedChapterIndex = index;
+        // Set chapter info. TODO
+        Chapter chapterInfo = selectionOfNextChaptersList[index];
+        infoTitleTextMesh.SetText(chapterInfo.chapterData.chapterTitle);
+        infoDescriptionTextMesh.SetText(chapterInfo.chapterData.chapterLore[0].Replace("\\n", "\n"));
     }
 
     /// <summary>
@@ -785,7 +806,7 @@ public class ChapterManager : MonoBehaviour
     /// <param name="index"></param>
     public void SelectChapter(int index)
     {
-        Chapter chapterInfo = selectionOfNextChaptersList[selectionOfNextChaptersList.Count == 4 ? index - 1 : index]; // Special case when there is exactly 4 chapters to choose from, since the chapter buttons 2 - 5 is used instead of buttons 1 - 4.
+        Chapter chapterInfo = selectionOfNextChaptersList[index];
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
