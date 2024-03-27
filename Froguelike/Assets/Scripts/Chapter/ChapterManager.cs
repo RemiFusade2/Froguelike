@@ -483,7 +483,7 @@ public class ChapterManager : MonoBehaviour
         }
 
         // Show the chapters selection
-        foreach (ChapterButtonBehaviour chapterButton in chapterButtonsList)
+        foreach (ChapterButtonBehaviour chapterButton in chapterButtonsList) // Set up automatic navigation.
         {
             chapterButton.gameObject.SetActive(false);
             Navigation chapterButtonNav = chapterButton.GetComponent<Button>().navigation;
@@ -493,11 +493,8 @@ public class ChapterManager : MonoBehaviour
 
         for (int i = 0; i < selectionOfNextChaptersList.Count; i++)
         {
-            // If there is exactly 4 buttons, use button slots 2 - 5 instead of 1 - 4, by increasing the index by 1.
-            int chapterButtonIndex = selectionOfNextChaptersList.Count == 4 ? i + 1 : i;
-
             Chapter chapter = selectionOfNextChaptersList[i];
-            ChapterButtonBehaviour chapterButton = chapterButtonsList[chapterButtonIndex];
+            ChapterButtonBehaviour chapterButton = chapterButtonsList[i];
 
             #region Chapter button navigation (not used, uses automatic navigation instead)
 
