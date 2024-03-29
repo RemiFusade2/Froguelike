@@ -477,7 +477,7 @@ public class EnemiesManager : MonoBehaviour
         return spawnPositionIsValid;
     }
 
-    private int GetFormulaValue(string formula, int chapterCount)
+    public static int GetFormulaValue(string formula, int chapterCount)
     {
         int result = 0;
         if (!formula.Contains('+') && !formula.Contains('-') && !formula.Contains('*') && !formula.Contains('/'))

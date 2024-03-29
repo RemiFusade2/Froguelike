@@ -156,6 +156,9 @@ public class Wave : ScriptableObject
 
     [Tooltip("All information about the enemies to spawn")]
     public List<EnemySpawn> enemies;
+
+    [Tooltip("Only used for preview")]
+    public List<int> previewChapters;
 }
 
 /// <summary>
@@ -169,4 +172,7 @@ public class WaveData
 
     [Tooltip("All information about the enemies to spawn")]
     public List<EnemySpawn> enemies;
+
+    [Tooltip("Only used for preview")]
+    public List<int> previewChapters;
 }

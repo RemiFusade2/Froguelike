@@ -8,6 +8,9 @@ using System.IO;
 using UnityEngine.Rendering;
 using System;
 using static log4net.Appender.ColoredConsoleAppender;
+using FMODUnity;
+using UnityEditor.Rendering;
+using System.Linq;
 
 #region Property Drawers (custom inspector stuff)
 
@@ -23,12 +26,16 @@ public class SpawnPatternDrawer : PropertyDrawer
         float spawnPatternWidth = 200;
 
         // Spawn amount is always relevant
-        float spawnAmountLabelWidth = 50;
-        float spawnAmountWidth = 200;
+        float spawnAmountLabelWidth = 60;
+        float spawnAmountLabelLeftPadding = 5;
 
         // multipleSpawnDelay is relevant if spawnAmount is > 1
-        float multipleSpawnDelayLabelWidth = 50;
-        float multipleSpawnDelayWidth = 200;
+        float multipleSpawnDelayLabelWidth = 0;
+        float multipleSpawnDelayLabelLeftPadding = 5;
+
+        float remainingWidth = position.width - spawnPatternWidth - spawnAmountLabelWidth - multipleSpawnDelayLabelWidth;
+        float spawnAmountWidth = remainingWidth;
+        float multipleSpawnDelayWidth = 0;
 
         // Spawn shape is relevant only if spawn pattern type is SHAPE
         float spawnShapeWidth = 0;
@@ -51,21 +58,32 @@ public class SpawnPatternDrawer : PropertyDrawer
             Rect spawnShapeRect = new Rect(position.x + spawnPatternWidth, position.y, spawnShapeWidth, EditorGUIUtility.singleLineHeight);
             EditorGUI.PropertyField(spawnShapeRect, property.FindPropertyRelative("spawnPatternShape"), GUIContent.none);
         }
-        
-        // Spawn amount
-        Rect spawnAmountLabelRect = new Rect(position.x + spawnPatternWidth + spawnShapeWidth, position.y, spawnAmountLabelWidth, EditorGUIUtility.singleLineHeight);
-        EditorGUI.LabelField(spawnAmountLabelRect, new GUIContent("Amount x"));
-        Rect spawnAmountRect = new Rect(position.x + spawnPatternWidth + spawnShapeWidth + spawnAmountLabelWidth, position.y, spawnAmountWidth, EditorGUIUtility.singleLineHeight);
-        EditorGUI.PropertyField(spawnAmountRect, property.FindPropertyRelative("spawnAmount"), GUIContent.none);
 
+        position.x += spawnPatternWidth + spawnShapeWidth;
 
         var spawnAmount = property.FindPropertyRelative("spawnAmount");
         if (spawnAmount.intValue > 1)
         {
+            multipleSpawnDelayLabelWidth = 60;
+            remainingWidth = position.width - spawnPatternWidth - spawnShapeWidth - spawnAmountLabelWidth - multipleSpawnDelayLabelWidth;
+            spawnAmountWidth = remainingWidth / 2;
+            multipleSpawnDelayWidth = remainingWidth / 2;
+        }
+
+        // Spawn amount
+        Rect spawnAmountLabelRect = new Rect(position.x + spawnAmountLabelLeftPadding, position.y, spawnAmountLabelWidth - spawnAmountLabelLeftPadding, EditorGUIUtility.singleLineHeight);
+        EditorGUI.LabelField(spawnAmountLabelRect, new GUIContent("Amount:"));
+        Rect spawnAmountRect = new Rect(position.x + spawnAmountLabelWidth, position.y, spawnAmountWidth, EditorGUIUtility.singleLineHeight);
+        EditorGUI.PropertyField(spawnAmountRect, property.FindPropertyRelative("spawnAmount"), GUIContent.none);
+
+        position.x += spawnAmountLabelWidth + spawnAmountWidth;
+
+        if (multipleSpawnDelayWidth > 0)
+        {
             // multipleSpawnDelay
-            Rect multipleSpawnDelayLabelRect = new Rect(position.x + spawnPatternWidth + spawnShapeWidth + spawnAmountLabelWidth + spawnAmountWidth, position.y, multipleSpawnDelayLabelWidth, EditorGUIUtility.singleLineHeight);
+            Rect multipleSpawnDelayLabelRect = new Rect(position.x + multipleSpawnDelayLabelLeftPadding, position.y, multipleSpawnDelayLabelWidth - multipleSpawnDelayLabelLeftPadding, EditorGUIUtility.singleLineHeight);
             EditorGUI.LabelField(multipleSpawnDelayLabelRect, new GUIContent("Delay:"));
-            Rect multipleSpawnDelayRect = new Rect(position.x + spawnPatternWidth + spawnShapeWidth + spawnAmountLabelWidth + spawnAmountWidth + multipleSpawnDelayLabelWidth, position.y, multipleSpawnDelayWidth, EditorGUIUtility.singleLineHeight);
+            Rect multipleSpawnDelayRect = new Rect(position.x + multipleSpawnDelayLabelWidth, position.y, multipleSpawnDelayWidth, EditorGUIUtility.singleLineHeight);
             EditorGUI.PropertyField(multipleSpawnDelayRect, property.FindPropertyRelative("multipleSpawnDelay"), GUIContent.none);
         }
 
@@ -92,8 +110,10 @@ public class EnemyMovePatternDrawer : PropertyDrawer
         float movePatternWidth = 200;
 
         float speedFactorLabelWidth = 0;
+        float speedFactorLabelPadding = 0;
         float speedFactorWidth = 0;
         float bounceCountLabelWidth = 0;
+        float bounceCountLabelPadding = 0;
         float bounceCountWidth = 0;
 
         var movePatternType = property.FindPropertyRelative("movePatternType");
@@ -106,7 +126,9 @@ public class EnemyMovePatternDrawer : PropertyDrawer
         {
             // Speed factor and bounce count are also relevant
             speedFactorLabelWidth = 60;
+            speedFactorLabelPadding = 5;
             bounceCountLabelWidth = 70;
+            bounceCountLabelPadding = 5;
 
             speedFactorWidth = (position.width - (movePatternWidth + speedFactorLabelWidth + bounceCountLabelWidth)) / 2;
             bounceCountWidth = (position.width - (movePatternWidth + speedFactorLabelWidth + bounceCountLabelWidth)) / 2;
@@ -115,6 +137,7 @@ public class EnemyMovePatternDrawer : PropertyDrawer
         {
             // Speed factor is relevant
             speedFactorLabelWidth = 60;
+            speedFactorLabelPadding = 5;
 
             speedFactorWidth = (position.width - (movePatternWidth + speedFactorLabelWidth + bounceCountLabelWidth));
         }
@@ -123,10 +146,10 @@ public class EnemyMovePatternDrawer : PropertyDrawer
         Rect movePatternTypeRect = new Rect(position.x, position.y, movePatternWidth, EditorGUIUtility.singleLineHeight);
         EditorGUI.PropertyField(movePatternTypeRect, property.FindPropertyRelative("movePatternType"), GUIContent.none);
 
-        if (speedFactorWidth  > 0)
+        if (speedFactorWidth > 0)
         {
             // Speed factor
-            Rect speedFactorLabelRect = new Rect(position.x + movePatternWidth, position.y, speedFactorLabelWidth, EditorGUIUtility.singleLineHeight);
+            Rect speedFactorLabelRect = new Rect(position.x + movePatternWidth + speedFactorLabelPadding, position.y, speedFactorLabelWidth - speedFactorLabelPadding, EditorGUIUtility.singleLineHeight);
             EditorGUI.LabelField(speedFactorLabelRect, new GUIContent("Speed x"));
             Rect speedFactorRect = new Rect(position.x + movePatternWidth + speedFactorLabelWidth, position.y, speedFactorWidth, EditorGUIUtility.singleLineHeight);
             EditorGUI.PropertyField(speedFactorRect, property.FindPropertyRelative("speedFactor"), GUIContent.none);
@@ -135,7 +158,7 @@ public class EnemyMovePatternDrawer : PropertyDrawer
         if (bounceCountWidth > 0)
         {
             // Bounce count
-            Rect bounceCountLabelRect = new Rect(position.x + movePatternWidth + speedFactorLabelWidth + speedFactorWidth, position.y, bounceCountLabelWidth, EditorGUIUtility.singleLineHeight);
+            Rect bounceCountLabelRect = new Rect(position.x + movePatternWidth + speedFactorLabelWidth + speedFactorWidth + bounceCountLabelPadding, position.y, bounceCountLabelWidth - bounceCountLabelPadding, EditorGUIUtility.singleLineHeight);
             EditorGUI.LabelField(bounceCountLabelRect, new GUIContent("Bounces x"));
             Rect bounceCountRect = new Rect(position.x + movePatternWidth + speedFactorLabelWidth + speedFactorWidth + bounceCountLabelWidth, position.y, bounceCountWidth, EditorGUIUtility.singleLineHeight);
             EditorGUI.PropertyField(bounceCountRect, property.FindPropertyRelative("bouncecount"), GUIContent.none);
@@ -161,22 +184,31 @@ public class EnemySpawnDrawer : PropertyDrawer
 
         // Line 1:
 
-        float enemyTypeWidth = 200;
-        float tierFormulaWidth = 60;
+        float enemyTypeWidth = 210;
+        float tierFormulaLabelWidth = 60;
+        float tierFormulaLabelPadding = 5;
 
         // Enemy type (enum)
         Rect enemyTypeRect = new Rect(position.x, position.y, enemyTypeWidth, EditorGUIUtility.singleLineHeight);
         EditorGUI.PropertyField(enemyTypeRect, property.FindPropertyRelative("enemyType"), GUIContent.none);
 
+        position.x += enemyTypeWidth;
+
         // Tier label
-        Rect tierFormulaLabelRect = new Rect(position.x + enemyTypeWidth, position.y, tierFormulaWidth, EditorGUIUtility.singleLineHeight);
+        Rect tierFormulaLabelRect = new Rect(position.x + tierFormulaLabelPadding, position.y, tierFormulaLabelWidth - tierFormulaLabelPadding, EditorGUIUtility.singleLineHeight);
         EditorGUI.LabelField(tierFormulaLabelRect, new GUIContent("Tier:"));
 
+        position.x += tierFormulaLabelWidth;
+
         // Tier formula (string)
-        Rect tierFormulaRect = new Rect(position.x + enemyTypeWidth + tierFormulaWidth, position.y, position.width - enemyTypeWidth - tierFormulaWidth, EditorGUIUtility.singleLineHeight);
+        Rect tierFormulaRect = new Rect(position.x, position.y, position.width - enemyTypeWidth - tierFormulaLabelWidth, EditorGUIUtility.singleLineHeight);
         EditorGUI.PropertyField(tierFormulaRect, property.FindPropertyRelative("tierFormula"), GUIContent.none);
 
         position.y += EditorGUIUtility.singleLineHeight;
+
+        position.x -= (enemyTypeWidth + tierFormulaLabelWidth);
+        position.x += 10;
+        position.width -= 10;
 
         // Line 2:
 
@@ -186,17 +218,26 @@ public class EnemySpawnDrawer : PropertyDrawer
 
         position.y += EditorGUIUtility.singleLineHeight;
 
-        // Line 3:
+        // Line 3 & 4:
 
-        float spawnPatternWidth = 200;
+        // Spawn label
+        float spawnLabelWidth = 100;
+        float spawnCooldownUnitLabelWidth = 20;
+        Rect spawnLabelRect = new Rect(position.x, position.y, spawnLabelWidth, EditorGUIUtility.singleLineHeight);
+        EditorGUI.LabelField(spawnLabelRect, new GUIContent("Spawn every:"));
+        // Spawn cooldown
+        float spawnCooldownWidth = position.width - spawnLabelWidth - spawnCooldownUnitLabelWidth;
+        Rect spawnCooldownRect = new Rect(position.x + spawnLabelWidth, position.y, spawnCooldownWidth, EditorGUIUtility.singleLineHeight);
+        EditorGUI.PropertyField(spawnCooldownRect, property.FindPropertyRelative("spawnCooldown"), GUIContent.none);
+        // Unit Label
+        Rect spawnCooldownUnitLabelRect = new Rect(position.x + spawnLabelWidth + spawnCooldownWidth, position.y, spawnCooldownUnitLabelWidth, EditorGUIUtility.singleLineHeight);
+        EditorGUI.LabelField(spawnCooldownUnitLabelRect, new GUIContent("s"));
+
+        position.y += EditorGUIUtility.singleLineHeight;
 
         // Spawn pattern
         Rect spawnPatternRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
         EditorGUI.PropertyField(spawnPatternRect, property.FindPropertyRelative("spawnPattern"), GUIContent.none);
-        /*
-        // Spawn cooldown
-        Rect spawnCooldownRect = new Rect(position.x + spawnPatternWidth, position.y, position.width - spawnPatternWidth, EditorGUIUtility.singleLineHeight);
-        EditorGUI.PropertyField(spawnCooldownRect, property.FindPropertyRelative("spawnCooldown"), GUIContent.none);*/
 
 
         EditorGUI.EndProperty();
@@ -209,7 +250,7 @@ public class EnemySpawnDrawer : PropertyDrawer
 
     public static float GetHeightOfOneEnemyElement()
     {
-        return 3 * EditorGUIUtility.singleLineHeight + 5;
+        return 4 * EditorGUIUtility.singleLineHeight + 5;
     }
 
     public static float GetHeightOfEnemyList(int enemyCount)
@@ -226,34 +267,34 @@ public class EnemySpawnDrawer : PropertyDrawer
     {
         return EditorGUIUtility.singleLineHeight * 2;
     }
-
 }
-
-
-
 
 [CustomPropertyDrawer(typeof(WaveData))]
 public class WaveDataPropertyDrawer : PropertyDrawer
 {
-    private Dictionary<EnemyType, List<Texture2D>> enemiesTexturesDictionary;
+    private Dictionary<string, Texture2D> enemiesTexturesDictionary;
+
+    private static string GetEnemyTierKey(EnemyType enemyTypeValue, int tier)
+    {
+        string enemyTypeName = Enum.GetName(typeof(EnemyType), enemyTypeValue);
+        return $"{enemyTypeName}_{tier}";
+    }
 
     private void InitializeEnemyTexturesDictionary()
     {
         string bugPicturesPath = "Assets/Editor/EditorPictures/";
 
         // Create new dictionary
-        enemiesTexturesDictionary = new Dictionary<EnemyType, List<Texture2D>>();
+        enemiesTexturesDictionary = new Dictionary<string, Texture2D>();
 
         // Fill a list for every type of bugs
         foreach (int enemyTypeValue in Enum.GetValues(typeof(EnemyType)))
         {
             string enemyTypeName = Enum.GetName(typeof(EnemyType), enemyTypeValue);
-
-            List<Texture2D> texturesList = new List<Texture2D>();
-            enemiesTexturesDictionary.Add((EnemyType) enemyTypeValue, texturesList);
             for (int i = 1; i <= 5; i++)
             {
-                texturesList.Add(LoadImage($"{bugPicturesPath}{enemyTypeName}_T{i}.png"));
+                string key = GetEnemyTierKey((EnemyType)enemyTypeValue, i);
+                enemiesTexturesDictionary.Add(key, LoadImage($"{bugPicturesPath}{enemyTypeName}_T{i}.png"));
             }
         }
     }
@@ -301,13 +342,16 @@ public class WaveDataPropertyDrawer : PropertyDrawer
         leftColumnWidth = 75;
         SerializedProperty enemies = property.FindPropertyRelative("enemies");
         int enemiesCount = enemies.arraySize;
-
         Rect enemiesLabelRect = new Rect(position.x, position.y, leftColumnWidth, EditorGUIUtility.singleLineHeight);
         EditorGUI.LabelField(enemiesLabelRect, new GUIContent("Enemies: "));
         Rect enemiesPropertyRect = new Rect(position.x + leftColumnWidth, position.y, position.width - leftColumnWidth, EditorGUIUtility.singleLineHeight);
         EditorGUI.PropertyField(enemiesPropertyRect, enemies, GUIContent.none);
 
-        if (enemiesCount > 0)
+        if (!enemies.isExpanded)
+        {
+            position.y += EditorGUIUtility.singleLineHeight;
+        }
+        else if (enemiesCount > 0)
         {
             position.y += (EnemySpawnDrawer.GetHeightOfEnemyList(enemiesCount) + EnemySpawnDrawer.GetExtraPaddingAroundEnemyEntry() * enemiesCount + EnemySpawnDrawer.GetHeightMarginAroundEnemyList());
         }
@@ -322,29 +366,137 @@ public class WaveDataPropertyDrawer : PropertyDrawer
             InitializeEnemyTexturesDictionary();
         }
 
-        float previewLabelWidth = 100;
-        Rect previewLabelRect = new Rect(position.width/2 - previewLabelWidth/2, position.y, previewLabelWidth, EditorGUIUtility.singleLineHeight);
-        EditorGUI.LabelField(previewLabelRect, new GUIContent("Wave preview"));
-
-        position.x = position.width / 2 - enemiesCount * 30;
-        position.y += EditorGUIUtility.singleLineHeight;
-        for (int i = 0; i < enemiesCount; i++)
+        float previewChapterSelectionWidth = 200;
+        float previewTitleLabelWidth = 0;
+        float centerPositionX = position.x + (position.width / 2);
+        float positionX = centerPositionX - (previewTitleLabelWidth + previewChapterSelectionWidth) / 2;
+        if (position.width >= 400)
         {
-            if (i < enemies.arraySize)
+            // Enough space for title
+            previewTitleLabelWidth = 180;
+            positionX = centerPositionX - (previewTitleLabelWidth + previewChapterSelectionWidth) / 2;
+            Rect previewTitleLabelRect = new Rect(positionX, position.y, previewTitleLabelWidth, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(previewTitleLabelRect, new GUIContent("Wave preview for chapters - 1:"));
+            positionX += previewTitleLabelWidth;
+        }
+
+        // Get info on selected preview chapters
+        SerializedProperty previewChapters = property.FindPropertyRelative("previewChapters");
+        int previewChaptersCount = previewChapters.arraySize;
+        List<int> previewChaptersList = new List<int>();
+        for (int i = 0; i < previewChaptersCount; i++)
+        {
+            SerializedProperty previewChapter = previewChapters.GetArrayElementAtIndex(i);
+            previewChaptersList.Add(previewChapter.intValue);
+        }
+
+        // Display all toggles for chapters with correct selection status
+        previewChapters.ArrayClear();
+        int indexCount = 0;
+        for (int i = 0; i < 5; i++)
+        {
+            float toggleWidth = 40;
+            Rect chapterToggle = new Rect(positionX, position.y, toggleWidth, EditorGUIUtility.singleLineHeight);
+            bool value = EditorGUI.ToggleLeft(chapterToggle, new GUIContent((i + 2 > 5) ? "" : $"- {i + 2}:"), previewChaptersList.Contains(i + 1));
+            positionX += toggleWidth;
+
+            // Update preview chapters selected in property
+            if (value)
             {
-                SerializedProperty enemy = enemies.GetArrayElementAtIndex(i);
-                SerializedProperty enemyType = enemy.FindPropertyRelative("enemyType");
-                SerializedProperty enemyTierFormula = enemy.FindPropertyRelative("tierFormula");
-                if (enemyType.enumValueFlag == (int)EnemyType.BEETLE)
-                {
-                    position.width = 60;
-                    position.height = 60;
-                    EditorGUI.DrawPreviewTexture(position, enemiesTexturesDictionary[EnemyType.BEETLE][0]);
-                }
-                position.x += 60;
+                previewChapters.InsertArrayElementAtIndex(indexCount);
+                previewChapters.GetArrayElementAtIndex(indexCount).intValue = i + 1;
+                indexCount++;
             }
         }
 
+        position.y += EditorGUIUtility.singleLineHeight;
+
+        // Display preview for all chapters
+        foreach (int previewChapter in previewChaptersList)
+        {
+            // Title
+            float chapterTitleWidth = 90;
+            position.x = centerPositionX - enemiesCount * 30 - chapterTitleWidth / 2;
+            Rect chapterTitleLabelRect = new Rect(position.x, position.y + 20, chapterTitleWidth, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(chapterTitleLabelRect, new GUIContent($"As chapter {previewChapter}:"));
+
+            position.x += chapterTitleWidth;
+            position.width = 60;
+            position.height = 60;
+
+            // Prepare each enemy to display
+            SortedList<string, float> enemiesAndCountDico = new SortedList<string, float>();
+            for (int i = 0; i < enemiesCount; i++)
+            {
+                if (i < enemies.arraySize)
+                {
+                    SerializedProperty enemy = enemies.GetArrayElementAtIndex(i);
+                    SerializedProperty enemyType = enemy.FindPropertyRelative("enemyType");
+                    SerializedProperty enemyTierFormula = enemy.FindPropertyRelative("tierFormula");
+                    string tierFormula = enemyTierFormula.stringValue;
+                    if (!string.IsNullOrEmpty(tierFormula))
+                    {
+                        int tier = EnemiesManager.GetFormulaValue(enemyTierFormula.stringValue, previewChapter);
+                        tier = Mathf.Clamp(tier, 1, 5);
+                        EnemyType enemyTypeEnum = (EnemyType)enemyType.enumValueFlag;
+
+                        // How many of those per second?
+                        SerializedProperty enemySpawnCooldown = enemy.FindPropertyRelative("spawnCooldown");
+                        SerializedProperty enemySpawnAmount = enemy.FindPropertyRelative("spawnPattern").FindPropertyRelative("spawnAmount");
+
+                        string enemyKey = GetEnemyTierKey(enemyTypeEnum, tier);
+
+                        float enemyCountPerSec = 0;
+                        if (enemySpawnCooldown.floatValue > 0)
+                        {
+                            enemyCountPerSec = enemySpawnAmount.intValue / enemySpawnCooldown.floatValue;
+                        }
+                        else
+                        {
+                            enemyCountPerSec = enemySpawnAmount.intValue / 0.001f;
+                        }
+
+                        if (enemiesAndCountDico.ContainsKey(enemyKey))
+                        {
+                            enemiesAndCountDico[enemyKey] += enemyCountPerSec;
+                        }
+                        else
+                        {
+                            enemiesAndCountDico.Add(enemyKey, enemyCountPerSec);
+                        }
+                    }
+                }
+            }
+            List<KeyValuePair<string, float>> sortedList = enemiesAndCountDico.OrderBy(x => x.Key).ToList();
+            enemiesAndCountDico.Clear();
+            foreach (KeyValuePair<string, float> kvp in sortedList)
+            {
+                enemiesAndCountDico.Add(kvp.Key, kvp.Value);
+            }
+
+            // Display each enemy
+            foreach (KeyValuePair<string, float> enemyCount in enemiesAndCountDico)
+            {
+                string enemyKey = enemyCount.Key;
+                float enemyCountPerSec = enemyCount.Value;
+
+                if (enemiesTexturesDictionary.ContainsKey(enemyKey) && enemiesTexturesDictionary[enemyKey] != null)
+                {
+
+                    // Picture
+                    EditorGUI.DrawPreviewTexture(position, enemiesTexturesDictionary[enemyKey]);
+
+                    // Count per sec
+                    float enemyCountPerSecWidth = 60;
+                    Rect enemyCountPerSecRect = new Rect(position.x + 30 - enemyCountPerSecWidth / 2, position.y + 40, enemyCountPerSecWidth, EditorGUIUtility.singleLineHeight);
+                    EditorGUI.LabelField(enemyCountPerSecRect, new GUIContent($"{enemyCountPerSec.ToString("0.#  ")}/s"));
+                }
+
+                position.x += 60;
+            }
+
+            position.y += 60;
+        }
         EditorGUI.EndProperty();
     }
 
@@ -361,7 +513,7 @@ public class WaveDataPropertyDrawer : PropertyDrawer
         if (enemies.isExpanded)
         {
             int enemiesCount = enemies.arraySize;
-            if (enemiesCount <= 0 )
+            if (enemiesCount <= 0)
             {
                 height += (EditorGUIUtility.singleLineHeight + EnemySpawnDrawer.GetHeightMarginAroundEnemyList());
             }
@@ -372,7 +524,8 @@ public class WaveDataPropertyDrawer : PropertyDrawer
         }
 
         // Preview
-        int chapterCount = 1;
+        SerializedProperty previewChapters = property.FindPropertyRelative("previewChapters");
+        int chapterCount = previewChapters.arraySize;
         float previewChapterHeight = 60;
         float previewTitle = EditorGUIUtility.singleLineHeight;
         height += (previewTitle + chapterCount * previewChapterHeight);
