@@ -11,6 +11,7 @@ using static log4net.Appender.ColoredConsoleAppender;
 using FMODUnity;
 using UnityEditor.Rendering;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 #region Property Drawers (custom inspector stuff)
 
@@ -373,10 +374,10 @@ public class WaveDataPropertyDrawer : PropertyDrawer
         if (position.width >= 400)
         {
             // Enough space for title
-            previewTitleLabelWidth = 180;
+            previewTitleLabelWidth = 170;
             positionX = centerPositionX - (previewTitleLabelWidth + previewChapterSelectionWidth) / 2;
             Rect previewTitleLabelRect = new Rect(positionX, position.y, previewTitleLabelWidth, EditorGUIUtility.singleLineHeight);
-            EditorGUI.LabelField(previewTitleLabelRect, new GUIContent("Wave preview for chapters - 1:"));
+            EditorGUI.LabelField(previewTitleLabelRect, new GUIContent("Wave preview for chapters -"));
             positionX += previewTitleLabelWidth;
         }
 
@@ -393,11 +394,15 @@ public class WaveDataPropertyDrawer : PropertyDrawer
         // Display all toggles for chapters with correct selection status
         previewChapters.ArrayClear();
         int indexCount = 0;
+        float previewChapterLabelWidth = 16;
         for (int i = 0; i < 5; i++)
         {
-            float toggleWidth = 40;
+            float toggleWidth = 20;
+            Rect previewChapterLabelRect = new Rect(positionX, position.y, previewChapterLabelWidth, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(previewChapterLabelRect, new GUIContent($"{i + 1}:"));
+            positionX += previewChapterLabelWidth;
             Rect chapterToggle = new Rect(positionX, position.y, toggleWidth, EditorGUIUtility.singleLineHeight);
-            bool value = EditorGUI.ToggleLeft(chapterToggle, new GUIContent((i + 2 > 5) ? "" : $"- {i + 2}:"), previewChaptersList.Contains(i + 1));
+            bool value = EditorGUI.Toggle(chapterToggle, previewChaptersList.Contains(i + 1));
             positionX += toggleWidth;
 
             // Update preview chapters selected in property
@@ -414,16 +419,6 @@ public class WaveDataPropertyDrawer : PropertyDrawer
         // Display preview for all chapters
         foreach (int previewChapter in previewChaptersList)
         {
-            // Title
-            float chapterTitleWidth = 90;
-            position.x = centerPositionX - enemiesCount * 30 - chapterTitleWidth / 2;
-            Rect chapterTitleLabelRect = new Rect(position.x, position.y + 20, chapterTitleWidth, EditorGUIUtility.singleLineHeight);
-            EditorGUI.LabelField(chapterTitleLabelRect, new GUIContent($"As chapter {previewChapter}:"));
-
-            position.x += chapterTitleWidth;
-            position.width = 60;
-            position.height = 60;
-
             // Prepare each enemy to display
             SortedList<string, float> enemiesAndCountDico = new SortedList<string, float>();
             for (int i = 0; i < enemiesCount; i++)
@@ -436,7 +431,16 @@ public class WaveDataPropertyDrawer : PropertyDrawer
                     string tierFormula = enemyTierFormula.stringValue;
                     if (!string.IsNullOrEmpty(tierFormula))
                     {
-                        int tier = EnemiesManager.GetFormulaValue(enemyTierFormula.stringValue, previewChapter);
+                        int tier = 1;
+                        try
+                        {
+                            tier = EnemiesManager.GetFormulaValue(enemyTierFormula.stringValue, previewChapter);
+                        }
+                        catch (System.Exception e)
+                        {
+                            Debug.LogError($"Trying to evaluate tier with broken formula: {enemyTierFormula.stringValue}");
+                            continue;
+                        }
                         tier = Mathf.Clamp(tier, 1, 5);
                         EnemyType enemyTypeEnum = (EnemyType)enemyType.enumValueFlag;
 
@@ -474,30 +478,93 @@ public class WaveDataPropertyDrawer : PropertyDrawer
                 enemiesAndCountDico.Add(kvp.Key, kvp.Value);
             }
 
+            // Display Title
+            float chapterTitleWidth = 90;
+            position.x = centerPositionX - enemiesAndCountDico.Count * 30 - chapterTitleWidth / 2;
+            Rect chapterTitleLabelRect = new Rect(position.x, position.y + 20, chapterTitleWidth, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(chapterTitleLabelRect, new GUIContent($"As chapter {previewChapter}:"));
+
+            position.x += chapterTitleWidth;
+            position.width = 60;
+            position.height = 60;
+
             // Display each enemy
+            float difficulty = 0;
             foreach (KeyValuePair<string, float> enemyCount in enemiesAndCountDico)
             {
                 string enemyKey = enemyCount.Key;
                 float enemyCountPerSec = enemyCount.Value;
 
+                Match m = Regex.Match(enemyKey, ".*([1-5])");
+                int tier = int.Parse(m.Groups[1].Value);
+                // chapter 1: tier 1: 100%
+                // chapter 2: tier 1: 50%
+                // chapter 1: tier 2: 150%
+                // chapter 1: tier 5: 250%
+                // chapter 5: tier 1: 5%
+                float diffFactor = 1;
+                if (tier > previewChapter)
+                {
+                    diffFactor += (tier - previewChapter) * 0.5f;
+                }
+                else if (tier < previewChapter)
+                {
+                    diffFactor -= (previewChapter - tier) * 0.25f;
+                }
+                diffFactor = Mathf.Clamp(diffFactor, 0.05f, 10);
+                difficulty += (0.035f) * diffFactor * enemyCountPerSec;
+
                 if (enemiesTexturesDictionary.ContainsKey(enemyKey) && enemiesTexturesDictionary[enemyKey] != null)
                 {
-
                     // Picture
                     EditorGUI.DrawPreviewTexture(position, enemiesTexturesDictionary[enemyKey]);
 
                     // Count per sec
                     float enemyCountPerSecWidth = 60;
                     Rect enemyCountPerSecRect = new Rect(position.x + 30 - enemyCountPerSecWidth / 2, position.y + 40, enemyCountPerSecWidth, EditorGUIUtility.singleLineHeight);
-                    EditorGUI.LabelField(enemyCountPerSecRect, new GUIContent($"{enemyCountPerSec.ToString("0.#  ")}/s"));
+                    EditorGUI.LabelField(enemyCountPerSecRect, new GUIContent($"{enemyCountPerSec.ToString("0.#")} /s"));
                 }
 
                 position.x += 60;
             }
 
+            // Display an indicator of difficulty
+            difficulty = Mathf.Clamp(difficulty, 0, 1.4f);
+            DrawDifficultyBar(new Vector2(position.x, position.y + 20), new Vector2(100, EditorGUIUtility.singleLineHeight), difficulty);
+
             position.y += 60;
         }
         EditorGUI.EndProperty();
+    }
+
+    private void DrawDifficultyBar(Vector2 position, Vector2 size, float difficulty)
+    {
+        Rect barRect = new Rect(position.x, position.y, size.x, size.y);
+
+        // Background
+        Texture2D backgroundTexture = new Texture2D(1, 1);
+        backgroundTexture.SetPixel(0, 0, Color.grey);
+        backgroundTexture.Apply();
+        EditorGUI.DrawPreviewTexture(barRect, backgroundTexture);
+
+        // Pick foreground color
+        Color superEasyColor = new Color(1 / 255.0f,173 / 255.0f, 35 / 255.0f);
+        Color easyColor = new Color(128 / 255.0f, 192 / 255.0f, 43 / 255.0f);
+        Color mediumColor = new Color(255 / 255.0f, 211 / 255.0f, 52 / 255.0f);
+        Color hardColor = new Color(240 / 255.0f, 129 / 255.0f, 48 / 255.0f);
+        Color superHardColor = new Color(226 / 255.0f, 46 / 255.0f, 47 / 255.0f);
+        Color foregroundColor = (difficulty < 0.2f) ? superEasyColor : ((difficulty < 0.5f) ? easyColor : ((difficulty < 0.7f) ? mediumColor : ((difficulty < 0.9f) ? hardColor : superHardColor)));
+
+        // Foreground
+        Texture2D foregroundTexture = new Texture2D(1, 1);
+        foregroundTexture.SetPixel(0, 0, foregroundColor);
+        foregroundTexture.Apply();
+        barRect.width *= difficulty;
+        EditorGUI.DrawPreviewTexture(barRect, foregroundTexture);
+
+        // Label
+        Rect labelRect = new Rect(barRect.x, barRect.y + EditorGUIUtility.singleLineHeight, 100, EditorGUIUtility.singleLineHeight);
+        EditorGUI.LabelField(labelRect, new GUIContent($"Difficulty = {difficulty.ToString("0%")}"));
     }
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)

@@ -108,7 +108,7 @@ public class EnemyInstance
     public EnemyMovePattern movePattern;
 
     // Origin wave
-    public Wave wave;
+    public WaveData wave;
     public bool neverDespawn;
 
     // Difficulty tier
@@ -595,7 +595,7 @@ public class EnemiesManager : MonoBehaviour
     }
 
 
-    public void TrySpawnWave(Wave currentWave)
+    public void TrySpawnWave(WaveData currentWave)
     {
         if (RunManager.instance.currentChapter != null && RunManager.instance.currentChapter.chapterData != null && !RunManager.instance.IsChapterTimeOver())
         {
@@ -700,7 +700,7 @@ public class EnemiesManager : MonoBehaviour
         }
     }
 
-    private void ResetEnemyValues(EnemyInstance enemyInstance, GameObject prefab, EnemyData enemyData, EnemyMovePattern movePattern, Wave originWave, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null, bool preventAnyPhysicsShenanigans = false)
+    private void ResetEnemyValues(EnemyInstance enemyInstance, GameObject prefab, EnemyData enemyData, EnemyMovePattern movePattern, WaveData originWave, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null, bool preventAnyPhysicsShenanigans = false)
     {
         if (!preventAnyPhysicsShenanigans)
         {
@@ -773,7 +773,7 @@ public class EnemiesManager : MonoBehaviour
         }
     }
 
-    public void SpawnEnemy(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, Wave originWave, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null)
+    public void SpawnEnemy(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, WaveData originWave, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null)
     {
         // Get an enemy from the pool
         EnemyInstance enemyFromPool = null;
@@ -833,13 +833,13 @@ public class EnemiesManager : MonoBehaviour
         }
     }
 
-    private IEnumerator SpawnEnemyAsync(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, Wave originWave, float delay, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null)
+    private IEnumerator SpawnEnemyAsync(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, WaveData originWave, float delay, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null)
     {
         yield return new WaitForSeconds(delay);
         SpawnEnemy(prefab, position, enemyData, movePattern, originWave, difficultyTier, neverDespawn, bounty, forceMovementDirection, moveDirection);
     }
 
-    public void InitializeWave(Wave wave)
+    public void InitializeWave(WaveData wave)
     {
         lastSpawnTimesList.Clear();
         float time = float.MinValue; // or Time.time;
