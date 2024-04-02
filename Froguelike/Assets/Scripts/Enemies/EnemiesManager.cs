@@ -443,7 +443,7 @@ public class EnemiesManager : MonoBehaviour
     /// <param name="playerMoveDirection">This vector is either zero (player doesn't move) or normalized</param>
     /// <param name="spawnPosition">Out position, valid only if method returns true</param>
     /// <returns>Returns true if it successfully found a spawn position</returns>
-    private bool GetSpawnPosition(Vector2 playerPosition, Vector2 playerMoveDirection, out Vector2 spawnPosition)
+    private bool GetSpawnPosition(Vector2 playerPosition, Vector2 playerMoveDirection, out Vector3 spawnPosition)
     {
         spawnPosition = Vector2.zero;
 
@@ -459,7 +459,8 @@ public class EnemiesManager : MonoBehaviour
         {
             // Get a random point in the spawn circle
             spawnPosition = spawnCenter;
-            spawnPosition += Random.insideUnitCircle * spawnCircleRadius;
+            Vector2 randomVector = Random.insideUnitCircle;
+            spawnPosition += new Vector3(randomVector.x, randomVector.y) * spawnCircleRadius;
             loopAttemptCount--;
             // Check if that random point is not in sight (you don't want to spawn an enemy where you can see it)
             if (Vector2.Distance(spawnPosition, playerPosition) > minSpawnDistanceFromPlayer)
@@ -580,7 +581,7 @@ public class EnemiesManager : MonoBehaviour
                 spawnedBugsWithBountiesIDs.Add(bountyID);
 
                 // Get random spawn position, around and in front of frog
-                GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out Vector2 spawnPosition);
+                GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out Vector3 spawnPosition);
                 
                 // Get EnemyData & prefab according to relevant difficulty tier
                 int difficultyTier = GetTierFromFormulaAndChapterCount(bountyBug.tierFormula, RunManager.instance.GetChapterCount());
@@ -588,7 +589,8 @@ public class EnemiesManager : MonoBehaviour
                 GameObject enemyPrefab = enemyData.prefab;
 
                 // Spawn bug using info we have
-                StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition + Random.Range(-1.0f, 1.0f) * Vector2.right + Random.Range(-1.0f, 1.0f) * Vector2.up, enemyData, bountyBug.movePattern, originWave: null, delay: 0, difficultyTier: difficultyTier, neverDespawn: true, bounty: bountyBug));
+                Vector3 positionRelativeToFrog = (spawnPosition - GameManager.instance.player.transform.position) + Random.Range(-1.0f, 1.0f) * Vector3.right + Random.Range(-1.0f, 1.0f) * Vector3.up;
+                StartCoroutine(SpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, bountyBug.movePattern, originWave: null, delay: 0, difficultyTier: difficultyTier, neverDespawn: true, bounty: bountyBug));
                 
             }
         }
@@ -641,7 +643,7 @@ public class EnemiesManager : MonoBehaviour
                     float delayBetweenSpawn = spawnPattern.multipleSpawnDelay;
                     float currentDelay = delayBetweenSpawn;
 
-                    Vector2 spawnPosition;
+                    Vector3 spawnPosition;
                     switch (patternType)
                     {
                         case SpawnPatternType.CHUNK:
@@ -650,7 +652,8 @@ public class EnemiesManager : MonoBehaviour
                             {
                                 for (int j = 0; j < enemyCount; j++)
                                 {
-                                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition + Random.Range(-1.0f, 1.0f) * Vector2.right + Random.Range(-1.0f, 1.0f) * Vector2.up, enemyData, enemySpawn.movePattern, currentWave, currentDelay, difficultyTier));
+                                    Vector3 positionRelativeToFrog = (spawnPosition - GameManager.instance.player.transform.position) + Random.Range(-1.0f, 1.0f) * Vector3.right + Random.Range(-1.0f, 1.0f) * Vector3.up;
+                                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, enemySpawn.movePattern, currentWave, currentDelay, difficultyTier));
                                     currentDelay += delayBetweenSpawn;
                                 }
                             }
@@ -674,7 +677,7 @@ public class EnemiesManager : MonoBehaviour
                             float spawnDistanceFromPlayer = minSpawnDistanceFromPlayer;
                             for (float angle = 0; angle < arcAngle; angle += deltaAngle)
                             {
-                                spawnPosition = GameManager.instance.player.transform.position + (Mathf.Cos(angle * Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(angle * Mathf.Deg2Rad) * Vector3.up) * spawnDistanceFromPlayer;
+                                spawnPosition = (Mathf.Cos(angle * Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(angle * Mathf.Deg2Rad) * Vector3.up) * spawnDistanceFromPlayer;
                                 StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, currentDelay, difficultyTier));
                                 currentDelay += delayBetweenSpawn;
                             }
@@ -686,7 +689,8 @@ public class EnemiesManager : MonoBehaviour
                             {
                                 if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out spawnPosition))
                                 {
-                                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, currentDelay, difficultyTier));
+                                    Vector3 positionRelativeToFrog = spawnPosition - GameManager.instance.player.transform.position;
+                                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, enemySpawn.movePattern, currentWave, currentDelay, difficultyTier));
                                     currentDelay += delayBetweenSpawn;
                                 }
                             }
@@ -773,7 +777,7 @@ public class EnemiesManager : MonoBehaviour
         }
     }
 
-    public void SpawnEnemy(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, WaveData originWave, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null)
+    public void SpawnEnemy(GameObject prefab, Vector3 positionRelativeToFrog, EnemyData enemyData, EnemyMovePattern movePattern, WaveData originWave, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null)
     {
         // Get an enemy from the pool
         EnemyInstance enemyFromPool = null;
@@ -787,6 +791,7 @@ public class EnemiesManager : MonoBehaviour
 
             ResetEnemyValues(enemyFromPool, prefab, enemyData, movePattern, originWave, difficultyTier, neverDespawn, bounty, forceMovementDirection, moveDirection);
 
+            Vector3 position = GameManager.instance.player.transform.position + positionRelativeToFrog;
             enemyFromPool.enemyTransform.position = position;
             enemyFromPool.enemyTransform.rotation = Quaternion.Euler(0, 0, Random.Range(0,4) * 90); // Set random orientation (so static plants don't always face the same way)
 
@@ -826,17 +831,18 @@ public class EnemiesManager : MonoBehaviour
             enemyPrefab = enemyData.prefab;
 
             // Spawn bug
-            if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out Vector2 spawnPosition))
+            if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out Vector3 spawnPosition))
             {
-                StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, movePatternFollowPlayer, originWave: null, delay: 0, difficultyTier: difficultyTier));
+                Vector3 positionRelativeToFrog = spawnPosition - GameManager.instance.player.transform.position;
+                StartCoroutine(SpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, movePatternFollowPlayer, originWave: null, delay: 0, difficultyTier: difficultyTier));
             }
         }
     }
 
-    private IEnumerator SpawnEnemyAsync(GameObject prefab, Vector3 position, EnemyData enemyData, EnemyMovePattern movePattern, WaveData originWave, float delay, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null)
+    private IEnumerator SpawnEnemyAsync(GameObject prefab, Vector3 positionRelativeToFrog, EnemyData enemyData, EnemyMovePattern movePattern, WaveData originWave, float delay, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null)
     {
         yield return new WaitForSeconds(delay);
-        SpawnEnemy(prefab, position, enemyData, movePattern, originWave, difficultyTier, neverDespawn, bounty, forceMovementDirection, moveDirection);
+        SpawnEnemy(prefab, positionRelativeToFrog, enemyData, movePattern, originWave, difficultyTier, neverDespawn, bounty, forceMovementDirection, moveDirection);
     }
 
     public void InitializeWave(WaveData wave)
@@ -1287,7 +1293,7 @@ public class EnemiesManager : MonoBehaviour
                             else
                             {
                                 // Place enemy in front of frog (as if it was spawned again)
-                                if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out Vector2 spawnPosition))
+                                if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out Vector3 spawnPosition))
                                 {
                                     // Teleport
                                     enemy.enemyTransform.position = spawnPosition;

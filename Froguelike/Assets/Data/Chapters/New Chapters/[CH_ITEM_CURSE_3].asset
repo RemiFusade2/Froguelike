@@ -77,12 +77,6 @@ MonoBehaviour:
     compassLevel: 0
   environmentChange: 0
   characterStyleChange: 0
-  waves:
-  - {fileID: 11400000, guid: ab1a41fb24089684fb517eaf98e9cb5d, type: 2}
-  - {fileID: 11400000, guid: 9430a16e35bb06842b877d80c49e23cc, type: 2}
-  - {fileID: 11400000, guid: d69662a4dabc0a2418aecec0cc3494b9, type: 2}
-  - {fileID: 11400000, guid: a7fc696bccea7924692de0b4f9a3d4fe, type: 2}
-  - {fileID: 11400000, guid: 0680924c28b3a4d4d969355fbdb277f7, type: 2}
   wavesList:
   - duration: 60
     enemies:
@@ -255,7 +249,7 @@ MonoBehaviour:
   - duration: 60
     enemies:
     - enemyType: 2
-      tierFormula: chapter+2
+      tierFormula: chapter+1
       movePattern:
         movePatternType: 0
         speedFactor: 1
@@ -265,21 +259,9 @@ MonoBehaviour:
         spawnPatternShape: 0
         spawnAmount: 1
         multipleSpawnDelay: 0
-      spawnCooldown: 0.2
-    - enemyType: 5
-      tierFormula: 5
-      movePattern:
-        movePatternType: 3
-        speedFactor: 1
-        bouncecount: 0
-      spawnPattern:
-        spawnPatternType: 0
-        spawnPatternShape: 0
-        spawnAmount: 1
-        multipleSpawnDelay: 0
-      spawnCooldown: 0.2
+      spawnCooldown: 0.25
     - enemyType: 3
-      tierFormula: chapter+1
+      tierFormula: chapter
       movePattern:
         movePatternType: 2
         speedFactor: 1
@@ -291,17 +273,29 @@ MonoBehaviour:
         multipleSpawnDelay: 0
       spawnCooldown: 10
     - enemyType: 4
-      tierFormula: chapter+1
+      tierFormula: chapter
       movePattern:
         movePatternType: 4
-        speedFactor: 3
+        speedFactor: 2
         bouncecount: 3
       spawnPattern:
         spawnPatternType: 0
         spawnPatternShape: 0
-        spawnAmount: 10
+        spawnAmount: 8
         multipleSpawnDelay: 0
       spawnCooldown: 5
+    - enemyType: 5
+      tierFormula: 5
+      movePattern:
+        movePatternType: 3
+        speedFactor: 1
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 0.25
     previewChapters: 030000000400000005000000
   bountyBugs:
   - spawnTime: 30
