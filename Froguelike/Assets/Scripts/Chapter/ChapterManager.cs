@@ -109,6 +109,14 @@ public class ChaptersSaveData : SaveData
     }
 }
 
+[System.Serializable]
+public class CollectibleSprites
+{
+    public CollectibleType collectibleType;
+    public SpawnFrequency frequency;
+    public Sprite collectibleSprite;
+}
+
 /// <summary>
 /// ChapterManager keep all information about Chapters, including the current state of the Chapters deck during a Run.
 /// It also takes care of displaying the Chapter book from the menu, and the Chapter selection during a Run.
@@ -130,6 +138,11 @@ public class ChapterManager : MonoBehaviour
     public Button backButton;
     public TextMeshProUGUI infoTitleTextMesh;
     public TextMeshProUGUI infoDescriptionTextMesh;
+    public GameObject collectiblesParent;
+    public GameObject powerUpsParent;
+    public RectTransform collectiblesGridLayoutGroup;
+    public GameObject collectibleSlotPrefab;
+    public List<CollectibleSprites> collectibleSprites;
 
     [Header("UI - Chapter Selection screen - Post its")]
     public GameObject rerollInfinitePostIt;
@@ -797,6 +810,106 @@ public class ChapterManager : MonoBehaviour
         Chapter chapterInfo = selectionOfNextChaptersList[index];
         infoTitleTextMesh.SetText(chapterInfo.chapterData.chapterTitle);
         infoDescriptionTextMesh.SetText(chapterInfo.chapterData.chapterLore[0].Replace("\\n", "\n"));
+
+        // Collectibles.
+        // Remove previous collectibles.
+        foreach (Transform child in collectiblesGridLayoutGroup)
+        {
+            child.gameObject.SetActive(false);
+            Destroy(child.gameObject);
+        }
+
+        // Get the chapters collectibles.
+        List<FixedCollectible> listOfCollectibles = chapterInfo.chapterData.specialCollectiblesOnTheMap;
+
+        // Display collectibles.
+        foreach (FixedCollectible collectible in listOfCollectibles)
+        {
+            GameObject collectibleSlot = Instantiate(collectibleSlotPrefab, collectiblesGridLayoutGroup);
+
+            // Sprite.
+            switch (collectible.collectibleType)
+            {
+                case FixedCollectibleType.STATS_ITEM:
+                    collectibleSlot.GetComponent<SpriteRenderer>().sprite = collectible.collectibleStatItemData.icon;
+                    break;
+                case FixedCollectibleType.WEAPON_ITEM:
+                    collectibleSlot.GetComponent<SpriteRenderer>().sprite = collectible.collectibleWeaponItemData.icon;
+                    break;
+                case FixedCollectibleType.HAT:
+                    collectibleSlot.GetComponent<SpriteRenderer>().sprite = DataManager.instance.GetSpriteForHat(collectible.collectibleHatType);
+                    break;
+                case FixedCollectibleType.FRIEND:
+                    collectibleSlot.GetComponent<SpriteRenderer>().sprite = DataManager.instance.GetSpriteForFriend(collectible.collectibleFriendType);
+                    break;
+                default:
+                    break;
+            }
+
+            // Found/not found.
+            if (chapterInfo.fixedCollectiblesFoundList.Contains(chapterInfo.fixedCollectiblesFoundList.FirstOrDefault(x => x.collectibleIdentifier.Equals(FixedCollectibleFound.GetIdentifierFromCoordinates(collectible.tileCoordinates)))))
+            {
+                collectibleSlot.GetComponent<SpriteRenderer>().material.SetInt("_Found", 1);
+            }
+            else
+            {
+                collectibleSlot.GetComponent<SpriteRenderer>().material.SetInt("_Found", 0);
+            }
+        }
+
+        // Collectibles and power-ups.
+        List<CollectibleSpawnFrequency> powerUps = chapterInfo.chapterData.otherCollectibleSpawnFrequenciesList;
+        List<Image> powerUpSlots = powerUpsParent.GetComponentsInChildren<Image>().ToList();
+        powerUpSlots.RemoveAt(0);
+        int slot = 0;
+
+        if (chapterInfo.chapterData.coinsSpawnFrequency != SpawnFrequency.NONE)
+        {
+            powerUpSlots[slot].sprite = collectibleSprites.Find(x => x.collectibleType == CollectibleType.FROINS && x.frequency == chapterInfo.chapterData.coinsSpawnFrequency).collectibleSprite;
+            slot++;
+        }
+
+        if (chapterInfo.chapterData.levelUpSpawnFrequency != SpawnFrequency.NONE)
+        {
+            powerUpSlots[slot].sprite = collectibleSprites.Find(x => x.collectibleType == CollectibleType.LEVEL_UP && x.frequency == chapterInfo.chapterData.levelUpSpawnFrequency).collectibleSprite;
+            slot++;
+        }
+
+        if (chapterInfo.chapterData.healthSpawnFrequency != SpawnFrequency.NONE)
+        {
+            powerUpSlots[slot].sprite = collectibleSprites.Find(x => x.collectibleType == CollectibleType.HEALTH && x.frequency == chapterInfo.chapterData.healthSpawnFrequency).collectibleSprite;
+            slot++;
+        }
+
+        foreach (CollectibleSpawnFrequency powerUp in  powerUps)
+        {
+            Image powerUpSlot = powerUpSlots[slot];
+
+            if (powerUp.Frequency != SpawnFrequency.NONE)
+            {
+                if (powerUp.Type == CollectibleType.FROINS || powerUp.Type == CollectibleType.LEVEL_UP || powerUp.Type == CollectibleType.HEALTH)
+                {
+                    powerUpSlot.sprite = collectibleSprites.Find(x => x.collectibleType == powerUp.Type && x.frequency == powerUp.Frequency).collectibleSprite;
+                }
+                else
+                {
+                    powerUpSlot.sprite = collectibleSprites.Find(x => x.collectibleType == powerUp.Type).collectibleSprite;
+                }
+
+                slot++;
+
+                if (slot >= powerUpSlots.Count)
+                {
+                    break;
+                }
+            }
+        }
+
+        while (slot < powerUpSlots.Count)
+        {
+            powerUpSlots[slot].sprite = null;
+            slot++;
+        }
     }
 
     /// <summary>
