@@ -348,8 +348,12 @@ public class ChapterData : ScriptableObject
     public CharacterStyle characterStyleChange = CharacterStyle.NO_CHANGE;
 
     [Header("Chapter settings - Waves of enemies")]
+    /*[Tooltip("Deprecated: A series of waves happening during this chapter. Waves have their own duration")]
+    public List<Wave> waves;*/
+
     [Tooltip("A series of waves happening during this chapter. Waves have their own duration")]
-    public List<Wave> waves;
+    public List<WaveData> wavesList;
+
     [Tooltip("A series of bounty bugs being spawned during this chapter")]
     public List<BountyBug> bountyBugs;
 

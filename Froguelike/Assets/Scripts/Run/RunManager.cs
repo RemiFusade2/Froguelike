@@ -257,7 +257,7 @@ public class RunManager : MonoBehaviour
             if (waveRemainingTime < 0)
             {
                 // When wave is finished, move on to the next one
-                currentWaveIndex = (currentWaveIndex + 1) % currentChapter.chapterData.waves.Count;
+                currentWaveIndex = (currentWaveIndex + 1) % currentChapter.chapterData.wavesList.Count;
                 EnemiesManager.instance.InitializeWave(GetCurrentWave());
                 waveRemainingTime = GetCurrentWave().duration;
             }
@@ -273,9 +273,9 @@ public class RunManager : MonoBehaviour
         return completedChaptersList.Count >= maxChaptersInARun;
     }
 
-    public Wave GetCurrentWave()
+    public WaveData GetCurrentWave()
     {
-        return currentChapter.chapterData.waves[currentWaveIndex];
+        return currentChapter.chapterData.wavesList[currentWaveIndex];
     }
 
     public List<RunWeaponInfo> GetOwnedWeapons()
@@ -804,7 +804,7 @@ public class RunManager : MonoBehaviour
 
         // Set current wave
         currentWaveIndex = 0;
-        Wave currentWave = GetCurrentWave();
+        WaveData currentWave = GetCurrentWave();
         waveRemainingTime = currentWave.duration;
         EnemiesManager.instance.InitializeWave(GetCurrentWave());
 

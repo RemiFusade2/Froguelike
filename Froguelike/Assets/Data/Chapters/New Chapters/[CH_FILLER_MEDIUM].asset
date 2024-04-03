@@ -61,12 +61,226 @@ MonoBehaviour:
     compassLevel: 3
   environmentChange: 0
   characterStyleChange: 0
-  waves:
-  - {fileID: 11400000, guid: dbe3f730e932d3946a1c16c6479fb198, type: 2}
-  - {fileID: 11400000, guid: 0d74991de3ac18c46b450e2e4ea113c0, type: 2}
-  - {fileID: 11400000, guid: c48bbc01cdb0cc1418a90ff4157f84a7, type: 2}
-  - {fileID: 11400000, guid: f56a7e9ca8a6f5f4babff1fc6db68349, type: 2}
-  - {fileID: 11400000, guid: a3d15b14ba2cf8d4baddb3be35fbcf60, type: 2}
+  wavesList:
+  - duration: 60
+    enemies:
+    - enemyType: 0
+      tierFormula: chapter-2
+      movePattern:
+        movePatternType: 2
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 0.22
+    - enemyType: 0
+      tierFormula: chapter
+      movePattern:
+        movePatternType: 2
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 2
+    previewChapters: 0100000002000000030000000400000005000000
+  - duration: 60
+    enemies:
+    - enemyType: 1
+      tierFormula: chapter-2
+      movePattern:
+        movePatternType: 1
+        speedFactor: 2.1
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 5
+        multipleSpawnDelay: 0
+      spawnCooldown: 5
+    - enemyType: 0
+      tierFormula: chapter-1
+      movePattern:
+        movePatternType: 2
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 0.25
+    - enemyType: 1
+      tierFormula: chapter-1
+      movePattern:
+        movePatternType: 1
+        speedFactor: 2
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 2
+        spawnPatternShape: 0
+        spawnAmount: 6
+        multipleSpawnDelay: 0.02
+      spawnCooldown: 10
+    previewChapters: 0100000002000000030000000400000005000000
+  - duration: 60
+    enemies:
+    - enemyType: 0
+      tierFormula: chapter
+      movePattern:
+        movePatternType: 2
+        speedFactor: 1
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 0.25
+    - enemyType: 2
+      tierFormula: chapter
+      movePattern:
+        movePatternType: 0
+        speedFactor: 1
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 0.4
+    - enemyType: 0
+      tierFormula: chapter+1
+      movePattern:
+        movePatternType: 2
+        speedFactor: 0.9
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 5
+    - enemyType: 0
+      tierFormula: chapter-1
+      movePattern:
+        movePatternType: 2
+        speedFactor: 1.2
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 2
+        spawnPatternShape: 0
+        spawnAmount: 10
+        multipleSpawnDelay: 0
+      spawnCooldown: 2
+    previewChapters: 0100000002000000030000000400000005000000
+  - duration: 60
+    enemies:
+    - enemyType: 2
+      tierFormula: chapter
+      movePattern:
+        movePatternType: 0
+        speedFactor: 1
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 0.4
+    - enemyType: 1
+      tierFormula: chapter
+      movePattern:
+        movePatternType: 1
+        speedFactor: 2
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 2
+        spawnPatternShape: 0
+        spawnAmount: 10
+        multipleSpawnDelay: 0
+      spawnCooldown: 3
+    - enemyType: 1
+      tierFormula: chapter-1
+      movePattern:
+        movePatternType: 1
+        speedFactor: 1.5
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 0.25
+    - enemyType: 1
+      tierFormula: chapter+2
+      movePattern:
+        movePatternType: 1
+        speedFactor: 1.5
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 10
+    previewChapters: 0100000002000000030000000400000005000000
+  - duration: 60
+    enemies:
+    - enemyType: 2
+      tierFormula: chapter+2
+      movePattern:
+        movePatternType: 0
+        speedFactor: 1
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 0.5
+    - enemyType: 1
+      tierFormula: chapter+1
+      movePattern:
+        movePatternType: 1
+        speedFactor: 2
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 2
+        spawnPatternShape: 0
+        spawnAmount: 10
+        multipleSpawnDelay: 0
+      spawnCooldown: 4
+    - enemyType: 0
+      tierFormula: chapter
+      movePattern:
+        movePatternType: 2
+        speedFactor: 1.2
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 0.2
+    - enemyType: 0
+      tierFormula: chapter+1
+      movePattern:
+        movePatternType: 2
+        speedFactor: 1
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 1
+    previewChapters: 0100000002000000030000000400000005000000
   bountyBugs: []
   weightChanges:
   - chapter: {fileID: 11400000}
