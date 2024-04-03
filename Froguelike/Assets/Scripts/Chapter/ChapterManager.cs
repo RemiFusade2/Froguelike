@@ -109,6 +109,14 @@ public class ChaptersSaveData : SaveData
     }
 }
 
+[System.Serializable]
+public class CollectibleSprites
+{
+    public CollectibleType collectibleType;
+    public SpawnFrequency frequency;
+    public Sprite collectibleSprite;
+}
+
 /// <summary>
 /// ChapterManager keep all information about Chapters, including the current state of the Chapters deck during a Run.
 /// It also takes care of displaying the Chapter book from the menu, and the Chapter selection during a Run.
@@ -128,6 +136,13 @@ public class ChapterManager : MonoBehaviour
     public TextMeshProUGUI chapterSelectionTopText;
     public List<ChapterButtonBehaviour> chapterButtonsList;
     public Button backButton;
+    public TextMeshProUGUI infoTitleTextMesh;
+    public TextMeshProUGUI infoDescriptionTextMesh;
+    public GameObject collectiblesParent;
+    public GameObject powerUpsParent;
+    public RectTransform collectiblesGridLayoutGroup;
+    public GameObject collectibleSlotPrefab;
+    public List<CollectibleSprites> collectibleSprites;
 
     [Header("UI - Chapter Selection screen - Post its")]
     public GameObject rerollInfinitePostIt;
@@ -154,6 +169,8 @@ public class ChapterManager : MonoBehaviour
     private Dictionary<string, Chapter> allChaptersDico; // This dictionary is a handy way to get the Chapter object from its ID
 
     private Coroutine fadeOutChapterStartScreenCoroutine;
+
+    private int displayedChapterIndex;
 
     #region Unity Callback methods
 
@@ -483,7 +500,7 @@ public class ChapterManager : MonoBehaviour
         }
 
         // Show the chapters selection
-        foreach (ChapterButtonBehaviour chapterButton in chapterButtonsList)
+        foreach (ChapterButtonBehaviour chapterButton in chapterButtonsList) // Set up automatic navigation.
         {
             chapterButton.gameObject.SetActive(false);
             Navigation chapterButtonNav = chapterButton.GetComponent<Button>().navigation;
@@ -493,11 +510,8 @@ public class ChapterManager : MonoBehaviour
 
         for (int i = 0; i < selectionOfNextChaptersList.Count; i++)
         {
-            // If there is exactly 4 buttons, use button slots 2 - 5 instead of 1 - 4, by increasing the index by 1.
-            int chapterButtonIndex = selectionOfNextChaptersList.Count == 4 ? i + 1 : i;
-
             Chapter chapter = selectionOfNextChaptersList[i];
-            ChapterButtonBehaviour chapterButton = chapterButtonsList[chapterButtonIndex];
+            ChapterButtonBehaviour chapterButton = chapterButtonsList[i];
 
             #region Chapter button navigation (not used, uses automatic navigation instead)
 
@@ -734,9 +748,11 @@ public class ChapterManager : MonoBehaviour
             if (GameManager.instance.player.rerolls < 1)
             {
                 // Set new selected button.
-                UIManager.instance.SetSelectedButton(selectionOfNextChaptersList.Count >= 4 ? chapterButtonsList[4].gameObject : chapterButtonsList[0].gameObject);
+                UIManager.instance.SetSelectedButton(chapterButtonsList[0].gameObject);
             }
         }
+
+        DisplayChapter(0);
     }
 
     public void RerollChapterSelection()
@@ -776,9 +792,124 @@ public class ChapterManager : MonoBehaviour
         isFirstChapter = (currentChapterCount == 0);
         NewSelectionOfChapters();
         UpdateRerollPostit();
+        DisplayChapter(0);
 
         // Call the UIManager to display the chapter selection screen
         UIManager.instance.ShowChapterSelectionScreen((chapterCount == 0));
+    }
+
+    public void PlaySelectedChapter()
+    {
+        SelectChapter(displayedChapterIndex);
+    }
+
+    public void DisplayChapter(int index)
+    {
+        displayedChapterIndex = index;
+        // Set chapter info. TODO
+        Chapter chapterInfo = selectionOfNextChaptersList[index];
+        infoTitleTextMesh.SetText(chapterInfo.chapterData.chapterTitle);
+        infoDescriptionTextMesh.SetText(chapterInfo.chapterData.chapterLore[0].Replace("\\n", "\n"));
+
+        // Collectibles.
+        // Remove previous collectibles.
+        foreach (Transform child in collectiblesGridLayoutGroup)
+        {
+            child.gameObject.SetActive(false);
+            Destroy(child.gameObject);
+        }
+
+        // Get the chapters collectibles.
+        List<FixedCollectible> listOfCollectibles = chapterInfo.chapterData.specialCollectiblesOnTheMap;
+
+        // Display collectibles.
+        foreach (FixedCollectible collectible in listOfCollectibles)
+        {
+            GameObject collectibleSlot = Instantiate(collectibleSlotPrefab, collectiblesGridLayoutGroup);
+
+            // Sprite.
+            switch (collectible.collectibleType)
+            {
+                case FixedCollectibleType.STATS_ITEM:
+                    collectibleSlot.GetComponent<SpriteRenderer>().sprite = collectible.collectibleStatItemData.icon;
+                    break;
+                case FixedCollectibleType.WEAPON_ITEM:
+                    collectibleSlot.GetComponent<SpriteRenderer>().sprite = collectible.collectibleWeaponItemData.icon;
+                    break;
+                case FixedCollectibleType.HAT:
+                    collectibleSlot.GetComponent<SpriteRenderer>().sprite = DataManager.instance.GetSpriteForHat(collectible.collectibleHatType);
+                    break;
+                case FixedCollectibleType.FRIEND:
+                    collectibleSlot.GetComponent<SpriteRenderer>().sprite = DataManager.instance.GetSpriteForFriend(collectible.collectibleFriendType);
+                    break;
+                default:
+                    break;
+            }
+
+            // Found/not found.
+            if (chapterInfo.fixedCollectiblesFoundList.Contains(chapterInfo.fixedCollectiblesFoundList.FirstOrDefault(x => x.collectibleIdentifier.Equals(FixedCollectibleFound.GetIdentifierFromCoordinates(collectible.tileCoordinates)))))
+            {
+                collectibleSlot.GetComponent<SpriteRenderer>().material.SetInt("_Found", 1);
+            }
+            else
+            {
+                collectibleSlot.GetComponent<SpriteRenderer>().material.SetInt("_Found", 0);
+            }
+        }
+
+        // Collectibles and power-ups.
+        List<CollectibleSpawnFrequency> powerUps = chapterInfo.chapterData.otherCollectibleSpawnFrequenciesList;
+        List<Image> powerUpSlots = powerUpsParent.GetComponentsInChildren<Image>().ToList();
+        powerUpSlots.RemoveAt(0);
+        int slot = 0;
+
+        if (chapterInfo.chapterData.coinsSpawnFrequency != SpawnFrequency.NONE)
+        {
+            powerUpSlots[slot].sprite = collectibleSprites.Find(x => x.collectibleType == CollectibleType.FROINS && x.frequency == chapterInfo.chapterData.coinsSpawnFrequency).collectibleSprite;
+            slot++;
+        }
+
+        if (chapterInfo.chapterData.levelUpSpawnFrequency != SpawnFrequency.NONE)
+        {
+            powerUpSlots[slot].sprite = collectibleSprites.Find(x => x.collectibleType == CollectibleType.LEVEL_UP && x.frequency == chapterInfo.chapterData.levelUpSpawnFrequency).collectibleSprite;
+            slot++;
+        }
+
+        if (chapterInfo.chapterData.healthSpawnFrequency != SpawnFrequency.NONE)
+        {
+            powerUpSlots[slot].sprite = collectibleSprites.Find(x => x.collectibleType == CollectibleType.HEALTH && x.frequency == chapterInfo.chapterData.healthSpawnFrequency).collectibleSprite;
+            slot++;
+        }
+
+        foreach (CollectibleSpawnFrequency powerUp in  powerUps)
+        {
+            Image powerUpSlot = powerUpSlots[slot];
+
+            if (powerUp.Frequency != SpawnFrequency.NONE)
+            {
+                if (powerUp.Type == CollectibleType.FROINS || powerUp.Type == CollectibleType.LEVEL_UP || powerUp.Type == CollectibleType.HEALTH)
+                {
+                    powerUpSlot.sprite = collectibleSprites.Find(x => x.collectibleType == powerUp.Type && x.frequency == powerUp.Frequency).collectibleSprite;
+                }
+                else
+                {
+                    powerUpSlot.sprite = collectibleSprites.Find(x => x.collectibleType == powerUp.Type).collectibleSprite;
+                }
+
+                slot++;
+
+                if (slot >= powerUpSlots.Count)
+                {
+                    break;
+                }
+            }
+        }
+
+        while (slot < powerUpSlots.Count)
+        {
+            powerUpSlots[slot].sprite = null;
+            slot++;
+        }
     }
 
     /// <summary>
@@ -788,7 +919,7 @@ public class ChapterManager : MonoBehaviour
     /// <param name="index"></param>
     public void SelectChapter(int index)
     {
-        Chapter chapterInfo = selectionOfNextChaptersList[selectionOfNextChaptersList.Count == 4 ? index - 1 : index]; // Special case when there is exactly 4 chapters to choose from, since the chapter buttons 2 - 5 is used instead of buttons 1 - 4.
+        Chapter chapterInfo = selectionOfNextChaptersList[index];
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
