@@ -890,13 +890,13 @@ public class ChapterManager : MonoBehaviour
                 if (powerUp.Type == CollectibleType.FROINS || powerUp.Type == CollectibleType.LEVEL_UP || powerUp.Type == CollectibleType.HEALTH)
                 {
                     powerUpSlot.sprite = collectibleSprites.Find(x => x.collectibleType == powerUp.Type && x.frequency == powerUp.Frequency).collectibleSprite;
+                    slot++;
                 }
-                else
+                else if (!BuildManager.instance.demoBuild)
                 {
                     powerUpSlot.sprite = collectibleSprites.Find(x => x.collectibleType == powerUp.Type).collectibleSprite;
+                    slot++;
                 }
-
-                slot++;
 
                 if (slot >= powerUpSlots.Count)
                 {
