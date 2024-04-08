@@ -565,10 +565,6 @@ public class UIManager : MonoBehaviour
     public void ShowRerollWarningConfirmationPanel(bool active)
     {
         rerollWarningConfirmationPanel.SetActive(active);
-        if (chapterSelectionScreen.activeInHierarchy)
-        {
-            ChapterManager.instance.HideItemSpritesWhenRerollConfirmation(active);
-        }
 
         if (active)
         {
