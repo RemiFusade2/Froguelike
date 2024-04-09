@@ -138,10 +138,8 @@ public class ChapterManager : MonoBehaviour
     public Button backButton;
     public TextMeshProUGUI infoTitleTextMesh;
     public TextMeshProUGUI infoDescriptionTextMesh;
-    public GameObject collectiblesParent;
+    public GameObject fixedCollectiblesParent;
     public GameObject powerUpsParent;
-    public RectTransform collectiblesGridLayoutGroup;
-    public GameObject collectibleSlotPrefab;
     public List<CollectibleSprites> collectibleSprites;
 
     [Header("UI - Chapter Selection screen - Post its")]
@@ -189,7 +187,12 @@ public class ChapterManager : MonoBehaviour
 
     private void Start()
     {
-
+        List<Image> fixedCollectibleSlots = fixedCollectiblesParent.GetComponentsInChildren<Image>().ToList();
+        foreach (Image fixedCollectible in fixedCollectibleSlots)
+        {
+            Material mat = Instantiate(fixedCollectible.material);
+            fixedCollectible.material = mat;
+        }
     }
 
     #endregion
@@ -466,7 +469,7 @@ public class ChapterManager : MonoBehaviour
 
         rerollInfinitePostIt.SetActive(isFirstChapter && rerollWouldGiveAtLeastOneNewChapter && GameManager.instance.gameData.attempts > 0);
         rerollInfinitePostIt.GetComponent<CanvasGroup>().blocksRaycasts = rerollInfinitePostIt.activeSelf;
-        
+
 
         rerollPostIt.SetActive(!isFirstChapter && hasAtLeastOneReroll);
         rerollPostItCountTextMesh.SetText($"x{GameManager.instance.player.rerolls}");
@@ -806,62 +809,73 @@ public class ChapterManager : MonoBehaviour
     public void DisplayChapter(int index)
     {
         displayedChapterIndex = index;
-        // Set chapter info. TODO
+        // Set chapter info.
         Chapter chapterInfo = selectionOfNextChaptersList[index];
         infoTitleTextMesh.SetText(chapterInfo.chapterData.chapterTitle);
         infoDescriptionTextMesh.SetText(chapterInfo.chapterData.chapterLore[0].Replace("\\n", "\n"));
 
-        // Collectibles.
-        // Remove previous collectibles.
-        foreach (Transform child in collectiblesGridLayoutGroup)
-        {
-            child.gameObject.SetActive(false);
-            Destroy(child.gameObject);
-        }
+        // Fixed colelctibles.
+        // Get the chapters fixed collectibles.
+        List<FixedCollectible> listOfFixedCollectibles = chapterInfo.chapterData.specialCollectiblesOnTheMap;
+        List<Image> fixedCollectibleSlots = fixedCollectiblesParent.GetComponentsInChildren<Image>().ToList();
+        fixedCollectibleSlots.RemoveAt(0);
+        int slot = 0;
 
-        // Get the chapters collectibles.
-        List<FixedCollectible> listOfCollectibles = chapterInfo.chapterData.specialCollectiblesOnTheMap;
-
-        // Display collectibles.
-        foreach (FixedCollectible collectible in listOfCollectibles)
+        // Display fixed collectibles.
+        foreach (FixedCollectible fixedCollectible in listOfFixedCollectibles)
         {
-            GameObject collectibleSlot = Instantiate(collectibleSlotPrefab, collectiblesGridLayoutGroup);
+            Image fixedCollectibleSlot = fixedCollectibleSlots[slot];
 
             // Sprite.
-            switch (collectible.collectibleType)
+            switch (fixedCollectible.collectibleType)
             {
                 case FixedCollectibleType.STATS_ITEM:
-                    collectibleSlot.GetComponent<SpriteRenderer>().sprite = collectible.collectibleStatItemData.icon;
+                    fixedCollectibleSlot.sprite = fixedCollectible.collectibleStatItemData.icon;
+                    fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 0, 0);
                     break;
                 case FixedCollectibleType.WEAPON_ITEM:
-                    collectibleSlot.GetComponent<SpriteRenderer>().sprite = collectible.collectibleWeaponItemData.icon;
+                    fixedCollectibleSlot.sprite = fixedCollectible.collectibleWeaponItemData.icon;
+                    fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 0, 0);
                     break;
                 case FixedCollectibleType.HAT:
-                    collectibleSlot.GetComponent<SpriteRenderer>().sprite = DataManager.instance.GetSpriteForHat(collectible.collectibleHatType);
+                    fixedCollectibleSlot.sprite = DataManager.instance.GetSpriteForHat(fixedCollectible.collectibleHatType);
+                    fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 180, 0);
                     break;
                 case FixedCollectibleType.FRIEND:
-                    collectibleSlot.GetComponent<SpriteRenderer>().sprite = DataManager.instance.GetSpriteForFriend(collectible.collectibleFriendType);
+                    fixedCollectibleSlot.sprite = DataManager.instance.GetSpriteForFriend(fixedCollectible.collectibleFriendType);
+                    fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 0, 0);
                     break;
                 default:
                     break;
             }
 
+            slot++;
+            fixedCollectibleSlot.SetNativeSize();
+
             // Found/not found.
-            if (chapterInfo.fixedCollectiblesFoundList.Contains(chapterInfo.fixedCollectiblesFoundList.FirstOrDefault(x => x.collectibleIdentifier.Equals(FixedCollectibleFound.GetIdentifierFromCoordinates(collectible.tileCoordinates)))))
+            if (chapterInfo.fixedCollectiblesFoundList.Contains(chapterInfo.fixedCollectiblesFoundList.FirstOrDefault(x => x.collectibleIdentifier.Equals(FixedCollectibleFound.GetIdentifierFromCoordinates(fixedCollectible.tileCoordinates)))))
             {
-                collectibleSlot.GetComponent<SpriteRenderer>().material.SetInt("_Found", 1);
+                fixedCollectibleSlot.material.SetInt("_Found", 1); // Found.
             }
             else
             {
-                collectibleSlot.GetComponent<SpriteRenderer>().material.SetInt("_Found", 0);
+                fixedCollectibleSlot.material.SetInt("_Found", 0); // Not found.
             }
+        }
+
+        // Empty the unused slots and set shader to found (no overlay).
+        while (slot < fixedCollectibleSlots.Count)
+        {
+            fixedCollectibleSlots[slot].sprite = null;
+            fixedCollectibleSlots[slot].material.SetInt("_Found", 1);
+            slot++;
         }
 
         // Collectibles and power-ups.
         List<CollectibleSpawnFrequency> powerUps = chapterInfo.chapterData.otherCollectibleSpawnFrequenciesList;
         List<Image> powerUpSlots = powerUpsParent.GetComponentsInChildren<Image>().ToList();
         powerUpSlots.RemoveAt(0);
-        int slot = 0;
+        slot = 0;
 
         if (chapterInfo.chapterData.coinsSpawnFrequency != SpawnFrequency.NONE)
         {
@@ -881,7 +895,7 @@ public class ChapterManager : MonoBehaviour
             slot++;
         }
 
-        foreach (CollectibleSpawnFrequency powerUp in  powerUps)
+        foreach (CollectibleSpawnFrequency powerUp in powerUps)
         {
             Image powerUpSlot = powerUpSlots[slot];
 
@@ -979,7 +993,7 @@ public class ChapterManager : MonoBehaviour
     {
         // Get information about the collectible being found
         FixedCollectibleFound collectibleFound = chapter.fixedCollectiblesFoundList.FirstOrDefault(x => x.collectibleIdentifier.Equals(FixedCollectibleFound.GetIdentifierFromCoordinates(collectible.tileCoordinates)));
-        collectibleHasBeenFoundOnce = (collectibleFound != null && collectibleFound.hasBeenFoundOnce); 
+        collectibleHasBeenFoundOnce = (collectibleFound != null && collectibleFound.hasBeenFoundOnce);
         bool compassShowsCollectible = collectibleHasBeenFoundOnce;
         if (!compassShowsCollectible)
         {
@@ -1057,7 +1071,7 @@ public class ChapterManager : MonoBehaviour
                 {
                     foreach (ChapterCondition condition in conditionChunk.conditionsList)
                     {
-                        if (condition.conditionType == ChapterConditionType.PLAYED_CHAPTER 
+                        if (condition.conditionType == ChapterConditionType.PLAYED_CHAPTER
                             && !condition.not
                             && condition.chapterData.chapterID.Equals(chapter.chapterID))
                         {
@@ -1166,7 +1180,7 @@ public class ChapterManager : MonoBehaviour
 
         Color iconColor = new Color(chapterStartIconsImageList[0].color.r, chapterStartIconsImageList[0].color.g, chapterStartIconsImageList[0].color.b, 1);
         Color transparentIconColor = new Color(chapterStartIconsImageList[0].color.r, chapterStartIconsImageList[0].color.g, chapterStartIconsImageList[0].color.b, 0);
-        
+
         chapterStartBackground.color = Color.Lerp(backgroundColor, transparentBackgroundColor, alpha);
         chapterStartTopText.color = Color.Lerp(topTextColor, transparentTopTextColor, alpha);
         chapterStartBottomText.color = Color.Lerp(bottomTextColor, transparentBottomTextColor, alpha);
