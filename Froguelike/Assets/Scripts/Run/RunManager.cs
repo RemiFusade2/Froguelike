@@ -1519,7 +1519,7 @@ public class RunManager : MonoBehaviour
                 }
                 break;
             case CollectibleType.HEALTH:
-                player.Heal(collectibleValue);
+                player.Heal(collectibleValue, cancelDamage: true);
                 SoundManager.instance.PlayHealSound();
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                 {

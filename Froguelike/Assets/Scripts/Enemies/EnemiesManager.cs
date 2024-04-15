@@ -80,6 +80,8 @@ public class EnemyTypeData
 [System.Serializable]
 public class EnemyInstance
 {
+    public static float knockbackMass = 100;
+
     // Keyword that is used to find the EnemyData
     public string enemyName;
     public int enemyID;
@@ -222,14 +224,14 @@ public class EnemyInstance
 
     public void Knockback(Vector2 direction, float strength, float duration)
     {
-        enemyRigidbody.mass = 1000;
+        enemyRigidbody.mass = knockbackMass;
         enemyRigidbody.velocity = direction * strength;
         knockbackCooldown = duration;
     }
 
     public void StopKnockback()
     {
-        if (enemyRigidbody.mass == 1000)
+        if (enemyRigidbody.mass == knockbackMass)
         {
             enemyRigidbody.mass = mass;
         }
@@ -1116,6 +1118,9 @@ public class EnemiesManager : MonoBehaviour
                 Vector2 knockbackDirection = (enemy.enemyTransform.position - weapon.position).normalized;
                 float knockbackStrengthMassRatio = Mathf.Clamp(enemy.enemyRigidbody.mass/8, 1, 20);
                 float knockbackForce = weapon.GetComponent<WeaponBehaviour>().knockbackForce / knockbackStrengthMassRatio;
+
+                // knockback resistance from enemy
+                knockbackForce = Mathf.Clamp(knockbackForce - enemy.enemyInfo.enemyData.knockbackResistance, 0, 100);
 
                 enemy.Knockback(knockbackDirection, knockbackForce, knockbackDuration);
                 knockback = true;
