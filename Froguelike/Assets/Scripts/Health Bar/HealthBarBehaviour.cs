@@ -25,9 +25,11 @@ public class HealthBarBehaviour : MonoBehaviour
     public Color healingHealthColor = Color.white;
 
     [Header("Settings - Delays")]
-    public float speedApplyDamage = 25; // once damage starts being validated as "current", it moves at this speed (HP/s)
+    public float speedApplyDamage = 100; // once damage starts being validated as "current", it moves at this speed (HP/s)
     [Space]
-    public float speedApplyHealing = 50; // once healing starts being validated as "current", it moves at this speed (HP/s)
+    public float speedApplyDamageIfDead = 300; // if health is < -10, it moves at this speed (HP/s)
+    [Space]
+    public float speedApplyHealing = 60; // once healing starts being validated as "current", it moves at this speed (HP/s)
     [Space]
     public float healthRecoveryDelay = 0; // Time without damage before health starts being recovered
     [Space]
@@ -77,7 +79,7 @@ public class HealthBarBehaviour : MonoBehaviour
                 // If we play as Kermit and are in a pond right now, health recovery is increased
                 actualHealthRecovery += 2;
             }
-            IncreaseHealth(actualHealthRecovery * Time.deltaTime);
+            IncreaseHealth(actualHealthRecovery * Time.deltaTime, cancelDamage: false);
         }
 
         if (currentHealthShown < currentHealthTarget)
@@ -88,7 +90,14 @@ public class HealthBarBehaviour : MonoBehaviour
         else if (currentHealthShown > currentHealthTarget)
         {
             // Decrease health shown, limit to health target
-            currentHealthShown = Mathf.Clamp(currentHealthShown - speedApplyDamage * Time.deltaTime, currentHealthTarget, maxHealth);
+            if (currentHealthTarget <= -10)
+            {
+                currentHealthShown = Mathf.Clamp(currentHealthShown - speedApplyDamageIfDead * Time.deltaTime, currentHealthTarget, maxHealth);
+            }
+            else
+            {
+                currentHealthShown = Mathf.Clamp(currentHealthShown - speedApplyDamage * Time.deltaTime, currentHealthTarget, maxHealth);
+            }
         }
 
         if (IsCritical() && blinkCoroutine == null)
@@ -175,20 +184,23 @@ public class HealthBarBehaviour : MonoBehaviour
     /// </summary>
     /// <param name="amount"></param>
     /// <param name="cancelDamage"></param>
-    public void IncreaseHealth(float amount)
+    public void IncreaseHealth(float amount, bool cancelDamage)
     {
-        if (amount > 0)
+        if (amount > 0 && cancelDamage)
         {
             // Just in case Frog was about to die but it found a health pick-up
             preventHealthRecovery = false;
+            currentHealthTarget = Mathf.Clamp(amount, 0, maxHealth); ;
         }
-
-        // Compute new health target from target health
-        currentHealthTarget = Mathf.Clamp(currentHealthTarget + amount, -10, maxHealth);
+        else
+        {
+            // Compute new health target from target health
+            currentHealthTarget = Mathf.Clamp(currentHealthTarget + amount, float.MinValue, maxHealth);
+        }
 
         if (verbose == VerboseLevel.MAXIMAL)
         {
-            Debug.Log($"IncreaseHealth +{amount}. currentHealthTarget = {currentHealthTarget}");
+            Debug.Log($"IncreaseHealth +{amount}, cancel damage: {cancelDamage}. currentHealthTarget = {currentHealthTarget}");
         }
     }
 
@@ -204,9 +216,9 @@ public class HealthBarBehaviour : MonoBehaviour
         }
 
         // Compute new health target
-        currentHealthTarget = Mathf.Clamp(currentHealthTarget - amount, -10, maxHealth);
+        currentHealthTarget = Mathf.Clamp(currentHealthTarget - amount, float.MinValue, maxHealth);
 
-        if (currentHealthTarget == -10)
+        if (currentHealthTarget <= -10)
         {
             // Game over incoming
             preventHealthRecovery = true;

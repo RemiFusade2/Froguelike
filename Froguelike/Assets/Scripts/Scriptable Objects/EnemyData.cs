@@ -46,6 +46,8 @@ public class EnemyData : ScriptableObject
     public float moveSpeed = 1;
     [Tooltip("How much damage/s this enemy inflicts when touching the frog")]
     public float damage = 10;
+    [Tooltip("How much of the knockback effect is ignored by this enemy")]
+    public float knockbackResistance = 0;
 
     [Header("Enemy settings - visuals")]
     [Tooltip("Thickness of the outline by default")]

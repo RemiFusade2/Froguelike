@@ -737,7 +737,7 @@ public class FrogCharacterController : MonoBehaviour
 
         RunManager.instance.IncreaseXP(consumableData.effect.xpBonus);
 
-        Heal(consumableData.effect.healthBonus);
+        Heal(consumableData.effect.healthBonus, cancelDamage: true);
     }
 
     public void ResolvePickedStatItemLevel(RunStatItemLevel itemLevelData)
@@ -933,17 +933,19 @@ public class FrogCharacterController : MonoBehaviour
         {
             // This enemy can inflict damage now
             enemy.lastDamageInflictedTime = Time.time;
-            EnemyData enemyData = EnemiesManager.instance.GetEnemyDataFromGameObjectName(collider.gameObject.name, out BountyBug bountyBug);
-            if (enemyData == null && enemy != null && enemy.enemyInfo != null)
+            EnemyData enemyData = null;
+
+            BountyBug bountyBug = null;
+            if (enemy != null && enemy.enemyInfo != null)
             {
                 enemyData = enemy.enemyInfo.enemyData;
             }
-
-            float damageFactor = 1;
-            if (bountyBug != null)
+            if (enemyData == null)
             {
-                damageFactor = bountyBug.damageMultiplier;
+                enemyData = EnemiesManager.instance.GetEnemyDataFromGameObjectName(collider.gameObject.name, out bountyBug);
             }
+
+            float damageFactor = enemy.damageMultiplier;
 
             // Compute actual damage
             float damage = 1;
@@ -956,7 +958,7 @@ public class FrogCharacterController : MonoBehaviour
                 }
             }
 
-            ChangeHealth(-damage);
+            ChangeHealth(-damage, false);
         }
     }
 
@@ -987,9 +989,9 @@ public class FrogCharacterController : MonoBehaviour
         }
     }
 
-    public void Heal(float healAmount)
+    public void Heal(float healAmount, bool cancelDamage)
     {
-        ChangeHealth((healAmount > 0) ? healAmount : 0);
+        ChangeHealth((healAmount > 0) ? healAmount : 0, cancelDamage);
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
             Debug.Log("Player - Healing: +" + healAmount + "HP.");
@@ -1026,7 +1028,7 @@ public class FrogCharacterController : MonoBehaviour
         DamageTookEndOfEffectCoroutine = StartCoroutine(TakingDamageEndOfEffectAsync(0.7f));
     }
 
-    private void ChangeHealth(float change)
+    private void ChangeHealth(float change, bool cancelDamage)
     {
         if (change < 0)
         {
@@ -1037,7 +1039,7 @@ public class FrogCharacterController : MonoBehaviour
         else if (change > 0)
         {
             // Heal
-            healthBar.IncreaseHealth(change);
+            healthBar.IncreaseHealth(change, cancelDamage);
         }
     }
 
@@ -1202,7 +1204,7 @@ public class FrogCharacterController : MonoBehaviour
             if (rewiredPlayer.GetButtonDown(cheat_inRun_fullHeal))
             {
                 // Full Heal
-                Heal(100000);
+                Heal(100000, cancelDamage: true);
             }
             if (rewiredPlayer.GetButtonDown(cheat_inRun_speedUp))
             {

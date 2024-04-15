@@ -1283,7 +1283,7 @@ public class WeaponBehaviour : MonoBehaviour
             if (vampireEffect)
             {
                 float healAmount = actualDamage * healthAbsorbRatio;
-                GameManager.instance.player.Heal(healAmount);
+                GameManager.instance.player.Heal(healAmount, cancelDamage: false);
             }
 
             float actualStatusDuration = duration * (1 + GameManager.instance.player.GetAttackDurationBoost());

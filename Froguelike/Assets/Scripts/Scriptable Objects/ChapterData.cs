@@ -251,10 +251,20 @@ public class BountyBug
     [Tooltip("HP Max of bug would be multiplied by this value instead of the default")]
     public float healthMultiplier = 0;
     [Space]
+    [Tooltip("Override the Damage factor of that bounty?")]
+    public bool overrideDamageMultiplier = false;
     [Tooltip("Damage of bug is multiplied by this value")]
-    public float damageMultiplier;
+    public float damageMultiplier = 0;
+    [Space]
+    [Tooltip("Override the XP factor of that bounty?")]
+    public bool overrideXpMultiplier = false;
     [Tooltip("XP given by this bug is multiplied by this value")]
-    public float xpMultiplier;
+    public float xpMultiplier = 0;
+    [Space]
+    [Tooltip("Override the Knockback Resistance of that bounty?")]
+    public bool overrideKnockbackResistance = false;
+    [Tooltip("Knockback resistance of this bug is multiplied by this value")]
+    public float knockbackResistance = 0;
 
     [Header("Movement")]
     [Tooltip("Which movement pattern this enemy will follow")]
@@ -264,15 +274,29 @@ public class BountyBug
     [Tooltip("A list of collectibles + amount that serve as a bounty")]
     public List<Bounty> bountyList;
 
-    public BountyBug(EnemyType enemyType, bool overrideHealthMultiplier, float healthMultiplier, float damageMultiplier, float xpMultiplier, EnemyMovePattern movePattern)
+    public BountyBug(EnemyType enemyType, 
+        bool overrideHealthMultiplier, float healthMultiplier, 
+        bool overrideDamageMultiplier, float damageMultiplier, 
+        bool overrideXpMultiplier, float xpMultiplier, 
+        bool overrideKnockbackResistance, float knockbackResistance,
+        EnemyMovePattern movePattern)
     {
         this.spawnTime = 0;
         this.enemyType = enemyType;
         this.tierFormula = "";
+
         this.overrideHealthMultiplier = overrideHealthMultiplier;
         this.healthMultiplier = healthMultiplier;
+
+        this.overrideDamageMultiplier = overrideDamageMultiplier;
         this.damageMultiplier = damageMultiplier;
+
+        this.overrideXpMultiplier = overrideXpMultiplier;
         this.xpMultiplier = xpMultiplier;
+
+        this.overrideKnockbackResistance = overrideKnockbackResistance;
+        this.knockbackResistance = knockbackResistance;
+
         this.movePattern = movePattern;
         this.bountyList = new List<Bounty>();
     }
@@ -311,6 +335,10 @@ public class ChapterData : ScriptableObject
     [Header("Chapter settings - Length")]
     [Tooltip("The length of this chapter")]
     public float chapterLengthInSeconds = 300; // default is 5mn
+
+    [Header("Chapter settings - Special")]
+    [Tooltip("The duration multiplier of freeze effects in that chapter")]
+    public float freezeDurationMultiplier = 1;
 
     [Header("Chapter settings - Conditions of appearance")]
     [Tooltip("Is this chapter available from the start or should it be unlocked later")]

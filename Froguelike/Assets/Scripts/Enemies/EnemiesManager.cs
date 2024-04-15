@@ -80,6 +80,8 @@ public class EnemyTypeData
 [System.Serializable]
 public class EnemyInstance
 {
+    public static float knockbackMass = 100;
+
     // Keyword that is used to find the EnemyData
     public string enemyName;
     public int enemyID;
@@ -98,6 +100,9 @@ public class EnemyInstance
     public Vector2 moveDirection;
     public float lastUpdateTime;
     public float mass; // mass will change during knockback, freeze and curse and must be restored afterwards
+    public float damageMultiplier;
+    public float xpMultiplier;
+    public float knockbackResistance;
 
     public float lastChangeOfDirectionTime; // for directionless enemies
     public int bounceCount; // for enemies that bounce on screen edges
@@ -150,6 +155,10 @@ public class EnemyInstance
 
         active = false;
         alive = false;
+
+        damageMultiplier = 1;
+        xpMultiplier = 1;
+        knockbackResistance = 0;
 
         enemyTransform = enemyGameObject.transform;
         enemyRenderer = enemyGameObject.GetComponent<SpriteRenderer>();
@@ -222,14 +231,14 @@ public class EnemyInstance
 
     public void Knockback(Vector2 direction, float strength, float duration)
     {
-        enemyRigidbody.mass = 1000;
+        enemyRigidbody.mass = knockbackMass;
         enemyRigidbody.velocity = direction * strength;
         knockbackCooldown = duration;
     }
 
     public void StopKnockback()
     {
-        if (enemyRigidbody.mass == 1000)
+        if (enemyRigidbody.mass == knockbackMass)
         {
             enemyRigidbody.mass = mass;
         }
@@ -328,6 +337,8 @@ public class EnemiesManager : MonoBehaviour
     [Header("Settings - Bounties")]
     public float bountyDefaultHealthMultiplier = 50;
     public float bountyDefaultDamageMultiplier = 2;
+    public float bountyDefaultXPMultiplier = 20;
+    public float bountyDefaultKnockbackResistance = 0;
     [Space]
     public int bountyOutlineThickness = 1;
     public List<Color> bountyOutlineColorsList;
@@ -748,7 +759,7 @@ public class EnemiesManager : MonoBehaviour
         enemyInstance.neverDespawn = neverDespawn;
 
         // Set bounty
-        SetBountyToEnemy(enemyInstance, bounty); // This will set HP Max
+        SetBountyToEnemy(enemyInstance, bounty); // This will set HP Max, multipliers and bonuses
 
         // Set current HP to HPMax
         enemyInstance.HP = enemyInstance.HPMax;
@@ -891,10 +902,17 @@ public class EnemiesManager : MonoBehaviour
 
     private void SetBountyToEnemy(EnemyInstance enemyInstance, BountyBug bounty = null)
     {
+        // Set bounty (or absence of bounty)
+        enemyInstance.bountyBug = bounty;
+
         // Bounty multipliers
         float hpMultiplier = 1;
+        float damageMultiplier = 1;
+        float xpMultiplier = 1;
+        float knockbackResistance = 0;
         if (bounty != null)
         {
+            // HP Multiplier
             if (bounty.overrideHealthMultiplier)
             {
                 hpMultiplier = bounty.healthMultiplier;
@@ -903,13 +921,43 @@ public class EnemiesManager : MonoBehaviour
             {
                 hpMultiplier = bountyDefaultHealthMultiplier;
             }
+
+            // Damage multiplier
+            if (bounty.overrideDamageMultiplier)
+            {
+                damageMultiplier = bounty.damageMultiplier;
+            }
+            else
+            {
+                damageMultiplier = bountyDefaultDamageMultiplier;
+            }
+
+            // XP Multiplier
+            if (bounty.overrideXpMultiplier)
+            {
+                xpMultiplier = bounty.xpMultiplier;
+            }
+            else
+            {
+                xpMultiplier = bountyDefaultXPMultiplier;
+            }
+
+            // Knockback resistance
+            if (bounty.overrideKnockbackResistance)
+            {
+                knockbackResistance = bounty.knockbackResistance;
+            }
+            else
+            {
+                knockbackResistance = bountyDefaultKnockbackResistance;
+            }
         }
 
-        // Set bounty (or absence of bounty)
-        enemyInstance.bountyBug = bounty;
-
-        // Set HP Max (not affected by the figurine curse anymore)
+        // Set HP Max
         enemyInstance.HPMax = (enemyInstance.enemyInfo.enemyData.maxHP * hpMultiplier);
+        enemyInstance.damageMultiplier = damageMultiplier;
+        enemyInstance.xpMultiplier = xpMultiplier;
+        enemyInstance.knockbackResistance = knockbackResistance;
     }
 
     public void AddEnemy(EnemyInstance newEnemy, EnemyData enemyData, EnemyMovePattern movePattern)
@@ -941,6 +989,11 @@ public class EnemiesManager : MonoBehaviour
 
         // setup enemy - data
         newEnemy.enemyInfo.enemyData = enemyData;
+
+        /*
+        newEnemy.xpMultiplier = 1;
+        newEnemy.damageMultiplier = 1;
+        newEnemy.knockbackResistance = enemyData.knockbackResistance;*/
 
         // add enemy to update queue
         enemiesToUpdateQueue.Enqueue(newEnemy);
@@ -1118,7 +1171,13 @@ public class EnemiesManager : MonoBehaviour
                 float knockbackStrengthMassRatio = Mathf.Clamp(enemy.enemyRigidbody.mass / 8, 1, 20);
                 float knockbackForce = weapon.GetComponent<WeaponBehaviour>().knockbackForce / knockbackStrengthMassRatio;
 
-                enemy.Knockback(knockbackDirection, knockbackForce, knockbackDuration);
+                // knockback resistance from enemy
+                knockbackForce = Mathf.Clamp(knockbackForce - enemy.knockbackResistance, 0, 100);
+
+                if (knockbackForce > 0)
+                {
+                    enemy.Knockback(knockbackDirection, knockbackForce, knockbackDuration);
+                }
                 knockback = true;
             }
         }
@@ -1523,6 +1582,10 @@ public class EnemiesManager : MonoBehaviour
         enemy.enemyAnimator.enabled = false;
         enemy.enemyCollider.enabled = false;
         enemy.bountyBug = null;
+
+        enemy.xpMultiplier = 1;
+        enemy.damageMultiplier = 1;
+        enemy.knockbackResistance = 0;
     }
 
     public void AddPoisonDamageToEnemy(string enemyGoName, float poisonDamage, float poisonDuration)
@@ -1555,7 +1618,10 @@ public class EnemiesManager : MonoBehaviour
 
     public void ApplyFreezeEffect(EnemyInstance enemy, float duration)
     {
-        enemy.freezeRemainingTime = duration;
+        // SPECIAL CASE: CURRENT PLAYED CHAPTER MAY HAVE A FREEZE DURATION MULTIPLIER
+        float realDuration = duration * RunManager.instance.currentChapter.chapterData.freezeDurationMultiplier;
+
+        enemy.freezeRemainingTime = realDuration;
         SetOverlayColor(enemy, frozenOverlayColor, 0.3f);
         UpdateStatusParticles(enemy);
     }
@@ -1661,7 +1727,7 @@ public class EnemiesManager : MonoBehaviour
             if (deltaTier < 0)
             {
                 // Leveling down: the bounty is removed but the enemy keeps the same tier
-                SetBountyToEnemy(enemyInstance, null); // This will set new HP Max
+                SetBountyToEnemy(enemyInstance, null); // This will set new HP Max, mutipliers and bonuses
                 enemyInstance.HP = enemyInstance.HPMax;
                 enemyInstance.RemoveOutline();
             }
@@ -1696,8 +1762,10 @@ public class EnemiesManager : MonoBehaviour
             {
                 // New tier is above 5, which means we replace the previous enemy by an enemy of the same tier with a bounty
                 BountyBug bountyBug = new BountyBug(originEnemyData.enemyType,
-                    overrideHealthMultiplier: false, healthMultiplier: bountyDefaultHealthMultiplier,
-                    bountyDefaultDamageMultiplier, 20, enemyMovePattern);
+                    overrideHealthMultiplier: false, healthMultiplier: 0,
+                    overrideDamageMultiplier: false, damageMultiplier: 0,
+                    overrideXpMultiplier: false, xpMultiplier: 0,
+                    overrideKnockbackResistance: false, knockbackResistance: 0, movePattern: enemyMovePattern);
                 bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.FROINS, amount = 20, value = 1 });
                 bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.FROINS, amount = 20, value = 5 });
                 bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.FROINS, amount = 10, value = 10 });
@@ -1890,12 +1958,9 @@ public class EnemiesManager : MonoBehaviour
             // Spawn XP
             Vector3 xpSpawnPosition = enemyInstance.enemyTransform.position - 0.1f * Vector3.up;
             float XPEarned = enemyInstance.enemyInfo.enemyData.xPBonus;
-            if (enemyInstance.bountyBug != null)
-            {
-                XPEarned *= enemyInstance.bountyBug.xpMultiplier;
-            }
+            float RealXPEarner = XPEarned * enemyInstance.xpMultiplier;
 
-            float xpCounter = XPEarned;
+            float xpCounter = RealXPEarner;
             Vector2 randomPointInCircle = Vector2.zero;
             do
             {

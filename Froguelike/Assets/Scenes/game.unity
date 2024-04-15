@@ -7706,7 +7706,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e808e90f5c8a724b8fa58e183c163b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  versionNumber: 0.1.13
+  versionNumber: 0.1.14
   showEADisclaimer: 1
   availablePowerUpsInEA: 255
   demoBuild: 0
@@ -13278,7 +13278,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 111, y: -280}
+  m_AnchoredPosition: {x: 111, y: -278}
   m_SizeDelta: {x: 98, y: 11}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &297745062
@@ -14087,6 +14087,8 @@ MonoBehaviour:
   knockbackDuration: 0.2
   bountyDefaultHealthMultiplier: 50
   bountyDefaultDamageMultiplier: 2
+  bountyDefaultXPMultiplier: 20
+  bountyDefaultKnockbackResistance: 0
   bountyOutlineThickness: 1
   bountyOutlineColorsList:
   - {r: 0.98823535, g: 0.9960785, b: 0.9960785, a: 1}
@@ -32543,6 +32545,9 @@ MonoBehaviour:
   - Playing through a storyline may unlock more content.
   - A star on a chapter shows that it has been completed, as well as everything that
     it leads to.
+  - Not all stories have 5 chapters, so if necessary read a unrelated chapter in
+    between.
+  - Not all chapters are part of a storyline.
   scoreLines:
   - {fileID: 1030929191}
   - {fileID: 1501611019}
@@ -67633,10 +67638,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2009587073}
     m_Modifications:
-    - target: {fileID: 4066290429992498278, guid: ddbad148ac7bcd64292526d7cb8fc23e, type: 3}
-      propertyPath: m_SortingOrder
-      value: 502
-      objectReference: {fileID: 0}
     - target: {fileID: 4066290430001570300, guid: ddbad148ac7bcd64292526d7cb8fc23e, type: 3}
       propertyPath: m_Name
       value: Health Bar
@@ -67684,26 +67685,6 @@ PrefabInstance:
     - target: {fileID: 4066290430001570301, guid: ddbad148ac7bcd64292526d7cb8fc23e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4066290430001570306, guid: ddbad148ac7bcd64292526d7cb8fc23e, type: 3}
-      propertyPath: healthRecoveryDelay
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4066290430350225223, guid: ddbad148ac7bcd64292526d7cb8fc23e, type: 3}
-      propertyPath: m_SortingOrder
-      value: 505
-      objectReference: {fileID: 0}
-    - target: {fileID: 4066290430646705777, guid: ddbad148ac7bcd64292526d7cb8fc23e, type: 3}
-      propertyPath: m_SortingOrder
-      value: 501
-      objectReference: {fileID: 0}
-    - target: {fileID: 4066290430988842042, guid: ddbad148ac7bcd64292526d7cb8fc23e, type: 3}
-      propertyPath: m_SortingOrder
-      value: 500
-      objectReference: {fileID: 0}
-    - target: {fileID: 4066290431285782294, guid: ddbad148ac7bcd64292526d7cb8fc23e, type: 3}
-      propertyPath: m_SortingOrder
-      value: 502
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ddbad148ac7bcd64292526d7cb8fc23e, type: 3}
@@ -91753,6 +91734,28 @@ PrefabInstance:
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 464157710}
+    - target: {fileID: 8169088287452685597, guid: 85eb176d0e0614fcab7614d8383a7c38, type: 3}
+      propertyPath: m_text
+      value: '1
+
+        2
+
+        3
+
+        4
+
+        5
+
+        6
+
+        7
+
+        8
+
+        9
+
+        10'
+      objectReference: {fileID: 0}
     - target: {fileID: 8811370891206057010, guid: 85eb176d0e0614fcab7614d8383a7c38, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
