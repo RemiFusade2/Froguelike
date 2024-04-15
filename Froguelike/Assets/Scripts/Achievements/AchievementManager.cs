@@ -28,7 +28,7 @@ public class Achievement
     public string achievementID;
 
     public bool unlocked;
-    
+
     public override bool Equals(object obj)
     {
         bool equal = false;
@@ -135,7 +135,7 @@ public class AchievementManager : MonoBehaviour
     public Transform achievementScrollEntriesParent;
     public ScrollbarKeepCursorSizeBehaviour achievementsScrollbar;
     [Space]
-    public GameObject achievementEntryPrefab;        
+    public GameObject achievementEntryPrefab;
 
     [Header("Runtime")]
     public AchievementsSaveData achievementsData; // Load from save file
@@ -152,7 +152,7 @@ public class AchievementManager : MonoBehaviour
             Destroy(this.gameObject);
         }
     }
-    
+
     public bool IsAchievementsListUnlocked()
     {
         return achievementsData.achievementsListUnlocked;
@@ -323,7 +323,7 @@ public class AchievementManager : MonoBehaviour
         // Gather useful data about the current Run
         bool runIsWon = RunManager.instance.IsCurrentRunWon();
         int level = RunManager.instance.level;
-        List <RunItemInfo> allOwnedItems = RunManager.instance.ownedItems;
+        List<RunItemInfo> allOwnedItems = RunManager.instance.ownedItems;
         PlayableCharacter playedCharacter = RunManager.instance.currentPlayedCharacter;
         int chapterCount = RunManager.instance.GetChapterCount();
         List<Chapter> completedChapters = RunManager.instance.completedChaptersList;
@@ -372,7 +372,7 @@ public class AchievementManager : MonoBehaviour
                             }
                             break;
                         case AchievementConditionType.SPECIAL:
-                            switch(condition.specialKey)
+                            switch (condition.specialKey)
                             {
                                 case AchievementConditionSpecialKey.GET_100_FROINS:
                                     conditionsAreMet &= (GameManager.instance.gameData.availableCurrency >= 100);
@@ -409,7 +409,7 @@ public class AchievementManager : MonoBehaviour
                                     {
                                         metaAchievements.Add(achievement);
                                     }
-                                    conditionsAreMet &= (ChapterManager.instance.GetUnlockedChaptersCount() >= 10);                                    
+                                    conditionsAreMet &= (ChapterManager.instance.GetUnlockedChaptersCount() >= 10);
                                     break;
                                 case AchievementConditionSpecialKey.UNLOCK_5_CHAPTERS:
                                     if (!metaAchievements.Contains(achievement))
@@ -417,6 +417,10 @@ public class AchievementManager : MonoBehaviour
                                         metaAchievements.Add(achievement);
                                     }
                                     conditionsAreMet &= (ChapterManager.instance.GetUnlockedChaptersCount() >= 5);
+                                    break;
+                                case AchievementConditionSpecialKey.DIE_IN_TOADS_END_CHAPTER:
+                                    Chapter lastChapter = RunManager.instance.currentChapter;
+                                    conditionsAreMet &= (lastChapter?.chapterID == ChapterManager.instance.toadEndChapterForSpecialStuff.chapterID);
                                     break;
                             }
                             break;
@@ -621,7 +625,7 @@ public class AchievementManager : MonoBehaviour
         firstAchievementsIDList.Add("ACH_SPECIAL_CONDITION_COMPLETE_1_ACHIEVEMENT_UNLOCK_FEATURE_ACHIEVEMENT_LIST");
 
         List<Achievement> result = achievements.OrderBy(x => x.achievementID).OrderBy(x => (firstAchievementsIDList.Contains(x.achievementID) ? firstAchievementsIDList.IndexOf(x.achievementID) : firstAchievementsIDList.Count)).OrderBy(x => (x.achievementData.isSecret && !x.unlocked)).OrderByDescending(x => IsAchievementAvailable(x)).OrderBy(x => IsAchievementLockedBehindDemo(x)).ToList();
-                
+
         return result;
     }
 
@@ -764,13 +768,13 @@ public class AchievementManager : MonoBehaviour
                         case AchievementConditionType.RUNITEM:
                             foreach (FixedCollectible collectible in chapter.chapterData.specialCollectiblesOnTheMap)
                             {
-                                if (collectible.collectibleType == FixedCollectibleType.STATS_ITEM 
+                                if (collectible.collectibleType == FixedCollectibleType.STATS_ITEM
                                     && condition.runItem.itemName.Equals(collectible.collectibleStatItemData.itemName))
                                 {
                                     achievementFound = true; // There's an item in this chapter that is a achievementCondition to unlock this achievement
                                     break;
                                 }
-                            }                            
+                            }
                             break;
                     }
                     if (achievementFound)
@@ -816,13 +820,14 @@ public class AchievementManager : MonoBehaviour
             && x.achievementData.reward.rewardType == AchievementRewardType.FEATURE // only achievements that unlock a new "feature"
             && (x.achievementData.reward.featureID == RewardFeatureType.GHOST_BUFF ||
                 x.achievementData.reward.featureID == RewardFeatureType.RIBBIT_BUFF ||
-                x.achievementData.reward.featureID == RewardFeatureType.STANLEY_BUFF) // only if "feature" is a stat boost for a frog
+                x.achievementData.reward.featureID == RewardFeatureType.STANLEY_BUFF ||
+                x.achievementData.reward.featureID == RewardFeatureType.TOAD_BUFF) // only if "feature" is a stat boost for a frog
             ).ToList();
 
         foreach (Achievement achievement in unlockedStatIncrementAchievementsList)
         {
             PlayableCharacter playableFrog = null;
-            switch(achievement.achievementData.reward.featureID)
+            switch (achievement.achievementData.reward.featureID)
             {
                 case RewardFeatureType.GHOST_BUFF:
                     playableFrog = CharacterManager.instance.charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals("GHOST"));
@@ -832,6 +837,9 @@ public class AchievementManager : MonoBehaviour
                     break;
                 case RewardFeatureType.STANLEY_BUFF:
                     playableFrog = CharacterManager.instance.charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals("STANLEY"));
+                    break;
+                case RewardFeatureType.TOAD_BUFF:
+                    playableFrog = CharacterManager.instance.charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals("TOAD"));
                     break;
                 default:
                     break;

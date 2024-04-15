@@ -582,7 +582,7 @@ public class EnemiesManager : MonoBehaviour
 
                 // Get random spawn position, around and in front of frog
                 GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out Vector3 spawnPosition);
-                
+
                 // Get EnemyData & prefab according to relevant difficulty tier
                 int difficultyTier = GetTierFromFormulaAndChapterCount(bountyBug.tierFormula, RunManager.instance.GetChapterCount());
                 EnemyData enemyData = GetEnemyDataFromTypeAndDifficultyTier(bountyBug.enemyType, difficultyTier);
@@ -591,7 +591,7 @@ public class EnemiesManager : MonoBehaviour
                 // Spawn bug using info we have
                 Vector3 positionRelativeToFrog = (spawnPosition - GameManager.instance.player.transform.position) + Random.Range(-1.0f, 1.0f) * Vector3.right + Random.Range(-1.0f, 1.0f) * Vector3.up;
                 StartCoroutine(SpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, bountyBug.movePattern, originWave: null, delay: 0, difficultyTier: difficultyTier, neverDespawn: true, bounty: bountyBug));
-                
+
             }
         }
     }
@@ -793,7 +793,7 @@ public class EnemiesManager : MonoBehaviour
 
             Vector3 position = GameManager.instance.player.transform.position + positionRelativeToFrog;
             enemyFromPool.enemyTransform.position = position;
-            enemyFromPool.enemyTransform.rotation = Quaternion.Euler(0, 0, Random.Range(0,4) * 90); // Set random orientation (so static plants don't always face the same way)
+            enemyFromPool.enemyTransform.rotation = Quaternion.Euler(0, 0, Random.Range(0, 4) * 90); // Set random orientation (so static plants don't always face the same way)
 
             if (verbose == VerboseLevel.MAXIMAL)
             {
@@ -816,7 +816,8 @@ public class EnemiesManager : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             // Pick random type of bug
-            do {
+            do
+            {
                 randomEnemyType = (EnemyType)(Random.Range(0, 6));
             } while (randomEnemyType == EnemyType.PLANT);
             if (tier <= 0)
@@ -1056,7 +1057,7 @@ public class EnemiesManager : MonoBehaviour
             damageTMPScript.fontSize = fontSize;
 
             int sortedOrderLayer = Random.Range(100, 200);
-            damageTMPScript.sortingOrder = sortedOrderLayer+1;
+            damageTMPScript.sortingOrder = sortedOrderLayer + 1;
 
             // Todo: implement a proper outline for damage text and remove this shit
             foreach (Transform child in damageText.transform)
@@ -1092,7 +1093,7 @@ public class EnemiesManager : MonoBehaviour
             {
                 enemyMaxHP *= bountyDefaultHealthMultiplier;
             }*/
-            
+
             int outlineColorIndex = Mathf.FloorToInt(((enemy.HPMax - enemy.HP) / enemy.HPMax) * bountyOutlineColorsList.Count);
             outlineColorIndex = Mathf.Clamp(outlineColorIndex, 0, bountyOutlineColorsList.Count - 1);
             Color bountyOutlineColor = bountyOutlineColorsList[outlineColorIndex];
@@ -1114,7 +1115,7 @@ public class EnemiesManager : MonoBehaviour
             if (!enemyDied && enemy.knockbackCooldown <= 0)
             {
                 Vector2 knockbackDirection = (enemy.enemyTransform.position - weapon.position).normalized;
-                float knockbackStrengthMassRatio = Mathf.Clamp(enemy.enemyRigidbody.mass/8, 1, 20);
+                float knockbackStrengthMassRatio = Mathf.Clamp(enemy.enemyRigidbody.mass / 8, 1, 20);
                 float knockbackForce = weapon.GetComponent<WeaponBehaviour>().knockbackForce / knockbackStrengthMassRatio;
 
                 enemy.Knockback(knockbackDirection, knockbackForce, knockbackDuration);
@@ -1216,7 +1217,7 @@ public class EnemiesManager : MonoBehaviour
             int enemiesToUpdateCount = Mathf.Min(maxEnemiesToUpdateCount, enemiesToUpdateQueue.Count);
             for (int i = 0; i < enemiesToUpdateCount; i++)
             {
-                EnemyInstance enemy = enemiesToUpdateQueue.Dequeue();                
+                EnemyInstance enemy = enemiesToUpdateQueue.Dequeue();
                 if (enemy.active)
                 {
                     EnemyData enemyData = enemiesDataFromNameDico[enemy.enemyName];
@@ -1303,7 +1304,7 @@ public class EnemiesManager : MonoBehaviour
                                 }
 
                                 // Make sure its direction is reset
-                                switch(enemy.movePattern.movePatternType)
+                                switch (enemy.movePattern.movePatternType)
                                 {
                                     case EnemyMovePatternType.STRAIGHT_LINE:
                                         enemy.moveDirection = (playerTransform.position - enemy.enemyTransform.position).normalized;
@@ -1346,7 +1347,7 @@ public class EnemiesManager : MonoBehaviour
                             else
                             {
                                 // Knockback effect is over
-                                enemy.StopKnockback(); 
+                                enemy.StopKnockback();
                                 enemy.knockbackCooldown = 0;
 
                                 // Freeze and Curse remaining time decreases
@@ -1785,7 +1786,7 @@ public class EnemiesManager : MonoBehaviour
         if (enemyInstance.enemyFreezeParticles != null)
         {
             if (applyGlobalFreeze || enemyInstance.freezeRemainingTime > 0)
-            {   
+            {
                 if (!enemyInstance.enemyFreezeParticles.isPlaying)
                 {
                     enemyInstance.enemyFreezeParticles.Play();
@@ -1873,6 +1874,8 @@ public class EnemiesManager : MonoBehaviour
 
                 // Play SFX
                 SoundManager.instance.PlayEatBountySound();
+                // Increase bounty eaten count by 1 for that chapter.
+                RunManager.instance.IncreaseBountyEatCount(1);
             }
         }
 
@@ -1911,7 +1914,8 @@ public class EnemiesManager : MonoBehaviour
             if (spawnFroinsRoll <= probabilityToSpawn1BigFroin)
             {
                 valueOfFroinSpawned = 5;
-            } else if (spawnFroinsRoll <= probabilityToSpawn1SmolFroin)
+            }
+            else if (spawnFroinsRoll <= probabilityToSpawn1SmolFroin)
             {
                 valueOfFroinSpawned = 1;
             }
@@ -1925,7 +1929,7 @@ public class EnemiesManager : MonoBehaviour
             PutEnemyInThePool(enemyInstance);
             allActiveEnemiesDico.Remove(enemyInstance.enemyID);
         }
-        
+
     }
 
     public void SetEnemyDead(string enemyGameObjectName)

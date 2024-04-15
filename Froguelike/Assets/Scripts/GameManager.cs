@@ -140,7 +140,7 @@ public class GameManager : MonoBehaviour
             bool fileLoaded = SaveDataManager.instance.Load();
 
             // Create a copy of the existing save file if it doesn't already exist
-            SaveDataManager.instance.CreateBackupIfNeeded(somethingWentWrong:!fileLoaded);
+            SaveDataManager.instance.CreateBackupIfNeeded(somethingWentWrong: !fileLoaded);
 
             if (fileLoaded)
             {
@@ -231,6 +231,9 @@ public class GameManager : MonoBehaviour
                 break;
             case RewardFeatureType.STANLEY_BUFF:
                 CharacterManager.instance.IncrementCharacterStats("STANLEY", new List<StatValue>() { new StatValue(CharacterStat.REVIVAL, 8) });
+                break;
+            case RewardFeatureType.TOAD_BUFF:
+                CharacterManager.instance.IncrementCharacterStats("TOAD", new List<StatValue>() { new StatValue(CharacterStat.ARMOR, 2) }); // TODO decide on amount.
                 break;
         }
     }
@@ -379,7 +382,7 @@ public class GameManager : MonoBehaviour
             // Confirmation for clearing save file is visible, we cancel it
             UIManager.instance.ShowClearSaveFileConfirmationPanel(false);
         }
-        else if(UIManager.instance.IsBackToTitleScreenConfirmationPanelActive())
+        else if (UIManager.instance.IsBackToTitleScreenConfirmationPanelActive())
         {
             // Confirmation for ending run is visible, we cancel it
             UIManager.instance.ShowBackToTitleScreenConfirmationPanel(false);
@@ -417,7 +420,7 @@ public class GameManager : MonoBehaviour
         else if (UIManager.instance.IsChapterSelectionScreenVisible(out bool isTitleScreenVisibleToo) && isTitleScreenVisibleToo)
         {
             // Chapter selection is open, we go back to character selection if it's chapter 1 selection (otherwise we do nothing)
-            UIManager.instance.ShowCharacterSelectionScreen(false);            
+            UIManager.instance.ShowCharacterSelectionScreen(false);
         }
         else if (isGameRunning && RunManager.instance.fixedCollectibleFoundPanelIsVisible)
         {

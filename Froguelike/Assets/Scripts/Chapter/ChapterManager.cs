@@ -131,6 +131,7 @@ public class ChapterManager : MonoBehaviour
     [Header("Data - Chapters scriptable objects")]
     public List<ChapterData> chaptersScriptableObjectsList;
     public ChapterData tutorialChapterScriptableObject;
+    public ChapterData toadEndChapterForSpecialStuff;
 
     [Header("UI - Chapter Selection screen")]
     public TextMeshProUGUI chapterSelectionTopText;
@@ -286,6 +287,14 @@ public class ChapterManager : MonoBehaviour
                 }
                 */
 
+                if (currentChapter.chapterID == toadEndChapterForSpecialStuff.chapterID)
+                {
+                    if (currentChapter.attemptCountByCharacters.Count > 0)
+                    {
+                        continue;
+                    }
+                }
+
                 if (preventChaptersFromPreviousSelection && previousSelectionOfChapters.Contains(currentChapter))
                 {
                     // This chapter was already part of previous selection and we asked for a reroll, so let's ignore this one and move on
@@ -339,6 +348,19 @@ public class ChapterManager : MonoBehaviour
                             case ChapterConditionType.FRIEND_COUNT:
                                 int friendsCount = FriendsManager.instance.HasPermanentFriendsCount();
                                 conditionChunkIsValid = (friendsCount >= condition.minFriendsCount) && (condition.maxFriendsCount == 10 || friendsCount <= condition.maxFriendsCount);
+                                break;
+                            case ChapterConditionType.BOUNTIES_EATEN_IN_PREVIOUS_CHAPTER:
+                                int count = 0;
+                                try
+                                {
+                                    count = RunManager.instance.GetPreviousChapterBountyEatCount();
+                                }
+                                catch (Exception)
+                                {
+                                    Debug.Log("The chapter condition BOUNTIES_EATEN_IN_PREVIOUS_CHAPTER is set on a chapter that appeared as the first chapter, chapter ID: " + currentChapter.chapterID);
+                                    throw;
+                                }
+                                conditionChunkIsValid = (count >= condition.minBountiesEaten);
                                 break;
                         }
                         conditionChunkIsValid = condition.not ? (!conditionChunkIsValid) : (conditionChunkIsValid); // apply a NOT if needed
