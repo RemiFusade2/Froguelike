@@ -1208,6 +1208,7 @@ public class EnemiesManager : MonoBehaviour
     {
         damageText.GetComponent<MeshRenderer>().enabled = false;
         damageText.GetComponent<Rigidbody2D>().simulated = false;
+        damageText.GetComponent<ParticleSystem>().Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         damageText.transform.position = DataManager.instance.GetFarAwayPosition();
     }
 
@@ -1257,6 +1258,11 @@ public class EnemiesManager : MonoBehaviour
         if (!ignoreBounties)
         {
             spawnedBugsWithBountiesIDs.Clear();
+        }
+
+        if (verbose == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"EnemiesManager - ClearAllEnemies(): Enemies remaining = {allActiveEnemiesDico.Count}");
         }
     }
 
@@ -1825,7 +1831,12 @@ public class EnemiesManager : MonoBehaviour
         }
         float actualSpeed = enemyDataSpeed * changeSpeedFactor * enemy.movePattern.speedFactor;
         float maximumSpeed = 8;
-        actualSpeed = Mathf.Clamp(actualSpeed, 0, maximumSpeed);
+        bool clampToMaxSpeed = true;
+        if (bountyBug != null && bountyBug.ignoreMaxSpeed)
+        {
+            clampToMaxSpeed = false;
+        }
+        actualSpeed = Mathf.Clamp(actualSpeed, 0, clampToMaxSpeed ? maximumSpeed : 10000);
         enemy.enemyRigidbody.velocity = enemy.moveDirection * actualSpeed;
         enemy.enemyAnimator.SetFloat("Speed", actualSpeed);
     }

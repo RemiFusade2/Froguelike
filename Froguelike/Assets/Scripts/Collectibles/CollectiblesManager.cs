@@ -193,10 +193,7 @@ public class CollectiblesManager : MonoBehaviour
         movingCollectiblesQueue.Clear();
         foreach (CollectibleInstance collectible in allCollectibles)
         {
-            if (collectible.active)
-            {
-                PutCollectibleInThePool(collectible);
-            }
+            PutCollectibleInThePool(collectible);
         }
 
         // Clear Fixed collectibles
