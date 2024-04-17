@@ -751,7 +751,7 @@ public class EnemiesManager : MonoBehaviour
         enemyInstance.enemyRenderer.sortingOrder = prefab.GetComponent<SpriteRenderer>().sortingOrder;
         enemyInstance.enemyRenderer.sortingLayerID = prefab.GetComponent<SpriteRenderer>().sortingLayerID;
 
-        enemyInstance.enemyTransform.gameObject.layer = prefab.gameObject.layer;
+        enemyInstance.enemyTransform.gameObject.layer = bounty == null ? prefab.gameObject.layer : prefab.gameObject.layer + 1; // Bounties get put on layer + 1 to not disappear.
 
         // Then set parameters
         enemyInstance.wave = originWave;
