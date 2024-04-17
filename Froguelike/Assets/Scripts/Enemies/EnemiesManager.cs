@@ -754,9 +754,9 @@ public class EnemiesManager : MonoBehaviour
         enemyInstance.enemyRenderer.sprite = prefab.GetComponent<SpriteRenderer>().sprite;
         enemyInstance.enemyRenderer.color = prefab.GetComponent<SpriteRenderer>().color;
         enemyInstance.enemyRenderer.sortingOrder = prefab.GetComponent<SpriteRenderer>().sortingOrder;
-        enemyInstance.enemyRenderer.sortingLayerID = prefab.GetComponent<SpriteRenderer>().sortingLayerID;
+        enemyInstance.enemyRenderer.sortingOrder = bounty == null ? prefab.GetComponent<SpriteRenderer>().sortingOrder : prefab.GetComponent<SpriteRenderer>().sortingOrder + 1; // Bounties get put on layer + 1 to not be hidden under normal bugs.
 
-        enemyInstance.enemyTransform.gameObject.layer = bounty == null ? prefab.gameObject.layer : prefab.gameObject.layer + 1; // Bounties get put on layer + 1 to not disappear.
+        enemyInstance.enemyTransform.gameObject.layer = prefab.gameObject.layer;
 
         // Then set parameters
         enemyInstance.wave = originWave;
@@ -864,7 +864,7 @@ public class EnemiesManager : MonoBehaviour
     private IEnumerator SpawnEnemyAsync(GameObject prefab, Vector3 positionRelativeToFrog, EnemyData enemyData, EnemyMovePattern movePattern, WaveData originWave, float delay, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null)
     {
         yield return new WaitForSeconds(delay);
-        if ( (originWave != null && originWave.Equals(RunManager.instance.GetCurrentWave())) || (bounty != null) )
+        if ((originWave != null && originWave.Equals(RunManager.instance.GetCurrentWave())) || (bounty != null))
         {
             // Only spawn the enemy if it's part of the current wave and that wave is still active
             SpawnEnemy(prefab, positionRelativeToFrog, enemyData, movePattern, originWave, difficultyTier, neverDespawn, bounty, forceMovementDirection, moveDirection);

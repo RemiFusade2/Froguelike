@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chapterID: '[CH_STORY_TOAD_1]'
   partOfDemo: 0
-  chapterTitle: TOAD 1
+  chapterTitle: Toad's training plan - mosquitos
   chapterLore:
   - Toad was crushed, shattered and in total disbelief. He just couldn't believe
     that the flies got him like that. He knew he could do better, he just needs to
     train, to put the work in, he needs a plan. Toad stayed up all night working
-    on a plan!\n\n"I'm going to start easy and ramp up, my goal today is to train
+    on a plan!\n\n"I'm going to start easy and ramp up, my goal for today is to train
     for 3 minutes and to eat 3 of the extra strong mosquitos, let's go!"
   icons: []
   startingStatBonuses:
@@ -27,7 +27,7 @@ MonoBehaviour:
   chapterLengthInSeconds: 180
   freezeDurationMultiplier: 1
   startingUnlockState: 0
-  startingWeight: 200
+  startingWeight: 10000
   canBePlayedMultipleTimesInOneRun: 0
   conditions:
   - conditionsList:
@@ -77,45 +77,45 @@ MonoBehaviour:
   levelUpSpawnFrequency: 0
   otherCollectibleSpawnFrequenciesList:
   - Type: 11
-    Frequency: 1
+    Frequency: 2
   - Type: 10
-    Frequency: 1
+    Frequency: 2
   specialCollectiblesOnTheMap:
-  - tileCoordinates: {x: 1, y: 0}
+  - tileCoordinates: {x: 0, y: 2}
     tilePrefab: {fileID: 799068813537004447, guid: 3577fff562b74ae4cb6c4b7340b8b689, type: 3}
-    collectibleName: A froggy grail
+    collectibleName: Mighty
     collectibleDescription: 
     collectibleType: 0
-    collectibleStatItemData: {fileID: 11400000, guid: 6e96535a23ad42f47bad1b739c2e9fa3, type: 2}
+    collectibleStatItemData: {fileID: 11400000, guid: 07f49185c536d1744894b0ebdc453a06, type: 2}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
     collectibleFriendType: 0
-    foundCollectibleTitle: You find
-    acceptCollectibleStr: Take
-    refuseCollectibleStr: Leave
-    compassLevel: 2
+    foundCollectibleTitle: You feel
+    acceptCollectibleStr: Perfect
+    refuseCollectibleStr: No
+    compassLevel: 1
   environmentChange: 0
   characterStyleChange: 0
   wavesList:
   - duration: 30
     enemies:
     - enemyType: 5
-      tierFormula: 1
-      movePattern:
-        movePatternType: 1
-        speedFactor: 1
-        bouncecount: 0
-      spawnPattern:
-        spawnPatternType: 0
-        spawnPatternShape: 0
-        spawnAmount: 1
-        multipleSpawnDelay: 0
-      spawnCooldown: 0.1
-    - enemyType: 5
       tierFormula: 2
       movePattern:
+        movePatternType: 1
+        speedFactor: 3
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 2
+        spawnPatternShape: 0
+        spawnAmount: 3
+        multipleSpawnDelay: 0.2
+      spawnCooldown: 0.6
+    - enemyType: 5
+      tierFormula: 1
+      movePattern:
         movePatternType: 2
-        speedFactor: 1
+        speedFactor: 2
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 0
@@ -124,10 +124,10 @@ MonoBehaviour:
         multipleSpawnDelay: 0
       spawnCooldown: 0.4
     - enemyType: 5
-      tierFormula: 1
+      tierFormula: 2
       movePattern:
         movePatternType: 2
-        speedFactor: 1
+        speedFactor: 2
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 0
@@ -141,20 +141,20 @@ MonoBehaviour:
     - enemyType: 5
       tierFormula: 3
       movePattern:
-        movePatternType: 3
-        speedFactor: 1
+        movePatternType: 1
+        speedFactor: 4
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 0
         spawnPatternShape: 0
         spawnAmount: 1
         multipleSpawnDelay: 0
-      spawnCooldown: 0.4
+      spawnCooldown: 0.5
     - enemyType: 5
       tierFormula: 1
       movePattern:
         movePatternType: 1
-        speedFactor: 0.8
+        speedFactor: 1
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 2
@@ -173,7 +173,7 @@ MonoBehaviour:
         spawnPatternShape: 0
         spawnAmount: 1
         multipleSpawnDelay: 0
-      spawnCooldown: 0.3
+      spawnCooldown: 0.5
     previewChapters: 01000000
   - duration: 30
     enemies:
@@ -181,7 +181,7 @@ MonoBehaviour:
       tierFormula: 1
       movePattern:
         movePatternType: 1
-        speedFactor: 0.8
+        speedFactor: 4
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 0
@@ -192,7 +192,7 @@ MonoBehaviour:
     - enemyType: 5
       tierFormula: 2
       movePattern:
-        movePatternType: 2
+        movePatternType: 1
         speedFactor: 1
         bouncecount: 0
       spawnPattern:
@@ -212,22 +212,22 @@ MonoBehaviour:
         spawnPatternShape: 0
         spawnAmount: 1
         multipleSpawnDelay: 0
-      spawnCooldown: 0.5
+      spawnCooldown: 1
     previewChapters: 01000000
   - duration: 30
     enemies:
     - enemyType: 5
       tierFormula: 1
       movePattern:
-        movePatternType: 3
+        movePatternType: 2
         speedFactor: 1
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 0
         spawnPatternShape: 0
-        spawnAmount: 1
+        spawnAmount: 10
         multipleSpawnDelay: 0
-      spawnCooldown: 0.5
+      spawnCooldown: 10
     - enemyType: 5
       tierFormula: 1
       movePattern:
@@ -263,7 +263,7 @@ MonoBehaviour:
         spawnPatternShape: 0
         spawnAmount: 8
         multipleSpawnDelay: 0
-      spawnCooldown: 3
+      spawnCooldown: 5
     previewChapters: 01000000
   - duration: 60
     enemies:
@@ -274,11 +274,11 @@ MonoBehaviour:
         speedFactor: 0.8
         bouncecount: 0
       spawnPattern:
-        spawnPatternType: 0
+        spawnPatternType: 2
         spawnPatternShape: 0
-        spawnAmount: 1
+        spawnAmount: 5
         multipleSpawnDelay: 0
-      spawnCooldown: 0.2
+      spawnCooldown: 5
     - enemyType: 5
       tierFormula: 2
       movePattern:
@@ -294,7 +294,7 @@ MonoBehaviour:
     - enemyType: 5
       tierFormula: 3
       movePattern:
-        movePatternType: 2
+        movePatternType: 1
         speedFactor: 1
         bouncecount: 0
       spawnPattern:
@@ -314,7 +314,7 @@ MonoBehaviour:
         spawnPatternShape: 0
         spawnAmount: 1
         multipleSpawnDelay: 0
-      spawnCooldown: 0.2
+      spawnCooldown: 0.5
     - enemyType: 5
       tierFormula: 5
       movePattern:
@@ -329,8 +329,8 @@ MonoBehaviour:
       spawnCooldown: 5
     previewChapters: 01000000
   bountyBugs:
-  - spawnTime: 10
-    enemyType: 0
+  - spawnTime: 0
+    enemyType: 5
     tierFormula: 1
     overrideHealthMultiplier: 0
     healthMultiplier: 0
@@ -342,7 +342,7 @@ MonoBehaviour:
     knockbackResistance: 0
     movePattern:
       movePatternType: 2
-      speedFactor: 2
+      speedFactor: 1.2
       bouncecount: 0
     ignoreMaxSpeed: 0
     bountyList:
@@ -355,8 +355,8 @@ MonoBehaviour:
     - collectibleType: 0
       amount: 4
       value: 10
-  - spawnTime: 25
-    enemyType: 0
+  - spawnTime: 15
+    enemyType: 5
     tierFormula: 2
     overrideHealthMultiplier: 0
     healthMultiplier: 0
@@ -368,7 +368,7 @@ MonoBehaviour:
     knockbackResistance: 0
     movePattern:
       movePatternType: 2
-      speedFactor: 2
+      speedFactor: 1.4
       bouncecount: 0
     ignoreMaxSpeed: 0
     bountyList:
@@ -378,8 +378,8 @@ MonoBehaviour:
     - collectibleType: 1
       amount: 5
       value: 5
-  - spawnTime: 60
-    enemyType: 0
+  - spawnTime: 45
+    enemyType: 5
     tierFormula: 5
     overrideHealthMultiplier: 0
     healthMultiplier: 0
@@ -391,7 +391,7 @@ MonoBehaviour:
     knockbackResistance: 0
     movePattern:
       movePatternType: 2
-      speedFactor: 2
+      speedFactor: 1.2
       bouncecount: 0
     ignoreMaxSpeed: 0
     bountyList:
@@ -407,8 +407,8 @@ MonoBehaviour:
     - collectibleType: 3
       amount: 5
       value: 20
-  - spawnTime: 75
-    enemyType: 0
+  - spawnTime: 60
+    enemyType: 5
     tierFormula: 3
     overrideHealthMultiplier: 0
     healthMultiplier: 0
@@ -433,8 +433,8 @@ MonoBehaviour:
     - collectibleType: 3
       amount: 2
       value: 20
-  - spawnTime: 110
-    enemyType: 0
+  - spawnTime: 100
+    enemyType: 5
     tierFormula: 4
     overrideHealthMultiplier: 0
     healthMultiplier: 0
@@ -459,6 +459,4 @@ MonoBehaviour:
     - collectibleType: 1
       amount: 2
       value: 50
-  weightChanges:
-  - chapter: {fileID: 11400000, guid: 85e9e45fbbc5d7e42921fd0addf10991, type: 2}
-    weightChange: 100
+  weightChanges: []

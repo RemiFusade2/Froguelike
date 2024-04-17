@@ -29,7 +29,7 @@ MonoBehaviour:
   chapterLengthInSeconds: 300
   freezeDurationMultiplier: 0
   startingUnlockState: 1
-  startingWeight: 100
+  startingWeight: 0.5
   canBePlayedMultipleTimesInOneRun: 0
   conditions:
   - conditionsList:
@@ -59,33 +59,6 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 0
-  - conditionsList:
-    - conditionType: 7
-      not: 0
-      chapterData: {fileID: 0}
-      minChapterCount: 0
-      maxChapterCount: 0
-      environmentType: 0
-      hatType: 0
-      friendType: 0
-      itemName: {fileID: 0}
-      characterData: {fileID: 11400000, guid: 48bf8a1f6fb11cd4aba4d9e2e54c2f11, type: 2}
-      minFriendsCount: 0
-      maxFriendsCount: 0
-      minBountiesEaten: 0
-    - conditionType: 2
-      not: 0
-      chapterData: {fileID: 0}
-      minChapterCount: 1
-      maxChapterCount: 1
-      environmentType: 0
-      hatType: 0
-      friendType: 0
-      itemName: {fileID: 0}
-      characterData: {fileID: 11400000, guid: e12bbdd99d50ae74ba6dbf789aa002a8, type: 2}
-      minFriendsCount: 0
-      maxFriendsCount: 0
-      minBountiesEaten: 0
   rocksSpawnFrequency: 3
   pondsSpawnFrequency: 0
   coinsSpawnFrequency: 3
@@ -94,7 +67,33 @@ MonoBehaviour:
   otherCollectibleSpawnFrequenciesList:
   - Type: 6
     Frequency: 3
-  specialCollectiblesOnTheMap: []
+  specialCollectiblesOnTheMap:
+  - tileCoordinates: {x: 0, y: 2}
+    tilePrefab: {fileID: 2605690503437856400, guid: 0e64426fb7f518e4cb73888eba1c6545, type: 3}
+    collectibleName: Toadis
+    collectibleDescription: They are not sure you will be able to handle this.
+    collectibleType: 3
+    collectibleStatItemData: {fileID: 0}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 1
+    foundCollectibleTitle: You meet
+    acceptCollectibleStr: Hello
+    refuseCollectibleStr: Good bye
+    compassLevel: 1
+  - tileCoordinates: {x: 0, y: -2}
+    tilePrefab: {fileID: 2605690503437856400, guid: 0e64426fb7f518e4cb73888eba1c6545, type: 3}
+    collectibleName: Toada
+    collectibleDescription: She is not sure you will be able to handle this.
+    collectibleType: 3
+    collectibleStatItemData: {fileID: 0}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 1
+    foundCollectibleTitle: You meet
+    acceptCollectibleStr: Hello
+    refuseCollectibleStr: Good bye
+    compassLevel: 1
   environmentChange: 0
   characterStyleChange: 0
   wavesList:
@@ -326,69 +325,141 @@ MonoBehaviour:
   bountyBugs:
   - spawnTime: 40
     enemyType: 0
-    tierFormula: 5
+    tierFormula: 1
     overrideHealthMultiplier: 1
-    healthMultiplier: 10000
-    overrideDamageMultiplier: 1
-    damageMultiplier: 10
+    healthMultiplier: 400
+    overrideDamageMultiplier: 0
+    damageMultiplier: 0
     overrideXpMultiplier: 1
     xpMultiplier: 0
     overrideKnockbackResistance: 1
     knockbackResistance: 1000000
     movePattern:
       movePatternType: 2
-      speedFactor: 35
+      speedFactor: 2
       bouncecount: 0
-    ignoreMaxSpeed: 0
+    ignoreMaxSpeed: 1
     bountyList:
     - collectibleType: 0
-      amount: 1
-      value: 1
+      amount: 5
+      value: 5
+    - collectibleType: 1
+      amount: 5
+      value: 5
   - spawnTime: 45
     enemyType: 0
-    tierFormula: 5
+    tierFormula: 2
     overrideHealthMultiplier: 1
-    healthMultiplier: 10000
-    overrideDamageMultiplier: 1
-    damageMultiplier: 10
+    healthMultiplier: 400
+    overrideDamageMultiplier: 0
+    damageMultiplier: 0
     overrideXpMultiplier: 1
     xpMultiplier: 0
     overrideKnockbackResistance: 1
     knockbackResistance: 1000000
     movePattern:
       movePatternType: 2
-      speedFactor: 35
+      speedFactor: 3
       bouncecount: 0
-    ignoreMaxSpeed: 0
+    ignoreMaxSpeed: 1
     bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
+    - collectibleType: 1
+      amount: 10
+      value: 50
   - spawnTime: 50
     enemyType: 0
-    tierFormula: 5
+    tierFormula: 3
     overrideHealthMultiplier: 1
-    healthMultiplier: 10000
-    overrideDamageMultiplier: 1
-    damageMultiplier: 10
+    healthMultiplier: 400
+    overrideDamageMultiplier: 0
+    damageMultiplier: 0
     overrideXpMultiplier: 1
     xpMultiplier: 0
     overrideKnockbackResistance: 1
     knockbackResistance: 1000000
     movePattern:
       movePatternType: 2
-      speedFactor: 35
+      speedFactor: 3
       bouncecount: 0
-    ignoreMaxSpeed: 0
+    ignoreMaxSpeed: 1
     bountyList:
-    - collectibleType: 0
+    - collectibleType: 2
       amount: 1
       value: 1
   - spawnTime: 55
     enemyType: 0
+    tierFormula: 4
+    overrideHealthMultiplier: 1
+    healthMultiplier: 400
+    overrideDamageMultiplier: 0
+    damageMultiplier: 0
+    overrideXpMultiplier: 1
+    xpMultiplier: 0
+    overrideKnockbackResistance: 1
+    knockbackResistance: 1000000
+    movePattern:
+      movePatternType: 2
+      speedFactor: 4
+      bouncecount: 0
+    ignoreMaxSpeed: 1
+    bountyList:
+    - collectibleType: 1
+      amount: 5
+      value: 50
+    - collectibleType: 1
+      amount: 5
+      value: 25
+    - collectibleType: 1
+      amount: 10
+      value: 5
+  - spawnTime: 60
+    enemyType: 0
     tierFormula: 5
     overrideHealthMultiplier: 1
-    healthMultiplier: 10000
+    healthMultiplier: 400
+    overrideDamageMultiplier: 0
+    damageMultiplier: 0
+    overrideXpMultiplier: 1
+    xpMultiplier: 0
+    overrideKnockbackResistance: 1
+    knockbackResistance: 1000000
+    movePattern:
+      movePatternType: 2
+      speedFactor: 4
+      bouncecount: 0
+    ignoreMaxSpeed: 1
+    bountyList:
+    - collectibleType: 3
+      amount: 5
+      value: 25
+    - collectibleType: 1
+      amount: 10
+      value: 50
+  - spawnTime: 80
+    enemyType: 0
+    tierFormula: 4
+    overrideHealthMultiplier: 1
+    healthMultiplier: 600
+    overrideDamageMultiplier: 0
+    damageMultiplier: 0
+    overrideXpMultiplier: 1
+    xpMultiplier: 0
+    overrideKnockbackResistance: 1
+    knockbackResistance: 1000000
+    movePattern:
+      movePatternType: 2
+      speedFactor: 5
+      bouncecount: 0
+    ignoreMaxSpeed: 1
+    bountyList:
+    - collectibleType: 1
+      amount: 10
+      value: 50
+  - spawnTime: 120
+    enemyType: 0
+    tierFormula: 3
+    overrideHealthMultiplier: 1
+    healthMultiplier: 600
     overrideDamageMultiplier: 1
     damageMultiplier: 10
     overrideXpMultiplier: 1
@@ -397,14 +468,43 @@ MonoBehaviour:
     knockbackResistance: 1000000
     movePattern:
       movePatternType: 2
-      speedFactor: 40
+      speedFactor: 7
       bouncecount: 0
-    ignoreMaxSpeed: 0
+    ignoreMaxSpeed: 1
     bountyList:
     - collectibleType: 0
-      amount: 1
-      value: 1
-  - spawnTime: 60
+      amount: 10
+      value: 10
+    - collectibleType: 0
+      amount: 10
+      value: 5
+    - collectibleType: 1
+      amount: 10
+      value: 5
+  - spawnTime: 150
+    enemyType: 0
+    tierFormula: 4
+    overrideHealthMultiplier: 1
+    healthMultiplier: 600
+    overrideDamageMultiplier: 1
+    damageMultiplier: 10
+    overrideXpMultiplier: 1
+    xpMultiplier: 0
+    overrideKnockbackResistance: 1
+    knockbackResistance: 1000000
+    movePattern:
+      movePatternType: 2
+      speedFactor: 9
+      bouncecount: 0
+    ignoreMaxSpeed: 1
+    bountyList:
+    - collectibleType: 0
+      amount: 20
+      value: 5
+    - collectibleType: 1
+      amount: 20
+      value: 5
+  - spawnTime: 180
     enemyType: 0
     tierFormula: 5
     overrideHealthMultiplier: 1
@@ -417,14 +517,54 @@ MonoBehaviour:
     knockbackResistance: 1000000
     movePattern:
       movePatternType: 2
-      speedFactor: 40
+      speedFactor: 12
       bouncecount: 0
-    ignoreMaxSpeed: 0
+    ignoreMaxSpeed: 1
     bountyList:
     - collectibleType: 0
       amount: 1
       value: 1
-  - spawnTime: 80
+  - spawnTime: 180
+    enemyType: 0
+    tierFormula: 5
+    overrideHealthMultiplier: 1
+    healthMultiplier: 10000
+    overrideDamageMultiplier: 1
+    damageMultiplier: 10
+    overrideXpMultiplier: 1
+    xpMultiplier: 0
+    overrideKnockbackResistance: 1
+    knockbackResistance: 1000000
+    movePattern:
+      movePatternType: 2
+      speedFactor: 12
+      bouncecount: 0
+    ignoreMaxSpeed: 1
+    bountyList:
+    - collectibleType: 0
+      amount: 1
+      value: 1
+  - spawnTime: 180
+    enemyType: 0
+    tierFormula: 5
+    overrideHealthMultiplier: 1
+    healthMultiplier: 10000
+    overrideDamageMultiplier: 1
+    damageMultiplier: 10
+    overrideXpMultiplier: 1
+    xpMultiplier: 0
+    overrideKnockbackResistance: 1
+    knockbackResistance: 1000000
+    movePattern:
+      movePatternType: 2
+      speedFactor: 12
+      bouncecount: 0
+    ignoreMaxSpeed: 1
+    bountyList:
+    - collectibleType: 0
+      amount: 1
+      value: 1
+  - spawnTime: 200
     enemyType: 0
     tierFormula: 5
     overrideHealthMultiplier: 1
@@ -437,109 +577,9 @@ MonoBehaviour:
     knockbackResistance: 1000000
     movePattern:
       movePatternType: 2
-      speedFactor: 45
+      speedFactor: 15
       bouncecount: 0
-    ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
-  - spawnTime: 180
-    enemyType: 0
-    tierFormula: 5
-    overrideHealthMultiplier: 1
-    healthMultiplier: 10000
-    overrideDamageMultiplier: 1
-    damageMultiplier: 100
-    overrideXpMultiplier: 1
-    xpMultiplier: 0
-    overrideKnockbackResistance: 1
-    knockbackResistance: 1000000
-    movePattern:
-      movePatternType: 2
-      speedFactor: 70
-      bouncecount: 0
-    ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
-  - spawnTime: 180
-    enemyType: 0
-    tierFormula: 5
-    overrideHealthMultiplier: 1
-    healthMultiplier: 10000
-    overrideDamageMultiplier: 1
-    damageMultiplier: 100
-    overrideXpMultiplier: 1
-    xpMultiplier: 0
-    overrideKnockbackResistance: 1
-    knockbackResistance: 1000000
-    movePattern:
-      movePatternType: 2
-      speedFactor: 70
-      bouncecount: 0
-    ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
-  - spawnTime: 180
-    enemyType: 0
-    tierFormula: 5
-    overrideHealthMultiplier: 1
-    healthMultiplier: 10000
-    overrideDamageMultiplier: 1
-    damageMultiplier: 100
-    overrideXpMultiplier: 1
-    xpMultiplier: 0
-    overrideKnockbackResistance: 1
-    knockbackResistance: 1000000
-    movePattern:
-      movePatternType: 2
-      speedFactor: 70
-      bouncecount: 0
-    ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
-  - spawnTime: 180
-    enemyType: 0
-    tierFormula: 5
-    overrideHealthMultiplier: 1
-    healthMultiplier: 10000
-    overrideDamageMultiplier: 1
-    damageMultiplier: 100
-    overrideXpMultiplier: 1
-    xpMultiplier: 0
-    overrideKnockbackResistance: 1
-    knockbackResistance: 1000000
-    movePattern:
-      movePatternType: 2
-      speedFactor: 70
-      bouncecount: 0
-    ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
-  - spawnTime: 180
-    enemyType: 0
-    tierFormula: 5
-    overrideHealthMultiplier: 1
-    healthMultiplier: 10000
-    overrideDamageMultiplier: 1
-    damageMultiplier: 100
-    overrideXpMultiplier: 1
-    xpMultiplier: 0
-    overrideKnockbackResistance: 1
-    knockbackResistance: 1000000
-    movePattern:
-      movePatternType: 2
-      speedFactor: 70
-      bouncecount: 0
-    ignoreMaxSpeed: 0
+    ignoreMaxSpeed: 1
     bountyList:
     - collectibleType: 0
       amount: 1
@@ -550,16 +590,16 @@ MonoBehaviour:
     overrideHealthMultiplier: 1
     healthMultiplier: 10000
     overrideDamageMultiplier: 1
-    damageMultiplier: 100
+    damageMultiplier: 20
     overrideXpMultiplier: 1
     xpMultiplier: 0
     overrideKnockbackResistance: 1
     knockbackResistance: 1000000
     movePattern:
       movePatternType: 2
-      speedFactor: 70
+      speedFactor: 15
       bouncecount: 0
-    ignoreMaxSpeed: 0
+    ignoreMaxSpeed: 1
     bountyList:
     - collectibleType: 0
       amount: 1
@@ -570,16 +610,16 @@ MonoBehaviour:
     overrideHealthMultiplier: 1
     healthMultiplier: 10000
     overrideDamageMultiplier: 1
-    damageMultiplier: 100
+    damageMultiplier: 20
     overrideXpMultiplier: 1
     xpMultiplier: 0
     overrideKnockbackResistance: 1
     knockbackResistance: 1000000
     movePattern:
       movePatternType: 2
-      speedFactor: 70
+      speedFactor: 15
       bouncecount: 0
-    ignoreMaxSpeed: 0
+    ignoreMaxSpeed: 1
     bountyList:
     - collectibleType: 0
       amount: 1
@@ -590,16 +630,16 @@ MonoBehaviour:
     overrideHealthMultiplier: 1
     healthMultiplier: 10000
     overrideDamageMultiplier: 1
-    damageMultiplier: 100
+    damageMultiplier: 20
     overrideXpMultiplier: 1
     xpMultiplier: 0
     overrideKnockbackResistance: 1
     knockbackResistance: 1000000
     movePattern:
       movePatternType: 2
-      speedFactor: 70
+      speedFactor: 15
       bouncecount: 0
-    ignoreMaxSpeed: 0
+    ignoreMaxSpeed: 1
     bountyList:
     - collectibleType: 0
       amount: 1
@@ -610,36 +650,16 @@ MonoBehaviour:
     overrideHealthMultiplier: 1
     healthMultiplier: 10000
     overrideDamageMultiplier: 1
-    damageMultiplier: 100
+    damageMultiplier: 20
     overrideXpMultiplier: 1
     xpMultiplier: 0
     overrideKnockbackResistance: 1
     knockbackResistance: 1000000
     movePattern:
       movePatternType: 2
-      speedFactor: 70
+      speedFactor: 15
       bouncecount: 0
-    ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
-  - spawnTime: 200
-    enemyType: 0
-    tierFormula: 5
-    overrideHealthMultiplier: 1
-    healthMultiplier: 10000
-    overrideDamageMultiplier: 1
-    damageMultiplier: 100
-    overrideXpMultiplier: 1
-    xpMultiplier: 0
-    overrideKnockbackResistance: 1
-    knockbackResistance: 1000000
-    movePattern:
-      movePatternType: 2
-      speedFactor: 70
-      bouncecount: 0
-    ignoreMaxSpeed: 0
+    ignoreMaxSpeed: 1
     bountyList:
     - collectibleType: 0
       amount: 1
