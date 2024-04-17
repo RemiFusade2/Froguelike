@@ -864,7 +864,7 @@ public class EnemiesManager : MonoBehaviour
     private IEnumerator SpawnEnemyAsync(GameObject prefab, Vector3 positionRelativeToFrog, EnemyData enemyData, EnemyMovePattern movePattern, WaveData originWave, float delay, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null)
     {
         yield return new WaitForSeconds(delay);
-        if (originWave != null && originWave.Equals(RunManager.instance.GetCurrentWave()))
+        if ( (originWave != null && originWave.Equals(RunManager.instance.GetCurrentWave())) || (bounty != null) )
         {
             // Only spawn the enemy if it's part of the current wave and that wave is still active
             SpawnEnemy(prefab, positionRelativeToFrog, enemyData, movePattern, originWave, difficultyTier, neverDespawn, bounty, forceMovementDirection, moveDirection);
