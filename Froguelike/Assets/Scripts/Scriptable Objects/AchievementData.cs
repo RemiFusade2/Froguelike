@@ -13,7 +13,8 @@ public enum AchievementConditionSpecialKey
     GATHER_ALL_FRIENDS = 6,
     UNLOCK_10_CHAPTERS = 7,
     COMPLETE_1_ACHIEVEMENT = 8,
-    UNLOCK_5_CHAPTERS = 9
+    UNLOCK_5_CHAPTERS = 9,
+    DIE_IN_TOADS_END_CHAPTER = 10
 }
 
 /// <summary>
@@ -114,7 +115,8 @@ public enum RewardFeatureType
     CHAPTER_SELECTION_5, // Show 5 chapters instead of 3 when choosing a chapter
     GHOST_BUFF, // Upgrade Ghost starting stats. Remove its HPMax debuff
     RIBBIT_BUFF, // Upgrade Ribbit starting stats. Remove its damage debuff
-    STANLEY_BUFF // Upgrade Stanley starting stats. Starts with 9 lives
+    STANLEY_BUFF, // Upgrade Stanley starting stats. Starts with 9 lives
+    TOAD_BUFF // Upgrade Toad starting stats. Gives more armor
 }
 
 /// <summary>
@@ -182,7 +184,7 @@ public class AchievementData : ScriptableObject
     [Header("Achievement settings - Steam")]
     [Tooltip("The key used by Steam to identify that achievement")]
     public string achievementSteamID = "[ACH_UNIQUE_KEY]";
-    
+
     [Header("Condition")]
     [Tooltip("A list of conditions that must be valid together")]
     public List<AchievementCondition> conditionsList;
@@ -190,7 +192,7 @@ public class AchievementData : ScriptableObject
     [Header("Reward")]
     [Tooltip("The reward you get when fulfilling these conditions")]
     public AchievementReward reward;
-    
+
     /*
     /// <summary>
     /// Get a value for ordering the achievements. Values can go from int.MinValue to int.MaxValue

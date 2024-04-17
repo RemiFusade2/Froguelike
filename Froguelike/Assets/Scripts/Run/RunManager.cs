@@ -170,6 +170,7 @@ public class RunManager : MonoBehaviour
     [Header("Runtime - Current played chapter")]
     public List<Chapter> completedChaptersList;
     public int[] playedChaptersKillCounts;
+    public int[] playedChaptersBountyEatCounts;
     public Chapter currentChapter;
     public float chapterRemainingTime; // in seconds
 
@@ -433,6 +434,12 @@ public class RunManager : MonoBehaviour
             playedChaptersKillCounts[i] = 0;
         }
 
+        // Reset bounties eaten count.
+        for (int i = 0; i < playedChaptersBountyEatCounts.Length; i++)
+        {
+            playedChaptersBountyEatCounts[i] = 0;
+        }
+
         // Reroll, Banish, Skip
         rerollsAvailable = false;
         if (player.rerolls > 0)
@@ -453,6 +460,7 @@ public class RunManager : MonoBehaviour
         // Reset chapters
         completedChaptersList.Clear();
         playedChaptersKillCounts = new int[6];
+        playedChaptersBountyEatCounts = new int[6];
         currentChapter = null;
 
         // Teleport player to starting position
@@ -569,6 +577,44 @@ public class RunManager : MonoBehaviour
             currentScore += killCount;
         }
         return currentScore;
+    }
+
+    public void IncreaseBountyEatCount(int amount)
+    {
+        int chapterCount = GetChapterCount();
+        playedChaptersBountyEatCounts[chapterCount - 1] += amount;
+    }
+
+    public int GetCurrentChapterBountyEatCount()
+    {
+        int bountiesEaten = 0;
+        int chapterCount = GetChapterCount();
+        if (playedChaptersBountyEatCounts != null && chapterCount <= playedChaptersBountyEatCounts.Count())
+        {
+            bountiesEaten = playedChaptersBountyEatCounts[chapterCount - 1];
+        }
+        return bountiesEaten;
+    }
+
+    public int GetPreviousChapterBountyEatCount()
+    {
+        int bountiesEaten = 0;
+        int previousChapterCount = GetChapterCount() - 1;
+        if (playedChaptersBountyEatCounts != null && previousChapterCount <= playedChaptersBountyEatCounts.Count())
+        {
+            bountiesEaten = playedChaptersBountyEatCounts[previousChapterCount - 1];
+        }
+        return bountiesEaten;
+    }
+
+    public int GetTotalBountyEatCount()
+    {
+        int totalBountiesEaten = 0;
+        foreach (int bountyEatCount in playedChaptersBountyEatCounts)
+        {
+            totalBountiesEaten += bountyEatCount;
+        }
+        return totalBountiesEaten;
     }
 
     public void Respawn()

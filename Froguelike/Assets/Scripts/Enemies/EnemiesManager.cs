@@ -593,7 +593,7 @@ public class EnemiesManager : MonoBehaviour
 
                 // Get random spawn position, around and in front of frog
                 GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out Vector3 spawnPosition);
-                
+
                 // Get EnemyData & prefab according to relevant difficulty tier
                 int difficultyTier = GetTierFromFormulaAndChapterCount(bountyBug.tierFormula, RunManager.instance.GetChapterCount());
                 EnemyData enemyData = GetEnemyDataFromTypeAndDifficultyTier(bountyBug.enemyType, difficultyTier);
@@ -602,7 +602,7 @@ public class EnemiesManager : MonoBehaviour
                 // Spawn bug using info we have
                 Vector3 positionRelativeToFrog = (spawnPosition - GameManager.instance.player.transform.position) + Random.Range(-1.0f, 1.0f) * Vector3.right + Random.Range(-1.0f, 1.0f) * Vector3.up;
                 StartCoroutine(SpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, bountyBug.movePattern, originWave: null, delay: 0, difficultyTier: difficultyTier, neverDespawn: true, bounty: bountyBug));
-                
+
             }
         }
     }
@@ -612,6 +612,11 @@ public class EnemiesManager : MonoBehaviour
     {
         if (RunManager.instance.currentChapter != null && RunManager.instance.currentChapter.chapterData != null && !RunManager.instance.IsChapterTimeOver())
         {
+            if (verbose == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log($"TrySpawnWave from chapter {RunManager.instance.currentChapter.chapterID}. Current wave is {currentWave.ToString()}");
+            }
+
             // Here's a table to describe the figurine curse:
             // - Curse -100% =  Spawn halved     =  Spawn cooldown doubled (delay factor = 2) 
             // - Curse 0%    =  Spawn untouched  =  Spawn cooldown untouched (delay factor = 1)
@@ -749,7 +754,7 @@ public class EnemiesManager : MonoBehaviour
         enemyInstance.enemyRenderer.sprite = prefab.GetComponent<SpriteRenderer>().sprite;
         enemyInstance.enemyRenderer.color = prefab.GetComponent<SpriteRenderer>().color;
         enemyInstance.enemyRenderer.sortingOrder = prefab.GetComponent<SpriteRenderer>().sortingOrder;
-        enemyInstance.enemyRenderer.sortingLayerID = prefab.GetComponent<SpriteRenderer>().sortingLayerID;
+        enemyInstance.enemyRenderer.sortingOrder = bounty == null ? prefab.GetComponent<SpriteRenderer>().sortingOrder : prefab.GetComponent<SpriteRenderer>().sortingOrder + 1; // Bounties get put on layer + 1 to not be hidden under normal bugs.
 
         enemyInstance.enemyTransform.gameObject.layer = prefab.gameObject.layer;
 
@@ -804,7 +809,7 @@ public class EnemiesManager : MonoBehaviour
 
             Vector3 position = GameManager.instance.player.transform.position + positionRelativeToFrog;
             enemyFromPool.enemyTransform.position = position;
-            enemyFromPool.enemyTransform.rotation = Quaternion.Euler(0, 0, Random.Range(0,4) * 90); // Set random orientation (so static plants don't always face the same way)
+            enemyFromPool.enemyTransform.rotation = Quaternion.Euler(0, 0, Random.Range(0, 4) * 90); // Set random orientation (so static plants don't always face the same way)
 
             if (verbose == VerboseLevel.MAXIMAL)
             {
@@ -817,6 +822,11 @@ public class EnemiesManager : MonoBehaviour
 
     public void CheatSpawnRandomBugs(int count, int tier = 0, float speed = 1)
     {
+        if (verbose == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"CheatSpawnRandomBugs count {count} tier {tier}");
+        }
+
         // Prepare spawn pattern (follow player)
         EnemyMovePattern movePatternFollowPlayer = new EnemyMovePattern(EnemyMovePatternType.FOLLOW_PLAYER, speedFactor: speed);
 
@@ -827,7 +837,8 @@ public class EnemiesManager : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             // Pick random type of bug
-            do {
+            do
+            {
                 randomEnemyType = (EnemyType)(Random.Range(0, 6));
             } while (randomEnemyType == EnemyType.PLANT);
             if (tier <= 0)
@@ -853,7 +864,11 @@ public class EnemiesManager : MonoBehaviour
     private IEnumerator SpawnEnemyAsync(GameObject prefab, Vector3 positionRelativeToFrog, EnemyData enemyData, EnemyMovePattern movePattern, WaveData originWave, float delay, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null)
     {
         yield return new WaitForSeconds(delay);
-        SpawnEnemy(prefab, positionRelativeToFrog, enemyData, movePattern, originWave, difficultyTier, neverDespawn, bounty, forceMovementDirection, moveDirection);
+        if ((originWave != null && originWave.Equals(RunManager.instance.GetCurrentWave())) || (bounty != null))
+        {
+            // Only spawn the enemy if it's part of the current wave and that wave is still active
+            SpawnEnemy(prefab, positionRelativeToFrog, enemyData, movePattern, originWave, difficultyTier, neverDespawn, bounty, forceMovementDirection, moveDirection);
+        }
     }
 
     public void InitializeWave(WaveData wave)
@@ -1109,7 +1124,7 @@ public class EnemiesManager : MonoBehaviour
             damageTMPScript.fontSize = fontSize;
 
             int sortedOrderLayer = Random.Range(100, 200);
-            damageTMPScript.sortingOrder = sortedOrderLayer+1;
+            damageTMPScript.sortingOrder = sortedOrderLayer + 1;
 
             // Todo: implement a proper outline for damage text and remove this shit
             foreach (Transform child in damageText.transform)
@@ -1145,7 +1160,7 @@ public class EnemiesManager : MonoBehaviour
             {
                 enemyMaxHP *= bountyDefaultHealthMultiplier;
             }*/
-            
+
             int outlineColorIndex = Mathf.FloorToInt(((enemy.HPMax - enemy.HP) / enemy.HPMax) * bountyOutlineColorsList.Count);
             outlineColorIndex = Mathf.Clamp(outlineColorIndex, 0, bountyOutlineColorsList.Count - 1);
             Color bountyOutlineColor = bountyOutlineColorsList[outlineColorIndex];
@@ -1167,7 +1182,7 @@ public class EnemiesManager : MonoBehaviour
             if (!enemyDied && enemy.knockbackCooldown <= 0)
             {
                 Vector2 knockbackDirection = (enemy.enemyTransform.position - weapon.position).normalized;
-                float knockbackStrengthMassRatio = Mathf.Clamp(enemy.enemyRigidbody.mass/8, 1, 20);
+                float knockbackStrengthMassRatio = Mathf.Clamp(enemy.enemyRigidbody.mass / 8, 1, 20);
                 float knockbackForce = weapon.GetComponent<WeaponBehaviour>().knockbackForce / knockbackStrengthMassRatio;
 
                 // knockback resistance from enemy
@@ -1281,7 +1296,7 @@ public class EnemiesManager : MonoBehaviour
             int enemiesToUpdateCount = Mathf.Min(maxEnemiesToUpdateCount, enemiesToUpdateQueue.Count);
             for (int i = 0; i < enemiesToUpdateCount; i++)
             {
-                EnemyInstance enemy = enemiesToUpdateQueue.Dequeue();                
+                EnemyInstance enemy = enemiesToUpdateQueue.Dequeue();
                 if (enemy.active)
                 {
                     EnemyData enemyData = enemiesDataFromNameDico[enemy.enemyName];
@@ -1368,7 +1383,7 @@ public class EnemiesManager : MonoBehaviour
                                 }
 
                                 // Make sure its direction is reset
-                                switch(enemy.movePattern.movePatternType)
+                                switch (enemy.movePattern.movePatternType)
                                 {
                                     case EnemyMovePatternType.STRAIGHT_LINE:
                                         enemy.moveDirection = (playerTransform.position - enemy.enemyTransform.position).normalized;
@@ -1411,7 +1426,7 @@ public class EnemiesManager : MonoBehaviour
                             else
                             {
                                 // Knockback effect is over
-                                enemy.StopKnockback(); 
+                                enemy.StopKnockback();
                                 enemy.knockbackCooldown = 0;
 
                                 // Freeze and Curse remaining time decreases
@@ -1718,6 +1733,11 @@ public class EnemiesManager : MonoBehaviour
     /// <param name="deltaTier"></param>
     public void SwitchTierOfEnemy(EnemyInstance enemyInstance, int deltaTier, float explosionDuration)
     {
+        if (verbose == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"SwitchTierOfEnemy {enemyInstance.enemyName}, delta tier {deltaTier}.");
+        }
+
         int newDifficultyTier = enemyInstance.difficultyTier + deltaTier;
         EnemyData originEnemyData = GetEnemyDataFromTypeAndDifficultyTier(enemyInstance.enemyInfo.enemyData.enemyType, enemyInstance.difficultyTier);
         EnemyData newEnemyData = GetEnemyDataFromTypeAndDifficultyTier(enemyInstance.enemyInfo.enemyData.enemyType, Mathf.Clamp(newDifficultyTier, 1, 5));
@@ -1864,7 +1884,7 @@ public class EnemiesManager : MonoBehaviour
         if (enemyInstance.enemyFreezeParticles != null)
         {
             if (applyGlobalFreeze || enemyInstance.freezeRemainingTime > 0)
-            {   
+            {
                 if (!enemyInstance.enemyFreezeParticles.isPlaying)
                 {
                     enemyInstance.enemyFreezeParticles.Play();
@@ -1952,6 +1972,8 @@ public class EnemiesManager : MonoBehaviour
 
                 // Play SFX
                 SoundManager.instance.PlayEatBountySound();
+                // Increase bounty eaten count by 1 for that chapter.
+                RunManager.instance.IncreaseBountyEatCount(1);
             }
         }
 
@@ -1987,7 +2009,8 @@ public class EnemiesManager : MonoBehaviour
             if (spawnFroinsRoll <= probabilityToSpawn1BigFroin)
             {
                 valueOfFroinSpawned = 5;
-            } else if (spawnFroinsRoll <= probabilityToSpawn1SmolFroin)
+            }
+            else if (spawnFroinsRoll <= probabilityToSpawn1SmolFroin)
             {
                 valueOfFroinSpawned = 1;
             }
@@ -2001,7 +2024,7 @@ public class EnemiesManager : MonoBehaviour
             PutEnemyInThePool(enemyInstance);
             allActiveEnemiesDico.Remove(enemyInstance.enemyID);
         }
-        
+
     }
 
     public void SetEnemyDead(string enemyGameObjectName)

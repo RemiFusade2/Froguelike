@@ -142,6 +142,12 @@ public class EnemySpawn
 
     [Tooltip("Delay between spawns")]
     public float spawnCooldown;
+
+    public override string ToString()
+    {
+        string result = $"Type {enemyType}, tier formula {tierFormula}, spawn cooldown {spawnCooldown}";
+        return result;
+    }
 }
 
 /// <summary>
@@ -175,4 +181,14 @@ public class WaveData
 
     [Tooltip("Only used for preview")]
     public List<int> previewChapters;
+
+    public override string ToString()
+    {
+        string result = $"Wave ({duration}s) - ";
+        foreach (EnemySpawn nmiSpawn in enemies)
+        {
+            result += $"{nmiSpawn.ToString()} - ";
+        }
+        return result;
+    }
 }

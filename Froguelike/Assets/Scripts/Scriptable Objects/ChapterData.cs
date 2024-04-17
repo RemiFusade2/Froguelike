@@ -86,7 +86,8 @@ public enum ChapterConditionType
     FRIEND,
     RUN_ITEM,
     CHARACTER,
-    FRIEND_COUNT
+    FRIEND_COUNT,
+    BOUNTIES_EATEN_IN_PREVIOUS_CHAPTER
 }
 
 #endregion
@@ -184,6 +185,9 @@ public class ChapterCondition
     [Tooltip("This chapter can appear only if you have at most this amount of friends")]
     [Range(0, 10)]
     public int maxFriendsCount = 10;
+
+    [Tooltip("This chapter can appear only if you have at least this amount of bounties eaten")]
+    public int minBountiesEaten = 0;
 }
 
 /// <summary>

@@ -114,6 +114,15 @@ public class ChapterConditionDrawer : PropertyDrawer
             EditorGUI.LabelField(friendCountMaxLabelRect, new GUIContent("Max:"));
             EditorGUI.PropertyField(friendCountMaxRect, property.FindPropertyRelative("maxFriendsCount"), GUIContent.none);
         }
+        else if (conditionType.enumValueFlag == (int)ChapterConditionType.BOUNTIES_EATEN_IN_PREVIOUS_CHAPTER)
+        {
+            // Choose bounties eaten Min and Max values  
+            float labelWidth = 75;
+            Rect bountiesEatenMinLabelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+            Rect bountiesEatenMinRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(bountiesEatenMinLabelRect, new GUIContent("Min:"));
+            EditorGUI.PropertyField(bountiesEatenMinRect, property.FindPropertyRelative("minBountiesEaten"), GUIContent.none);
+        }
 
         EditorGUI.EndProperty();
     }
