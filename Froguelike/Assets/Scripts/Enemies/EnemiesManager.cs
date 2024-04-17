@@ -612,6 +612,11 @@ public class EnemiesManager : MonoBehaviour
     {
         if (RunManager.instance.currentChapter != null && RunManager.instance.currentChapter.chapterData != null && !RunManager.instance.IsChapterTimeOver())
         {
+            if (verbose == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log($"TrySpawnWave from chapter {RunManager.instance.currentChapter.chapterID}. Current wave is {currentWave.ToString()}");
+            }
+
             // Here's a table to describe the figurine curse:
             // - Curse -100% =  Spawn halved     =  Spawn cooldown doubled (delay factor = 2) 
             // - Curse 0%    =  Spawn untouched  =  Spawn cooldown untouched (delay factor = 1)
@@ -817,6 +822,11 @@ public class EnemiesManager : MonoBehaviour
 
     public void CheatSpawnRandomBugs(int count, int tier = 0, float speed = 1)
     {
+        if (verbose == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"CheatSpawnRandomBugs count {count} tier {tier}");
+        }
+
         // Prepare spawn pattern (follow player)
         EnemyMovePattern movePatternFollowPlayer = new EnemyMovePattern(EnemyMovePatternType.FOLLOW_PLAYER, speedFactor: speed);
 
@@ -854,7 +864,11 @@ public class EnemiesManager : MonoBehaviour
     private IEnumerator SpawnEnemyAsync(GameObject prefab, Vector3 positionRelativeToFrog, EnemyData enemyData, EnemyMovePattern movePattern, WaveData originWave, float delay, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null)
     {
         yield return new WaitForSeconds(delay);
-        SpawnEnemy(prefab, positionRelativeToFrog, enemyData, movePattern, originWave, difficultyTier, neverDespawn, bounty, forceMovementDirection, moveDirection);
+        if (originWave != null && originWave.Equals(RunManager.instance.GetCurrentWave()))
+        {
+            // Only spawn the enemy if it's part of the current wave and that wave is still active
+            SpawnEnemy(prefab, positionRelativeToFrog, enemyData, movePattern, originWave, difficultyTier, neverDespawn, bounty, forceMovementDirection, moveDirection);
+        }
     }
 
     public void InitializeWave(WaveData wave)
@@ -1719,6 +1733,11 @@ public class EnemiesManager : MonoBehaviour
     /// <param name="deltaTier"></param>
     public void SwitchTierOfEnemy(EnemyInstance enemyInstance, int deltaTier, float explosionDuration)
     {
+        if (verbose == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"SwitchTierOfEnemy {enemyInstance.enemyName}, delta tier {deltaTier}.");
+        }
+
         int newDifficultyTier = enemyInstance.difficultyTier + deltaTier;
         EnemyData originEnemyData = GetEnemyDataFromTypeAndDifficultyTier(enemyInstance.enemyInfo.enemyData.enemyType, enemyInstance.difficultyTier);
         EnemyData newEnemyData = GetEnemyDataFromTypeAndDifficultyTier(enemyInstance.enemyInfo.enemyData.enemyType, Mathf.Clamp(newDifficultyTier, 1, 5));
