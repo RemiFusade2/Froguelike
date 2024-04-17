@@ -27,7 +27,7 @@ MonoBehaviour:
   chapterLengthInSeconds: 180
   freezeDurationMultiplier: 1
   startingUnlockState: 0
-  startingWeight: 1
+  startingWeight: 200
   canBePlayedMultipleTimesInOneRun: 0
   conditions:
   - conditionsList:
@@ -81,7 +81,7 @@ MonoBehaviour:
   - Type: 10
     Frequency: 1
   specialCollectiblesOnTheMap:
-  - tileCoordinates: {x: 0, y: 0}
+  - tileCoordinates: {x: 1, y: 0}
     tilePrefab: {fileID: 799068813537004447, guid: 3577fff562b74ae4cb6c4b7340b8b689, type: 3}
     collectibleName: A froggy grail
     collectibleDescription: 
@@ -342,15 +342,22 @@ MonoBehaviour:
     knockbackResistance: 0
     movePattern:
       movePatternType: 2
-      speedFactor: 5
+      speedFactor: 2
       bouncecount: 0
+    ignoreMaxSpeed: 0
     bountyList:
+    - collectibleType: 1
+      amount: 5
+      value: 5
+    - collectibleType: 1
+      amount: 2
+      value: 25
     - collectibleType: 0
-      amount: 1
-      value: 1
-  - spawnTime: 0
+      amount: 4
+      value: 10
+  - spawnTime: 25
     enemyType: 0
-    tierFormula: 1
+    tierFormula: 2
     overrideHealthMultiplier: 0
     healthMultiplier: 0
     overrideDamageMultiplier: 0
@@ -361,15 +368,19 @@ MonoBehaviour:
     knockbackResistance: 0
     movePattern:
       movePatternType: 2
-      speedFactor: 5
+      speedFactor: 2
       bouncecount: 0
+    ignoreMaxSpeed: 0
     bountyList:
     - collectibleType: 0
-      amount: 1
+      amount: 20
       value: 1
-  - spawnTime: 0
+    - collectibleType: 1
+      amount: 5
+      value: 5
+  - spawnTime: 60
     enemyType: 0
-    tierFormula: 1
+    tierFormula: 5
     overrideHealthMultiplier: 0
     healthMultiplier: 0
     overrideDamageMultiplier: 0
@@ -380,15 +391,25 @@ MonoBehaviour:
     knockbackResistance: 0
     movePattern:
       movePatternType: 2
-      speedFactor: 5
+      speedFactor: 2
       bouncecount: 0
+    ignoreMaxSpeed: 0
     bountyList:
-    - collectibleType: 0
+    - collectibleType: 1
+      amount: 10
+      value: 5
+    - collectibleType: 1
+      amount: 2
+      value: 25
+    - collectibleType: 1
       amount: 1
-      value: 1
-  - spawnTime: 0
+      value: 50
+    - collectibleType: 3
+      amount: 5
+      value: 20
+  - spawnTime: 75
     enemyType: 0
-    tierFormula: 1
+    tierFormula: 3
     overrideHealthMultiplier: 0
     healthMultiplier: 0
     overrideDamageMultiplier: 0
@@ -399,15 +420,22 @@ MonoBehaviour:
     knockbackResistance: 0
     movePattern:
       movePatternType: 2
-      speedFactor: 5
+      speedFactor: 2
       bouncecount: 0
+    ignoreMaxSpeed: 0
     bountyList:
-    - collectibleType: 0
+    - collectibleType: 1
+      amount: 5
+      value: 5
+    - collectibleType: 1
       amount: 1
-      value: 1
-  - spawnTime: 0
+      value: 25
+    - collectibleType: 3
+      amount: 2
+      value: 20
+  - spawnTime: 110
     enemyType: 0
-    tierFormula: 1
+    tierFormula: 4
     overrideHealthMultiplier: 0
     healthMultiplier: 0
     overrideDamageMultiplier: 0
@@ -418,107 +446,19 @@ MonoBehaviour:
     knockbackResistance: 0
     movePattern:
       movePatternType: 2
-      speedFactor: 5
+      speedFactor: 2
       bouncecount: 0
+    ignoreMaxSpeed: 0
     bountyList:
     - collectibleType: 0
-      amount: 1
-      value: 1
-  - spawnTime: 0
-    enemyType: 0
-    tierFormula: 1
-    overrideHealthMultiplier: 0
-    healthMultiplier: 0
-    overrideDamageMultiplier: 0
-    damageMultiplier: 0
-    overrideXpMultiplier: 0
-    xpMultiplier: 0
-    overrideKnockbackResistance: 0
-    knockbackResistance: 0
-    movePattern:
-      movePatternType: 2
-      speedFactor: 5
-      bouncecount: 0
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
-  - spawnTime: 0
-    enemyType: 0
-    tierFormula: 1
-    overrideHealthMultiplier: 0
-    healthMultiplier: 0
-    overrideDamageMultiplier: 0
-    damageMultiplier: 0
-    overrideXpMultiplier: 0
-    xpMultiplier: 0
-    overrideKnockbackResistance: 0
-    knockbackResistance: 0
-    movePattern:
-      movePatternType: 2
-      speedFactor: 5
-      bouncecount: 0
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
-  - spawnTime: 0
-    enemyType: 0
-    tierFormula: 1
-    overrideHealthMultiplier: 0
-    healthMultiplier: 0
-    overrideDamageMultiplier: 0
-    damageMultiplier: 0
-    overrideXpMultiplier: 0
-    xpMultiplier: 0
-    overrideKnockbackResistance: 0
-    knockbackResistance: 0
-    movePattern:
-      movePatternType: 2
-      speedFactor: 5
-      bouncecount: 0
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
-  - spawnTime: 0
-    enemyType: 0
-    tierFormula: 1
-    overrideHealthMultiplier: 0
-    healthMultiplier: 0
-    overrideDamageMultiplier: 0
-    damageMultiplier: 0
-    overrideXpMultiplier: 0
-    xpMultiplier: 0
-    overrideKnockbackResistance: 0
-    knockbackResistance: 0
-    movePattern:
-      movePatternType: 2
-      speedFactor: 5
-      bouncecount: 0
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
-  - spawnTime: 0
-    enemyType: 0
-    tierFormula: 1
-    overrideHealthMultiplier: 0
-    healthMultiplier: 0
-    overrideDamageMultiplier: 0
-    damageMultiplier: 0
-    overrideXpMultiplier: 0
-    xpMultiplier: 0
-    overrideKnockbackResistance: 0
-    knockbackResistance: 0
-    movePattern:
-      movePatternType: 2
-      speedFactor: 5
-      bouncecount: 0
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
+      amount: 20
+      value: 10
+    - collectibleType: 1
+      amount: 10
+      value: 5
+    - collectibleType: 1
+      amount: 2
+      value: 50
   weightChanges:
   - chapter: {fileID: 11400000, guid: 85e9e45fbbc5d7e42921fd0addf10991, type: 2}
     weightChange: 100
