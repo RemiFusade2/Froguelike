@@ -188,9 +188,9 @@ MonoBehaviour:
   - duration: 60
     enemies:
     - enemyType: 4
-      tierFormula: 4
+      tierFormula: 2
       movePattern:
-        movePatternType: 3
+        movePatternType: 2
         speedFactor: 0.8
         bouncecount: 0
       spawnPattern:
@@ -251,7 +251,7 @@ MonoBehaviour:
         multipleSpawnDelay: 0
       spawnCooldown: 3
     - enemyType: 4
-      tierFormula: 5
+      tierFormula: 3
       movePattern:
         movePatternType: 3
         speedFactor: 0.8
@@ -266,7 +266,7 @@ MonoBehaviour:
   - duration: 60
     enemies:
     - enemyType: 4
-      tierFormula: 4
+      tierFormula: 5
       movePattern:
         movePatternType: 2
         speedFactor: 1
@@ -339,7 +339,7 @@ MonoBehaviour:
         spawnPatternShape: 0
         spawnAmount: 1
         multipleSpawnDelay: 0
-      spawnCooldown: 0.3
+      spawnCooldown: 0.7
     - enemyType: 4
       tierFormula: 5
       movePattern:
@@ -351,7 +351,7 @@ MonoBehaviour:
         spawnPatternShape: 0
         spawnAmount: 5
         multipleSpawnDelay: 0
-      spawnCooldown: 3
+      spawnCooldown: 4
     - enemyType: 4
       tierFormula: 3
       movePattern:
@@ -490,62 +490,7 @@ MonoBehaviour:
     - collectibleType: 3
       amount: 5
       value: 20
-  - spawnTime: 150
-    enemyType: 4
-    tierFormula: 5
-    overrideHealthMultiplier: 0
-    healthMultiplier: 0
-    overrideDamageMultiplier: 0
-    damageMultiplier: 0
-    overrideXpMultiplier: 0
-    xpMultiplier: 0
-    overrideKnockbackResistance: 0
-    knockbackResistance: 0
-    movePattern:
-      movePatternType: 1
-      speedFactor: 1
-      bouncecount: 100
-    ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 10
-      value: 25
-    - collectibleType: 1
-      amount: 3
-      value: 50
-    - collectibleType: 3
-      amount: 8
-      value: 20
-  - spawnTime: 180
-    enemyType: 4
-    tierFormula: 5
-    overrideHealthMultiplier: 0
-    healthMultiplier: 0
-    overrideDamageMultiplier: 0
-    damageMultiplier: 0
-    overrideXpMultiplier: 0
-    xpMultiplier: 0
-    overrideKnockbackResistance: 0
-    knockbackResistance: 0
-    movePattern:
-      movePatternType: 1
-      speedFactor: 1
-      bouncecount: 100
-    ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 5
-      value: 25
-    - collectibleType: 1
-      amount: 3
-      value: 50
-    - collectibleType: 3
-      amount: 2
-      value: 20
-    - collectibleType: 3
-      amount: 1
-      value: 100
-  - spawnTime: 210
+  - spawnTime: 160
     enemyType: 4
     tierFormula: 4
     overrideHealthMultiplier: 0
@@ -571,6 +516,26 @@ MonoBehaviour:
     - collectibleType: 0
       amount: 20
       value: 10
+  - spawnTime: 200
+    enemyType: 4
+    tierFormula: 1
+    overrideHealthMultiplier: 0
+    healthMultiplier: 0
+    overrideDamageMultiplier: 0
+    damageMultiplier: 0
+    overrideXpMultiplier: 0
+    xpMultiplier: 0
+    overrideKnockbackResistance: 0
+    knockbackResistance: 0
+    movePattern:
+      movePatternType: 2
+      speedFactor: 1
+      bouncecount: 100
+    ignoreMaxSpeed: 0
+    bountyList:
+    - collectibleType: 1
+      amount: 20
+      value: 5
   - spawnTime: 240
     enemyType: 4
     tierFormula: 3
