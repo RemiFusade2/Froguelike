@@ -756,6 +756,9 @@ public class RunManager : MonoBehaviour
         // Remove enemies on screen
         EnemiesManager.instance.ClearAllEnemies();
 
+        // Remove damage texts
+        EnemiesManager.instance.ClearAllDamageTexts();
+
         // Remove collectibles on screen
         CollectiblesManager.instance.ClearAllCollectibles();
 

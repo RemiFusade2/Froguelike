@@ -186,11 +186,11 @@ public class HealthBarBehaviour : MonoBehaviour
     /// <param name="cancelDamage"></param>
     public void IncreaseHealth(float amount, bool cancelDamage)
     {
-        if (amount > 0 && cancelDamage)
+        if (currentHealthTarget < 0 && amount > 0 && cancelDamage)
         {
             // Just in case Frog was about to die but it found a health pick-up
             preventHealthRecovery = false;
-            currentHealthTarget = Mathf.Clamp(amount, 0, maxHealth); ;
+            currentHealthTarget = Mathf.Clamp(amount, 0, maxHealth);
         }
         else
         {

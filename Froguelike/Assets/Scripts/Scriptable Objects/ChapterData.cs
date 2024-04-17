@@ -269,6 +269,8 @@ public class BountyBug
     [Header("Movement")]
     [Tooltip("Which movement pattern this enemy will follow")]
     public EnemyMovePattern movePattern;
+    [Tooltip("Does this bug ignore maximum speed?")]
+    public bool ignoreMaxSpeed = false;
 
     [Header("Bounty")]
     [Tooltip("A list of collectibles + amount that serve as a bounty")]
