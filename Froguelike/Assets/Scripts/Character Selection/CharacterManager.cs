@@ -316,6 +316,7 @@ public class CharacterManager : MonoBehaviour
                 difficultyPanel1.SetActive(false);
             }
 
+            ResetDifficulty();
             difficultyPanel.GetComponent<DifficultyPanelBehaviour>().SetToggleCheckmarks(GetSelectedGameModes());
             DisplayDifficultyInfo(GetSelectedGameModes());
         }
@@ -678,6 +679,12 @@ public class CharacterManager : MonoBehaviour
         gameModeHarderIsSelected = thisToggle.isOn;
 
         DisplayDifficultyInfo(GetSelectedGameModes());
+    }
+
+    public void ResetDifficulty()
+    {
+        gameModeHardIsSelected = false;
+        gameModeHarderIsSelected = false;
     }
 
     public void DisplayDifficultyInfo(GameMode gameMode)

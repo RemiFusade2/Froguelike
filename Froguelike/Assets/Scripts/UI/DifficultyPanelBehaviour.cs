@@ -8,38 +8,14 @@ public class DifficultyPanelBehaviour : MonoBehaviour
     public Toggle hardToggle;
     public Toggle harderToggle;
 
-    public void SetToggleCheckmarks(GameMode gameMode)
+    public void SetToggleCheckmarks(GameMode gameModes)
     {
-        if (gameMode == GameMode.HARD)
-        {
-            hardToggle.isOn = true;
-            hardToggle.GetComponent<DifficultyToggleBehaviour>().staticCheckmark.SetActive(true);
-        }
-        else
-        {
-            hardToggle.isOn = false;
-            hardToggle.GetComponent<DifficultyToggleBehaviour>().staticCheckmark.SetActive(false);
-        }
+        bool hardModeIsOn = (gameModes & GameMode.HARD) == GameMode.HARD;
+        hardToggle.isOn = hardModeIsOn;
+        hardToggle.GetComponent<DifficultyToggleBehaviour>().staticCheckmark.SetActive(hardModeIsOn);
 
-        if (gameMode == GameMode.HARDER)
-        {
-            harderToggle.isOn = true;
-            harderToggle.GetComponent<DifficultyToggleBehaviour>().staticCheckmark.SetActive(true);
-        }
-        else
-        {
-            harderToggle.isOn = false;
-            harderToggle.GetComponent<DifficultyToggleBehaviour>().staticCheckmark.SetActive(false);
-        }
-
-        if (gameMode == (GameMode.HARD | GameMode.HARDER))
-        {
-            hardToggle.isOn = true;
-            hardToggle.GetComponent<DifficultyToggleBehaviour>().staticCheckmark.SetActive(true);
-            harderToggle.isOn = true;
-            harderToggle.GetComponent<DifficultyToggleBehaviour>().staticCheckmark.SetActive(true);
-        }
-
-        // TODO this could probably be neater.
+        bool harderModeIsOn = (gameModes & GameMode.HARDER) == GameMode.HARDER;
+        harderToggle.isOn = harderModeIsOn;
+        harderToggle.GetComponent<DifficultyToggleBehaviour>().staticCheckmark.SetActive(harderModeIsOn);
     }
 }
