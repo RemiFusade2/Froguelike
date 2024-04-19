@@ -374,9 +374,9 @@ public class AchievementManager : MonoBehaviour
                             break;
                         case AchievementConditionType.GAME_MODE:
                             GameMode requiredGameMode = condition.gameModes;
-                            if ((playedGameMode & requiredGameMode) == requiredGameMode)
+                            if ((playedGameMode & requiredGameMode) != requiredGameMode)
                             {
-                                conditionsAreMet &= true;
+                                conditionsAreMet &= false;
                             }
                             break;
                         case AchievementConditionType.SPECIAL:
@@ -555,6 +555,7 @@ public class AchievementManager : MonoBehaviour
                 unlockLog = $"Restock shop item {reward.shopItem.itemName}";
                 break;
             case AchievementRewardType.GAME_MODE:
+                CharacterManager.instance.UnlockGameMode(reward.gameMode);
                 unlockLog = $"Unlock game mode {reward.gameMode.ToString()}";
                 break;
         }

@@ -62,6 +62,8 @@ public class CharactersSaveData : SaveData
 {
     public List<PlayableCharacter> charactersList;
 
+    public GameMode availableGameModes;
+
     public CharactersSaveData()
     {
         Reset();
@@ -577,6 +579,7 @@ public class CharacterManager : MonoBehaviour
     /// <param name="saveData"></param>
     public void SetCharactersData(CharactersSaveData saveData)
     {
+        charactersData.availableGameModes = saveData.availableGameModes;
         foreach (PlayableCharacter character in charactersData.charactersList)
         {
             PlayableCharacter characterFromSave = saveData.charactersList.First(x => x.characterID.Equals(character.characterID));
@@ -604,6 +607,7 @@ public class CharacterManager : MonoBehaviour
         {
             // A hard reset will reset everything to the start game values
             charactersData.charactersList.Clear();
+            charactersData.availableGameModes = GameMode.NONE;
             foreach (CharacterData characterData in charactersScriptableObjectsList)
             {
                 PlayableCharacter newCharacter = new PlayableCharacter() { characterData = characterData, characterID = characterData.characterID, unlocked = characterData.startingUnlockState, hidden = characterData.startingHiddenState, wonWith = 0 };
@@ -620,6 +624,17 @@ public class CharacterManager : MonoBehaviour
             }
         }
 
+        SaveDataManager.instance.isSaveDataDirty = true;
+    }
+
+    public bool IsGameModeUnlocked(GameMode gameMode)
+    {
+        return (charactersData.availableGameModes & gameMode) == gameMode;
+    }
+
+    public void UnlockGameMode(GameMode gameMode)
+    {
+        charactersData.availableGameModes |= gameMode;
         SaveDataManager.instance.isSaveDataDirty = true;
     }
 
