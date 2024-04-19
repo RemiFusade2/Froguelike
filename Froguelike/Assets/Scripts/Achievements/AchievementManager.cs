@@ -586,6 +586,11 @@ public class AchievementManager : MonoBehaviour
         bool achievementConditionsCanBeFulfilled = true;
         foreach (AchievementCondition achievementCondition in achievement.achievementData.conditionsList)
         {
+            if (achievementCondition.conditionType == AchievementConditionType.GAME_MODE && !CharacterManager.instance.IsGameModeUnlocked(achievementCondition.gameModes))
+            {
+                // The achievement requires to play a game mode that has not been unlocked yet
+                achievementConditionsCanBeFulfilled = false;
+            }
             if (achievementCondition.conditionType == AchievementConditionType.CHARACTER && achievementCondition.playedCharacter != null && !CharacterManager.instance.IsCharacterUnlocked(achievementCondition.playedCharacter.characterID))
             {
                 // The achievement requires to play as a character that has not been unlocked yet
@@ -635,6 +640,7 @@ public class AchievementManager : MonoBehaviour
         firstAchievementsIDList.Add("ACH_SPECIAL_CONDITION_GET_100_FROINS_UNLOCK_FEATURE_SHOP");
         firstAchievementsIDList.Add("ACH_SPECIAL_CONDITION_UNLOCK_10_CHAPTERS_UNLOCK_FEATURE_5_CHAPTERS_SELECTION");
         firstAchievementsIDList.Add("ACH_SPECIAL_CONDITION_COMPLETE_1_ACHIEVEMENT_UNLOCK_FEATURE_ACHIEVEMENT_LIST");
+        firstAchievementsIDList.Add("ACH_SPECIAL_CONDITION_CH_ENDING_TOAD_UNLOCK_CHAPTER_CH_STORY_TOAD_1");
 
         List<Achievement> result = achievements.OrderBy(x => x.achievementID).OrderBy(x => (firstAchievementsIDList.Contains(x.achievementID) ? firstAchievementsIDList.IndexOf(x.achievementID) : firstAchievementsIDList.Count)).OrderBy(x => (x.achievementData.isSecret && !x.unlocked)).OrderByDescending(x => IsAchievementAvailable(x)).OrderBy(x => IsAchievementLockedBehindDemo(x)).ToList();
 
