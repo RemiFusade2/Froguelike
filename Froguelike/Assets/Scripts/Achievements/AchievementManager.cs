@@ -586,6 +586,11 @@ public class AchievementManager : MonoBehaviour
         bool achievementConditionsCanBeFulfilled = true;
         foreach (AchievementCondition achievementCondition in achievement.achievementData.conditionsList)
         {
+            if (achievementCondition.conditionType == AchievementConditionType.GAME_MODE && !CharacterManager.instance.IsGameModeUnlocked(achievementCondition.gameModes))
+            {
+                // The achievement requires to play a game mode that has not been unlocked yet
+                achievementConditionsCanBeFulfilled = false;
+            }
             if (achievementCondition.conditionType == AchievementConditionType.CHARACTER && achievementCondition.playedCharacter != null && !CharacterManager.instance.IsCharacterUnlocked(achievementCondition.playedCharacter.characterID))
             {
                 // The achievement requires to play as a character that has not been unlocked yet
