@@ -113,6 +113,9 @@ public class CharacterManager : MonoBehaviour
     [Header("Runtime")]
     public CharactersSaveData charactersData; // Will be loaded and saved when needed
     public PlayableCharacter currentSelectedCharacter;
+    [Space]
+    public bool gameModeHardIsSelected;
+    public bool gameModeHarderIsSelected;
 
     private Dictionary<string, CharacterData> charactersDataFromNameDico;
 
@@ -556,7 +559,16 @@ public class CharacterManager : MonoBehaviour
 
     public void StartRun()
     {
-        GameManager.instance.StartRunWithCharacter(currentSelectedCharacter);
+        GameMode gameModes = GameMode.NONE;
+        if (gameModeHardIsSelected)
+        {
+            gameModes |= GameMode.HARD;
+        }
+        if (gameModeHarderIsSelected)
+        {
+            gameModes |= GameMode.HARDER;
+        }
+        GameManager.instance.StartRunWithCharacter(currentSelectedCharacter, gameModes);
     }
 
     /// <summary>

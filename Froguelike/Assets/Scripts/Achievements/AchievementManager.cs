@@ -328,6 +328,7 @@ public class AchievementManager : MonoBehaviour
         int chapterCount = RunManager.instance.GetChapterCount();
         List<Chapter> completedChapters = RunManager.instance.completedChaptersList;
         FrogCharacterController player = GameManager.instance.player;
+        GameMode playedGameMode = RunManager.instance.playedGameModes;
 
         List<Achievement> metaAchievements = new List<Achievement>(); // achievements that depend on other achievements
 
@@ -369,6 +370,13 @@ public class AchievementManager : MonoBehaviour
                             else
                             {
                                 conditionsAreMet &= false;
+                            }
+                            break;
+                        case AchievementConditionType.GAME_MODE:
+                            GameMode requiredGameMode = condition.gameModes;
+                            if ((playedGameMode & requiredGameMode) == requiredGameMode)
+                            {
+                                conditionsAreMet &= true;
                             }
                             break;
                         case AchievementConditionType.SPECIAL:
@@ -545,6 +553,9 @@ public class AchievementManager : MonoBehaviour
             case AchievementRewardType.SHOP_ITEM:
                 ShopManager.instance.RestockItem(reward.shopItem, reward.shopItemRestockCount);
                 unlockLog = $"Restock shop item {reward.shopItem.itemName}";
+                break;
+            case AchievementRewardType.GAME_MODE:
+                unlockLog = $"Unlock game mode {reward.gameMode.ToString()}";
                 break;
         }
         if (verbose == VerboseLevel.MAXIMAL)

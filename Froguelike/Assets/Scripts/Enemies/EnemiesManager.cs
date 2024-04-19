@@ -923,7 +923,7 @@ public class EnemiesManager : MonoBehaviour
         float hpMultiplier = 1;
         float damageMultiplier = 1;
         float xpMultiplier = 1;
-        float knockbackResistance = 0;
+        float knockbackResistance = enemyInstance.enemyInfo.enemyData.knockbackResistance;
         if (bounty != null)
         {
             // HP Multiplier
@@ -963,12 +963,16 @@ public class EnemiesManager : MonoBehaviour
             }
             else
             {
-                knockbackResistance = bountyDefaultKnockbackResistance;
+                knockbackResistance += bountyDefaultKnockbackResistance;
             }
         }
 
         // Set HP Max
         enemyInstance.HPMax = (enemyInstance.enemyInfo.enemyData.maxHP * hpMultiplier);
+
+        // Game mode HP multiplier
+        enemyInstance.HPMax *= RunManager.instance.gameModeBugHPMultiplier;
+
         enemyInstance.damageMultiplier = damageMultiplier;
         enemyInstance.xpMultiplier = xpMultiplier;
         enemyInstance.knockbackResistance = knockbackResistance;
@@ -1003,11 +1007,6 @@ public class EnemiesManager : MonoBehaviour
 
         // setup enemy - data
         newEnemy.enemyInfo.enemyData = enemyData;
-
-        /*
-        newEnemy.xpMultiplier = 1;
-        newEnemy.damageMultiplier = 1;
-        newEnemy.knockbackResistance = enemyData.knockbackResistance;*/
 
         // add enemy to update queue
         enemiesToUpdateQueue.Enqueue(newEnemy);
@@ -1850,6 +1849,10 @@ public class EnemiesManager : MonoBehaviour
             enemyDataSpeed = enemy.enemyInfo.enemyData.moveSpeed;
         }
         float actualSpeed = enemyDataSpeed * changeSpeedFactor * enemy.movePattern.speedFactor;
+
+        // Game mode speed multiplier
+        actualSpeed *= RunManager.instance.gameModeBugSpeedMultiplier;
+
         float maximumSpeed = 8;
         bool clampToMaxSpeed = true;
         if (bountyBug != null && bountyBug.ignoreMaxSpeed)
@@ -2003,6 +2006,10 @@ public class EnemiesManager : MonoBehaviour
 
             // Spawn Froins (a chance to get froins when killing a bug)
             float probabilityToSpawn1SmolFroin = DataManager.instance.baseCurrencyProbabilitySpawnFromBugs * (1 + GameManager.instance.player.GetCurrencyBoost()); // worth 1 Froin
+
+            // Game mode froins multiplier
+            probabilityToSpawn1SmolFroin *= RunManager.instance.gameModeFroinsMultiplier;
+
             float probabilityToSpawn1BigFroin = probabilityToSpawn1SmolFroin / 10; // worth 5 Froins
             float spawnFroinsRoll = Random.Range(0, 1f);
             float valueOfFroinSpawned = 0;

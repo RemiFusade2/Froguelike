@@ -31,6 +31,7 @@ public enum AchievementConditionType
     SPECIAL, // specific condition, hardcoded and identified with a string key
     RUNITEMLEVEL, // have a specific item (can be a weapon too) at a specific level
     CHAPTER, // complete a specific chapter
+    GAME_MODE, // play a specific set of game modes
 
     /*
      * EVERYTHING UNDER HERE IS NOT IMPLEMENTED, AND MAYBE NOT NEEDED
@@ -87,6 +88,9 @@ public class AchievementCondition
 
     [Tooltip("The key used in the code to check for a special condition")]
     public AchievementConditionSpecialKey specialKey;
+
+    [Tooltip("The game modes you have to play to unlock this achievement")]
+    public GameMode gameModes;
 }
 
 /// <summary>
@@ -100,7 +104,8 @@ public enum AchievementRewardType
     SHOP_ITEM, // unlock/restock a new item in the shop (or increase its max level)
     RUN_ITEM, // unlock a new run item to get during a level up
     CURRENCY, // give a bunch of froins
-    FEATURE // unlock a new feature (will be hardcoded)
+    FEATURE, // unlock a new feature (will be hardcoded)
+    GAME_MODE // unlock a new game mode
 }
 
 /// <summary>
@@ -151,6 +156,9 @@ public class AchievementReward
 
     [Tooltip("A value to identify a feature")]
     public RewardFeatureType featureID;
+
+    [Tooltip("Unlocked game mode")]
+    public GameMode gameMode;
 }
 
 

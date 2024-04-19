@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,15 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Timeline;
 using UnityEngine.UI;
+using UnityEngine.XR;
+
+[System.Flags]
+public enum GameMode
+{
+    NONE = 0,
+    HARD = 1,
+    HARDER = 2
+}
 
 [System.Serializable]
 public class RunItemInfo
@@ -163,6 +173,14 @@ public class RunManager : MonoBehaviour
     [Header("Runtime - XP")]
     public float xp;
     public int level;
+
+    [Header("Runtime - Current played game mode")]
+    public GameMode playedGameModes;
+    [Space]
+    public float gameModeBugHPMultiplier;
+    public float gameModeBugSpeedMultiplier;
+    public float gameModeBugDamageMultiplier;
+    public float gameModeFroinsMultiplier;
 
     [Header("Runtime - Current played character")]
     public PlayableCharacter currentPlayedCharacter;
@@ -344,7 +362,31 @@ public class RunManager : MonoBehaviour
 
     #endregion
 
-    public void StartNewRun(PlayableCharacter character)
+    private void SetupGameModesMultipliers(GameMode gameModes)
+    {
+        gameModeBugHPMultiplier = 1;
+        gameModeBugSpeedMultiplier = 1;
+        gameModeBugDamageMultiplier = 1;
+        gameModeFroinsMultiplier = 1;
+        if ((gameModes & GameMode.HARD) == GameMode.HARD)
+        {
+            // Hard mode activated
+            gameModeBugHPMultiplier += 0.5f;
+            gameModeBugSpeedMultiplier += 0.5f;
+            gameModeBugDamageMultiplier += 0.5f;
+            gameModeFroinsMultiplier += 0.5f;
+        }
+        if ((gameModes & GameMode.HARDER) == GameMode.HARDER)
+        {
+            // Harder mode activated
+            gameModeBugHPMultiplier += 1;
+            gameModeBugSpeedMultiplier += 1;
+            gameModeBugDamageMultiplier += 1;
+            gameModeFroinsMultiplier += 1;
+        }
+    }
+
+    public void StartNewRun(PlayableCharacter character, GameMode gameModes)
     {
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -360,6 +402,10 @@ public class RunManager : MonoBehaviour
         // Setup the player controller using the player data that we have
         currentPlayedCharacter = character;
         player.InitializeCharacter(character);
+
+        // Setup game mode multipliers
+        this.playedGameModes = gameModes;
+        SetupGameModesMultipliers(gameModes);
 
         InitializeNewRun();
 
