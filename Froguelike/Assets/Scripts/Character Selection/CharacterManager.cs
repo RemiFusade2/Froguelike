@@ -121,8 +121,7 @@ public class CharacterManager : MonoBehaviour
     public CharactersSaveData charactersData; // Will be loaded and saved when needed
     public PlayableCharacter currentSelectedCharacter;
     [Space]
-    public bool gameModeHardIsSelected;
-    public bool gameModeHarderIsSelected;
+    public GameMode selectedGameModes;
 
     private Dictionary<string, CharacterData> charactersDataFromNameDico;
 
@@ -655,36 +654,44 @@ public class CharacterManager : MonoBehaviour
 
     public GameMode GetSelectedGameModes()
     {
-        GameMode gameModes = GameMode.NONE;
-        if (gameModeHardIsSelected)
-        {
-            gameModes |= GameMode.HARD;
-        }
-        if (gameModeHarderIsSelected)
-        {
-            gameModes |= GameMode.HARDER;
-        }
-        return gameModes;
+        return selectedGameModes;
     }
 
     public void SelectGameModeHard(Toggle thisToggle)
     {
-        gameModeHardIsSelected = thisToggle.isOn;
+        bool hardModeIsSelected = thisToggle.isOn;
+
+        if (hardModeIsSelected)
+        {
+            selectedGameModes |= GameMode.HARD; // Add flag
+        }
+        else
+        {
+            selectedGameModes &= ~GameMode.HARD; // Remove flag
+        }
 
         DisplayDifficultyInfo(GetSelectedGameModes());
     }
 
     public void SelectGameModeHarder(Toggle thisToggle)
     {
-        gameModeHarderIsSelected = thisToggle.isOn;
+        bool harderModeIsSelected = thisToggle.isOn;
+
+        if (harderModeIsSelected)
+        {
+            selectedGameModes |= GameMode.HARDER; // Add flag
+        }
+        else
+        {
+            selectedGameModes &= ~GameMode.HARDER; // Remove flag
+        }
 
         DisplayDifficultyInfo(GetSelectedGameModes());
     }
 
     public void ResetDifficulty()
     {
-        gameModeHardIsSelected = false;
-        gameModeHarderIsSelected = false;
+        selectedGameModes = GameMode.NONE;
     }
 
     public void DisplayDifficultyInfo(GameMode gameMode)
