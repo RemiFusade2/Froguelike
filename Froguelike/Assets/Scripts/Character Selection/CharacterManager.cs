@@ -107,6 +107,9 @@ public class CharacterManager : MonoBehaviour
     public ScrollRect statsListScrollRect;
     public ScrollbarKeepCursorSizeBehaviour statListScrollbar;
     public GameObject hideShopStats;
+    [Space]
+    public GameObject difficultyPanel1GO;
+    public GameObject difficultyPanel2GO;
 
     [Header("UI Prefab")]
     public GameObject characterPanelPrefab;
@@ -296,6 +299,21 @@ public class CharacterManager : MonoBehaviour
         statsListScrollRect.normalizedPosition = new Vector2(0, 1);
 
         UpdateStatsList();
+
+        // Display the right difficulty panel if unlocked.
+        if (IsGameModeUnlocked(GameMode.HARD))
+        {
+            GameObject difficultyPanel = difficultyPanel1GO;
+            difficultyPanel1GO.SetActive(true);
+            difficultyPanel2GO.SetActive(false);
+
+            if (IsGameModeUnlocked(GameMode.HARDER))
+            {
+                difficultyPanel = difficultyPanel2GO;
+                difficultyPanel2GO.SetActive(true);
+                difficultyPanel1GO.SetActive(false);
+            }
+        }
 
         if (buttonCount == 1 && defaultCharacter != null)
         {
@@ -636,6 +654,42 @@ public class CharacterManager : MonoBehaviour
     {
         charactersData.availableGameModes |= gameMode;
         SaveDataManager.instance.isSaveDataDirty = true;
+    }
+
+    public void SelectGameModeHard(Toggle thisToggle)
+    {
+        gameModeHardIsSelected = thisToggle.isOn;
+        thisToggle.graphic.gameObject.SetActive(thisToggle.isOn);
+
+        // Display info.
+        if (gameModeHarderIsSelected)
+        {
+            // 150%
+            string text = "+150% bug health\n+150% bug speed\n+150% bug strength\n+150% froins";
+            thisToggle.gameObject.GetComponentInParent<Transform>().FindChild("Changes").GetComponentInChildren<TextMeshProUGUI>().SetText(text);
+        }
+        else
+        {
+            // 50%
+            string text = "+50% bug health\n+50% bug speed\n+50% bug strength\n+50% froins";
+        }
+    }
+
+    public void SelectGameModeHarder(bool selected)
+    {
+        gameModeHarderIsSelected = selected;
+
+        // Display info.
+        if (gameModeHardIsSelected)
+        {
+            // 150%
+            string text = "+150% bug health\n+150% bug speed\n+150% bug strength\n+150% froins";
+        }
+        else
+        {
+            // 100%
+            string text = "+100% bug health\n+100% bug speed\n+100% bug strength\n+100% froins";
+        }
     }
 
     /// <summary>
