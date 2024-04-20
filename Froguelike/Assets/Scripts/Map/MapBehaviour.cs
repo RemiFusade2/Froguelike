@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 
 /// <summary>
@@ -24,6 +25,9 @@ public class MapBehaviour : MonoBehaviour
     [Header("Settings")]
     public Vector2 tileSize = new Vector2(40, 22.5f);
     public float minDistanceWithPlayer = 2;
+    [Space]
+    public Vector2Int validSortingOrderForWater;
+    public Vector2Int validSortingOrderForRocks;
 
 
     private List<Vector2Int> existingTilesCoordinates;
@@ -71,7 +75,7 @@ public class MapBehaviour : MonoBehaviour
         }
     }
 
-    private void AddSomething(List<GameObject> prefabs, Vector2Int tileCoordinates, bool preventSpawnAtPosition, Vector2 preventSpawnPosition, Transform tileParent)
+    private void AddSomething(List<GameObject> prefabs, Vector2Int tileCoordinates, bool preventSpawnAtPosition, Vector2 preventSpawnPosition, Transform tileParent, Vector2Int sortingOrdersRange, string layerName)
     {
         int randomIndex = Random.Range(0, prefabs.Count);
 
@@ -79,7 +83,44 @@ public class MapBehaviour : MonoBehaviour
 
         if (!preventSpawnAtPosition || Vector2.Distance(randomPositionOnTile, preventSpawnPosition) > minDistanceWithPlayer)
         {
-            Instantiate(prefabs[randomIndex], randomPositionOnTile, Quaternion.identity, tileParent);
+            GameObject newSomethingGo = Instantiate(prefabs[randomIndex], randomPositionOnTile, Quaternion.identity, tileParent);
+
+            // Get overlapping colliders on the same layer
+            List<Collider2D> allOverlapingColliders = new List<Collider2D>();
+            float maxRadiusToDetectColliders = 3.0f;
+            ContactFilter2D contactFiler = new ContactFilter2D();
+            contactFiler.SetLayerMask(LayerMask.GetMask(layerName));
+            int contactsCount = Physics2D.OverlapCircle(randomPositionOnTile, maxRadiusToDetectColliders, contactFiler, allOverlapingColliders);
+
+            // Prepare all valid sorting orders for that new object we spawned
+            List<int> availableSortingOrders = new List<int>();
+            for (int order = sortingOrdersRange.x; order <= sortingOrdersRange.y; order++)
+            {
+                availableSortingOrders.Add(order);
+            }
+
+            // Remove sorting orders that are already used by overlapping colliders
+            foreach (Collider2D col in allOverlapingColliders)
+            {
+                SpriteRenderer colRenderer = col.GetComponent<SpriteRenderer>();
+                if (colRenderer == null)
+                {
+                    colRenderer = col.GetComponentInParent<SpriteRenderer>();
+                }
+                if (colRenderer != null && availableSortingOrders.Contains(colRenderer.sortingOrder))
+                {
+                    availableSortingOrders.Remove(colRenderer.sortingOrder);
+                }
+            }
+
+            // Set a sorting order that is either picked from the available ones or randomly chosen
+            int sortingOrder = Random.Range(sortingOrdersRange.x, sortingOrdersRange.y + 1);
+            if (availableSortingOrders.Count > 0)
+            {
+                sortingOrder = availableSortingOrders[Random.Range(0, availableSortingOrders.Count)];
+            }
+            SpriteRenderer newSomethingSpriteRenderer = newSomethingGo.GetComponent<SpriteRenderer>();
+            newSomethingSpriteRenderer.sortingOrder = sortingOrder;
         }
     }
 
@@ -147,7 +188,7 @@ public class MapBehaviour : MonoBehaviour
             float waterAmount = Mathf.Floor(waterProba) + ((Random.Range(Mathf.Floor(waterProba), Mathf.Ceil(waterProba)) < waterProba) ? 1 : 0);
             for (int i = 0; i < waterAmount; i++)
             {
-                AddSomething(watersPrefabs, tileCoordinates, false, preventSpawnPosition, tile.transform);
+                AddSomething(watersPrefabs, tileCoordinates, false, preventSpawnPosition, tile.transform, validSortingOrderForWater, "LakeCollider");
             }
 
             // generate rocks
@@ -156,7 +197,7 @@ public class MapBehaviour : MonoBehaviour
             float rockAmount = Mathf.Floor(rockProba) + ((Random.Range(Mathf.Floor(rockProba), Mathf.Ceil(rockProba)) < rockProba) ? 1 : 0);
             for (int i = 0; i < rockAmount; i++)
             {
-                AddSomething(rocksPrefabs, tileCoordinates, preventSpawnRocksAtPosition, preventSpawnPosition, tile.transform);
+                AddSomething(rocksPrefabs, tileCoordinates, preventSpawnRocksAtPosition, preventSpawnPosition, tile.transform, validSortingOrderForRocks, "Rock");
             }
 
             // generate currency collectibles
