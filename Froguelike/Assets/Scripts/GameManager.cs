@@ -246,10 +246,10 @@ public class GameManager : MonoBehaviour
         SaveDataManager.instance.isSaveDataDirty = true;
     }
 
-    public void StartRunWithCharacter(PlayableCharacter character)
+    public void StartRunWithCharacter(PlayableCharacter character, GameMode gameModes)
     {
         // Start a new Run
-        RunManager.instance.StartNewRun(character);
+        RunManager.instance.StartNewRun(character, gameModes);
     }
 
     #endregion

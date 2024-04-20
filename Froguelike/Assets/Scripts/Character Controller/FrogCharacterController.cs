@@ -949,9 +949,16 @@ public class FrogCharacterController : MonoBehaviour
 
             // Compute actual damage
             float damage = 1;
+            float maxDamage = float.MaxValue;
             if (enemyData != null)
             {
-                damage = Mathf.Clamp((enemyData.damage * damageFactor) - GetArmor(), 0.1f, float.MaxValue);
+                damage = enemyData.damage * damageFactor;
+
+                // Game mode damage multiplier
+                damage *= RunManager.instance.gameModeBugDamageMultiplier;
+
+                damage = Mathf.Clamp(damage - GetArmor(), 0.1f, maxDamage);
+
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                 {
                     Debug.Log("Player - Take damage from " + enemyData.enemyName + ": " + damage.ToString("0.00") + " HP.");

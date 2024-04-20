@@ -30,9 +30,9 @@ public class AchievementConditionDrawer : PropertyDrawer
         {
             // Choose chapter count (int)     
             float labelWidth = 100;
-            Rect chapterLabelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+            Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
             Rect chapterDataRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
-            EditorGUI.LabelField(chapterLabelRect, new GUIContent("Chapter count:"));
+            EditorGUI.LabelField(labelRect, new GUIContent("Chapter count:"));
             EditorGUI.PropertyField(chapterDataRect, property.FindPropertyRelative("chapterCount"), GUIContent.none);
         }
         else if (conditionType.enumValueFlag == (int)AchievementConditionType.CHARACTER)
@@ -57,44 +57,53 @@ public class AchievementConditionDrawer : PropertyDrawer
         {
             // Choose Level count
             float labelWidth = 80;
-            Rect environmentTypeLabelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
-            Rect environmentTypeRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
-            EditorGUI.LabelField(environmentTypeLabelRect, new GUIContent("Level:"));
-            EditorGUI.PropertyField(environmentTypeRect, property.FindPropertyRelative("reachLevel"), GUIContent.none);
+            Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+            Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(labelRect, new GUIContent("Level:"));
+            EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("reachLevel"), GUIContent.none);
         }
         else if (conditionType.enumValueFlag == (int)AchievementConditionType.RUNITEM)
         {
             // Choose Run item
             float labelWidth = 40;
-            Rect hatTypeLabelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
-            Rect hatTypeRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
-            EditorGUI.LabelField(hatTypeLabelRect, new GUIContent("Item:"));
-            EditorGUI.PropertyField(hatTypeRect, property.FindPropertyRelative("runItem"), GUIContent.none);
+            Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+            Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(labelRect, new GUIContent("Item:"));
+            EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("runItem"), GUIContent.none);
         }
         else if (conditionType.enumValueFlag == (int)AchievementConditionType.RUNITEMLEVEL)
         {
             // Choose Run item
             float labelWidth = 60;
-            Rect hatTypeLabelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
-            Rect hatTypeRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
-            EditorGUI.LabelField(hatTypeLabelRect, new GUIContent("Item:"));
-            EditorGUI.PropertyField(hatTypeRect, property.FindPropertyRelative("runItem"), GUIContent.none);
+            Rect label1Rect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+            Rect property1Rect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(label1Rect, new GUIContent("Item:"));
+            EditorGUI.PropertyField(property1Rect, property.FindPropertyRelative("runItem"), GUIContent.none);
 
             // Choose Run item level
             position.y += EditorGUIUtility.singleLineHeight;
-            Rect environmentTypeLabelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
-            Rect environmentTypeRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
-            EditorGUI.LabelField(environmentTypeLabelRect, new GUIContent("Level:"));
-            EditorGUI.PropertyField(environmentTypeRect, property.FindPropertyRelative("reachLevel"), GUIContent.none);
+            Rect label2Rect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+            Rect property2Rect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(label2Rect, new GUIContent("Level:"));
+            EditorGUI.PropertyField(property2Rect, property.FindPropertyRelative("reachLevel"), GUIContent.none);
         }
         else if (conditionType.enumValueFlag == (int)AchievementConditionType.SPECIAL)
         {
             // Choose Special key
             float labelWidth = 40;
-            Rect friendTypeLabelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
-            Rect friendTypeRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
-            EditorGUI.LabelField(friendTypeLabelRect, new GUIContent("Key:"));
-            EditorGUI.PropertyField(friendTypeRect, property.FindPropertyRelative("specialKey"), GUIContent.none);
+            Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+            Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(labelRect, new GUIContent("Key:"));
+            EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("specialKey"), GUIContent.none);
+        }
+        else if (conditionType.enumValueFlag == (int)AchievementConditionType.GAME_MODE)
+        {
+            // Choose Game mode flags
+            float labelWidth = 80;
+            Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+            Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(labelRect, new GUIContent("Game modes:"));
+            EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("gameModes"), GUIContent.none);
         }
 
         EditorGUI.EndProperty();
@@ -203,6 +212,15 @@ public class AchievementRewardDrawer : PropertyDrawer
             Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
             EditorGUI.LabelField(labelRect, new GUIContent("Feature ID:"));
             EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("featureID"), GUIContent.none);
+        }
+        else if (conditionType.enumValueFlag == (int)AchievementRewardType.GAME_MODE)
+        {
+            // Choose Game mode code
+            float labelWidth = 100;
+            Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+            Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(labelRect, new GUIContent("Game mode:"));
+            EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("gameMode"), GUIContent.none);
         }
 
         EditorGUI.EndProperty();

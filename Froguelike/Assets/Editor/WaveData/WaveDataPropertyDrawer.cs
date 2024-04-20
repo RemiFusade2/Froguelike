@@ -438,7 +438,7 @@ public class WaveDataPropertyDrawer : PropertyDrawer
                         }
                         catch (System.Exception e)
                         {
-                            Debug.LogError($"Trying to evaluate tier with broken formula: {enemyTierFormula.stringValue}");
+                            Debug.LogError($"Trying to evaluate tier with broken formula: {enemyTierFormula.stringValue}. Exception: {e.Message}");
                             continue;
                         }
                         tier = Mathf.Clamp(tier, 1, 5);

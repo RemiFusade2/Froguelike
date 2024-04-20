@@ -62,6 +62,8 @@ public class CharactersSaveData : SaveData
 {
     public List<PlayableCharacter> charactersList;
 
+    public GameMode availableGameModes;
+
     public CharactersSaveData()
     {
         Reset();
@@ -105,6 +107,11 @@ public class CharacterManager : MonoBehaviour
     public ScrollRect statsListScrollRect;
     public ScrollbarKeepCursorSizeBehaviour statListScrollbar;
     public GameObject hideShopStats;
+    [Space]
+    public GameObject difficultyPanel1;
+    public TextMeshProUGUI difficultyPanel1InfoText;
+    public GameObject difficultyPanel2;
+    public TextMeshProUGUI difficultyPanel2InfoText;
 
     [Header("UI Prefab")]
     public GameObject characterPanelPrefab;
@@ -113,6 +120,8 @@ public class CharacterManager : MonoBehaviour
     [Header("Runtime")]
     public CharactersSaveData charactersData; // Will be loaded and saved when needed
     public PlayableCharacter currentSelectedCharacter;
+    [Space]
+    public GameMode selectedGameModes;
 
     private Dictionary<string, CharacterData> charactersDataFromNameDico;
 
@@ -291,6 +300,25 @@ public class CharacterManager : MonoBehaviour
         statsListScrollRect.normalizedPosition = new Vector2(0, 1);
 
         UpdateStatsList();
+
+        // Display the right difficulty panel if unlocked.
+        if (IsGameModeUnlocked(GameMode.HARD))
+        {
+            GameObject difficultyPanel = difficultyPanel1;
+            difficultyPanel1.SetActive(true);
+            difficultyPanel2.SetActive(false);
+
+            if (IsGameModeUnlocked(GameMode.HARDER))
+            {
+                difficultyPanel = difficultyPanel2;
+                difficultyPanel2.SetActive(true);
+                difficultyPanel1.SetActive(false);
+            }
+
+            ResetDifficulty();
+            difficultyPanel.GetComponent<DifficultyPanelBehaviour>().SetToggleCheckmarks(GetSelectedGameModes());
+            DisplayDifficultyInfo(GetSelectedGameModes());
+        }
 
         if (buttonCount == 1 && defaultCharacter != null)
         {
@@ -556,7 +584,7 @@ public class CharacterManager : MonoBehaviour
 
     public void StartRun()
     {
-        GameManager.instance.StartRunWithCharacter(currentSelectedCharacter);
+        GameManager.instance.StartRunWithCharacter(currentSelectedCharacter, GetSelectedGameModes());
     }
 
     /// <summary>
@@ -565,6 +593,7 @@ public class CharacterManager : MonoBehaviour
     /// <param name="saveData"></param>
     public void SetCharactersData(CharactersSaveData saveData)
     {
+        charactersData.availableGameModes = saveData.availableGameModes;
         foreach (PlayableCharacter character in charactersData.charactersList)
         {
             PlayableCharacter characterFromSave = saveData.charactersList.First(x => x.characterID.Equals(character.characterID));
@@ -592,6 +621,7 @@ public class CharacterManager : MonoBehaviour
         {
             // A hard reset will reset everything to the start game values
             charactersData.charactersList.Clear();
+            charactersData.availableGameModes = GameMode.NONE;
             foreach (CharacterData characterData in charactersScriptableObjectsList)
             {
                 PlayableCharacter newCharacter = new PlayableCharacter() { characterData = characterData, characterID = characterData.characterID, unlocked = characterData.startingUnlockState, hidden = characterData.startingHiddenState, wonWith = 0 };
@@ -609,6 +639,82 @@ public class CharacterManager : MonoBehaviour
         }
 
         SaveDataManager.instance.isSaveDataDirty = true;
+    }
+
+    public bool IsGameModeUnlocked(GameMode gameMode)
+    {
+        return (charactersData.availableGameModes & gameMode) == gameMode;
+    }
+
+    public void UnlockGameMode(GameMode gameMode)
+    {
+        charactersData.availableGameModes |= gameMode;
+        SaveDataManager.instance.isSaveDataDirty = true;
+    }
+
+    public GameMode GetSelectedGameModes()
+    {
+        return selectedGameModes;
+    }
+
+    public void SelectGameModeHard(Toggle thisToggle)
+    {
+        bool hardModeIsSelected = thisToggle.isOn;
+
+        if (hardModeIsSelected)
+        {
+            selectedGameModes |= GameMode.HARD; // Add flag
+        }
+        else
+        {
+            selectedGameModes &= ~GameMode.HARD; // Remove flag
+        }
+
+        DisplayDifficultyInfo(GetSelectedGameModes());
+    }
+
+    public void SelectGameModeHarder(Toggle thisToggle)
+    {
+        bool harderModeIsSelected = thisToggle.isOn;
+
+        if (harderModeIsSelected)
+        {
+            selectedGameModes |= GameMode.HARDER; // Add flag
+        }
+        else
+        {
+            selectedGameModes &= ~GameMode.HARDER; // Remove flag
+        }
+
+        DisplayDifficultyInfo(GetSelectedGameModes());
+    }
+
+    public void ResetDifficulty()
+    {
+        selectedGameModes = GameMode.NONE;
+    }
+
+    public void DisplayDifficultyInfo(GameMode gameMode)
+    {
+        string text = "";
+        TextMeshProUGUI setThisText = IsGameModeUnlocked(GameMode.HARDER) ? difficultyPanel2InfoText : difficultyPanel1InfoText;
+        if (gameMode == GameMode.HARD)
+        {
+            // 50%
+            text = "+50% bug health\n+50% bug speed\n+50% bug strength\n+50% froins";
+        }
+        else if (gameMode == GameMode.HARDER)
+        {
+            // 100%
+            text = "+100% bug health\n+100% bug speed\n+100% bug strength\n+100% froins";
+        }
+        else if (gameMode == (GameMode.HARD | GameMode.HARDER))
+        {
+            // 150%
+            text = "+150% bug health\n+150% bug speed\n+150% bug strength\n+150% froins";
+        }
+
+        setThisText.SetText(text);
     }
 
     /// <summary>
