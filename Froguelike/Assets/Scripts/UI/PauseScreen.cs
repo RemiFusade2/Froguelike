@@ -8,11 +8,13 @@ using System;
 public class PauseScreen : MonoBehaviour
 {
     public RunManager runManager;
-
+    [Header("Character bookmark")]
     public Image characterImage;
     public TextMeshProUGUI characterNameText;
     public Transform thingSlotsParent;
+    [Header("Chapter list")]
     public TextMeshProUGUI chapterText;
+    [Header("Item slots")]
     public List<Transform> tongueSlotsParents;
     public GameObject tongueSlotPrefab;
     public List<Transform> runItemSlotsParents;
@@ -20,8 +22,22 @@ public class PauseScreen : MonoBehaviour
     public GameObject firstExtraSlots;
     public GameObject secondExtraSlots;
     public GameObject thirdExtraSlots;
+    public GameObject forthExtraSlots;
+    [Header("Lives")]
     public TextMeshProUGUI livesCountText;
+    [Header("Panel")]
+    public GameObject runInfoPanel;
+    public ChapterInfoBehaviour chapterInfoPanel;
+    [Header("Tab buttons")]
+    public Button runInfoButton;
+    public Button chapterInfoButton;
 
+    public void ShowRunInfoPanel()
+    {
+        chapterInfoPanel.transform.parent.gameObject.SetActive(false);
+        runInfoPanel.SetActive(true);
+        chapterInfoButton.Select();
+    }
 
     public void UpdatePauseScreen()
     {
@@ -105,8 +121,15 @@ public class PauseScreen : MonoBehaviour
 
         try
         {
+            string text = "";
+            for (int chapterIndex = 0; chapterIndex < runManager.GetChapterCount() - 1; chapterIndex++)
+            {
+                text += "Chapter " + (chapterIndex + 1) + " - " + runManager.completedChaptersList[chapterIndex].chapterData.chapterTitle + "\n";
+            }
+
+            text += "Chapter " + runManager.GetChapterCount().ToString() + " - " + runManager.currentChapter.chapterData.chapterTitle;
             // Chapter number + name.
-            chapterText.SetText("Chapter " + runManager.GetChapterCount().ToString() + "<br>" + runManager.currentChapter.chapterData.chapterTitle);
+            chapterText.SetText(text);
         }
         catch (Exception e)
         {
@@ -133,6 +156,8 @@ public class PauseScreen : MonoBehaviour
         {
             Debug.LogError($"Exception in UpdatePauseScreen() - updating extra lives count: {e.Message}");
         }
+
+        ShowRunInfoPanel();
     }
 
     private void UpdateRunItemSlots()
@@ -151,6 +176,7 @@ public class PauseScreen : MonoBehaviour
         firstExtraSlots.SetActive(maxSlots > 6);
         secondExtraSlots.SetActive(maxSlots > 8);
         thirdExtraSlots.SetActive(maxSlots > 10);
+        forthExtraSlots.SetActive(maxSlots > 12);
 
         UpdateSlots(ownedTongues, tongueSlotPrefab, tongueSlotsParents);
         UpdateSlots(ownedRunItems, runItemSlotPrefab, runItemSlotsParents);
@@ -197,6 +223,11 @@ public class PauseScreen : MonoBehaviour
             {
                 parent = parents[3];
             }
+            // Instantiate slot on forth post it.
+            else if (child < 14)
+            {
+                parent = parents[4];
+            }
             else
             {
                 return;
@@ -219,5 +250,14 @@ public class PauseScreen : MonoBehaviour
                 Destroy(child.gameObject);
             }
         }
+    }
+
+    public void ShowChapterInfoPanel()
+    {
+        runInfoPanel.SetActive(false);
+        chapterInfoPanel.transform.parent.gameObject.SetActive(true);
+        runInfoButton.Select();
+
+        chapterInfoPanel.DisplayChapter(RunManager.instance.currentChapter, chapterInfoPanel);
     }
 }

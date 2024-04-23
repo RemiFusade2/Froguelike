@@ -1014,14 +1014,7 @@ public class RunManager : MonoBehaviour
                         itemIsNew = false;
                         pickedItemInfo = ownedItem;
                         log += " (already owned, level " + ownedItem.level + ")";
-
-                        if (ownedItem.level < itemData.GetMaxLevel())
-                        {
-                            // Level was not already maxed out
-                            ownedItem.level++;
-                        }
-
-                        level = ownedItem.level - 1;
+                        ownedItem.level++;
                         break;
                     }
                 }
@@ -1045,7 +1038,7 @@ public class RunManager : MonoBehaviour
 
                 // resolve the item picked (according to its current level)
                 int levelIndex = pickedItemInfo.level - 1;
-                levelIndex = Mathf.Clamp(levelIndex, 0, pickedItemInfo.GetRunItemData().GetMaxLevelCount());
+                levelIndex = Mathf.Clamp(levelIndex, 0, pickedItemInfo.GetRunItemData().GetMaxLevelCount() - 1);
                 RunStatItemLevel levelUpgrades = (pickedItemData as RunStatItemData).statBoostLevels[levelIndex];
                 log += " Improve stats: " + levelUpgrades.statUpgrades.ToString();
                 player.ResolvePickedStatItemLevel(levelUpgrades);
@@ -1068,14 +1061,10 @@ public class RunManager : MonoBehaviour
 
                         log += $" (already owned, level {ownedWeapon.level})"; // show previous level
 
-                        if (ownedWeapon.level < pickedItemData.GetMaxLevel())
-                        {
-                            // Level is not already maxed out
-                            ownedWeapon.level++; // Increase level
-                        }
+                        ownedWeapon.level++; // Increase level
 
                         // We need to upgrade all similar weapons
-                        level = ownedWeapon.level - 2; // This is level boost index
+                        level = Mathf.Clamp(ownedWeapon.level - 2, 0, ownedWeapon.weaponItemData.GetMaxLevelCount() - 1); // This is level boost index
                         foreach (GameObject weaponGo in ownedWeapon.activeWeaponsList)
                         {
                             if (level >= 0 && level < ownedWeapon.weaponItemData.GetMaxLevelCount())
@@ -1779,6 +1768,7 @@ public class RunManager : MonoBehaviour
             EventSystem.current.SetSelectedGameObject(levelUpChoicesPanels[0]);
         }
     }
+
     public void ShowCollectSuperCollectiblePanel(FixedCollectible collectibleInfo)
     {
         // Set Time Scale back to 0
