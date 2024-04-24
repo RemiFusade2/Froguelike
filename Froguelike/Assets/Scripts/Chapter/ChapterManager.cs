@@ -765,6 +765,12 @@ public class ChapterManager : MonoBehaviour
 
         displayedChapterIndex = 0;
         DisplayChapter(selectionOfNextChaptersList[0], chapterInfoPanel);
+        chapterButtonsList[0].SetDisplayedColor();
+        chapterButtonsList[0].SetHighlightedColor(false);
+        for (int chapterButtonIndex = 1; chapterButtonIndex < chapterButtonsList.Count; chapterButtonIndex++)
+        {
+            chapterButtonsList[chapterButtonIndex].SetNormalColor();
+        }
     }
 
     public void RerollChapterSelection()
@@ -806,6 +812,12 @@ public class ChapterManager : MonoBehaviour
         UpdateRerollPostit();
         displayedChapterIndex = 0;
         DisplayChapter(selectionOfNextChaptersList[0], chapterInfoPanel);
+        chapterButtonsList[0].SetDisplayedColor();
+        chapterButtonsList[0].SetHighlightedColor(true);
+        for (int chapterButtonIndex = 1; chapterButtonIndex < chapterButtonsList.Count; chapterButtonIndex++)
+        {
+            chapterButtonsList[chapterButtonIndex].SetNormalColor();
+        }
 
         // Call the UIManager to display the chapter selection screen
         UIManager.instance.ShowChapterSelectionScreen((chapterCount == 0));
@@ -830,6 +842,18 @@ public class ChapterManager : MonoBehaviour
     {
         displayedChapterIndex = index;
         DisplayChapter(selectionOfNextChaptersList[index], chapterInfoPanel);
+        for (int chapterButtonIndex = 0; chapterButtonIndex < chapterButtonsList.Count; chapterButtonIndex++)
+        {
+            ChapterButtonBehaviour thisChapterButton = chapterButtonsList[chapterButtonIndex];
+            if (chapterButtonIndex == displayedChapterIndex)
+            {
+                thisChapterButton.SetDisplayedColor();
+            }
+            else
+            {
+                thisChapterButton.SetNormalColor();
+            }
+        }
     }
 
     /// <summary>
