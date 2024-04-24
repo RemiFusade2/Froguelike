@@ -22,8 +22,7 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
     [Space]
     public Image achievementIconImage;
     [Space]
-    public Image unlockedFrameIconImage;
-    public Image unlockedIconImage;
+    public Image checkboxImage;
 
     [Header("Settings")]
     public Color darkBkgColor;
@@ -32,9 +31,7 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
     public Color visibleTextColor;
     public Color hiddenTextColor;
     [Space]
-    public Sprite achievedFrameSprite;
     public Sprite achievedSprite;
-    public Sprite notAchievedFrameSprite;
     public Sprite notAchievedSprite;
     [Space]
     public Sprite hiddenAchievementIconSprite;
@@ -73,12 +70,12 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
         {
             // The achievement has been unlocked already
             SetTextColor(visibleTextColor);
-            achievementTitleTextMesh.text = achievement.achievementData.achievementTitle;            
+            achievementTitleTextMesh.text = achievement.achievementData.achievementTitle;
             achievementRewardTextMesh.text = $"Reward: {achievement.GetRewardDescription()}";
             achievementHintTextMesh.text = $"Hint: {achievement.GetAchievementDescription()}";
-            unlockedFrameIconImage.gameObject.SetActive(true);
-            unlockedFrameIconImage.sprite = achievedFrameSprite;
-            unlockedIconImage.sprite = achievedSprite;
+
+            checkboxImage.gameObject.SetActive(true);
+            checkboxImage.sprite = achievedSprite;
             SetAchievementIcon(achievement);
         }
         else if (isDemoBuildAndAchievementIsNotPartOfDemo)
@@ -89,7 +86,7 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
             achievementRewardTextMesh.text = "*Not part of the demo*";
             achievementHintTextMesh.text = "";
 
-            unlockedFrameIconImage.gameObject.SetActive(false);
+            checkboxImage.gameObject.SetActive(false);
             achievementIconImage.sprite = hiddenAchievementIconSprite;
         }
         else if (!accessible)
@@ -100,7 +97,7 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
             achievementRewardTextMesh.text = "*Complete other stuff first*"; ;
             achievementHintTextMesh.text = "";
 
-            unlockedFrameIconImage.gameObject.SetActive(false);
+            checkboxImage.gameObject.SetActive(false);
             achievementIconImage.sprite = hiddenAchievementIconSprite;
         }
         else if (achievement.achievementData.isSecret)
@@ -114,9 +111,8 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
             {
                 achievementHintTextMesh.text = $"Hint: {achievement.achievementData.achievementTitle}";
             }
-            unlockedFrameIconImage.gameObject.SetActive(true);
-            unlockedFrameIconImage.sprite = notAchievedFrameSprite;
-            unlockedIconImage.sprite = notAchievedSprite;
+            checkboxImage.gameObject.SetActive(true);
+            checkboxImage.sprite = notAchievedSprite;
             achievementIconImage.sprite = hiddenAchievementIconSprite;
         }
         else
@@ -126,9 +122,8 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
             achievementTitleTextMesh.text = achievement.achievementData.achievementTitle;
             achievementRewardTextMesh.text = $"Reward: {achievement.GetRewardDescription()}";
             achievementHintTextMesh.text = $"Hint: {achievement.GetAchievementDescription()}";
-            unlockedFrameIconImage.gameObject.SetActive(true);
-            unlockedFrameIconImage.sprite = notAchievedFrameSprite;
-            unlockedIconImage.sprite = notAchievedSprite;
+            checkboxImage.gameObject.SetActive(true);
+            checkboxImage.sprite = notAchievedSprite;
             SetAchievementIcon(achievement);
         }
     }
