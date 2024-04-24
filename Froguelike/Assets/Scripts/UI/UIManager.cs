@@ -198,7 +198,6 @@ public class UIManager : MonoBehaviour
         backToTitleScreenConfirmationPanel.SetActive(false);
     }
 
-
     public void ShowTitleScreen()
     {
         MusicManager.instance.PlayTitleMusic();
@@ -314,11 +313,9 @@ public class UIManager : MonoBehaviour
             titleScreen.SetActive(true);
             SetScreenInteractability(menuButtonsGroup, false);
         }
-        chapterSelectionScreen.SetActive(true);
 
-        // Pick the first chapter option as the selected button.
-        GameObject selectedButton = chapterSelectionButtons[4].activeSelf ? chapterSelectionButtons[4] : chapterSelectionButtons[0];
-        SetSelectedButton(selectedButton);
+        chapterSelectionScreen.SetActive(true);
+        SetSelectedButton(chapterSelectionButtons[0]);
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -501,7 +498,7 @@ public class UIManager : MonoBehaviour
         return shopScreen.activeInHierarchy;
     }
 
-    #endregion
+    #endregion Shop
 
     #region Quests
 
@@ -533,7 +530,7 @@ public class UIManager : MonoBehaviour
         return achievementsScreen.activeInHierarchy;
     }
 
-    #endregion
+    #endregion Quests
 
     #region Credits
 
@@ -717,7 +714,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    #endregion
+    #endregion Disclaimer screens & end of demo
 
     #region Error pop ups
 
@@ -766,7 +763,7 @@ public class UIManager : MonoBehaviour
         return settingsScreen.activeInHierarchy;
     }
 
-    #endregion
+    #endregion Settings
 
     #region Buttons
 
