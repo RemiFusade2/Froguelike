@@ -8,35 +8,27 @@ using UnityEngine.Audio;
 using FMODUnity;
 using FMOD.Studio;
 
-public class SettingsMenu : MonoBehaviour
+public class SettingsManager : MonoBehaviour
 {
+    public static SettingsManager instance;
+
     [Header("Resolution")]
     public Toggle fullscreenToggle;
     public ResolutionsScrollRect resolutionScrollRect;
     public GameObject leftArrow;
     public GameObject rightArrow;
     public PixelPerfectCamera pixelPerfectCamera;
+    public CanvasScaler canvasScaler;
 
     [Header("Disclaimer settings")]
     public Toggle disclaimerToggle;
     public DisclaimerScreen eaDisclaimerScreen;
     public DisclaimerScreen demoDisclaimerScreen;
 
-    private Vector2Int biggestResolutionForThisScreen;
-    private List<Vector2Int> allowedResolutions;
-
-    int gameWidth;
-    int gameHeight;
-
-    int currentResolutionIndex = -1;
-
-    bool startUpDone = false;
-    bool isChangingFullscreen = false;
-
-    CanvasScaler canvasScaler;
-
-    public TextMeshProUGUI text;
-    DisplayInfo savedDisplayInfo;
+    [Header("Damage text settings")]
+    public Toggle damageTextToggle;
+    public bool showDamageText { get; private set; }
+    private string savedDamageTextSettingKey = "Froguelike damage text visible";
 
     #region Sound
 
@@ -68,11 +60,39 @@ public class SettingsMenu : MonoBehaviour
 
     #endregion
 
+    [Header("For debugging")]
+    public TextMeshProUGUI text;
+    private DisplayInfo savedDisplayInfo;
+
+    // Various private variables.
+    private Vector2Int biggestResolutionForThisScreen;
+    private List<Vector2Int> allowedResolutions;
+
+    int gameWidth;
+    int gameHeight;
+
+    int currentResolutionIndex = -1;
+
+    bool startUpDone = false;
+    bool isChangingFullscreen = false;
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(this);
+        }
+        else
+        {
+            Destroy(this.gameObject);
+            Debug.Log("TEST");
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        canvasScaler = gameObject.GetComponent<CanvasScaler>();
-
         // Set the fullsccreen toggle to match the current fullscreen mode.
         fullscreenToggle.isOn = Screen.fullScreen;
 
@@ -86,6 +106,7 @@ public class SettingsMenu : MonoBehaviour
 
         LoadAudioSettings();
         LoadDisclaimerSettings();
+        LoadDamageTextSetting();
     }
 
     // Update is called once per frame
@@ -256,7 +277,7 @@ public class SettingsMenu : MonoBehaviour
         resolutionScrollRect.UpdateScroll(false, currentResolutionIndex + 1);
     }
 
-    // Used if the current reolution doesn't match any of the allowed resolutions.
+    // Used if the current resolution doesn't match any of the allowed resolutions.
     public void SetWindowResolution(int wantedResolutionIndex)
     {
         currentResolutionIndex = wantedResolutionIndex;
@@ -449,7 +470,7 @@ public class SettingsMenu : MonoBehaviour
         disclaimerToggle.SetIsOnWithoutNotify(on);
     }
 
-    public void ToggleShowDisclaimer(Toggle toggle)
+    public void ToggleShowDisclaimer()
     {
         if (BuildManager.instance.demoBuild)
         {
@@ -462,4 +483,22 @@ public class SettingsMenu : MonoBehaviour
     }
 
     #endregion
+
+    #region Damage text
+
+    public void LoadDamageTextSetting()
+    {
+        showDamageText = PlayerPrefs.GetInt(savedDamageTextSettingKey, 1) == 1 ? true : false;
+        damageTextToggle.SetIsOnWithoutNotify(showDamageText);
+    }
+
+    // Called from the toggle in the settings menu.
+    public void ToggleShowDamageText()
+    {
+        // Revert the current status for showing the damage text and then save it.
+        showDamageText = !showDamageText;
+        PlayerPrefs.SetInt(savedDamageTextSettingKey, showDamageText == true ? 1 : 0);
+    }
+
+    #endregion Damage text
 }

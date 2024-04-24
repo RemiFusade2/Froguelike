@@ -1062,7 +1062,7 @@ public class EnemiesManager : MonoBehaviour
 
         // Display damage text
         GameObject damageText = null;
-        if ((visualDamageAmountInt > 0 || applyCurse) && damageTextsPool.TryDequeue(out damageText))
+        if (SettingsManager.instance.showDamageText && (visualDamageAmountInt > 0 || applyCurse) && damageTextsPool.TryDequeue(out damageText))
         {
             Vector2 position = (Vector2)enemy.enemyTransform.position + 0.1f * Random.insideUnitCircle;
             damageText.transform.position = position;
