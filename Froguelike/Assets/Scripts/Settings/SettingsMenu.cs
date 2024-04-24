@@ -17,6 +17,11 @@ public class SettingsMenu : MonoBehaviour
     public GameObject rightArrow;
     public PixelPerfectCamera pixelPerfectCamera;
 
+    [Header("Disclaimer settings")]
+    public Toggle disclaimerToggle;
+    public DisclaimerScreen eaDisclaimerScreen;
+    public DisclaimerScreen demoDisclaimerScreen;
+
     private Vector2Int biggestResolutionForThisScreen;
     private List<Vector2Int> allowedResolutions;
 
@@ -80,6 +85,7 @@ public class SettingsMenu : MonoBehaviour
         startUpDone = true;
 
         LoadAudioSettings();
+        LoadDisclaimerSettings();
     }
 
     // Update is called once per frame
@@ -253,16 +259,16 @@ public class SettingsMenu : MonoBehaviour
     // Used if the current reolution doesn't match any of the allowed resolutions.
     public void SetWindowResolution(int wantedResolutionIndex)
     {
-            currentResolutionIndex = wantedResolutionIndex;
-            Vector2Int res = allowedResolutions[Mathf.Max(currentResolutionIndex, 0)];
-            if (Screen.fullScreen)
-            {
-                Screen.SetResolution(res.x, res.y, FullScreenMode.MaximizedWindow);
-            }
-            else
-            {
-                Screen.SetResolution(res.x, res.y, false);
-            }
+        currentResolutionIndex = wantedResolutionIndex;
+        Vector2Int res = allowedResolutions[Mathf.Max(currentResolutionIndex, 0)];
+        if (Screen.fullScreen)
+        {
+            Screen.SetResolution(res.x, res.y, FullScreenMode.MaximizedWindow);
+        }
+        else
+        {
+            Screen.SetResolution(res.x, res.y, false);
+        }
     }
 
     // Used when chaning reolution with the arrows on the setting screen.
@@ -409,6 +415,18 @@ public class SettingsMenu : MonoBehaviour
 
     #region Disclaimer screens
 
+    public void LoadDisclaimerSettings()
+    {
+        if (BuildManager.instance.demoBuild)
+        {
+            disclaimerToggle.SetIsOnWithoutNotify(IsDemoDisclaimerOn());
+        }
+        else
+        {
+            disclaimerToggle.SetIsOnWithoutNotify(IsEADisclaimerOn());
+        }
+    }
+
     public bool IsDemoDisclaimerOn()
     {
         return PlayerPrefs.GetInt(savedShowDemoDisclaimerKey, 1) == 1;
@@ -417,6 +435,7 @@ public class SettingsMenu : MonoBehaviour
     public void SetDemoDisclaimerOn(bool on)
     {
         PlayerPrefs.SetInt(savedShowDemoDisclaimerKey, on ? 1 : 0);
+        disclaimerToggle.SetIsOnWithoutNotify(on);
     }
 
     public bool IsEADisclaimerOn()
@@ -427,6 +446,19 @@ public class SettingsMenu : MonoBehaviour
     public void SetEADisclaimerOn(bool on)
     {
         PlayerPrefs.SetInt(savedShowEADisclaimerKey, on ? 1 : 0);
+        disclaimerToggle.SetIsOnWithoutNotify(on);
+    }
+
+    public void ToggleShowDisclaimer(Toggle toggle)
+    {
+        if (BuildManager.instance.demoBuild)
+        {
+            demoDisclaimerScreen.ToggleShowDisclaimerAgain();
+        }
+        else
+        {
+            eaDisclaimerScreen.ToggleShowDisclaimerAgain();
+        }
     }
 
     #endregion
