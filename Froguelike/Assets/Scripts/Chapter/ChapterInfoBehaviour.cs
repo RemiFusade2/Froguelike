@@ -13,22 +13,7 @@ public class ChapterInfoBehaviour : MonoBehaviour
     public GameObject powerUpsParent;
     public List<CollectibleSprites> collectibleSprites;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        List<Image> fixedCollectibleSlots = fixedCollectiblesParent.GetComponentsInChildren<Image>().ToList();
-        foreach (Image fixedCollectible in fixedCollectibleSlots)
-        {
-            Material mat = Instantiate(fixedCollectible.material);
-            fixedCollectible.material = mat;
-        }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
+    private bool materialSetUpFinished = false;
 
     public void DisplayChapter(Chapter chapterInfo, ChapterInfoBehaviour infoPanel)
     {
@@ -44,6 +29,11 @@ public class ChapterInfoBehaviour : MonoBehaviour
         int slot = 0;
 
         // Display fixed collectibles.
+        if (!materialSetUpFinished)
+        {
+            SetUpMaterials();
+        }
+
         foreach (FixedCollectible fixedCollectible in listOfFixedCollectibles)
         {
             Image fixedCollectibleSlot = fixedCollectibleSlots[slot];
@@ -146,5 +136,17 @@ public class ChapterInfoBehaviour : MonoBehaviour
             powerUpSlots[slot].sprite = null;
             slot++;
         }
+    }
+
+    private void SetUpMaterials()
+    {
+        List<Image> fixedCollectibleSlots = fixedCollectiblesParent.GetComponentsInChildren<Image>().ToList();
+        foreach (Image fixedCollectible in fixedCollectibleSlots)
+        {
+            Material mat = Instantiate(fixedCollectible.material);
+            fixedCollectible.material = mat;
+        }
+
+        materialSetUpFinished = true;
     }
 }
