@@ -7687,13 +7687,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e808e90f5c8a724b8fa58e183c163b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  versionNumber: 0.1.16
+  versionNumber: 0.1.17
   showEADisclaimer: 1
   availablePowerUpsInEA: 255
   demoBuild: 0
   showDemoDisclaimer: 1
   availablePowerUpsInDemo: 0
-  cheatsAreEnabled: 0
+  cheatsAreEnabled: 1
   everythingIsUnlocked: 0
   thingsWithMissingSpritesAreHidden: 0
 --- !u!4 &191903569
@@ -33230,7 +33230,7 @@ CanvasGroup:
   m_GameObject: {fileID: 884249008}
   m_Enabled: 1
   m_Alpha: 1
-  m_Interactable: 1
+  m_Interactable: 0
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
 --- !u!1 &886136328
@@ -108280,6 +108280,10 @@ PrefabInstance:
       value: -14
       objectReference: {fileID: 0}
     - target: {fileID: 6008468648730153020, guid: 239103d3549ac2746b66d3ef3e6cb0e2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6008468648730153020, guid: 239103d3549ac2746b66d3ef3e6cb0e2, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
       objectReference: {fileID: 464157710}
@@ -108290,6 +108294,10 @@ PrefabInstance:
     - target: {fileID: 6008468648730153020, guid: 239103d3549ac2746b66d3ef3e6cb0e2, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
       value: SoundManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 6008468648730153020, guid: 239103d3549ac2746b66d3ef3e6cb0e2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_BoolArgument
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6008468648730153023, guid: 239103d3549ac2746b66d3ef3e6cb0e2, type: 3}
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target

@@ -456,7 +456,11 @@ public class UIManager : MonoBehaviour
             {
                 SetScreenInteractability(levelUpPanel, true);
                 SetPreviousSelectedButton();
-                //               SetSelectedButton(selectedButtonLevelUpPanel);
+            }
+            else
+            {
+                // Make sure there isn't a selected button if the game is unpaused (since the pause panel doesn't have automatic button selection this need to be here to not be able to navigate between the buttons when the pause panel is closed)
+                EventSystem.current.SetSelectedGameObject(null);
             }
         }
 

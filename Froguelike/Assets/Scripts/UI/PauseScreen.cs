@@ -32,13 +32,6 @@ public class PauseScreen : MonoBehaviour
     public Button runInfoButton;
     public Button chapterInfoButton;
 
-    public void ShowRunInfoPanel()
-    {
-        chapterInfoPanel.transform.parent.gameObject.SetActive(false);
-        runInfoPanel.SetActive(true);
-        chapterInfoButton.Select();
-    }
-
     public void UpdatePauseScreen()
     {
         try
@@ -249,6 +242,16 @@ public class PauseScreen : MonoBehaviour
             {
                 Destroy(child.gameObject);
             }
+        }
+    }
+
+    public void ShowRunInfoPanel(bool cameFromChapterInfo = false)
+    {
+        chapterInfoPanel.transform.parent.gameObject.SetActive(false);
+        runInfoPanel.SetActive(true);
+        if (cameFromChapterInfo)
+        {
+            chapterInfoButton.Select();
         }
     }
 
