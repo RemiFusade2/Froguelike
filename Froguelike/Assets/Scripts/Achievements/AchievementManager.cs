@@ -634,15 +634,7 @@ public class AchievementManager : MonoBehaviour
 
     private List<Achievement> SortAchievementList(List<Achievement> achievements)
     {
-        // Special order for achievements that show up first
-        List<string> firstAchievementsIDList = new List<string>();
-        firstAchievementsIDList.Add("ACH_SPECIAL_CONDITION_UNLOCK_ONE_CHARACTER_UNLOCK_FEATURE_CHARACTER_SELECTION");
-        firstAchievementsIDList.Add("ACH_SPECIAL_CONDITION_GET_100_FROINS_UNLOCK_FEATURE_SHOP");
-        firstAchievementsIDList.Add("ACH_SPECIAL_CONDITION_UNLOCK_10_CHAPTERS_UNLOCK_FEATURE_5_CHAPTERS_SELECTION");
-        firstAchievementsIDList.Add("ACH_SPECIAL_CONDITION_COMPLETE_1_ACHIEVEMENT_UNLOCK_FEATURE_ACHIEVEMENT_LIST");
-        firstAchievementsIDList.Add("ACH_SPECIAL_CONDITION_CH_ENDING_TOAD_UNLOCK_CHAPTER_CH_STORY_TOAD_1");
-
-        List<Achievement> result = achievements.OrderBy(x => x.achievementID).OrderBy(x => (firstAchievementsIDList.Contains(x.achievementID) ? firstAchievementsIDList.IndexOf(x.achievementID) : firstAchievementsIDList.Count)).OrderBy(x => (x.achievementData.isSecret && !x.unlocked)).OrderByDescending(x => IsAchievementAvailable(x)).OrderBy(x => IsAchievementLockedBehindDemo(x)).ToList();
+        List<Achievement> result = achievements.OrderBy(x => x.achievementID).OrderBy(x => (x.achievementData.overrideOrder > -1 ? x.achievementData.overrideOrder : int.MaxValue)).OrderBy(x => (x.achievementData.isSecret && !x.unlocked)).OrderByDescending(x => IsAchievementAvailable(x)).OrderBy(x => IsAchievementLockedBehindDemo(x)).ToList();
 
         return result;
     }

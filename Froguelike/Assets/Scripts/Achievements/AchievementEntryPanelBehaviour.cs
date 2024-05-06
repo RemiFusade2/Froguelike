@@ -72,7 +72,7 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
             SetTextColor(visibleTextColor);
             achievementTitleTextMesh.text = achievement.achievementData.achievementTitle;
             achievementRewardTextMesh.text = $"Reward: {achievement.GetRewardDescription()}";
-            achievementHintTextMesh.text = $"Hint: {achievement.GetAchievementDescription()}";
+            achievementHintTextMesh.text = $"How: {achievement.GetAchievementDescription()}";
 
             checkboxImage.gameObject.SetActive(true);
             checkboxImage.sprite = achievedSprite;
@@ -121,7 +121,7 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
             SetTextColor(visibleTextColor);
             achievementTitleTextMesh.text = achievement.achievementData.achievementTitle;
             achievementRewardTextMesh.text = $"Reward: {achievement.GetRewardDescription()}";
-            achievementHintTextMesh.text = $"Hint: {achievement.GetAchievementDescription()}";
+            achievementHintTextMesh.text = $"How: {achievement.GetAchievementDescription()}";
             checkboxImage.gameObject.SetActive(true);
             checkboxImage.sprite = notAchievedSprite;
             SetAchievementIcon(achievement);

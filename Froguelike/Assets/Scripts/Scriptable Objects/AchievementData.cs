@@ -188,6 +188,9 @@ public class AchievementData : ScriptableObject
     public Sprite achievementLockedIcon;
     [Tooltip("A visual representation of the achievement when it has been achieved")]
     public Sprite achievementUnlockedIcon;
+    [Space]
+    [Tooltip("An override for the order in which this achievement is shown. -1 means no override (default sorting)")]
+    public int overrideOrder = -1;
 
     [Header("Achievement settings - Steam")]
     [Tooltip("The key used by Steam to identify that achievement")]
