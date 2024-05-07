@@ -71,8 +71,8 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
             // The achievement has been unlocked already
             SetTextColor(visibleTextColor);
             achievementTitleTextMesh.text = achievement.achievementData.achievementTitle;
-            achievementRewardTextMesh.text = $"Reward: {achievement.GetRewardDescription()}";
             achievementHintTextMesh.text = $"How: {achievement.GetAchievementDescription()}";
+            achievementRewardTextMesh.text = $"Reward: {achievement.GetRewardDescription()}";
 
             checkboxImage.gameObject.SetActive(true);
             checkboxImage.sprite = achievedSprite;
@@ -83,8 +83,8 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
             // The achievement is not part of the demo
             SetTextColor(hiddenTextColor);
             achievementTitleTextMesh.text = "";
-            achievementRewardTextMesh.text = "*Not part of the demo*";
-            achievementHintTextMesh.text = "";
+            achievementHintTextMesh.text = "*Not part of the demo*";
+            achievementRewardTextMesh.text = "";
 
             checkboxImage.gameObject.SetActive(false);
             achievementIconImage.sprite = hiddenAchievementIconSprite;
@@ -94,8 +94,8 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
             // The achievement can't be unlocked.
             SetTextColor(hiddenTextColor);
             achievementTitleTextMesh.text = "";
-            achievementRewardTextMesh.text = "*Complete other stuff first*"; ;
-            achievementHintTextMesh.text = "";
+            achievementHintTextMesh.text = "*Complete other stuff first*";
+            achievementRewardTextMesh.text = "";
 
             checkboxImage.gameObject.SetActive(false);
             achievementIconImage.sprite = hiddenAchievementIconSprite;
@@ -105,8 +105,8 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
             // The achievement is secret. Title is visible but description and reward are hidden
             SetTextColor(hiddenTextColor);
             achievementTitleTextMesh.text = "*That's a secret*";
-            achievementRewardTextMesh.text = "Reward: ???";
             achievementHintTextMesh.text = "";
+            achievementRewardTextMesh.text = "Reward: ???";
             if (achievement.achievementData.isSecret)
             {
                 achievementHintTextMesh.text = $"Hint: {achievement.achievementData.achievementTitle}";
@@ -120,8 +120,8 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
             // The achievement is not unlocked but is visible
             SetTextColor(visibleTextColor);
             achievementTitleTextMesh.text = achievement.achievementData.achievementTitle;
-            achievementRewardTextMesh.text = $"Reward: {achievement.GetRewardDescription()}";
             achievementHintTextMesh.text = $"How: {achievement.GetAchievementDescription()}";
+            achievementRewardTextMesh.text = $"Reward: {achievement.GetRewardDescription()}";
             checkboxImage.gameObject.SetActive(true);
             checkboxImage.sprite = notAchievedSprite;
             SetAchievementIcon(achievement);
