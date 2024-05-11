@@ -224,16 +224,20 @@ public class GameManager : MonoBehaviour
                 ChapterManager.instance.SetChapterCountInSelection(5);
                 break;
             case RewardFeatureType.GHOST_BUFF:
-                CharacterManager.instance.IncrementCharacterStats("GHOST", new List<StatValue>() { new StatValue(CharacterStat.MAX_HEALTH, 50) });
+                CharacterManager.instance.SetCharacterStoryCompleted("GHOST");
+                //CharacterManager.instance.IncrementCharacterStats("GHOST", new List<StatValue>() { new StatValue(CharacterStat.MAX_HEALTH, 50) });
                 break;
             case RewardFeatureType.RIBBIT_BUFF:
-                CharacterManager.instance.IncrementCharacterStats("POISONOUS_FROG", new List<StatValue>() { new StatValue(CharacterStat.ATK_DAMAGE_BOOST, 0.3) });
+                CharacterManager.instance.SetCharacterStoryCompleted("POISONOUS_FROG");
+                //CharacterManager.instance.IncrementCharacterStats("POISONOUS_FROG", new List<StatValue>() { new StatValue(CharacterStat.ATK_DAMAGE_BOOST, 0.3) });
                 break;
             case RewardFeatureType.STANLEY_BUFF:
-                CharacterManager.instance.IncrementCharacterStats("STANLEY", new List<StatValue>() { new StatValue(CharacterStat.REVIVAL, 8) });
+                CharacterManager.instance.SetCharacterStoryCompleted("STANLEY");
+                //CharacterManager.instance.IncrementCharacterStats("STANLEY", new List<StatValue>() { new StatValue(CharacterStat.SWIM_SPEED_BOOST, 0.9) });
                 break;
             case RewardFeatureType.TOAD_BUFF:
-                CharacterManager.instance.IncrementCharacterStats("TOAD", new List<StatValue>() { new StatValue(CharacterStat.ARMOR, 2) }); // TODO decide on amount.
+                CharacterManager.instance.SetCharacterStoryCompleted("TOAD");
+                //CharacterManager.instance.IncrementCharacterStats("TOAD", new List<StatValue>() { new StatValue(CharacterStat.ARMOR, 2) }); // TODO decide on amount.
                 break;
         }
     }

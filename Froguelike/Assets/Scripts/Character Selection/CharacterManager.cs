@@ -30,14 +30,20 @@ public class PlayableCharacter
     public bool hidden;
     public int wonWith;
 
+    public bool storyCompleted;
+
     public StatsWrapper GetCharacterStartingStats()
     {
+        StatsWrapper result = new StatsWrapper(characterData.startingStatsList);
+        if (storyCompleted)
+        {
+            result = StatsWrapper.JoinLists(characterData.startingStatsList, characterData.startingStatsStoryUpgrade);
+        }
         if (characterStatsIncrements != null && characterStatsIncrements.statsList != null && characterStatsIncrements.statsList.Count > 0)
         {
-            StatsWrapper combinedStats = StatsWrapper.JoinLists(characterData.startingStatsList, characterStatsIncrements.statsList);
-            return combinedStats;
+            result = StatsWrapper.JoinLists(result.statsList, characterStatsIncrements.statsList);
         }
-        return new StatsWrapper(characterData.startingStatsList);
+        return result;
     }
 
     public bool GetValueForStat(CharacterStat stat, out float value)
@@ -735,6 +741,16 @@ public class CharacterManager : MonoBehaviour
             SaveDataManager.instance.isSaveDataDirty = true;
         }
         return characterNewlyUnlocked;
+    }
+
+    public void SetCharacterStoryCompleted(string characterID)
+    {
+        PlayableCharacter character = charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals(characterID));
+        if (character != null && !character.storyCompleted)
+        {
+            character.storyCompleted = true;
+            SaveDataManager.instance.isSaveDataDirty = true;
+        }
     }
 
     public void IncrementCharacterStats(string characterID, List<StatValue> changedStatsValues)

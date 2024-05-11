@@ -856,13 +856,14 @@ public class AchievementManager : MonoBehaviour
             }
             if (playableFrog != null && playableFrog.unlocked)
             {
-                if (playableFrog.characterStatsIncrements == null)
+                playableFrog.characterStatsIncrements = new StatsWrapper();
+                /*if (playableFrog.characterStatsIncrements == null)
                 {
                     playableFrog.characterStatsIncrements = new StatsWrapper();
-                }
-                if (playableFrog.characterStatsIncrements.statsList.Count <= 0)
+                }*/
+                if (!playableFrog.storyCompleted)
                 {
-                    GameManager.instance.UnlockFeature(achievement.achievementData.reward.featureID); // Add stat increment
+                    GameManager.instance.UnlockFeature(achievement.achievementData.reward.featureID); // Add story stat increment
                 }
             }
         }
