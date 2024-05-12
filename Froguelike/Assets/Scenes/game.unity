@@ -49733,17 +49733,30 @@ MonoBehaviour:
   - {r: 1, g: 0.96862745, b: 0.7254902, a: 1}
   - {r: 1, g: 0.74509805, b: 0.20392159, a: 1}
   superFrogOverlay: {fileID: 912660553}
-  godModeWalkSpeedBoost: 0.7
-  godModeSwimSpeedBoost: 0.7
-  godModeMinCooldownBoost: -0.9
-  godModeMagnetBoost: 2
-  godModeAttackDamageBoost: 2
-  godModeAttackRangeBoost: 1.5
-  godModeAttackSizeBoost: 0.5
-  godModeAttackSpeedBoost: 1
-  godModeAttackDurationBoost: 1
-  godModeAttackSpecialStrengthBoost: 1
-  godModeAttackSpecialDurationBoost: 1
+  godModeStatBonuses:
+    statsList:
+    - stat: 6
+      value: 0.7
+    - stat: 7
+      value: 0.7
+    - stat: 14
+      value: -0.9
+    - stat: 20
+      value: 2
+    - stat: 12
+      value: 2
+    - stat: 15
+      value: 1.5
+    - stat: 16
+      value: 0.5
+    - stat: 13
+      value: 1
+    - stat: 17
+      value: 1
+    - stat: 18
+      value: 1
+    - stat: 19
+      value: 1
   walkSpeedBoost: 0
   swimSpeedBoost: 0
   magnetRangeBoost: 0
@@ -113887,7 +113900,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 7978220894028803650, guid: 59c67d09569c781419f4218687db094f, type: 3}
       propertyPath: verbose
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7978220894028803650, guid: 59c67d09569c781419f4218687db094f, type: 3}
       propertyPath: debugInfo

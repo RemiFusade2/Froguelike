@@ -57,17 +57,7 @@ public class FrogCharacterController : MonoBehaviour
     public List<Color> godModeOutlineColors;
     public GameObject superFrogOverlay;
     [Space]
-    public float godModeWalkSpeedBoost = 0.7f;
-    public float godModeSwimSpeedBoost = 0.7f;
-    public float godModeMinCooldownBoost = -0.9f;
-    public float godModeMagnetBoost = 2;
-    public float godModeAttackDamageBoost = 2;
-    public float godModeAttackRangeBoost = 1.5f;
-    public float godModeAttackSizeBoost = 0.5f;
-    public float godModeAttackSpeedBoost = 1;
-    public float godModeAttackDurationBoost = 1;
-    public float godModeAttackSpecialStrengthBoost = 1;
-    public float godModeAttackSpecialDurationBoost = 1;
+    public StatsWrapper godModeStatBonuses;
 
     [Header("Character data - Runtime")]
     public float walkSpeedBoost;
@@ -261,6 +251,37 @@ public class FrogCharacterController : MonoBehaviour
         return result;
     }
 
+    /// <summary>
+    /// Get the added bonus in the current chapter for request stat type
+    /// </summary>
+    /// <param name="statType"></param>
+    /// <returns></returns>
+    private float GetChapterStatBonus(CharacterStat statType)
+    {
+        if (RunManager.instance != null && RunManager.instance.currentChapter != null && RunManager.instance.currentChapter.chapterData != null && RunManager.instance.currentChapter.chapterData.startingStatBonuses != null)
+        {
+            return (float)RunManager.instance.currentChapter.chapterData.startingStatBonuses.GetStatValue(statType).value;
+        }
+        return 0;
+    }
+
+    private float GetGodModeStatBonus(CharacterStat statType)
+    {
+        return (float)godModeStatBonuses.GetStatValue(statType).value;
+    }
+
+    private float GetCurrentStatBonus(CharacterStat statType)
+    {
+        float result = 0;
+        result += GetScoreScaledBoostForStat(statType);
+        result += GetChapterStatBonus(statType);
+        if (superFrogMode)
+        {
+            result += GetGodModeStatBonus(statType);
+        }
+        return result;
+    }
+
     #region Stats Accessors
 
     /// <summary>
@@ -270,12 +291,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetWalkSpeedBoost()
     {
-        float scaledWalkSpeedBoost = walkSpeedBoost + GetScoreScaledBoostForStat(CharacterStat.WALK_SPEED_BOOST);
-        if (superFrogMode)
-        {
-            scaledWalkSpeedBoost += godModeWalkSpeedBoost;
-        }
-        return scaledWalkSpeedBoost;
+        return walkSpeedBoost + GetCurrentStatBonus(CharacterStat.WALK_SPEED_BOOST);
     }
 
     /// <summary>
@@ -285,12 +301,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetSwimSpeedBoost()
     {
-        float scaledSwimSpeedBoost = swimSpeedBoost + GetScoreScaledBoostForStat(CharacterStat.SWIM_SPEED_BOOST);
-        if (superFrogMode)
-        {
-            scaledSwimSpeedBoost += godModeSwimSpeedBoost;
-        }
-        return scaledSwimSpeedBoost;
+        return swimSpeedBoost + GetCurrentStatBonus(CharacterStat.SWIM_SPEED_BOOST);
     }
 
     /// <summary>
@@ -300,12 +311,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetMagnetRangeBoost()
     {
-        float scaledMagnetRangeBoost = magnetRangeBoost + GetScoreScaledBoostForStat(CharacterStat.MAGNET_RANGE_BOOST);
-        if (superFrogMode)
-        {
-            scaledMagnetRangeBoost += godModeMagnetBoost;
-        }
-        return scaledMagnetRangeBoost;
+        return magnetRangeBoost + GetCurrentStatBonus(CharacterStat.MAGNET_RANGE_BOOST);
     }
 
     /// <summary>
@@ -315,8 +321,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetMaxHealth()
     {
-        float maxHp = maxHealth + GetScoreScaledBoostForStat(CharacterStat.MAX_HEALTH);
-        return maxHp;
+        return maxHealth + GetCurrentStatBonus(CharacterStat.MAX_HEALTH);
     }
 
     /// <summary>
@@ -326,8 +331,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetHealthRecovery()
     {
-        float recovery = healthRecovery + GetScoreScaledBoostForStat(CharacterStat.HEALTH_RECOVERY);
-        return recovery;
+        return healthRecovery + GetCurrentStatBonus(CharacterStat.HEALTH_RECOVERY);
     }
 
     /// <summary>
@@ -337,8 +341,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetArmor()
     {
-        float arm = armor + GetScoreScaledBoostForStat(CharacterStat.ARMOR);
-        return arm;
+        return armor + GetCurrentStatBonus(CharacterStat.ARMOR);
     }
 
     /// <summary>
@@ -348,8 +351,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetExperienceBoost()
     {
-        float xpBoost = experienceBoost + GetScoreScaledBoostForStat(CharacterStat.XP_BOOST);
-        return xpBoost;
+        return experienceBoost + GetCurrentStatBonus(CharacterStat.XP_BOOST);
     }
 
     /// <summary>
@@ -359,8 +361,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetCurrencyBoost()
     {
-        float currBoost = currencyBoost + GetScoreScaledBoostForStat(CharacterStat.CURRENCY_BOOST);
-        return currBoost;
+        return currencyBoost + GetCurrentStatBonus(CharacterStat.CURRENCY_BOOST);
     }
 
     /// <summary>
@@ -370,8 +371,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetCurse()
     {
-        float curs = curse + GetScoreScaledBoostForStat(CharacterStat.CURSE);
-        return curs;
+        return curse + GetCurrentStatBonus(CharacterStat.CURSE);
     }
 
     /// <summary>
@@ -382,13 +382,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetAttackCooldownBoost()
     {
-        float scaledCooldownBoost = attackCooldownBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_COOLDOWN_BOOST);
-        scaledCooldownBoost = Mathf.Clamp(scaledCooldownBoost, -1, 10000); // Maximum scaledCooldownBoost is +1000000%, it's not gonna happen
-        if (superFrogMode)
-        {
-            scaledCooldownBoost = Mathf.Min(godModeMinCooldownBoost, scaledCooldownBoost);
-        }
-        return scaledCooldownBoost;
+        return Mathf.Clamp(attackCooldownBoost + GetCurrentStatBonus(CharacterStat.ATK_COOLDOWN_BOOST), -1, 10000); // Maximum scaledCooldownBoost is +1000000%, it's not gonna happen
     }
 
     /// <summary>
@@ -398,12 +392,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetAttackDamageBoost()
     {
-        float scaledDamageBoost = attackDamageBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_DAMAGE_BOOST);
-        if (superFrogMode)
-        {
-            scaledDamageBoost += godModeAttackDamageBoost;
-        }
-        return scaledDamageBoost;
+        return attackDamageBoost + GetCurrentStatBonus(CharacterStat.ATK_DAMAGE_BOOST);
     }
 
     /// <summary>
@@ -413,12 +402,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetAttackRangeBoost()
     {
-        float scaledRangeBoost = attackRangeBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_RANGE_BOOST);
-        if (superFrogMode)
-        {
-            scaledRangeBoost += godModeAttackRangeBoost;
-        }
-        return scaledRangeBoost;
+        return attackRangeBoost + GetCurrentStatBonus(CharacterStat.ATK_RANGE_BOOST);
     }
 
     /// <summary>
@@ -428,12 +412,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetAttackSizeBoost()
     {
-        float scaledSizeBoost = attackSizeBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_SIZE_BOOST);
-        if (superFrogMode)
-        {
-            scaledSizeBoost += godModeAttackSizeBoost;
-        }
-        return scaledSizeBoost;
+        return attackSizeBoost + GetCurrentStatBonus(CharacterStat.ATK_SIZE_BOOST);
     }
 
     /// <summary>
@@ -443,12 +422,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetAttackSpeedBoost()
     {
-        float scaledAtkSpeedBoost = attackSpeedBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_SPEED_BOOST);
-        if (superFrogMode)
-        {
-            scaledAtkSpeedBoost += godModeAttackSpeedBoost;
-        }
-        return scaledAtkSpeedBoost;
+        return attackSpeedBoost + GetCurrentStatBonus(CharacterStat.ATK_SPEED_BOOST);
     }
 
     /// <summary>
@@ -458,12 +432,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetAttackDurationBoost()
     {
-        float scaledAtkDurationBoost = attackDurationBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_DURATION_BOOST);
-        if (superFrogMode)
-        {
-            scaledAtkDurationBoost += godModeAttackDurationBoost;
-        }
-        return scaledAtkDurationBoost;
+        return attackDurationBoost + GetCurrentStatBonus(CharacterStat.ATK_DURATION_BOOST);
     }
 
     #endregion Accessors
