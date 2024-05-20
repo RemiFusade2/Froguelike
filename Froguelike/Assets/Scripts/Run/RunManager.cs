@@ -386,7 +386,7 @@ public class RunManager : MonoBehaviour
         }
     }
 
-    public void StartNewRun(PlayableCharacter character, GameMode gameModes)
+    public void StartNewRun(PlayableCharacter character, GameMode gameModes, Chapter startingChapter = null)
     {
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -418,8 +418,16 @@ public class RunManager : MonoBehaviour
         // Reset Chapters Weights
         ChapterManager.instance.ResetChaptersWeights();
 
-        // Show a selection of Chapters to pick from for the first chapter of the Run
-        ChapterManager.instance.ShowChapterSelection(0);
+        if (startingChapter == null)
+        {
+            // Show a selection of Chapters to pick from for the first chapter of the Run
+            ChapterManager.instance.ShowChapterSelection(0);
+        }
+        else
+        {
+            // Start the first chapter immediately if it was already set
+            ChapterManager.instance.StartChapter(startingChapter);
+        }
     }
 
     private void UpdateInGameCurrencyText(long currencyValue, bool highlight)
@@ -815,6 +823,10 @@ public class RunManager : MonoBehaviour
         }
 
         currentChapter = chapter;
+
+        // Save current selection to Game Manager, for future quick start and stuff
+        GameManager.instance.SaveSelectedCharacterGameModeAndStartingChapter(currentPlayedCharacter.characterID, playedGameModes.ToString(), currentChapter.chapterID);
+
         StartCoroutine(StartChapterAsync());
     }
 

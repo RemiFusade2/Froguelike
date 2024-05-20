@@ -193,6 +193,16 @@ public class ChapterManager : MonoBehaviour
         allChaptersDico[chapterData.chapterID].unlocked = true;
     }
 
+    public Chapter GetChapterFromID(string chapterID)
+    {
+        Chapter result = null;
+        if (allChaptersDico.ContainsKey(chapterID))
+        {
+            result = allChaptersDico[chapterID];
+        }
+        return result;
+    }
+
     public int GetUnlockedChaptersCount()
     {
         int unlockedCount = 0;

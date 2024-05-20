@@ -1,7 +1,9 @@
 using Rewired.ComponentControls.Data;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 
 [System.Serializable]
@@ -86,6 +88,10 @@ public class GameManager : MonoBehaviour
     public bool isGameRunning;
 
     private const string totalBugEatenSteamStatName = "total_bugs_eaten";
+
+    private const string savedLastSelectedCharacter = "Froguelike last selected character";
+    private const string savedLastSelectedGameMode = "Froguelike last selected game mode";
+    private const string savedLastSelectedStartingChapter = "Froguelike last selected starting chapter";
 
     private void Awake()
     {
@@ -205,6 +211,27 @@ public class GameManager : MonoBehaviour
     public void OpenCharacterSelection()
     {
         UIManager.instance.ShowCharacterSelectionScreen(true);
+    }
+
+    public void SaveSelectedCharacterGameModeAndStartingChapter(string characterID, string gameMode, string chapterID)
+    {
+        PlayerPrefs.SetString(savedLastSelectedCharacter, characterID);
+        PlayerPrefs.SetString(savedLastSelectedGameMode, gameMode);
+        PlayerPrefs.SetString(savedLastSelectedStartingChapter, chapterID);
+    }
+
+    public void QuickStartNewRun()
+    {
+        // Get last selected character, game mode, and start chapter
+        string lastSelectedCharacterID = PlayerPrefs.GetString(savedLastSelectedCharacter, "CLASSIC_FROG");
+        string lastSelectedGameMode = PlayerPrefs.GetString(savedLastSelectedGameMode, "NONE");
+        string lastSelectedChapter = PlayerPrefs.GetString(savedLastSelectedStartingChapter, "[CH_COLLECT_HEALTH]"); // First hops
+        
+        CharacterManager.instance.currentSelectedCharacter = CharacterManager.instance.GetPlayableCharacter(lastSelectedCharacterID);                
+        CharacterManager.instance.selectedGameModes = Enum.Parse<GameMode>(lastSelectedGameMode);                
+        Chapter startChapter = ChapterManager.instance.GetChapterFromID(lastSelectedChapter);
+
+        RunManager.instance.StartNewRun(CharacterManager.instance.currentSelectedCharacter, CharacterManager.instance.selectedGameModes, startChapter);
     }
 
     public void UnlockFeature(RewardFeatureType featureKey)
