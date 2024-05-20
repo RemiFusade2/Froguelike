@@ -820,12 +820,12 @@ public class RunManager : MonoBehaviour
         if (GetChapterCount() == 1)
         {
             GameManager.instance.RegisterANewAttempt();
+
+            // Save current selection to Game Manager, for future quick start and stuff
+            GameManager.instance.SaveSelectedCharacterGameModeAndStartingChapter(currentPlayedCharacter.characterID, playedGameModes.ToString(), chapter.chapterID);
         }
 
         currentChapter = chapter;
-
-        // Save current selection to Game Manager, for future quick start and stuff
-        GameManager.instance.SaveSelectedCharacterGameModeAndStartingChapter(currentPlayedCharacter.characterID, playedGameModes.ToString(), currentChapter.chapterID);
 
         StartCoroutine(StartChapterAsync());
     }
