@@ -36,6 +36,7 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI titleScreenSaveLocationText;
     [Space]
     public Button startButton;
+    public GameObject quickStartButton;
     public GameObject shopButton;
     public GameObject achievementsButton;
     public GameObject settingsButton;
@@ -104,6 +105,7 @@ public class UIManager : MonoBehaviour
     [Header("Score Screen")]
     public GameObject scoreScreen;
     public GameObject selectedButtonScoreScreen;
+    public GameObject tryAgainButton;
 
     #endregion
 
@@ -231,6 +233,9 @@ public class UIManager : MonoBehaviour
             achievementsButton.SetActive(AchievementManager.instance.IsAchievementsListUnlocked());
         }
 
+        // Quick start button
+        quickStartButton.SetActive(GameManager.instance.AreThereQuickStartOptions());
+
         titleScreen.SetActive(true);
         SetScreenInteractability(menuButtonsGroup, true);
 
@@ -346,6 +351,9 @@ public class UIManager : MonoBehaviour
         HideAllScreens();
         SetScreenInteractability(pausePanel, false);
         SetScreenInteractability(levelUpPanel, false);
+
+        // Try again button
+        tryAgainButton.SetActive(GameManager.instance.AreThereQuickStartOptions());
 
         // Display score screen
         inGameUIPanel.SetActive(true);

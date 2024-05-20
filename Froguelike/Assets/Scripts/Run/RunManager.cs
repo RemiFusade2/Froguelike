@@ -822,7 +822,16 @@ public class RunManager : MonoBehaviour
             GameManager.instance.RegisterANewAttempt();
 
             // Save current selection to Game Manager, for future quick start and stuff
-            GameManager.instance.SaveSelectedCharacterGameModeAndStartingChapter(currentPlayedCharacter.characterID, playedGameModes.ToString(), chapter.chapterID);
+
+            // EXCEPT IN THE CASE OF TOAD'S CHALLENGE
+            if (chapter.chapterID.Equals("[CH_ENDING_TOAD]"))
+            {
+                GameManager.instance.RemoveSelectedCharacterGameModeAndStartingChapter();
+            }
+            else
+            {
+                GameManager.instance.SaveSelectedCharacterGameModeAndStartingChapter(currentPlayedCharacter.characterID, playedGameModes.ToString(), chapter.chapterID);
+            }
         }
 
         currentChapter = chapter;

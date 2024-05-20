@@ -213,11 +213,23 @@ public class GameManager : MonoBehaviour
         UIManager.instance.ShowCharacterSelectionScreen(true);
     }
 
+    public void RemoveSelectedCharacterGameModeAndStartingChapter()
+    {
+        PlayerPrefs.DeleteKey(savedLastSelectedCharacter);
+        PlayerPrefs.DeleteKey(savedLastSelectedGameMode);
+        PlayerPrefs.DeleteKey(savedLastSelectedStartingChapter);
+    }
+    
     public void SaveSelectedCharacterGameModeAndStartingChapter(string characterID, string gameMode, string chapterID)
     {
         PlayerPrefs.SetString(savedLastSelectedCharacter, characterID);
         PlayerPrefs.SetString(savedLastSelectedGameMode, gameMode);
         PlayerPrefs.SetString(savedLastSelectedStartingChapter, chapterID);
+    }
+
+    public bool AreThereQuickStartOptions()
+    {
+        return PlayerPrefs.HasKey(savedLastSelectedCharacter) && PlayerPrefs.HasKey(savedLastSelectedGameMode) && PlayerPrefs.HasKey(savedLastSelectedStartingChapter);
     }
 
     public void QuickStartNewRun()
@@ -472,6 +484,9 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("Game - Clear save file");
         }
+
+        // Clear Quick start options
+        RemoveSelectedCharacterGameModeAndStartingChapter();
 
         // Clear save file and create a new one
         bool fileErased = SaveDataManager.instance.EraseSaveFile(true);
