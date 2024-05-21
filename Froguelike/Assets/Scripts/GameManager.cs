@@ -219,7 +219,7 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.DeleteKey(savedLastSelectedGameMode);
         PlayerPrefs.DeleteKey(savedLastSelectedStartingChapter);
     }
-    
+
     public void SaveSelectedCharacterGameModeAndStartingChapter(string characterID, string gameMode, string chapterID)
     {
         PlayerPrefs.SetString(savedLastSelectedCharacter, characterID);
@@ -235,16 +235,35 @@ public class GameManager : MonoBehaviour
     public void QuickStartNewRun()
     {
         // Get last selected character, game mode, and start chapter
-        string lastSelectedCharacterID = PlayerPrefs.GetString(savedLastSelectedCharacter, "CLASSIC_FROG");
-        string lastSelectedGameMode = PlayerPrefs.GetString(savedLastSelectedGameMode, "NONE");
-        string lastSelectedChapter = PlayerPrefs.GetString(savedLastSelectedStartingChapter, "[CH_COLLECT_HEALTH]"); // First hops
-        
-        CharacterManager.instance.currentSelectedCharacter = CharacterManager.instance.GetPlayableCharacter(lastSelectedCharacterID);                
-        CharacterManager.instance.selectedGameModes = Enum.Parse<GameMode>(lastSelectedGameMode);                
+        string lastSelectedCharacterID = GetRetryRunInfoCharacterID();
+        string lastSelectedGameMode = GetRetryRunInfoGameMode();
+        string lastSelectedChapter = GetRetryRunInfoChapter();
+
+        CharacterManager.instance.currentSelectedCharacter = CharacterManager.instance.GetPlayableCharacter(lastSelectedCharacterID);
+        CharacterManager.instance.selectedGameModes = Enum.Parse<GameMode>(lastSelectedGameMode);
         Chapter startChapter = ChapterManager.instance.GetChapterFromID(lastSelectedChapter);
 
         RunManager.instance.StartNewRun(CharacterManager.instance.currentSelectedCharacter, CharacterManager.instance.selectedGameModes, startChapter);
     }
+
+    #region Get info helpers
+
+    public string GetRetryRunInfoCharacterID()
+    {
+        return PlayerPrefs.GetString(savedLastSelectedCharacter, "CLASSIC_FROG");
+    }
+
+    public string GetRetryRunInfoGameMode()
+    {
+        return PlayerPrefs.GetString(savedLastSelectedGameMode, "NONE");
+    }
+
+    public string GetRetryRunInfoChapter()
+    {
+        return PlayerPrefs.GetString(savedLastSelectedStartingChapter, "[CH_COLLECT_HEALTH]"); // "First hops" is the fallback.
+    }
+
+    #endregion Get info helpers
 
     public void UnlockFeature(RewardFeatureType featureKey)
     {
@@ -487,6 +506,9 @@ public class GameManager : MonoBehaviour
 
         // Clear Quick start options
         RemoveSelectedCharacterGameModeAndStartingChapter();
+
+        // Clear game mode.
+        CharacterManager.instance.ResetDifficulty();
 
         // Clear save file and create a new one
         bool fileErased = SaveDataManager.instance.EraseSaveFile(true);
