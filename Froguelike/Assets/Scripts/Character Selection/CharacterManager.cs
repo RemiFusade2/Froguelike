@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
-using UnityEditor.U2D.Animation;
 
 /// <summary>
 /// PlayableCharacter describes a character in its current state.
@@ -159,7 +158,7 @@ public class CharacterManager : MonoBehaviour
         return charactersData.charactersList.Count(x => x.unlocked);
     }
 
-    
+
     public PlayableCharacter GetPlayableCharacter(string characterID)
     {
         PlayableCharacter result = charactersData.charactersList.FirstOrDefault(x => x.characterID == characterID);
