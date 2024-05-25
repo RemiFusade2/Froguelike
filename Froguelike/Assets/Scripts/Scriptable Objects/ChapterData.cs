@@ -141,6 +141,21 @@ public class FixedCollectible
     public int compassLevel;
 }
 
+[System.Serializable]
+public class NextChapterConditionCount
+{
+    public CountType countType;
+    public int goal = 0;
+}
+
+public enum CountType
+{
+    EatBounties,
+    EatBugs,
+    GatherFriends,
+    DistanceWalked,
+    DirectionWalked
+}
 
 /// <summary>
 /// ChapterCondition describe a condition for a Chapter to show up.
@@ -276,10 +291,10 @@ public class BountyBug
     [Tooltip("A list of collectibles + amount that serve as a bounty")]
     public List<Bounty> bountyList;
 
-    public BountyBug(EnemyType enemyType, 
-        bool overrideHealthMultiplier, float healthMultiplier, 
-        bool overrideDamageMultiplier, float damageMultiplier, 
-        bool overrideXpMultiplier, float xpMultiplier, 
+    public BountyBug(EnemyType enemyType,
+        bool overrideHealthMultiplier, float healthMultiplier,
+        bool overrideDamageMultiplier, float damageMultiplier,
+        bool overrideXpMultiplier, float xpMultiplier,
         bool overrideKnockbackResistance, float knockbackResistance,
         EnemyMovePattern movePattern)
     {
@@ -352,6 +367,10 @@ public class ChapterData : ScriptableObject
     [Space]
     [Tooltip("A list of chunks of conditions. The chapter will show up only if at least one of these chunks of conditions is valid")]
     public List<ChapterConditionsChunk> conditions;
+
+    [Header("Condition count for next chapter in this story")]
+    [Tooltip("Set up a counter if the next chapter has conditions where the player needs to collect ore eat a certain amount of something")]
+    public List<NextChapterConditionCount> conditionCount;
 
     [Header("Chapter settings - Obstacles")]
     [Tooltip("The amount of rocks on a tile")]
