@@ -141,6 +141,13 @@ public class CollectibleInfo
     public List<int> MinValueForIcons;
 }
 
+[System.Serializable]
+public class NextChapterConditionCountInfo
+{
+    public NextChapterConditionCountType countType;
+    public Sprite icon;
+}
+
 /// <summary>
 /// DataManager is a class used to give access to handy methods to get relevant data for the game (weapon types, items, enemy types, etc.)
 /// </summary>
@@ -219,7 +226,8 @@ public class DataManager : MonoBehaviour
     [Header("Chapter Icons")]
     public List<ChapterIconData> chapterIconsList;
 
-
+    [Header("Next Chapter Condition Count")]
+    public List<NextChapterConditionCountInfo> nextChapterConditionCountInfoList;
 
 
     private Vector3 farAwayPosition;
@@ -491,5 +499,10 @@ public class DataManager : MonoBehaviour
     public Vector3 GetFarAwayPosition()
     {
         return farAwayPosition;
+    }
+
+    public Sprite GetNextChapterConditionCountTypeSpriteFromType(NextChapterConditionCountType nextChapterConditionCountType)
+    {
+        return nextChapterConditionCountInfoList.Find(x => x.countType == nextChapterConditionCountType).icon;
     }
 }
