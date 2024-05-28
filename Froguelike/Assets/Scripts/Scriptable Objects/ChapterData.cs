@@ -65,13 +65,6 @@ public enum SpawnFrequency
     LOTS
 }
 
-[System.Serializable]
-public class CollectibleSpawnFrequency
-{
-    public CollectibleType Type;
-    public SpawnFrequency Frequency;
-}
-
 /// <summary>
 /// All different types of conditions for a Chapter to appear
 /// </summary>
@@ -90,9 +83,26 @@ public enum ChapterConditionType
     BOUNTIES_EATEN_IN_PREVIOUS_CHAPTER
 }
 
-#endregion
+/// <summary>
+/// All different counters that we would like to display when a chapter gives a goal that is connected to unlocking the next chapter in the story. (More might be added eventually)
+/// </summary>
+public enum NextChapterConditionCountType
+{
+    None,
+    EatBounties,
+    HaveFriends
+}
+
+#endregion Enums
 
 #region Classes
+
+[System.Serializable]
+public class CollectibleSpawnFrequency
+{
+    public CollectibleType Type;
+    public SpawnFrequency Frequency;
+}
 
 /// <summary>
 /// FixedCollectible describes a Collectible that is spawn somewhere on the Map (at specific coordinates)
@@ -144,17 +154,8 @@ public class FixedCollectible
 [System.Serializable]
 public class NextChapterConditionCount
 {
-    public CountType countType;
+    public NextChapterConditionCountType countType;
     public int goal = 0;
-}
-
-public enum CountType
-{
-    EatBounties,
-    EatBugs,
-    GatherFriends,
-    DistanceWalked,
-    DirectionWalked
 }
 
 /// <summary>
@@ -370,7 +371,7 @@ public class ChapterData : ScriptableObject
 
     [Header("Condition count for next chapter in this story")]
     [Tooltip("Set up a counter if the next chapter has conditions where the player needs to collect ore eat a certain amount of something")]
-    public List<NextChapterConditionCount> conditionCount;
+    public NextChapterConditionCount nextChapterConditionCount;
 
     [Header("Chapter settings - Obstacles")]
     [Tooltip("The amount of rocks on a tile")]

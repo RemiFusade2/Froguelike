@@ -81,6 +81,7 @@ public class UIManager : MonoBehaviour
 
     [Header("In game UI")]
     public GameObject inGameUIPanel;
+    public GameObject inGameCountUI;
 
     [Header("Level UP Panel")]
     public GameObject levelUpPanel;
@@ -379,6 +380,11 @@ public class UIManager : MonoBehaviour
         HidePauseScreen();
         inGameUIPanel.SetActive(true);
         SoundManager.instance.UnpauseInGameLoopedSFX();
+    }
+
+    public void ShowCountUI(bool showCount)
+    {
+        inGameCountUI.SetActive(showCount);
     }
 
     public void ShowGameOver(int respawnsAvailable)
