@@ -195,12 +195,14 @@ public class ChapterCondition
     [Tooltip("The current played Character")]
     public CharacterData characterData;
 
+    public static int MAXFRIENDSCOUNTINCONDITION = 20;
+
     [Tooltip("This chapter can appear only if you have at least this amount of friends")]
-    [Range(0, 10)]
+    [Range(0, 20)]
     public int minFriendsCount = 0;
     [Tooltip("This chapter can appear only if you have at most this amount of friends")]
-    [Range(0, 10)]
-    public int maxFriendsCount = 10;
+    [Range(0, 20)]
+    public int maxFriendsCount = MAXFRIENDSCOUNTINCONDITION;
 
     [Tooltip("This chapter can appear only if you have at least this amount of bounties eaten")]
     public int minBountiesEaten = 0;

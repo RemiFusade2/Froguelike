@@ -22,6 +22,7 @@ MonoBehaviour:
   startingStatBonuses:
     statsList: []
   chapterLengthInSeconds: 300
+  freezeDurationMultiplier: 1
   startingUnlockState: 1
   startingWeight: 1
   canBePlayedMultipleTimesInOneRun: 0
@@ -39,6 +40,7 @@ MonoBehaviour:
       characterData: {fileID: 0}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
     - conditionType: 7
       not: 0
       chapterData: {fileID: 0}
@@ -51,6 +53,7 @@ MonoBehaviour:
       characterData: {fileID: 11400000, guid: 63cab506d07186443bfd2babb7702689, type: 2}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
     - conditionType: 1
       not: 0
       chapterData: {fileID: 11400000, guid: 427c3d0d3f3e7964a941ee7cfd702487, type: 2}
@@ -63,6 +66,7 @@ MonoBehaviour:
       characterData: {fileID: 11400000, guid: 63cab506d07186443bfd2babb7702689, type: 2}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
     - conditionType: 8
       not: 0
       chapterData: {fileID: 11400000, guid: 427c3d0d3f3e7964a941ee7cfd702487, type: 2}
@@ -74,7 +78,11 @@ MonoBehaviour:
       itemName: {fileID: 0}
       characterData: {fileID: 11400000, guid: 63cab506d07186443bfd2babb7702689, type: 2}
       minFriendsCount: 2
-      maxFriendsCount: 10
+      maxFriendsCount: 20
+      minBountiesEaten: 0
+  nextChapterConditionCount:
+    countType: 0
+    goal: 0
   rocksSpawnFrequency: 1
   pondsSpawnFrequency: 2
   coinsSpawnFrequency: 1
@@ -418,12 +426,17 @@ MonoBehaviour:
     tierFormula: 4
     overrideHealthMultiplier: 0
     healthMultiplier: 0
+    overrideDamageMultiplier: 0
     damageMultiplier: 2
+    overrideXpMultiplier: 0
     xpMultiplier: 20
+    overrideKnockbackResistance: 0
+    knockbackResistance: 0
     movePattern:
       movePatternType: 1
       speedFactor: 3
       bouncecount: 0
+    ignoreMaxSpeed: 0
     bountyList:
     - collectibleType: 1
       amount: 30

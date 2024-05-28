@@ -343,7 +343,7 @@ public class ChapterManager : MonoBehaviour
                                 break;
                             case ChapterConditionType.FRIEND_COUNT:
                                 int friendsCount = FriendsManager.instance.HasPermanentFriendsCount();
-                                conditionChunkIsValid = (friendsCount >= condition.minFriendsCount) && (condition.maxFriendsCount == 10 || friendsCount <= condition.maxFriendsCount);
+                                conditionChunkIsValid = (friendsCount >= condition.minFriendsCount) && (condition.maxFriendsCount == ChapterCondition.MAXFRIENDSCOUNTINCONDITION || friendsCount <= condition.maxFriendsCount);
                                 break;
                             case ChapterConditionType.BOUNTIES_EATEN_IN_PREVIOUS_CHAPTER:
                                 int count = 0;
