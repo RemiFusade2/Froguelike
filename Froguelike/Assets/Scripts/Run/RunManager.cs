@@ -106,6 +106,9 @@ public class RunManager : MonoBehaviour
     public string extraLivesPrefix;
     public TextMeshProUGUI extraLivesCountText;
     [Space]
+    public TextMeshProUGUI conditionCountText;
+    public Image conditionCountIcon;
+    [Space]
     public Transform tongueSlotsParent;
     public Transform statItemSlotsParent;
     public GameObject slotPrefab;
@@ -602,6 +605,40 @@ public class RunManager : MonoBehaviour
         }
     }
 
+    public void SetNextChapterConditionCount(NextChapterConditionCount nextChapterConditionCount)
+    {
+        conditionCountIcon.sprite = DataManager.instance.GetNextChapterConditionCountTypeSpriteFromType(nextChapterConditionCount.countType);
+
+        string countText = "";
+        switch (currentChapter.chapterData.nextChapterConditionCount.countType)
+        {
+            case NextChapterConditionCountType.EatBounties:
+                countText = "0/" + nextChapterConditionCount.goal.ToString();
+                break;
+            case NextChapterConditionCountType.HaveFriends:
+                countText = FriendsManager.instance.permanentFriendsList.Count().ToString() + "/" + nextChapterConditionCount.goal.ToString();
+                break;
+            default:
+                break;
+        }
+
+        conditionCountText.SetText(countText);
+    }
+
+    public void UpdateNextChapterConditionCount()
+    {
+        // TODO where to trigger this? Both when adding firends and eating bounties? Is there a better way?
+        NextChapterConditionCountType type = currentChapter.chapterData.nextChapterConditionCount.countType;
+        if (type == NextChapterConditionCountType.EatBounties)
+        {
+            conditionCountText.SetText(playedChaptersBountyEatCounts[GetChapterCount() - 1].ToString() + "/" + currentChapter.chapterData.nextChapterConditionCount.goal.ToString());
+        }
+        else if (type == NextChapterConditionCountType.HaveFriends)
+        {
+            conditionCountText.SetText(FriendsManager.instance.permanentFriendsList.Count().ToString() + "/" + currentChapter.chapterData.nextChapterConditionCount.goal.ToString());
+        }
+    }
+
     public void IncreaseKillCount(int kills)
     {
         int chapterCount = GetChapterCount();
@@ -637,6 +674,7 @@ public class RunManager : MonoBehaviour
     {
         int chapterCount = GetChapterCount();
         playedChaptersBountyEatCounts[chapterCount - 1] += amount;
+        UpdateNextChapterConditionCount();
     }
 
     public int GetCurrentChapterBountyEatCount()
@@ -943,6 +981,10 @@ public class RunManager : MonoBehaviour
 
         // Wait
         yield return new WaitForSecondsRealtime(0.1f);
+
+        // Set up condition count UI.
+        SetNextChapterConditionCount(currentChapter.chapterData.nextChapterConditionCount);
+        UIManager.instance.ShowCountUI(currentChapter.chapterData.nextChapterConditionCount.countType != NextChapterConditionCountType.None);
 
         // Show Game UI
         UIManager.instance.ShowGameUI();
