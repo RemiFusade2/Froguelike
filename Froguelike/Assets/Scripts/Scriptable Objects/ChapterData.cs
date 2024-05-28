@@ -325,6 +325,7 @@ public class ChapterData : ScriptableObject
     [Header("Chapter settings - display")]
     [Tooltip("Chapter title")]
     public string chapterTitle = "[Chapter title]";
+    [TextArea(4, 10)]
     [Tooltip("First element would be default description, other elements would be unlocked and displayed later, maybe in the book for chapters")]
     public List<string> chapterLore;
     [Tooltip("The 3 icons that will describe a chapter. Icons can repeat.")]

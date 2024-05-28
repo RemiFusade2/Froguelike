@@ -16,8 +16,10 @@ MonoBehaviour:
   partOfDemo: 1
   chapterTitle: First hops
   chapterLore:
-  - It was a particulary chill day. Bugs were a bit sleepy and easy to catch, and
-    there was plenty of good stuff to be found all around.\nSo relaxing!
+  - It was a particulary chill day.\nBugs were a bit sleepy and easy to catch, there
+    were healing berries to pick up all over the place as well as items that would
+    make a frog more resistant.\n\nThere were even some superbugs that are said to
+    make any frog 3 times stronger!\n\nA perfect time to discover the game.
   icons: []
   startingStatBonuses:
     statsList: []
@@ -40,6 +42,7 @@ MonoBehaviour:
       characterData: {fileID: 0}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
   rocksSpawnFrequency: 2
   pondsSpawnFrequency: 2
   coinsSpawnFrequency: 0
@@ -266,6 +269,7 @@ MonoBehaviour:
       movePatternType: 2
       speedFactor: 2
       bouncecount: 0
+    ignoreMaxSpeed: 0
     bountyList:
     - collectibleType: 3
       amount: 20
