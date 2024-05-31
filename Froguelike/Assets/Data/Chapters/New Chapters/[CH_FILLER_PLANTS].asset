@@ -23,6 +23,7 @@ MonoBehaviour:
   startingStatBonuses:
     statsList: []
   chapterLengthInSeconds: 240
+  freezeDurationMultiplier: 1
   startingUnlockState: 1
   startingWeight: 1
   canBePlayedMultipleTimesInOneRun: 1
@@ -40,6 +41,10 @@ MonoBehaviour:
       characterData: {fileID: 0}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
+  nextChapterConditionCount:
+    countType: 0
+    goal: 0
   rocksSpawnFrequency: 2
   pondsSpawnFrequency: 0
   coinsSpawnFrequency: 2
@@ -342,12 +347,17 @@ MonoBehaviour:
     tierFormula: 1
     overrideHealthMultiplier: 0
     healthMultiplier: 0
+    overrideDamageMultiplier: 0
     damageMultiplier: 2
+    overrideXpMultiplier: 0
     xpMultiplier: 20
+    overrideKnockbackResistance: 0
+    knockbackResistance: 0
     movePattern:
       movePatternType: 0
       speedFactor: 1
       bouncecount: 0
+    ignoreMaxSpeed: 0
     bountyList:
     - collectibleType: 0
       amount: 15
@@ -360,12 +370,17 @@ MonoBehaviour:
     tierFormula: 2
     overrideHealthMultiplier: 0
     healthMultiplier: 0
+    overrideDamageMultiplier: 0
     damageMultiplier: 2
+    overrideXpMultiplier: 0
     xpMultiplier: 20
+    overrideKnockbackResistance: 0
+    knockbackResistance: 0
     movePattern:
       movePatternType: 0
       speedFactor: 1
       bouncecount: 0
+    ignoreMaxSpeed: 0
     bountyList:
     - collectibleType: 0
       amount: 25
@@ -378,12 +393,17 @@ MonoBehaviour:
     tierFormula: 3
     overrideHealthMultiplier: 0
     healthMultiplier: 0
+    overrideDamageMultiplier: 0
     damageMultiplier: 2
+    overrideXpMultiplier: 0
     xpMultiplier: 20
+    overrideKnockbackResistance: 0
+    knockbackResistance: 0
     movePattern:
       movePatternType: 0
       speedFactor: 1
       bouncecount: 0
+    ignoreMaxSpeed: 0
     bountyList:
     - collectibleType: 0
       amount: 40
@@ -396,12 +416,17 @@ MonoBehaviour:
     tierFormula: 4
     overrideHealthMultiplier: 0
     healthMultiplier: 0
+    overrideDamageMultiplier: 0
     damageMultiplier: 2
+    overrideXpMultiplier: 0
     xpMultiplier: 20
+    overrideKnockbackResistance: 0
+    knockbackResistance: 0
     movePattern:
       movePatternType: 0
       speedFactor: 1
       bouncecount: 0
+    ignoreMaxSpeed: 0
     bountyList:
     - collectibleType: 0
       amount: 30
@@ -420,12 +445,17 @@ MonoBehaviour:
     tierFormula: 5
     overrideHealthMultiplier: 0
     healthMultiplier: 0
+    overrideDamageMultiplier: 0
     damageMultiplier: 2
+    overrideXpMultiplier: 0
     xpMultiplier: 20
+    overrideKnockbackResistance: 0
+    knockbackResistance: 0
     movePattern:
       movePatternType: 0
       speedFactor: 1
       bouncecount: 0
+    ignoreMaxSpeed: 0
     bountyList:
     - collectibleType: 0
       amount: 50

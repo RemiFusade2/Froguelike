@@ -358,7 +358,28 @@ public class CollectiblesManager : MonoBehaviour
         RunManager.instance.RemoveCompassArrowForCollectible(superCollectible);
         SoundManager.instance.PlayPickUpCollectibleSound();
 
-        RunManager.instance.ShowCollectSuperCollectiblePanel(superCollectible);
+        // Decide if that fixed collectible is mandatory or impossible to pick.
+        // It depends on a few particular cases:
+        if (RunManager.instance.currentPlayedCharacter.characterID.Equals("GHOST") && superCollectible.collectibleType == FixedCollectibleType.FRIEND && superCollectible.collectibleFriendType != FriendType.GHOST)
+        {
+            // 1 - You are playing as Ghost and you met a companion that is not of ghost type: the companion can't see you or is scared of you
+            RunManager.instance.ShowCollectSuperCollectiblePanel(superCollectible, allowAccept: false, forceChoiceDescriptionStr: $"But {superCollectible.collectibleName} is scared of ghosts!", forceChoiceButtonStr:"Oh no!");
+        }
+        else if (superCollectible.collectibleType == FixedCollectibleType.STATS_ITEM && superCollectible.collectibleStatItemData.itemName.Equals("Figurine"))
+        {
+            // 2 - You found the figurine, it is cursed and you are forced to pick it up
+            RunManager.instance.ShowCollectSuperCollectiblePanel(superCollectible, allowRefuse: false, forceChoiceDescriptionStr: "You feel drawn to it.", forceChoiceButtonStr: "Shiny!");
+        }
+        else if (superCollectible.collectibleType == FixedCollectibleType.STATS_ITEM && !RunItemManager.instance.IsRunItemUnlocked(superCollectible.collectibleStatItemData.itemName))
+        {
+            // 3 - You found an item that would complete a quest if you pick it up: you can't choose to not pick it up
+            RunManager.instance.ShowCollectSuperCollectiblePanel(superCollectible, allowRefuse: false, forceChoiceDescriptionStr: "It's the first time you see something like this.", forceChoiceButtonStr: "I want it!");
+        }
+        else
+        {
+            // Any other situation: you can choose to pick the collectible or not
+            RunManager.instance.ShowCollectSuperCollectiblePanel(superCollectible);
+        }
 
         if (verboseLevel == VerboseLevel.MAXIMAL)
         {

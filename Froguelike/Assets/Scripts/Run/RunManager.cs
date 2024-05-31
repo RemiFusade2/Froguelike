@@ -148,9 +148,20 @@ public class RunManager : MonoBehaviour
     public Image fixedCollectibleFriendIcon;
     public Image fixedCollectibleHatIcon;
     [Space]
-    public Button fixedCollectibleAcceptButton;
-    public TextMeshProUGUI fixedCollectibleAcceptText;
-    public TextMeshProUGUI fixedCollectibleRefuseText;
+    public GameObject fixedCollectibleTwoButtonsPanel;
+    public Button fixedCollectibleTwoButtonsAcceptButton;
+    public TextMeshProUGUI fixedCollectibleTwoButtonsAcceptText;
+    public TextMeshProUGUI fixedCollectibleTwoButtonsRefuseText;
+    [Space]
+    public GameObject fixedCollectibleForceAcceptPanel;
+    public TextMeshProUGUI fixedCollectibleForceAcceptDescriptionText;
+    public Button fixedCollectibleForceAcceptButton;
+    public TextMeshProUGUI fixedCollectibleForceAcceptText;
+    [Space]
+    public GameObject fixedCollectibleForceRefusePanel;
+    public TextMeshProUGUI fixedCollectibleForceRefuseDescriptionText;
+    public Button fixedCollectibleForceRefuseButton;
+    public TextMeshProUGUI fixedCollectibleForceRefuseText;
 
     [Header("Settings - In game UI")]
     public Color defaultTextColor;
@@ -1832,7 +1843,7 @@ public class RunManager : MonoBehaviour
         }
     }
 
-    public void ShowCollectSuperCollectiblePanel(FixedCollectible collectibleInfo)
+    public void ShowCollectSuperCollectiblePanel(FixedCollectible collectibleInfo, bool allowAccept = true, bool allowRefuse = true, string forceChoiceDescriptionStr = "", string forceChoiceButtonStr = "")
     {
         // Set Time Scale back to 0
         GameManager.instance.SetTimeScale(0);
@@ -1905,14 +1916,6 @@ public class RunManager : MonoBehaviour
         }
         fixedCollectibleBonusText.text = bonusText;
 
-        // Update "Accept" text
-        string foundCollectibleAcceptStr = string.IsNullOrEmpty(collectibleInfo.acceptCollectibleStr) ? DataManager.instance.defaultFoundCollectibleAcceptStr : collectibleInfo.acceptCollectibleStr;
-        fixedCollectibleAcceptText.text = foundCollectibleAcceptStr;
-
-        // Update "Refuse" text
-        string foundCollectibleRefuseStr = string.IsNullOrEmpty(collectibleInfo.refuseCollectibleStr) ? DataManager.instance.defaultFoundCollectibleRefuseStr : collectibleInfo.refuseCollectibleStr;
-        fixedCollectibleRefuseText.text = foundCollectibleRefuseStr;
-
         // Update icon
         fixedCollectibleItemIcon.enabled = false;
         fixedCollectibleFriendIcon.enabled = false;
@@ -1937,6 +1940,47 @@ public class RunManager : MonoBehaviour
                 break;
         }
 
+        fixedCollectibleTwoButtonsPanel.SetActive(false);
+        fixedCollectibleForceAcceptPanel.SetActive(false);
+        fixedCollectibleForceRefusePanel.SetActive(false);
+        Button defaultSelectedButton = fixedCollectibleTwoButtonsAcceptButton;
+        if (allowAccept && allowRefuse)
+        {
+            // Two buttons situation
+            fixedCollectibleTwoButtonsPanel.SetActive(true);
+            defaultSelectedButton = fixedCollectibleTwoButtonsAcceptButton;
+            // Update "Accept" text
+            string foundCollectibleAcceptStr = string.IsNullOrEmpty(collectibleInfo.acceptCollectibleStr) ? DataManager.instance.defaultFoundCollectibleAcceptStr : collectibleInfo.acceptCollectibleStr;
+            fixedCollectibleTwoButtonsAcceptText.text = foundCollectibleAcceptStr;
+            // Update "Refuse" text
+            string foundCollectibleRefuseStr = string.IsNullOrEmpty(collectibleInfo.refuseCollectibleStr) ? DataManager.instance.defaultFoundCollectibleRefuseStr : collectibleInfo.refuseCollectibleStr;
+            fixedCollectibleTwoButtonsRefuseText.text = foundCollectibleRefuseStr;
+        }
+        else if (allowAccept)
+        {
+            // Force Accept
+            fixedCollectibleForceAcceptPanel.SetActive(true);
+            defaultSelectedButton = fixedCollectibleForceAcceptButton;
+            // Update descriptions text
+            fixedCollectibleForceAcceptDescriptionText.text = forceChoiceDescriptionStr;
+            // Update "Accept" text
+            fixedCollectibleForceAcceptText.text = forceChoiceButtonStr;
+        }
+        else if (allowRefuse)
+        {
+            // Force Refuse
+            fixedCollectibleForceRefusePanel.SetActive(true);
+            defaultSelectedButton = fixedCollectibleForceRefuseButton;
+            // Update descriptions text
+            fixedCollectibleForceRefuseDescriptionText.text = forceChoiceDescriptionStr;
+            // Update "Refuse" text
+            fixedCollectibleForceRefuseText.text = forceChoiceButtonStr;
+        }
+        else
+        {
+            Debug.LogWarning("Trying to call ShowCollectSuperCollectiblePanel() but neither Accept nor Refuse are accepted options.");
+        }
+
         // Show UI Panel
         fixedCollectibleFoundPanel.SetActive(true);
         fixedCollectibleFoundPanelIsVisible = true;
@@ -1944,8 +1988,8 @@ public class RunManager : MonoBehaviour
 
         // Select Accept button by default
         fixedCollectibleFoundPanel.GetComponent<CanvasGroup>().interactable = true;
-        EventSystem.current.SetSelectedGameObject(fixedCollectibleAcceptButton.gameObject);
-        fixedCollectibleAcceptButton.Select();
+        EventSystem.current.SetSelectedGameObject(defaultSelectedButton.gameObject);
+        defaultSelectedButton.Select();
 
         // Stop sounds
         SoundManager.instance.PauseInGameLoopedSFX();

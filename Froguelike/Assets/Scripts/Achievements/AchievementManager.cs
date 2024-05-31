@@ -4,8 +4,6 @@ using System.Linq;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using UnityEngine.Analytics;
-using UnityEngine.SocialPlatforms.Impl;
 
 /// <summary>
 /// Achievement describes an achievement in its current state.
@@ -315,6 +313,7 @@ public class AchievementManager : MonoBehaviour
     }
 
     #endregion
+
 
     public List<Achievement> GetUnlockedAchievementsForCurrentRun(bool unlockAchievements, bool forceUnlockEverything)
     {

@@ -22,6 +22,7 @@ MonoBehaviour:
   startingStatBonuses:
     statsList: []
   chapterLengthInSeconds: 300
+  freezeDurationMultiplier: 1
   startingUnlockState: 0
   startingWeight: 1
   canBePlayedMultipleTimesInOneRun: 1
@@ -39,6 +40,7 @@ MonoBehaviour:
       characterData: {fileID: 0}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
     - conditionType: 2
       not: 0
       chapterData: {fileID: 11400000, guid: 4646ffd7b01551a4fa91a2455be9dbea, type: 2}
@@ -51,6 +53,7 @@ MonoBehaviour:
       characterData: {fileID: 0}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
     - conditionType: 0
       not: 0
       chapterData: {fileID: 11400000, guid: 4646ffd7b01551a4fa91a2455be9dbea, type: 2}
@@ -63,6 +66,10 @@ MonoBehaviour:
       characterData: {fileID: 0}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
+  nextChapterConditionCount:
+    countType: 0
+    goal: 0
   rocksSpawnFrequency: 0
   pondsSpawnFrequency: 3
   coinsSpawnFrequency: 1
