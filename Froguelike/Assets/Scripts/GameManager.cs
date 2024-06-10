@@ -93,6 +93,10 @@ public class GameManager : MonoBehaviour
     private const string savedLastSelectedGameMode = "Froguelike last selected game mode";
     private const string savedLastSelectedStartingChapter = "Froguelike last selected starting chapter";
 
+    private const string savedLastSelectedCharacterDemo = "Froguelike Demo last selected character";
+    private const string savedLastSelectedGameModeDemo = "Froguelike Demo last selected game mode";
+    private const string savedLastSelectedStartingChapterDemo = "Froguelike Demo last selected starting chapter";
+
     private void Awake()
     {
         if (instance == null)
@@ -213,23 +217,37 @@ public class GameManager : MonoBehaviour
         UIManager.instance.ShowCharacterSelectionScreen(true);
     }
 
+    private string GetSavedLastSelectedCharacter()
+    {
+        return BuildManager.instance.demoBuild ? savedLastSelectedCharacterDemo : savedLastSelectedCharacter;
+    }
+
+    private string GetSavedLastSelectedGameMode()
+    {
+        return BuildManager.instance.demoBuild ? savedLastSelectedGameModeDemo : savedLastSelectedGameMode;
+    }
+    private string GetSavedLastSelectedStartingChapter()
+    {
+        return BuildManager.instance.demoBuild ? savedLastSelectedStartingChapterDemo : savedLastSelectedStartingChapter;
+    }
+
     public void RemoveSelectedCharacterGameModeAndStartingChapter()
     {
-        PlayerPrefs.DeleteKey(savedLastSelectedCharacter);
-        PlayerPrefs.DeleteKey(savedLastSelectedGameMode);
-        PlayerPrefs.DeleteKey(savedLastSelectedStartingChapter);
+        PlayerPrefs.DeleteKey(GetSavedLastSelectedCharacter());
+        PlayerPrefs.DeleteKey(GetSavedLastSelectedGameMode());
+        PlayerPrefs.DeleteKey(GetSavedLastSelectedStartingChapter());
     }
 
     public void SaveSelectedCharacterGameModeAndStartingChapter(string characterID, string gameMode, string chapterID)
     {
-        PlayerPrefs.SetString(savedLastSelectedCharacter, characterID);
-        PlayerPrefs.SetString(savedLastSelectedGameMode, gameMode);
-        PlayerPrefs.SetString(savedLastSelectedStartingChapter, chapterID);
+        PlayerPrefs.SetString(GetSavedLastSelectedCharacter(), characterID);
+        PlayerPrefs.SetString(GetSavedLastSelectedGameMode(), gameMode);
+        PlayerPrefs.SetString(GetSavedLastSelectedStartingChapter(), chapterID);
     }
 
     public bool AreThereQuickStartOptions()
     {
-        return PlayerPrefs.HasKey(savedLastSelectedCharacter) && PlayerPrefs.HasKey(savedLastSelectedGameMode) && PlayerPrefs.HasKey(savedLastSelectedStartingChapter);
+        return PlayerPrefs.HasKey(GetSavedLastSelectedCharacter()) && PlayerPrefs.HasKey(GetSavedLastSelectedGameMode()) && PlayerPrefs.HasKey(GetSavedLastSelectedStartingChapter());
     }
 
     public void QuickStartNewRun()
@@ -250,17 +268,17 @@ public class GameManager : MonoBehaviour
 
     public string GetRetryRunInfoCharacterID()
     {
-        return PlayerPrefs.GetString(savedLastSelectedCharacter, "CLASSIC_FROG");
+        return PlayerPrefs.GetString(GetSavedLastSelectedCharacter(), "CLASSIC_FROG");
     }
 
     public string GetRetryRunInfoGameMode()
     {
-        return PlayerPrefs.GetString(savedLastSelectedGameMode, "NONE");
+        return PlayerPrefs.GetString(GetSavedLastSelectedGameMode(), "NONE");
     }
 
     public string GetRetryRunInfoChapter()
     {
-        return PlayerPrefs.GetString(savedLastSelectedStartingChapter, "[CH_COLLECT_HEALTH]"); // "First hops" is the fallback.
+        return PlayerPrefs.GetString(GetSavedLastSelectedStartingChapter(), "[CH_COLLECT_HEALTH]"); // "First hops" is the fallback.
     }
 
     #endregion Get info helpers
