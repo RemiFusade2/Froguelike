@@ -233,6 +233,7 @@ public class ChapterWeightChange
     public float weightChange;
 }
 
+/*
 /// <summary>
 /// Bounty contains information about the nature and amount of collectibles
 /// </summary>
@@ -245,7 +246,7 @@ public class Bounty
     public int amount;
     [Tooltip("Value of rewards")]
     public int value;
-}
+}*/
 
 /// <summary>
 /// BountyBug contains information about when a bounty bug must be spawned and which bug
@@ -290,16 +291,19 @@ public class BountyBug
     [Tooltip("Does this bug ignore maximum speed?")]
     public bool ignoreMaxSpeed = false;
 
-    [Header("Bounty")]
-    [Tooltip("A list of collectibles + amount that serve as a bounty")]
-    public List<Bounty> bountyList;
+    [Header("Bounty Reward")]
+    [Tooltip("Override the Reward of that bounty?")]
+    public bool overrideRewards = false;
+    [Tooltip("A list of collectibles you'd get for that bountys reward")]
+    public List<CollectibleType> rewardsList;
 
     public BountyBug(EnemyType enemyType,
         bool overrideHealthMultiplier, float healthMultiplier,
         bool overrideDamageMultiplier, float damageMultiplier,
         bool overrideXpMultiplier, float xpMultiplier,
         bool overrideKnockbackResistance, float knockbackResistance,
-        EnemyMovePattern movePattern)
+        EnemyMovePattern movePattern,
+        bool overrideRewards)
     {
         this.spawnTime = 0;
         this.enemyType = enemyType;
@@ -318,7 +322,9 @@ public class BountyBug
         this.knockbackResistance = knockbackResistance;
 
         this.movePattern = movePattern;
-        this.bountyList = new List<Bounty>();
+
+        this.overrideRewards = overrideRewards;
+        this.rewardsList = new List<CollectibleType>();
     }
 }
 

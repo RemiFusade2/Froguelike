@@ -25,6 +25,7 @@ MonoBehaviour:
   startingStatBonuses:
     statsList: []
   chapterLengthInSeconds: 300
+  freezeDurationMultiplier: 1
   startingUnlockState: 1
   startingWeight: 1
   canBePlayedMultipleTimesInOneRun: 0
@@ -42,6 +43,7 @@ MonoBehaviour:
       characterData: {fileID: 0}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
     - conditionType: 1
       not: 0
       chapterData: {fileID: 11400000, guid: 2e1123b4856ccdd40ba0e0097ee6beb8, type: 2}
@@ -54,6 +56,10 @@ MonoBehaviour:
       characterData: {fileID: 0}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
+  nextChapterConditionCount:
+    countType: 0
+    goal: 0
   rocksSpawnFrequency: 1
   pondsSpawnFrequency: 1
   coinsSpawnFrequency: 1
@@ -352,49 +358,37 @@ MonoBehaviour:
     tierFormula: 3
     overrideHealthMultiplier: 0
     healthMultiplier: 0
+    overrideDamageMultiplier: 0
     damageMultiplier: 2
+    overrideXpMultiplier: 0
     xpMultiplier: 20
+    overrideKnockbackResistance: 0
+    knockbackResistance: 0
     movePattern:
       movePatternType: 2
       speedFactor: 1
       bouncecount: 0
-    bountyList:
-    - collectibleType: 3
-      amount: 10
-      value: 20
-    - collectibleType: 3
-      amount: 1
-      value: 100
-    - collectibleType: 0
-      amount: 20
-      value: 5
-    - collectibleType: 0
-      amount: 10
-      value: 10
+    ignoreMaxSpeed: 0
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 120
     enemyType: 1
     tierFormula: 4
     overrideHealthMultiplier: 0
     healthMultiplier: 0
+    overrideDamageMultiplier: 0
     damageMultiplier: 2
+    overrideXpMultiplier: 0
     xpMultiplier: 20
+    overrideKnockbackResistance: 0
+    knockbackResistance: 0
     movePattern:
       movePatternType: 2
       speedFactor: 1
       bouncecount: 0
-    bountyList:
-    - collectibleType: 3
-      amount: 15
-      value: 20
-    - collectibleType: 3
-      amount: 2
-      value: 100
-    - collectibleType: 0
-      amount: 30
-      value: 5
-    - collectibleType: 0
-      amount: 15
-      value: 10
+    ignoreMaxSpeed: 0
+    overrideRewards: 0
+    rewardsList: 
   weightChanges:
   - chapter: {fileID: 11400000, guid: 62b165488de677049973f49fd7a7f4bf, type: 2}
     weightChange: 10000

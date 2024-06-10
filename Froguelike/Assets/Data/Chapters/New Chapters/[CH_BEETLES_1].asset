@@ -24,6 +24,7 @@ MonoBehaviour:
   startingStatBonuses:
     statsList: []
   chapterLengthInSeconds: 300
+  freezeDurationMultiplier: 1
   startingUnlockState: 1
   startingWeight: 1
   canBePlayedMultipleTimesInOneRun: 0
@@ -41,6 +42,10 @@ MonoBehaviour:
       characterData: {fileID: 0}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
+  nextChapterConditionCount:
+    countType: 0
+    goal: 0
   rocksSpawnFrequency: 1
   pondsSpawnFrequency: 2
   coinsSpawnFrequency: 0
@@ -306,25 +311,19 @@ MonoBehaviour:
     tierFormula: 2
     overrideHealthMultiplier: 0
     healthMultiplier: 0
+    overrideDamageMultiplier: 0
     damageMultiplier: 2
+    overrideXpMultiplier: 0
     xpMultiplier: 20
+    overrideKnockbackResistance: 0
+    knockbackResistance: 0
     movePattern:
       movePatternType: 2
       speedFactor: 1
       bouncecount: 0
-    bountyList:
-    - collectibleType: 0
-      amount: 10
-      value: 5
-    - collectibleType: 0
-      amount: 10
-      value: 10
-    - collectibleType: 3
-      amount: 5
-      value: 20
-    - collectibleType: 3
-      amount: 1
-      value: 100
+    ignoreMaxSpeed: 0
+    overrideRewards: 0
+    rewardsList: 02000000
   weightChanges:
   - chapter: {fileID: 11400000, guid: c728d68403c2eca4999eeae813706f86, type: 2}
     weightChange: 10000

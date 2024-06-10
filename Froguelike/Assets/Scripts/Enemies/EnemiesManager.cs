@@ -340,6 +340,8 @@ public class EnemiesManager : MonoBehaviour
     public float bountyDefaultXPMultiplier = 20;
     public float bountyDefaultKnockbackResistance = 0;
     [Space]
+    public float delayBetweenBountyRewardSpawn = 0.1f;
+    [Space]
     public int bountyOutlineThickness = 1;
     public List<Color> bountyOutlineColorsList;
 
@@ -1789,13 +1791,14 @@ public class EnemiesManager : MonoBehaviour
                     overrideHealthMultiplier: false, healthMultiplier: 0,
                     overrideDamageMultiplier: false, damageMultiplier: 0,
                     overrideXpMultiplier: false, xpMultiplier: 0,
-                    overrideKnockbackResistance: false, knockbackResistance: 0, movePattern: enemyMovePattern);
-                bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.FROINS, amount = 20, value = 1 });
+                    overrideKnockbackResistance: false, knockbackResistance: 0, movePattern: enemyMovePattern,
+                    overrideRewards: false);
+                /*bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.FROINS, amount = 20, value = 1 });
                 bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.FROINS, amount = 20, value = 5 });
                 bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.FROINS, amount = 10, value = 10 });
                 bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 10, value = 10 });
                 bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 10, value = 25 });
-                bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 10, value = 50 });
+                bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 10, value = 50 });*/
                 ResetEnemyValues(enemyInstance, originEnemyData.prefab, originEnemyData, enemyMovePattern, enemyInstance.wave, enemyInstance.difficultyTier, neverDespawn: true, bounty: bountyBug, forceMovementDirection: true, moveDirection: enemyMoveDirection, preventAnyPhysicsShenanigans: false);
                 //StartCoroutine(SpawnEnemyAsync(originEnemyData.prefab, enemyPosition, originEnemyData, enemyMovePattern, enemyInstance.wave, delay: 0.01f, difficultyTier: enemyInstance.difficultyTier, neverDespawn: true, bounty: bountyBug, forceMovementDirection: true, moveDirection: enemyMoveDirection));
             }
@@ -1962,22 +1965,73 @@ public class EnemiesManager : MonoBehaviour
         // Spawn rewards for bounties
         if (enemyInstance.bountyBug != null)
         {
-            if (enemyInstance.bountyBug.bountyList != null
-                && enemyInstance.bountyBug.bountyList.Count > 0)
+            List<CollectibleType> rewardList = new List<CollectibleType>();
+            // Default rewards
+            rewardList.Add(CollectibleType.XP_BONUS);
+            rewardList.Add(CollectibleType.FROINS);
+            rewardList.Add(CollectibleType.HEALTH);
+            if (enemyInstance.bountyBug.overrideRewards)
             {
-                foreach (Bounty bounty in enemyInstance.bountyBug.bountyList)
-                {
-                    for (int i = 0; i < bounty.amount; i++)
-                    {
-                        CollectiblesManager.instance.SpawnCollectible(enemyInstance.enemyTransform.position, bounty.collectibleType, bounty.value, pushAwayForce: bounty.amount);
-                    }
-                }
-
-                // Play SFX
-                SoundManager.instance.PlayEatBountySound();
-                // Increase bounty eaten count by 1 for that chapter.
-                RunManager.instance.IncreaseBountyEatCount(1);
+                // Override rewards
+                rewardList = new List<CollectibleType>(enemyInstance.bountyBug.rewardsList);
             }
+            if (rewardList.Count <= 0)
+            {
+                rewardList.Add(CollectibleType.XP_BONUS); // failsafe
+            }
+
+            // Spawn all collectibles
+            // The amount depends on bounty tier
+            float delay = 0;
+            int rewardCount = enemyInstance.difficultyTier * 20;
+            if (verbose == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log($"Spawn bounty reward. Reward count = {rewardCount}");
+            }
+            int count = 0;
+            while (count <= rewardCount)
+            {
+                CollectibleType randomType = CollectibleType.XP_BONUS;
+                float bonusValue = 5;
+                float typeRollValue = Random.Range(0, 1.0f);
+                bool spawnReward = false;
+                if (typeRollValue > 0.99f && rewardList.Contains(CollectibleType.LEVEL_UP))
+                {
+                    randomType = CollectibleType.LEVEL_UP;
+                    bonusValue = 1;
+                    spawnReward = true;
+                }
+                else if (typeRollValue > 0.9f && rewardList.Contains(CollectibleType.HEALTH))
+                {
+                    randomType = CollectibleType.HEALTH;
+                    bonusValue = (Random.Range(0, 5) == 0) ? 20 : 100;
+                    spawnReward = true;
+                }
+                else if (typeRollValue > 0.6f && rewardList.Contains(CollectibleType.FROINS))
+                {
+                    randomType = CollectibleType.FROINS;
+                    bonusValue = (Random.Range(0, 3) == 0) ? 5 : 10;
+                    spawnReward = true;
+                }
+                else if (typeRollValue <= 0.6f && rewardList.Contains(CollectibleType.XP_BONUS))
+                {
+                    randomType = CollectibleType.XP_BONUS;
+                    bonusValue = Random.Range(1, 12) * 10;
+                    bonusValue = Mathf.Clamp(bonusValue, 10, 100);
+                    spawnReward = true;
+                }
+                if (spawnReward)
+                {
+                    StartCoroutine(CollectiblesManager.instance.SpawnCollectibleAsync(delay, enemyInstance.enemyTransform.position, randomType, bonusValue, pushAwayForce: Random.Range(8, 13)));
+                    delay += delayBetweenBountyRewardSpawn;
+                    count++;
+                }
+            }
+
+            // Play SFX
+            SoundManager.instance.PlayEatBountySound();
+            // Increase bounty eaten count by 1 for that chapter.
+            RunManager.instance.IncreaseBountyEatCount(1);
         }
 
         if (despawnEnemyAndSpawnXP)

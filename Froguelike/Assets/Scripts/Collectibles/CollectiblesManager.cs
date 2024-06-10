@@ -232,6 +232,17 @@ public class CollectiblesManager : MonoBehaviour
         return collectibleInstance;
     }
 
+    public IEnumerator SpawnCollectibleAsync(float delay, Vector2 position, CollectibleType collectibleType, float collectibleValue, float pushAwayForce = 0)
+    {
+        if (verboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"Spawn collectible async with delay {delay}s : {collectibleType.ToString()} + {collectibleValue}");
+        }
+
+        yield return new WaitForSeconds(delay);
+        SpawnCollectible(position, collectibleType, collectibleValue, pushAwayForce);
+    }
+
     /// <summary>
     /// Spawn a collectible (from the pool) at a position on the map.
     /// Optional: add a push force to it
@@ -358,14 +369,19 @@ public class CollectiblesManager : MonoBehaviour
         RunManager.instance.RemoveCompassArrowForCollectible(superCollectible);
         SoundManager.instance.PlayPickUpCollectibleSound();
 
+        // Settings
+        bool figurineCantBeRefused = true;
+        bool ghostCantMakeFriends = true;
+        bool ribbitCantMakeFriends = true;
+
         // Decide if that fixed collectible is mandatory or impossible to pick.
         // It depends on a few particular cases:
-        if (RunManager.instance.currentPlayedCharacter.characterID.Equals("GHOST") && superCollectible.collectibleType == FixedCollectibleType.FRIEND && superCollectible.collectibleFriendType != FriendType.GHOST)
+        if (ghostCantMakeFriends && RunManager.instance.currentPlayedCharacter.characterID.Equals("GHOST") && superCollectible.collectibleType == FixedCollectibleType.FRIEND && superCollectible.collectibleFriendType != FriendType.GHOST)
         {
             // 1 - You are playing as Ghost and you met a companion that is not of ghost type: the companion can't see you or is scared of you
             RunManager.instance.ShowCollectSuperCollectiblePanel(superCollectible, allowAccept: false, forceChoiceDescriptionStr: $"But {superCollectible.collectibleName} is scared of ghosts!", forceChoiceButtonStr:"Oh no!");
         }
-        else if (superCollectible.collectibleType == FixedCollectibleType.STATS_ITEM && superCollectible.collectibleStatItemData.itemName.Equals("Figurine"))
+        else if (figurineCantBeRefused && superCollectible.collectibleType == FixedCollectibleType.STATS_ITEM && superCollectible.collectibleStatItemData.itemName.Equals("Figurine"))
         {
             // 2 - You found the figurine, it is cursed and you are forced to pick it up
             RunManager.instance.ShowCollectSuperCollectiblePanel(superCollectible, allowRefuse: false, forceChoiceDescriptionStr: "You feel drawn to it.", forceChoiceButtonStr: "Shiny!");
@@ -374,6 +390,11 @@ public class CollectiblesManager : MonoBehaviour
         {
             // 3 - You found an item that would complete a quest if you pick it up: you can't choose to not pick it up
             RunManager.instance.ShowCollectSuperCollectiblePanel(superCollectible, allowRefuse: false, forceChoiceDescriptionStr: "It's the first time you see something like this.", forceChoiceButtonStr: "I want it!");
+        }
+        else if (ribbitCantMakeFriends && RunManager.instance.currentPlayedCharacter.characterID.Equals("POISONOUS_FROG") && !RunManager.instance.currentPlayedCharacter.storyCompleted && superCollectible.collectibleType == FixedCollectibleType.FRIEND && superCollectible.collectibleFriendType != FriendType.POISONOUS)
+        {
+            // 4 - You are playing as Ribbit and you met a companion that is not venomous: the companion doesn't want to join you
+            RunManager.instance.ShowCollectSuperCollectiblePanel(superCollectible, allowAccept: false, forceChoiceDescriptionStr: $"But {superCollectible.collectibleName} is afraid of your poison!", forceChoiceButtonStr: "Oh no!");
         }
         else
         {
