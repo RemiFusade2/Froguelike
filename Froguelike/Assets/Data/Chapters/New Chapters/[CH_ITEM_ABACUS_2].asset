@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chapterID: '[CH_ITEM_ABACUS_2]'
   partOfDemo: 0
-  chapterTitle: Heading West
+  chapterTitle: Heading west
   chapterLore:
   - Heading towards the setting Sun?\nIt seems to me like the obvious answer to that
     riddle.\nThe treasure is mine!
@@ -22,6 +22,7 @@ MonoBehaviour:
   startingStatBonuses:
     statsList: []
   chapterLengthInSeconds: 300
+  freezeDurationMultiplier: 1
   startingUnlockState: 1
   startingWeight: 1
   canBePlayedMultipleTimesInOneRun: 0
@@ -39,6 +40,7 @@ MonoBehaviour:
       characterData: {fileID: 0}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
     - conditionType: 1
       not: 1
       chapterData: {fileID: 11400000, guid: 8b7b5c5f5506bd343a90622fb1b22c52, type: 2}
@@ -51,6 +53,7 @@ MonoBehaviour:
       characterData: {fileID: 0}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
     - conditionType: 2
       not: 0
       chapterData: {fileID: 11400000, guid: b874fa8e4f4f3af4fb96fd5f6abcca0d, type: 2}
@@ -63,6 +66,10 @@ MonoBehaviour:
       characterData: {fileID: 0}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
+  nextChapterConditionCount:
+    countType: 0
+    goal: 0
   rocksSpawnFrequency: 1
   pondsSpawnFrequency: 2
   coinsSpawnFrequency: 2

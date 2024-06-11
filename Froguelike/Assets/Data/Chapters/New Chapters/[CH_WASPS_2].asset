@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chapterID: '[CH_WASPS_2]'
   partOfDemo: 1
-  chapterTitle: Precision Flight
+  chapterTitle: Precision flight
   chapterLore:
   - Wasps realized that they were very good at flying in a straight line, right towards
     me!\nI need to be quick and evade them before they sting me.
@@ -22,6 +22,7 @@ MonoBehaviour:
   startingStatBonuses:
     statsList: []
   chapterLengthInSeconds: 300
+  freezeDurationMultiplier: 1
   startingUnlockState: 1
   startingWeight: 1
   canBePlayedMultipleTimesInOneRun: 0
@@ -39,6 +40,7 @@ MonoBehaviour:
       characterData: {fileID: 0}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
     - conditionType: 1
       not: 0
       chapterData: {fileID: 11400000, guid: ec1bec140d328ee48aa0b3337bf84583, type: 2}
@@ -51,6 +53,10 @@ MonoBehaviour:
       characterData: {fileID: 0}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
+  nextChapterConditionCount:
+    countType: 0
+    goal: 0
   rocksSpawnFrequency: 1
   pondsSpawnFrequency: 0
   coinsSpawnFrequency: 1
@@ -244,25 +250,19 @@ MonoBehaviour:
     tierFormula: chapter
     overrideHealthMultiplier: 0
     healthMultiplier: 0
+    overrideDamageMultiplier: 0
     damageMultiplier: 2
+    overrideXpMultiplier: 0
     xpMultiplier: 20
+    overrideKnockbackResistance: 0
+    knockbackResistance: 0
     movePattern:
       movePatternType: 2
       speedFactor: 2
       bouncecount: 0
-    bountyList:
-    - collectibleType: 3
-      amount: 8
-      value: 20
-    - collectibleType: 1
-      amount: 10
-      value: 5
-    - collectibleType: 1
-      amount: 8
-      value: 25
-    - collectibleType: 1
-      amount: 2
-      value: 50
+    ignoreMaxSpeed: 0
+    overrideRewards: 0
+    rewardsList: 
   weightChanges:
   - chapter: {fileID: 11400000, guid: 432504ee85d215a4b8978fc409b66188, type: 2}
     weightChange: 10000
