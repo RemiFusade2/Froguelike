@@ -9,9 +9,7 @@ public class PauseScreen : MonoBehaviour
 {
     public RunManager runManager;
     [Header("Character bookmark")]
-    public Image characterImage;
-    public TextMeshProUGUI characterNameText;
-    public Transform thingSlotsParent;
+    public CharacterBookmarkInRunInfoBehaviour characterInfoBookmark;
     [Header("Chapter list")]
     public TextMeshProUGUI chapterText;
     [Header("Item slots")]
@@ -34,94 +32,23 @@ public class PauseScreen : MonoBehaviour
 
     public void UpdatePauseScreen()
     {
-        try
-        {
-            // Character image.
-            characterImage.sprite = runManager.currentPlayedCharacter.characterData.characterSprite;
-            characterImage.SetNativeSize();
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"Exception in UpdatePauseScreen() - updating character image: {e.Message}");
-        }
 
-        try
-        {
-            // Character name.
-            characterNameText.SetText(runManager.currentPlayedCharacter.characterData.characterName);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"Exception in UpdatePauseScreen() - updating character name: {e.Message}");
-        }
+        // Update character info bookmark. Image, name, hats and friends.
+        characterInfoBookmark.UpdateInRunBookmark();
 
-        try
-        {
-            // Hats + friends
-            int thingSlot = 0;
-            Image thingSlotImage;
-
-            int nrOfHats = runManager.player.hatsParent.childCount;
-            for (int hat = 0; hat < nrOfHats; hat++)
-            {
-                if (thingSlot >= thingSlotsParent.childCount) break;
-
-                thingSlotImage = thingSlotsParent.GetChild(thingSlot).GetComponentInChildren<Image>();
-                SpriteRenderer[] hatsSpriteRenderersArray = runManager.player.hatsParent.GetComponentsInChildren<SpriteRenderer>();
-                thingSlotImage.sprite = hatsSpriteRenderersArray[hat].sprite;
-                thingSlotImage.SetNativeSize();
-
-                thingSlotImage.gameObject.SetActive(true);
-                thingSlotImage.enabled = true;
-
-                thingSlot++;
-            }
-
-            int nrOfFriends = FriendsManager.instance.transform.childCount;
-            foreach (FriendInstance friend in FriendsManager.instance.permanentFriendsList)
-            {
-                if (thingSlot >= thingSlotsParent.childCount) break;
-
-                thingSlotImage = thingSlotsParent.GetChild(thingSlot).GetComponentInChildren<Image>();
-                thingSlotImage.sprite = friend.data.sprite;
-                thingSlotImage.SetNativeSize();
-
-                thingSlotImage.gameObject.SetActive(true);
-                thingSlotImage.enabled = true;
-
-                thingSlot++;
-            }
-
-            while (thingSlot < thingSlotsParent.childCount)
-            {
-                thingSlotImage = thingSlotsParent.GetChild(thingSlot).GetComponentInChildren<Image>();
-                if (thingSlotImage != null)
-                {
-                    thingSlotImage.GetComponent<Image>().enabled = false;
-                }
-                else
-                {
-                    break;
-                }
-
-                thingSlot++;
-            }
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"Exception in UpdatePauseScreen() - updating hats and friends: {e.Message}");
-        }
-
+        // Display chapters.
         try
         {
             string text = "";
+            // Previous chapters.
             for (int chapterIndex = 0; chapterIndex < runManager.GetChapterCount() - 1; chapterIndex++)
             {
                 text += "Chapter " + (chapterIndex + 1) + " - " + runManager.completedChaptersList[chapterIndex].chapterData.chapterTitle + "\n";
             }
 
+            // Current chapter.
             text += "Chapter " + runManager.GetChapterCount().ToString() + " - " + runManager.currentChapter.chapterData.chapterTitle;
-            // Chapter number + name.
+            // Update and display list.
             chapterText.SetText(text);
         }
         catch (Exception e)

@@ -37,6 +37,8 @@ public class ScoreManager : MonoBehaviour
     public AchievementsScrollRect achievementScrollRect;
     public GameObject leftArrow;
     public GameObject rightArrow;
+    [Space]
+    public CharacterBookmarkInRunInfoBehaviour characterInfoBookmark;
 
 
     private void Awake()
@@ -199,6 +201,9 @@ public class ScoreManager : MonoBehaviour
         achievementScrollRect.transform.parent.gameObject.SetActive((unlockedAchievements.Count > 0));
         leftArrow.SetActive(unlockedAchievements.Count > 1);
         rightArrow.SetActive(unlockedAchievements.Count > 1);
+
+        // Display character info.
+        characterInfoBookmark.UpdateInRunBookmark();
 
         // Show the score screen
         UIManager.instance.ShowScoreScreen();
