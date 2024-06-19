@@ -504,9 +504,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   runManager: {fileID: 0}
   characterInfoBookmark: {fileID: 5390219647140892451}
-  characterImage: {fileID: 347455909094994022}
-  characterNameText: {fileID: 347455908714146372}
-  thingSlotsParent: {fileID: 347455907757185120}
   chapterText: {fileID: 347455908854168145}
   tongueSlotsParents:
   - {fileID: 347455907196615517}
@@ -696,13 +693,13 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 3
+  m_ChildAlignment: 0
   m_StartCorner: 0
-  m_StartAxis: 0
+  m_StartAxis: 1
   m_CellSize: {x: 16, y: 16}
   m_Spacing: {x: 1, y: 1}
-  m_Constraint: 1
-  m_ConstraintCount: 7
+  m_Constraint: 2
+  m_ConstraintCount: 3
 --- !u!1 &347455908072375637
 GameObject:
   m_ObjectHideFlags: 0
@@ -2986,6 +2983,10 @@ PrefabInstance:
     - target: {fileID: 3873219966236363331, guid: 609838864b3d8da44b2f279b7e3b2149, type: 3}
       propertyPath: m_Name
       value: Thing Slot (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 3873219966236363331, guid: 609838864b3d8da44b2f279b7e3b2149, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3873219967168790261, guid: 609838864b3d8da44b2f279b7e3b2149, type: 3}
       propertyPath: m_SortingLayer
