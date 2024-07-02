@@ -1864,7 +1864,17 @@ public class EnemiesManager : MonoBehaviour
         }
         actualSpeed = Mathf.Clamp(actualSpeed, 0, clampToMaxSpeed ? maximumSpeed : 10000);
         enemy.enemyRigidbody.velocity = enemy.moveDirection * actualSpeed;
-        enemy.enemyAnimator.SetFloat("Speed", actualSpeed);
+
+        if (enemy.movePattern.movePatternType == EnemyMovePatternType.NO_MOVEMENT)
+        {
+            // Force animation to play at speed 1
+            enemy.enemyAnimator.SetFloat("Speed", 1);
+        }
+        else
+        {
+            // Play animation at whatever true speed is
+            enemy.enemyAnimator.SetFloat("Speed", actualSpeed);
+        }
     }
 
     private void SetOverlayColor(EnemyInstance enemyInstance, Color color, float delay)

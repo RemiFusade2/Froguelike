@@ -23,6 +23,7 @@ MonoBehaviour:
   startingStatBonuses:
     statsList: []
   chapterLengthInSeconds: 300
+  freezeDurationMultiplier: 1
   startingUnlockState: 1
   startingWeight: 1
   canBePlayedMultipleTimesInOneRun: 0
@@ -40,6 +41,7 @@ MonoBehaviour:
       characterData: {fileID: 0}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
     - conditionType: 1
       not: 0
       chapterData: {fileID: 11400000, guid: c728d68403c2eca4999eeae813706f86, type: 2}
@@ -52,6 +54,10 @@ MonoBehaviour:
       characterData: {fileID: 0}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
+  nextChapterConditionCount:
+    countType: 0
+    goal: 0
   rocksSpawnFrequency: 3
   pondsSpawnFrequency: 0
   coinsSpawnFrequency: 2
@@ -320,95 +326,89 @@ MonoBehaviour:
     tierFormula: 1
     overrideHealthMultiplier: 0
     healthMultiplier: 0
+    overrideDamageMultiplier: 0
     damageMultiplier: 2
+    overrideXpMultiplier: 0
     xpMultiplier: 20
+    overrideKnockbackResistance: 0
+    knockbackResistance: 0
     movePattern:
       movePatternType: 2
       speedFactor: 1
       bouncecount: 0
-    bountyList:
-    - collectibleType: 0
-      amount: 10
-      value: 5
-    - collectibleType: 0
-      amount: 5
-      value: 10
+    ignoreMaxSpeed: 0
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 30
     enemyType: 3
     tierFormula: 2
     overrideHealthMultiplier: 0
     healthMultiplier: 0
+    overrideDamageMultiplier: 0
     damageMultiplier: 2
+    overrideXpMultiplier: 0
     xpMultiplier: 20
+    overrideKnockbackResistance: 0
+    knockbackResistance: 0
     movePattern:
       movePatternType: 2
       speedFactor: 1
       bouncecount: 0
-    bountyList:
-    - collectibleType: 0
-      amount: 20
-      value: 5
-    - collectibleType: 0
-      amount: 10
-      value: 10
+    ignoreMaxSpeed: 0
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 60
     enemyType: 3
     tierFormula: 3
     overrideHealthMultiplier: 0
     healthMultiplier: 0
+    overrideDamageMultiplier: 0
     damageMultiplier: 2
+    overrideXpMultiplier: 0
     xpMultiplier: 20
+    overrideKnockbackResistance: 0
+    knockbackResistance: 0
     movePattern:
       movePatternType: 2
       speedFactor: 1
       bouncecount: 0
-    bountyList:
-    - collectibleType: 0
-      amount: 30
-      value: 5
-    - collectibleType: 0
-      amount: 15
-      value: 10
+    ignoreMaxSpeed: 0
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 90
     enemyType: 3
     tierFormula: 4
     overrideHealthMultiplier: 0
     healthMultiplier: 0
+    overrideDamageMultiplier: 0
     damageMultiplier: 2
+    overrideXpMultiplier: 0
     xpMultiplier: 20
+    overrideKnockbackResistance: 0
+    knockbackResistance: 0
     movePattern:
       movePatternType: 2
       speedFactor: 1
       bouncecount: 0
-    bountyList:
-    - collectibleType: 0
-      amount: 50
-      value: 5
-    - collectibleType: 0
-      amount: 25
-      value: 10
+    ignoreMaxSpeed: 0
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 120
     enemyType: 3
     tierFormula: 5
     overrideHealthMultiplier: 0
     healthMultiplier: 0
+    overrideDamageMultiplier: 0
     damageMultiplier: 2
+    overrideXpMultiplier: 0
     xpMultiplier: 20
+    overrideKnockbackResistance: 0
+    knockbackResistance: 0
     movePattern:
       movePatternType: 2
       speedFactor: 1
       bouncecount: 0
-    bountyList:
-    - collectibleType: 0
-      amount: 40
-      value: 5
-    - collectibleType: 0
-      amount: 60
-      value: 5
-    - collectibleType: 0
-      amount: 20
-      value: 10
-    - collectibleType: 0
-      amount: 30
-      value: 10
+    ignoreMaxSpeed: 0
+    overrideRewards: 0
+    rewardsList: 
   weightChanges: []
