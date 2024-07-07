@@ -59,6 +59,9 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 0
+  nextChapterConditionCount:
+    countType: 0
+    goal: 0
   rocksSpawnFrequency: 3
   pondsSpawnFrequency: 0
   coinsSpawnFrequency: 3
@@ -339,13 +342,8 @@ MonoBehaviour:
       speedFactor: 2
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 0
-      amount: 5
-      value: 5
-    - collectibleType: 1
-      amount: 5
-      value: 5
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 45
     enemyType: 0
     tierFormula: 2
@@ -362,10 +360,8 @@ MonoBehaviour:
       speedFactor: 3
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 1
-      amount: 10
-      value: 50
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 50
     enemyType: 0
     tierFormula: 3
@@ -382,10 +378,8 @@ MonoBehaviour:
       speedFactor: 3
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 2
-      amount: 1
-      value: 1
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 55
     enemyType: 0
     tierFormula: 4
@@ -402,16 +396,8 @@ MonoBehaviour:
       speedFactor: 4
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 1
-      amount: 5
-      value: 50
-    - collectibleType: 1
-      amount: 5
-      value: 25
-    - collectibleType: 1
-      amount: 10
-      value: 5
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 60
     enemyType: 0
     tierFormula: 5
@@ -428,13 +414,8 @@ MonoBehaviour:
       speedFactor: 4
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 3
-      amount: 5
-      value: 25
-    - collectibleType: 1
-      amount: 10
-      value: 50
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 80
     enemyType: 0
     tierFormula: 4
@@ -451,10 +432,8 @@ MonoBehaviour:
       speedFactor: 5
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 1
-      amount: 10
-      value: 50
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 120
     enemyType: 0
     tierFormula: 3
@@ -471,16 +450,8 @@ MonoBehaviour:
       speedFactor: 7
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 0
-      amount: 10
-      value: 10
-    - collectibleType: 0
-      amount: 10
-      value: 5
-    - collectibleType: 1
-      amount: 10
-      value: 5
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 150
     enemyType: 0
     tierFormula: 4
@@ -497,13 +468,8 @@ MonoBehaviour:
       speedFactor: 9
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 0
-      amount: 20
-      value: 5
-    - collectibleType: 1
-      amount: 20
-      value: 5
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 180
     enemyType: 0
     tierFormula: 5
@@ -520,10 +486,8 @@ MonoBehaviour:
       speedFactor: 12
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 180
     enemyType: 0
     tierFormula: 5
@@ -540,10 +504,8 @@ MonoBehaviour:
       speedFactor: 12
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 180
     enemyType: 0
     tierFormula: 5
@@ -560,10 +522,8 @@ MonoBehaviour:
       speedFactor: 12
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 200
     enemyType: 0
     tierFormula: 5
@@ -580,10 +540,8 @@ MonoBehaviour:
       speedFactor: 15
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 200
     enemyType: 0
     tierFormula: 5
@@ -600,10 +558,8 @@ MonoBehaviour:
       speedFactor: 15
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 200
     enemyType: 0
     tierFormula: 5
@@ -620,10 +576,8 @@ MonoBehaviour:
       speedFactor: 15
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 200
     enemyType: 0
     tierFormula: 5
@@ -640,10 +594,8 @@ MonoBehaviour:
       speedFactor: 15
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 200
     enemyType: 0
     tierFormula: 5
@@ -660,8 +612,6 @@ MonoBehaviour:
       speedFactor: 15
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
+    overrideRewards: 0
+    rewardsList: 
   weightChanges: []
