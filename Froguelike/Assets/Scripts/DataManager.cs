@@ -323,7 +323,21 @@ public class DataManager : MonoBehaviour
         return probability;
     }
 
-    public Color GetColorForWeaponEffect(TongueEffect effect)
+    public TongueEffect GetTongueEffectFromColor(Color color)
+    {
+        TongueEffect result = TongueEffect.NONE;
+        foreach (KeyValuePair< TongueEffect, Color> effectColorVP in weaponEffectColorDico)
+        {
+            if (effectColorVP.Value.Equals(color))
+            {
+                result = effectColorVP.Key;
+                break;
+            }
+        }
+        return result;
+    }
+
+    public Color GetColorForTongueEffect(TongueEffect effect)
     {
         if (weaponEffectColorDico != null && weaponEffectColorDico.ContainsKey(effect))
         {

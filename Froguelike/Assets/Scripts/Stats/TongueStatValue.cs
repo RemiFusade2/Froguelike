@@ -204,6 +204,10 @@ public class TongueStatsWrapper
     public static string GetDescription(List<TongueStatValue> weaponStatsList)
     {
         string result = "";
+
+        // Special case: when there's both damage and poison damage upgrade, we don't display poison damage
+        bool ignorePoisonDamageUpgrade = false;
+
         foreach (TongueStatValue statValue in weaponStatsList)
         {
             if (DataManager.instance.TryGetStatData(statValue.stat, out string shortName, out string longName, out string unit, out bool usePercent))
@@ -211,9 +215,17 @@ public class TongueStatsWrapper
                 string statNameStr = longName;
                 string plusSign = (statValue.value < 0) ? "" : "+";
                 string statValueStr = statValue.value.ToString("0");
+
+                if (statValue.stat == TongueStat.POISON_DAMAGE && ignorePoisonDamageUpgrade)
+                {
+                    // Skip to the next upgrade
+                    continue;
+                }
+
                 if (statValue.stat == TongueStat.DAMAGE || statValue.stat == TongueStat.POISON_DAMAGE)
                 {
                     statValueStr = (statValue.value * 10).ToString("0");
+                    ignorePoisonDamageUpgrade = true;
                 }
                 if (usePercent)
                 {

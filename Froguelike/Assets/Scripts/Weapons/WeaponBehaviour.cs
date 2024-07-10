@@ -165,19 +165,19 @@ public class WeaponBehaviour : MonoBehaviour
         switch (tongueType)
         {
             case TongueType.VAMPIRE:
-                SetTongueColor(DataManager.instance.GetColorForWeaponEffect(TongueEffect.VAMPIRE));
+                SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.VAMPIRE));
                 break;
             case TongueType.POISON:
-                SetTongueColor(DataManager.instance.GetColorForWeaponEffect(TongueEffect.POISON));
+                SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.POISON));
                 break;
             case TongueType.FREEZE:
-                SetTongueColor(DataManager.instance.GetColorForWeaponEffect(TongueEffect.FREEZE));
+                SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.FREEZE));
                 break;
             case TongueType.CURSED:
-                SetTongueColor(DataManager.instance.GetColorForWeaponEffect(TongueEffect.CURSE));
+                SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.CURSE));
                 break;
             default:
-                SetTongueColor(DataManager.instance.GetColorForWeaponEffect(TongueEffect.NONE));
+                SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.NONE));
                 break;
         }
         
@@ -1248,10 +1248,22 @@ public class WeaponBehaviour : MonoBehaviour
             {
                 case TongueType.RANDOM:
                     TongueLineRendererBehaviour script = this.GetComponent<TongueLineRendererBehaviour>();
-                    activeEffect = script.GetEffectFromCollider(collision);
+                    activeEffect = script.GetEffectFromTip();
                     if (activeEffect == TongueEffect.CURSE)
                     {
-                        isCurseEffectActive = true;
+                        // Curse active means no damage
+                        actualDamage = 0; 
+                    }
+                    else if (activeEffect == TongueEffect.POISON)
+                    {
+                        // Poison active means only poison damage is inflicted
+                        actualDamage = poisonDamage * (1 + GameManager.instance.player.GetAttackDamageBoost());
+                    }
+                    else if (activeEffect == TongueEffect.FREEZE)
+                    {
+                        // When freeze effect is active, damage is reduced (divided by 10, rounded up to first decimal)
+                        actualDamage /= 10;
+                        actualDamage = Mathf.CeilToInt(actualDamage * 10) / 10.0f;
                     }
                     break;
                 case TongueType.CURSED:
@@ -1269,7 +1281,9 @@ public class WeaponBehaviour : MonoBehaviour
             }
 
             // curse part, increase enemy speed
-            if (isCurseEffectActive)
+            bool tongueIsCursedTongueAndCurseIsActive = (tongueType == TongueType.CURSED && isCurseEffectActive);
+            bool tongueIsRandomTongueAndEffectIsCurse = (tongueType == TongueType.RANDOM && activeEffect == TongueEffect.CURSE);
+            if (tongueIsCursedTongueAndCurseIsActive)
             {
                 activeEffect = TongueEffect.CURSE;
                 actualDamage = 0;
@@ -1277,7 +1291,7 @@ public class WeaponBehaviour : MonoBehaviour
 
             bool vampireEffect = (activeEffect == TongueEffect.VAMPIRE);
             bool enemyIsDead = EnemiesManager.instance.DamageEnemy(enemyName, actualDamage, this.transform, 
-                applyVampireEffect: vampireEffect, applyFreezeEffect: (activeEffect == TongueEffect.FREEZE), applyCurse: isCurseEffectActive, poisonSource: false);
+                applyVampireEffect: vampireEffect, applyFreezeEffect: (activeEffect == TongueEffect.FREEZE), applyCurse: (tongueIsCursedTongueAndCurseIsActive || tongueIsRandomTongueAndEffectIsCurse), poisonSource: (activeEffect == TongueEffect.POISON));
 
             // vampire part, absorb part of damage done
             if (vampireEffect)
@@ -1308,9 +1322,17 @@ public class WeaponBehaviour : MonoBehaviour
             }
 
             // curse part, increasing enemy speed
-            if (isCurseEffectActive)
+            if (tongueIsCursedTongueAndCurseIsActive)
             {
+                // Tongue is the cursed tongue and it's been decided that the curse effect is active now
+                // Duration is just overall duration of that tongue at the moment
                 EnemiesManager.instance.ApplyCurseEffect(enemyName, actualStatusDuration);
+            }
+            else if (tongueIsRandomTongueAndEffectIsCurse)
+            {
+                // Tongue is the random tongue and it hits on a cursed part of the tongue
+                // Duration is less than the overall duration (otherwise, that tongue becomes too bad)
+                EnemiesManager.instance.ApplyCurseEffect(enemyName, actualStatusDuration / 5);
             }
 
             if (enemyIsDead)

@@ -858,7 +858,7 @@ public class EnemiesManager : MonoBehaviour
             if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out Vector3 spawnPosition))
             {
                 Vector3 positionRelativeToFrog = spawnPosition - GameManager.instance.player.transform.position;
-                StartCoroutine(SpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, movePatternFollowPlayer, originWave: null, delay: 0, difficultyTier: difficultyTier));
+                StartCoroutine(SpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, movePatternFollowPlayer, originWave: RunManager.instance.GetCurrentWave(), delay: 0, difficultyTier: difficultyTier));
             }
         }
     }
