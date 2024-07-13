@@ -16,13 +16,14 @@ MonoBehaviour:
   partOfDemo: 1
   chapterTitle: A divine lead
   chapterLore:
-  - My adventure lead me to more challenges, and more information too! The item I
-    am looking for is hidden far far away. I must pack a good meal before going any
-    further.
+  - '[FROGNAME]''s adventure lead them to more challenges, and more information too!
+    The item [FROGNAME] was looking for is hidden far far away. [FROGNAME] packed
+    a good meal before going any further.'
   icons: []
   startingStatBonuses:
     statsList: []
   chapterLengthInSeconds: 300
+  freezeDurationMultiplier: 1
   startingUnlockState: 1
   startingWeight: 1
   canBePlayedMultipleTimesInOneRun: 0
@@ -40,6 +41,7 @@ MonoBehaviour:
       characterData: {fileID: 0}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
     - conditionType: 1
       not: 0
       chapterData: {fileID: 11400000, guid: 5e291b4b69c406a41840b5699666ff17, type: 2}
@@ -52,6 +54,10 @@ MonoBehaviour:
       characterData: {fileID: 0}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
+  nextChapterConditionCount:
+    countType: 0
+    goal: 0
   rocksSpawnFrequency: 1
   pondsSpawnFrequency: 2
   coinsSpawnFrequency: 1

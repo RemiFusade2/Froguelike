@@ -16,10 +16,10 @@ MonoBehaviour:
   partOfDemo: 0
   chapterTitle: Party
   chapterLore:
-  - With some froggy friends with him, Stanley felt that he was part of the family
+  - With some froggy friends with him, [FROGNAME] felt that he was part of the family
     already.\nA cat accompanied by frogs.\n\nLet's throw a party for everyone!\nAn
-    all-you-can-eat buffet, with party hats too! Everybody is welcome to Stanley's
-    Party <3\n\nStanley thought "Frogs are so much fun" and he dreamt to becoming
+    all-you-can-eat buffet, with party hats too! Everybody is welcome to [FROGNAME]'s
+    Party <3\n\n[FROGNAME] thought "Frogs are so much fun" and he dreamt of becoming
     a frog...
   icons: []
   startingStatBonuses:
@@ -512,16 +512,8 @@ MonoBehaviour:
       speedFactor: 2
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 3
-      amount: 10
-      value: 20
-    - collectibleType: 0
-      amount: 10
-      value: 5
-    - collectibleType: 0
-      amount: 5
-      value: 10
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 60
     enemyType: 0
     tierFormula: 4
@@ -538,16 +530,8 @@ MonoBehaviour:
       speedFactor: 2
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 3
-      amount: 15
-      value: 20
-    - collectibleType: 0
-      amount: 20
-      value: 5
-    - collectibleType: 0
-      amount: 10
-      value: 10
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 90
     enemyType: 0
     tierFormula: 5
@@ -564,14 +548,6 @@ MonoBehaviour:
       speedFactor: 2
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 3
-      amount: 20
-      value: 20
-    - collectibleType: 0
-      amount: 30
-      value: 5
-    - collectibleType: 0
-      amount: 20
-      value: 10
+    overrideRewards: 0
+    rewardsList: 
   weightChanges: []

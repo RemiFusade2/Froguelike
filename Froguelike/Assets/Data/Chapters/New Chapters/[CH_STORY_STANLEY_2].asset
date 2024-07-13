@@ -16,10 +16,10 @@ MonoBehaviour:
   partOfDemo: 0
   chapterTitle: The big fly
   chapterLore:
-  - Stanley ate lots of small bugs already, but he felt confident he could eat bigger
-    ones.\n\n"Let's try to eat at least one of the big flies" thought Stanley. After
-    all, chasing big flies always has been a hobby of his.\n\n"That would prove to
-    everyone that I can be a strong frog too!"
+  - '[FROGNAME] ate lots of small bugs already, but he felt confident he could eat
+    bigger ones.\n\n"Let''s try to eat at least one of the big flies" thought [FROGNAME].
+    After all, chasing big flies always has been a hobby of his.\n\n"That would prove
+    to everyone that I can be a strong frog too!"'
   icons: []
   startingStatBonuses:
     statsList: []
@@ -348,25 +348,8 @@ MonoBehaviour:
       speedFactor: 1
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 0
-      amount: 10
-      value: 10
-    - collectibleType: 0
-      amount: 10
-      value: 10
-    - collectibleType: 0
-      amount: 5
-      value: 5
-    - collectibleType: 0
-      amount: 5
-      value: 5
-    - collectibleType: 0
-      amount: 5
-      value: 5
-    - collectibleType: 0
-      amount: 5
-      value: 5
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 120
     enemyType: 0
     tierFormula: 3
@@ -383,19 +366,8 @@ MonoBehaviour:
       speedFactor: 1
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 0
-      amount: 7
-      value: 10
-    - collectibleType: 0
-      amount: 8
-      value: 10
-    - collectibleType: 0
-      amount: 5
-      value: 5
-    - collectibleType: 0
-      amount: 5
-      value: 5
+    overrideRewards: 0
+    rewardsList: 
   weightChanges:
   - chapter: {fileID: 11400000, guid: 427c3d0d3f3e7964a941ee7cfd702487, type: 2}
     weightChange: 10000

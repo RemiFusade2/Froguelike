@@ -423,5 +423,12 @@ public class ChapterData : ScriptableObject
     [Header("Chapter settings - Weight changes to other chapters")]
     [Tooltip("A list of all the modifications to chapters likelihood of appearance after playing this one")]
     public List<ChapterWeightChange> weightChanges;
+
+    public string GetDescription(string frogName)
+    {
+        string description = chapterLore[0].Replace("\\n", "\n");
+        description = description.Replace("[FROGNAME]", frogName);
+        return description;
+    }
 }
 

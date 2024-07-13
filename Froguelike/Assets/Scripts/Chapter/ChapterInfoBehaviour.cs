@@ -17,18 +17,18 @@ public class ChapterInfoBehaviour : MonoBehaviour
 
     public void DisplayChapter(Chapter chapterInfo, ChapterInfoBehaviour infoPanel)
     {
-        // Set chapter info.
+        // Set chapter info
         infoTitleTextMesh.SetText(chapterInfo.chapterData.chapterTitle);
-        infoDescriptionTextMesh.SetText(chapterInfo.chapterData.chapterLore[0].Replace("\\n", "\n"));
+        infoDescriptionTextMesh.SetText(chapterInfo.chapterData.GetDescription(RunManager.instance.currentPlayedCharacter.characterData.characterName));
 
-        // Fixed colelctibles.
-        // Get the chapters fixed collectibles.
+        // Fixed collectibles
+        // Get the chapters fixed collectibles
         List<FixedCollectible> listOfFixedCollectibles = chapterInfo.chapterData.specialCollectiblesOnTheMap;
         List<Image> fixedCollectibleSlots = fixedCollectiblesParent.GetComponentsInChildren<Image>().ToList();
         fixedCollectibleSlots.RemoveAt(0);
         int slot = 0;
 
-        // Display fixed collectibles.
+        // Display fixed collectibles
         if (!materialSetUpFinished)
         {
             SetUpMaterials();
