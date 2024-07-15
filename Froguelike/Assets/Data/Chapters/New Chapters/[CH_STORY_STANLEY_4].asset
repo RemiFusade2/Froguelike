@@ -16,9 +16,10 @@ MonoBehaviour:
   partOfDemo: 0
   chapterTitle: 'Stanley''s new family '
   chapterLore:
-  - Stanley made so many friends during his journey.\nAnd everyfroggy was so supportive!\n\nStanley
-    couldn't give up now!\n\nHe wanted to become a frog, and nothing is impossible
-    when you have so much support!\n\nStanley was filled with DETERMINATION.
+  - '[FROGNAME] made so many friends during his journey.\nAnd everyfroggy was so
+    supportive!\n\n[FROGNAME] couldn''t give up now!\n\nHe wanted to become a frog,
+    and nothing is impossible when you have so much support!\n\n[FROGNAME] was filled
+    with DETERMINATION.'
   icons: []
   startingStatBonuses:
     statsList: []
@@ -486,16 +487,8 @@ MonoBehaviour:
       speedFactor: 2.5
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 30
-      value: 5
-    - collectibleType: 1
-      amount: 10
-      value: 25
-    - collectibleType: 1
-      amount: 5
-      value: 50
+    overrideRewards: 0
+    rewardsList: 
   weightChanges:
   - chapter: {fileID: 11400000, guid: b631c4e35cfaba542ac51b0cec2b02ff, type: 2}
     weightChange: 10000

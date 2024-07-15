@@ -16,11 +16,11 @@ MonoBehaviour:
   partOfDemo: 0
   chapterTitle: 'Stanley the frog '
   chapterLore:
-  - "For the first time, Stanley felt like a frog.\\nAll his tongues and friends
+  - "For the first time, [FROGNAME] felt like a frog.\\nAll his tongues and friends
     were there to testify, but he didn't have anything to prove to anyone!\\n\\nHe
     just felt like a frog, and that's the only thing that mattered.\r\\n\\nAfter
-    such a long journey, Stanley the cat became known as Stanley, the cutest frog
-    in the swamp."
+    such a long journey, [FROGNAME] the cat became known as [FROGNAME], the cutest
+    frog in the swamp."
   icons: []
   startingStatBonuses:
     statsList: []
@@ -453,19 +453,8 @@ MonoBehaviour:
       speedFactor: 2
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 3
-      amount: 10
-      value: 20
-    - collectibleType: 3
-      amount: 2
-      value: 100
-    - collectibleType: 0
-      amount: 25
-      value: 5
-    - collectibleType: 0
-      amount: 20
-      value: 10
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 1
     enemyType: 0
     tierFormula: 5
@@ -482,17 +471,6 @@ MonoBehaviour:
       speedFactor: 2
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 3
-      amount: 20
-      value: 20
-    - collectibleType: 3
-      amount: 3
-      value: 100
-    - collectibleType: 0
-      amount: 40
-      value: 5
-    - collectibleType: 0
-      amount: 30
-      value: 10
+    overrideRewards: 0
+    rewardsList: 
   weightChanges: []

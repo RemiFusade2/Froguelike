@@ -17,11 +17,12 @@ MonoBehaviour:
   chapterTitle: Quest for immortality
   chapterLore:
   - Legends foretold of an exceptional item that could bring long life and yummy
-    meals.\nIt could even prevent death!\nI went looking for this item...
+    meals.\nIt could even prevent death!\n[FROGNAME] went looking for this item...
   icons: []
   startingStatBonuses:
     statsList: []
   chapterLengthInSeconds: 300
+  freezeDurationMultiplier: 1
   startingUnlockState: 1
   startingWeight: 1
   canBePlayedMultipleTimesInOneRun: 0
@@ -39,6 +40,10 @@ MonoBehaviour:
       characterData: {fileID: 0}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
+  nextChapterConditionCount:
+    countType: 0
+    goal: 0
   rocksSpawnFrequency: 1
   pondsSpawnFrequency: 1
   coinsSpawnFrequency: 0
