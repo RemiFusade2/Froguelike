@@ -445,9 +445,15 @@ public class ChapterManager : MonoBehaviour
     /// Will compute the current deck of chapter then choose a certain amount (passed as parameter) from this deck.
     /// </summary>
     /// <param name="chapterCount"></param>
-    private void SelectNextPossibleChapters(int chapterCount)
+    private void SelectNextPossibleChapters(int chapterCount, bool acceptChaptersFromPreviousSelection)
     {
         string log = "Chapter selection - ";
+
+        if (acceptChaptersFromPreviousSelection)
+        {
+            // Previous selection doesn't matter, we erase it before building the deck
+            selectionOfNextChaptersList = new List<Chapter>();
+        }
 
         // Create the deck of chapters to choose from
         List<Chapter> deckOfChapters = GetDeckOfChapters(false);
@@ -504,7 +510,7 @@ public class ChapterManager : MonoBehaviour
         SaveDataManager.instance.isSaveDataDirty = true;
     }
 
-    private void NewSelectionOfChapters()
+    private void NewSelectionOfChapters(bool acceptChaptersFromPreviousSelection)
     {
         int numberOfChaptersInSelection = chaptersData.chapterCountInSelection;
 
@@ -517,7 +523,7 @@ public class ChapterManager : MonoBehaviour
         else
         {
             // Choose a number of chapters from the list of available chapters
-            SelectNextPossibleChapters(numberOfChaptersInSelection);
+            SelectNextPossibleChapters(numberOfChaptersInSelection, acceptChaptersFromPreviousSelection);
         }
 
         // Show the chapters selection
@@ -758,12 +764,12 @@ public class ChapterManager : MonoBehaviour
     {
         if (isFirstChapter)
         {
-            NewSelectionOfChapters();
+            NewSelectionOfChapters(false);
         }
         else if (GameManager.instance.player.rerolls > 0)
         {
             GameManager.instance.player.rerolls--;
-            NewSelectionOfChapters();
+            NewSelectionOfChapters(false);
             UpdateRerollPostit();
 
             if (GameManager.instance.player.rerolls < 1)
@@ -818,7 +824,7 @@ public class ChapterManager : MonoBehaviour
         chapterSelectionTopText.text = chapterIntro;
 
         isFirstChapter = (currentChapterCount == 0);
-        NewSelectionOfChapters();
+        NewSelectionOfChapters(true);
         UpdateRerollPostit();
         displayedChapterIndex = 0;
         DisplayChapter(selectionOfNextChaptersList[0], chapterInfoPanel);
