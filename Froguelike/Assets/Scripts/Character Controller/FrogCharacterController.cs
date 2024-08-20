@@ -1038,6 +1038,7 @@ public class FrogCharacterController : MonoBehaviour
     public void ApplyGodMode(float totalDuration, float blinkDuration)
     {
         superFrogMode = true;
+        MusicManager.instance.PlaySuperFrogMusic(superFrogMode);
         UpdateMagnetRange();
 
         // Outline
@@ -1059,6 +1060,7 @@ public class FrogCharacterController : MonoBehaviour
             StopCoroutine(superFrogCoroutine);
         }
         superFrogMode = false;
+        MusicManager.instance.PlaySuperFrogMusic(superFrogMode);
         SetCharacterOutline(godModeOutlineColors[0], 0);
         superFrogOverlay.SetActive(false);
         UpdateMagnetRange();
@@ -1094,6 +1096,7 @@ public class FrogCharacterController : MonoBehaviour
 
         // Turn god mode off
         superFrogMode = false;
+        MusicManager.instance.PlaySuperFrogMusic(superFrogMode);
         SetCharacterOutline(godModeOutlineColors[0], 0);
         superFrogOverlay.SetActive(false);
         UpdateMagnetRange();
