@@ -1415,7 +1415,6 @@
 		</property>
 	</object>
 	<object class="CommandSound" id="{8245ba16-a593-4869-b94a-6498d079e57b}">
-		<property name="name" />
 		<property name="commandType">
 			<value>3</value>
 		</property>
@@ -1461,6 +1460,9 @@
 		<relationship name="modulators">
 			<destination>{009d27bb-6b90-42a1-86a9-304fac85bed8}</destination>
 		</relationship>
+		<relationship name="parameters">
+			<destination>{dba4b3ec-3694-46bf-b490-a8a3530bc431}</destination>
+		</relationship>
 		<relationship name="event">
 			<destination>{dc0d03b5-f9c1-4c56-aea5-7435c0e82ee5}</destination>
 		</relationship>
@@ -1498,7 +1500,7 @@
 			<value>13.241379310344829</value>
 		</property>
 		<property name="volume">
-			<value>-1.5</value>
+			<value>1.5</value>
 		</property>
 		<relationship name="audioFile">
 			<destination>{589ddc81-d353-431f-9fcd-2a73c0c5eb14}</destination>
@@ -1515,7 +1517,7 @@
 			<value>26.482758620689655</value>
 		</property>
 		<property name="volume">
-			<value>-1.5</value>
+			<value>2.5</value>
 		</property>
 		<relationship name="audioFile">
 			<destination>{589ddc81-d353-431f-9fcd-2a73c0c5eb14}</destination>
@@ -1532,7 +1534,7 @@
 			<value>13.241379310344827</value>
 		</property>
 		<property name="volume">
-			<value>-1.5</value>
+			<value>1.5</value>
 		</property>
 		<relationship name="audioFile">
 			<destination>{589ddc81-d353-431f-9fcd-2a73c0c5eb14}</destination>
@@ -1549,7 +1551,7 @@
 			<value>26.482755028735614</value>
 		</property>
 		<property name="volume">
-			<value>-1.5</value>
+			<value>1.5</value>
 		</property>
 		<relationship name="audioFile">
 			<destination>{589ddc81-d353-431f-9fcd-2a73c0c5eb14}</destination>
@@ -1716,7 +1718,7 @@
 			<value>13.241375</value>
 		</property>
 		<property name="volume">
-			<value>-1.5</value>
+			<value>1.5</value>
 		</property>
 		<relationship name="audioFile">
 			<destination>{dc5c0c95-db96-46e2-8440-e711ff77c262}</destination>
@@ -6317,6 +6319,11 @@
 		<property name="nameOfPropertyBeingModulated">
 			<value>startOffset</value>
 		</property>
+	</object>
+	<object class="ParameterProperty" id="{dba4b3ec-3694-46bf-b490-a8a3530bc431}">
+		<relationship name="parameter">
+			<destination>{075ec247-40c2-4df7-bae5-1c03638b051e}</destination>
+		</relationship>
 	</object>
 	<object class="Automator" id="{26ddd140-7ccd-40ec-aa1b-70537237c2fa}">
 		<property name="nameOfPropertyBeingAutomated">

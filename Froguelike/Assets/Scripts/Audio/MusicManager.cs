@@ -64,7 +64,6 @@ public class MusicManager : MonoBehaviour
     {
         if (musicChoice == MusicChoice.ByBrian)
         {
-            // TODO will I need to reset all the parameters?
             RuntimeManager.StudioSystem.setParameterByName("Invincible", 0); // reset
             runMusicByBrianEvent.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
             titleMusicByBrianEvent.getPlaybackState(out var titleMusicPlaybackState);
@@ -75,8 +74,9 @@ public class MusicManager : MonoBehaviour
             }
             else
             {
-                // If started, pause.
-                titleMusicByBrianEvent.setPaused(false);
+                // If started, unpause.
+                // titleMusicByBrianEvent.setPaused(false);
+                titleMusicByBrianEvent.setParameterByName("LevelUpTranition", 0);
             }
         }
         else
@@ -93,8 +93,13 @@ public class MusicManager : MonoBehaviour
         if (musicChoice == MusicChoice.ByBrian)
         {
             RuntimeManager.StudioSystem.setParameterByName("Upgrades", 0);
-            titleMusicByBrianEvent.setPaused(true);
-            runMusicByBrianEvent.start();
+            // titleMusicByBrianEvent.setPaused(true);
+            titleMusicByBrianEvent.setParameterByName("LevelUpTranition", 1);
+            runMusicByBrianEvent.getPlaybackState(out var state);
+            if (state == PLAYBACK_STATE.STOPPED || state == PLAYBACK_STATE.STOPPING)
+            {
+                runMusicByBrianEvent.start();
+            }
         }
         else
         {
@@ -108,6 +113,12 @@ public class MusicManager : MonoBehaviour
     {
         if (musicChoice == MusicChoice.ByBrian)
         {
+            RuntimeManager.StudioSystem.getParameterByName("Invincible", out float value);
+            if (value == 1f)
+            {
+                return;
+            }
+
             titleMusicByBrianEvent.getPlaybackState(out var isPlaying);
             if (isPlaying == PLAYBACK_STATE.STOPPED || isPlaying == PLAYBACK_STATE.STOPPING)
             {
@@ -115,7 +126,8 @@ public class MusicManager : MonoBehaviour
             }
 
             RuntimeManager.StudioSystem.setParameterByName("Upgrades", levelUpIsVisible ? 1 : 0); // used to "pause" and "unpause" the run music.
-            titleMusicByBrianEvent.setPaused(!levelUpIsVisible);
+            titleMusicByBrianEvent.setParameterByName("LevelUpTranition", levelUpIsVisible ? 0 : 1);
+            // titleMusicByBrianEvent.setPaused(!levelUpIsVisible);
         }
     }
 
