@@ -20,9 +20,6 @@ public class MusicManager : MonoBehaviour
     [SerializeField] private int downToTension2Limit;
     [SerializeField] private int upToTension3Limit;
 
-    private int debugBugs;
-    private int debugTension;
-
     private EventInstance titleMusicEvent;
     private EventInstance inRunMusicEvent;
     private EventInstance runMusicByBrianEvent;
@@ -139,15 +136,12 @@ public class MusicManager : MonoBehaviour
        }
     }
 
-    public void AdjustTensionLevel(int bugs, int from)
+    public void AdjustTensionLevel(int bugs)
     {
         if (musicChoice == MusicChoice.ByBrian)
         {
-            debugBugs = bugs;
-            // Debug.Log("Bugs: " + bugs);
             RuntimeManager.StudioSystem.getParameterByName("Tension Level", out var tensionLevelOut);
             int tensionLevel = (int)tensionLevelOut;
-            Debug.Log("TensionLevel: " + tensionLevel + " - before set up, from: " + from);
 
             if (tensionLevel == 2)
             {
@@ -164,12 +158,7 @@ public class MusicManager : MonoBehaviour
             {
                 tensionLevel = 2;
             }
-            else
-            {
-                Debug.Log("tensionLevel: " + tensionLevel + " - didn't change");
-            }
 
-            debugTension = tensionLevel;
             RuntimeManager.StudioSystem.setParameterByName("Tension Level", tensionLevel);
         }
     }

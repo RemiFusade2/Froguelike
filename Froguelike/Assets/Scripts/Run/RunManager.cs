@@ -1446,7 +1446,7 @@ public class RunManager : MonoBehaviour
         // Audio
         SoundManager.instance.PlaySlideBookSound();
         SoundManager.instance.PauseInGameLoopedSFX();
-        MusicManager.instance.PlayLevelUpMusic(true);
+        // MusicManager.instance.PlayLevelUpMusic(true); for now there is now special music for picking a level up
 
         UIManager.instance.levelUpPanel.SetActive(true);
         UIManager.instance.levelUpPanelAnimator.SetBool("Visible", true);
@@ -1573,7 +1573,7 @@ public class RunManager : MonoBehaviour
         UIManager.instance.levelUpPanelAnimator.SetBool("Visible", false);
         SoundManager.instance.PlaySlideBookSound();
         SoundManager.instance.UnpauseInGameLoopedSFX();
-        MusicManager.instance.PlayLevelUpMusic(false); ;
+        // MusicManager.instance.PlayLevelUpMusic(false); for now there is no special level up music
     }
 
     private void InitializeInRunItemSlots()

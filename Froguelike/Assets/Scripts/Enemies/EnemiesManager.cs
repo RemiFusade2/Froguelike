@@ -990,7 +990,7 @@ public class EnemiesManager : MonoBehaviour
         // add enemy to dico
         newEnemy.enemyID = lastKey;
         allActiveEnemiesDico.Add(lastKey, newEnemy);
-        MusicManager.instance.AdjustTensionLevel(allActiveEnemiesDico.Count, 1);
+        MusicManager.instance.AdjustTensionLevel(allActiveEnemiesDico.Count);
 
         // setup enemy - state
         newEnemy.HP = newEnemy.HPMax;
@@ -1264,7 +1264,7 @@ public class EnemiesManager : MonoBehaviour
             // do not destroy the enemy gameobject but instead deactivate it and put it back in the pool
             PutEnemyInThePool(allActiveEnemiesDico[id]);
             allActiveEnemiesDico.Remove(id);
-            MusicManager.instance.AdjustTensionLevel(allActiveEnemiesDico.Count, 2);
+            MusicManager.instance.AdjustTensionLevel(allActiveEnemiesDico.Count);
         }
         enemiesToUpdateQueue.Clear();
         while (remainingEnemiesQueue.TryDequeue(out EnemyInstance enemy))
@@ -1586,7 +1586,7 @@ public class EnemiesManager : MonoBehaviour
                     EnemyInstance enemy = allActiveEnemiesDico[enemyID];
                     PutEnemyInThePool(enemy);
                     allActiveEnemiesDico.Remove(enemyID);
-                    MusicManager.instance.AdjustTensionLevel(allActiveEnemiesDico.Count, 3);
+                    MusicManager.instance.AdjustTensionLevel(allActiveEnemiesDico.Count);
                 }
             }
         }
@@ -1775,7 +1775,7 @@ public class EnemiesManager : MonoBehaviour
                 // Unspawn that enemy                
                 PutEnemyInThePool(enemyInstance);
                 allActiveEnemiesDico.Remove(enemyInstance.enemyID);
-                MusicManager.instance.AdjustTensionLevel(allActiveEnemiesDico.Count, 4);
+                MusicManager.instance.AdjustTensionLevel(allActiveEnemiesDico.Count);
 
                 // Spawn XP instead
                 float XPEarned = Mathf.Clamp(originEnemyData.xPBonus / 2, 1, 100);
@@ -2098,7 +2098,7 @@ public class EnemiesManager : MonoBehaviour
 
             PutEnemyInThePool(enemyInstance);
             allActiveEnemiesDico.Remove(enemyInstance.enemyID);
-            MusicManager.instance.AdjustTensionLevel(allActiveEnemiesDico.Count, 5);
+            MusicManager.instance.AdjustTensionLevel(allActiveEnemiesDico.Count);
         }
 
     }
