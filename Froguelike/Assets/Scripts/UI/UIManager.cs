@@ -758,6 +758,8 @@ public class UIManager : MonoBehaviour
         settingsScreen.SetActive(true);
         SavePreviousSelectedButton();
         SetSelectedButton(selectedButtonSettingsScreen);
+        SetScreenInteractability(titleScreen, false);
+        SettingsManager.instance.ChangeTab(0);
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -769,6 +771,7 @@ public class UIManager : MonoBehaviour
     {
         settingsScreen.SetActive(false);
         SetPreviousSelectedButton();
+        SetScreenInteractability(titleScreen, true);
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
