@@ -7,10 +7,15 @@ using TMPro;
 using UnityEngine.Audio;
 using FMODUnity;
 using FMOD.Studio;
+using System;
 
 public class SettingsManager : MonoBehaviour
 {
     public static SettingsManager instance;
+
+    [Header("Tabs")]
+    public List<GameObject> listOfTabs;
+    public List<GameObject> listOfHiders;
 
     [Header("Resolution")]
     public Toggle fullscreenToggle;
@@ -58,7 +63,20 @@ public class SettingsManager : MonoBehaviour
     private string savedShowDemoDisclaimerKey = "Froguelike Demo Disclaimer on";
     private string savedShowEADisclaimerKey = "Froguelike EA Disclaimer on";
 
-    #endregion
+    #endregion Disclaimer screens
+
+    #region Font
+
+    [Header("Font")]
+    public List<TMP_FontAsset> listOfFonts;
+    public List<string> listOfFontNames;
+    public FontsScrollRect fontsScrollRect;
+
+    private UnityEngine.Object[] textObjectsList = new UnityEngine.Object[] { };
+    private string savedFont = "Froguelike Saved Font";
+    private int currentFontIndex;
+
+    #endregion Font
 
     [Header("For debugging")]
     public TextMeshProUGUI text;
@@ -107,6 +125,11 @@ public class SettingsManager : MonoBehaviour
         LoadAudioSettings();
         LoadDisclaimerSettings();
         LoadDamageTextSetting();
+
+        // Find all text boxes in the game.
+        textObjectsList = Resources.FindObjectsOfTypeAll(typeof(TextMeshProUGUI));
+        LoadFontSetting();
+        UpdateFontScrollView();
     }
 
     // Update is called once per frame
@@ -151,39 +174,6 @@ public class SettingsManager : MonoBehaviour
         {
             isChangingFullscreen = false;
         }
-    }
-
-    public void LoadAudioSettings()
-    {
-        // SFX.
-        savedSFXOn = PlayerPrefs.GetInt(savedSFXOnKey, 1) == 1;
-        if (savedSFXOn)
-        {
-            savedSFXVolume = PlayerPrefs.GetFloat(savedSFXVolumeKey, 15);
-            SetSFXVolume(savedSFXVolume);
-            SFXSlider.SetValueWithoutNotify(savedSFXVolume);
-        }
-        else
-        {
-            previousSFXVolume = PlayerPrefs.GetFloat(savedSFXVolumeKey, 15);
-            SFXSlider.SetValueWithoutNotify(previousSFXVolume);
-        }
-        SFXToggle.isOn = savedSFXOn;
-
-        // Music.
-        savedMusicOn = PlayerPrefs.GetInt(savedMusicOnKey, 1) == 1;
-        if (savedMusicOn)
-        {
-            savedMusicVolume = PlayerPrefs.GetFloat(savedMusicVolumeKey);
-            SetMusicVolume(savedMusicVolume);
-            musicSlider.SetValueWithoutNotify(savedMusicVolume);
-        }
-        else
-        {
-            previousMusicVolume = PlayerPrefs.GetFloat(savedMusicVolumeKey);
-            musicSlider.SetValueWithoutNotify(previousMusicVolume);
-        }
-        musicToggle.isOn = savedMusicOn;
     }
 
     #region Resolution
@@ -292,7 +282,7 @@ public class SettingsManager : MonoBehaviour
         }
     }
 
-    // Used when chaning reolution with the arrows on the setting screen.
+    // Used when changing resolution with the arrows on the setting screen.
     public void SetWindowResolution()
     {
         if (startUpDone)
@@ -319,6 +309,39 @@ public class SettingsManager : MonoBehaviour
 
     #region Sound
     // Sound.
+
+    public void LoadAudioSettings()
+    {
+        // SFX.
+        savedSFXOn = PlayerPrefs.GetInt(savedSFXOnKey, 1) == 1;
+        if (savedSFXOn)
+        {
+            savedSFXVolume = PlayerPrefs.GetFloat(savedSFXVolumeKey, 15);
+            SetSFXVolume(savedSFXVolume);
+            SFXSlider.SetValueWithoutNotify(savedSFXVolume);
+        }
+        else
+        {
+            previousSFXVolume = PlayerPrefs.GetFloat(savedSFXVolumeKey, 15);
+            SFXSlider.SetValueWithoutNotify(previousSFXVolume);
+        }
+        SFXToggle.isOn = savedSFXOn;
+
+        // Music.
+        savedMusicOn = PlayerPrefs.GetInt(savedMusicOnKey, 1) == 1;
+        if (savedMusicOn)
+        {
+            savedMusicVolume = PlayerPrefs.GetFloat(savedMusicVolumeKey);
+            SetMusicVolume(savedMusicVolume);
+            musicSlider.SetValueWithoutNotify(savedMusicVolume);
+        }
+        else
+        {
+            previousMusicVolume = PlayerPrefs.GetFloat(savedMusicVolumeKey);
+            musicSlider.SetValueWithoutNotify(previousMusicVolume);
+        }
+        musicToggle.isOn = savedMusicOn;
+    }
 
     // Turns SFX on with true, turns sound of with false.
     public void SFXOn(bool on)
@@ -501,4 +524,73 @@ public class SettingsManager : MonoBehaviour
     }
 
     #endregion Damage text
+
+    #region Font
+
+    public void LoadFontSetting()
+    {
+        currentFontIndex = PlayerPrefs.GetInt(savedFont, 0);
+        SetFont(currentFontIndex);
+    }
+
+    public void SaveFontSetting(int fontIndex)
+    {
+        PlayerPrefs.SetInt(savedFont, fontIndex);
+    }
+
+    // Used when loading font setting.
+    public void SetFont(int fontIndex)
+    {
+        foreach (TextMeshProUGUI text in textObjectsList)
+        {
+            text.font = listOfFonts[fontIndex];
+        }
+
+        SaveFontSetting(currentFontIndex);
+    }
+
+    // Used when changing font with the arrows on the setting screen.
+    public void SetFont()
+    {
+        currentFontIndex = fontsScrollRect.currentDisplayedFont - 1;
+
+        foreach (TextMeshProUGUI text in textObjectsList)
+        {
+            text.font = listOfFonts[currentFontIndex];
+        }
+
+        SaveFontSetting(currentFontIndex);
+    }
+
+    private void UpdateFontScrollView()
+    {
+        // Remove all old fonts.
+        for (int child = 0; child < fontsScrollRect.content.childCount; child++)
+        {
+            fontsScrollRect.content.GetChild(child).gameObject.SetActive(false);
+            Destroy(fontsScrollRect.content.GetChild(child).gameObject);
+        }
+
+        fontsScrollRect.Initialize(listOfFonts, listOfFontNames, currentFontIndex);
+    }
+
+    #endregion Font
+
+    #region Tabs
+
+    public void ChangeTab(int toTabIndex)
+    {
+        for (int tabIndex = 0; tabIndex < listOfTabs.Count; tabIndex++)
+        {
+            listOfTabs[tabIndex].SetActive(false);
+            listOfTabs[tabIndex].GetComponent<CanvasGroup>().interactable = false;
+            listOfHiders[tabIndex].SetActive(true);
+        }
+
+        listOfTabs[toTabIndex].SetActive(true);
+        listOfTabs[toTabIndex].GetComponent<CanvasGroup>().interactable = true;
+        listOfHiders[toTabIndex].SetActive(false);
+    }
+
+    #endregion Tabs
 }

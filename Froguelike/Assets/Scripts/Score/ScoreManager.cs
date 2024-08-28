@@ -88,7 +88,7 @@ public class ScoreManager : MonoBehaviour
                 scoreLines[i].SetActive(true);
 
                 // Chapter number and name.
-                chaptersTextList[i].text = "Chapter " + (i + 1) + "\n\t" + chapter.chapterData.chapterTitle;
+                chaptersTextList[i].text = "Chapter " + (i + 1) + "\n          " + chapter.chapterData.chapterTitle;
 
                 // Flies eaten.
                 chaptersScoreTextList[i].text = enemiesKilledCount.ToString();
