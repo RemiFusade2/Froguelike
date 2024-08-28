@@ -7,6 +7,7 @@ using TMPro;
 using UnityEngine.Audio;
 using FMODUnity;
 using FMOD.Studio;
+using System;
 
 public class SettingsManager : MonoBehaviour
 {
@@ -88,6 +89,8 @@ public class SettingsManager : MonoBehaviour
             Destroy(this.gameObject);
             Debug.Log("TEST");
         }
+
+        SwapFont.instance.FontChanged += FindAllowedResolutions;
     }
 
     // Start is called before the first frame update

@@ -3,15 +3,33 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System;
 
 public class SwapFont : MonoBehaviour
 {
+    public static SwapFont instance;
+
     [SerializeField] private TMP_FontAsset font1;
     [SerializeField] private TMP_FontAsset font2;
     [SerializeField] private TMP_FontAsset font3;
 
-    Object[] TMPUGUIList = new Object[] { };
+    UnityEngine.Object[] TMPUGUIList = new UnityEngine.Object[] { };
     TMP_FontAsset currentFont;
+
+    public event Action FontChanged;
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(this);
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -50,5 +68,7 @@ public class SwapFont : MonoBehaviour
             // text.enableAutoSizing = currentFont == font1 ? false : true;
             // text.fontSizeMin = 0;
         }
+
+        FontChanged?.Invoke();
     }
 }
