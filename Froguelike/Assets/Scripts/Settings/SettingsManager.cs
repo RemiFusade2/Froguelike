@@ -505,7 +505,7 @@ public class SettingsManager : MonoBehaviour
         }
     }
 
-    #endregion
+    #endregion Disclaimer screens
 
     #region Damage text
 

@@ -176,6 +176,15 @@ public class MusicManager : MonoBehaviour
         }
     }
 
+    public void StopAllMusic()
+    {
+        titleMusicEvent.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+        inRunMusicEvent.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+        RuntimeManager.StudioSystem.setParameterByName("Upgrades", 1);
+        titleMusicByBrianEvent.setParameterByName("LevelUpTranition", 1);
+    }
+
+
     public void UnpauseMusic()
     {
         if (musicChoice == MusicChoice.ByBrian)
@@ -186,6 +195,38 @@ public class MusicManager : MonoBehaviour
         {
             titleMusicEvent.setPaused(false);
             inRunMusicEvent.setPaused(false);
+        }
+    }
+
+    public void ChangeToMusicByJohanna()
+    {
+        if (musicChoice == MusicChoice.ByBrian)
+        {
+            musicChoice = MusicChoice.ByJohanna;
+            RestartMusic();
+        }
+    }
+
+    public void ChangeToMusicByBrian()
+    {
+        if (musicChoice == MusicChoice.ByJohanna)
+        {
+            musicChoice = MusicChoice.ByBrian;
+            RestartMusic();
+        }
+    }
+
+    private void RestartMusic()
+    {
+        StopAllMusic();
+
+        if (GameManager.instance.isGameRunning)
+        {
+            PlayRunMusic();
+        }
+        else
+        {
+            PlayTitleMusic();
         }
     }
 }
