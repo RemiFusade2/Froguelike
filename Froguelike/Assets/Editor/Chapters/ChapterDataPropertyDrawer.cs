@@ -123,6 +123,39 @@ public class ChapterConditionDrawer : PropertyDrawer
             EditorGUI.LabelField(bountiesEatenMinLabelRect, new GUIContent("Min:"));
             EditorGUI.PropertyField(bountiesEatenMinRect, property.FindPropertyRelative("minBountiesEaten"), GUIContent.none);
         }
+        else if (conditionType.enumValueFlag == (int)ChapterConditionType.DISTANCE_FROM_SPAWN)
+        {
+            // Distance from spawn Min and Max values  
+            float labelWidth = 40;
+            Rect distanceMinLabelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+            Rect distanceMinRect = new Rect(position.x + labelWidth, position.y, position.width / 2 - labelWidth - 10, EditorGUIUtility.singleLineHeight);
+            Rect distanceMaxLabelRect = new Rect(position.x + position.width / 2 + 10, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+            Rect distanceMaxRect = new Rect(position.x + position.width / 2 + labelWidth + 10, position.y, position.width / 2 - labelWidth - 10, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(distanceMinLabelRect, new GUIContent("Min:"));
+            EditorGUI.PropertyField(distanceMinRect, property.FindPropertyRelative("minDistanceFromSpawn"), GUIContent.none);
+            EditorGUI.LabelField(distanceMaxLabelRect, new GUIContent("Max:"));
+            EditorGUI.PropertyField(distanceMaxRect, property.FindPropertyRelative("maxDistanceFromSpawn"), GUIContent.none);
+        }
+        else if (conditionType.enumValueFlag == (int)ChapterConditionType.DISTANCE_FROM_SPAWN_IN_DIRECTION)
+        {
+            // Distance from spawn Min and Max values  
+            float labelWidth = 40;
+            Rect distanceMinLabelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+            Rect distanceMinRect = new Rect(position.x + labelWidth, position.y, position.width / 2 - labelWidth - 10, EditorGUIUtility.singleLineHeight);
+            Rect distanceMaxLabelRect = new Rect(position.x + position.width / 2 + 10, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+            Rect distanceMaxRect = new Rect(position.x + position.width / 2 + labelWidth + 10, position.y, position.width / 2 - labelWidth - 10, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(distanceMinLabelRect, new GUIContent("Min:"));
+            EditorGUI.PropertyField(distanceMinRect, property.FindPropertyRelative("minDistanceFromSpawn"), GUIContent.none);
+            EditorGUI.LabelField(distanceMaxLabelRect, new GUIContent("Max:"));
+            EditorGUI.PropertyField(distanceMaxRect, property.FindPropertyRelative("maxDistanceFromSpawn"), GUIContent.none);
+            position.y += EditorGUIUtility.singleLineHeight;
+            // Direction
+            labelWidth = 75;
+            Rect directionLabelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+            Rect directionRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(directionLabelRect, new GUIContent("Direction:"));
+            EditorGUI.PropertyField(directionRect, property.FindPropertyRelative("direction"), GUIContent.none);
+        }
 
         EditorGUI.EndProperty();
     }
@@ -135,6 +168,10 @@ public class ChapterConditionDrawer : PropertyDrawer
         if (conditionType.enumValueFlag == (int)ChapterConditionType.UNLOCKED)
         {
             numberOfLines = 1;
+        }
+        else if (conditionType.enumValueFlag == (int)ChapterConditionType.DISTANCE_FROM_SPAWN_IN_DIRECTION)
+        {
+            numberOfLines = 3;
         }
 
         return numberOfLines * EditorGUIUtility.singleLineHeight;

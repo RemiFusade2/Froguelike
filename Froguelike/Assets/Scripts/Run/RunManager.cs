@@ -294,6 +294,9 @@ public class RunManager : MonoBehaviour
                 EnemiesManager.instance.InitializeWave(GetCurrentWave());
                 waveRemainingTime = GetCurrentWave().duration;
             }
+
+            // Update condition counter
+            UpdateNextChapterConditionCount();
         }
     }
 
@@ -636,17 +639,40 @@ public class RunManager : MonoBehaviour
         conditionCountText.SetText(countText);
     }
 
+    /// <summary>
+    /// Update the counter for current chapter condition.
+    /// </summary>
     public void UpdateNextChapterConditionCount()
     {
         // TODO where to trigger this? Both when adding firends and eating bounties? Is there a better way?
+        // Remi comment: now that it can also show distance, this counter needs to be updated often (every second or every frame)
         NextChapterConditionCountType type = currentChapter.chapterData.nextChapterConditionCount.countType;
-        if (type == NextChapterConditionCountType.EatBounties)
+        float distanceFromSpawn = Mathf.Clamp(player.transform.position.magnitude/10, 0, currentChapter.chapterData.nextChapterConditionCount.goal);
+
+        switch (type)
         {
-            conditionCountText.SetText(playedChaptersBountyEatCounts[GetChapterCount() - 1].ToString() + "/" + currentChapter.chapterData.nextChapterConditionCount.goal.ToString());
-        }
-        else if (type == NextChapterConditionCountType.HaveFriends)
-        {
-            conditionCountText.SetText(FriendsManager.instance.permanentFriendsList.Count().ToString() + "/" + currentChapter.chapterData.nextChapterConditionCount.goal.ToString());
+            case NextChapterConditionCountType.EatBounties:
+                conditionCountText.SetText(playedChaptersBountyEatCounts[GetChapterCount() - 1].ToString() + "/" + currentChapter.chapterData.nextChapterConditionCount.goal.ToString());
+                break;
+            case NextChapterConditionCountType.HaveFriends:
+                conditionCountText.SetText(FriendsManager.instance.permanentFriendsList.Count().ToString() + "/" + currentChapter.chapterData.nextChapterConditionCount.goal.ToString());
+                break;
+            case NextChapterConditionCountType.DistanceFromSpawn:
+                conditionCountText.SetText($"{distanceFromSpawn.ToString("0")}/{currentChapter.chapterData.nextChapterConditionCount.goal}cm");
+                break;
+            case NextChapterConditionCountType.DistanceFromSpawnInDirection:
+                if (distanceFromSpawn >= currentChapter.chapterData.nextChapterConditionCount.goal)
+                {
+                    // display direction
+                    float dotRight = Vector2.Dot(player.transform.position, Vector2.right);
+                    float dotUp = Vector2.Dot(player.transform.position, Vector2.up);
+                    conditionCountText.SetText(Mathf.Abs(dotRight) > Mathf.Abs(dotUp) ? (dotRight > 0 ? "EAST" : "WEST") : (dotUp > 0 ? "NORTH" : "SOUTH"));
+                }
+                else
+                {
+                    conditionCountText.SetText("_");
+                }
+                break;
         }
     }
 
@@ -685,7 +711,6 @@ public class RunManager : MonoBehaviour
     {
         int chapterCount = GetChapterCount();
         playedChaptersBountyEatCounts[chapterCount - 1] += amount;
-        UpdateNextChapterConditionCount();
     }
 
     public int GetCurrentChapterBountyEatCount()

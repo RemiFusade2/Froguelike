@@ -1,9 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 #region Enums
+
+public enum DirectionNESW
+{
+    NORTH,
+    EAST,
+    SOUTH,
+    WEST
+}
+
 
 /// <summary>
 /// A chapter can change the environment you're playing in. Here are the different environment available.
@@ -80,7 +90,9 @@ public enum ChapterConditionType
     RUN_ITEM,
     CHARACTER,
     FRIEND_COUNT,
-    BOUNTIES_EATEN_IN_PREVIOUS_CHAPTER
+    BOUNTIES_EATEN_IN_PREVIOUS_CHAPTER,
+    DISTANCE_FROM_SPAWN,
+    DISTANCE_FROM_SPAWN_IN_DIRECTION
 }
 
 /// <summary>
@@ -90,7 +102,9 @@ public enum NextChapterConditionCountType
 {
     None,
     EatBounties,
-    HaveFriends
+    HaveFriends,
+    DistanceFromSpawn,
+    DistanceFromSpawnInDirection
 }
 
 #endregion Enums
@@ -206,6 +220,14 @@ public class ChapterCondition
 
     [Tooltip("This chapter can appear only if you have at least this amount of bounties eaten")]
     public int minBountiesEaten = 0;
+
+    [Tooltip("This chapter can appear only if you moved at least a distance from spawn point")]
+    public int minDistanceFromSpawn = 0;
+    [Tooltip("This chapter can appear only if you moved no more than a distance from spawn point")]
+    public int maxDistanceFromSpawn = 0;
+
+    [Tooltip("This chapter can appear only if you moved mostly in that direction")]
+    public DirectionNESW direction;
 }
 
 /// <summary>
