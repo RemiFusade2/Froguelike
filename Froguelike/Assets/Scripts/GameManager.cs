@@ -555,6 +555,7 @@ public class GameManager : MonoBehaviour
         gameData.versionNumber = BuildManager.instance.versionNumber;
         UIManager.instance.UpdateCurrencyDisplay();
         SetSteamStatIfPossible(totalBugEatenSteamStatName, gameData.cumulatedScore);
+        SetSteamStatIfPossible(totalDeathCountSteamStatName, gameData.deathCount);
         AchievementManager.instance.SteamStoreStats();
     }
 
