@@ -562,6 +562,11 @@ public class SettingsManager : MonoBehaviour
         SaveFontSetting(currentFontIndex);
     }
 
+    public TMP_FontAsset GetCurrentFontAsset()
+    {
+        return listOfFonts[currentFontIndex];
+    }
+
     private void UpdateFontScrollView()
     {
         // Remove all old fonts.

@@ -3,6 +3,7 @@ using Steamworks;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering.Universal;
 
@@ -298,19 +299,19 @@ public class EnemiesManager : MonoBehaviour
     [Header("Settings - Damage texts")]
     public float damageTextLifespanInSeconds = 0.5f;
     [Space]
-    public int damageTextFontSize_smol = 10;
+    public int damageTextFontSize_PixelFont = 10;
+    public int damageTextFontSize_AccessibleFont = 16;
+    public int damageTextFontSize_BoringFont = 16;
+    [Space]
     public float damageTextThreshold_smol = 0;
     public Color damageTextColor_smol;
     [Space]
-    public int damageTextFontSize_medium = 10;
     public float damageTextThreshold_medium = 100;
     public Color damageTextColor_medium;
     [Space]
-    public int damageTextFontSize_big = 10;
     public float damageTextThreshold_big = 500;
     public Color damageTextColor_big;
     [Space]
-    public int damageTextFontSize_huge = 10;
     public float damageTextThreshold_huge = 1000;
     public Color damageTextColor_huge;
     [Space]
@@ -1079,7 +1080,33 @@ public class EnemiesManager : MonoBehaviour
             damageAmountStr =  $"{visualDamageAmountInt * randomMultiplier}\n-\n{randomMultiplier+1}";*/
 
             damageTMPScript.text = damageAmountStr;
-            float fontSize = 10;
+
+            // Font settings
+            TMP_FontAsset currentFontAsset = SettingsManager.instance.GetCurrentFontAsset();
+            damageTMPScript.font = currentFontAsset;
+
+            Debug.Log($"currentFontAsset.name = {currentFontAsset.name}");
+
+            bool isPixelFont = currentFontAsset.name.Equals("Thintel");
+            bool isAccessibleFont = currentFontAsset.name.Equals("OpenDyslexic-Regular");
+            foreach (Transform damageTextChild in damageTMPScript.transform)
+            {
+                damageTextChild.GetComponent<MeshRenderer>().enabled = isPixelFont;
+                damageTextChild.gameObject.layer = LayerMask.NameToLayer("Default");
+            }
+            float fontSize = isPixelFont ? damageTextFontSize_PixelFont : (isAccessibleFont ? damageTextFontSize_AccessibleFont : damageTextFontSize_BoringFont);
+
+            damageTMPScript.gameObject.layer = isPixelFont ? LayerMask.NameToLayer("Default") : LayerMask.NameToLayer("Overlay layer on game camera");
+
+            if (isPixelFont)
+            {
+                damageText.GetComponent<TextMeshPro>().fontMaterial.DisableKeyword("UNDERLAY_ON");
+            }
+            else
+            {
+                damageText.GetComponent<TextMeshPro>().fontMaterial.EnableKeyword("UNDERLAY_ON");
+            }
+
             if (poisonSource)
             {
                 // poison damage
@@ -1088,25 +1115,21 @@ public class EnemiesManager : MonoBehaviour
             else if (visualDamageAmount < damageTextThreshold_medium)
             {
                 // Smol text
-                fontSize = damageTextFontSize_smol;
                 damageTMPScript.color = damageTextColor_smol;
             }
             else if (visualDamageAmount < damageTextThreshold_big)
             {
                 // Medium text
-                fontSize = damageTextFontSize_medium;
                 damageTMPScript.color = damageTextColor_medium;
             }
             else if (visualDamageAmount < damageTextThreshold_huge)
             {
                 // Big text
-                fontSize = damageTextFontSize_big;
                 damageTMPScript.color = damageTextColor_big;
             }
             else
             {
                 // Huge text
-                fontSize = damageTextFontSize_huge;
                 damageTMPScript.color = damageTextColor_huge;
             }
             if (applyVampireEffect)
@@ -1696,6 +1719,25 @@ public class EnemiesManager : MonoBehaviour
     {
         yield return new WaitForSeconds(duration);
         applyGlobalCurse = active;
+    }
+
+    public void StopAndResetAllGlobalEffects()
+    {
+        if (SetGlobalFreezeEffectCoroutine != null)
+        {
+            StopCoroutine(SetGlobalFreezeEffectCoroutine);
+        }
+        if (SetGlobalPoisonEffectCoroutine != null)
+        {
+            StopCoroutine(SetGlobalPoisonEffectCoroutine);
+        }
+        if (SetGlobalCurseEffectCoroutine != null)
+        {
+            StopCoroutine(SetGlobalCurseEffectCoroutine);
+        }
+        applyGlobalFreeze = false;
+        applyGlobalPoison = false;
+        applyGlobalCurse = false;
     }
 
     public void ApplyCurseEffect(string enemyGoName, float duration)

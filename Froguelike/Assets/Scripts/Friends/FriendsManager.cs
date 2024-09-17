@@ -450,7 +450,6 @@ public class FriendsManager : MonoBehaviour
             if (!temporary)
             {
                 permanentFriendsList.Add(friend);
-                RunManager.instance.UpdateNextChapterConditionCount();
             }
 
             if (verboseLevel == VerboseLevel.MAXIMAL)

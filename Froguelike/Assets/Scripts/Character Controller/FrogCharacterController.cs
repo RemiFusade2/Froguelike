@@ -99,6 +99,7 @@ public class FrogCharacterController : MonoBehaviour
     public string uiCancelInputName = "UICancel";
     [Space]
     public float inputAxisDeadZone = 0.3f;
+    public float delayBeforeHidingCursor = 5;
 
     #region Cheats
 
@@ -148,6 +149,9 @@ public class FrogCharacterController : MonoBehaviour
     private bool superFrogMode;
     private Coroutine superFrogCoroutine;
 
+    private Vector3 previousMousePosition;
+    private Coroutine hideCursorCoroutine;
+
     #region Unity Callback Methods
 
     // Start is called before the first frame update
@@ -158,6 +162,7 @@ public class FrogCharacterController : MonoBehaviour
         rewiredPlayer = ReInput.players.GetPlayer(playerID);
         playerRigidbody = GetComponent<Rigidbody2D>();
         FriendsManager.instance.ClearAllFriends();
+        previousMousePosition = Input.mousePosition;
 
         if (BuildManager.instance.everythingIsUnlocked)
         {
@@ -176,7 +181,7 @@ public class FrogCharacterController : MonoBehaviour
 
         bool ignoreUICancelInput = false;
 
-        if (GameManager.instance.isGameRunning)
+        if (GameManager.instance.isGameRunning || (ChapterManager.instance.chapterChoiceIsVisible && !ChapterManager.instance.isFirstChapter))
         {
             // Get Pause input
             if (GetPauseInput())
@@ -203,6 +208,27 @@ public class FrogCharacterController : MonoBehaviour
         {
             GameManager.instance.UICancel();
         }
+
+        // Hide / Show mouse cursor
+        bool mouseLeftPressed = Input.GetMouseButton(0);
+        bool mouseRightPressed = Input.GetMouseButton(1);
+        float cursorMovedDistance = Vector3.Distance(previousMousePosition, Input.mousePosition);
+        if (mouseLeftPressed || mouseRightPressed || cursorMovedDistance > 0)
+        {
+            Cursor.visible = true;
+            if (hideCursorCoroutine != null)
+            {
+                StopCoroutine(hideCursorCoroutine);
+            }
+            hideCursorCoroutine = StartCoroutine(WaitAndHideCursor(delayBeforeHidingCursor));
+        }
+        previousMousePosition = Input.mousePosition;
+    }
+
+    private IEnumerator WaitAndHideCursor(float delay)
+    {
+        yield return new WaitForSecondsRealtime(delay);
+        Cursor.visible = false;
     }
 
     private void FixedUpdate()
@@ -1124,6 +1150,15 @@ public class FrogCharacterController : MonoBehaviour
             default:
                 break;
         }
+    }
+
+    public void StopAndResetAllExplosionEffects()
+    {
+        freezeExplosionEffect.StopAndResetExplosion();
+        poisonExplosionEffect.StopAndResetExplosion();
+        curseExplosionEffect.StopAndResetExplosion();
+        levelDownBugsExplosionEffect.StopAndResetExplosion();
+        levelUpBugsExplosionEffect.StopAndResetExplosion();
     }
 
     #region Cheat codes

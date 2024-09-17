@@ -307,6 +307,11 @@ public class ChapterManager : MonoBehaviour
 
                 bool chapterConditionsAreMet = (currentChapterConditionsChunksList.Count == 0); // particular case if there are no conditions
 
+                float playerDistanceFromSpawn = RunManager.instance.player.transform.position.magnitude;
+                float playerDotRight = Vector3.Dot(RunManager.instance.player.transform.position, Vector2.right);
+                float playerDotUp = Vector3.Dot(RunManager.instance.player.transform.position, Vector2.up);
+                DirectionNESW playerDirectionFromSpawn = (Mathf.Abs(playerDotRight) > Mathf.Abs(playerDotUp)) ? (playerDotRight > 0 ? DirectionNESW.EAST : DirectionNESW.WEST) : (playerDotUp > 0 ? DirectionNESW.NORTH : DirectionNESW.SOUTH);
+
                 // Check each chunk of conditions, until at least one is valid (chunk valid = all conditions met)
                 foreach (ChapterConditionsChunk conditionChunk in currentChapterConditionsChunksList)
                 {
@@ -357,6 +362,15 @@ public class ChapterManager : MonoBehaviour
                                     throw;
                                 }
                                 conditionChunkIsValid = (count >= condition.minBountiesEaten);
+                                break;
+                            case ChapterConditionType.DISTANCE_FROM_SPAWN:
+                                conditionChunkIsValid = (condition.minDistanceFromSpawn == 0 || playerDistanceFromSpawn >= condition.minDistanceFromSpawn);
+                                conditionChunkIsValid &= (condition.maxDistanceFromSpawn == 0 || playerDistanceFromSpawn <= condition.maxDistanceFromSpawn);
+                                break;
+                            case ChapterConditionType.DISTANCE_FROM_SPAWN_IN_DIRECTION:
+                                conditionChunkIsValid = (condition.minDistanceFromSpawn == 0 || playerDistanceFromSpawn >= condition.minDistanceFromSpawn);
+                                conditionChunkIsValid &= (condition.maxDistanceFromSpawn == 0 || playerDistanceFromSpawn <= condition.maxDistanceFromSpawn);
+                                conditionChunkIsValid &= (playerDirectionFromSpawn == condition.direction);
                                 break;
                         }
                         conditionChunkIsValid = condition.not ? (!conditionChunkIsValid) : (conditionChunkIsValid); // apply a NOT if needed
@@ -839,6 +853,7 @@ public class ChapterManager : MonoBehaviour
 
         // Call the UIManager to display the chapter selection screen
         UIManager.instance.ShowChapterSelectionScreen((chapterCount == 0));
+        chapterChoiceIsVisible = true;
     }
 
     public void PlaySelectedChapter()
