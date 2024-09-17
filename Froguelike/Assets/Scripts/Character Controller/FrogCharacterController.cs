@@ -181,7 +181,7 @@ public class FrogCharacterController : MonoBehaviour
 
         bool ignoreUICancelInput = false;
 
-        if (GameManager.instance.isGameRunning)
+        if (GameManager.instance.isGameRunning || (ChapterManager.instance.chapterChoiceIsVisible && !ChapterManager.instance.isFirstChapter))
         {
             // Get Pause input
             if (GetPauseInput())
