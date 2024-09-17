@@ -88,6 +88,7 @@ public class GameManager : MonoBehaviour
     public bool isGameRunning;
 
     private const string totalBugEatenSteamStatName = "total_bugs_eaten";
+    private const string totalDeathCountSteamStatName = "total_deaths";
 
     private const string savedLastSelectedCharacter = "Froguelike last selected character";
     private const string savedLastSelectedGameMode = "Froguelike last selected game mode";
@@ -207,8 +208,9 @@ public class GameManager : MonoBehaviour
         }
         gameData.cumulatedScore += score;
 
-        // Update the stat on Steam (it's gonna show progress towards the achievement too)
+        // Update the stats on Steam (it's gonna show progress towards the achievements too)
         SetSteamStatIfPossible(totalBugEatenSteamStatName, gameData.cumulatedScore);
+        SetSteamStatIfPossible(totalDeathCountSteamStatName, gameData.deathCount);
         AchievementManager.instance.SteamStoreStats();
     }
 
