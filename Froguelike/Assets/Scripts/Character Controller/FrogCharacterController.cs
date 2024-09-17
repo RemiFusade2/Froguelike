@@ -1152,6 +1152,15 @@ public class FrogCharacterController : MonoBehaviour
         }
     }
 
+    public void StopAndResetAllExplosionEffects()
+    {
+        freezeExplosionEffect.StopAndResetExplosion();
+        poisonExplosionEffect.StopAndResetExplosion();
+        curseExplosionEffect.StopAndResetExplosion();
+        levelDownBugsExplosionEffect.StopAndResetExplosion();
+        levelUpBugsExplosionEffect.StopAndResetExplosion();
+    }
+
     #region Cheat codes
 
     public void DealWithCheatInputs()
