@@ -1101,13 +1101,26 @@ public class EnemiesManager : MonoBehaviour
 
             damageTMPScript.gameObject.layer = isPixelFont ? LayerMask.NameToLayer("Default") : LayerMask.NameToLayer("Overlay layer on game camera");
 
+            Color transparentColor = new Color(0, 0, 0, 0);
+            Color blackOutlineColor = new Color(0.09411f, 0.09804f, 0.12157f, 1);
+
             if (isPixelFont)
             {
                 damageText.GetComponent<TextMeshPro>().fontMaterial.DisableKeyword("UNDERLAY_ON");
+                damageText.GetComponent<TextMeshPro>().fontMaterial.SetFloat(ShaderUtilities.ID_UnderlayDilate, 0f);
+                damageText.GetComponent<TextMeshPro>().fontMaterial.SetColor(ShaderUtilities.ID_UnderlayColor, transparentColor);
+            }
+            else if (isAccessibleFont)
+            {
+                damageText.GetComponent<TextMeshPro>().fontMaterial.EnableKeyword("UNDERLAY_ON");
+                damageText.GetComponent<TextMeshPro>().fontMaterial.SetFloat(ShaderUtilities.ID_UnderlayDilate, 0.5f);
+                damageText.GetComponent<TextMeshPro>().fontMaterial.SetColor(ShaderUtilities.ID_UnderlayColor, blackOutlineColor);
             }
             else
             {
                 damageText.GetComponent<TextMeshPro>().fontMaterial.EnableKeyword("UNDERLAY_ON");
+                damageText.GetComponent<TextMeshPro>().fontMaterial.SetFloat(ShaderUtilities.ID_UnderlayDilate, 0.8f);
+                damageText.GetComponent<TextMeshPro>().fontMaterial.SetColor(ShaderUtilities.ID_UnderlayColor, blackOutlineColor);
             }
 
             if (poisonSource)
