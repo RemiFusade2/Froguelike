@@ -3,6 +3,7 @@ using Steamworks;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering.Universal;
 
@@ -298,19 +299,19 @@ public class EnemiesManager : MonoBehaviour
     [Header("Settings - Damage texts")]
     public float damageTextLifespanInSeconds = 0.5f;
     [Space]
-    public int damageTextFontSize_smol = 10;
+    public int damageTextFontSize_PixelFont = 10;
+    public int damageTextFontSize_AccessibleFont = 16;
+    public int damageTextFontSize_BoringFont = 16;
+    [Space]
     public float damageTextThreshold_smol = 0;
     public Color damageTextColor_smol;
     [Space]
-    public int damageTextFontSize_medium = 10;
     public float damageTextThreshold_medium = 100;
     public Color damageTextColor_medium;
     [Space]
-    public int damageTextFontSize_big = 10;
     public float damageTextThreshold_big = 500;
     public Color damageTextColor_big;
     [Space]
-    public int damageTextFontSize_huge = 10;
     public float damageTextThreshold_huge = 1000;
     public Color damageTextColor_huge;
     [Space]
@@ -1079,7 +1080,49 @@ public class EnemiesManager : MonoBehaviour
             damageAmountStr =  $"{visualDamageAmountInt * randomMultiplier}\n-\n{randomMultiplier+1}";*/
 
             damageTMPScript.text = damageAmountStr;
-            float fontSize = 10;
+
+            // Font settings
+            TMP_FontAsset currentFontAsset = SettingsManager.instance.GetCurrentFontAsset();
+            damageTMPScript.font = currentFontAsset;
+
+            if (verbose == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log($"currentFontAsset.name = {currentFontAsset.name}");
+            }
+
+            bool isPixelFont = currentFontAsset.name.Equals("Thintel");
+            bool isAccessibleFont = currentFontAsset.name.Equals("OpenDyslexic-Regular");
+            foreach (Transform damageTextChild in damageTMPScript.transform)
+            {
+                damageTextChild.GetComponent<MeshRenderer>().enabled = isPixelFont;
+                damageTextChild.gameObject.layer = LayerMask.NameToLayer("Default");
+            }
+            float fontSize = isPixelFont ? damageTextFontSize_PixelFont : (isAccessibleFont ? damageTextFontSize_AccessibleFont : damageTextFontSize_BoringFont);
+
+            damageTMPScript.gameObject.layer = isPixelFont ? LayerMask.NameToLayer("Default") : LayerMask.NameToLayer("Overlay layer on game camera");
+
+            Color transparentColor = new Color(0, 0, 0, 0);
+            Color blackOutlineColor = new Color(0.09411f, 0.09804f, 0.12157f, 1);
+
+            if (isPixelFont)
+            {
+                damageText.GetComponent<TextMeshPro>().fontMaterial.DisableKeyword("UNDERLAY_ON");
+                damageText.GetComponent<TextMeshPro>().fontMaterial.SetFloat(ShaderUtilities.ID_UnderlayDilate, 0f);
+                damageText.GetComponent<TextMeshPro>().fontMaterial.SetColor(ShaderUtilities.ID_UnderlayColor, transparentColor);
+            }
+            else if (isAccessibleFont)
+            {
+                damageText.GetComponent<TextMeshPro>().fontMaterial.EnableKeyword("UNDERLAY_ON");
+                damageText.GetComponent<TextMeshPro>().fontMaterial.SetFloat(ShaderUtilities.ID_UnderlayDilate, 0.5f);
+                damageText.GetComponent<TextMeshPro>().fontMaterial.SetColor(ShaderUtilities.ID_UnderlayColor, blackOutlineColor);
+            }
+            else
+            {
+                damageText.GetComponent<TextMeshPro>().fontMaterial.EnableKeyword("UNDERLAY_ON");
+                damageText.GetComponent<TextMeshPro>().fontMaterial.SetFloat(ShaderUtilities.ID_UnderlayDilate, 0.8f);
+                damageText.GetComponent<TextMeshPro>().fontMaterial.SetColor(ShaderUtilities.ID_UnderlayColor, blackOutlineColor);
+            }
+
             if (poisonSource)
             {
                 // poison damage
@@ -1088,27 +1131,24 @@ public class EnemiesManager : MonoBehaviour
             else if (visualDamageAmount < damageTextThreshold_medium)
             {
                 // Smol text
-                fontSize = damageTextFontSize_smol;
                 damageTMPScript.color = damageTextColor_smol;
             }
             else if (visualDamageAmount < damageTextThreshold_big)
             {
                 // Medium text
-                fontSize = damageTextFontSize_medium;
                 damageTMPScript.color = damageTextColor_medium;
             }
             else if (visualDamageAmount < damageTextThreshold_huge)
             {
                 // Big text
-                fontSize = damageTextFontSize_big;
                 damageTMPScript.color = damageTextColor_big;
             }
             else
             {
                 // Huge text
-                fontSize = damageTextFontSize_huge;
                 damageTMPScript.color = damageTextColor_huge;
             }
+
             if (applyVampireEffect)
             {
                 damageTMPScript.color = damageTextColor_vampire;
@@ -1123,6 +1163,7 @@ public class EnemiesManager : MonoBehaviour
                 damageAmountStr = "#";
                 damageTMPScript.color = damageTextColor_curse;
             }
+
             damageTMPScript.fontSize = fontSize;
 
             int sortedOrderLayer = Random.Range(100, 200);
@@ -1139,12 +1180,14 @@ public class EnemiesManager : MonoBehaviour
             damageText.GetComponent<MeshRenderer>().enabled = true;
             damageText.GetComponent<Rigidbody2D>().simulated = true;
             damageText.GetComponent<Rigidbody2D>().velocity = Vector2.up;
+
             if (applyVampireEffect)
             {
                 // damage is not null and vampire effect is ON
                 vampireEffect = true;
                 damageText.GetComponent<ParticleSystem>().Play();
             }
+
             visibleDamageTexts.Add(damageText);
             StartCoroutine(PutDamageTextIntoPoolAsync(damageText, damageTextLifespanInSeconds));
         }

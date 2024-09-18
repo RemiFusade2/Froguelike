@@ -72,6 +72,8 @@ public class SettingsManager : MonoBehaviour
     public List<string> listOfFontNames;
     public FontsScrollRect fontsScrollRect;
 
+    [SerializeField] private GameObject pixelTextOnShopNote;
+    [SerializeField] private GameObject notPixelTextOnShopNote;
     private UnityEngine.Object[] textObjectsList = new UnityEngine.Object[] { };
     private string savedFont = "Froguelike Saved Font";
     private int currentFontIndex;
@@ -546,6 +548,17 @@ public class SettingsManager : MonoBehaviour
             text.font = listOfFonts[fontIndex];
         }
 
+        if (listOfFonts[fontIndex].name == "Thintel")
+        {
+            pixelTextOnShopNote.SetActive(true);
+            notPixelTextOnShopNote.SetActive(false);
+        }
+        else
+        {
+            notPixelTextOnShopNote.SetActive(true);
+            pixelTextOnShopNote.SetActive(false);
+        }
+
         SaveFontSetting(currentFontIndex);
     }
 
@@ -554,12 +567,12 @@ public class SettingsManager : MonoBehaviour
     {
         currentFontIndex = fontsScrollRect.currentDisplayedFont - 1;
 
-        foreach (TextMeshProUGUI text in textObjectsList)
-        {
-            text.font = listOfFonts[currentFontIndex];
-        }
+        SetFont(currentFontIndex);
+    }
 
-        SaveFontSetting(currentFontIndex);
+    public TMP_FontAsset GetCurrentFontAsset()
+    {
+        return listOfFonts[currentFontIndex];
     }
 
     private void UpdateFontScrollView()
