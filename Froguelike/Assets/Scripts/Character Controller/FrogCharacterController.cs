@@ -164,7 +164,7 @@ public class FrogCharacterController : MonoBehaviour
         FriendsManager.instance.ClearAllFriends();
         previousMousePosition = Input.mousePosition;
 
-        if (BuildManager.instance.everythingIsUnlocked)
+        if (BuildManager.instance.everythingIsUnlockedFromTheStart)
         {
             AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true, true);
             //UIManager.instance.ShowTitleScreen();
@@ -215,6 +215,9 @@ public class FrogCharacterController : MonoBehaviour
         float cursorMovedDistance = Vector3.Distance(previousMousePosition, Input.mousePosition);
         if (mouseLeftPressed || mouseRightPressed || cursorMovedDistance > 0)
         {
+            // Mouse input has been received
+            GameManager.instance.ResetDelayWithNoInput();
+            // Make cursor visible and restart coroutine to hide cursor after a delay
             Cursor.visible = true;
             if (hideCursorCoroutine != null)
             {

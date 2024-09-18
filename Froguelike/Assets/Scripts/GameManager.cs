@@ -3,7 +3,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 
 
 [System.Serializable]
@@ -86,6 +85,9 @@ public class GameManager : MonoBehaviour
     [Header("Runtime - one run data")]
     public bool hasGameStarted;
     public bool isGameRunning;
+    [Space]
+    public float delayWithNoInput;
+    public bool isReloadingTheGame;
 
     private const string totalBugEatenSteamStatName = "total_bugs_eaten";
     private const string totalDeathCountSteamStatName = "total_deaths";
@@ -98,28 +100,25 @@ public class GameManager : MonoBehaviour
     private const string savedLastSelectedGameModeDemo = "Froguelike Demo last selected game mode";
     private const string savedLastSelectedStartingChapterDemo = "Froguelike Demo last selected starting chapter";
 
-    private void Awake()
+    private const string savedLastSelectedCharacterShowcase = "Froguelike Showcase last selected character";
+    private const string savedLastSelectedGameModeShowcase = "Froguelike Showcase last selected game mode";
+    private const string savedLastSelectedStartingChapterShowcase = "Froguelike Showcase last selected starting chapter";
+
+    private void AwakeGameManager()
     {
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(this);
-        }
-        else
-        {
-            Destroy(this.gameObject);
-        }
         hasGameStarted = false;
         isGameRunning = false;
     }
 
-    // Start is called before the first frame update
-    void Start()
+    private void ResetGameManager()
     {
         Time.timeScale = 0;
 
         // Initialize managers and data
         InitializeStuff();
+        gameData.Reset();
+
+        ResetDelayWithNoInput();
 
         // Attempt loading the save file, show error message if needed
         TryLoadSaveFile();
@@ -132,6 +131,28 @@ public class GameManager : MonoBehaviour
 
         // Make sure that the right screen is interactive and others behind it are inactive
         UIManager.instance.ResetTitleScreenInteractability();
+
+        isReloadingTheGame = false;
+    }
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(this);
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
+        AwakeGameManager();
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        ResetGameManager();
     }
 
     private void Update()
@@ -140,11 +161,31 @@ public class GameManager : MonoBehaviour
         {
             RunManager.instance.UpdateTime(Time.deltaTime);
         }
+
+        IncreaseDelayWithNoInput(Time.unscaledDeltaTime);
+
+        if (Input.anyKey)
+        {
+            ResetDelayWithNoInput();
+        }
     }
 
 
     public void TryLoadSaveFile()
     {
+        if (BuildManager.instance.showcaseBuild && BuildManager.instance.showcasePreventSavingProgress)
+        {
+            // Show title screen
+            BackToTitleScreen();
+
+            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log("Game - No save file in showcase mode");
+            }
+
+            return;
+        }
+
         if (SaveDataManager.instance.DoesSaveFileExist())
         {
             // Load save file
@@ -221,16 +262,40 @@ public class GameManager : MonoBehaviour
 
     private string GetSavedLastSelectedCharacter()
     {
-        return BuildManager.instance.demoBuild ? savedLastSelectedCharacterDemo : savedLastSelectedCharacter;
+        if (BuildManager.instance.showcaseBuild)
+        {
+            return savedLastSelectedCharacterShowcase;
+        }
+        if (BuildManager.instance.demoBuild)
+        {
+            return savedLastSelectedCharacterDemo;
+        }
+        return savedLastSelectedCharacter;
     }
 
     private string GetSavedLastSelectedGameMode()
     {
-        return BuildManager.instance.demoBuild ? savedLastSelectedGameModeDemo : savedLastSelectedGameMode;
+        if (BuildManager.instance.showcaseBuild)
+        {
+            return savedLastSelectedGameModeShowcase;
+        }
+        if (BuildManager.instance.demoBuild)
+        {
+            return savedLastSelectedGameModeDemo;
+        }
+        return savedLastSelectedGameMode;
     }
     private string GetSavedLastSelectedStartingChapter()
     {
-        return BuildManager.instance.demoBuild ? savedLastSelectedStartingChapterDemo : savedLastSelectedStartingChapter;
+        if (BuildManager.instance.showcaseBuild)
+        {
+            return savedLastSelectedStartingChapterShowcase;
+        }
+        if (BuildManager.instance.demoBuild)
+        {
+            return savedLastSelectedStartingChapterDemo;
+        }
+        return savedLastSelectedStartingChapter;
     }
 
     public void RemoveSelectedCharacterGameModeAndStartingChapter()
@@ -589,6 +654,44 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log(log);
         }
+    }
+
+    #endregion
+
+    #region Showcase
+
+    private void IncreaseDelayWithNoInput(float deltaTime)
+    {
+        delayWithNoInput += deltaTime;
+        if (BuildManager.instance.showcaseBuild && BuildManager.instance.showcaseRestartTheGameAfterDelayWithNoInput)
+        {
+            // Update label with warning
+            if (BuildManager.instance.showcaseShowWarningTimerBeforeRestarting && delayWithNoInput > (BuildManager.instance.showcaseDelayWithNoInputBeforeRestartingTheGame - BuildManager.instance.showcaseWarningDelay))
+            {
+                UIManager.instance.ShowWarningTimerBeforeRestarting(BuildManager.instance.showcaseDelayWithNoInputBeforeRestartingTheGame - delayWithNoInput);
+            }
+            else
+            {
+                UIManager.instance.HideWarningTimerBeforeRestarting();
+            }
+            // Reload game is delay has passed
+            if (delayWithNoInput > BuildManager.instance.showcaseDelayWithNoInputBeforeRestartingTheGame && !isReloadingTheGame)
+            {
+                RemoveSelectedCharacterGameModeAndStartingChapter();
+                ReloadGame();
+            }
+        }
+    }
+
+    public void ResetDelayWithNoInput()
+    {
+        delayWithNoInput = 0;
+    }
+
+    private void ReloadGame()
+    {
+        isReloadingTheGame = true;
+        ResetGameManager();
     }
 
     #endregion

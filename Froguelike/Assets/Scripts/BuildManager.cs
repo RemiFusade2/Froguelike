@@ -51,9 +51,22 @@ public class BuildManager : MonoBehaviour
     [Space]
     public PowerUpType availablePowerUpsInDemo;
 
+    [Header("Settings - Showcase")]
+    public bool showcaseBuild = false;
+    [Space]
+    public bool showcasePreventSavingProgress = true;
+    [Space]
+    public bool showcaseRestartTheGameAfterDelayWithNoInput = true;
+    public float showcaseDelayWithNoInputBeforeRestartingTheGame = 60;
+    public bool showcaseShowWarningTimerBeforeRestarting = false;
+    public float showcaseWarningDelay = 10;
+    [Space]
+    public bool showcaseUnlockEverythingAfterFirstRun = false;
+    public bool showcaseRunsRewardFroins = false;
+
     [Header("Settings - Cheats")]
     public bool cheatsAreEnabled = false;
-    public bool everythingIsUnlocked = false;
+    public bool everythingIsUnlockedFromTheStart = false;
 
     [Header("Settings - Hide missing sprites")]
     public bool thingsWithMissingSpritesAreHidden = false;

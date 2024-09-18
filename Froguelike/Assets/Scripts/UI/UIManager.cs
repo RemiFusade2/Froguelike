@@ -126,6 +126,11 @@ public class UIManager : MonoBehaviour
     public GameObject endOfDemoScreen;
     public GameObject endOfDemoSteamButton;
 
+    [Header("Showcase stuff")]
+    public GameObject showcaseWarningPanel;
+    public TextMeshProUGUI showcaseWarningText;
+    public string showcaseWarningString = "Restarting the game in X seconds (no input)";
+
     private List<GameObject> rememberThisButton = new List<GameObject>();
 
     [Header("Links Settings")]
@@ -154,7 +159,12 @@ public class UIManager : MonoBehaviour
         SetScreenInteractability(pausePanel, false);
 
         string versionNumber = BuildManager.instance.demoBuild ? "Demo." : "Early Access.";
-        versionNumberText.text = versionNumber + BuildManager.instance.versionNumber;
+        string fullVersionNumber = versionNumber + BuildManager.instance.versionNumber;
+        if (BuildManager.instance.showcaseBuild)
+        {
+            fullVersionNumber = "Showcase Build";
+        }
+        versionNumberText.text = fullVersionNumber;
     }
 
     private void Update()
@@ -680,7 +690,7 @@ public class UIManager : MonoBehaviour
     private DisclaimerScreen GetDisclaimerScreenForCurrentBuild()
     {
         DisclaimerScreen result = null;
-        if (BuildManager.instance != null)
+        if (BuildManager.instance != null && !BuildManager.instance.showcaseBuild)
         {
             if (BuildManager.instance.demoBuild && BuildManager.instance.showDemoDisclaimer)
             {
@@ -905,4 +915,19 @@ public class UIManager : MonoBehaviour
             SetSelectedButton(startButton);
         }
     }
+
+    #region Showcase
+
+    public void ShowWarningTimerBeforeRestarting(float remainingTime)
+    {
+        showcaseWarningPanel.SetActive(true);
+        showcaseWarningText.text = showcaseWarningString.Replace("X", remainingTime.ToString("0"));
+    }
+
+    public void HideWarningTimerBeforeRestarting()
+    {
+        showcaseWarningPanel.SetActive(false);
+    }
+
+    #endregion
 }
