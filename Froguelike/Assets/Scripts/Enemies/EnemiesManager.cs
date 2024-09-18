@@ -1085,7 +1085,10 @@ public class EnemiesManager : MonoBehaviour
             TMP_FontAsset currentFontAsset = SettingsManager.instance.GetCurrentFontAsset();
             damageTMPScript.font = currentFontAsset;
 
-            Debug.Log($"currentFontAsset.name = {currentFontAsset.name}");
+            if (verbose == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log($"currentFontAsset.name = {currentFontAsset.name}");
+            }
 
             bool isPixelFont = currentFontAsset.name.Equals("Thintel");
             bool isAccessibleFont = currentFontAsset.name.Equals("OpenDyslexic-Regular");
@@ -1132,6 +1135,7 @@ public class EnemiesManager : MonoBehaviour
                 // Huge text
                 damageTMPScript.color = damageTextColor_huge;
             }
+
             if (applyVampireEffect)
             {
                 damageTMPScript.color = damageTextColor_vampire;
@@ -1146,6 +1150,7 @@ public class EnemiesManager : MonoBehaviour
                 damageAmountStr = "#";
                 damageTMPScript.color = damageTextColor_curse;
             }
+
             damageTMPScript.fontSize = fontSize;
 
             int sortedOrderLayer = Random.Range(100, 200);
@@ -1162,12 +1167,14 @@ public class EnemiesManager : MonoBehaviour
             damageText.GetComponent<MeshRenderer>().enabled = true;
             damageText.GetComponent<Rigidbody2D>().simulated = true;
             damageText.GetComponent<Rigidbody2D>().velocity = Vector2.up;
+
             if (applyVampireEffect)
             {
                 // damage is not null and vampire effect is ON
                 vampireEffect = true;
                 damageText.GetComponent<ParticleSystem>().Play();
             }
+
             visibleDamageTexts.Add(damageText);
             StartCoroutine(PutDamageTextIntoPoolAsync(damageText, damageTextLifespanInSeconds));
         }
