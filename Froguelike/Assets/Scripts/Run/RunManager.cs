@@ -109,9 +109,12 @@ public class RunManager : MonoBehaviour
     public TextMeshProUGUI conditionCountText;
     public Image conditionCountIcon;
     [Space]
-    public Transform tongueSlotsParent;
-    public Transform statItemSlotsParent;
-    public GameObject slotPrefab;
+    public Transform tongueSlotsBackgroundsParent;
+    public Transform tongueSlotsIconsParent;
+    public Transform statItemSlotsBackgroundsParent;
+    public Transform statItemSlotsIconsParent;
+    public GameObject slotBackgroundPrefab;
+    public GameObject slotIconPrefab;
     [Space]
     public Transform compassParent;
     public GameObject compassArrowPrefab;
@@ -1579,12 +1582,14 @@ public class RunManager : MonoBehaviour
     private void InitializeInRunItemSlots()
     {
         // Remove previous slots.
-        DestroyAndDeactivateChildren(tongueSlotsParent);
-        DestroyAndDeactivateChildren(statItemSlotsParent);
+        DestroyAndDeactivateChildren(tongueSlotsBackgroundsParent);
+        DestroyAndDeactivateChildren(tongueSlotsIconsParent);
+        DestroyAndDeactivateChildren(statItemSlotsBackgroundsParent);
+        DestroyAndDeactivateChildren(statItemSlotsIconsParent);
 
         // Show as manys slots as the player has.
-        for (int slots = 0; slots < player.weaponSlotsCount; slots++) AddNewRunItemSlot(tongueSlotsParent);
-        for (int slots = 0; slots < player.statItemSlotsCount; slots++) AddNewRunItemSlot(statItemSlotsParent);
+        for (int slots = 0; slots < player.weaponSlotsCount; slots++) AddNewRunItemSlot(tongueSlotsBackgroundsParent, tongueSlotsIconsParent);
+        for (int slots = 0; slots < player.statItemSlotsCount; slots++) AddNewRunItemSlot(statItemSlotsBackgroundsParent, statItemSlotsIconsParent);
     }
 
     private void DestroyAndDeactivateChildren(Transform parent)
@@ -1599,16 +1604,19 @@ public class RunManager : MonoBehaviour
     private void UpdateInRunItemSlots(RunItemData newItem)
     {
         // Pick the next empty slot.
-        SpriteRenderer nextFreeIconSlot = null;
-        Transform parent = null;
+        Image nextFreeIconSlot = null;
+        Transform backgroundParent = null;
+        Transform iconParent = null;
         switch (newItem.GetItemType())
         {
             case RunItemType.WEAPON:
-                parent = tongueSlotsParent;
+                backgroundParent = tongueSlotsBackgroundsParent;
+                iconParent = tongueSlotsIconsParent;
                 break;
 
             case RunItemType.STAT_BONUS:
-                parent = statItemSlotsParent;
+                backgroundParent = statItemSlotsBackgroundsParent;
+                iconParent = statItemSlotsIconsParent;
                 break;
 
             // If an item is not a tongue or a stat item, it should not be displayed.
@@ -1617,14 +1625,14 @@ public class RunManager : MonoBehaviour
         }
 
         // Look for the first empty slot in the right parent.
-        foreach (Transform slot in parent)
+        foreach (Transform slot in iconParent)
         {
             if (!slot.gameObject.activeSelf) continue;
 
             GameObject icon = slot.transform.Find("Icon").gameObject;
             if (!icon.activeSelf)
             {
-                nextFreeIconSlot = icon.GetComponent<SpriteRenderer>();
+                nextFreeIconSlot = icon.GetComponent<Image>();
                 break;
             }
         }
@@ -1632,7 +1640,7 @@ public class RunManager : MonoBehaviour
         // If no empty slot was found, create a new one.
         if (nextFreeIconSlot == null)
         {
-            nextFreeIconSlot = AddNewRunItemSlot(parent).Find("Icon").GetComponent<SpriteRenderer>();
+            nextFreeIconSlot = AddNewRunItemSlot(backgroundParent, iconParent).Find("Icon").GetComponent<Image>();
         }
 
         // Set the icon.
@@ -1640,9 +1648,10 @@ public class RunManager : MonoBehaviour
         nextFreeIconSlot.sprite = newItem.icon;
     }
 
-    private Transform AddNewRunItemSlot(Transform parent)
+    private Transform AddNewRunItemSlot(Transform backgroundParent, Transform iconParent)
     {
-        return Instantiate(slotPrefab, parent).transform;
+        Instantiate(slotBackgroundPrefab, backgroundParent);
+        return Instantiate(slotIconPrefab, iconParent).transform;
     }
 
     #endregion
