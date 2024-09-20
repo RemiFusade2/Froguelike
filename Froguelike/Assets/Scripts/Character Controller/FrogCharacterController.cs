@@ -218,6 +218,10 @@ public class FrogCharacterController : MonoBehaviour
             // Mouse input has been received
             GameManager.instance.ResetDelayWithNoInput();
             // Make cursor visible and restart coroutine to hide cursor after a delay
+            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log("Mouse input received. Show cursor");
+            }
             Cursor.visible = true;
             if (hideCursorCoroutine != null)
             {
@@ -232,6 +236,10 @@ public class FrogCharacterController : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(delay);
         Cursor.visible = false;
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("No mouse input received for a while. Hide cursor");
+        }
     }
 
     private void FixedUpdate()

@@ -61,8 +61,7 @@ public class BuildManager : MonoBehaviour
     public bool showcaseShowWarningTimerBeforeRestarting = false;
     public float showcaseWarningDelay = 10;
     [Space]
-    public bool showcaseUnlockEverythingAfterFirstRun = false;
-    public bool showcaseRunsRewardFroins = false;
+    public bool showcaseOverrideAchievements = false;
 
     [Header("Settings - Cheats")]
     public bool cheatsAreEnabled = false;

@@ -130,6 +130,8 @@ public class UIManager : MonoBehaviour
     public GameObject showcaseWarningPanel;
     public TextMeshProUGUI showcaseWarningText;
     public string showcaseWarningString = "Restarting the game in X seconds (no input)";
+    [Space]
+    public GameObject ShowcaseCTAOverlayPanel;
 
     private List<GameObject> rememberThisButton = new List<GameObject>();
 
@@ -927,6 +929,26 @@ public class UIManager : MonoBehaviour
     public void HideWarningTimerBeforeRestarting()
     {
         showcaseWarningPanel.SetActive(false);
+    }
+
+    public void ShowShowcaseCTAPanel()
+    {
+        ShowcaseCTAOverlayPanel.SetActive(true);
+        Color transparentColor = new Color(0, 0, 0, 0);
+        Color blackOutlineColor = new Color(0.09411f, 0.09804f, 0.12157f, 1);
+        foreach (Transform child in ShowcaseCTAOverlayPanel.transform)
+        {
+            child.GetComponent<TextMeshProUGUI>().fontMaterial.EnableKeyword("UNDERLAY_ON");
+            child.GetComponent<TextMeshProUGUI>().fontMaterial.SetFloat(ShaderUtilities.ID_UnderlayDilate, 0.5f);
+            child.GetComponent<TextMeshProUGUI>().fontMaterial.SetColor(ShaderUtilities.ID_UnderlayColor, blackOutlineColor);
+        }
+        inGameUIPanel.SetActive(false);
+    }
+
+    public void HideShowcaseCTAPanel()
+    {
+        ShowcaseCTAOverlayPanel.SetActive(false);
+        inGameUIPanel.SetActive(true);
     }
 
     #endregion

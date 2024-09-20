@@ -83,6 +83,29 @@ public class AchievementsScrollRect : ScrollRect
         UpdateScroll(false);
     }
 
+    public void Initialize(List<string> conditions, List<string> rewards, List<Sprite> icons)
+    {
+        ClearScrollView();
+        numberOfAchievements = 0;
+        currentDisplayedAchievement = 1;
+        for (int i = 0; i < conditions.Count; i++)
+        {
+            if (i < conditions.Count && i < rewards.Count && i < icons.Count)
+            {
+                string condition = conditions[i];
+                string reward = rewards[i];
+                Sprite icon = icons[i];
+                GameObject newAchievementPanel = Instantiate(achievementScorePrefab, this.content);
+                newAchievementPanel.GetComponent<ScoreAchievementPanelBehaviour>().Initialize(condition, reward, icon);
+                numberOfAchievements++;
+            }
+        }
+        currentDisplayedAchievement = 1;
+
+        this.content.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, numberOfAchievements * achievementScrollViewContentGridLayoutGroup.cellSize.x);
+        UpdateScroll(false);
+    }
+
     private void UpdateScroll(bool lerp)
     {
         achievementCountTextMesh.text = $"{currentDisplayedAchievement}/{numberOfAchievements}";

@@ -905,7 +905,7 @@ public class ChapterManager : MonoBehaviour
         StartChapter(chapterInfo);
     }
 
-    public void StartChapter(Chapter chapter)
+    public void StartChapter(Chapter chapter, bool skipBlackScreen = false)
     {
         // Save information about the current character attempting to play that chapter        
         CharacterCount charCount = chapter.attemptCountByCharacters.FirstOrDefault(x => x.characterIdentifier.Equals(RunManager.instance.currentPlayedCharacter.characterID));
@@ -932,7 +932,7 @@ public class ChapterManager : MonoBehaviour
         }
 
         // Tell the RunManager to start that chapter
-        RunManager.instance.StartChapter(chapter);
+        RunManager.instance.StartChapter(chapter, skipBlackScreen);
     }
 
     public void CompleteChapter(Chapter chapter, PlayableCharacter playedCharacter)

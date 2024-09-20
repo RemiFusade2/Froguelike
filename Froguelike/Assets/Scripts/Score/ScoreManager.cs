@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -40,6 +41,9 @@ public class ScoreManager : MonoBehaviour
     [Space]
     public CharacterBookmarkInRunInfoBehaviour characterInfoBookmark;
 
+    [Header("Showcase")]
+    public Sprite customAchievementUnlockEverythingIcon;
+    public Sprite customAchievementABunchOfFroinsIcon;
 
     private void Awake()
     {
@@ -66,7 +70,7 @@ public class ScoreManager : MonoBehaviour
     /// <param name="chaptersPlayed"></param>
     /// <param name="playedCharacter"></param>
     /// <param name="ownedItems"></param>
-    public void ShowScores(List<Chapter> chaptersPlayed, int[] chapterKillCounts, PlayableCharacter playedCharacter, List<RunItemInfo> ownedItems, List<Achievement> unlockedAchievements, int playedTimeLatestChapter, int currencyCollected)
+    public void ShowScores(List<Chapter> chaptersPlayed, int[] chapterKillCounts, PlayableCharacter playedCharacter, List<RunItemInfo> ownedItems, List<Achievement> unlockedAchievements, int playedTimeLatestChapter, int currencyCollected, bool overrideAchievementsForShowcaseBuild = false)
     {
         string scoreLog = "";
 
@@ -196,11 +200,37 @@ public class ScoreManager : MonoBehaviour
             }
         }
 
-        // Display unlocked achievements
-        achievementScrollRect.Initialize(unlockedAchievements);
-        achievementScrollRect.transform.parent.gameObject.SetActive((unlockedAchievements.Count > 0));
-        leftArrow.SetActive(unlockedAchievements.Count > 1);
-        rightArrow.SetActive(unlockedAchievements.Count > 1);
+        if (overrideAchievementsForShowcaseBuild)
+        {
+            int numberOfFakeAchievements = (GameManager.instance.gameData.attempts == 1) ? 2 : 1;
+            List<string> conditions = new List<string>();
+            List<string> rewards = new List<string>();
+            List<Sprite> icons = new List<Sprite>();
+            if (numberOfFakeAchievements == 2)
+            {
+                conditions.Add("Thank you for trying our game!");
+                rewards.Add("Everything");
+                icons.Add(customAchievementUnlockEverythingIcon);
+            }
+            if (numberOfFakeAchievements >= 1)
+            {
+                conditions.Add("Such a good run!");
+                rewards.Add("Lots of froins");
+                icons.Add(customAchievementABunchOfFroinsIcon);
+            }
+            achievementScrollRect.Initialize(conditions, rewards, icons);
+            achievementScrollRect.transform.parent.gameObject.SetActive((numberOfFakeAchievements > 0));
+            leftArrow.SetActive(numberOfFakeAchievements > 1);
+            rightArrow.SetActive(numberOfFakeAchievements > 1);
+        }
+        else
+        {
+            // Display unlocked achievements
+            achievementScrollRect.Initialize(unlockedAchievements);
+            achievementScrollRect.transform.parent.gameObject.SetActive((unlockedAchievements.Count > 0));
+            leftArrow.SetActive(unlockedAchievements.Count > 1);
+            rightArrow.SetActive(unlockedAchievements.Count > 1);
+        }
 
         // Display character info.
         characterInfoBookmark.UpdateInRunBookmark();

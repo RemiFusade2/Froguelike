@@ -104,6 +104,8 @@ public class GameManager : MonoBehaviour
     private const string savedLastSelectedGameModeShowcase = "Froguelike Showcase last selected game mode";
     private const string savedLastSelectedStartingChapterShowcase = "Froguelike Showcase last selected starting chapter";
 
+    private bool showcaseCTAScreenVisible; // "CTA" for Call to Action, a screen that catches people attention and ask them to play the game
+
     private void AwakeGameManager()
     {
         hasGameStarted = false;
@@ -152,7 +154,15 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        ResetGameManager();
+        if (BuildManager.instance.showcaseBuild)
+        {
+            showcaseCTAScreenVisible = true;
+            StartCoroutine(ReloadGameForShowcaseAsync());
+        }
+        else
+        {
+            ResetGameManager();
+        }
     }
 
     private void Update()
@@ -317,7 +327,7 @@ public class GameManager : MonoBehaviour
         return PlayerPrefs.HasKey(GetSavedLastSelectedCharacter()) && PlayerPrefs.HasKey(GetSavedLastSelectedGameMode()) && PlayerPrefs.HasKey(GetSavedLastSelectedStartingChapter());
     }
 
-    public void QuickStartNewRun()
+    public void QuickStartNewRun(bool skipBlackScreen = false)
     {
         // Get last selected character, game mode, and start chapter
         string lastSelectedCharacterID = GetRetryRunInfoCharacterID();
@@ -328,7 +338,7 @@ public class GameManager : MonoBehaviour
         CharacterManager.instance.selectedGameModes = Enum.Parse<GameMode>(lastSelectedGameMode);
         Chapter startChapter = ChapterManager.instance.GetChapterFromID(lastSelectedChapter);
 
-        RunManager.instance.StartNewRun(CharacterManager.instance.currentSelectedCharacter, CharacterManager.instance.selectedGameModes, startChapter);
+        RunManager.instance.StartNewRun(CharacterManager.instance.currentSelectedCharacter, CharacterManager.instance.selectedGameModes, startChapter, skipBlackScreen);
     }
 
     #region Get info helpers
@@ -666,7 +676,7 @@ public class GameManager : MonoBehaviour
         if (BuildManager.instance.showcaseBuild && BuildManager.instance.showcaseRestartTheGameAfterDelayWithNoInput)
         {
             // Update label with warning
-            if (BuildManager.instance.showcaseShowWarningTimerBeforeRestarting && delayWithNoInput > (BuildManager.instance.showcaseDelayWithNoInputBeforeRestartingTheGame - BuildManager.instance.showcaseWarningDelay))
+            if (!showcaseCTAScreenVisible && BuildManager.instance.showcaseShowWarningTimerBeforeRestarting && delayWithNoInput > (BuildManager.instance.showcaseDelayWithNoInputBeforeRestartingTheGame - BuildManager.instance.showcaseWarningDelay))
             {
                 UIManager.instance.ShowWarningTimerBeforeRestarting(BuildManager.instance.showcaseDelayWithNoInputBeforeRestartingTheGame - delayWithNoInput);
             }
@@ -675,23 +685,51 @@ public class GameManager : MonoBehaviour
                 UIManager.instance.HideWarningTimerBeforeRestarting();
             }
             // Reload game is delay has passed
-            if (delayWithNoInput > BuildManager.instance.showcaseDelayWithNoInputBeforeRestartingTheGame && !isReloadingTheGame)
+            if (!showcaseCTAScreenVisible && delayWithNoInput > BuildManager.instance.showcaseDelayWithNoInputBeforeRestartingTheGame && !isReloadingTheGame)
             {
                 RemoveSelectedCharacterGameModeAndStartingChapter();
-                ReloadGame();
+                ReloadGameForShowcase();
             }
         }
     }
 
     public void ResetDelayWithNoInput()
     {
+        if (showcaseCTAScreenVisible)
+        {
+            Time.timeScale = 1;
+            showcaseCTAScreenVisible = false;
+            UIManager.instance.HideShowcaseCTAPanel();
+        }
         delayWithNoInput = 0;
     }
 
-    private void ReloadGame()
+    private IEnumerator ReloadGameForShowcaseAsync()
+    {
+        yield return new WaitForEndOfFrame();
+        ReloadGameForShowcase();
+    }
+
+    private void ReloadGameForShowcase()
     {
         isReloadingTheGame = true;
+
+        // Reset everything and quickstart a new run with default settings
         ResetGameManager();
+        QuickStartNewRun(skipBlackScreen: true);
+
+        // Force frog to face up
+        player.transform.localRotation = Quaternion.Euler(0, 0, 0);
+
+        // Hide cursor
+        Cursor.visible = false;
+
+        // Show special showcase CTA screen
+        UIManager.instance.ShowShowcaseCTAPanel();
+        showcaseCTAScreenVisible = true;
+
+        // Pause the game
+        Time.timeScale = 0;
     }
 
     #endregion

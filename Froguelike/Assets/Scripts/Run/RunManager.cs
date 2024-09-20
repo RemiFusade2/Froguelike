@@ -406,7 +406,7 @@ public class RunManager : MonoBehaviour
         }
     }
 
-    public void StartNewRun(PlayableCharacter character, GameMode gameModes, Chapter startingChapter = null)
+    public void StartNewRun(PlayableCharacter character, GameMode gameModes, Chapter startingChapter = null, bool skipBlackScreen = false)
     {
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -446,7 +446,7 @@ public class RunManager : MonoBehaviour
         else
         {
             // Start the first chapter immediately if it was already set
-            ChapterManager.instance.StartChapter(startingChapter);
+            ChapterManager.instance.StartChapter(startingChapter, skipBlackScreen);
         }
     }
 
@@ -809,7 +809,8 @@ public class RunManager : MonoBehaviour
         currentCollectedCurrency = 0;
 
         // Maybe unlock some achievements if conditions are met
-        List<Achievement> unlockedAchievements = AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true, false);
+        bool forceUnlockAllAchievements = BuildManager.instance.showcaseBuild && BuildManager.instance.showcaseOverrideAchievements;
+        List<Achievement> unlockedAchievements = AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true, forceUnlockAllAchievements);
 
         // Add the current chapter to the list (even if current chapter was not completed)
         List<Chapter> chaptersPlayed = new List<Chapter>(completedChaptersList);
@@ -829,9 +830,20 @@ public class RunManager : MonoBehaviour
 
         int playedTimeThisChapter = Mathf.RoundToInt(currentChapter.chapterData.chapterLengthInSeconds - Mathf.Clamp(chapterRemainingTime, 0, currentChapter.chapterData.chapterLengthInSeconds));
 
+        // Special code for showcase build
+        if (BuildManager.instance.showcaseBuild && BuildManager.instance.showcaseOverrideAchievements)
+        {
+            // Get an extra 10k froins to have fun in the shop
+            GameManager.instance.ChangeAvailableCurrency(10000);
 
-        // Display the score screen
-        ScoreManager.instance.ShowScores(chaptersPlayed, playedChaptersKillCounts, currentPlayedCharacter, ownedItems, unlockedAchievements, playedTimeThisChapter, currencyCollectedInThisRun);
+            // Show score screen with custom achievements
+            ScoreManager.instance.ShowScores(chaptersPlayed, playedChaptersKillCounts, currentPlayedCharacter, ownedItems, unlockedAchievements, playedTimeThisChapter, currencyCollectedInThisRun, overrideAchievementsForShowcaseBuild: true);
+        }
+        else
+        {
+            // Display the score screen
+            ScoreManager.instance.ShowScores(chaptersPlayed, playedChaptersKillCounts, currentPlayedCharacter, ownedItems, unlockedAchievements, playedTimeThisChapter, currencyCollectedInThisRun);
+        }
     }
 
     public void EndChapter()
@@ -885,7 +897,7 @@ public class RunManager : MonoBehaviour
         }
     }
 
-    public void StartChapter(Chapter chapter)
+    public void StartChapter(Chapter chapter, bool skipBlackScreen = false)
     {
         // Set timer
         chapterRemainingTime = chapter.chapterData.chapterLengthInSeconds;
@@ -919,7 +931,14 @@ public class RunManager : MonoBehaviour
 
         currentChapter = chapter;
 
-        StartCoroutine(StartChapterAsync());
+        if (skipBlackScreen)
+        {
+            StartCoroutine(StartChapterAsync(0));
+        }
+        else
+        {
+            StartCoroutine(StartChapterAsync(3));
+        }
     }
 
     public int GetChapterCount()
@@ -951,7 +970,7 @@ public class RunManager : MonoBehaviour
         }
     }
 
-    private IEnumerator StartChapterAsync()
+    private IEnumerator StartChapterAsync(float delayBeforeStartingRun)
     {
         int chapterCount = GetChapterCount();
 
@@ -1010,7 +1029,11 @@ public class RunManager : MonoBehaviour
         // If character is ghost in that chapter, force it to ghost sprite
         player.ForceGhost(currentChapter.chapterData.characterStyleChange == CharacterStyle.GHOST);
 
-        yield return new WaitForSecondsRealtime(2.9f);
+        float blackScreenDelay = Mathf.Clamp(delayBeforeStartingRun - 0.1f, 0, delayBeforeStartingRun);
+        if (blackScreenDelay > 0)
+        {
+            yield return new WaitForSecondsRealtime(blackScreenDelay);
+        }
 
         GameManager.instance.SetTimeScale(1);
 
@@ -1025,7 +1048,11 @@ public class RunManager : MonoBehaviour
         ChapterManager.instance.FadeOutChapterStartScreen(fadeOutDelay);
 
         // Wait
-        yield return new WaitForSecondsRealtime(0.1f);
+        float smallDelayBeforeRemovingBlackScreen = Mathf.Clamp(0.1f, 0, delayBeforeStartingRun);
+        if (smallDelayBeforeRemovingBlackScreen > 0)
+        {
+            yield return new WaitForSecondsRealtime(smallDelayBeforeRemovingBlackScreen);
+        }
 
         // Set up condition count UI.
         SetNextChapterConditionCount(currentChapter.chapterData.nextChapterConditionCount);
@@ -1039,6 +1066,8 @@ public class RunManager : MonoBehaviour
         GameManager.instance.hasGameStarted = true;
         GameManager.instance.isGameRunning = true;
         ChapterManager.instance.chapterChoiceIsVisible = false;
+
+        yield return new WaitForEndOfFrame();
     }
 
     public void EndRun()
