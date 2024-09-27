@@ -625,19 +625,38 @@ public class RunManager : MonoBehaviour
     public void SetNextChapterConditionCount(NextChapterConditionCount nextChapterConditionCount)
     {
         conditionCountIcon.sprite = DataManager.instance.GetNextChapterConditionCountTypeSpriteFromType(nextChapterConditionCount.countType);
+        conditionCountIcon.SetNativeSize();
+
+        Vector2 noteSize = new Vector2(0, conditionCountIcon.transform.parent.GetComponent<RectTransform>().sizeDelta.y);
+        Vector2 textContainerSize = new Vector2(0, 12);
 
         string countText = "";
-        switch (currentChapter.chapterData.nextChapterConditionCount.countType)
+        switch (nextChapterConditionCount.countType)
         {
             case NextChapterConditionCountType.EatBounties:
                 countText = "0/" + nextChapterConditionCount.goal.ToString();
+                noteSize.x = 57;
+                textContainerSize.x = 35;
                 break;
             case NextChapterConditionCountType.HaveFriends:
                 countText = FriendsManager.instance.permanentFriendsList.Count().ToString() + "/" + nextChapterConditionCount.goal.ToString();
+                noteSize.x = 57;
+                textContainerSize.x = 35;
+                break;
+            case NextChapterConditionCountType.DistanceFromSpawn:
+                noteSize.x = 110;
+                textContainerSize.x = 78;
+                break;
+            case NextChapterConditionCountType.DistanceFromSpawnInDirection:
+                noteSize.x = 65;
+                textContainerSize.x = 35;
                 break;
             default:
                 break;
         }
+
+        conditionCountText.rectTransform.sizeDelta = textContainerSize;
+        conditionCountText.transform.parent.GetComponent<RectTransform>().sizeDelta = noteSize;
 
         conditionCountText.SetText(countText);
     }
@@ -651,17 +670,18 @@ public class RunManager : MonoBehaviour
         // Remi comment: now that it can also show distance, this counter needs to be updated often (every second or every frame)
         NextChapterConditionCountType type = currentChapter.chapterData.nextChapterConditionCount.countType;
         float distanceFromSpawn = Mathf.Clamp(player.transform.position.magnitude/10, 0, currentChapter.chapterData.nextChapterConditionCount.goal);
+        string countText = "";
 
         switch (type)
         {
             case NextChapterConditionCountType.EatBounties:
-                conditionCountText.SetText(playedChaptersBountyEatCounts[GetChapterCount() - 1].ToString() + "/" + currentChapter.chapterData.nextChapterConditionCount.goal.ToString());
+                countText = playedChaptersBountyEatCounts[GetChapterCount() - 1].ToString() + "/" + currentChapter.chapterData.nextChapterConditionCount.goal.ToString();
                 break;
             case NextChapterConditionCountType.HaveFriends:
-                conditionCountText.SetText(FriendsManager.instance.permanentFriendsList.Count().ToString() + "/" + currentChapter.chapterData.nextChapterConditionCount.goal.ToString());
+                countText = FriendsManager.instance.permanentFriendsList.Count().ToString() + "/" + currentChapter.chapterData.nextChapterConditionCount.goal.ToString();
                 break;
             case NextChapterConditionCountType.DistanceFromSpawn:
-                conditionCountText.SetText($"{distanceFromSpawn.ToString("0")}/{currentChapter.chapterData.nextChapterConditionCount.goal}cm");
+                countText = $"{distanceFromSpawn.ToString("0")}/{currentChapter.chapterData.nextChapterConditionCount.goal}hops";
                 break;
             case NextChapterConditionCountType.DistanceFromSpawnInDirection:
                 if (distanceFromSpawn >= currentChapter.chapterData.nextChapterConditionCount.goal)
@@ -669,14 +689,16 @@ public class RunManager : MonoBehaviour
                     // display direction
                     float dotRight = Vector2.Dot(player.transform.position, Vector2.right);
                     float dotUp = Vector2.Dot(player.transform.position, Vector2.up);
-                    conditionCountText.SetText(Mathf.Abs(dotRight) > Mathf.Abs(dotUp) ? (dotRight > 0 ? "EAST" : "WEST") : (dotUp > 0 ? "NORTH" : "SOUTH"));
+                    countText = Mathf.Abs(dotRight) > Mathf.Abs(dotUp) ? (dotRight > 0 ? "EAST" : "WEST") : (dotUp > 0 ? "NORTH" : "SOUTH");
                 }
                 else
                 {
-                    conditionCountText.SetText("_");
+                    countText = "-       ";
                 }
                 break;
         }
+
+        conditionCountText.SetText(countText);
     }
 
     public void IncreaseKillCount(int kills)
