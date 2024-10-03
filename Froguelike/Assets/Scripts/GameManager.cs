@@ -731,6 +731,13 @@ public class GameManager : MonoBehaviour
 
         // Reset everything and quickstart a new run with default settings
         ResetGameManager();
+
+        // Optional: unlock everything
+        if (BuildManager.instance.showcaseUnlockEverythingFromTheStart)
+        {
+            AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true, true);
+        }
+
         QuickStartNewRun(skipBlackScreen: true);
 
         // Force frog to face up

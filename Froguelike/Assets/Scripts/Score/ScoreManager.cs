@@ -209,7 +209,7 @@ public class ScoreManager : MonoBehaviour
             if (numberOfFakeAchievements == 2)
             {
                 conditions.Add("Thank you for trying our game!");
-                rewards.Add("Everything");
+                rewards.Add("Love");
                 icons.Add(customAchievementUnlockEverythingIcon);
             }
             if (numberOfFakeAchievements >= 1)
