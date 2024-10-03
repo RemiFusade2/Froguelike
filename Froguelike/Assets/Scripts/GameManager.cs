@@ -487,7 +487,10 @@ public class GameManager : MonoBehaviour
 
     public void QuitGame()
     {
-        Application.Quit();
+        if (!BuildManager.instance.showcaseBuild)
+        {
+            Application.Quit();
+        }
     }
 
     public void InitializeStuff()
