@@ -100,6 +100,8 @@ public class FrogCharacterController : MonoBehaviour
     [Space]
     public float inputAxisDeadZone = 0.3f;
     public float delayBeforeHidingCursor = 5;
+    [Space]
+    public string restartInputName = "restartGame";
 
     #region Cheats
 
@@ -1170,6 +1172,11 @@ public class FrogCharacterController : MonoBehaviour
         curseExplosionEffect.StopAndResetExplosion();
         levelDownBugsExplosionEffect.StopAndResetExplosion();
         levelUpBugsExplosionEffect.StopAndResetExplosion();
+    }
+
+    public bool GetRestartInputReleased()
+    {
+        return rewiredPlayer.GetButtonUp(restartInputName);
     }
 
     #region Cheat codes

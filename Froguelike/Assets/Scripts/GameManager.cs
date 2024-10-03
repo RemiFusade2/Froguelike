@@ -172,11 +172,21 @@ public class GameManager : MonoBehaviour
             RunManager.instance.UpdateTime(Time.deltaTime);
         }
 
-        IncreaseDelayWithNoInput(Time.unscaledDeltaTime);
-
-        if (Input.anyKey)
+        if (BuildManager.instance.showcaseBuild && BuildManager.instance.showcaseRestartTheGameAfterDelayWithNoInput)
         {
-            ResetDelayWithNoInput();
+            IncreaseDelayWithNoInput(Time.unscaledDeltaTime);
+
+            if (Input.anyKey)
+            {
+                ResetDelayWithNoInput();
+            }
+
+            if (player.GetRestartInputReleased())
+            {
+                RemoveSelectedCharacterGameModeAndStartingChapter();
+                ReloadGameForShowcase();
+
+            }
         }
     }
 
@@ -670,26 +680,28 @@ public class GameManager : MonoBehaviour
 
     #region Showcase
 
+    /// <summary>
+    /// Only call this if build is showcase build and we want to auto-reset after a delay with no input.
+    /// </summary>
+    /// <param name="deltaTime"></param>
     private void IncreaseDelayWithNoInput(float deltaTime)
     {
         delayWithNoInput += deltaTime;
-        if (BuildManager.instance.showcaseBuild && BuildManager.instance.showcaseRestartTheGameAfterDelayWithNoInput)
+
+        // Update label with warning
+        if (!showcaseCTAScreenVisible && BuildManager.instance.showcaseShowWarningTimerBeforeRestarting && delayWithNoInput > (BuildManager.instance.showcaseDelayWithNoInputBeforeRestartingTheGame - BuildManager.instance.showcaseWarningDelay))
         {
-            // Update label with warning
-            if (!showcaseCTAScreenVisible && BuildManager.instance.showcaseShowWarningTimerBeforeRestarting && delayWithNoInput > (BuildManager.instance.showcaseDelayWithNoInputBeforeRestartingTheGame - BuildManager.instance.showcaseWarningDelay))
-            {
-                UIManager.instance.ShowWarningTimerBeforeRestarting(BuildManager.instance.showcaseDelayWithNoInputBeforeRestartingTheGame - delayWithNoInput);
-            }
-            else
-            {
-                UIManager.instance.HideWarningTimerBeforeRestarting();
-            }
-            // Reload game is delay has passed
-            if (!showcaseCTAScreenVisible && delayWithNoInput > BuildManager.instance.showcaseDelayWithNoInputBeforeRestartingTheGame && !isReloadingTheGame)
-            {
-                RemoveSelectedCharacterGameModeAndStartingChapter();
-                ReloadGameForShowcase();
-            }
+            UIManager.instance.ShowWarningTimerBeforeRestarting(BuildManager.instance.showcaseDelayWithNoInputBeforeRestartingTheGame - delayWithNoInput);
+        }
+        else
+        {
+            UIManager.instance.HideWarningTimerBeforeRestarting();
+        }
+        // Reload game is delay has passed
+        if (!showcaseCTAScreenVisible && delayWithNoInput > BuildManager.instance.showcaseDelayWithNoInputBeforeRestartingTheGame && !isReloadingTheGame)
+        {
+            RemoveSelectedCharacterGameModeAndStartingChapter();
+            ReloadGameForShowcase();
         }
     }
 
