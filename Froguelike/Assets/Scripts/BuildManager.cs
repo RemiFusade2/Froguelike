@@ -64,6 +64,11 @@ public class BuildManager : MonoBehaviour
     public bool showcaseOverrideAchievements = false;
     [Space]
     public bool showcaseUnlockEverythingFromTheStart = true;
+    [Space]
+    public CharacterData showcaseStartingFrogData;
+    public bool showcaseStartingFrogRandomized = true;
+    public ChapterData showcaseStartingChapterData;
+    public GameMode showcaseStartingGameMode;
 
     [Header("Settings - Cheats")]
     public bool cheatsAreEnabled = false;

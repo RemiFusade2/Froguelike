@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 
 [System.Serializable]
@@ -355,17 +356,91 @@ public class GameManager : MonoBehaviour
 
     public string GetRetryRunInfoCharacterID()
     {
-        return PlayerPrefs.GetString(GetSavedLastSelectedCharacter(), "CLASSIC_FROG");
+        string characterID = "CLASSIC_FROG"; // default frog
+
+        string noDataStr = "NO_DATA";
+        string lastSavedCharID = PlayerPrefs.GetString(GetSavedLastSelectedCharacter(), noDataStr);
+        if (lastSavedCharID.Equals(noDataStr))
+        {
+            // There was no saved data
+            if (BuildManager.instance.showcaseBuild)
+            {
+                // In case of showcase build, we either randomize the default frog or use a frog that was given as parameter
+                if (BuildManager.instance.showcaseStartingFrogRandomized)
+                {
+                    // Pick a random frog
+                    characterID = CharacterManager.instance.GetRandomCharacter().characterID;
+                }
+                else
+                {
+                    // Use the given frog for showcase
+                    characterID = BuildManager.instance.showcaseStartingFrogData.characterID;
+                }
+            }
+
+            // If it's not a showcase build, there's nothing to do, because default frog is already set
+        }
+        else
+        {
+            // There was saved data
+            characterID = lastSavedCharID;
+        }
+
+        return characterID;
     }
 
     public string GetRetryRunInfoGameMode()
     {
-        return PlayerPrefs.GetString(GetSavedLastSelectedGameMode(), "NONE");
+        string gameMode = "NONE"; // default game mode
+
+        string noDataStr = "NO_DATA";
+        string lastSavedGameMode = PlayerPrefs.GetString(GetSavedLastSelectedGameMode(), noDataStr);
+
+        if (lastSavedGameMode.Equals(noDataStr))
+        {
+            // There was no saved data
+            if (BuildManager.instance.showcaseBuild)
+            {
+                // Use the given game mode for showcase
+                gameMode = BuildManager.instance.showcaseStartingGameMode.ToString();
+            }
+
+            // If it's not a showcase build, there's nothing to do, because default game mode is already set
+        }
+        else
+        {
+            // There was saved data
+            gameMode = lastSavedGameMode;
+        }
+
+        return gameMode;
     }
 
     public string GetRetryRunInfoChapter()
     {
-        return PlayerPrefs.GetString(GetSavedLastSelectedStartingChapter(), "[CH_COLLECT_HEALTH]"); // "First hops" is the fallback.
+        string chapterID = "[CH_COLLECT_HEALTH]"; // "First hops" is the fallback chapter
+
+        string noDataStr = "NO_DATA";
+        string lastSavedChapterID = PlayerPrefs.GetString(GetSavedLastSelectedStartingChapter(), noDataStr);
+
+        if (lastSavedChapterID.Equals(noDataStr))
+        {
+            // There was no saved data
+            if (BuildManager.instance.showcaseBuild)
+            {
+                // Use the given chapter ID for showcase
+                chapterID = BuildManager.instance.showcaseStartingChapterData.chapterID;
+            }
+
+            // If it's not a showcase build, there's nothing to do, because default chapter is already set
+        }
+        else
+        {
+            // There was saved data
+            chapterID = lastSavedChapterID;
+        }
+
+        return chapterID; 
     }
 
     #endregion Get info helpers
@@ -730,6 +805,7 @@ public class GameManager : MonoBehaviour
         isReloadingTheGame = true;
 
         // Reset everything and quickstart a new run with default settings
+        RemoveSelectedCharacterGameModeAndStartingChapter();
         ResetGameManager();
 
         // Optional: unlock everything

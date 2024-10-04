@@ -159,6 +159,21 @@ public class CharacterManager : MonoBehaviour
     }
 
 
+    public PlayableCharacter GetRandomCharacter()
+    {
+        PlayableCharacter result = null;
+        do
+        {
+            int randomIndex = UnityEngine.Random.Range(0, charactersData.charactersList.Count);
+            if (charactersData.charactersList[randomIndex].unlocked)
+            {
+                result = charactersData.charactersList[randomIndex];
+            }
+        } while (result == null);
+        return result;
+    }
+
+
     public PlayableCharacter GetPlayableCharacter(string characterID)
     {
         PlayableCharacter result = charactersData.charactersList.FirstOrDefault(x => x.characterID == characterID);
