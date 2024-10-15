@@ -36,7 +36,7 @@ public class PauseScreen : MonoBehaviour
         // Update character info bookmark. Image, name, hats and friends.
         characterInfoBookmark.UpdateInRunBookmark();
 
-        // Display chapters.
+        // Display a list of selected chapters.
         try
         {
             string text = "";
@@ -46,8 +46,12 @@ public class PauseScreen : MonoBehaviour
                 text += "Chapter " + (chapterIndex + 1) + " - " + runManager.completedChaptersList[chapterIndex].chapterData.chapterTitle + "\n";
             }
 
-            // Current chapter.
-            text += "Chapter " + runManager.GetChapterCount().ToString() + " - " + runManager.currentChapter.chapterData.chapterTitle;
+            if (!ChapterManager.instance.chapterChoiceIsVisible)
+            {
+                // Current chapter, if we're not in the process of selecting it
+                text += "Chapter " + runManager.GetChapterCount().ToString() + " - " + runManager.currentChapter.chapterData.chapterTitle;
+            }
+
             // Update and display list.
             chapterText.SetText(text);
         }

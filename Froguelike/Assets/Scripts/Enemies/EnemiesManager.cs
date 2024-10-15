@@ -1741,6 +1741,25 @@ public class EnemiesManager : MonoBehaviour
         applyGlobalCurse = active;
     }
 
+    public void StopAndResetAllGlobalEffects()
+    {
+        if (SetGlobalFreezeEffectCoroutine != null)
+        {
+            StopCoroutine(SetGlobalFreezeEffectCoroutine);
+        }
+        if (SetGlobalPoisonEffectCoroutine != null)
+        {
+            StopCoroutine(SetGlobalPoisonEffectCoroutine);
+        }
+        if (SetGlobalCurseEffectCoroutine != null)
+        {
+            StopCoroutine(SetGlobalCurseEffectCoroutine);
+        }
+        applyGlobalFreeze = false;
+        applyGlobalPoison = false;
+        applyGlobalCurse = false;
+    }
+
     public void ApplyCurseEffect(string enemyGoName, float duration)
     {
         int enemyIndex = int.Parse(enemyGoName);

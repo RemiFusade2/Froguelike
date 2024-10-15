@@ -853,6 +853,7 @@ public class ChapterManager : MonoBehaviour
 
         // Call the UIManager to display the chapter selection screen
         UIManager.instance.ShowChapterSelectionScreen((chapterCount == 0));
+        chapterChoiceIsVisible = true;
     }
 
     public void PlaySelectedChapter()

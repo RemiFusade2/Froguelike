@@ -93,6 +93,7 @@ public class UIManager : MonoBehaviour
     public Animator pausePanelAnimator;
     public GameObject selectedButtonPausePanel;
     private bool makeLevelUpPanelInteractableAfterClosingPausePanel = false;
+    private bool makeChapterSelectionInteractableAfterClosingPausePanel = false;
 
     #endregion
 
@@ -430,6 +431,12 @@ public class UIManager : MonoBehaviour
                 makeLevelUpPanelInteractableAfterClosingPausePanel = true;
                 SavePreviousSelectedButton();
             }
+            else if (chapterSelectionScreen.activeInHierarchy)
+            {
+                SetScreenInteractability(chapterSelectionScreen, false);
+                makeChapterSelectionInteractableAfterClosingPausePanel = true;
+                SavePreviousSelectedButton();
+            }
             else
             {
                 makeLevelUpPanelInteractableAfterClosingPausePanel = false;
@@ -470,6 +477,13 @@ public class UIManager : MonoBehaviour
             {
                 SetScreenInteractability(levelUpPanel, true);
                 SetPreviousSelectedButton();
+                makeLevelUpPanelInteractableAfterClosingPausePanel = false;
+            }
+            else if (makeChapterSelectionInteractableAfterClosingPausePanel)
+            {
+                SetScreenInteractability(chapterSelectionScreen, true);
+                SetPreviousSelectedButton();
+                makeChapterSelectionInteractableAfterClosingPausePanel = false;
             }
             else
             {

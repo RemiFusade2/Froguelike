@@ -885,8 +885,14 @@ public class RunManager : MonoBehaviour
             }
         }
 
-        // Remove all temporary friends
+        // Remove all temporary friends and stop friends frenzy
         FriendsManager.instance.ClearAllFriends(onlyTemporary: true);
+        StopConfettis();
+
+        // Stop God Mode, Freeze/Poison/Curse & Level up/down all, Super goop
+        player.ResetGodMode();
+        player.StopAndResetAllExplosionEffects(); // global effects explosions
+        EnemiesManager.instance.StopAndResetAllGlobalEffects();
 
         if (completedChaptersList.Count >= maxChaptersInARun)
         {
@@ -1621,6 +1627,7 @@ public class RunManager : MonoBehaviour
     {
         levelUpPanel.GetComponent<CanvasGroup>().interactable = false;
         UIManager.instance.levelUpPanelAnimator.SetBool("Visible", false);
+        UIManager.instance.SetSelectedButton(buttonGO: null);
         SoundManager.instance.PlaySlideBookSound();
         SoundManager.instance.UnpauseInGameLoopedSFX();
         // MusicManager.instance.PlayLevelUpMusic(false); for now there is no special level up music
@@ -2064,5 +2071,11 @@ public class RunManager : MonoBehaviour
     public void PlayConfettis()
     {
         confettiParticleSystem.Play();
+    }
+
+    public void StopConfettis()
+    {
+        confettiParticleSystem.Stop();
+        confettiParticleSystem.Clear();
     }
 }
