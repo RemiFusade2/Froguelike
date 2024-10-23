@@ -185,7 +185,7 @@ public class GameManager : MonoBehaviour
 
             if (!isReloadingTheGame)
             {
-                if (Input.anyKey)
+                if (Input.anyKey || player.AnyControllerInput())
                 {
                     ResetDelayWithNoInput();
                 }

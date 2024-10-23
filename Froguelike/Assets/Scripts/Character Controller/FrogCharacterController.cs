@@ -890,6 +890,13 @@ public class FrogCharacterController : MonoBehaviour
 
     #region Update Inputs
 
+    public bool AnyControllerInput()
+    {
+        HorizontalInput = rewiredPlayer.GetAxis(horizontalInputName);
+        VerticalInput = rewiredPlayer.GetAxis(verticalInputName);
+        return Mathf.Abs(HorizontalInput) >= inputAxisDeadZone || Mathf.Abs(VerticalInput) >= inputAxisDeadZone;
+    }
+
     private void UpdateHorizontalInput()
     {
         HorizontalInput = rewiredPlayer.GetAxis(horizontalInputName);
