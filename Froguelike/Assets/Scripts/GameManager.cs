@@ -135,6 +135,12 @@ public class GameManager : MonoBehaviour
         // Make sure that the right screen is interactive and others behind it are inactive
         UIManager.instance.ResetTitleScreenInteractability();
 
+        StartCoroutine(SetGameIsLoadedAsync(0.5f));
+    }
+
+    private IEnumerator SetGameIsLoadedAsync(float delay)
+    {
+        yield return new WaitForSecondsRealtime(delay);
         isReloadingTheGame = false;
     }
 
@@ -177,16 +183,18 @@ public class GameManager : MonoBehaviour
         {
             IncreaseDelayWithNoInput(Time.unscaledDeltaTime);
 
-            if (Input.anyKey)
+            if (!isReloadingTheGame)
             {
-                ResetDelayWithNoInput();
-            }
+                if (Input.anyKey)
+                {
+                    ResetDelayWithNoInput();
+                }
 
-            if (player.GetRestartInputReleased())
-            {
-                RemoveSelectedCharacterGameModeAndStartingChapter();
-                ReloadGameForShowcase();
-
+                if (player.GetRestartInputReleased())
+                {
+                    RemoveSelectedCharacterGameModeAndStartingChapter();
+                    ReloadGameForShowcase();
+                }
             }
         }
     }
