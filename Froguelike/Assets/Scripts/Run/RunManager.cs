@@ -1,3 +1,4 @@
+using FMODUnity;
 using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
@@ -1078,12 +1079,27 @@ public class RunManager : MonoBehaviour
         if (Mathf.RoundToInt(chapterRemainingTime + Time.deltaTime) > 0 && Mathf.RoundToInt(chapterRemainingTime) <= 0)
         {
             SoundManager.instance.PlayChapterEndSound();
+
+            MusicManager.instance.chapterIsEnding = true;
+            RuntimeManager.StudioSystem.getParameterByName("Tension Level", out var tensionLevelOut);
+            if (tensionLevelOut != 1)
+            {
+                RuntimeManager.StudioSystem.setParameterByName("Tension Level", tensionLevelOut - 1);
+            }
         }
 
         SetTimer(chapterRemainingTime);
+
+        if (chapterRemainingTime < -(delayAfterEndOfChapter / 2))
+        {
+            RuntimeManager.StudioSystem.setParameterByName("Tension Level", 1);
+        }
+
         if (chapterRemainingTime < -delayAfterEndOfChapter)
         {
             chapterRemainingTime = 0; // float.MaxValue;
+
+            MusicManager.instance.chapterIsEnding = false;
             EndChapter();
         }
     }
@@ -1502,7 +1518,7 @@ public class RunManager : MonoBehaviour
         // Audio
         SoundManager.instance.PlaySlideBookSound();
         SoundManager.instance.PauseInGameLoopedSFX();
-        // MusicManager.instance.PlayLevelUpMusic(true); for now there is now special music for picking a level up
+        // MusicManager.instance.PlayLevelUpMusic(true); for now there is no special music for picking a level up
 
         UIManager.instance.levelUpPanel.SetActive(true);
         UIManager.instance.levelUpPanelAnimator.SetBool("Visible", true);
