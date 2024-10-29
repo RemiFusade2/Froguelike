@@ -100,6 +100,7 @@ public class FrogCharacterController : MonoBehaviour
     [Space]
     public float inputAxisDeadZone = 0.3f;
     public float delayBeforeHidingCursor = 5;
+    public GameObject cursorBlock;
 
     #region Cheats
 
@@ -215,7 +216,12 @@ public class FrogCharacterController : MonoBehaviour
         float cursorMovedDistance = Vector3.Distance(previousMousePosition, Input.mousePosition);
         if (mouseLeftPressed || mouseRightPressed || cursorMovedDistance > 0)
         {
-            Cursor.visible = true;
+            if (cursorBlock.activeInHierarchy)
+            {
+                Cursor.visible = true;
+                cursorBlock.SetActive(false);
+            }
+
             if (hideCursorCoroutine != null)
             {
                 StopCoroutine(hideCursorCoroutine);
@@ -229,6 +235,7 @@ public class FrogCharacterController : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(delay);
         Cursor.visible = false;
+        cursorBlock.SetActive(true);
     }
 
     private void FixedUpdate()

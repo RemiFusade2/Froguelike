@@ -1627,6 +1627,7 @@ public class RunManager : MonoBehaviour
     {
         levelUpPanel.GetComponent<CanvasGroup>().interactable = false;
         UIManager.instance.levelUpPanelAnimator.SetBool("Visible", false);
+        UIManager.instance.SetSelectedButton(buttonGO: null);
         SoundManager.instance.PlaySlideBookSound();
         SoundManager.instance.UnpauseInGameLoopedSFX();
         // MusicManager.instance.PlayLevelUpMusic(false); for now there is no special level up music

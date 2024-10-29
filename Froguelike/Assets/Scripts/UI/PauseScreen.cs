@@ -36,7 +36,7 @@ public class PauseScreen : MonoBehaviour
         // Update character info bookmark. Image, name, hats and friends.
         characterInfoBookmark.UpdateInRunBookmark();
 
-        // Display chapters.
+        // Display a list of selected chapters.
         try
         {
             string text = "";
