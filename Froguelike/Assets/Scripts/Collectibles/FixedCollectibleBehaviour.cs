@@ -16,6 +16,7 @@ public class FixedCollectibleBehaviour : MonoBehaviour
     {
         collectibleInfo = collectible;
         collectibleRenderer.sprite = DataManager.instance.GetSpriteForCollectible(collectible);
+        collectibleRenderer.flipY = collectible.collectibleType == FixedCollectibleType.HAT;
         arrowRendererUnknownItem.enabled = true;
         arrowRendererKnownItem.enabled = false;
     }

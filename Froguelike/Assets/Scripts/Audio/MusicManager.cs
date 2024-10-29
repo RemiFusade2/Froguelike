@@ -27,6 +27,9 @@ public class MusicManager : MonoBehaviour
 
     private MusicChoice musicChoice = MusicChoice.ByBrian;
 
+    private bool SFShouldBeActive = false;
+    public bool chapterIsEnding = false;
+
     enum MusicChoice
     {
         ByJohanna,
@@ -49,12 +52,6 @@ public class MusicManager : MonoBehaviour
         inRunMusicEvent = RuntimeManager.CreateInstance(inRunMusic);
         runMusicByBrianEvent = RuntimeManager.CreateInstance(runMusicByBrian);
         titleMusicByBrianEvent = RuntimeManager.CreateInstance(titleMusicByBrian);
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
     }
 
     public void PlayTitleMusic()
@@ -130,15 +127,17 @@ public class MusicManager : MonoBehaviour
 
     public void PlaySuperFrogMusic(bool SFIsActive)
     {
-       if (musicChoice == MusicChoice.ByBrian)
-       {
+        SFShouldBeActive = SFIsActive;
+
+        if (musicChoice == MusicChoice.ByBrian)
+        {
             RuntimeManager.StudioSystem.setParameterByName("Invincible", SFIsActive ? 1 : 0);
-       }
+        }
     }
 
     public void AdjustTensionLevel(int bugs)
     {
-        if (musicChoice == MusicChoice.ByBrian)
+        if (musicChoice == MusicChoice.ByBrian && !chapterIsEnding)
         {
             RuntimeManager.StudioSystem.getParameterByName("Tension Level", out var tensionLevelOut);
             int tensionLevel = (int)tensionLevelOut;
@@ -178,12 +177,12 @@ public class MusicManager : MonoBehaviour
 
     public void StopAllMusic()
     {
+        RuntimeManager.StudioSystem.setParameterByName("Invincible", 0);
         titleMusicEvent.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
         inRunMusicEvent.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
         RuntimeManager.StudioSystem.setParameterByName("Upgrades", 1);
         titleMusicByBrianEvent.setParameterByName("LevelUpTranition", 1);
     }
-
 
     public void UnpauseMusic()
     {
@@ -223,10 +222,12 @@ public class MusicManager : MonoBehaviour
         if (GameManager.instance.isGameRunning)
         {
             PlayRunMusic();
+            PlaySuperFrogMusic(SFShouldBeActive);
         }
         else
         {
             PlayTitleMusic();
         }
     }
+
 }

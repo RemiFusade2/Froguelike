@@ -134,6 +134,7 @@ public class AchievementManager : MonoBehaviour
     public ScrollbarKeepCursorSizeBehaviour achievementsScrollbar;
     [Space]
     public GameObject achievementEntryPrefab;
+    public GameObject achievementEntryWithCountPrefab;
 
     [Header("Runtime")]
     public AchievementsSaveData achievementsData; // Load from save file
@@ -639,7 +640,7 @@ public class AchievementManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Update the UI of the Achievements screen.
+    /// Update the UI of the Achievements screen (Quest book).
     /// </summary>
     public void DisplayAchievementsScreen()
     {
@@ -690,7 +691,17 @@ public class AchievementManager : MonoBehaviour
 
                 if (addThisAchievementToTheList)
                 {
-                    GameObject achievementEntryGo = Instantiate(achievementEntryPrefab, achievementScrollEntriesParent);
+                    GameObject achievementEntryGo = null;
+
+                    if (achievement.achievementData.conditionsList[0].specialKey == AchievementConditionSpecialKey.DIE_A_BUNCH_OF_TIMES || achievement.achievementData.conditionsList[0].specialKey == AchievementConditionSpecialKey.EAT_20000_BUGS)
+                    {
+                        achievementEntryGo = Instantiate(achievementEntryWithCountPrefab, achievementScrollEntriesParent);
+                    }
+                    else
+                    {
+                        achievementEntryGo = Instantiate(achievementEntryPrefab, achievementScrollEntriesParent);
+                    }
+
                     AchievementEntryPanelBehaviour achievementEntryScript = achievementEntryGo.GetComponent<AchievementEntryPanelBehaviour>();
                     bool darkerBkg = (entryCount / 2) % 2 == 0;
                     bool canAchieve = IsAchievementAvailable(achievement);

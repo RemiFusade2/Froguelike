@@ -819,7 +819,7 @@ public class ChapterManager : MonoBehaviour
 
     public void ShowChapterSelection(int currentChapterCount)
     {
-        MusicManager.instance.PlaySuperFrogMusic(false); // in case the previous chapter ended while supe frog was active.
+        MusicManager.instance.PlaySuperFrogMusic(false); // in case the previous chapter ended while super frog was active.
 
         // Update the top text
         int chapterCount = currentChapterCount;

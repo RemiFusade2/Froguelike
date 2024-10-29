@@ -147,7 +147,7 @@ public class FrogCharacterController : MonoBehaviour
 
     private float orientationAngle;
 
-    private bool superFrogMode;
+    public bool superFrogMode { private set; get; }
     private Coroutine superFrogCoroutine;
 
     private Vector3 previousMousePosition;

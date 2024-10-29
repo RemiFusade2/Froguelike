@@ -23,6 +23,9 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
     public Image achievementIconImage;
     [Space]
     public Image checkboxImage;
+    [Space]
+    public TextMeshProUGUI achievementCountTextMesh;
+    public Slider achievementCountSlider;
 
     [Header("Settings")]
     public Color darkBkgColor;
@@ -73,6 +76,21 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
             achievementTitleTextMesh.text = achievement.achievementData.achievementTitle;
             achievementHintTextMesh.text = $"How: {achievement.GetAchievementDescription()}";
             achievementRewardTextMesh.text = $"Reward: {achievement.GetRewardDescription()}";
+
+            if (achievement.achievementData.conditionsList[0].specialKey == AchievementConditionSpecialKey.EAT_20000_BUGS)
+            {
+                int eatenBugsCapped = Mathf.Clamp(GameManager.instance.gameData.cumulatedScore, 0, 20000);
+                achievementCountTextMesh.text = $"{eatenBugsCapped}/20000";
+                float eatenBugsPercentage = eatenBugsCapped / 20000f;
+                achievementCountSlider.value = eatenBugsPercentage;
+            }
+            else if (achievement.achievementData.conditionsList[0].specialKey == AchievementConditionSpecialKey.DIE_A_BUNCH_OF_TIMES)
+            {
+                int deathCountCapped = Mathf.Clamp(GameManager.instance.gameData.deathCount, 0 , 10);
+                achievementCountTextMesh.text = $"{deathCountCapped}/10";
+                float deathCountPercentage = deathCountCapped / 10f;
+                achievementCountSlider.value = deathCountPercentage;
+            }
 
             checkboxImage.gameObject.SetActive(true);
             checkboxImage.sprite = achievedSprite;
