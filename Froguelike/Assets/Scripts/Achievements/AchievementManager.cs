@@ -693,7 +693,7 @@ public class AchievementManager : MonoBehaviour
                 {
                     GameObject achievementEntryGo = null;
 
-                    if (achievement.achievementData.conditionsList[0].specialKey == AchievementConditionSpecialKey.DIE_A_BUNCH_OF_TIMES || achievement.achievementData.conditionsList[0].specialKey == AchievementConditionSpecialKey.EAT_20000_BUGS)
+                    if (achievement.achievementData.conditionsList[0].specialKey == AchievementConditionSpecialKey.DIE_A_BUNCH_OF_TIMES || (achievement.achievementData.conditionsList[0].specialKey == AchievementConditionSpecialKey.EAT_20000_BUGS && !BuildManager.instance.demoBuild))
                     {
                         achievementEntryGo = Instantiate(achievementEntryWithCountPrefab, achievementScrollEntriesParent);
                     }

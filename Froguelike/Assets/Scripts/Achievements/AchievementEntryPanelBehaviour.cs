@@ -77,19 +77,16 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
             achievementHintTextMesh.text = $"How: {achievement.GetAchievementDescription()}";
             achievementRewardTextMesh.text = $"Reward: {achievement.GetRewardDescription()}";
 
+            // Set count to full.
             if (achievement.achievementData.conditionsList[0].specialKey == AchievementConditionSpecialKey.EAT_20000_BUGS)
             {
-                int eatenBugsCapped = Mathf.Clamp(GameManager.instance.gameData.cumulatedScore, 0, 20000);
-                achievementCountTextMesh.text = $"{eatenBugsCapped}/20000";
-                float eatenBugsPercentage = eatenBugsCapped / 20000f;
-                achievementCountSlider.value = eatenBugsPercentage;
+                achievementCountTextMesh.text = "20000/20000";
+                achievementCountSlider.value = 1;
             }
             else if (achievement.achievementData.conditionsList[0].specialKey == AchievementConditionSpecialKey.DIE_A_BUNCH_OF_TIMES)
             {
-                int deathCountCapped = Mathf.Clamp(GameManager.instance.gameData.deathCount, 0 , 10);
-                achievementCountTextMesh.text = $"{deathCountCapped}/10";
-                float deathCountPercentage = deathCountCapped / 10f;
-                achievementCountSlider.value = deathCountPercentage;
+                achievementCountTextMesh.text = "10/10";
+                achievementCountSlider.value = 1;
             }
 
             checkboxImage.gameObject.SetActive(true);
@@ -140,6 +137,25 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
             achievementTitleTextMesh.text = achievement.achievementData.achievementTitle;
             achievementHintTextMesh.text = $"How: {achievement.GetAchievementDescription()}";
             achievementRewardTextMesh.text = $"Reward: {achievement.GetRewardDescription()}";
+
+            // Set up count.
+            if (achievement.achievementData.conditionsList[0].specialKey == AchievementConditionSpecialKey.EAT_20000_BUGS)
+            {
+                int eatenBugsCapped = Mathf.Clamp(GameManager.instance.gameData.cumulatedScore, 0, 20000);
+                achievementCountTextMesh.text = $"{eatenBugsCapped}/20000";
+                // The percentage for this quest is a special case to make sure there is always some progress visible if some bugs have been eaten and that the bar doesn't fill up before the goal is met.
+                float eatenBugsPercentage = eatenBugsCapped > 0 ? Mathf.Max(eatenBugsCapped / 20000f, 0.005f) : 0f;
+                eatenBugsPercentage = eatenBugsPercentage == 1 ? 0.995f : eatenBugsPercentage;
+                achievementCountSlider.value = eatenBugsPercentage;
+            }
+            else if (achievement.achievementData.conditionsList[0].specialKey == AchievementConditionSpecialKey.DIE_A_BUNCH_OF_TIMES)
+            {
+                int deathCountCapped = Mathf.Clamp(GameManager.instance.gameData.deathCount, 0, 10);
+                achievementCountTextMesh.text = $"{deathCountCapped}/10";
+                float deathCountPercentage = deathCountCapped / 10f;
+                achievementCountSlider.value = deathCountPercentage;
+            }
+
             checkboxImage.gameObject.SetActive(true);
             checkboxImage.sprite = notAchievedSprite;
             SetAchievementIcon(achievement);
