@@ -25,15 +25,25 @@ public class SettingsManager : MonoBehaviour
     public PixelPerfectCamera pixelPerfectCamera;
     public CanvasScaler canvasScaler;
 
+    #region Disclaimer screens
+
     [Header("Disclaimer settings")]
     public Toggle disclaimerToggle;
     public DisclaimerScreen eaDisclaimerScreen;
     public DisclaimerScreen demoDisclaimerScreen;
+    private string savedShowDemoDisclaimerSettingKey = "Froguelike Demo Disclaimer on";
+    private string savedShowEADisclaimerSettingKey = "Froguelike EA Disclaimer on";
+
+    #endregion Disclaimer screens
+
+    #region Damage text
 
     [Header("Damage text settings")]
     public Toggle damageTextToggle;
     public bool showDamageText { get; private set; }
     private string savedDamageTextSettingKey = "Froguelike damage text visible";
+
+    #endregion Damage text
 
     #region Sound
 
@@ -58,13 +68,6 @@ public class SettingsManager : MonoBehaviour
 
     #endregion Sound
 
-    #region Disclaimer screens
-
-    private string savedShowDemoDisclaimerKey = "Froguelike Demo Disclaimer on";
-    private string savedShowEADisclaimerKey = "Froguelike EA Disclaimer on";
-
-    #endregion Disclaimer screens
-
     #region Font
 
     [Header("Font")]
@@ -75,10 +78,19 @@ public class SettingsManager : MonoBehaviour
     [SerializeField] private GameObject pixelTextOnShopNote;
     [SerializeField] private GameObject notPixelTextOnShopNote;
     private UnityEngine.Object[] textObjectsList = new UnityEngine.Object[] { };
-    private string savedFont = "Froguelike Saved Font";
+    private string savedFontSettingKey = "Froguelike Saved Font";
     private int currentFontIndex;
 
     #endregion Font
+
+    #region Flashing effects
+
+    [Header("Flashing effects setting")]
+    public Toggle flashingEffectsToggle;
+    public bool showFlashingEffects { get; private set; }
+    private string savedFlashingEffectSettingKey = "Froguelike flashing effect visible";
+
+    #endregion Flashing effects
 
     [Header("For debugging")]
     public TextMeshProUGUI text;
@@ -127,6 +139,7 @@ public class SettingsManager : MonoBehaviour
         LoadAudioSettings();
         LoadDisclaimerSettings();
         LoadDamageTextSetting();
+        LoadFlashingEffectsSetting();
 
         // Find all text boxes in the game.
         textObjectsList = Resources.FindObjectsOfTypeAll(typeof(TextMeshProUGUI));
@@ -475,23 +488,23 @@ public class SettingsManager : MonoBehaviour
 
     public bool IsDemoDisclaimerOn()
     {
-        return PlayerPrefs.GetInt(savedShowDemoDisclaimerKey, 1) == 1;
+        return PlayerPrefs.GetInt(savedShowDemoDisclaimerSettingKey, 1) == 1;
     }
 
     public void SetDemoDisclaimerOn(bool on)
     {
-        PlayerPrefs.SetInt(savedShowDemoDisclaimerKey, on ? 1 : 0);
+        PlayerPrefs.SetInt(savedShowDemoDisclaimerSettingKey, on ? 1 : 0);
         disclaimerToggle.SetIsOnWithoutNotify(on);
     }
 
     public bool IsEADisclaimerOn()
     {
-        return PlayerPrefs.GetInt(savedShowEADisclaimerKey, 1) == 1;
+        return PlayerPrefs.GetInt(savedShowEADisclaimerSettingKey, 1) == 1;
     }
 
     public void SetEADisclaimerOn(bool on)
     {
-        PlayerPrefs.SetInt(savedShowEADisclaimerKey, on ? 1 : 0);
+        PlayerPrefs.SetInt(savedShowEADisclaimerSettingKey, on ? 1 : 0);
         disclaimerToggle.SetIsOnWithoutNotify(on);
     }
 
@@ -511,7 +524,7 @@ public class SettingsManager : MonoBehaviour
 
     #region Damage text
 
-    public void LoadDamageTextSetting()
+    private void LoadDamageTextSetting()
     {
         showDamageText = PlayerPrefs.GetInt(savedDamageTextSettingKey, 1) == 1 ? true : false;
         damageTextToggle.SetIsOnWithoutNotify(showDamageText);
@@ -531,13 +544,13 @@ public class SettingsManager : MonoBehaviour
 
     public void LoadFontSetting()
     {
-        currentFontIndex = PlayerPrefs.GetInt(savedFont, 0);
+        currentFontIndex = PlayerPrefs.GetInt(savedFontSettingKey, 0);
         SetFont(currentFontIndex);
     }
 
     public void SaveFontSetting(int fontIndex)
     {
-        PlayerPrefs.SetInt(savedFont, fontIndex);
+        PlayerPrefs.SetInt(savedFontSettingKey, fontIndex);
     }
 
     // Used when loading font setting.
@@ -588,6 +601,23 @@ public class SettingsManager : MonoBehaviour
     }
 
     #endregion Font
+
+    #region Flashing effects
+
+    private void LoadFlashingEffectsSetting()
+    {
+        showFlashingEffects = PlayerPrefs.GetInt(savedFlashingEffectSettingKey, 1) == 1 ? true : false;
+        flashingEffectsToggle.SetIsOnWithoutNotify(showFlashingEffects);
+    }
+
+    public void ToggleFlashingEffects()
+    {
+        // Revert the current status for using flashing effects and save it.
+        showFlashingEffects = !showFlashingEffects;
+        PlayerPrefs.SetInt(savedFlashingEffectSettingKey, showFlashingEffects == true ? 1 : 0);
+    }
+
+    #endregion Flashing effects
 
     #region Tabs
 

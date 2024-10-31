@@ -1945,13 +1945,16 @@ public class EnemiesManager : MonoBehaviour
 
     private void SetOverlayColor(EnemyInstance enemyInstance, Color color, float delay)
     {
-        enemyInstance.SetOverlayColor(color);
-        if (enemyInstance.removeOverlayCoroutine != null)
+        if (SettingsManager.instance.showFlashingEffects)
         {
-            StopCoroutine(enemyInstance.removeOverlayCoroutine);
-            enemyInstance.removeOverlayCoroutine = null;
+            enemyInstance.SetOverlayColor(color);
+            if (enemyInstance.removeOverlayCoroutine != null)
+            {
+                StopCoroutine(enemyInstance.removeOverlayCoroutine);
+                enemyInstance.removeOverlayCoroutine = null;
+            }
+            StartCoroutine(RemoveOverlayColorAsync(enemyInstance, delay));
         }
-        StartCoroutine(RemoveOverlayColorAsync(enemyInstance, delay));
     }
 
     private IEnumerator RemoveOverlayColorAsync(EnemyInstance enemyInstance, float delay)

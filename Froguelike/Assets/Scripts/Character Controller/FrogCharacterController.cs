@@ -1028,13 +1028,19 @@ public class FrogCharacterController : MonoBehaviour
 
     private void TakingDamageEffect()
     {
-        characterRenderer.material.SetFloat("_OverlayVisible", 1);
-        SoundManager.instance.PlayTakeDamageLoopSound();
-        if (DamageTookEndOfEffectCoroutine != null)
+        // Overlay.
+        if (SettingsManager.instance.showFlashingEffects)
         {
-            StopCoroutine(DamageTookEndOfEffectCoroutine);
+            characterRenderer.material.SetFloat("_OverlayVisible", 1);
+            if (DamageTookEndOfEffectCoroutine != null)
+            {
+                StopCoroutine(DamageTookEndOfEffectCoroutine);
+            }
+            DamageTookEndOfEffectCoroutine = StartCoroutine(TakingDamageEndOfEffectAsync(0.7f));
         }
-        DamageTookEndOfEffectCoroutine = StartCoroutine(TakingDamageEndOfEffectAsync(0.7f));
+
+        // SFX.
+        SoundManager.instance.PlayTakeDamageLoopSound();
     }
 
     private void ChangeHealth(float change, bool cancelDamage)
