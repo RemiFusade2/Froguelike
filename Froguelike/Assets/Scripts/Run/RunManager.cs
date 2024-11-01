@@ -1005,6 +1005,13 @@ public class RunManager : MonoBehaviour
                 GameObject arrow = Instantiate(compassArrowPrefab, compassParent);
                 arrow.GetComponent<CompassArrowBehaviour>().SetCollectibleTileCoordinates(collectible.tileCoordinates);
                 arrow.GetComponent<CompassArrowBehaviour>().SetCollectibleHasBeenFound(collectibleHasBeenFoundOnce);
+                arrow.GetComponent<CompassArrowBehaviour>().knownItemSprite.sprite = DataManager.instance.GetSpriteForCollectible(collectible);
+                if (collectible.collectibleType == FixedCollectibleType.HAT)
+                {
+                    arrow.GetComponent<CompassArrowBehaviour>().knownItemSprite.transform.rotation = new Quaternion(0, 0, 180, 0);
+                }
+                arrow.GetComponent<CompassArrowBehaviour>().knownItemSprite.SetNativeSize();
+
                 compassArrowsList.Add(arrow.GetComponent<CompassArrowBehaviour>());
             }
         }
