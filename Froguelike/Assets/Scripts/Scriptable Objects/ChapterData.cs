@@ -106,6 +106,13 @@ public enum NextChapterConditionCountType
     DistanceFromSpawnInDirection
 }
 
+public enum FixedCollectibleForceAcceptType
+{
+    NEVER,
+    ONLY_IF_ITEM_IS_LOCKED,
+    ALWAYS
+}
+
 #endregion Enums
 
 #region Classes
@@ -136,6 +143,9 @@ public class FixedCollectible
     public string collectibleDescription;
     [Tooltip("The type of collectible")]
     public FixedCollectibleType collectibleType;
+
+    [Tooltip("Are you forced to accept this collectible?")]
+    public FixedCollectibleForceAcceptType forceAcceptType;
 
     // In case the collectible is a RunStatItem
     [Tooltip("The Run Stat Item in question")]

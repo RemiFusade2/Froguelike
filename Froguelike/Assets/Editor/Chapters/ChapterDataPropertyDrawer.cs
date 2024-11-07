@@ -296,6 +296,16 @@ public class FixedCollectibleDrawer : PropertyDrawer
 
         // UI
         {
+            // Is there a force accept condition?
+            {
+                float labelWidth = alignWidth;
+                Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+                Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+                EditorGUI.LabelField(labelRect, new GUIContent("Force accept:"));
+                EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("forceAcceptType"), GUIContent.none);
+            }
+            position.y += EditorGUIUtility.singleLineHeight;
+
             // Accept collectible text
             {
                 float labelWidth = alignWidth;
@@ -336,7 +346,7 @@ public class FixedCollectibleDrawer : PropertyDrawer
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
-        int numberOfLines = 14;
+        int numberOfLines = 15;
         return numberOfLines * EditorGUIUtility.singleLineHeight;
     }
 }

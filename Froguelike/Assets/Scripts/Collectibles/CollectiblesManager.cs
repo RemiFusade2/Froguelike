@@ -370,7 +370,6 @@ public class CollectiblesManager : MonoBehaviour
         SoundManager.instance.PlayPickUpCollectibleSound();
 
         // Settings
-        bool figurineCantBeRefused = true;
         bool ghostCantMakeFriends = true;
         bool ribbitCantMakeFriends = true;
 
@@ -381,20 +380,20 @@ public class CollectiblesManager : MonoBehaviour
             // 1 - You are playing as Ghost and you met a companion that is not of ghost type: the companion can't see you or is scared of you
             RunManager.instance.ShowCollectSuperCollectiblePanel(superCollectible, allowAccept: false, forceChoiceDescriptionStr: $"But {superCollectible.collectibleName} is scared of ghosts!", forceChoiceButtonStr:"Oh no!");
         }
-        else if (figurineCantBeRefused && superCollectible.collectibleType == FixedCollectibleType.STATS_ITEM && superCollectible.collectibleStatItemData.itemName.Equals("Figurine"))
-        {
-            // 2 - You found the figurine, it is cursed and you are forced to pick it up
-            RunManager.instance.ShowCollectSuperCollectiblePanel(superCollectible, allowRefuse: false, forceChoiceDescriptionStr: "You feel drawn to it.", forceChoiceButtonStr: "Shiny!");
-        }
-        else if (superCollectible.collectibleType == FixedCollectibleType.STATS_ITEM && !RunItemManager.instance.IsRunItemUnlocked(superCollectible.collectibleStatItemData.itemName))
-        {
-            // 3 - You found an item that would complete a quest if you pick it up: you can't choose to not pick it up
-            RunManager.instance.ShowCollectSuperCollectiblePanel(superCollectible, allowRefuse: false, forceChoiceDescriptionStr: "It's the first time you see something like this.", forceChoiceButtonStr: "I want it!");
-        }
         else if (ribbitCantMakeFriends && RunManager.instance.currentPlayedCharacter.characterID.Equals("POISONOUS_FROG") && !RunManager.instance.currentPlayedCharacter.storyCompleted && superCollectible.collectibleType == FixedCollectibleType.FRIEND && superCollectible.collectibleFriendType != FriendType.POISONOUS)
         {
-            // 4 - You are playing as Ribbit and you met a companion that is not venomous: the companion doesn't want to join you
+            // 2 - You are playing as Ribbit and you met a companion that is not venomous: the companion doesn't want to join you
             RunManager.instance.ShowCollectSuperCollectiblePanel(superCollectible, allowAccept: false, forceChoiceDescriptionStr: $"But {superCollectible.collectibleName} is afraid of your poison!", forceChoiceButtonStr: "Oh no!");
+        }
+        else if (superCollectible.forceAcceptType == FixedCollectibleForceAcceptType.ALWAYS)
+        {
+            // 3 - This item is always forced (like a curse?)
+            RunManager.instance.ShowCollectSuperCollectiblePanel(superCollectible, allowRefuse: false, forceChoiceDescriptionStr: "You feel drawn to it.", forceChoiceButtonStr: "Shiny!");
+        }
+        else if (superCollectible.forceAcceptType == FixedCollectibleForceAcceptType.ONLY_IF_ITEM_IS_LOCKED && !RunItemManager.instance.IsRunItemUnlocked(superCollectible.collectibleStatItemData.itemName))
+        {
+            // 4 - This item is locked and should be forced when locked
+            RunManager.instance.ShowCollectSuperCollectiblePanel(superCollectible, allowRefuse: false, forceChoiceDescriptionStr: "It's the first time you see something like this.", forceChoiceButtonStr: "I want it!");
         }
         else
         {

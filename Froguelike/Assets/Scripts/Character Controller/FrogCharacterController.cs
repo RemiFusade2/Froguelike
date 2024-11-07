@@ -170,6 +170,8 @@ public class FrogCharacterController : MonoBehaviour
             AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true, true);
             //UIManager.instance.ShowTitleScreen();
         }
+
+        HideCursor();
     }
 
     // Update is called once per frame
@@ -213,8 +215,9 @@ public class FrogCharacterController : MonoBehaviour
         // Hide / Show mouse cursor
         bool mouseLeftPressed = Input.GetMouseButton(0);
         bool mouseRightPressed = Input.GetMouseButton(1);
+        bool mouseWheelUsed = Input.mouseScrollDelta.magnitude > 0;
         float cursorMovedDistance = Vector3.Distance(previousMousePosition, Input.mousePosition);
-        if (mouseLeftPressed || mouseRightPressed || cursorMovedDistance > 0)
+        if (mouseLeftPressed || mouseRightPressed || cursorMovedDistance > 0 || mouseWheelUsed)
         {
             if (cursorBlock.activeInHierarchy)
             {
@@ -234,6 +237,11 @@ public class FrogCharacterController : MonoBehaviour
     private IEnumerator WaitAndHideCursor(float delay)
     {
         yield return new WaitForSecondsRealtime(delay);
+        HideCursor();
+    }
+
+    private void HideCursor()
+    {
         Cursor.visible = false;
         cursorBlock.SetActive(true);
     }
