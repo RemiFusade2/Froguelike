@@ -706,7 +706,7 @@ public class RunManager : MonoBehaviour
     {
         int chapterCount = GetChapterCount();
         playedChaptersKillCounts[chapterCount - 1] += kills;
-        SetEatenCount(playedChaptersKillCounts[chapterCount - 1]);
+        SetEatenCount(GetTotalKillCount());
 
         // Update all stats that scale with score
         player.UpdateScalingWithScoreStats();
@@ -1044,8 +1044,8 @@ public class RunManager : MonoBehaviour
 
         GameManager.instance.SetTimeScale(1);
 
-        // Reset kill count
-        SetEatenCount(0);
+        // Show current total kill count
+        SetEatenCount(GetTotalKillCount());
 
         // Play level music
         MusicManager.instance.PlayRunMusic();

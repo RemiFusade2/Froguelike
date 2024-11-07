@@ -283,7 +283,7 @@ public class FrogCharacterController : MonoBehaviour
     private float GetScoreScaledBoostForStat(CharacterStat statType)
     {
         float result = 0;
-        int score = RunManager.instance.GetCurrentChapterKillCount();
+        int score = RunManager.instance.GetTotalKillCount();
         IEnumerable<StatScoreScaling> statScoreScalingList = statScaleWithScoreList.Where(x => x.valueIncrease.stat.Equals(statType));
         foreach (StatScoreScaling statScoreScaling in statScoreScalingList)
         {
