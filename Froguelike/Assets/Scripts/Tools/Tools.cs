@@ -5,7 +5,7 @@ using UnityEngine;
 
 public static class Tools
 {
-    public static string FormatCurrency(long num, string currencySymbol)
+    public static string FormatCurrency(long num, string currencySymbol, bool spaceBeforeUnit = true)
     {
         string result = "";
 
@@ -17,19 +17,19 @@ public static class Tools
         // K M B T QD QN SX SP O N DE UD DD TDD QDD QND SXD SPD OCD NVD VGN UVG DVG TVG QTV QNV SEV SPG OVG NVG
 
         if (num >= 1000000000000000000)
-            result = (num / 1000000000000000000D).ToString("0.##") + "QN";
+            result = (num / 1000000000000000000D).ToString("0.##") + (spaceBeforeUnit ? " ":"") + "QN";
         else if (num >= 1000000000000000)
-            result = (num / 1000000000000000D).ToString("0.##") + "QD";
+            result = (num / 1000000000000000D).ToString("0.##") + (spaceBeforeUnit ? " " : "") + "QD";
         else if (num >= 1000000000000)
-            result = (num / 1000000000000D).ToString("0.##") + "T";
+            result = (num / 1000000000000D).ToString("0.##") + (spaceBeforeUnit ? " " : "") + "T";
         else if (num >= 1000000000)
-            result = (num / 1000000000D).ToString("0.##") + "B";
+            result = (num / 1000000000D).ToString("0.##") + (spaceBeforeUnit ? " " : "") + "B";
         else if (num >= 1000000)
-            result = (num / 1000000D).ToString("0.##") + "M";
+            result = (num / 1000000D).ToString("0.##") + (spaceBeforeUnit ? " " : "") + "M";
         else if (num >= 1000)
-            result = (num / 1000D).ToString("0.##") + "K";
+            result = (num / 1000D).ToString("0.##") + (spaceBeforeUnit ? " " : "") + "K";
         else
-            result = num.ToString("#,0");
+            result = num.ToString("#,0") + (spaceBeforeUnit ? " " : "");
 
         return result + currencySymbol;
     }

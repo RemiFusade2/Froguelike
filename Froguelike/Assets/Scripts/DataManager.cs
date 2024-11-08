@@ -179,6 +179,11 @@ public class DataManager : MonoBehaviour
     [Header("Currency name")]
     public string currencyName = "froins";
 
+    [Header("TMPro Sprites")]
+    public string currencySymbol = "<sprite name=Froin>";
+    public string extraLifeSymbol = "<sprite name=Life>";
+    public string scoreSymbol = "<sprite name=Score>";
+
     [Header("Spawn probabilities")]
     public List<SpawnProbability> rocksSpawnProbabilities;
     public List<SpawnProbability> pondsSpawnProbabilities;

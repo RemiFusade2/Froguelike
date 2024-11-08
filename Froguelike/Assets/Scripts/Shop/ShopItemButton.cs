@@ -70,7 +70,7 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
         if (item.currentLevel < item.data.costForEachLevel.Count)
         {
             int cost = item.data.costForEachLevel[item.currentLevel] + extraFee;
-            priceText.text = Tools.FormatCurrency(cost, "");
+            priceText.text = Tools.FormatCurrency(cost, DataManager.instance.currencySymbol);
         }
 
         name = item.itemName;
