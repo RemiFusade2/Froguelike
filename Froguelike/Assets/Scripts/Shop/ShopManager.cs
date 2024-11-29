@@ -446,6 +446,9 @@ public class ShopManager : MonoBehaviour
         // Update the shop display
         DisplayShop(false);
 
+        // Stop scroll bar if it was moving
+        shopScrollRect.velocity = Vector2.zero;
+
         // Play sound
         SoundManager.instance.PlayRefundShopSound();
 

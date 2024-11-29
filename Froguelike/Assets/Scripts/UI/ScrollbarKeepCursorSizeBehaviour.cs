@@ -16,6 +16,11 @@ public class ScrollbarKeepCursorSizeBehaviour : MonoBehaviour
         SetCursorCentered(cursorCentered);
     }
 
+    private void LateUpdate()
+    {
+        SetCursorToFixedSize();
+    }
+
     public void SetCursorCentered(bool value)
     {
         cursorCentered = value;

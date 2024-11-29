@@ -50,6 +50,8 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
 
     private const float gap = 22;
 
+    private bool selectUsingMouseCursor = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -122,14 +124,19 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
     {
         SoundManager.instance.PlayButtonSound(characterButton);
 
-        // Scroll the button into view.
-        StartCoroutine(ScrollButtonIntoViewAsync());
+        if (!selectUsingMouseCursor)
+        {
+            // Scroll the button into view.
+            StartCoroutine(ScrollButtonIntoViewAsync());
+        }
+        selectUsingMouseCursor = false;
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (eventData.delta.x != 0 || eventData.delta.y != 0)
         {
+            selectUsingMouseCursor = true;
             characterButton.Select();
         }
     }

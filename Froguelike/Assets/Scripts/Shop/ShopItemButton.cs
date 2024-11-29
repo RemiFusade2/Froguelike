@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
+using Unity.VisualScripting;
+using Steamworks;
 
 public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandler, IDeselectHandler
 {
@@ -30,6 +32,8 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
     public Transform itemPanelTransform;
 
     private const float gap = 10;
+
+    private bool selectUsingMouseCursor = false;
 
     public void Initialize(ShopItem item, bool availableButCantBuy, int extraFee)
     {
@@ -89,14 +93,18 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
             Debug.Log($"Shop Item Button - OnSelect(). eventData = {eventData}");
         }
 
-        // Scroll the button into view.
-        StartCoroutine(ScrollButtonIntoViewAsync());
+        if (!selectUsingMouseCursor)
+        {
+            StartCoroutine(ScrollButtonIntoViewAsync());
+        }
+        selectUsingMouseCursor = false;
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (eventData.delta.x != 0 || eventData.delta.y != 0)
         {
+            selectUsingMouseCursor = true;
             buyButton.Select();
         }
     }
