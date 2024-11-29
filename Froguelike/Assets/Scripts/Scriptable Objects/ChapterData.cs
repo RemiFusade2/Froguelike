@@ -193,8 +193,10 @@ public class ChapterCondition
     [Tooltip("This would reverse the condition")]
     public bool not = false;
 
-    [Tooltip("Played Chapter")]
+    [Tooltip("This chapter can appear only if you've played that Chapter before")]
     public ChapterData chapterData;
+    [Tooltip("This chapter can appear only if you've played that Chapter RIGHT before (as latest chapter played)")]
+    public bool chapterDataMustBeLatestChapterPlayed;
 
     [Tooltip("This chapter can appear only after Chapter count # (included)")]
     [Range(1, 5)]

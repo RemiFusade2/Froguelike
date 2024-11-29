@@ -338,7 +338,19 @@ public class ChapterManager : MonoBehaviour
                                 break;
                             case ChapterConditionType.PLAYED_CHAPTER:
                                 Chapter c = completedChapters.FirstOrDefault(x => x.chapterData.Equals(condition.chapterData));
-                                conditionChunkIsValid = (c != null);
+                                if (condition.chapterDataMustBeLatestChapterPlayed)
+                                {
+                                    conditionChunkIsValid = false;
+                                    if (completedChapters.Count > 0)
+                                    {
+                                        Chapter latestChapterPlayed = completedChapters[completedChapters.Count - 1];
+                                        conditionChunkIsValid = (latestChapterPlayed.chapterData.Equals(condition.chapterData));
+                                    }
+                                }
+                                else
+                                {
+                                    conditionChunkIsValid = (c != null);
+                                }
                                 break;
                             case ChapterConditionType.RUN_ITEM:
                                 conditionChunkIsValid = (RunManager.instance.GetLevelForItem(condition.itemName) > 0);

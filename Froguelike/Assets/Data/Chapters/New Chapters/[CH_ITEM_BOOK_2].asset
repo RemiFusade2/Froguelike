@@ -34,6 +34,7 @@ MonoBehaviour:
     - conditionType: 2
       not: 0
       chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 2
       maxChapterCount: 4
       environmentType: 0
@@ -44,9 +45,13 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 10
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 1
       not: 0
       chapterData: {fileID: 11400000, guid: 05bf8c3df6529af4e94970dec4840ee1, type: 2}
+      chapterDataMustBeLatestChapterPlayed: 1
       minChapterCount: 3
       maxChapterCount: 3
       environmentType: 0
@@ -57,6 +62,9 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 10
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
   nextChapterConditionCount:
     countType: 0
     goal: 0
@@ -76,6 +84,7 @@ MonoBehaviour:
     collectibleName: Mr. Jumpylegs
     collectibleDescription: He seems a bit lost
     collectibleType: 3
+    forceAcceptType: 0
     collectibleStatItemData: {fileID: 0}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0

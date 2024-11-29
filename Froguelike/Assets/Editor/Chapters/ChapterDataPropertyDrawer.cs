@@ -42,6 +42,12 @@ public class ChapterConditionDrawer : PropertyDrawer
             Rect chapterDataRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
             EditorGUI.LabelField(chapterLabelRect, new GUIContent("Chapter:"));
             EditorGUI.PropertyField(chapterDataRect, property.FindPropertyRelative("chapterData"), GUIContent.none);
+            position.y += EditorGUIUtility.singleLineHeight;
+            labelWidth = 180;
+            Rect chapterAsLatestLabelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+            Rect chapterAsLatestRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(chapterAsLatestLabelRect, new GUIContent("Must be latest chapter played:"));
+            EditorGUI.PropertyField(chapterAsLatestRect, property.FindPropertyRelative("chapterDataMustBeLatestChapterPlayed"), GUIContent.none);
         }
         else if (conditionType.enumValueFlag == (int)ChapterConditionType.CHAPTER_COUNT)
         {
@@ -170,6 +176,10 @@ public class ChapterConditionDrawer : PropertyDrawer
             numberOfLines = 1;
         }
         else if (conditionType.enumValueFlag == (int)ChapterConditionType.DISTANCE_FROM_SPAWN_IN_DIRECTION)
+        {
+            numberOfLines = 3;
+        }
+        else if (conditionType.enumValueFlag == (int)ChapterConditionType.PLAYED_CHAPTER)
         {
             numberOfLines = 3;
         }
