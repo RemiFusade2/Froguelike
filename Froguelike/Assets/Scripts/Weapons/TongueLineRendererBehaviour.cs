@@ -212,8 +212,14 @@ public class TongueLineRendererBehaviour : MonoBehaviour
             targetMovementVector = lastTargetMoveVector;
         }
 
-        tongueLineRenderer.positionCount = Mathf.RoundToInt(tonguePositionsList.Count * t);
-        tongueOutlineLineRenderer.positionCount = Mathf.RoundToInt(tonguePositionsList.Count * t);
+        int positionCount = Mathf.RoundToInt(Mathf.Clamp(tonguePositionsList.Count * t, 2, float.MaxValue));
+        if (t==0)
+        {
+            positionCount = 0;
+        }
+
+        tongueLineRenderer.positionCount = positionCount;
+        tongueOutlineLineRenderer.positionCount = positionCount;
 
         Gradient gradient = new Gradient();
         List<GradientColorKey> colorKeys = new List<GradientColorKey>();
