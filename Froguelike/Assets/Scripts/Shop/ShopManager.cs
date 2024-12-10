@@ -343,6 +343,7 @@ public class ShopManager : MonoBehaviour
     {
         // Update Refund Button availability
         refundButton.interactable = (shopData.currencySpentInShop > 0);
+        refundButton.GetComponent<CanvasGroup>().blocksRaycasts = shopData.currencySpentInShop > 0;
 
         // Update available currency
         availableCurrencyText.text = Tools.FormatCurrency(GameManager.instance.gameData.availableCurrency, DataManager.instance.currencySymbol);
