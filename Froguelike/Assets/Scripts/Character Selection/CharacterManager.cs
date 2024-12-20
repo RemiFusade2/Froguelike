@@ -199,8 +199,8 @@ public class CharacterManager : MonoBehaviour
         List<Button> characterPanels = new List<Button>(); // For setting UI navigation a little later.
         string characterLog = "";
         PlayableCharacter defaultCharacter = null;
-        List<PlayableCharacter> orderedList = charactersData.charactersList.OrderBy(x => !x.unlocked).ToList();
-        for (int i = 0; i < charactersData.charactersList.Count; i++)
+        List<PlayableCharacter> orderedList = charactersData.charactersList.Where(x => (x.characterData.partOfDemo || !BuildManager.instance.demoBuild)).OrderBy(x => !x.unlocked).ToList();
+        for (int i = 0; i < orderedList.Count; i++)
         {
             PlayableCharacter characterInfo = orderedList[i];
             if (showLockedCharacters || IsCharacterUnlocked(characterInfo.characterID))
