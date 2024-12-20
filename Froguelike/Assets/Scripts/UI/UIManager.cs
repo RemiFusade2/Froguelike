@@ -348,6 +348,11 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public bool IsChapterStartScreenVisible()
+    {
+        return chapterStartScreen.activeSelf;
+    }
+
     public void ShowScoreScreen()
     {
         HideAllScreens();

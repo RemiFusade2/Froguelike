@@ -25,6 +25,9 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
     public Sprite characterAvailableFrameSprite;
     public Sprite characterSelectedFrameSprite;
     [Space]
+    public Sprite lockedCharacterSprite;
+    public Sprite lockedCharacterStartTongueSprite;    
+    [Space]
     public Color charactersDefaultTextColor;
     public Color charactersHintTextColor;
     [Space]
@@ -74,7 +77,7 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
         if (character != null && character.characterData != null && characterButton != null && characterButton.isActiveAndEnabled)
         {
             characterButton.interactable = character.unlocked;
-            characterIconImage.enabled = character.unlocked;
+            characterIconImage.enabled = true; // character.unlocked;
             tongueIconImage.enabled = character.unlocked;
             if (character.unlocked)
             {
@@ -88,22 +91,33 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
                 characterDescriptionText.color = charactersDefaultTextColor;
                 characterDescriptionText.text = character.characterData.characterDescription.Replace("\\n", "\n");
                 characterIconImage.sprite = character.characterData.characterSprite;
-                characterIconImage.SetNativeSize();
+                //characterIconImage.SetNativeSize();
                 tongueIconImage.sprite = character.characterData.startingItems[0].icon;
             }
             else
             {
-                // character is locked, so display hint to unlock it
+                // character is locked, display hint on how to unlock it (from achievement)
                 characterFrameImage.sprite = characterLockedFrameSprite;
                 characterBackgroundImage.color = characterLockedBackgroundColor;
                 characterBackgroundAnimationImage.color = characterLockedBackgroundAnimationColor;
                 animationImage.color = characterLockedFrameAnimationColor; // Set the color for the animation.
                 characterNameText.color = charactersHintTextColor;
-                characterNameText.text = "???";
+                characterNameText.text = character.characterData.characterName;
                 characterDescriptionText.color = charactersHintTextColor;
+                characterIconImage.sprite = lockedCharacterSprite;
+                //characterIconImage.SetNativeSize();
+                tongueIconImage.sprite = character.characterData.startingItems[0].icon;
                 if (character.characterData.unlockHint != null)
                 {
-                    characterDescriptionText.text = $"UNLOCK: {character.characterData.unlockHint.Replace("\\n", "\n")}";
+                    Achievement ach = AchievementManager.instance.GetAchievementThatUnlocksCharacter(character.characterData.characterID);
+                    if (ach != null)
+                    {
+                        characterDescriptionText.text = $"How to unlock:\n{ach.GetAchievementDescription().Replace("\\n", "\n")}";
+                    }
+                    else
+                    {
+                        characterDescriptionText.text = "There's a secret thing to do to unlock that frog.";
+                    }
                 }
             }
         }

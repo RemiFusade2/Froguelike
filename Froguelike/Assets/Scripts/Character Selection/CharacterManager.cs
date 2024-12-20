@@ -94,6 +94,8 @@ public class CharacterManager : MonoBehaviour
 
     [Header("Settings")]
     public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
+    [Space]
+    public bool showLockedCharacters;
 
     [Header("Characters scriptable objects data")]
     public List<CharacterData> charactersScriptableObjectsList;
@@ -197,10 +199,11 @@ public class CharacterManager : MonoBehaviour
         List<Button> characterPanels = new List<Button>(); // For setting UI navigation a little later.
         string characterLog = "";
         PlayableCharacter defaultCharacter = null;
+        List<PlayableCharacter> orderedList = charactersData.charactersList.OrderBy(x => !x.unlocked).ToList();
         for (int i = 0; i < charactersData.charactersList.Count; i++)
         {
-            PlayableCharacter characterInfo = charactersData.charactersList[i];
-            if (IsCharacterUnlocked(characterInfo.characterID))
+            PlayableCharacter characterInfo = orderedList[i];
+            if (showLockedCharacters || IsCharacterUnlocked(characterInfo.characterID))
             {
                 GameObject newCharacterPanel = Instantiate(characterPanelPrefab, characterListGridLayoutGroup);
                 newCharacterPanel.GetComponent<CharacterSelectionButton>().Initialize(characterInfo);

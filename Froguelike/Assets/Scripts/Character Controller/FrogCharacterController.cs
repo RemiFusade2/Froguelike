@@ -189,8 +189,12 @@ public class FrogCharacterController : MonoBehaviour
             // Get Pause input
             if (GetPauseInput())
             {
-                GameManager.instance.TogglePause();
-                ignoreUICancelInput = true;
+                // If black screen between chapters is visible, we prevent pausing the game
+                if (!UIManager.instance.IsChapterStartScreenVisible())
+                {
+                    GameManager.instance.TogglePause();
+                    ignoreUICancelInput = true;
+                }
             }
 
             // Attempt to attack with all active tongues

@@ -16,6 +16,7 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
     [Space]
     public Transform levelPanelParent;
     public GameObject levelPrefab;
+    public GameObject levelLockedPrefab;
     public Sprite levelBoughtSprite;
     public Sprite levelUnavailableSprite;
     [Space]
@@ -62,6 +63,8 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
             Destroy(levelChild.gameObject);
         }
 
+        int futureRestocksCount = AchievementManager.instance.GetLockedRestocksForItem(item.data);
+
         for (int i = 0; i < item.GetMaxLevel(); i++)
         {
             bool levelIsBought = i < item.currentLevel;
@@ -69,6 +72,14 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
             GameObject levelBox = Instantiate(levelPrefab, levelPanelParent);
             levelBox.transform.GetChild(1).GetComponent<Image>().sprite = levelIsBought ? levelBoughtSprite : null;
             levelBox.transform.GetChild(1).GetComponent<Image>().enabled = levelIsBought;
+        }
+
+        for (int i = 0; i < futureRestocksCount; i++)
+        {
+            // Locked restocks
+            GameObject levelBox = Instantiate(levelLockedPrefab, levelPanelParent);
+            levelBox.transform.GetChild(1).GetComponent<Image>().sprite = null;
+            levelBox.transform.GetChild(1).GetComponent<Image>().enabled = false;
         }
 
         if (item.currentLevel < item.data.costForEachLevel.Count)
