@@ -393,9 +393,6 @@ public class CharacterManager : MonoBehaviour
 
         // Update stats
         UpdateStatsList();
-
-        // Display the Start button if possible
-        startButton.interactable = (currentSelectedCharacter != null);
     }
 
     private void UpdateStatsList()
@@ -407,7 +404,7 @@ public class CharacterManager : MonoBehaviour
         List<StatValue> statBonusesFromShop = ShopManager.instance.statsBonuses;
         List<StatValue> currentCharacterStatList = currentSelectedCharacter.GetCharacterStartingStats().statsList;
         List<StatValue> totalStatList = StatsWrapper.JoinLists(currentCharacterStatList, statBonusesFromShop).statsList;
-
+ 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
             string log = "Character selection - Select " + currentSelectedCharacter.characterID + "\n";
@@ -421,10 +418,12 @@ public class CharacterManager : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
+
         int lineCount = 0;
         for (int i = 0; i < statValues.Length; i++)
         {
             CharacterStat stat = (CharacterStat)i;
+
             if (stat != CharacterStat.ATK_SPECIAL_DURATION_BOOST && stat != CharacterStat.ATK_SPECIAL_STRENGTH_BOOST && stat != CharacterStat.ATK_DURATION_BOOST) // we don't show these stats anymore
             {
                 GameObject statLineGo = Instantiate(statLinePrefab, statsListGridLayoutGroup);
@@ -433,32 +432,53 @@ public class CharacterManager : MonoBehaviour
                 // Show the icon.
                 statLineGo.transform.Find("Icon").GetComponent<Image>().sprite = DataManager.instance.GetStatSprite(stat);
 
+                StatValue statValue = null;
                 float totalValue = 0;
-                if (stat != CharacterStat.WALK_SPEED_BOOST && stat != CharacterStat.SWIM_SPEED_BOOST && stat != CharacterStat.MAGNET_RANGE_BOOST)
+                float frogValue = 0;
+                float shopValue = 0;
+
+                if (currentSelectedCharacter.unlocked)
                 {
-                    totalValue = DataManager.instance.GetDefaultValueForStat(stat); // we show these stats with percentage instead of value
+                    statValue = totalStatList.FirstOrDefault(x => x.stat == stat);
+
+                    if (stat != CharacterStat.WALK_SPEED_BOOST && stat != CharacterStat.SWIM_SPEED_BOOST && stat != CharacterStat.MAGNET_RANGE_BOOST)
+                    {
+                        totalValue = DataManager.instance.GetDefaultValueForStat(stat); // we show these stats with percentage instead of value
+                    }
+
+                    if (statValue != null)
+                    {
+                        totalValue += (float)statValue.value;
+                    }
                 }
-                StatValue statValue = totalStatList.FirstOrDefault(x => x.stat == stat);
-                if (statValue != null)
+                else
                 {
-                    totalValue += (float)statValue.value;
+                    statValue = statBonusesFromShop.FirstOrDefault(x => x.stat == stat);
+
+                    if (stat != CharacterStat.WALK_SPEED_BOOST && stat != CharacterStat.SWIM_SPEED_BOOST && stat != CharacterStat.MAGNET_RANGE_BOOST)
+                    {
+                        totalValue = DataManager.instance.GetDefaultValueForStat(stat); // we show these stats with percentage instead of value
+                    }
+
+                    if (statValue != null)
+                    {
+                        totalValue += (float)statValue.value;
+                    }
                 }
 
-                float frogValue = 0;
                 statValue = currentCharacterStatList.FirstOrDefault(x => x.stat == stat);
                 if (statValue != null)
                 {
                     frogValue += (float)statValue.value;
                 }
 
-                float shopValue = 0;
                 statValue = statBonusesFromShop.FirstOrDefault(x => x.stat == stat);
                 if (statValue != null)
                 {
                     shopValue += (float)statValue.value;
                 }
 
-                statLineScript.Initialize(stat, totalValue, frogValue, shopValue);
+                statLineScript.Initialize(stat, totalValue, frogValue, shopValue, currentSelectedCharacter.unlocked);
 
                 lineCount++;
             }
@@ -472,6 +492,10 @@ public class CharacterManager : MonoBehaviour
 
         // Hide shop if it isn't unlocked yet.
         hideShopStats.SetActive(!ShopManager.instance.IsShopUnlocked());
+
+        // Make start button not interactable if a locked character is picked.
+        startButton.interactable = currentSelectedCharacter.unlocked;
+        startButton.GetComponent<CanvasGroup>().blocksRaycasts = currentSelectedCharacter.unlocked;
     }
 
 

@@ -76,7 +76,7 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
     {
         if (character != null && character.characterData != null && characterButton != null && characterButton.isActiveAndEnabled)
         {
-            characterButton.interactable = character.unlocked;
+            // characterButton.interactable = character.unlocked;
             characterIconImage.enabled = true; // character.unlocked;
             tongueIconImage.enabled = character.unlocked;
             if (character.unlocked)
@@ -85,7 +85,8 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
                 characterFrameImage.sprite = isSelected ? characterSelectedFrameSprite : characterAvailableFrameSprite; // use the corresponding sprite if the character is selected
                 characterBackgroundImage.color = isSelected ? characterSelectedBackgroundColor : characterAvailableBackgroundColor;
                 characterBackgroundAnimationImage.color = isSelected ? characterSelectedBackgroundAnimationColor : characterAvailableBackgroundAnimationColor;
-                animationImage.color = isSelected ? characterSelectedFrameAnimationColor : characterAvailableFrameAnimationColor; // Set the color for the animation. 
+                animationImage.color = isSelected ? characterSelectedFrameAnimationColor : characterAvailableFrameAnimationColor; // Set the color for the animation.
+                animationImage.transform.rotation = new Quaternion(0, 0, 0, 0); // Set rotation (locked is rotated 180 around x).
                 characterNameText.color = charactersDefaultTextColor;
                 characterNameText.text = character.characterData.characterName;
                 characterDescriptionText.color = charactersDefaultTextColor;
@@ -101,6 +102,7 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
                 characterBackgroundImage.color = characterLockedBackgroundColor;
                 characterBackgroundAnimationImage.color = characterLockedBackgroundAnimationColor;
                 animationImage.color = characterLockedFrameAnimationColor; // Set the color for the animation.
+                animationImage.transform.rotation = new Quaternion(180, 0, 0, 0); // Set rotation (locked is rotated 180 around x).
                 characterNameText.color = charactersHintTextColor;
                 characterNameText.text = character.characterData.characterName;
                 characterDescriptionText.color = charactersHintTextColor;

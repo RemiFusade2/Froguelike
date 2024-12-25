@@ -30,7 +30,7 @@ public class CharacterStatLine : MonoBehaviour
         return result;
     }
 
-    public void Initialize(CharacterStat stat, float totalValue, float frogValue, float shopValue)
+    public void Initialize(CharacterStat stat, float totalValue, float frogValue, float shopValue, bool frogIsUnlocked)
     {
         if (DataManager.instance.TryGetStatData(stat, out string shortName, out string longName, out string unit, out bool usePercent, out Sprite icon))
         {
@@ -42,7 +42,7 @@ public class CharacterStatLine : MonoBehaviour
             // Values
             string totalValueSign = (totalValue >= 0) ? "+" : "";
 
-            string frogValueStr = GetStringForValue(frogValue, usePercent);
+            string frogValueStr = frogIsUnlocked ? GetStringForValue(frogValue, usePercent) : "?";
             string shopValueStr = GetStringForValue(shopValue, usePercent);
 
             if (usePercent)
