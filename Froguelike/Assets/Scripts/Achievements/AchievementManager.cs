@@ -878,4 +878,25 @@ public class AchievementManager : MonoBehaviour
             }
         }
     }
+
+    public int GetLockedRestocksForItem(ShopItemData shopItemData)
+    {
+        List<Achievement> lockedAchievementsThatRestockThisItem = achievementsData.achievementsList.Where(
+            x => !x.unlocked // only locked achievements
+            && (!BuildManager.instance.demoBuild || x.achievementData.partOfDemo) // if we're playing the Demo then only achievements that are part of Demo
+            && x.achievementData.reward.rewardType == AchievementRewardType.SHOP_ITEM // only achievements that give a shop item
+            && (x.achievementData.reward.shopItem == shopItemData) // only if shop item is the one we want
+            ).ToList();
+
+        return lockedAchievementsThatRestockThisItem.Count;
+    }
+
+    public Achievement GetAchievementThatUnlocksCharacter(string characterID)
+    {
+        Achievement achievementThatUnlocksCharacter = achievementsData.achievementsList.FirstOrDefault(x =>
+            x.achievementData.reward.rewardType == AchievementRewardType.CHARACTER
+            && (x.achievementData.reward.character.characterID == characterID)
+            );
+        return achievementThatUnlocksCharacter;
+    }
 }
