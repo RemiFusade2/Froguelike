@@ -13,6 +13,7 @@ using System;
 /// The information that can change at runtime are:
 /// - characterStartingStats, is the stats of this character, they can increase through playing and are saved in the save file
 /// - unlocked, is the status of the character. Is it possible to play with? This value can change when the character is unlocked through an achievement.
+/// - runStartedWith is the number of times a game was started with this character
 /// - wonWith is the number of times a game was won with this character
 /// </summary>
 [System.Serializable]
@@ -28,6 +29,7 @@ public class PlayableCharacter
     public StatsWrapper characterStatsIncrements;
     public bool unlocked;
     public bool hidden;
+    public int runStartedWith;
     public int wonWith;
 
     public bool storyCompleted;
@@ -641,6 +643,7 @@ public class CharacterManager : MonoBehaviour
             {
                 character.unlocked = characterFromSave.unlocked;
                 character.hidden = characterFromSave.hidden;
+                character.runStartedWith = (characterFromSave.wonWith > characterFromSave.runStartedWith) ? characterFromSave.wonWith : characterFromSave.runStartedWith;
                 character.wonWith = characterFromSave.wonWith;
                 character.characterStatsIncrements = characterFromSave.characterStatsIncrements;
             }
@@ -664,7 +667,7 @@ public class CharacterManager : MonoBehaviour
             charactersData.availableGameModes = GameMode.NONE;
             foreach (CharacterData characterData in charactersScriptableObjectsList)
             {
-                PlayableCharacter newCharacter = new PlayableCharacter() { characterData = characterData, characterID = characterData.characterID, unlocked = characterData.startingUnlockState, hidden = characterData.startingHiddenState, wonWith = 0 };
+                PlayableCharacter newCharacter = new PlayableCharacter() { characterData = characterData, characterID = characterData.characterID, unlocked = characterData.startingUnlockState, hidden = characterData.startingHiddenState, wonWith = 0, runStartedWith = 0 };
                 newCharacter.characterStatsIncrements = new StatsWrapper();
                 charactersData.charactersList.Add(newCharacter);
             }
@@ -806,6 +809,17 @@ public class CharacterManager : MonoBehaviour
             result = true;
         }
         return result;
+    }
+
+    /// <summary>
+    /// Increase the amount of attempts with the given character
+    /// </summary>
+    /// <param name="character"></param>
+    public void StartedARunWithCharacter(PlayableCharacter character)
+    {
+        PlayableCharacter characterInCurrentData = charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals(character.characterID));
+        characterInCurrentData.runStartedWith++;
+        SaveDataManager.instance.isSaveDataDirty = true;
     }
 
     /// <summary>

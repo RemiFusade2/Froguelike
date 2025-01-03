@@ -931,6 +931,11 @@ public class ChapterManager : MonoBehaviour
         {
             charCount.counter++;
         }
+        if (isFirstChapter)
+        {
+            // If it's the first chapter starting, register a new attempt for that character
+            CharacterManager.instance.StartedARunWithCharacter(RunManager.instance.currentPlayedCharacter);
+        }
         SaveDataManager.instance.isSaveDataDirty = true;
 
         // Deal with all weight changes to other chapters

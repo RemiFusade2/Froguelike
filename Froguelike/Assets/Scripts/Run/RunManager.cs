@@ -438,6 +438,7 @@ public class RunManager : MonoBehaviour
 
         // Reset Chapters Weights
         ChapterManager.instance.ResetChaptersWeights();
+        ChapterManager.instance.isFirstChapter = true;
 
         if (startingChapter == null)
         {
