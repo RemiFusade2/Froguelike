@@ -315,6 +315,99 @@ public class AchievementManager : MonoBehaviour
 
     #endregion
 
+    public List<Achievement> TryUnlockAchievementsOutOfARun(bool unlockAchievements)
+    {
+        List<Achievement> unlockedAchievementsList = new List<Achievement>();
+
+        List<Achievement> metaAchievements = new List<Achievement>(); // achievements that depend on other achievements
+
+        foreach (Achievement achievement in achievementsData.achievementsList)
+        {
+            bool isDemoBuildAndAchievementIsNotPartOfDemo = IsAchievementLockedBehindDemo(achievement);
+            bool achievementIsLockedBehindMissingIcon = IsAchievementLockedBehindMissingIcon(achievement);
+            if (!achievement.unlocked && !isDemoBuildAndAchievementIsNotPartOfDemo /*&& !achievementIsLockedBehindMissingIcon*/)
+            {
+                bool conditionsAreMet = true;
+                foreach (AchievementCondition condition in achievement.achievementData.conditionsList)
+                {
+                    switch (condition.conditionType)
+                    {
+                        case AchievementConditionType.SPECIAL:
+                            switch (condition.specialKey)
+                            {
+                                case AchievementConditionSpecialKey.GET_100_FROINS:
+                                    conditionsAreMet &= (GameManager.instance.gameData.availableCurrency >= 100);
+                                    break;
+                                case AchievementConditionSpecialKey.UNLOCK_A_CHARACTER:
+                                    conditionsAreMet &= (CharacterManager.instance.GetUnlockedCharacterCount() > 1);
+                                    break;
+                                case AchievementConditionSpecialKey.COMPLETE_1_ACHIEVEMENT:
+                                    if (!metaAchievements.Contains(achievement))
+                                    {
+                                        metaAchievements.Add(achievement);
+                                    }
+                                    conditionsAreMet &= (achievementsData.achievementsList.Count(x => x.unlocked) >= 1);
+                                    break;
+                                case AchievementConditionSpecialKey.COMPLETE_10_ACHIEVEMENTS:
+                                    if (!metaAchievements.Contains(achievement))
+                                    {
+                                        metaAchievements.Add(achievement);
+                                    }
+                                    conditionsAreMet &= (achievementsData.achievementsList.Count(x => x.unlocked) >= 10);
+                                    break;
+                                case AchievementConditionSpecialKey.DIE_A_BUNCH_OF_TIMES:
+                                    conditionsAreMet &= GameManager.instance.gameData.deathCount >= 10;
+                                    break;
+                                case AchievementConditionSpecialKey.EAT_20000_BUGS:
+                                    conditionsAreMet &= (GameManager.instance.gameData.cumulatedScore >= 20000);
+                                    break;
+                                case AchievementConditionSpecialKey.UNLOCK_10_CHAPTERS:
+                                    if (!metaAchievements.Contains(achievement))
+                                    {
+                                        metaAchievements.Add(achievement);
+                                    }
+                                    conditionsAreMet &= (ChapterManager.instance.GetUnlockedChaptersCount() >= 10);
+                                    break;
+                                case AchievementConditionSpecialKey.UNLOCK_5_CHAPTERS:
+                                    if (!metaAchievements.Contains(achievement))
+                                    {
+                                        metaAchievements.Add(achievement);
+                                    }
+                                    conditionsAreMet &= (ChapterManager.instance.GetUnlockedChaptersCount() >= 5);
+                                    break;
+                                default:
+                                    conditionsAreMet = false;
+                                    break;
+                            }
+                            break;
+                        default:
+                            conditionsAreMet = false;
+                            break;
+                    }
+                    if (!conditionsAreMet)
+                    {
+                        break; // if one achievementCondition was false, there's no need to check the other ones, let's move on to the next achievement instead
+                    }
+                }
+                if (conditionsAreMet)
+                {
+                    // Conditions are met to unlock this Achievement!
+                    unlockedAchievementsList.Add(achievement);
+                    if (unlockAchievements)
+                    {
+                        UnlockAchievement(achievement);
+                    }
+                }
+            }
+        }
+
+        // Special case: there is one last achievement we want to "double check" after all other achievements were computed
+        UnlockMetaAchievements(metaAchievements, unlockedAchievementsList);
+
+        SteamStoreStats();
+
+        return unlockedAchievementsList;
+    }
 
     public List<Achievement> GetUnlockedAchievementsForCurrentRun(bool unlockAchievements, bool forceUnlockEverything)
     {
@@ -452,6 +545,15 @@ public class AchievementManager : MonoBehaviour
         }
 
         // Special case: there is one last achievement we want to "double check" after all other achievements were computed
+        UnlockMetaAchievements(metaAchievements, unlockedAchievementsList);
+
+        SteamStoreStats();
+
+        return unlockedAchievementsList;
+    }
+
+    private void UnlockMetaAchievements(List<Achievement> metaAchievements, List<Achievement> unlockedAchievementsList) 
+    {
         foreach (Achievement achievement in metaAchievements)
         {
             if (!achievement.unlocked)
@@ -484,10 +586,6 @@ public class AchievementManager : MonoBehaviour
                 }
             }
         }
-
-        SteamStoreStats();
-
-        return unlockedAchievementsList;
     }
 
     public void UnlockListOfAchievements(List<Achievement> loadedAchievementsList)

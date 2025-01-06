@@ -1274,8 +1274,8 @@ public class FrogCharacterController : MonoBehaviour
             }
             if (rewiredPlayer.GetButtonDown(cheat_inRun_scorePlus))
             {
-                // +100 score (kills)
-                RunManager.instance.IncreaseKillCount(100);
+                // +1000 score (kills)
+                RunManager.instance.IncreaseKillCount(1000);
             }
             if (rewiredPlayer.GetButtonDown(cheat_inRun_maxHPPlus))
             {

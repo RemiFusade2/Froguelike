@@ -19,6 +19,7 @@ public class UIManager : MonoBehaviour
 
     [Header("Settings")]
     public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
+    public bool shopAndQuestsButtonsAreAlwaysVisible = true;
 
     [Header("Version")]
     public TextMeshProUGUI versionNumberText;
@@ -208,7 +209,34 @@ public class UIManager : MonoBehaviour
         HideAllScreens();
         UpdateTitleScreenCurrencyText(GameManager.instance.gameData.availableCurrency);
 
-        bool shopAndQuestsButtonsAreAlwaysVisible = true;
+        UpdateShopAndQuestButtonsOnTitleScreen();
+
+        // Quick start button
+        quickStartButton.SetActive(GameManager.instance.AreThereQuickStartOptions());
+
+        titleScreen.SetActive(true);
+        SetScreenInteractability(menuButtonsGroup, true);
+
+        // Set a selected button.
+        SetSelectedButton(selectedButtonTitleScreen);
+
+        rememberThisButton.Clear();
+
+        /*titleScreenSaveLocationText.text = Application.persistentDataPath;
+        if (SteamManager.Initialized)
+        {
+            string steamName = SteamFriends.GetPersonaName();
+            titleScreenWelcomeMessageText.text = $"Welcome {steamName}! You are connected to Steam.";
+        }*/
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("UI - Display Title screen");
+        }
+    }
+
+    public void UpdateShopAndQuestButtonsOnTitleScreen()
+    {
         if (shopAndQuestsButtonsAreAlwaysVisible)
         {
             shopButton.SetActive(true);
@@ -234,29 +262,7 @@ public class UIManager : MonoBehaviour
             shopButton.SetActive(ShopManager.instance.IsShopUnlocked());
             achievementsButton.SetActive(AchievementManager.instance.IsAchievementsListUnlocked());
         }
-
-        // Quick start button
-        quickStartButton.SetActive(GameManager.instance.AreThereQuickStartOptions());
-
-        titleScreen.SetActive(true);
-        SetScreenInteractability(menuButtonsGroup, true);
-
-        // Set a selected button.
-        SetSelectedButton(selectedButtonTitleScreen);
-
-        rememberThisButton.Clear();
-
-        /*titleScreenSaveLocationText.text = Application.persistentDataPath;
-        if (SteamManager.Initialized)
-        {
-            string steamName = SteamFriends.GetPersonaName();
-            titleScreenWelcomeMessageText.text = $"Welcome {steamName}! You are connected to Steam.";
-        }*/
-
-        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
-        {
-            Debug.Log("UI - Display Title screen");
-        }
+        UpdateCurrencyDisplay();
     }
 
     public void UpdateCurrencyDisplay()
