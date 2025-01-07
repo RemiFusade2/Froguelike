@@ -132,6 +132,7 @@ public class ChapterManager : MonoBehaviour
     public List<ChapterData> chaptersScriptableObjectsList;
     public ChapterData tutorialChapterScriptableObject;
     public ChapterData toadEndChapterForSpecialStuff;
+    public ChapterData kermitEndChapterForSpecialStuff;
 
     [Header("UI - Chapter Selection screen")]
     public TextMeshProUGUI chapterSelectionTopText;

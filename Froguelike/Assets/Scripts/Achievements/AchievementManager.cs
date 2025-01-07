@@ -523,6 +523,12 @@ public class AchievementManager : MonoBehaviour
                                     Chapter lastChapter = RunManager.instance.currentChapter;
                                     conditionsAreMet &= (lastChapter?.chapterID == ChapterManager.instance.toadEndChapterForSpecialStuff.chapterID);
                                     break;
+                                case AchievementConditionSpecialKey.MOVE_FAR_ENOUGH_IN_KERMITS_END_CHAPTER:
+                                    ChapterData kermitEndChapter = ChapterManager.instance.kermitEndChapterForSpecialStuff;
+                                    float playerDistanceFromSpawn = RunManager.instance.player.transform.position.magnitude;
+                                    float minDistanceNeeded = kermitEndChapter.conditions[0].conditionsList.Find(x => x.conditionType == ChapterConditionType.DISTANCE_FROM_SPAWN).minDistanceFromSpawn;
+                                    conditionsAreMet &= ((completedChapters.Find(x => x.chapterID == kermitEndChapter.chapterID) != null || RunManager.instance.currentChapter.chapterID == kermitEndChapter.chapterID) && playerDistanceFromSpawn >= minDistanceNeeded);
+                                    break;
                             }
                             break;
                     }

@@ -14,7 +14,8 @@ public enum AchievementConditionSpecialKey
     UNLOCK_10_CHAPTERS = 7,
     COMPLETE_1_ACHIEVEMENT = 8,
     UNLOCK_5_CHAPTERS = 9,
-    DIE_IN_TOADS_END_CHAPTER = 10
+    DIE_IN_TOADS_END_CHAPTER = 10,
+    MOVE_FAR_ENOUGH_IN_KERMITS_END_CHAPTER = 11
 }
 
 /// <summary>
