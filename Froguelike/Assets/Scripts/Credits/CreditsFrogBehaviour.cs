@@ -135,7 +135,7 @@ public class CreditsFrogBehaviour : MonoBehaviour
         {
             yield return new WaitForEndOfFrame();
 
-            currentPosition += moveDirection * moveSpeed;
+            currentPosition += moveDirection * moveSpeed * Time.unscaledDeltaTime;
 
             CollectFroinsAtPosition(currentPosition);
 

@@ -209,8 +209,11 @@ public class ScoreManager : MonoBehaviour
         UIManager.instance.ShowScoreScreen();
 
         // Add some froins in the credits screen, for funsies
-        float probabilityOfFroinsInCredits = (totalScore / 100000.0f);
-        CreditsScreenBehaviour.instance.RespawnCreditFroins(probabilityOfFroinsInCredits);
+        if (CreditsScreenBehaviour.instance != null)
+        {
+            float probabilityOfFroinsInCredits = (totalScore / 100000.0f);
+            CreditsScreenBehaviour.instance.RespawnCreditFroins(probabilityOfFroinsInCredits);
+        }
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
