@@ -92,7 +92,7 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
                 characterDescriptionText.color = charactersDefaultTextColor;
                 characterDescriptionText.text = character.characterData.characterDescription.Replace("\\n", "\n");
                 characterIconImage.sprite = character.characterData.characterSprite;
-                //characterIconImage.SetNativeSize();
+                characterIconImage.SetNativeSize();
                 tongueIconImage.sprite = character.characterData.startingItems[0].icon;
             }
             else
@@ -107,7 +107,7 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
                 characterNameText.text = character.characterData.characterName;
                 characterDescriptionText.color = charactersHintTextColor;
                 characterIconImage.sprite = lockedCharacterSprite;
-                //characterIconImage.SetNativeSize();
+                characterIconImage.SetNativeSize();
                 tongueIconImage.sprite = character.characterData.startingItems[0].icon;
                 if (character.characterData.unlockHint != null)
                 {
