@@ -10,46 +10,29 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bad41dd93f187774b8bdbe4c23a9cc6f, type: 3}
-  m_Name: '[CH_ENDING_KERMIT]'
+  m_Name: '[CH_STORY_KERMIT_4]'
   m_EditorClassIdentifier: 
-  chapterID: '[CH_ENDING_KERMIT]'
+  chapterID: '[CH_STORY_KERMIT_4]'
   partOfDemo: 0
-  chapterTitle: The buzz
+  chapterTitle: kermit 4
   chapterLore:
-  - 8888
+  - test
   icons: []
   startingStatBonuses:
     statsList: []
   chapterLengthInSeconds: 300
   freezeDurationMultiplier: 1
   startingUnlockState: 1
-  startingWeight: 1
+  startingWeight: 10000
   canBePlayedMultipleTimesInOneRun: 0
   conditions:
   - conditionsList:
-    - conditionType: 10
-      not: 0
-      chapterData: {fileID: 0}
-      chapterDataMustBeLatestChapterPlayed: 0
-      minChapterCount: 0
-      maxChapterCount: 0
-      environmentType: 0
-      hatType: 0
-      friendType: 0
-      itemName: {fileID: 0}
-      characterData: {fileID: 0}
-      minFriendsCount: 0
-      maxFriendsCount: 0
-      minBountiesEaten: 0
-      minDistanceFromSpawn: 4444
-      maxDistanceFromSpawn: 0
-      direction: 0
     - conditionType: 2
       not: 0
       chapterData: {fileID: 0}
       chapterDataMustBeLatestChapterPlayed: 0
-      minChapterCount: 2
-      maxChapterCount: 5
+      minChapterCount: 4
+      maxChapterCount: 4
       environmentType: 0
       hatType: 0
       friendType: 0
@@ -58,15 +41,15 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 0
-      minDistanceFromSpawn: 1000
+      minDistanceFromSpawn: 0
       maxDistanceFromSpawn: 0
       direction: 0
     - conditionType: 7
       not: 0
       chapterData: {fileID: 0}
       chapterDataMustBeLatestChapterPlayed: 0
-      minChapterCount: 2
-      maxChapterCount: 5
+      minChapterCount: 1
+      maxChapterCount: 1
       environmentType: 0
       hatType: 0
       friendType: 0
@@ -75,12 +58,46 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 0
-      minDistanceFromSpawn: 1000
+      minDistanceFromSpawn: 0
       maxDistanceFromSpawn: 0
+      direction: 0
+    - conditionType: 1
+      not: 0
+      chapterData: {fileID: 11400000, guid: 81063b62ddb604e40bc7ee671d87d0c8, type: 2}
+      chapterDataMustBeLatestChapterPlayed: 0
+      minChapterCount: 1
+      maxChapterCount: 1
+      environmentType: 0
+      hatType: 0
+      friendType: 0
+      itemName: {fileID: 0}
+      characterData: {fileID: 11400000, guid: 5ab0e6d6ba86eaa49b03dd06719d4e52, type: 2}
+      minFriendsCount: 0
+      maxFriendsCount: 0
+      minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
+    - conditionType: 10
+      not: 0
+      chapterData: {fileID: 11400000, guid: 81063b62ddb604e40bc7ee671d87d0c8, type: 2}
+      chapterDataMustBeLatestChapterPlayed: 0
+      minChapterCount: 1
+      maxChapterCount: 1
+      environmentType: 0
+      hatType: 0
+      friendType: 0
+      itemName: {fileID: 0}
+      characterData: {fileID: 11400000, guid: 5ab0e6d6ba86eaa49b03dd06719d4e52, type: 2}
+      minFriendsCount: 0
+      maxFriendsCount: 0
+      minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 10
       direction: 0
   nextChapterConditionCount:
     countType: 3
-    goal: 8888
+    goal: 350
   rocksSpawnFrequency: 0
   pondsSpawnFrequency: 0
   coinsSpawnFrequency: 0

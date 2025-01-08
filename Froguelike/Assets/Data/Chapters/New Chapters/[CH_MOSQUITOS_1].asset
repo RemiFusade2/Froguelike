@@ -33,6 +33,7 @@ MonoBehaviour:
     - conditionType: 2
       not: 0
       chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 1
       maxChapterCount: 3
       environmentType: 0
@@ -43,9 +44,13 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 10
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 1
       not: 1
       chapterData: {fileID: 11400000, guid: d13702d7533b88d45a21a0681318967e, type: 2}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 1
       maxChapterCount: 3
       environmentType: 0
@@ -56,6 +61,9 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 10
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
   nextChapterConditionCount:
     countType: 0
     goal: 0
@@ -75,6 +83,7 @@ MonoBehaviour:
     collectibleName: A Quick Tongue
     collectibleDescription: 
     collectibleType: 1
+    forceAcceptType: 0
     collectibleStatItemData: {fileID: 0}
     collectibleWeaponItemData: {fileID: 11400000, guid: 9cd37b61c1dc1f24b8dda62c82e9e30d, type: 2}
     collectibleHatType: 0

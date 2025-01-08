@@ -32,6 +32,7 @@ MonoBehaviour:
     - conditionType: 0
       not: 0
       chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 2
       maxChapterCount: 2
       environmentType: 0
@@ -42,9 +43,13 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 10
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 2
       not: 0
       chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 1
       maxChapterCount: 1
       environmentType: 0
@@ -55,9 +60,13 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 10
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 7
       not: 0
       chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 1
       maxChapterCount: 1
       environmentType: 0
@@ -68,6 +77,9 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 10
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
   nextChapterConditionCount:
     countType: 0
     goal: 0
@@ -87,6 +99,7 @@ MonoBehaviour:
     collectibleName: Frohanna
     collectibleDescription: She seems friendly
     collectibleType: 3
+    forceAcceptType: 0
     collectibleStatItemData: {fileID: 0}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0

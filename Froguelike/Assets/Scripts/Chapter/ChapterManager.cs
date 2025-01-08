@@ -308,7 +308,7 @@ public class ChapterManager : MonoBehaviour
 
                 bool chapterConditionsAreMet = (currentChapterConditionsChunksList.Count == 0); // particular case if there are no conditions
 
-                float playerDistanceFromSpawn = RunManager.instance.player.transform.position.magnitude;
+                float playerDistanceFromSpawn = RunManager.instance.player.transform.position.magnitude / 10;
                 float playerDotRight = Vector3.Dot(RunManager.instance.player.transform.position, Vector2.right);
                 float playerDotUp = Vector3.Dot(RunManager.instance.player.transform.position, Vector2.up);
                 DirectionNESW playerDirectionFromSpawn = (Mathf.Abs(playerDotRight) > Mathf.Abs(playerDotUp)) ? (playerDotRight > 0 ? DirectionNESW.EAST : DirectionNESW.WEST) : (playerDotUp > 0 ? DirectionNESW.NORTH : DirectionNESW.SOUTH);

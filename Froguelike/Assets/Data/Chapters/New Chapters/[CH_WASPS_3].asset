@@ -32,6 +32,7 @@ MonoBehaviour:
     - conditionType: 2
       not: 0
       chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 3
       maxChapterCount: 4
       environmentType: 0
@@ -42,9 +43,13 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 10
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 1
       not: 0
       chapterData: {fileID: 11400000, guid: 56d529373366da340a168a51ed08a211, type: 2}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 3
       maxChapterCount: 3
       environmentType: 0
@@ -55,6 +60,9 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 10
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
   nextChapterConditionCount:
     countType: 0
     goal: 0
@@ -74,6 +82,7 @@ MonoBehaviour:
     collectibleName: Lengthy
     collectibleDescription: 
     collectibleType: 0
+    forceAcceptType: 0
     collectibleStatItemData: {fileID: 11400000, guid: 994785b8f00f93e4183c975adfcc2b86, type: 2}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0

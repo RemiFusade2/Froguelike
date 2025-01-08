@@ -34,6 +34,7 @@ MonoBehaviour:
     - conditionType: 2
       not: 0
       chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 3
       maxChapterCount: 3
       environmentType: 0
@@ -44,9 +45,13 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 7
       not: 0
       chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 0
       maxChapterCount: 0
       environmentType: 0
@@ -57,9 +62,13 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 1
       not: 0
       chapterData: {fileID: 11400000, guid: 85e9e45fbbc5d7e42921fd0addf10991, type: 2}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 0
       maxChapterCount: 0
       environmentType: 0
@@ -70,9 +79,13 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 5
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 9
       not: 0
       chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 0
       maxChapterCount: 0
       environmentType: 0
@@ -83,6 +96,9 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 4
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
   nextChapterConditionCount:
     countType: 1
     goal: 5
@@ -102,6 +118,7 @@ MonoBehaviour:
     collectibleName: Mighty
     collectibleDescription: 
     collectibleType: 0
+    forceAcceptType: 0
     collectibleStatItemData: {fileID: 11400000, guid: 07f49185c536d1744894b0ebdc453a06, type: 2}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0

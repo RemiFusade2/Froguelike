@@ -33,6 +33,7 @@ MonoBehaviour:
     - conditionType: 2
       not: 0
       chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 2
       maxChapterCount: 4
       environmentType: 0
@@ -43,9 +44,13 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 10
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 1
       not: 0
       chapterData: {fileID: 11400000, guid: 4646ffd7b01551a4fa91a2455be9dbea, type: 2}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 2
       maxChapterCount: 4
       environmentType: 0
@@ -56,6 +61,9 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 10
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
   nextChapterConditionCount:
     countType: 0
     goal: 0
@@ -75,6 +83,7 @@ MonoBehaviour:
     collectibleName: Rapid
     collectibleDescription: 
     collectibleType: 0
+    forceAcceptType: 0
     collectibleStatItemData: {fileID: 11400000, guid: 92cbe87706b8b934d9243f9305bbba56, type: 2}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
