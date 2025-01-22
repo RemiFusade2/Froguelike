@@ -14,9 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chapterID: '[CH_STORY_KERMIT_5]'
   partOfDemo: 0
-  chapterTitle: kermit 5
+  chapterTitle: At last
   chapterLore:
-  - test
+  - '[FROGNAME] noticed that there is less and less bugs, they feel like they are
+    close to the calm they have been looking for.\n\n"I have gotten so far, and so
+    quickly! I can feel I''m getting close, just a little bit further" [FROGNAME]
+    said and noticed they can hear their ribbits without shouting.\n\nAnd then...
+    silence, at last.'
   icons: []
   startingStatBonuses:
     statsList: []
@@ -98,30 +102,454 @@ MonoBehaviour:
   nextChapterConditionCount:
     countType: 0
     goal: 0
-  rocksSpawnFrequency: 0
-  pondsSpawnFrequency: 0
+  rocksSpawnFrequency: 2
+  pondsSpawnFrequency: 3
   coinsSpawnFrequency: 0
   healthSpawnFrequency: 0
-  levelUpSpawnFrequency: 0
-  otherCollectibleSpawnFrequenciesList: []
-  specialCollectiblesOnTheMap: []
+  levelUpSpawnFrequency: 3
+  otherCollectibleSpawnFrequenciesList:
+  - Type: 7
+    Frequency: 1
+  specialCollectiblesOnTheMap:
+  - tileCoordinates: {x: 1, y: -1}
+    tilePrefab: {fileID: 2605690503437856400, guid: 0e64426fb7f518e4cb73888eba1c6545, type: 3}
+    collectibleName: A pair of Goggles
+    collectibleDescription: 
+    collectibleType: 0
+    forceAcceptType: 0
+    collectibleStatItemData: {fileID: 11400000, guid: 08b6a1c755ec26f4db68694fb45e5908, type: 2}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 0
+    foundCollectibleTitle: You find
+    acceptCollectibleStr: Take
+    refuseCollectibleStr: Leave
+    compassLevel: 1
   environmentChange: 0
   characterStyleChange: 0
   wavesList:
-  - duration: 300
+  - duration: 60
     enemies:
-    - enemyType: 0
+    - enemyType: 2
       tierFormula: 1
       movePattern:
-        movePatternType: 2
-        speedFactor: 1
+        movePatternType: 0
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 2
+        spawnPatternShape: 0
+        spawnAmount: 20
+        multipleSpawnDelay: 0
+      spawnCooldown: 10
+    - enemyType: 3
+      tierFormula: 1
+      movePattern:
+        movePatternType: 3
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 2
+        spawnPatternShape: 0
+        spawnAmount: 5
+        multipleSpawnDelay: 0
+      spawnCooldown: 10
+    - enemyType: 1
+      tierFormula: 1
+      movePattern:
+        movePatternType: 3
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 2
+        spawnPatternShape: 0
+        spawnAmount: 2
+        multipleSpawnDelay: 2
+      spawnCooldown: 10
+    - enemyType: 1
+      tierFormula: 2
+      movePattern:
+        movePatternType: 1
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 2
+        spawnPatternShape: 0
+        spawnAmount: 2
+        multipleSpawnDelay: 2
+      spawnCooldown: 5
+    - enemyType: 1
+      tierFormula: 3
+      movePattern:
+        movePatternType: 1
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 2
+        spawnPatternShape: 0
+        spawnAmount: 5
+        multipleSpawnDelay: 1
+      spawnCooldown: 15
+    - enemyType: 1
+      tierFormula: 4
+      movePattern:
+        movePatternType: 3
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 1
+        spawnPatternShape: 2
+        spawnAmount: 2
+        multipleSpawnDelay: 0
+      spawnCooldown: 10
+    - enemyType: 1
+      tierFormula: 5
+      movePattern:
+        movePatternType: 1
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 10
+        multipleSpawnDelay: 1
+      spawnCooldown: 20
+    previewChapters: 05000000
+  - duration: 60
+    enemies:
+    - enemyType: 2
+      tierFormula: 1
+      movePattern:
+        movePatternType: 0
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 2
+        spawnPatternShape: 0
+        spawnAmount: 20
+        multipleSpawnDelay: 0
+      spawnCooldown: 10
+    - enemyType: 1
+      tierFormula: 1
+      movePattern:
+        movePatternType: 3
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 1
+        spawnPatternShape: 2
+        spawnAmount: 15
+        multipleSpawnDelay: 0
+      spawnCooldown: 10
+    - enemyType: 3
+      tierFormula: 1
+      movePattern:
+        movePatternType: 3
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 5
+        multipleSpawnDelay: 0
+      spawnCooldown: 10
+    - enemyType: 3
+      tierFormula: 2
+      movePattern:
+        movePatternType: 3
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 1
+        spawnPatternShape: 1
+        spawnAmount: 5
+        multipleSpawnDelay: 1
+      spawnCooldown: 5
+    - enemyType: 3
+      tierFormula: 3
+      movePattern:
+        movePatternType: 3
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 5
+        multipleSpawnDelay: 1
+      spawnCooldown: 15
+    - enemyType: 3
+      tierFormula: 4
+      movePattern:
+        movePatternType: 3
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 5
+        multipleSpawnDelay: 3
+      spawnCooldown: 20
+    - enemyType: 3
+      tierFormula: 5
+      movePattern:
+        movePatternType: 3
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 2
+        spawnPatternShape: 0
+        spawnAmount: 4
+        multipleSpawnDelay: 0.5
+      spawnCooldown: 15
+    previewChapters: 05000000
+  - duration: 60
+    enemies:
+    - enemyType: 2
+      tierFormula: 1
+      movePattern:
+        movePatternType: 0
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 2
+        spawnPatternShape: 0
+        spawnAmount: 15
+        multipleSpawnDelay: 0
+      spawnCooldown: 5
+    - enemyType: 2
+      tierFormula: 5
+      movePattern:
+        movePatternType: 0
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 20
+        multipleSpawnDelay: 0.5
+      spawnCooldown: 10
+    - enemyType: 3
+      tierFormula: 1
+      movePattern:
+        movePatternType: 3
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 5
+        multipleSpawnDelay: 2
+      spawnCooldown: 10
+    - enemyType: 1
+      tierFormula: 1
+      movePattern:
+        movePatternType: 3
+        speedFactor: 0.5
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 5
+        multipleSpawnDelay: 2
+      spawnCooldown: 10
+    - enemyType: 1
+      tierFormula: 3
+      movePattern:
+        movePatternType: 3
+        speedFactor: 0.5
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 5
+        multipleSpawnDelay: 0
+      spawnCooldown: 15
+    - enemyType: 1
+      tierFormula: 5
+      movePattern:
+        movePatternType: 3
+        speedFactor: 0.5
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 1
+        spawnPatternShape: 1
+        spawnAmount: 10
+        multipleSpawnDelay: 0
+      spawnCooldown: 20
+    previewChapters: 05000000
+  - duration: 60
+    enemies:
+    - enemyType: 2
+      tierFormula: 1
+      movePattern:
+        movePatternType: 0
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 2
+        spawnPatternShape: 0
+        spawnAmount: 5
+        multipleSpawnDelay: 0
+      spawnCooldown: 2
+    - enemyType: 2
+      tierFormula: 2
+      movePattern:
+        movePatternType: 0
+        speedFactor: 0.8
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 0
         spawnPatternShape: 0
         spawnAmount: 1
         multipleSpawnDelay: 0
-      spawnCooldown: 300
-    previewChapters: 0100000002000000030000000400000005000000
+      spawnCooldown: 5
+    - enemyType: 2
+      tierFormula: 3
+      movePattern:
+        movePatternType: 0
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 2
+        multipleSpawnDelay: 0
+      spawnCooldown: 5
+    - enemyType: 2
+      tierFormula: 4
+      movePattern:
+        movePatternType: 0
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 2
+        spawnPatternShape: 0
+        spawnAmount: 3
+        multipleSpawnDelay: 0
+      spawnCooldown: 10
+    - enemyType: 2
+      tierFormula: 5
+      movePattern:
+        movePatternType: 0
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 2
+        spawnPatternShape: 0
+        spawnAmount: 3
+        multipleSpawnDelay: 2
+      spawnCooldown: 15
+    - enemyType: 3
+      tierFormula: 2
+      movePattern:
+        movePatternType: 3
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 2
+        spawnPatternShape: 0
+        spawnAmount: 2
+        multipleSpawnDelay: 0
+      spawnCooldown: 5
+    - enemyType: 1
+      tierFormula: 5
+      movePattern:
+        movePatternType: 1
+        speedFactor: 0.5
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 5
+        multipleSpawnDelay: 2
+      spawnCooldown: 10
+    previewChapters: 05000000
+  - duration: 60
+    enemies:
+    - enemyType: 2
+      tierFormula: 1
+      movePattern:
+        movePatternType: 0
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 10
+        multipleSpawnDelay: 0
+      spawnCooldown: 5
+    - enemyType: 3
+      tierFormula: 1
+      movePattern:
+        movePatternType: 3
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 2
+        spawnPatternShape: 0
+        spawnAmount: 5
+        multipleSpawnDelay: 0
+      spawnCooldown: 10
+    - enemyType: 3
+      tierFormula: 2
+      movePattern:
+        movePatternType: 3
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 3
+        multipleSpawnDelay: 0
+      spawnCooldown: 15
+    - enemyType: 3
+      tierFormula: 3
+      movePattern:
+        movePatternType: 3
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 10
+        multipleSpawnDelay: 0
+      spawnCooldown: 20
+    - enemyType: 1
+      tierFormula: 1
+      movePattern:
+        movePatternType: 1
+        speedFactor: 0.5
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 5
+        multipleSpawnDelay: 2
+      spawnCooldown: 10
+    - enemyType: 1
+      tierFormula: 3
+      movePattern:
+        movePatternType: 3
+        speedFactor: 0.5
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 2
+        multipleSpawnDelay: 2
+      spawnCooldown: 5
+    - enemyType: 1
+      tierFormula: 5
+      movePattern:
+        movePatternType: 3
+        speedFactor: 0.5
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 10
+    previewChapters: 05000000
   bountyBugs: []
   weightChanges: []

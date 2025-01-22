@@ -559,7 +559,7 @@ public class AchievementManager : MonoBehaviour
         return unlockedAchievementsList;
     }
 
-    private void UnlockMetaAchievements(List<Achievement> metaAchievements, List<Achievement> unlockedAchievementsList) 
+    private void UnlockMetaAchievements(List<Achievement> metaAchievements, List<Achievement> unlockedAchievementsList)
     {
         foreach (Achievement achievement in metaAchievements)
         {
@@ -899,6 +899,12 @@ public class AchievementManager : MonoBehaviour
                                     achievementFound = true; // There's an item in this chapter that is a achievementCondition to unlock this achievement
                                     break;
                                 }
+                            }
+                            break;
+                        case AchievementConditionType.SPECIAL:
+                            if (condition.specialKey == AchievementConditionSpecialKey.MOVE_FAR_ENOUGH_IN_KERMITS_END_CHAPTER)
+                            {
+                                achievementFound = true; // There is a goal in this chapter that must be reached to unlock this achievement.
                             }
                             break;
                     }

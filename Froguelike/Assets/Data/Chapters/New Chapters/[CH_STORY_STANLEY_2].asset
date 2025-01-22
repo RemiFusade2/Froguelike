@@ -33,6 +33,7 @@ MonoBehaviour:
     - conditionType: 2
       not: 0
       chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 2
       maxChapterCount: 2
       environmentType: 0
@@ -43,9 +44,13 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 10
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 7
       not: 0
       chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 1
       maxChapterCount: 1
       environmentType: 0
@@ -56,9 +61,13 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 10
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 1
       not: 0
       chapterData: {fileID: 11400000, guid: bfa2ad6af52d03b4a8489be5d9dad3df, type: 2}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 1
       maxChapterCount: 1
       environmentType: 0
@@ -69,6 +78,9 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 10
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
   nextChapterConditionCount:
     countType: 1
     goal: 1
@@ -88,6 +100,7 @@ MonoBehaviour:
     collectibleName: Todd
     collectibleDescription: He seems friendly
     collectibleType: 3
+    forceAcceptType: 0
     collectibleStatItemData: {fileID: 0}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
@@ -101,6 +114,7 @@ MonoBehaviour:
     collectibleName: Bub
     collectibleDescription: They seem friendly
     collectibleType: 3
+    forceAcceptType: 0
     collectibleStatItemData: {fileID: 0}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
