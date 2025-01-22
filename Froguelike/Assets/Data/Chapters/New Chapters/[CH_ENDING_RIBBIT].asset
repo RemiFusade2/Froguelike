@@ -26,13 +26,14 @@ MonoBehaviour:
   chapterLengthInSeconds: 300
   freezeDurationMultiplier: 1
   startingUnlockState: 1
-  startingWeight: 1
+  startingWeight: 10000
   canBePlayedMultipleTimesInOneRun: 0
   conditions:
   - conditionsList:
     - conditionType: 2
       not: 0
       chapterData: {fileID: 11400000, guid: 432504ee85d215a4b8978fc409b66188, type: 2}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 5
       maxChapterCount: 5
       environmentType: 0
@@ -43,9 +44,13 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 10
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 7
       not: 0
       chapterData: {fileID: 11400000, guid: 43f09859ce95d714c8b9c003903e217e, type: 2}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 5
       maxChapterCount: 5
       environmentType: 0
@@ -56,9 +61,13 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 10
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 8
       not: 0
       chapterData: {fileID: 11400000, guid: 43f09859ce95d714c8b9c003903e217e, type: 2}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 5
       maxChapterCount: 5
       environmentType: 0
@@ -69,9 +78,13 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 1
       not: 1
       chapterData: {fileID: 11400000, guid: b8f87ed24d6ad564e82ef384ec2da04d, type: 2}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 5
       maxChapterCount: 5
       environmentType: 0
@@ -82,8 +95,12 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 10
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
   nextChapterConditionCount:
     countType: 0
+    maxDistance: 0
     goal: 0
   rocksSpawnFrequency: 2
   pondsSpawnFrequency: 2
@@ -105,6 +122,7 @@ MonoBehaviour:
     collectibleName: Some Moss
     collectibleDescription: 
     collectibleType: 0
+    forceAcceptType: 0
     collectibleStatItemData: {fileID: 11400000, guid: 4f94eda1e628c8544bdbe476f6718bac, type: 2}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
@@ -118,6 +136,7 @@ MonoBehaviour:
     collectibleName: Some Moss
     collectibleDescription: 
     collectibleType: 0
+    forceAcceptType: 0
     collectibleStatItemData: {fileID: 11400000, guid: 4f94eda1e628c8544bdbe476f6718bac, type: 2}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
@@ -131,6 +150,7 @@ MonoBehaviour:
     collectibleName: A Poison Tongue
     collectibleDescription: 
     collectibleType: 1
+    forceAcceptType: 0
     collectibleStatItemData: {fileID: 11400000, guid: 4f94eda1e628c8544bdbe476f6718bac, type: 2}
     collectibleWeaponItemData: {fileID: 11400000, guid: 190382d4fe184964894da4982575bbf2, type: 2}
     collectibleHatType: 0
