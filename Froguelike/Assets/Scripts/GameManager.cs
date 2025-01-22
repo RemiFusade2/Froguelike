@@ -316,6 +316,9 @@ public class GameManager : MonoBehaviour
                 CharacterManager.instance.SetCharacterStoryCompleted("TOAD");
                 //CharacterManager.instance.IncrementCharacterStats("TOAD", new List<StatValue>() { new StatValue(CharacterStat.ARMOR, 2) }); // TODO decide on amount.
                 break;
+            case RewardFeatureType.KERMIT_BUFF:
+                CharacterManager.instance.SetCharacterStoryCompleted("SWIMMING_FROG");
+                break;
         }
     }
 

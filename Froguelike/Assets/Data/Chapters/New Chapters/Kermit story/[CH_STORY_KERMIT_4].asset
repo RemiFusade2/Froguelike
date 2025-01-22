@@ -104,12 +104,12 @@ MonoBehaviour:
     goal: 300
   rocksSpawnFrequency: 0
   pondsSpawnFrequency: 3
-  coinsSpawnFrequency: 0
+  coinsSpawnFrequency: 1
   healthSpawnFrequency: 1
   levelUpSpawnFrequency: 2
   otherCollectibleSpawnFrequenciesList:
-  - Type: 9
-    Frequency: 3
+  - Type: 7
+    Frequency: 1
   - Type: 4
     Frequency: 2
   specialCollectiblesOnTheMap:
@@ -189,7 +189,7 @@ MonoBehaviour:
       spawnPattern:
         spawnPatternType: 0
         spawnPatternShape: 0
-        spawnAmount: 5
+        spawnAmount: 3
         multipleSpawnDelay: 0.5
       spawnCooldown: 5
     - enemyType: 4
@@ -201,19 +201,7 @@ MonoBehaviour:
       spawnPattern:
         spawnPatternType: 0
         spawnPatternShape: 0
-        spawnAmount: 5
-        multipleSpawnDelay: 0.5
-      spawnCooldown: 5
-    - enemyType: 4
-      tierFormula: 5
-      movePattern:
-        movePatternType: 1
-        speedFactor: 1
-        bouncecount: 0
-      spawnPattern:
-        spawnPatternType: 0
-        spawnPatternShape: 0
-        spawnAmount: 5
+        spawnAmount: 3
         multipleSpawnDelay: 0.5
       spawnCooldown: 5
     - enemyType: 4
@@ -225,14 +213,26 @@ MonoBehaviour:
       spawnPattern:
         spawnPatternType: 0
         spawnPatternShape: 0
-        spawnAmount: 5
+        spawnAmount: 3
         multipleSpawnDelay: 0
       spawnCooldown: 2
+    - enemyType: 4
+      tierFormula: 5
+      movePattern:
+        movePatternType: 1
+        speedFactor: 1
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 3
+        multipleSpawnDelay: 0.5
+      spawnCooldown: 5
     previewChapters: 04000000
   - duration: 60
     enemies:
     - enemyType: 5
-      tierFormula: 1
+      tierFormula: 2
       movePattern:
         movePatternType: 3
         speedFactor: 1
@@ -244,7 +244,7 @@ MonoBehaviour:
         multipleSpawnDelay: 0
       spawnCooldown: 5
     - enemyType: 5
-      tierFormula: 2
+      tierFormula: 3
       movePattern:
         movePatternType: 3
         speedFactor: 1
@@ -258,7 +258,7 @@ MonoBehaviour:
     - enemyType: 4
       tierFormula: 4
       movePattern:
-        movePatternType: 4
+        movePatternType: 2
         speedFactor: 1
         bouncecount: 2
       spawnPattern:
@@ -270,7 +270,7 @@ MonoBehaviour:
     - enemyType: 4
       tierFormula: 5
       movePattern:
-        movePatternType: 4
+        movePatternType: 2
         speedFactor: 1
         bouncecount: 2
       spawnPattern:

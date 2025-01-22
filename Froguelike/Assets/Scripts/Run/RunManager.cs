@@ -626,9 +626,7 @@ public class RunManager : MonoBehaviour
 
     public void SetNextChapterConditionCount(NextChapterConditionCount nextChapterConditionCount)
     {
-        conditionCountIcon.sprite = DataManager.instance.GetNextChapterConditionCountTypeSpriteFromType(nextChapterConditionCount.countType);
-        conditionCountIcon.SetNativeSize();
-
+        Sprite sprite = DataManager.instance.GetNextChapterConditionCountTypeSpriteFromType(nextChapterConditionCount.countType);
         Vector2 noteSize = new Vector2(0, conditionCountIcon.transform.parent.GetComponent<RectTransform>().sizeDelta.y);
         Vector2 textContainerSize = new Vector2(0, 12);
 
@@ -646,6 +644,7 @@ public class RunManager : MonoBehaviour
                 textContainerSize.x = 35;
                 break;
             case NextChapterConditionCountType.DistanceFromSpawn:
+                if (nextChapterConditionCount.maxDistance) sprite = DataManager.instance.GetNextChapterConditionCountTypeSpriteFromType(nextChapterConditionCount.countType, true);
                 noteSize.x = 110;
                 textContainerSize.x = 78;
                 break;
@@ -656,6 +655,9 @@ public class RunManager : MonoBehaviour
             default:
                 break;
         }
+
+        conditionCountIcon.sprite = sprite;
+        conditionCountIcon.SetNativeSize();
 
         conditionCountText.rectTransform.sizeDelta = textContainerSize;
         conditionCountText.transform.parent.GetComponent<RectTransform>().sizeDelta = noteSize;
@@ -671,7 +673,7 @@ public class RunManager : MonoBehaviour
         // TODO where to trigger this? Both when adding firends and eating bounties? Is there a better way?
         // Remi comment: now that it can also show distance, this counter needs to be updated often (every second or every frame)
         NextChapterConditionCountType type = currentChapter.chapterData.nextChapterConditionCount.countType;
-        float distanceFromSpawn = Mathf.Clamp(player.transform.position.magnitude/10, 0, currentChapter.chapterData.nextChapterConditionCount.goal);
+        float distanceFromSpawn = Mathf.Clamp(player.transform.position.magnitude / 10, 0, currentChapter.chapterData.nextChapterConditionCount.goal);
         string countText = "";
 
         switch (type)
@@ -683,7 +685,7 @@ public class RunManager : MonoBehaviour
                 countText = FriendsManager.instance.permanentFriendsList.Count().ToString() + "/" + currentChapter.chapterData.nextChapterConditionCount.goal.ToString();
                 break;
             case NextChapterConditionCountType.DistanceFromSpawn:
-                countText = $"{distanceFromSpawn.ToString("0")}/{currentChapter.chapterData.nextChapterConditionCount.goal}hops";
+                countText = $"{distanceFromSpawn.ToString("0")}/{currentChapter.chapterData.nextChapterConditionCount.goal} hops";
                 break;
             case NextChapterConditionCountType.DistanceFromSpawnInDirection:
                 if (distanceFromSpawn >= currentChapter.chapterData.nextChapterConditionCount.goal)

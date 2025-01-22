@@ -331,7 +331,7 @@ public class DataManager : MonoBehaviour
     public TongueEffect GetTongueEffectFromColor(Color color)
     {
         TongueEffect result = TongueEffect.NONE;
-        foreach (KeyValuePair< TongueEffect, Color> effectColorVP in weaponEffectColorDico)
+        foreach (KeyValuePair<TongueEffect, Color> effectColorVP in weaponEffectColorDico)
         {
             if (effectColorVP.Value.Equals(color))
             {
@@ -520,8 +520,8 @@ public class DataManager : MonoBehaviour
         return farAwayPosition;
     }
 
-    public Sprite GetNextChapterConditionCountTypeSpriteFromType(NextChapterConditionCountType nextChapterConditionCountType)
+    public Sprite GetNextChapterConditionCountTypeSpriteFromType(NextChapterConditionCountType nextChapterConditionCountType, bool max = false)
     {
-        return nextChapterConditionCountInfoList.Find(x => x.countType == nextChapterConditionCountType).icon;
+        return nextChapterConditionCountInfoList.FindAll(x => x.countType == nextChapterConditionCountType)[max ? 1 : 0].icon;
     }
 }

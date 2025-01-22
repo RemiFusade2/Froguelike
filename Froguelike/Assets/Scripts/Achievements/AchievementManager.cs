@@ -952,7 +952,8 @@ public class AchievementManager : MonoBehaviour
             && (x.achievementData.reward.featureID == RewardFeatureType.GHOST_BUFF ||
                 x.achievementData.reward.featureID == RewardFeatureType.RIBBIT_BUFF ||
                 x.achievementData.reward.featureID == RewardFeatureType.STANLEY_BUFF ||
-                x.achievementData.reward.featureID == RewardFeatureType.TOAD_BUFF) // only if "feature" is a stat boost for a frog
+                x.achievementData.reward.featureID == RewardFeatureType.TOAD_BUFF ||
+                x.achievementData.reward.featureID == RewardFeatureType.KERMIT_BUFF) // only if "feature" is a stat boost for a frog
             ).ToList();
 
         foreach (Achievement achievement in unlockedStatIncrementAchievementsList)
@@ -971,6 +972,9 @@ public class AchievementManager : MonoBehaviour
                     break;
                 case RewardFeatureType.TOAD_BUFF:
                     playableFrog = CharacterManager.instance.charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals("TOAD"));
+                    break;
+                case RewardFeatureType.KERMIT_BUFF:
+                    playableFrog = CharacterManager.instance.charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals("SWIMMING_FROG"));
                     break;
                 default:
                     break;

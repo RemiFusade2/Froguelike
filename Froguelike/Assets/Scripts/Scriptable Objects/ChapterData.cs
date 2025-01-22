@@ -178,6 +178,8 @@ public class FixedCollectible
 public class NextChapterConditionCount
 {
     public NextChapterConditionCountType countType;
+    [Tooltip("Only used if the count is for max distance, to get the right icon.")]
+    public bool maxDistance = false;
     public int goal = 0;
 }
 
