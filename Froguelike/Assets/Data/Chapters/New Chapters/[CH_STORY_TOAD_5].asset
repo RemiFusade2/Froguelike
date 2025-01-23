@@ -16,11 +16,12 @@ MonoBehaviour:
   partOfDemo: 0
   chapterTitle: Prove yourself
   chapterLore:
-  - Today is the day!\nToad is going to try to eat all the flies again, with all
-    that training it could be possible. Toad was happy about feeling a bit stronger
-    but he realised that he needs to focus on staying safe too.\n\n"Being strong
-    and able to take a hit is all good, but I will try to find some more moss to
-    protect myself better too!" Toad decided and went on to eat all the flies.
+  - Today is the day!\n[FROGNAME] is going to try to eat all the flies again, with
+    all that training it could be possible. [FROGNAME] was happy about feeling a
+    bit stronger but he realised that he needs to focus on staying safe too.\n\n"Being
+    strong and able to take a hit is all good, but I will try to find some more moss
+    to protect myself better too!" [FROGNAME] decided and went on to eat all the
+    flies.
   icons: []
   startingStatBonuses:
     statsList: []
@@ -83,6 +84,9 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 6
+  nextChapterConditionCount:
+    countType: 0
+    goal: 0
   rocksSpawnFrequency: 3
   pondsSpawnFrequency: 0
   coinsSpawnFrequency: 3
@@ -363,13 +367,8 @@ MonoBehaviour:
       speedFactor: 1.5
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 5
-      value: 25
-    - collectibleType: 0
-      amount: 5
-      value: 10
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 45
     enemyType: 0
     tierFormula: 2
@@ -386,13 +385,8 @@ MonoBehaviour:
       speedFactor: 1.5
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 2
-      amount: 1
-      value: 1
-    - collectibleType: 3
-      amount: 5
-      value: 20
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 50
     enemyType: 0
     tierFormula: 3
@@ -409,13 +403,8 @@ MonoBehaviour:
       speedFactor: 2
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 5
-      value: 25
-    - collectibleType: 3
-      amount: 5
-      value: 20
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 55
     enemyType: 0
     tierFormula: 4
@@ -432,16 +421,8 @@ MonoBehaviour:
       speedFactor: 2
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 5
-      value: 25
-    - collectibleType: 1
-      amount: 2
-      value: 50
-    - collectibleType: 0
-      amount: 3
-      value: 10
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 60
     enemyType: 0
     tierFormula: 5
@@ -458,13 +439,8 @@ MonoBehaviour:
       speedFactor: 2
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 3
-      amount: 1
-      value: 100
-    - collectibleType: 2
-      amount: 1
-      value: 1
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 80
     enemyType: 0
     tierFormula: 3
@@ -481,16 +457,8 @@ MonoBehaviour:
       speedFactor: 2.5
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 5
-      value: 50
-    - collectibleType: 0
-      amount: 5
-      value: 5
-    - collectibleType: 3
-      amount: 4
-      value: 25
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 180
     enemyType: 0
     tierFormula: 1
@@ -507,13 +475,8 @@ MonoBehaviour:
       speedFactor: 1.2
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 10
-      value: 25
-    - collectibleType: 1
-      amount: 10
-      value: 5
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 180
     enemyType: 0
     tierFormula: 2
@@ -530,16 +493,8 @@ MonoBehaviour:
       speedFactor: 1.2
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 4
-      value: 50
-    - collectibleType: 0
-      amount: 5
-      value: 5
-    - collectibleType: 0
-      amount: 3
-      value: 10
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 180
     enemyType: 0
     tierFormula: 5
@@ -556,16 +511,8 @@ MonoBehaviour:
       speedFactor: 2
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 3
-      amount: 10
-      value: 20
-    - collectibleType: 3
-      amount: 1
-      value: 100
-    - collectibleType: 2
-      amount: 1
-      value: 1
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 200
     enemyType: 0
     tierFormula: 5
@@ -582,14 +529,6 @@ MonoBehaviour:
       speedFactor: 2
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 0
-      amount: 20
-      value: 5
-    - collectibleType: 0
-      amount: 10
-      value: 10
-    - collectibleType: 1
-      amount: 10
-      value: 25
+    overrideRewards: 0
+    rewardsList: 
   weightChanges: []

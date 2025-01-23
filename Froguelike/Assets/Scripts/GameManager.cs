@@ -1,4 +1,5 @@
 using Rewired.ComponentControls.Data;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -86,6 +87,15 @@ public class GameManager : MonoBehaviour
     public bool isGameRunning;
 
     private const string totalBugEatenSteamStatName = "total_bugs_eaten";
+    private const string totalDeathCountSteamStatName = "total_deaths";
+
+    private const string savedLastSelectedCharacter = "Froguelike last selected character";
+    private const string savedLastSelectedGameMode = "Froguelike last selected game mode";
+    private const string savedLastSelectedStartingChapter = "Froguelike last selected starting chapter";
+
+    private const string savedLastSelectedCharacterDemo = "Froguelike Demo last selected character";
+    private const string savedLastSelectedGameModeDemo = "Froguelike Demo last selected game mode";
+    private const string savedLastSelectedStartingChapterDemo = "Froguelike Demo last selected starting chapter";
 
     private void Awake()
     {
@@ -197,8 +207,9 @@ public class GameManager : MonoBehaviour
         }
         gameData.cumulatedScore += score;
 
-        // Update the stat on Steam (it's gonna show progress towards the achievement too)
+        // Update the stats on Steam (it's gonna show progress towards the achievements too)
         SetSteamStatIfPossible(totalBugEatenSteamStatName, gameData.cumulatedScore);
+        SetSteamStatIfPossible(totalDeathCountSteamStatName, gameData.deathCount);
         AchievementManager.instance.SteamStoreStats();
     }
 
@@ -206,6 +217,72 @@ public class GameManager : MonoBehaviour
     {
         UIManager.instance.ShowCharacterSelectionScreen(true);
     }
+
+    private string GetSavedLastSelectedCharacter()
+    {
+        return BuildManager.instance.demoBuild ? savedLastSelectedCharacterDemo : savedLastSelectedCharacter;
+    }
+
+    private string GetSavedLastSelectedGameMode()
+    {
+        return BuildManager.instance.demoBuild ? savedLastSelectedGameModeDemo : savedLastSelectedGameMode;
+    }
+    private string GetSavedLastSelectedStartingChapter()
+    {
+        return BuildManager.instance.demoBuild ? savedLastSelectedStartingChapterDemo : savedLastSelectedStartingChapter;
+    }
+
+    public void RemoveSelectedCharacterGameModeAndStartingChapter()
+    {
+        PlayerPrefs.DeleteKey(GetSavedLastSelectedCharacter());
+        PlayerPrefs.DeleteKey(GetSavedLastSelectedGameMode());
+        PlayerPrefs.DeleteKey(GetSavedLastSelectedStartingChapter());
+    }
+
+    public void SaveSelectedCharacterGameModeAndStartingChapter(string characterID, string gameMode, string chapterID)
+    {
+        PlayerPrefs.SetString(GetSavedLastSelectedCharacter(), characterID);
+        PlayerPrefs.SetString(GetSavedLastSelectedGameMode(), gameMode);
+        PlayerPrefs.SetString(GetSavedLastSelectedStartingChapter(), chapterID);
+    }
+
+    public bool AreThereQuickStartOptions()
+    {
+        return PlayerPrefs.HasKey(GetSavedLastSelectedCharacter()) && PlayerPrefs.HasKey(GetSavedLastSelectedGameMode()) && PlayerPrefs.HasKey(GetSavedLastSelectedStartingChapter());
+    }
+
+    public void QuickStartNewRun()
+    {
+        // Get last selected character, game mode, and start chapter
+        string lastSelectedCharacterID = GetRetryRunInfoCharacterID();
+        string lastSelectedGameMode = GetRetryRunInfoGameMode();
+        string lastSelectedChapter = GetRetryRunInfoChapter();
+
+        CharacterManager.instance.currentSelectedCharacter = CharacterManager.instance.GetPlayableCharacter(lastSelectedCharacterID);
+        CharacterManager.instance.selectedGameModes = Enum.Parse<GameMode>(lastSelectedGameMode);
+        Chapter startChapter = ChapterManager.instance.GetChapterFromID(lastSelectedChapter);
+
+        RunManager.instance.StartNewRun(CharacterManager.instance.currentSelectedCharacter, CharacterManager.instance.selectedGameModes, startChapter);
+    }
+
+    #region Get info helpers
+
+    public string GetRetryRunInfoCharacterID()
+    {
+        return PlayerPrefs.GetString(GetSavedLastSelectedCharacter(), "CLASSIC_FROG");
+    }
+
+    public string GetRetryRunInfoGameMode()
+    {
+        return PlayerPrefs.GetString(GetSavedLastSelectedGameMode(), "NONE");
+    }
+
+    public string GetRetryRunInfoChapter()
+    {
+        return PlayerPrefs.GetString(GetSavedLastSelectedStartingChapter(), "[CH_COLLECT_HEALTH]"); // "First hops" is the fallback.
+    }
+
+    #endregion Get info helpers
 
     public void UnlockFeature(RewardFeatureType featureKey)
     {
@@ -224,16 +301,20 @@ public class GameManager : MonoBehaviour
                 ChapterManager.instance.SetChapterCountInSelection(5);
                 break;
             case RewardFeatureType.GHOST_BUFF:
-                CharacterManager.instance.IncrementCharacterStats("GHOST", new List<StatValue>() { new StatValue(CharacterStat.MAX_HEALTH, 50) });
+                CharacterManager.instance.SetCharacterStoryCompleted("GHOST");
+                //CharacterManager.instance.IncrementCharacterStats("GHOST", new List<StatValue>() { new StatValue(CharacterStat.MAX_HEALTH, 50) });
                 break;
             case RewardFeatureType.RIBBIT_BUFF:
-                CharacterManager.instance.IncrementCharacterStats("POISONOUS_FROG", new List<StatValue>() { new StatValue(CharacterStat.ATK_DAMAGE_BOOST, 0.3) });
+                CharacterManager.instance.SetCharacterStoryCompleted("POISONOUS_FROG");
+                //CharacterManager.instance.IncrementCharacterStats("POISONOUS_FROG", new List<StatValue>() { new StatValue(CharacterStat.ATK_DAMAGE_BOOST, 0.3) });
                 break;
             case RewardFeatureType.STANLEY_BUFF:
-                CharacterManager.instance.IncrementCharacterStats("STANLEY", new List<StatValue>() { new StatValue(CharacterStat.REVIVAL, 8) });
+                CharacterManager.instance.SetCharacterStoryCompleted("STANLEY");
+                //CharacterManager.instance.IncrementCharacterStats("STANLEY", new List<StatValue>() { new StatValue(CharacterStat.SWIM_SPEED_BOOST, 0.9) });
                 break;
             case RewardFeatureType.TOAD_BUFF:
-                CharacterManager.instance.IncrementCharacterStats("TOAD", new List<StatValue>() { new StatValue(CharacterStat.ARMOR, 2) }); // TODO decide on amount.
+                CharacterManager.instance.SetCharacterStoryCompleted("TOAD");
+                //CharacterManager.instance.IncrementCharacterStats("TOAD", new List<StatValue>() { new StatValue(CharacterStat.ARMOR, 2) }); // TODO decide on amount.
                 break;
         }
     }
@@ -442,6 +523,12 @@ public class GameManager : MonoBehaviour
             Debug.Log("Game - Clear save file");
         }
 
+        // Clear Quick start options
+        RemoveSelectedCharacterGameModeAndStartingChapter();
+
+        // Clear game mode.
+        CharacterManager.instance.ResetDifficulty();
+
         // Clear save file and create a new one
         bool fileErased = SaveDataManager.instance.EraseSaveFile(true);
         SaveDataManager.instance.CreateEmptySaveFile();
@@ -467,6 +554,7 @@ public class GameManager : MonoBehaviour
         gameData.versionNumber = BuildManager.instance.versionNumber;
         UIManager.instance.UpdateCurrencyDisplay();
         SetSteamStatIfPossible(totalBugEatenSteamStatName, gameData.cumulatedScore);
+        SetSteamStatIfPossible(totalDeathCountSteamStatName, gameData.deathCount);
         AchievementManager.instance.SteamStoreStats();
     }
 

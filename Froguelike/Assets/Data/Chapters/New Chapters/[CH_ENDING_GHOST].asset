@@ -16,12 +16,15 @@ MonoBehaviour:
   partOfDemo: 1
   chapterTitle: Afterlife
   chapterLore:
-  - Ghost was haunting the swamp for many years now, enjoying their afterlife.\nThey
-    always thought they were alone, but today they realized they were wrong...
+  - '[FROGNAME] was haunting the swamp for many years now. Afterlife was a bit lonely
+    but still, they enjoyed it.\n\nThey always thought they were alone. But after
+    hoping around for so long, the impossible happened: they met another froggy ghost!\n\nMaybe
+    there are more of them out there?'
   icons: []
   startingStatBonuses:
     statsList: []
   chapterLengthInSeconds: 300
+  freezeDurationMultiplier: 1
   startingUnlockState: 1
   startingWeight: 1
   canBePlayedMultipleTimesInOneRun: 0
@@ -39,6 +42,7 @@ MonoBehaviour:
       characterData: {fileID: 0}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
     - conditionType: 7
       not: 0
       chapterData: {fileID: 11400000, guid: 43f09859ce95d714c8b9c003903e217e, type: 2}
@@ -51,6 +55,7 @@ MonoBehaviour:
       characterData: {fileID: 11400000, guid: 2d0ffd1520e0bd243a6ee158e1719242, type: 2}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
     - conditionType: 1
       not: 1
       chapterData: {fileID: 11400000, guid: f0b2503a61b0cec4e8ac75ccc792f63e, type: 2}
@@ -63,10 +68,14 @@ MonoBehaviour:
       characterData: {fileID: 11400000, guid: 2d0ffd1520e0bd243a6ee158e1719242, type: 2}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
+  nextChapterConditionCount:
+    countType: 0
+    goal: 0
   rocksSpawnFrequency: 2
   pondsSpawnFrequency: 1
   coinsSpawnFrequency: 0
-  healthSpawnFrequency: 0
+  healthSpawnFrequency: 1
   levelUpSpawnFrequency: 2
   otherCollectibleSpawnFrequenciesList:
   - Type: 8
@@ -76,7 +85,7 @@ MonoBehaviour:
   - Type: 11
     Frequency: 1
   specialCollectiblesOnTheMap:
-  - tileCoordinates: {x: -5, y: -10}
+  - tileCoordinates: {x: 0, y: 1}
     tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
     collectibleName: A friendly ghost
     collectibleDescription: They want to hang out
@@ -86,10 +95,10 @@ MonoBehaviour:
     collectibleHatType: 0
     collectibleFriendType: 2
     foundCollectibleTitle: You meet
-    acceptCollectibleStr: Sure
-    refuseCollectibleStr: AAAAH!
+    acceptCollectibleStr: Sure!
+    refuseCollectibleStr: AAAAH!!!
     compassLevel: 0
-  - tileCoordinates: {x: 5, y: 10}
+  - tileCoordinates: {x: 0, y: -10}
     tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
     collectibleName: A friendly ghost
     collectibleDescription: They want to hang out
@@ -99,10 +108,10 @@ MonoBehaviour:
     collectibleHatType: 0
     collectibleFriendType: 2
     foundCollectibleTitle: You meet
-    acceptCollectibleStr: Sure
-    refuseCollectibleStr: AAAAH!
+    acceptCollectibleStr: Sure!
+    refuseCollectibleStr: AAAAH!!!
     compassLevel: 1
-  - tileCoordinates: {x: 5, y: -10}
+  - tileCoordinates: {x: -10, y: 0}
     tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
     collectibleName: A friendly ghost
     collectibleDescription: They want to hang out
@@ -112,10 +121,10 @@ MonoBehaviour:
     collectibleHatType: 0
     collectibleFriendType: 2
     foundCollectibleTitle: You meet
-    acceptCollectibleStr: Sure
-    refuseCollectibleStr: AAAAH!
+    acceptCollectibleStr: Sure!
+    refuseCollectibleStr: AAAAH!!!
     compassLevel: 2
-  - tileCoordinates: {x: -5, y: 10}
+  - tileCoordinates: {x: 10, y: 0}
     tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
     collectibleName: A friendly ghost
     collectibleDescription: They want to hang out
@@ -125,8 +134,8 @@ MonoBehaviour:
     collectibleHatType: 0
     collectibleFriendType: 2
     foundCollectibleTitle: You meet
-    acceptCollectibleStr: Sure
-    refuseCollectibleStr: AAAAH!
+    acceptCollectibleStr: Sure!
+    refuseCollectibleStr: AAAAH!!!
     compassLevel: 3
   environmentChange: 0
   characterStyleChange: 0
@@ -356,20 +365,17 @@ MonoBehaviour:
     tierFormula: 5
     overrideHealthMultiplier: 0
     healthMultiplier: 0
+    overrideDamageMultiplier: 0
     damageMultiplier: 2
+    overrideXpMultiplier: 0
     xpMultiplier: 20
+    overrideKnockbackResistance: 0
+    knockbackResistance: 0
     movePattern:
       movePatternType: 2
       speedFactor: 10
       bouncecount: 0
-    bountyList:
-    - collectibleType: 2
-      amount: 4
-      value: 1
-    - collectibleType: 1
-      amount: 10
-      value: 5
-    - collectibleType: 1
-      amount: 8
-      value: 25
+    ignoreMaxSpeed: 0
+    overrideRewards: 0
+    rewardsList: 
   weightChanges: []

@@ -28,6 +28,18 @@ public class FrogExplosionBehaviour : MonoBehaviour
         explosionBlowUpCoroutine = StartCoroutine(ExplosionBlowUpAsync(endOfExplosionAction));        
     }
 
+    public void StopAndResetExplosion()
+    {
+        ShapeModule shape = explosionParticleSystem.shape;
+        if (explosionBlowUpCoroutine != null)
+        {
+            StopCoroutine(explosionBlowUpCoroutine);
+        }
+        shape.radius = 0;
+        explosionParticleSystem.Stop();
+        explosionParticleSystem.Clear();
+    }
+
     private IEnumerator ExplosionBlowUpAsync(Action endOfExplosionAction)
     {
         float radius = 0;

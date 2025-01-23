@@ -3,6 +3,7 @@ using Steamworks;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering.Universal;
 
@@ -298,19 +299,19 @@ public class EnemiesManager : MonoBehaviour
     [Header("Settings - Damage texts")]
     public float damageTextLifespanInSeconds = 0.5f;
     [Space]
-    public int damageTextFontSize_smol = 10;
+    public int damageTextFontSize_PixelFont = 10;
+    public int damageTextFontSize_AccessibleFont = 16;
+    public int damageTextFontSize_BoringFont = 16;
+    [Space]
     public float damageTextThreshold_smol = 0;
     public Color damageTextColor_smol;
     [Space]
-    public int damageTextFontSize_medium = 10;
     public float damageTextThreshold_medium = 100;
     public Color damageTextColor_medium;
     [Space]
-    public int damageTextFontSize_big = 10;
     public float damageTextThreshold_big = 500;
     public Color damageTextColor_big;
     [Space]
-    public int damageTextFontSize_huge = 10;
     public float damageTextThreshold_huge = 1000;
     public Color damageTextColor_huge;
     [Space]
@@ -339,6 +340,8 @@ public class EnemiesManager : MonoBehaviour
     public float bountyDefaultDamageMultiplier = 2;
     public float bountyDefaultXPMultiplier = 20;
     public float bountyDefaultKnockbackResistance = 0;
+    [Space]
+    public float delayBetweenBountyRewardSpawn = 0.1f;
     [Space]
     public int bountyOutlineThickness = 1;
     public List<Color> bountyOutlineColorsList;
@@ -856,7 +859,7 @@ public class EnemiesManager : MonoBehaviour
             if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out Vector3 spawnPosition))
             {
                 Vector3 positionRelativeToFrog = spawnPosition - GameManager.instance.player.transform.position;
-                StartCoroutine(SpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, movePatternFollowPlayer, originWave: null, delay: 0, difficultyTier: difficultyTier));
+                StartCoroutine(SpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, movePatternFollowPlayer, originWave: RunManager.instance.GetCurrentWave(), delay: 0, difficultyTier: difficultyTier));
             }
         }
     }
@@ -988,6 +991,7 @@ public class EnemiesManager : MonoBehaviour
         // add enemy to dico
         newEnemy.enemyID = lastKey;
         allActiveEnemiesDico.Add(lastKey, newEnemy);
+        MusicManager.instance.AdjustTensionLevel(allActiveEnemiesDico.Count);
 
         // setup enemy - state
         newEnemy.HP = newEnemy.HPMax;
@@ -1062,7 +1066,7 @@ public class EnemiesManager : MonoBehaviour
 
         // Display damage text
         GameObject damageText = null;
-        if ((visualDamageAmountInt > 0 || applyCurse) && damageTextsPool.TryDequeue(out damageText))
+        if (SettingsManager.instance.showDamageText && (visualDamageAmountInt > 0 || applyCurse) && damageTextsPool.TryDequeue(out damageText))
         {
             Vector2 position = (Vector2)enemy.enemyTransform.position + 0.1f * Random.insideUnitCircle;
             damageText.transform.position = position;
@@ -1076,7 +1080,49 @@ public class EnemiesManager : MonoBehaviour
             damageAmountStr =  $"{visualDamageAmountInt * randomMultiplier}\n-\n{randomMultiplier+1}";*/
 
             damageTMPScript.text = damageAmountStr;
-            float fontSize = 10;
+
+            // Font settings
+            TMP_FontAsset currentFontAsset = SettingsManager.instance.GetCurrentFontAsset();
+            damageTMPScript.font = currentFontAsset;
+
+            if (verbose == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log($"currentFontAsset.name = {currentFontAsset.name}");
+            }
+
+            bool isPixelFont = currentFontAsset.name.Equals("Thintel");
+            bool isAccessibleFont = currentFontAsset.name.Equals("OpenDyslexic-Regular");
+            foreach (Transform damageTextChild in damageTMPScript.transform)
+            {
+                damageTextChild.GetComponent<MeshRenderer>().enabled = isPixelFont;
+                damageTextChild.gameObject.layer = LayerMask.NameToLayer("Default");
+            }
+            float fontSize = isPixelFont ? damageTextFontSize_PixelFont : (isAccessibleFont ? damageTextFontSize_AccessibleFont : damageTextFontSize_BoringFont);
+
+            damageTMPScript.gameObject.layer = isPixelFont ? LayerMask.NameToLayer("Default") : LayerMask.NameToLayer("Overlay layer on game camera");
+
+            Color transparentColor = new Color(0, 0, 0, 0);
+            Color blackOutlineColor = new Color(0.09411f, 0.09804f, 0.12157f, 1);
+
+            if (isPixelFont)
+            {
+                damageText.GetComponent<TextMeshPro>().fontMaterial.DisableKeyword("UNDERLAY_ON");
+                damageText.GetComponent<TextMeshPro>().fontMaterial.SetFloat(ShaderUtilities.ID_UnderlayDilate, 0f);
+                damageText.GetComponent<TextMeshPro>().fontMaterial.SetColor(ShaderUtilities.ID_UnderlayColor, transparentColor);
+            }
+            else if (isAccessibleFont)
+            {
+                damageText.GetComponent<TextMeshPro>().fontMaterial.EnableKeyword("UNDERLAY_ON");
+                damageText.GetComponent<TextMeshPro>().fontMaterial.SetFloat(ShaderUtilities.ID_UnderlayDilate, 0.5f);
+                damageText.GetComponent<TextMeshPro>().fontMaterial.SetColor(ShaderUtilities.ID_UnderlayColor, blackOutlineColor);
+            }
+            else
+            {
+                damageText.GetComponent<TextMeshPro>().fontMaterial.EnableKeyword("UNDERLAY_ON");
+                damageText.GetComponent<TextMeshPro>().fontMaterial.SetFloat(ShaderUtilities.ID_UnderlayDilate, 0.8f);
+                damageText.GetComponent<TextMeshPro>().fontMaterial.SetColor(ShaderUtilities.ID_UnderlayColor, blackOutlineColor);
+            }
+
             if (poisonSource)
             {
                 // poison damage
@@ -1085,27 +1131,24 @@ public class EnemiesManager : MonoBehaviour
             else if (visualDamageAmount < damageTextThreshold_medium)
             {
                 // Smol text
-                fontSize = damageTextFontSize_smol;
                 damageTMPScript.color = damageTextColor_smol;
             }
             else if (visualDamageAmount < damageTextThreshold_big)
             {
                 // Medium text
-                fontSize = damageTextFontSize_medium;
                 damageTMPScript.color = damageTextColor_medium;
             }
             else if (visualDamageAmount < damageTextThreshold_huge)
             {
                 // Big text
-                fontSize = damageTextFontSize_big;
                 damageTMPScript.color = damageTextColor_big;
             }
             else
             {
                 // Huge text
-                fontSize = damageTextFontSize_huge;
                 damageTMPScript.color = damageTextColor_huge;
             }
+
             if (applyVampireEffect)
             {
                 damageTMPScript.color = damageTextColor_vampire;
@@ -1120,6 +1163,7 @@ public class EnemiesManager : MonoBehaviour
                 damageAmountStr = "#";
                 damageTMPScript.color = damageTextColor_curse;
             }
+
             damageTMPScript.fontSize = fontSize;
 
             int sortedOrderLayer = Random.Range(100, 200);
@@ -1136,12 +1180,14 @@ public class EnemiesManager : MonoBehaviour
             damageText.GetComponent<MeshRenderer>().enabled = true;
             damageText.GetComponent<Rigidbody2D>().simulated = true;
             damageText.GetComponent<Rigidbody2D>().velocity = Vector2.up;
+
             if (applyVampireEffect)
             {
                 // damage is not null and vampire effect is ON
                 vampireEffect = true;
                 damageText.GetComponent<ParticleSystem>().Play();
             }
+
             visibleDamageTexts.Add(damageText);
             StartCoroutine(PutDamageTextIntoPoolAsync(damageText, damageTextLifespanInSeconds));
         }
@@ -1261,6 +1307,7 @@ public class EnemiesManager : MonoBehaviour
             // do not destroy the enemy gameobject but instead deactivate it and put it back in the pool
             PutEnemyInThePool(allActiveEnemiesDico[id]);
             allActiveEnemiesDico.Remove(id);
+            MusicManager.instance.AdjustTensionLevel(allActiveEnemiesDico.Count);
         }
         enemiesToUpdateQueue.Clear();
         while (remainingEnemiesQueue.TryDequeue(out EnemyInstance enemy))
@@ -1582,6 +1629,7 @@ public class EnemiesManager : MonoBehaviour
                     EnemyInstance enemy = allActiveEnemiesDico[enemyID];
                     PutEnemyInThePool(enemy);
                     allActiveEnemiesDico.Remove(enemyID);
+                    MusicManager.instance.AdjustTensionLevel(allActiveEnemiesDico.Count);
                 }
             }
         }
@@ -1693,6 +1741,25 @@ public class EnemiesManager : MonoBehaviour
         applyGlobalCurse = active;
     }
 
+    public void StopAndResetAllGlobalEffects()
+    {
+        if (SetGlobalFreezeEffectCoroutine != null)
+        {
+            StopCoroutine(SetGlobalFreezeEffectCoroutine);
+        }
+        if (SetGlobalPoisonEffectCoroutine != null)
+        {
+            StopCoroutine(SetGlobalPoisonEffectCoroutine);
+        }
+        if (SetGlobalCurseEffectCoroutine != null)
+        {
+            StopCoroutine(SetGlobalCurseEffectCoroutine);
+        }
+        applyGlobalFreeze = false;
+        applyGlobalPoison = false;
+        applyGlobalCurse = false;
+    }
+
     public void ApplyCurseEffect(string enemyGoName, float duration)
     {
         int enemyIndex = int.Parse(enemyGoName);
@@ -1770,6 +1837,7 @@ public class EnemiesManager : MonoBehaviour
                 // Unspawn that enemy                
                 PutEnemyInThePool(enemyInstance);
                 allActiveEnemiesDico.Remove(enemyInstance.enemyID);
+                MusicManager.instance.AdjustTensionLevel(allActiveEnemiesDico.Count);
 
                 // Spawn XP instead
                 float XPEarned = Mathf.Clamp(originEnemyData.xPBonus / 2, 1, 100);
@@ -1789,13 +1857,14 @@ public class EnemiesManager : MonoBehaviour
                     overrideHealthMultiplier: false, healthMultiplier: 0,
                     overrideDamageMultiplier: false, damageMultiplier: 0,
                     overrideXpMultiplier: false, xpMultiplier: 0,
-                    overrideKnockbackResistance: false, knockbackResistance: 0, movePattern: enemyMovePattern);
-                bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.FROINS, amount = 20, value = 1 });
+                    overrideKnockbackResistance: false, knockbackResistance: 0, movePattern: enemyMovePattern,
+                    overrideRewards: false);
+                /*bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.FROINS, amount = 20, value = 1 });
                 bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.FROINS, amount = 20, value = 5 });
                 bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.FROINS, amount = 10, value = 10 });
                 bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 10, value = 10 });
                 bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 10, value = 25 });
-                bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 10, value = 50 });
+                bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 10, value = 50 });*/
                 ResetEnemyValues(enemyInstance, originEnemyData.prefab, originEnemyData, enemyMovePattern, enemyInstance.wave, enemyInstance.difficultyTier, neverDespawn: true, bounty: bountyBug, forceMovementDirection: true, moveDirection: enemyMoveDirection, preventAnyPhysicsShenanigans: false);
                 //StartCoroutine(SpawnEnemyAsync(originEnemyData.prefab, enemyPosition, originEnemyData, enemyMovePattern, enemyInstance.wave, delay: 0.01f, difficultyTier: enemyInstance.difficultyTier, neverDespawn: true, bounty: bountyBug, forceMovementDirection: true, moveDirection: enemyMoveDirection));
             }
@@ -1861,18 +1930,31 @@ public class EnemiesManager : MonoBehaviour
         }
         actualSpeed = Mathf.Clamp(actualSpeed, 0, clampToMaxSpeed ? maximumSpeed : 10000);
         enemy.enemyRigidbody.velocity = enemy.moveDirection * actualSpeed;
-        enemy.enemyAnimator.SetFloat("Speed", actualSpeed);
+
+        if (enemy.movePattern.movePatternType == EnemyMovePatternType.NO_MOVEMENT)
+        {
+            // Force animation to play at speed 1
+            enemy.enemyAnimator.SetFloat("Speed", 1);
+        }
+        else
+        {
+            // Play animation at whatever true speed is
+            enemy.enemyAnimator.SetFloat("Speed", actualSpeed);
+        }
     }
 
     private void SetOverlayColor(EnemyInstance enemyInstance, Color color, float delay)
     {
-        enemyInstance.SetOverlayColor(color);
-        if (enemyInstance.removeOverlayCoroutine != null)
+        if (SettingsManager.instance.showFlashingEffects)
         {
-            StopCoroutine(enemyInstance.removeOverlayCoroutine);
-            enemyInstance.removeOverlayCoroutine = null;
+            enemyInstance.SetOverlayColor(color);
+            if (enemyInstance.removeOverlayCoroutine != null)
+            {
+                StopCoroutine(enemyInstance.removeOverlayCoroutine);
+                enemyInstance.removeOverlayCoroutine = null;
+            }
+            StartCoroutine(RemoveOverlayColorAsync(enemyInstance, delay));
         }
-        StartCoroutine(RemoveOverlayColorAsync(enemyInstance, delay));
     }
 
     private IEnumerator RemoveOverlayColorAsync(EnemyInstance enemyInstance, float delay)
@@ -1962,22 +2044,73 @@ public class EnemiesManager : MonoBehaviour
         // Spawn rewards for bounties
         if (enemyInstance.bountyBug != null)
         {
-            if (enemyInstance.bountyBug.bountyList != null
-                && enemyInstance.bountyBug.bountyList.Count > 0)
+            List<CollectibleType> rewardList = new List<CollectibleType>();
+            // Default rewards
+            rewardList.Add(CollectibleType.XP_BONUS);
+            rewardList.Add(CollectibleType.FROINS);
+            rewardList.Add(CollectibleType.HEALTH);
+            if (enemyInstance.bountyBug.overrideRewards)
             {
-                foreach (Bounty bounty in enemyInstance.bountyBug.bountyList)
-                {
-                    for (int i = 0; i < bounty.amount; i++)
-                    {
-                        CollectiblesManager.instance.SpawnCollectible(enemyInstance.enemyTransform.position, bounty.collectibleType, bounty.value, pushAwayForce: bounty.amount);
-                    }
-                }
-
-                // Play SFX
-                SoundManager.instance.PlayEatBountySound();
-                // Increase bounty eaten count by 1 for that chapter.
-                RunManager.instance.IncreaseBountyEatCount(1);
+                // Override rewards
+                rewardList = new List<CollectibleType>(enemyInstance.bountyBug.rewardsList);
             }
+            if (rewardList.Count <= 0)
+            {
+                rewardList.Add(CollectibleType.XP_BONUS); // failsafe
+            }
+
+            // Spawn all collectibles
+            // The amount depends on bounty tier
+            float delay = 0;
+            int rewardCount = enemyInstance.difficultyTier * 20;
+            if (verbose == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log($"Spawn bounty reward. Reward count = {rewardCount}");
+            }
+            int count = 0;
+            while (count <= rewardCount)
+            {
+                CollectibleType randomType = CollectibleType.XP_BONUS;
+                float bonusValue = 5;
+                float typeRollValue = Random.Range(0, 1.0f);
+                bool spawnReward = false;
+                if (typeRollValue > 0.99f && rewardList.Contains(CollectibleType.LEVEL_UP))
+                {
+                    randomType = CollectibleType.LEVEL_UP;
+                    bonusValue = 1;
+                    spawnReward = true;
+                }
+                else if (typeRollValue > 0.9f && rewardList.Contains(CollectibleType.HEALTH))
+                {
+                    randomType = CollectibleType.HEALTH;
+                    bonusValue = (Random.Range(0, 5) == 0) ? 20 : 100;
+                    spawnReward = true;
+                }
+                else if (typeRollValue > 0.6f && rewardList.Contains(CollectibleType.FROINS))
+                {
+                    randomType = CollectibleType.FROINS;
+                    bonusValue = (Random.Range(0, 3) == 0) ? 5 : 10;
+                    spawnReward = true;
+                }
+                else if (typeRollValue <= 0.6f && rewardList.Contains(CollectibleType.XP_BONUS))
+                {
+                    randomType = CollectibleType.XP_BONUS;
+                    bonusValue = Random.Range(1, 12) * 10;
+                    bonusValue = Mathf.Clamp(bonusValue, 10, 100);
+                    spawnReward = true;
+                }
+                if (spawnReward)
+                {
+                    StartCoroutine(CollectiblesManager.instance.SpawnCollectibleAsync(delay, enemyInstance.enemyTransform.position, randomType, bonusValue, pushAwayForce: Random.Range(8, 13)));
+                    delay += delayBetweenBountyRewardSpawn;
+                    count++;
+                }
+            }
+
+            // Play SFX
+            SoundManager.instance.PlayEatBountySound();
+            // Increase bounty eaten count by 1 for that chapter.
+            RunManager.instance.IncreaseBountyEatCount(1);
         }
 
         if (despawnEnemyAndSpawnXP)
@@ -2030,6 +2163,7 @@ public class EnemiesManager : MonoBehaviour
 
             PutEnemyInThePool(enemyInstance);
             allActiveEnemiesDico.Remove(enemyInstance.enemyID);
+            MusicManager.instance.AdjustTensionLevel(allActiveEnemiesDico.Count);
         }
 
     }

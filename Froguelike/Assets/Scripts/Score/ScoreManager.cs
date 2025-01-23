@@ -37,6 +37,8 @@ public class ScoreManager : MonoBehaviour
     public AchievementsScrollRect achievementScrollRect;
     public GameObject leftArrow;
     public GameObject rightArrow;
+    [Space]
+    public CharacterBookmarkInRunInfoBehaviour characterInfoBookmark;
 
 
     private void Awake()
@@ -86,7 +88,7 @@ public class ScoreManager : MonoBehaviour
                 scoreLines[i].SetActive(true);
 
                 // Chapter number and name.
-                chaptersTextList[i].text = "Chapter " + (i + 1) + "\n\t" + chapter.chapterData.chapterTitle;
+                chaptersTextList[i].text = "Chapter " + (i + 1) + "\n          " + chapter.chapterData.chapterTitle;
 
                 // Flies eaten.
                 chaptersScoreTextList[i].text = enemiesKilledCount.ToString();
@@ -122,7 +124,7 @@ public class ScoreManager : MonoBehaviour
         totalTimeText.text = totalMinutes.ToString("00") + ":" + totalSeconds.ToString("00");
 
         // Display collected currency.
-        currencyCollectedText.text = Tools.FormatCurrency(currencyCollected, " " + DataManager.instance.currencyName);
+        currencyCollectedText.text = Tools.FormatCurrency(currencyCollected, DataManager.instance.currencySymbol);
 
         // Pick a random moral to display
         string moral = GetRandomMoral();
@@ -200,8 +202,18 @@ public class ScoreManager : MonoBehaviour
         leftArrow.SetActive(unlockedAchievements.Count > 1);
         rightArrow.SetActive(unlockedAchievements.Count > 1);
 
+        // Display character info.
+        characterInfoBookmark.UpdateInRunBookmark();
+
         // Show the score screen
         UIManager.instance.ShowScoreScreen();
+
+        // Add some froins in the credits screen, for funsies
+        if (CreditsScreenBehaviour.instance != null)
+        {
+            float probabilityOfFroinsInCredits = (totalScore / 100000.0f);
+            CreditsScreenBehaviour.instance.RespawnCreditFroins(probabilityOfFroinsInCredits);
+        }
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {

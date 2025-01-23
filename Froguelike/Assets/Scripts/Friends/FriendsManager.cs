@@ -489,7 +489,7 @@ public class FriendsManager : MonoBehaviour
         foreach (FriendInstance friend in permanentFriendsList)
         {
             friendIsActive |= (friend.data.friendType == friendType && friend.active);
-            if (friendIsActive) 
+            if (friendIsActive)
                 break;
         }
         return friendIsActive;

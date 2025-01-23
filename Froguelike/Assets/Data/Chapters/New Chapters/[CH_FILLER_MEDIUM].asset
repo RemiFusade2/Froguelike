@@ -16,8 +16,10 @@ MonoBehaviour:
   partOfDemo: 1
   chapterTitle: A regular day
   chapterLore:
-  - There was nothing exceptional about this day. The weather was alright, there
-    were plenty of bugs to eat...\nIt was a good day to be a frog!
+  - There was really nothing exceptional about this day. Just a good ol' day in the
+    good ol' swamp.\n\nThe weather was alright and there were plenty of bugs to eat.
+    This was the kind of days where [FROGNAME] just hops around and eats bugs, without
+    a care for what the future might hold.\n\nIt was a good day to be a frog!
   icons: []
   startingStatBonuses:
     statsList: []
@@ -27,6 +29,9 @@ MonoBehaviour:
   startingWeight: 1
   canBePlayedMultipleTimesInOneRun: 1
   conditions: []
+  nextChapterConditionCount:
+    countType: 0
+    goal: 0
   rocksSpawnFrequency: 2
   pondsSpawnFrequency: 3
   coinsSpawnFrequency: 2
@@ -66,7 +71,43 @@ MonoBehaviour:
   - duration: 60
     enemies:
     - enemyType: 0
+      tierFormula: 1
+      movePattern:
+        movePatternType: 2
+        speedFactor: 1
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 0.5
+    - enemyType: 0
       tierFormula: chapter-2
+      movePattern:
+        movePatternType: 2
+        speedFactor: 1
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 0.5
+    - enemyType: 0
+      tierFormula: chapter-1
+      movePattern:
+        movePatternType: 2
+        speedFactor: 0.9
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 1
+    - enemyType: 0
+      tierFormula: chapter
       movePattern:
         movePatternType: 2
         speedFactor: 0.8
@@ -76,12 +117,75 @@ MonoBehaviour:
         spawnPatternShape: 0
         spawnAmount: 1
         multipleSpawnDelay: 0
-      spawnCooldown: 0.22
+      spawnCooldown: 0.5
+    previewChapters: 0100000002000000030000000400000005000000
+  - duration: 60
+    enemies:
+    - enemyType: 1
+      tierFormula: 1
+      movePattern:
+        movePatternType: 1
+        speedFactor: 2
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 2
+        spawnPatternShape: 0
+        spawnAmount: 4
+        multipleSpawnDelay: 0.01
+      spawnCooldown: 2
+    - enemyType: 1
+      tierFormula: chapter-2
+      movePattern:
+        movePatternType: 1
+        speedFactor: 2
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 3
+        multipleSpawnDelay: 0.01
+      spawnCooldown: 5
+    - enemyType: 1
+      tierFormula: chapter
+      movePattern:
+        movePatternType: 1
+        speedFactor: 2
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 2
+        spawnPatternShape: 0
+        spawnAmount: 3
+        multipleSpawnDelay: 0.01
+      spawnCooldown: 7
+    - enemyType: 0
+      tierFormula: 1
+      movePattern:
+        movePatternType: 2
+        speedFactor: 1
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 0.5
+    - enemyType: 0
+      tierFormula: chapter-1
+      movePattern:
+        movePatternType: 2
+        speedFactor: 1
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 0.5
     - enemyType: 0
       tierFormula: chapter
       movePattern:
         movePatternType: 2
-        speedFactor: 0.8
+        speedFactor: 1
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 0
@@ -92,45 +196,18 @@ MonoBehaviour:
     previewChapters: 0100000002000000030000000400000005000000
   - duration: 60
     enemies:
-    - enemyType: 1
-      tierFormula: chapter-2
-      movePattern:
-        movePatternType: 1
-        speedFactor: 2.1
-        bouncecount: 0
-      spawnPattern:
-        spawnPatternType: 0
-        spawnPatternShape: 0
-        spawnAmount: 5
-        multipleSpawnDelay: 0
-      spawnCooldown: 5
     - enemyType: 0
-      tierFormula: chapter-1
+      tierFormula: 1
       movePattern:
         movePatternType: 2
-        speedFactor: 0.8
-        bouncecount: 0
-      spawnPattern:
-        spawnPatternType: 0
-        spawnPatternShape: 0
-        spawnAmount: 1
-        multipleSpawnDelay: 0
-      spawnCooldown: 0.25
-    - enemyType: 1
-      tierFormula: chapter-1
-      movePattern:
-        movePatternType: 1
-        speedFactor: 2
+        speedFactor: 1
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 2
         spawnPatternShape: 0
-        spawnAmount: 6
-        multipleSpawnDelay: 0.02
-      spawnCooldown: 10
-    previewChapters: 0100000002000000030000000400000005000000
-  - duration: 60
-    enemies:
+        spawnAmount: 4
+        multipleSpawnDelay: 0.01
+      spawnCooldown: 1
     - enemyType: 0
       tierFormula: chapter
       movePattern:
@@ -142,19 +219,7 @@ MonoBehaviour:
         spawnPatternShape: 0
         spawnAmount: 1
         multipleSpawnDelay: 0
-      spawnCooldown: 0.25
-    - enemyType: 2
-      tierFormula: chapter
-      movePattern:
-        movePatternType: 0
-        speedFactor: 1
-        bouncecount: 0
-      spawnPattern:
-        spawnPatternType: 0
-        spawnPatternShape: 0
-        spawnAmount: 1
-        multipleSpawnDelay: 0
-      spawnCooldown: 0.4
+      spawnCooldown: 0.5
     - enemyType: 0
       tierFormula: chapter+1
       movePattern:
@@ -166,24 +231,9 @@ MonoBehaviour:
         spawnPatternShape: 0
         spawnAmount: 1
         multipleSpawnDelay: 0
-      spawnCooldown: 5
-    - enemyType: 0
-      tierFormula: chapter-1
-      movePattern:
-        movePatternType: 2
-        speedFactor: 1.2
-        bouncecount: 0
-      spawnPattern:
-        spawnPatternType: 2
-        spawnPatternShape: 0
-        spawnAmount: 10
-        multipleSpawnDelay: 0
       spawnCooldown: 2
-    previewChapters: 0100000002000000030000000400000005000000
-  - duration: 60
-    enemies:
     - enemyType: 2
-      tierFormula: chapter
+      tierFormula: 1
       movePattern:
         movePatternType: 0
         speedFactor: 1
@@ -193,19 +243,34 @@ MonoBehaviour:
         spawnPatternShape: 0
         spawnAmount: 1
         multipleSpawnDelay: 0
-      spawnCooldown: 0.4
-    - enemyType: 1
+      spawnCooldown: 0.5
+    - enemyType: 2
       tierFormula: chapter
       movePattern:
-        movePatternType: 1
-        speedFactor: 2
+        movePatternType: 0
+        speedFactor: 1
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 2
         spawnPatternShape: 0
-        spawnAmount: 10
+        spawnAmount: 3
+        multipleSpawnDelay: 0.01
+      spawnCooldown: 1
+    previewChapters: 0100000002000000030000000400000005000000
+  - duration: 60
+    enemies:
+    - enemyType: 1
+      tierFormula: 1
+      movePattern:
+        movePatternType: 1
+        speedFactor: 1.5
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
         multipleSpawnDelay: 0
-      spawnCooldown: 3
+      spawnCooldown: 1
     - enemyType: 1
       tierFormula: chapter-1
       movePattern:
@@ -217,7 +282,19 @@ MonoBehaviour:
         spawnPatternShape: 0
         spawnAmount: 1
         multipleSpawnDelay: 0
-      spawnCooldown: 0.25
+      spawnCooldown: 0.5
+    - enemyType: 1
+      tierFormula: chapter
+      movePattern:
+        movePatternType: 1
+        speedFactor: 2
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 2
+        spawnPatternShape: 0
+        spawnAmount: 3
+        multipleSpawnDelay: 0.01
+      spawnCooldown: 3
     - enemyType: 1
       tierFormula: chapter+2
       movePattern:
@@ -230,11 +307,8 @@ MonoBehaviour:
         spawnAmount: 1
         multipleSpawnDelay: 0
       spawnCooldown: 10
-    previewChapters: 0100000002000000030000000400000005000000
-  - duration: 60
-    enemies:
     - enemyType: 2
-      tierFormula: chapter+2
+      tierFormula: 1
       movePattern:
         movePatternType: 0
         speedFactor: 1
@@ -245,30 +319,69 @@ MonoBehaviour:
         spawnAmount: 1
         multipleSpawnDelay: 0
       spawnCooldown: 0.5
-    - enemyType: 1
-      tierFormula: chapter+1
+    - enemyType: 2
+      tierFormula: 2
       movePattern:
-        movePatternType: 1
-        speedFactor: 2
-        bouncecount: 0
-      spawnPattern:
-        spawnPatternType: 2
-        spawnPatternShape: 0
-        spawnAmount: 10
-        multipleSpawnDelay: 0
-      spawnCooldown: 4
-    - enemyType: 0
-      tierFormula: chapter
-      movePattern:
-        movePatternType: 2
-        speedFactor: 1.2
+        movePatternType: 0
+        speedFactor: 1
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 0
         spawnPatternShape: 0
         spawnAmount: 1
         multipleSpawnDelay: 0
-      spawnCooldown: 0.2
+      spawnCooldown: 1
+    - enemyType: 2
+      tierFormula: chapter
+      movePattern:
+        movePatternType: 0
+        speedFactor: 1
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 1
+    previewChapters: 0100000002000000030000000400000005000000
+  - duration: 60
+    enemies:
+    - enemyType: 2
+      tierFormula: chapter+1
+      movePattern:
+        movePatternType: 0
+        speedFactor: 1
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 1
+    - enemyType: 0
+      tierFormula: 2
+      movePattern:
+        movePatternType: 2
+        speedFactor: 1
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 0.4
+    - enemyType: 0
+      tierFormula: chapter
+      movePattern:
+        movePatternType: 2
+        speedFactor: 1
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 0.5
     - enemyType: 0
       tierFormula: chapter+1
       movePattern:
@@ -280,7 +393,31 @@ MonoBehaviour:
         spawnPatternShape: 0
         spawnAmount: 1
         multipleSpawnDelay: 0
-      spawnCooldown: 1
+      spawnCooldown: 2
+    - enemyType: 1
+      tierFormula: 1
+      movePattern:
+        movePatternType: 1
+        speedFactor: 2
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 2
+        spawnPatternShape: 0
+        spawnAmount: 5
+        multipleSpawnDelay: 0.01
+      spawnCooldown: 2
+    - enemyType: 1
+      tierFormula: chapter
+      movePattern:
+        movePatternType: 1
+        speedFactor: 2
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 2
+        spawnPatternShape: 0
+        spawnAmount: 4
+        multipleSpawnDelay: 0.01
+      spawnCooldown: 3
     previewChapters: 0100000002000000030000000400000005000000
   bountyBugs: []
   weightChanges:

@@ -57,17 +57,7 @@ public class FrogCharacterController : MonoBehaviour
     public List<Color> godModeOutlineColors;
     public GameObject superFrogOverlay;
     [Space]
-    public float godModeWalkSpeedBoost = 0.7f;
-    public float godModeSwimSpeedBoost = 0.7f;
-    public float godModeMinCooldownBoost = -0.9f;
-    public float godModeMagnetBoost = 2;
-    public float godModeAttackDamageBoost = 2;
-    public float godModeAttackRangeBoost = 1.5f;
-    public float godModeAttackSizeBoost = 0.5f;
-    public float godModeAttackSpeedBoost = 1;
-    public float godModeAttackDurationBoost = 1;
-    public float godModeAttackSpecialStrengthBoost = 1;
-    public float godModeAttackSpecialDurationBoost = 1;
+    public StatsWrapper godModeStatBonuses;
 
     [Header("Character data - Runtime")]
     public float walkSpeedBoost;
@@ -109,6 +99,8 @@ public class FrogCharacterController : MonoBehaviour
     public string uiCancelInputName = "UICancel";
     [Space]
     public float inputAxisDeadZone = 0.3f;
+    public float delayBeforeHidingCursor = 5;
+    public GameObject cursorBlock;
 
     #region Cheats
 
@@ -155,8 +147,11 @@ public class FrogCharacterController : MonoBehaviour
 
     private float orientationAngle;
 
-    private bool superFrogMode;
+    public bool superFrogMode { private set; get; }
     private Coroutine superFrogCoroutine;
+
+    private Vector3 previousMousePosition;
+    private Coroutine hideCursorCoroutine;
 
     #region Unity Callback Methods
 
@@ -168,12 +163,15 @@ public class FrogCharacterController : MonoBehaviour
         rewiredPlayer = ReInput.players.GetPlayer(playerID);
         playerRigidbody = GetComponent<Rigidbody2D>();
         FriendsManager.instance.ClearAllFriends();
+        previousMousePosition = Input.mousePosition;
 
         if (BuildManager.instance.everythingIsUnlocked)
         {
             AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true, true);
             //UIManager.instance.ShowTitleScreen();
         }
+
+        HideCursor();
     }
 
     // Update is called once per frame
@@ -186,13 +184,17 @@ public class FrogCharacterController : MonoBehaviour
 
         bool ignoreUICancelInput = false;
 
-        if (GameManager.instance.isGameRunning)
+        if (GameManager.instance.isGameRunning || (ChapterManager.instance.chapterChoiceIsVisible && !ChapterManager.instance.isFirstChapter))
         {
             // Get Pause input
             if (GetPauseInput())
             {
-                GameManager.instance.TogglePause();
-                ignoreUICancelInput = true;
+                // If black screen between chapters is visible, we prevent pausing the game
+                if (!UIManager.instance.IsChapterStartScreenVisible())
+                {
+                    GameManager.instance.TogglePause();
+                    ignoreUICancelInput = true;
+                }
             }
 
             // Attempt to attack with all active tongues
@@ -213,6 +215,39 @@ public class FrogCharacterController : MonoBehaviour
         {
             GameManager.instance.UICancel();
         }
+
+        // Hide / Show mouse cursor
+        bool mouseLeftPressed = Input.GetMouseButton(0);
+        bool mouseRightPressed = Input.GetMouseButton(1);
+        bool mouseWheelUsed = Input.mouseScrollDelta.magnitude > 0;
+        float cursorMovedDistance = Vector3.Distance(previousMousePosition, Input.mousePosition);
+        if (mouseLeftPressed || mouseRightPressed || cursorMovedDistance > 0 || mouseWheelUsed)
+        {
+            if (cursorBlock.activeInHierarchy)
+            {
+                Cursor.visible = true;
+                cursorBlock.SetActive(false);
+            }
+
+            if (hideCursorCoroutine != null)
+            {
+                StopCoroutine(hideCursorCoroutine);
+            }
+            hideCursorCoroutine = StartCoroutine(WaitAndHideCursor(delayBeforeHidingCursor));
+        }
+        previousMousePosition = Input.mousePosition;
+    }
+
+    private IEnumerator WaitAndHideCursor(float delay)
+    {
+        yield return new WaitForSecondsRealtime(delay);
+        HideCursor();
+    }
+
+    private void HideCursor()
+    {
+        Cursor.visible = false;
+        cursorBlock.SetActive(true);
     }
 
     private void FixedUpdate()
@@ -252,11 +287,42 @@ public class FrogCharacterController : MonoBehaviour
     private float GetScoreScaledBoostForStat(CharacterStat statType)
     {
         float result = 0;
-        int score = RunManager.instance.GetCurrentChapterKillCount();
+        int score = RunManager.instance.GetTotalKillCount();
         IEnumerable<StatScoreScaling> statScoreScalingList = statScaleWithScoreList.Where(x => x.valueIncrease.stat.Equals(statType));
         foreach (StatScoreScaling statScoreScaling in statScoreScalingList)
         {
             result += (float)(statScoreScaling.valueIncrease.value * (score / statScoreScaling.scoreValue));
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// Get the added bonus in the current chapter for request stat type
+    /// </summary>
+    /// <param name="statType"></param>
+    /// <returns></returns>
+    private float GetChapterStatBonus(CharacterStat statType)
+    {
+        if (RunManager.instance != null && RunManager.instance.currentChapter != null && RunManager.instance.currentChapter.chapterData != null && RunManager.instance.currentChapter.chapterData.startingStatBonuses != null)
+        {
+            return (float)RunManager.instance.currentChapter.chapterData.startingStatBonuses.GetStatValue(statType).value;
+        }
+        return 0;
+    }
+
+    private float GetGodModeStatBonus(CharacterStat statType)
+    {
+        return (float)godModeStatBonuses.GetStatValue(statType).value;
+    }
+
+    private float GetCurrentStatBonus(CharacterStat statType)
+    {
+        float result = 0;
+        result += GetScoreScaledBoostForStat(statType);
+        result += GetChapterStatBonus(statType);
+        if (superFrogMode)
+        {
+            result += GetGodModeStatBonus(statType);
         }
         return result;
     }
@@ -270,12 +336,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetWalkSpeedBoost()
     {
-        float scaledWalkSpeedBoost = walkSpeedBoost + GetScoreScaledBoostForStat(CharacterStat.WALK_SPEED_BOOST);
-        if (superFrogMode)
-        {
-            scaledWalkSpeedBoost += godModeWalkSpeedBoost;
-        }
-        return scaledWalkSpeedBoost;
+        return walkSpeedBoost + GetCurrentStatBonus(CharacterStat.WALK_SPEED_BOOST);
     }
 
     /// <summary>
@@ -285,12 +346,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetSwimSpeedBoost()
     {
-        float scaledSwimSpeedBoost = swimSpeedBoost + GetScoreScaledBoostForStat(CharacterStat.SWIM_SPEED_BOOST);
-        if (superFrogMode)
-        {
-            scaledSwimSpeedBoost += godModeSwimSpeedBoost;
-        }
-        return scaledSwimSpeedBoost;
+        return swimSpeedBoost + GetCurrentStatBonus(CharacterStat.SWIM_SPEED_BOOST);
     }
 
     /// <summary>
@@ -300,12 +356,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetMagnetRangeBoost()
     {
-        float scaledMagnetRangeBoost = magnetRangeBoost + GetScoreScaledBoostForStat(CharacterStat.MAGNET_RANGE_BOOST);
-        if (superFrogMode)
-        {
-            scaledMagnetRangeBoost += godModeMagnetBoost;
-        }
-        return scaledMagnetRangeBoost;
+        return magnetRangeBoost + GetCurrentStatBonus(CharacterStat.MAGNET_RANGE_BOOST);
     }
 
     /// <summary>
@@ -315,8 +366,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetMaxHealth()
     {
-        float maxHp = maxHealth + GetScoreScaledBoostForStat(CharacterStat.MAX_HEALTH);
-        return maxHp;
+        return maxHealth + GetCurrentStatBonus(CharacterStat.MAX_HEALTH);
     }
 
     /// <summary>
@@ -326,8 +376,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetHealthRecovery()
     {
-        float recovery = healthRecovery + GetScoreScaledBoostForStat(CharacterStat.HEALTH_RECOVERY);
-        return recovery;
+        return healthRecovery + GetCurrentStatBonus(CharacterStat.HEALTH_RECOVERY);
     }
 
     /// <summary>
@@ -337,8 +386,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetArmor()
     {
-        float arm = armor + GetScoreScaledBoostForStat(CharacterStat.ARMOR);
-        return arm;
+        return armor + GetCurrentStatBonus(CharacterStat.ARMOR);
     }
 
     /// <summary>
@@ -348,8 +396,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetExperienceBoost()
     {
-        float xpBoost = experienceBoost + GetScoreScaledBoostForStat(CharacterStat.XP_BOOST);
-        return xpBoost;
+        return experienceBoost + GetCurrentStatBonus(CharacterStat.XP_BOOST);
     }
 
     /// <summary>
@@ -359,8 +406,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetCurrencyBoost()
     {
-        float currBoost = currencyBoost + GetScoreScaledBoostForStat(CharacterStat.CURRENCY_BOOST);
-        return currBoost;
+        return currencyBoost + GetCurrentStatBonus(CharacterStat.CURRENCY_BOOST);
     }
 
     /// <summary>
@@ -370,8 +416,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetCurse()
     {
-        float curs = curse + GetScoreScaledBoostForStat(CharacterStat.CURSE);
-        return curs;
+        return curse + GetCurrentStatBonus(CharacterStat.CURSE);
     }
 
     /// <summary>
@@ -382,13 +427,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetAttackCooldownBoost()
     {
-        float scaledCooldownBoost = attackCooldownBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_COOLDOWN_BOOST);
-        scaledCooldownBoost = Mathf.Clamp(scaledCooldownBoost, -1, 10000); // Maximum scaledCooldownBoost is +1000000%, it's not gonna happen
-        if (superFrogMode)
-        {
-            scaledCooldownBoost = Mathf.Min(godModeMinCooldownBoost, scaledCooldownBoost);
-        }
-        return scaledCooldownBoost;
+        return Mathf.Clamp(attackCooldownBoost + GetCurrentStatBonus(CharacterStat.ATK_COOLDOWN_BOOST), -1, 10000); // Maximum scaledCooldownBoost is +1000000%, it's not gonna happen
     }
 
     /// <summary>
@@ -398,12 +437,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetAttackDamageBoost()
     {
-        float scaledDamageBoost = attackDamageBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_DAMAGE_BOOST);
-        if (superFrogMode)
-        {
-            scaledDamageBoost += godModeAttackDamageBoost;
-        }
-        return scaledDamageBoost;
+        return attackDamageBoost + GetCurrentStatBonus(CharacterStat.ATK_DAMAGE_BOOST);
     }
 
     /// <summary>
@@ -413,12 +447,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetAttackRangeBoost()
     {
-        float scaledRangeBoost = attackRangeBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_RANGE_BOOST);
-        if (superFrogMode)
-        {
-            scaledRangeBoost += godModeAttackRangeBoost;
-        }
-        return scaledRangeBoost;
+        return attackRangeBoost + GetCurrentStatBonus(CharacterStat.ATK_RANGE_BOOST);
     }
 
     /// <summary>
@@ -428,12 +457,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetAttackSizeBoost()
     {
-        float scaledSizeBoost = attackSizeBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_SIZE_BOOST);
-        if (superFrogMode)
-        {
-            scaledSizeBoost += godModeAttackSizeBoost;
-        }
-        return scaledSizeBoost;
+        return attackSizeBoost + GetCurrentStatBonus(CharacterStat.ATK_SIZE_BOOST);
     }
 
     /// <summary>
@@ -443,12 +467,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetAttackSpeedBoost()
     {
-        float scaledAtkSpeedBoost = attackSpeedBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_SPEED_BOOST);
-        if (superFrogMode)
-        {
-            scaledAtkSpeedBoost += godModeAttackSpeedBoost;
-        }
-        return scaledAtkSpeedBoost;
+        return attackSpeedBoost + GetCurrentStatBonus(CharacterStat.ATK_SPEED_BOOST);
     }
 
     /// <summary>
@@ -458,12 +477,7 @@ public class FrogCharacterController : MonoBehaviour
     /// <returns></returns>
     public float GetAttackDurationBoost()
     {
-        float scaledAtkDurationBoost = attackDurationBoost + GetScoreScaledBoostForStat(CharacterStat.ATK_DURATION_BOOST);
-        if (superFrogMode)
-        {
-            scaledAtkDurationBoost += godModeAttackDurationBoost;
-        }
-        return scaledAtkDurationBoost;
+        return attackDurationBoost + GetCurrentStatBonus(CharacterStat.ATK_DURATION_BOOST);
     }
 
     #endregion Accessors
@@ -1026,13 +1040,19 @@ public class FrogCharacterController : MonoBehaviour
 
     private void TakingDamageEffect()
     {
-        characterRenderer.material.SetFloat("_OverlayVisible", 1);
-        SoundManager.instance.PlayTakeDamageLoopSound();
-        if (DamageTookEndOfEffectCoroutine != null)
+        // Overlay.
+        if (SettingsManager.instance.showFlashingEffects)
         {
-            StopCoroutine(DamageTookEndOfEffectCoroutine);
+            characterRenderer.material.SetFloat("_OverlayVisible", 1);
+            if (DamageTookEndOfEffectCoroutine != null)
+            {
+                StopCoroutine(DamageTookEndOfEffectCoroutine);
+            }
+            DamageTookEndOfEffectCoroutine = StartCoroutine(TakingDamageEndOfEffectAsync(0.7f));
         }
-        DamageTookEndOfEffectCoroutine = StartCoroutine(TakingDamageEndOfEffectAsync(0.7f));
+
+        // SFX.
+        SoundManager.instance.PlayTakeDamageLoopSound();
     }
 
     private void ChangeHealth(float change, bool cancelDamage)
@@ -1069,6 +1089,7 @@ public class FrogCharacterController : MonoBehaviour
     public void ApplyGodMode(float totalDuration, float blinkDuration)
     {
         superFrogMode = true;
+        MusicManager.instance.PlaySuperFrogMusic(superFrogMode);
         UpdateMagnetRange();
 
         // Outline
@@ -1090,6 +1111,7 @@ public class FrogCharacterController : MonoBehaviour
             StopCoroutine(superFrogCoroutine);
         }
         superFrogMode = false;
+        MusicManager.instance.PlaySuperFrogMusic(superFrogMode);
         SetCharacterOutline(godModeOutlineColors[0], 0);
         superFrogOverlay.SetActive(false);
         UpdateMagnetRange();
@@ -1125,6 +1147,7 @@ public class FrogCharacterController : MonoBehaviour
 
         // Turn god mode off
         superFrogMode = false;
+        MusicManager.instance.PlaySuperFrogMusic(superFrogMode);
         SetCharacterOutline(godModeOutlineColors[0], 0);
         superFrogOverlay.SetActive(false);
         UpdateMagnetRange();
@@ -1152,6 +1175,15 @@ public class FrogCharacterController : MonoBehaviour
             default:
                 break;
         }
+    }
+
+    public void StopAndResetAllExplosionEffects()
+    {
+        freezeExplosionEffect.StopAndResetExplosion();
+        poisonExplosionEffect.StopAndResetExplosion();
+        curseExplosionEffect.StopAndResetExplosion();
+        levelDownBugsExplosionEffect.StopAndResetExplosion();
+        levelUpBugsExplosionEffect.StopAndResetExplosion();
     }
 
     #region Cheat codes
@@ -1242,8 +1274,8 @@ public class FrogCharacterController : MonoBehaviour
             }
             if (rewiredPlayer.GetButtonDown(cheat_inRun_scorePlus))
             {
-                // +100 score (kills)
-                RunManager.instance.IncreaseKillCount(100);
+                // +1000 score (kills)
+                RunManager.instance.IncreaseKillCount(1000);
             }
             if (rewiredPlayer.GetButtonDown(cheat_inRun_maxHPPlus))
             {

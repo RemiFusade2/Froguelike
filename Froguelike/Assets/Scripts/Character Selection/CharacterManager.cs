@@ -13,6 +13,7 @@ using System;
 /// The information that can change at runtime are:
 /// - characterStartingStats, is the stats of this character, they can increase through playing and are saved in the save file
 /// - unlocked, is the status of the character. Is it possible to play with? This value can change when the character is unlocked through an achievement.
+/// - runStartedWith is the number of times a game was started with this character
 /// - wonWith is the number of times a game was won with this character
 /// </summary>
 [System.Serializable]
@@ -28,16 +29,23 @@ public class PlayableCharacter
     public StatsWrapper characterStatsIncrements;
     public bool unlocked;
     public bool hidden;
+    public int runStartedWith;
     public int wonWith;
+
+    public bool storyCompleted;
 
     public StatsWrapper GetCharacterStartingStats()
     {
+        StatsWrapper result = new StatsWrapper(characterData.startingStatsList);
+        if (storyCompleted)
+        {
+            result = StatsWrapper.JoinLists(characterData.startingStatsList, characterData.startingStatsStoryUpgrade);
+        }
         if (characterStatsIncrements != null && characterStatsIncrements.statsList != null && characterStatsIncrements.statsList.Count > 0)
         {
-            StatsWrapper combinedStats = StatsWrapper.JoinLists(characterData.startingStatsList, characterStatsIncrements.statsList);
-            return combinedStats;
+            result = StatsWrapper.JoinLists(result.statsList, characterStatsIncrements.statsList);
         }
-        return new StatsWrapper(characterData.startingStatsList);
+        return result;
     }
 
     public bool GetValueForStat(CharacterStat stat, out float value)
@@ -88,6 +96,8 @@ public class CharacterManager : MonoBehaviour
 
     [Header("Settings")]
     public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
+    [Space]
+    public bool showLockedCharacters;
 
     [Header("Characters scriptable objects data")]
     public List<CharacterData> charactersScriptableObjectsList;
@@ -152,6 +162,13 @@ public class CharacterManager : MonoBehaviour
         return charactersData.charactersList.Count(x => x.unlocked);
     }
 
+
+    public PlayableCharacter GetPlayableCharacter(string characterID)
+    {
+        PlayableCharacter result = charactersData.charactersList.FirstOrDefault(x => x.characterID == characterID);
+        return result;
+    }
+
     public CharacterData GetCharacterData(string characterID)
     {
         CharacterData result = null;
@@ -184,10 +201,11 @@ public class CharacterManager : MonoBehaviour
         List<Button> characterPanels = new List<Button>(); // For setting UI navigation a little later.
         string characterLog = "";
         PlayableCharacter defaultCharacter = null;
-        for (int i = 0; i < charactersData.charactersList.Count; i++)
+        List<PlayableCharacter> orderedList = charactersData.charactersList.Where(x => (x.characterData.partOfDemo || !BuildManager.instance.demoBuild)).OrderBy(x => !x.unlocked).ToList();
+        for (int i = 0; i < orderedList.Count; i++)
         {
-            PlayableCharacter characterInfo = charactersData.charactersList[i];
-            if (IsCharacterUnlocked(characterInfo.characterID))
+            PlayableCharacter characterInfo = orderedList[i];
+            if (showLockedCharacters || IsCharacterUnlocked(characterInfo.characterID))
             {
                 GameObject newCharacterPanel = Instantiate(characterPanelPrefab, characterListGridLayoutGroup);
                 newCharacterPanel.GetComponent<CharacterSelectionButton>().Initialize(characterInfo);
@@ -377,9 +395,6 @@ public class CharacterManager : MonoBehaviour
 
         // Update stats
         UpdateStatsList();
-
-        // Display the Start button if possible
-        startButton.interactable = (currentSelectedCharacter != null);
     }
 
     private void UpdateStatsList()
@@ -391,7 +406,7 @@ public class CharacterManager : MonoBehaviour
         List<StatValue> statBonusesFromShop = ShopManager.instance.statsBonuses;
         List<StatValue> currentCharacterStatList = currentSelectedCharacter.GetCharacterStartingStats().statsList;
         List<StatValue> totalStatList = StatsWrapper.JoinLists(currentCharacterStatList, statBonusesFromShop).statsList;
-
+ 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
             string log = "Character selection - Select " + currentSelectedCharacter.characterID + "\n";
@@ -405,10 +420,12 @@ public class CharacterManager : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
+
         int lineCount = 0;
         for (int i = 0; i < statValues.Length; i++)
         {
             CharacterStat stat = (CharacterStat)i;
+
             if (stat != CharacterStat.ATK_SPECIAL_DURATION_BOOST && stat != CharacterStat.ATK_SPECIAL_STRENGTH_BOOST && stat != CharacterStat.ATK_DURATION_BOOST) // we don't show these stats anymore
             {
                 GameObject statLineGo = Instantiate(statLinePrefab, statsListGridLayoutGroup);
@@ -417,32 +434,53 @@ public class CharacterManager : MonoBehaviour
                 // Show the icon.
                 statLineGo.transform.Find("Icon").GetComponent<Image>().sprite = DataManager.instance.GetStatSprite(stat);
 
+                StatValue statValue = null;
                 float totalValue = 0;
-                if (stat != CharacterStat.WALK_SPEED_BOOST && stat != CharacterStat.SWIM_SPEED_BOOST && stat != CharacterStat.MAGNET_RANGE_BOOST)
+                float frogValue = 0;
+                float shopValue = 0;
+
+                if (currentSelectedCharacter.unlocked)
                 {
-                    totalValue = DataManager.instance.GetDefaultValueForStat(stat); // we show these stats with percentage instead of value
+                    statValue = totalStatList.FirstOrDefault(x => x.stat == stat);
+
+                    if (stat != CharacterStat.WALK_SPEED_BOOST && stat != CharacterStat.SWIM_SPEED_BOOST && stat != CharacterStat.MAGNET_RANGE_BOOST)
+                    {
+                        totalValue = DataManager.instance.GetDefaultValueForStat(stat); // we show these stats with percentage instead of value
+                    }
+
+                    if (statValue != null)
+                    {
+                        totalValue += (float)statValue.value;
+                    }
                 }
-                StatValue statValue = totalStatList.FirstOrDefault(x => x.stat == stat);
-                if (statValue != null)
+                else
                 {
-                    totalValue += (float)statValue.value;
+                    statValue = statBonusesFromShop.FirstOrDefault(x => x.stat == stat);
+
+                    if (stat != CharacterStat.WALK_SPEED_BOOST && stat != CharacterStat.SWIM_SPEED_BOOST && stat != CharacterStat.MAGNET_RANGE_BOOST)
+                    {
+                        totalValue = DataManager.instance.GetDefaultValueForStat(stat); // we show these stats with percentage instead of value
+                    }
+
+                    if (statValue != null)
+                    {
+                        totalValue += (float)statValue.value;
+                    }
                 }
 
-                float frogValue = 0;
                 statValue = currentCharacterStatList.FirstOrDefault(x => x.stat == stat);
                 if (statValue != null)
                 {
                     frogValue += (float)statValue.value;
                 }
 
-                float shopValue = 0;
                 statValue = statBonusesFromShop.FirstOrDefault(x => x.stat == stat);
                 if (statValue != null)
                 {
                     shopValue += (float)statValue.value;
                 }
 
-                statLineScript.Initialize(stat, totalValue, frogValue, shopValue);
+                statLineScript.Initialize(stat, totalValue, frogValue, shopValue, currentSelectedCharacter.unlocked);
 
                 lineCount++;
             }
@@ -456,6 +494,10 @@ public class CharacterManager : MonoBehaviour
 
         // Hide shop if it isn't unlocked yet.
         hideShopStats.SetActive(!ShopManager.instance.IsShopUnlocked());
+
+        // Make start button not interactable if a locked character is picked.
+        startButton.interactable = currentSelectedCharacter.unlocked;
+        startButton.GetComponent<CanvasGroup>().blocksRaycasts = currentSelectedCharacter.unlocked;
     }
 
 
@@ -601,6 +643,7 @@ public class CharacterManager : MonoBehaviour
             {
                 character.unlocked = characterFromSave.unlocked;
                 character.hidden = characterFromSave.hidden;
+                character.runStartedWith = (characterFromSave.wonWith > characterFromSave.runStartedWith) ? characterFromSave.wonWith : characterFromSave.runStartedWith;
                 character.wonWith = characterFromSave.wonWith;
                 character.characterStatsIncrements = characterFromSave.characterStatsIncrements;
             }
@@ -624,7 +667,7 @@ public class CharacterManager : MonoBehaviour
             charactersData.availableGameModes = GameMode.NONE;
             foreach (CharacterData characterData in charactersScriptableObjectsList)
             {
-                PlayableCharacter newCharacter = new PlayableCharacter() { characterData = characterData, characterID = characterData.characterID, unlocked = characterData.startingUnlockState, hidden = characterData.startingHiddenState, wonWith = 0 };
+                PlayableCharacter newCharacter = new PlayableCharacter() { characterData = characterData, characterID = characterData.characterID, unlocked = characterData.startingUnlockState, hidden = characterData.startingHiddenState, wonWith = 0, runStartedWith = 0 };
                 newCharacter.characterStatsIncrements = new StatsWrapper();
                 charactersData.charactersList.Add(newCharacter);
             }
@@ -737,6 +780,16 @@ public class CharacterManager : MonoBehaviour
         return characterNewlyUnlocked;
     }
 
+    public void SetCharacterStoryCompleted(string characterID)
+    {
+        PlayableCharacter character = charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals(characterID));
+        if (character != null && !character.storyCompleted)
+        {
+            character.storyCompleted = true;
+            SaveDataManager.instance.isSaveDataDirty = true;
+        }
+    }
+
     public void IncrementCharacterStats(string characterID, List<StatValue> changedStatsValues)
     {
         PlayableCharacter character = charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals(characterID));
@@ -756,6 +809,17 @@ public class CharacterManager : MonoBehaviour
             result = true;
         }
         return result;
+    }
+
+    /// <summary>
+    /// Increase the amount of attempts with the given character
+    /// </summary>
+    /// <param name="character"></param>
+    public void StartedARunWithCharacter(PlayableCharacter character)
+    {
+        PlayableCharacter characterInCurrentData = charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals(character.characterID));
+        characterInCurrentData.runStartedWith++;
+        SaveDataManager.instance.isSaveDataDirty = true;
     }
 
     /// <summary>

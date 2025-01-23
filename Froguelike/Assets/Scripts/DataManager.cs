@@ -141,6 +141,13 @@ public class CollectibleInfo
     public List<int> MinValueForIcons;
 }
 
+[System.Serializable]
+public class NextChapterConditionCountInfo
+{
+    public NextChapterConditionCountType countType;
+    public Sprite icon;
+}
+
 /// <summary>
 /// DataManager is a class used to give access to handy methods to get relevant data for the game (weapon types, items, enemy types, etc.)
 /// </summary>
@@ -171,6 +178,11 @@ public class DataManager : MonoBehaviour
 
     [Header("Currency name")]
     public string currencyName = "froins";
+
+    [Header("TMPro Sprites")]
+    public string currencySymbol = "<sprite name=Froin>";
+    public string extraLifeSymbol = "<sprite name=Life>";
+    public string scoreSymbol = "<sprite name=Score>";
 
     [Header("Spawn probabilities")]
     public List<SpawnProbability> rocksSpawnProbabilities;
@@ -219,7 +231,8 @@ public class DataManager : MonoBehaviour
     [Header("Chapter Icons")]
     public List<ChapterIconData> chapterIconsList;
 
-
+    [Header("Next Chapter Condition Count")]
+    public List<NextChapterConditionCountInfo> nextChapterConditionCountInfoList;
 
 
     private Vector3 farAwayPosition;
@@ -315,7 +328,21 @@ public class DataManager : MonoBehaviour
         return probability;
     }
 
-    public Color GetColorForWeaponEffect(TongueEffect effect)
+    public TongueEffect GetTongueEffectFromColor(Color color)
+    {
+        TongueEffect result = TongueEffect.NONE;
+        foreach (KeyValuePair< TongueEffect, Color> effectColorVP in weaponEffectColorDico)
+        {
+            if (effectColorVP.Value.Equals(color))
+            {
+                result = effectColorVP.Key;
+                break;
+            }
+        }
+        return result;
+    }
+
+    public Color GetColorForTongueEffect(TongueEffect effect)
     {
         if (weaponEffectColorDico != null && weaponEffectColorDico.ContainsKey(effect))
         {
@@ -491,5 +518,10 @@ public class DataManager : MonoBehaviour
     public Vector3 GetFarAwayPosition()
     {
         return farAwayPosition;
+    }
+
+    public Sprite GetNextChapterConditionCountTypeSpriteFromType(NextChapterConditionCountType nextChapterConditionCountType)
+    {
+        return nextChapterConditionCountInfoList.Find(x => x.countType == nextChapterConditionCountType).icon;
     }
 }

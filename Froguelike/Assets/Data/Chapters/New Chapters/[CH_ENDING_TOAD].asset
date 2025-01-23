@@ -16,11 +16,11 @@ MonoBehaviour:
   partOfDemo: 0
   chapterTitle: Toad's challenge
   chapterLore:
-  - Toad was outsmarting beetles, touching plants hardly hurt him and his tongue
-    was the widest in the world, or at least the widest he'd ever seen. He was feeling
-    unstoppable!\n\n"No fly is a match for me, I will eat them all!" Toad croaked
-    for all critters in the forest to hear.\n\nThe flies heard Toad and they decided
-    to prove him wrong.
+  - '[FROGNAME] was outsmarting beetles, touching plants hardly hurt him and his
+    tongue was the widest in the world, or at least the widest he''d ever seen. He
+    was feeling unstoppable!\n\n"No fly is a match for me, I will eat them all!"
+    [FROGNAME] croaked for all critters in the forest to hear.\n\nThe flies heard
+    [FROGNAME] and they decided to prove him wrong, VERY wrong.'
   icons: []
   startingStatBonuses:
     statsList:
@@ -29,13 +29,14 @@ MonoBehaviour:
   chapterLengthInSeconds: 300
   freezeDurationMultiplier: 0
   startingUnlockState: 1
-  startingWeight: 0.5
+  startingWeight: 0.25
   canBePlayedMultipleTimesInOneRun: 0
   conditions:
   - conditionsList:
     - conditionType: 7
       not: 0
       chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 0
       maxChapterCount: 0
       environmentType: 0
@@ -46,11 +47,15 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 2
       not: 0
       chapterData: {fileID: 0}
-      minChapterCount: 5
-      maxChapterCount: 5
+      chapterDataMustBeLatestChapterPlayed: 0
+      minChapterCount: 1
+      maxChapterCount: 1
       environmentType: 0
       hatType: 0
       friendType: 0
@@ -59,6 +64,12 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
+  nextChapterConditionCount:
+    countType: 0
+    goal: 0
   rocksSpawnFrequency: 3
   pondsSpawnFrequency: 0
   coinsSpawnFrequency: 3
@@ -73,6 +84,7 @@ MonoBehaviour:
     collectibleName: Toadis
     collectibleDescription: They are not sure you will be able to handle this.
     collectibleType: 3
+    forceAcceptType: 0
     collectibleStatItemData: {fileID: 0}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
@@ -86,6 +98,7 @@ MonoBehaviour:
     collectibleName: Toada
     collectibleDescription: She is not sure you will be able to handle this.
     collectibleType: 3
+    forceAcceptType: 0
     collectibleStatItemData: {fileID: 0}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
@@ -339,13 +352,8 @@ MonoBehaviour:
       speedFactor: 2
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 0
-      amount: 5
-      value: 5
-    - collectibleType: 1
-      amount: 5
-      value: 5
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 45
     enemyType: 0
     tierFormula: 2
@@ -362,10 +370,8 @@ MonoBehaviour:
       speedFactor: 3
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 1
-      amount: 10
-      value: 50
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 50
     enemyType: 0
     tierFormula: 3
@@ -382,10 +388,8 @@ MonoBehaviour:
       speedFactor: 3
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 2
-      amount: 1
-      value: 1
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 55
     enemyType: 0
     tierFormula: 4
@@ -402,16 +406,8 @@ MonoBehaviour:
       speedFactor: 4
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 1
-      amount: 5
-      value: 50
-    - collectibleType: 1
-      amount: 5
-      value: 25
-    - collectibleType: 1
-      amount: 10
-      value: 5
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 60
     enemyType: 0
     tierFormula: 5
@@ -428,13 +424,8 @@ MonoBehaviour:
       speedFactor: 4
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 3
-      amount: 5
-      value: 25
-    - collectibleType: 1
-      amount: 10
-      value: 50
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 80
     enemyType: 0
     tierFormula: 4
@@ -451,10 +442,8 @@ MonoBehaviour:
       speedFactor: 5
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 1
-      amount: 10
-      value: 50
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 120
     enemyType: 0
     tierFormula: 3
@@ -471,16 +460,8 @@ MonoBehaviour:
       speedFactor: 7
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 0
-      amount: 10
-      value: 10
-    - collectibleType: 0
-      amount: 10
-      value: 5
-    - collectibleType: 1
-      amount: 10
-      value: 5
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 150
     enemyType: 0
     tierFormula: 4
@@ -497,13 +478,8 @@ MonoBehaviour:
       speedFactor: 9
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 0
-      amount: 20
-      value: 5
-    - collectibleType: 1
-      amount: 20
-      value: 5
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 180
     enemyType: 0
     tierFormula: 5
@@ -520,10 +496,8 @@ MonoBehaviour:
       speedFactor: 12
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 180
     enemyType: 0
     tierFormula: 5
@@ -540,10 +514,8 @@ MonoBehaviour:
       speedFactor: 12
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 180
     enemyType: 0
     tierFormula: 5
@@ -560,10 +532,8 @@ MonoBehaviour:
       speedFactor: 12
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 200
     enemyType: 0
     tierFormula: 5
@@ -580,10 +550,8 @@ MonoBehaviour:
       speedFactor: 15
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 200
     enemyType: 0
     tierFormula: 5
@@ -600,10 +568,8 @@ MonoBehaviour:
       speedFactor: 15
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 200
     enemyType: 0
     tierFormula: 5
@@ -620,10 +586,8 @@ MonoBehaviour:
       speedFactor: 15
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 200
     enemyType: 0
     tierFormula: 5
@@ -640,10 +604,8 @@ MonoBehaviour:
       speedFactor: 15
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 200
     enemyType: 0
     tierFormula: 5
@@ -660,8 +622,6 @@ MonoBehaviour:
       speedFactor: 15
       bouncecount: 0
     ignoreMaxSpeed: 1
-    bountyList:
-    - collectibleType: 0
-      amount: 1
-      value: 1
+    overrideRewards: 0
+    rewardsList: 
   weightChanges: []

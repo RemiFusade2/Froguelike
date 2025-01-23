@@ -16,10 +16,10 @@ MonoBehaviour:
   partOfDemo: 0
   chapterTitle: Core day
   chapterLore:
-  - Toad woke up with a belly still full of plants. "Maybe the flowers in my belly
-    will attract wasps? Is that how it works?" Toad was lost in thoughts.\n\n"It
-    doesn't matter, I'm sure I can find some wasps with or without flowers! My goal
-    is to spend 6 minutes eating wasps, and to eat at least 6 extra strong ones!"
+  - '[FROGNAME] woke up with a belly still full of plants. "Maybe the flowers in
+    my belly will attract wasps? Is that how it works?" [FROGNAME] was lost in thoughts.\n\n"It
+    doesn''t matter, I''m sure I can find some wasps with or without flowers! My
+    goal is to spend 6 minutes eating wasps, and to eat at least 6 extra strong ones!"'
   icons: []
   startingStatBonuses:
     statsList: []
@@ -33,6 +33,7 @@ MonoBehaviour:
     - conditionType: 2
       not: 0
       chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 4
       maxChapterCount: 4
       environmentType: 0
@@ -43,9 +44,13 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 7
       not: 0
       chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 0
       maxChapterCount: 0
       environmentType: 0
@@ -56,9 +61,13 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 1
       not: 0
       chapterData: {fileID: 11400000, guid: dd28217f880f69c45a2ea201dff8a2ee, type: 2}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 0
       maxChapterCount: 0
       environmentType: 0
@@ -69,9 +78,13 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 5
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 9
       not: 0
       chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 0
       maxChapterCount: 0
       environmentType: 0
@@ -82,6 +95,12 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 5
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
+  nextChapterConditionCount:
+    countType: 1
+    goal: 6
   rocksSpawnFrequency: 0
   pondsSpawnFrequency: 2
   coinsSpawnFrequency: 0
@@ -96,6 +115,7 @@ MonoBehaviour:
     collectibleName: Mighty
     collectibleDescription: 
     collectibleType: 0
+    forceAcceptType: 0
     collectibleStatItemData: {fileID: 11400000, guid: 07f49185c536d1744894b0ebdc453a06, type: 2}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
@@ -382,13 +402,8 @@ MonoBehaviour:
       speedFactor: 1.2
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 5
-      value: 25
-    - collectibleType: 1
-      amount: 3
-      value: 50
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 30
     enemyType: 4
     tierFormula: 1
@@ -405,13 +420,8 @@ MonoBehaviour:
       speedFactor: 1.2
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 2
-      amount: 1
-      value: 1
-    - collectibleType: 0
-      amount: 25
-      value: 5
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 60
     enemyType: 4
     tierFormula: 2
@@ -428,16 +438,8 @@ MonoBehaviour:
       speedFactor: 1.2
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 4
-      value: 50
-    - collectibleType: 0
-      amount: 25
-      value: 5
-    - collectibleType: 3
-      amount: 2
-      value: 100
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 90
     enemyType: 4
     tierFormula: 3
@@ -454,16 +456,8 @@ MonoBehaviour:
       speedFactor: 1
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 4
-      value: 50
-    - collectibleType: 1
-      amount: 10
-      value: 5
-    - collectibleType: 0
-      amount: 10
-      value: 10
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 120
     enemyType: 4
     tierFormula: 4
@@ -480,16 +474,8 @@ MonoBehaviour:
       speedFactor: 1
       bouncecount: 100
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 10
-      value: 25
-    - collectibleType: 3
-      amount: 3
-      value: 100
-    - collectibleType: 3
-      amount: 5
-      value: 20
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 160
     enemyType: 4
     tierFormula: 4
@@ -506,16 +492,8 @@ MonoBehaviour:
       speedFactor: 1
       bouncecount: 100
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 10
-      value: 5
-    - collectibleType: 1
-      amount: 3
-      value: 50
-    - collectibleType: 0
-      amount: 20
-      value: 10
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 200
     enemyType: 4
     tierFormula: 1
@@ -532,10 +510,8 @@ MonoBehaviour:
       speedFactor: 1
       bouncecount: 100
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 20
-      value: 5
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 240
     enemyType: 4
     tierFormula: 3
@@ -552,16 +528,8 @@ MonoBehaviour:
       speedFactor: 1
       bouncecount: 100
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 5
-      value: 5
-    - collectibleType: 2
-      amount: 1
-      value: 1
-    - collectibleType: 0
-      amount: 20
-      value: 10
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 270
     enemyType: 4
     tierFormula: 2
@@ -578,13 +546,8 @@ MonoBehaviour:
       speedFactor: 1
       bouncecount: 100
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 20
-      value: 5
-    - collectibleType: 3
-      amount: 10
-      value: 20
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 300
     enemyType: 4
     tierFormula: 1
@@ -601,8 +564,6 @@ MonoBehaviour:
       speedFactor: 1
       bouncecount: 100
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 20
-      value: 5
+    overrideRewards: 0
+    rewardsList: 
   weightChanges: []

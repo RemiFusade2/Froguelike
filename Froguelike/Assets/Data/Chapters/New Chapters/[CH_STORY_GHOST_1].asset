@@ -16,12 +16,15 @@ MonoBehaviour:
   partOfDemo: 1
   chapterTitle: Am I not alone?
   chapterLore:
-  - If there are other ghosts in the swamp, I must find them!\nMy afterlife would
-    be so much more fun with some friends around!
+  - '[FROGNAME] was still feeling lonely, but now that they know other ghosts are
+    floating around, there''s no time to waste!\n\nThe afterlife would be so much
+    more fun with friends around!\n\n[FROGNAME] could sense at least 2 friends nearby,
+    maybe there were even more. Let''s find them!'
   icons: []
   startingStatBonuses:
     statsList: []
   chapterLengthInSeconds: 300
+  freezeDurationMultiplier: 1
   startingUnlockState: 0
   startingWeight: 1
   canBePlayedMultipleTimesInOneRun: 0
@@ -39,6 +42,7 @@ MonoBehaviour:
       characterData: {fileID: 0}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
     - conditionType: 2
       not: 0
       chapterData: {fileID: 0}
@@ -51,6 +55,7 @@ MonoBehaviour:
       characterData: {fileID: 0}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
     - conditionType: 7
       not: 0
       chapterData: {fileID: 0}
@@ -63,6 +68,10 @@ MonoBehaviour:
       characterData: {fileID: 11400000, guid: 2d0ffd1520e0bd243a6ee158e1719242, type: 2}
       minFriendsCount: 0
       maxFriendsCount: 10
+      minBountiesEaten: 0
+  nextChapterConditionCount:
+    countType: 2
+    goal: 2
   rocksSpawnFrequency: 1
   pondsSpawnFrequency: 2
   coinsSpawnFrequency: 1
@@ -74,7 +83,7 @@ MonoBehaviour:
   - Type: 4
     Frequency: 2
   specialCollectiblesOnTheMap:
-  - tileCoordinates: {x: 3, y: 4}
+  - tileCoordinates: {x: 4, y: 4}
     tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
     collectibleName: Croakulus
     collectibleDescription: He seems friendly
@@ -86,8 +95,8 @@ MonoBehaviour:
     foundCollectibleTitle: You meet
     acceptCollectibleStr: Hello
     refuseCollectibleStr: Good bye
-    compassLevel: 1
-  - tileCoordinates: {x: 4, y: -2}
+    compassLevel: 0
+  - tileCoordinates: {x: -4, y: 4}
     tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
     collectibleName: Ribbitara
     collectibleDescription: She seems friendly
@@ -99,8 +108,8 @@ MonoBehaviour:
     foundCollectibleTitle: You meet
     acceptCollectibleStr: Hello
     refuseCollectibleStr: Good bye
-    compassLevel: 1
-  - tileCoordinates: {x: -3, y: 6}
+    compassLevel: 0
+  - tileCoordinates: {x: 0, y: -7}
     tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
     collectibleName: Blinkleap
     collectibleDescription: They seem friendly
@@ -112,7 +121,7 @@ MonoBehaviour:
     foundCollectibleTitle: You meet
     acceptCollectibleStr: Hello
     refuseCollectibleStr: Good bye
-    compassLevel: 2
+    compassLevel: 1
   - tileCoordinates: {x: -6, y: -3}
     tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
     collectibleName: Frobbins
@@ -126,7 +135,7 @@ MonoBehaviour:
     acceptCollectibleStr: Hello
     refuseCollectibleStr: Good bye
     compassLevel: 2
-  - tileCoordinates: {x: -10, y: 0}
+  - tileCoordinates: {x: 6, y: -3}
     tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
     collectibleName: Croakula
     collectibleDescription: They seem friendly
@@ -138,8 +147,8 @@ MonoBehaviour:
     foundCollectibleTitle: You meet
     acceptCollectibleStr: Hello
     refuseCollectibleStr: Good bye
-    compassLevel: 3
-  - tileCoordinates: {x: 10, y: 0}
+    compassLevel: 2
+  - tileCoordinates: {x: 0, y: 10}
     tilePrefab: {fileID: 6482756393712147410, guid: c1639f72eb1ca4b489194f7b7f61e6d8, type: 3}
     collectibleName: Toady
     collectibleDescription: They seem friendly
@@ -158,7 +167,7 @@ MonoBehaviour:
   - duration: 60
     enemies:
     - enemyType: 5
-      tierFormula: chapter-1
+      tierFormula: 1
       movePattern:
         movePatternType: 3
         speedFactor: 1
@@ -168,12 +177,24 @@ MonoBehaviour:
         spawnPatternShape: 0
         spawnAmount: 1
         multipleSpawnDelay: 0
-      spawnCooldown: 0.08
+      spawnCooldown: 0.1
+    - enemyType: 5
+      tierFormula: 2
+      movePattern:
+        movePatternType: 3
+        speedFactor: 0.8
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 0.5
     previewChapters: 01000000
   - duration: 60
     enemies:
     - enemyType: 2
-      tierFormula: chapter-1
+      tierFormula: 1
       movePattern:
         movePatternType: 0
         speedFactor: 0
@@ -183,12 +204,24 @@ MonoBehaviour:
         spawnPatternShape: 0
         spawnAmount: 5
         multipleSpawnDelay: 0
-      spawnCooldown: 1
+      spawnCooldown: 0.4
+    - enemyType: 2
+      tierFormula: 2
+      movePattern:
+        movePatternType: 0
+        speedFactor: 0
+        bouncecount: 0
+      spawnPattern:
+        spawnPatternType: 0
+        spawnPatternShape: 0
+        spawnAmount: 1
+        multipleSpawnDelay: 0
+      spawnCooldown: 2
     previewChapters: 01000000
   - duration: 60
     enemies:
     - enemyType: 5
-      tierFormula: chapter-2
+      tierFormula: 1
       movePattern:
         movePatternType: 3
         speedFactor: 1.2
@@ -198,9 +231,9 @@ MonoBehaviour:
         spawnPatternShape: 0
         spawnAmount: 1
         multipleSpawnDelay: 0
-      spawnCooldown: 0.16
+      spawnCooldown: 0.15
     - enemyType: 2
-      tierFormula: chapter-1
+      tierFormula: 1
       movePattern:
         movePatternType: 0
         speedFactor: 0
@@ -212,7 +245,7 @@ MonoBehaviour:
         multipleSpawnDelay: 0
       spawnCooldown: 5
     - enemyType: 2
-      tierFormula: chapter-2
+      tierFormula: 2
       movePattern:
         movePatternType: 0
         speedFactor: 0
@@ -227,7 +260,7 @@ MonoBehaviour:
   - duration: 60
     enemies:
     - enemyType: 2
-      tierFormula: chapter
+      tierFormula: 1
       movePattern:
         movePatternType: 0
         speedFactor: 1
@@ -237,9 +270,9 @@ MonoBehaviour:
         spawnPatternShape: 0
         spawnAmount: 1
         multipleSpawnDelay: 0
-      spawnCooldown: 1
+      spawnCooldown: 0.2
     - enemyType: 2
-      tierFormula: chapter-1
+      tierFormula: 2
       movePattern:
         movePatternType: 0
         speedFactor: 1
@@ -249,9 +282,9 @@ MonoBehaviour:
         spawnPatternShape: 0
         spawnAmount: 4
         multipleSpawnDelay: 0
-      spawnCooldown: 2
+      spawnCooldown: 1
     - enemyType: 2
-      tierFormula: chapter+2
+      tierFormula: 3
       movePattern:
         movePatternType: 0
         speedFactor: 1
@@ -261,15 +294,15 @@ MonoBehaviour:
         spawnPatternShape: 1
         spawnAmount: 30
         multipleSpawnDelay: 0
-      spawnCooldown: 120
+      spawnCooldown: 30
     previewChapters: 01000000
   - duration: 60
     enemies:
     - enemyType: 5
-      tierFormula: chapter+1
+      tierFormula: 2
       movePattern:
         movePatternType: 3
-        speedFactor: 1.3
+        speedFactor: 1
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 0
@@ -278,7 +311,7 @@ MonoBehaviour:
         multipleSpawnDelay: 0
       spawnCooldown: 0.2
     - enemyType: 2
-      tierFormula: chapter
+      tierFormula: 3
       movePattern:
         movePatternType: 0
         speedFactor: 1
@@ -290,7 +323,7 @@ MonoBehaviour:
         multipleSpawnDelay: 0
       spawnCooldown: 120
     - enemyType: 2
-      tierFormula: chapter
+      tierFormula: 2
       movePattern:
         movePatternType: 0
         speedFactor: 1
@@ -300,7 +333,7 @@ MonoBehaviour:
         spawnPatternShape: 0
         spawnAmount: 1
         multipleSpawnDelay: 0
-      spawnCooldown: 0.3
+      spawnCooldown: 0.5
     previewChapters: 01000000
   bountyBugs: []
   weightChanges:

@@ -9,6 +9,7 @@ public class CompassArrowBehaviour : MonoBehaviour
     public Animator arrowAnimator;
     public RectTransform arrowRectTransform;
     public Image arrowImage;
+    public Image knownItemSprite;
 
     [Header("Runtime")]
     public Vector2Int collectibleTileCoordinates;

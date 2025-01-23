@@ -8,11 +8,11 @@ using System;
 public class PauseScreen : MonoBehaviour
 {
     public RunManager runManager;
-
-    public Image characterImage;
-    public TextMeshProUGUI characterNameText;
-    public Transform thingSlotsParent;
+    [Header("Character bookmark")]
+    public CharacterBookmarkInRunInfoBehaviour characterInfoBookmark;
+    [Header("Chapter list")]
     public TextMeshProUGUI chapterText;
+    [Header("Item slots")]
     public List<Transform> tongueSlotsParents;
     public GameObject tongueSlotPrefab;
     public List<Transform> runItemSlotsParents;
@@ -20,93 +20,40 @@ public class PauseScreen : MonoBehaviour
     public GameObject firstExtraSlots;
     public GameObject secondExtraSlots;
     public GameObject thirdExtraSlots;
+    public GameObject forthExtraSlots;
+    [Header("Lives")]
     public TextMeshProUGUI livesCountText;
-
+    [Header("Panel")]
+    public GameObject runInfoPanel;
+    public ChapterInfoBehaviour chapterInfoPanel;
+    [Header("Tab buttons")]
+    public Button runInfoButton;
+    public Button chapterInfoButton;
 
     public void UpdatePauseScreen()
     {
+
+        // Update character info bookmark. Image, name, hats and friends.
+        characterInfoBookmark.UpdateInRunBookmark();
+
+        // Display a list of selected chapters.
         try
         {
-            // Character image.
-            characterImage.sprite = runManager.currentPlayedCharacter.characterData.characterSprite;
-            characterImage.SetNativeSize();
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"Exception in UpdatePauseScreen() - updating character image: {e.Message}");
-        }
-
-        try
-        {
-            // Character name.
-            characterNameText.SetText(runManager.currentPlayedCharacter.characterData.characterName);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"Exception in UpdatePauseScreen() - updating character name: {e.Message}");
-        }
-
-        try
-        {
-            // Hats + friends
-            int thingSlot = 0;
-            Image thingSlotImage;
-
-            int nrOfHats = runManager.player.hatsParent.childCount;
-            for (int hat = 0; hat < nrOfHats; hat++)
+            string text = "";
+            // Previous chapters.
+            for (int chapterIndex = 0; chapterIndex < runManager.GetChapterCount() - 1; chapterIndex++)
             {
-                if (thingSlot >= thingSlotsParent.childCount) break;
-
-                thingSlotImage = thingSlotsParent.GetChild(thingSlot).GetComponentInChildren<Image>();
-                SpriteRenderer[] hatsSpriteRenderersArray = runManager.player.hatsParent.GetComponentsInChildren<SpriteRenderer>();
-                thingSlotImage.sprite = hatsSpriteRenderersArray[hat].sprite;
-                thingSlotImage.SetNativeSize();
-
-                thingSlotImage.gameObject.SetActive(true);
-                thingSlotImage.enabled = true;
-
-                thingSlot++;
+                text += "Chapter " + (chapterIndex + 1) + " - " + runManager.completedChaptersList[chapterIndex].chapterData.chapterTitle + "\n";
             }
 
-            int nrOfFriends = FriendsManager.instance.transform.childCount;
-            foreach (FriendInstance friend in FriendsManager.instance.permanentFriendsList)
+            if (!ChapterManager.instance.chapterChoiceIsVisible)
             {
-                if (thingSlot >= thingSlotsParent.childCount) break;
-
-                thingSlotImage = thingSlotsParent.GetChild(thingSlot).GetComponentInChildren<Image>();
-                thingSlotImage.sprite = friend.data.sprite;
-                thingSlotImage.SetNativeSize();
-
-                thingSlotImage.gameObject.SetActive(true);
-                thingSlotImage.enabled = true;
-
-                thingSlot++;
+                // Current chapter, if we're not in the process of selecting it
+                text += "Chapter " + runManager.GetChapterCount().ToString() + " - " + runManager.currentChapter.chapterData.chapterTitle;
             }
 
-            while (thingSlot < thingSlotsParent.childCount)
-            {
-                thingSlotImage = thingSlotsParent.GetChild(thingSlot).GetComponentInChildren<Image>();
-                if (thingSlotImage != null)
-                {
-                    thingSlotImage.GetComponent<Image>().enabled = false;
-                }
-                else
-                {
-                    break;
-                }
-
-                thingSlot++;
-            }
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"Exception in UpdatePauseScreen() - updating hats and friends: {e.Message}");
-        }
-
-        try
-        {
-            // Chapter number + name.
-            chapterText.SetText("Chapter " + runManager.GetChapterCount().ToString() + "<br>" + runManager.currentChapter.chapterData.chapterTitle);
+            // Update and display list.
+            chapterText.SetText(text);
         }
         catch (Exception e)
         {
@@ -127,12 +74,14 @@ public class PauseScreen : MonoBehaviour
         try
         {
             // Extra lives count.
-            livesCountText.SetText("Extra lives: " + runManager.extraLivesCountText.text);
+            livesCountText.SetText($"Extra lives: {DataManager.instance.extraLifeSymbol} {runManager.extraLivesCountText.text}");
         }
         catch (Exception e)
         {
             Debug.LogError($"Exception in UpdatePauseScreen() - updating extra lives count: {e.Message}");
         }
+
+        ShowRunInfoPanel();
     }
 
     private void UpdateRunItemSlots()
@@ -151,6 +100,7 @@ public class PauseScreen : MonoBehaviour
         firstExtraSlots.SetActive(maxSlots > 6);
         secondExtraSlots.SetActive(maxSlots > 8);
         thirdExtraSlots.SetActive(maxSlots > 10);
+        forthExtraSlots.SetActive(maxSlots > 12);
 
         UpdateSlots(ownedTongues, tongueSlotPrefab, tongueSlotsParents);
         UpdateSlots(ownedRunItems, runItemSlotPrefab, runItemSlotsParents);
@@ -197,6 +147,11 @@ public class PauseScreen : MonoBehaviour
             {
                 parent = parents[3];
             }
+            // Instantiate slot on forth post it.
+            else if (child < 14)
+            {
+                parent = parents[4];
+            }
             else
             {
                 return;
@@ -219,5 +174,24 @@ public class PauseScreen : MonoBehaviour
                 Destroy(child.gameObject);
             }
         }
+    }
+
+    public void ShowRunInfoPanel(bool cameFromChapterInfo = false)
+    {
+        chapterInfoPanel.transform.parent.gameObject.SetActive(false);
+        runInfoPanel.SetActive(true);
+        if (cameFromChapterInfo)
+        {
+            chapterInfoButton.Select();
+        }
+    }
+
+    public void ShowChapterInfoPanel()
+    {
+        runInfoPanel.SetActive(false);
+        chapterInfoPanel.transform.parent.gameObject.SetActive(true);
+        runInfoButton.Select();
+
+        chapterInfoPanel.DisplayChapter(RunManager.instance.currentChapter, chapterInfoPanel);
     }
 }

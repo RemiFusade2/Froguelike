@@ -16,10 +16,11 @@ MonoBehaviour:
   partOfDemo: 0
   chapterTitle: Rest day
   chapterLore:
-  - The next day Toads legs were hurting from being chased around for two days. Luckily
-    today's agenda is 5 minutes and eating plants, 5 extra strong ones is the goal.\n\n"Today
-    I will do the chasing, searching for those strong plants!" Toad said, completely
-    forgetting about his hurting legs, he was so excited to eat some plants!
+  - The next day [FROGNAME]'s legs were hurting from being chased around for two
+    days. Luckily today's agenda is 5 minutes and eating plants, 5 extra strong ones
+    is the goal.\n\n"Today I will do the chasing, searching for those strong plants!"
+    [FROGNAME] said, completely forgetting about his hurting legs, he was so excited
+    to eat some plants!
   icons: []
   startingStatBonuses:
     statsList: []
@@ -33,6 +34,7 @@ MonoBehaviour:
     - conditionType: 2
       not: 0
       chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 3
       maxChapterCount: 3
       environmentType: 0
@@ -43,9 +45,13 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 7
       not: 0
       chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 0
       maxChapterCount: 0
       environmentType: 0
@@ -56,9 +62,13 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 1
       not: 0
       chapterData: {fileID: 11400000, guid: 85e9e45fbbc5d7e42921fd0addf10991, type: 2}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 0
       maxChapterCount: 0
       environmentType: 0
@@ -69,9 +79,13 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 5
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 9
       not: 0
       chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 0
       maxChapterCount: 0
       environmentType: 0
@@ -82,6 +96,12 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 4
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
+  nextChapterConditionCount:
+    countType: 1
+    goal: 5
   rocksSpawnFrequency: 3
   pondsSpawnFrequency: 0
   coinsSpawnFrequency: 0
@@ -98,6 +118,7 @@ MonoBehaviour:
     collectibleName: Mighty
     collectibleDescription: 
     collectibleType: 0
+    forceAcceptType: 0
     collectibleStatItemData: {fileID: 11400000, guid: 07f49185c536d1744894b0ebdc453a06, type: 2}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
@@ -417,16 +438,8 @@ MonoBehaviour:
       speedFactor: 5
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 10
-      value: 5
-    - collectibleType: 1
-      amount: 5
-      value: 25
-    - collectibleType: 3
-      amount: 2
-      value: 20
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 30
     enemyType: 2
     tierFormula: 1
@@ -443,16 +456,8 @@ MonoBehaviour:
       speedFactor: 5
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 10
-      value: 5
-    - collectibleType: 1
-      amount: 5
-      value: 25
-    - collectibleType: 3
-      amount: 2
-      value: 20
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 45
     enemyType: 2
     tierFormula: 1
@@ -469,16 +474,8 @@ MonoBehaviour:
       speedFactor: 5
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 10
-      value: 5
-    - collectibleType: 1
-      amount: 5
-      value: 25
-    - collectibleType: 3
-      amount: 2
-      value: 20
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 55
     enemyType: 2
     tierFormula: 1
@@ -495,16 +492,8 @@ MonoBehaviour:
       speedFactor: 5
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 10
-      value: 5
-    - collectibleType: 1
-      amount: 5
-      value: 25
-    - collectibleType: 3
-      amount: 2
-      value: 20
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 70
     enemyType: 2
     tierFormula: 1
@@ -521,16 +510,8 @@ MonoBehaviour:
       speedFactor: 5
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 10
-      value: 5
-    - collectibleType: 1
-      amount: 5
-      value: 25
-    - collectibleType: 3
-      amount: 2
-      value: 20
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 100
     enemyType: 2
     tierFormula: 1
@@ -547,16 +528,8 @@ MonoBehaviour:
       speedFactor: 5
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 10
-      value: 5
-    - collectibleType: 1
-      amount: 5
-      value: 25
-    - collectibleType: 3
-      amount: 2
-      value: 20
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 140
     enemyType: 2
     tierFormula: 1
@@ -573,16 +546,8 @@ MonoBehaviour:
       speedFactor: 5
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 10
-      value: 5
-    - collectibleType: 1
-      amount: 5
-      value: 25
-    - collectibleType: 3
-      amount: 2
-      value: 20
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 160
     enemyType: 2
     tierFormula: 1
@@ -599,16 +564,8 @@ MonoBehaviour:
       speedFactor: 5
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 10
-      value: 5
-    - collectibleType: 1
-      amount: 5
-      value: 25
-    - collectibleType: 3
-      amount: 2
-      value: 20
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 200
     enemyType: 2
     tierFormula: 1
@@ -625,16 +582,8 @@ MonoBehaviour:
       speedFactor: 5
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 10
-      value: 5
-    - collectibleType: 1
-      amount: 5
-      value: 25
-    - collectibleType: 3
-      amount: 2
-      value: 20
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 210
     enemyType: 2
     tierFormula: 1
@@ -651,16 +600,8 @@ MonoBehaviour:
       speedFactor: 5
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 10
-      value: 5
-    - collectibleType: 1
-      amount: 5
-      value: 25
-    - collectibleType: 3
-      amount: 2
-      value: 20
+    overrideRewards: 0
+    rewardsList: 
   - spawnTime: 250
     enemyType: 2
     tierFormula: 1
@@ -677,14 +618,6 @@ MonoBehaviour:
       speedFactor: 5
       bouncecount: 0
     ignoreMaxSpeed: 0
-    bountyList:
-    - collectibleType: 1
-      amount: 10
-      value: 5
-    - collectibleType: 1
-      amount: 5
-      value: 25
-    - collectibleType: 3
-      amount: 2
-      value: 20
+    overrideRewards: 0
+    rewardsList: 
   weightChanges: []

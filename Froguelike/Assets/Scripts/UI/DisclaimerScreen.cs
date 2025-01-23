@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class DisclaimerScreen : MonoBehaviour
 {
     [Header("References")]
-    public SettingsMenu settingsMenu;
+    public SettingsManager settingsMenu;
 
     public Animator dontShowThisAgainButtonAnimator;
     public GameObject dontShowThisAgainCheckmark;
@@ -17,13 +17,13 @@ public class DisclaimerScreen : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     private bool ShouldDisclaimerBeShown()
@@ -94,7 +94,10 @@ public class DisclaimerScreen : MonoBehaviour
         dontShowThisAgainCheckmark.SetActive(!showDisclaimer);
 
         // Select Confirm button
-        UIManager.instance.SetSelectedButton(confirmButton);
+        if (gameObject.activeInHierarchy)
+        {
+            UIManager.instance.SetSelectedButton(confirmButton);
+        }
     }
 
     public void TempHideCheckmark()

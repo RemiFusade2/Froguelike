@@ -132,16 +132,13 @@ public class ChapterManager : MonoBehaviour
     public List<ChapterData> chaptersScriptableObjectsList;
     public ChapterData tutorialChapterScriptableObject;
     public ChapterData toadEndChapterForSpecialStuff;
+    public ChapterData kermitEndChapterForSpecialStuff;
 
     [Header("UI - Chapter Selection screen")]
     public TextMeshProUGUI chapterSelectionTopText;
     public List<ChapterButtonBehaviour> chapterButtonsList;
     public Button backButton;
-    public TextMeshProUGUI infoTitleTextMesh;
-    public TextMeshProUGUI infoDescriptionTextMesh;
-    public GameObject fixedCollectiblesParent;
-    public GameObject powerUpsParent;
-    public List<CollectibleSprites> collectibleSprites;
+    public ChapterInfoBehaviour chapterInfoPanel;
 
     [Header("UI - Chapter Selection screen - Post its")]
     public GameObject rerollInfinitePostIt;
@@ -186,16 +183,6 @@ public class ChapterManager : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        List<Image> fixedCollectibleSlots = fixedCollectiblesParent.GetComponentsInChildren<Image>().ToList();
-        foreach (Image fixedCollectible in fixedCollectibleSlots)
-        {
-            Material mat = Instantiate(fixedCollectible.material);
-            fixedCollectible.material = mat;
-        }
-    }
-
     #endregion
 
     /// <summary>
@@ -205,6 +192,16 @@ public class ChapterManager : MonoBehaviour
     public void UnlockChapter(ChapterData chapterData)
     {
         allChaptersDico[chapterData.chapterID].unlocked = true;
+    }
+
+    public Chapter GetChapterFromID(string chapterID)
+    {
+        Chapter result = null;
+        if (allChaptersDico.ContainsKey(chapterID))
+        {
+            result = allChaptersDico[chapterID];
+        }
+        return result;
     }
 
     public int GetUnlockedChaptersCount()
@@ -311,6 +308,11 @@ public class ChapterManager : MonoBehaviour
 
                 bool chapterConditionsAreMet = (currentChapterConditionsChunksList.Count == 0); // particular case if there are no conditions
 
+                float playerDistanceFromSpawn = RunManager.instance.player.transform.position.magnitude / 10;
+                float playerDotRight = Vector3.Dot(RunManager.instance.player.transform.position, Vector2.right);
+                float playerDotUp = Vector3.Dot(RunManager.instance.player.transform.position, Vector2.up);
+                DirectionNESW playerDirectionFromSpawn = (Mathf.Abs(playerDotRight) > Mathf.Abs(playerDotUp)) ? (playerDotRight > 0 ? DirectionNESW.EAST : DirectionNESW.WEST) : (playerDotUp > 0 ? DirectionNESW.NORTH : DirectionNESW.SOUTH);
+
                 // Check each chunk of conditions, until at least one is valid (chunk valid = all conditions met)
                 foreach (ChapterConditionsChunk conditionChunk in currentChapterConditionsChunksList)
                 {
@@ -337,7 +339,19 @@ public class ChapterManager : MonoBehaviour
                                 break;
                             case ChapterConditionType.PLAYED_CHAPTER:
                                 Chapter c = completedChapters.FirstOrDefault(x => x.chapterData.Equals(condition.chapterData));
-                                conditionChunkIsValid = (c != null);
+                                if (condition.chapterDataMustBeLatestChapterPlayed)
+                                {
+                                    conditionChunkIsValid = false;
+                                    if (completedChapters.Count > 0)
+                                    {
+                                        Chapter latestChapterPlayed = completedChapters[completedChapters.Count - 1];
+                                        conditionChunkIsValid = (latestChapterPlayed.chapterData.Equals(condition.chapterData));
+                                    }
+                                }
+                                else
+                                {
+                                    conditionChunkIsValid = (c != null);
+                                }
                                 break;
                             case ChapterConditionType.RUN_ITEM:
                                 conditionChunkIsValid = (RunManager.instance.GetLevelForItem(condition.itemName) > 0);
@@ -347,7 +361,7 @@ public class ChapterManager : MonoBehaviour
                                 break;
                             case ChapterConditionType.FRIEND_COUNT:
                                 int friendsCount = FriendsManager.instance.HasPermanentFriendsCount();
-                                conditionChunkIsValid = (friendsCount >= condition.minFriendsCount) && (condition.maxFriendsCount == 10 || friendsCount <= condition.maxFriendsCount);
+                                conditionChunkIsValid = (friendsCount >= condition.minFriendsCount) && (condition.maxFriendsCount == ChapterCondition.MAXFRIENDSCOUNTINCONDITION || friendsCount <= condition.maxFriendsCount);
                                 break;
                             case ChapterConditionType.BOUNTIES_EATEN_IN_PREVIOUS_CHAPTER:
                                 int count = 0;
@@ -361,6 +375,15 @@ public class ChapterManager : MonoBehaviour
                                     throw;
                                 }
                                 conditionChunkIsValid = (count >= condition.minBountiesEaten);
+                                break;
+                            case ChapterConditionType.DISTANCE_FROM_SPAWN:
+                                conditionChunkIsValid = (condition.minDistanceFromSpawn == 0 || playerDistanceFromSpawn >= condition.minDistanceFromSpawn);
+                                conditionChunkIsValid &= (condition.maxDistanceFromSpawn == 0 || playerDistanceFromSpawn <= condition.maxDistanceFromSpawn);
+                                break;
+                            case ChapterConditionType.DISTANCE_FROM_SPAWN_IN_DIRECTION:
+                                conditionChunkIsValid = (condition.minDistanceFromSpawn == 0 || playerDistanceFromSpawn >= condition.minDistanceFromSpawn);
+                                conditionChunkIsValid &= (condition.maxDistanceFromSpawn == 0 || playerDistanceFromSpawn <= condition.maxDistanceFromSpawn);
+                                conditionChunkIsValid &= (playerDirectionFromSpawn == condition.direction);
                                 break;
                         }
                         conditionChunkIsValid = condition.not ? (!conditionChunkIsValid) : (conditionChunkIsValid); // apply a NOT if needed
@@ -449,9 +472,15 @@ public class ChapterManager : MonoBehaviour
     /// Will compute the current deck of chapter then choose a certain amount (passed as parameter) from this deck.
     /// </summary>
     /// <param name="chapterCount"></param>
-    private void SelectNextPossibleChapters(int chapterCount)
+    private void SelectNextPossibleChapters(int chapterCount, bool acceptChaptersFromPreviousSelection)
     {
         string log = "Chapter selection - ";
+
+        if (acceptChaptersFromPreviousSelection)
+        {
+            // Previous selection doesn't matter, we erase it before building the deck
+            selectionOfNextChaptersList = new List<Chapter>();
+        }
 
         // Create the deck of chapters to choose from
         List<Chapter> deckOfChapters = GetDeckOfChapters(false);
@@ -508,7 +537,7 @@ public class ChapterManager : MonoBehaviour
         SaveDataManager.instance.isSaveDataDirty = true;
     }
 
-    private void NewSelectionOfChapters()
+    private void NewSelectionOfChapters(bool acceptChaptersFromPreviousSelection)
     {
         int numberOfChaptersInSelection = chaptersData.chapterCountInSelection;
 
@@ -521,7 +550,7 @@ public class ChapterManager : MonoBehaviour
         else
         {
             // Choose a number of chapters from the list of available chapters
-            SelectNextPossibleChapters(numberOfChaptersInSelection);
+            SelectNextPossibleChapters(numberOfChaptersInSelection, acceptChaptersFromPreviousSelection);
         }
 
         // Show the chapters selection
@@ -762,12 +791,12 @@ public class ChapterManager : MonoBehaviour
     {
         if (isFirstChapter)
         {
-            NewSelectionOfChapters();
+            NewSelectionOfChapters(false);
         }
         else if (GameManager.instance.player.rerolls > 0)
         {
             GameManager.instance.player.rerolls--;
-            NewSelectionOfChapters();
+            NewSelectionOfChapters(false);
             UpdateRerollPostit();
 
             if (GameManager.instance.player.rerolls < 1)
@@ -777,7 +806,14 @@ public class ChapterManager : MonoBehaviour
             }
         }
 
-        DisplayChapter(0);
+        displayedChapterIndex = 0;
+        DisplayChapter(selectionOfNextChaptersList[0], chapterInfoPanel);
+        chapterButtonsList[0].SetDisplayedColor();
+        chapterButtonsList[0].SetHighlightedColor(false);
+        for (int chapterButtonIndex = 1; chapterButtonIndex < chapterButtonsList.Count; chapterButtonIndex++)
+        {
+            chapterButtonsList[chapterButtonIndex].SetNormalColor();
+        }
     }
 
     public void RerollChapterSelection()
@@ -796,6 +832,8 @@ public class ChapterManager : MonoBehaviour
 
     public void ShowChapterSelection(int currentChapterCount)
     {
+        MusicManager.instance.PlaySuperFrogMusic(false); // in case the previous chapter ended while super frog was active.
+
         // Update the top text
         int chapterCount = currentChapterCount;
         string chapterIntro = "";
@@ -815,12 +853,20 @@ public class ChapterManager : MonoBehaviour
         chapterSelectionTopText.text = chapterIntro;
 
         isFirstChapter = (currentChapterCount == 0);
-        NewSelectionOfChapters();
+        NewSelectionOfChapters(true);
         UpdateRerollPostit();
-        DisplayChapter(0);
+        displayedChapterIndex = 0;
+        DisplayChapter(selectionOfNextChaptersList[0], chapterInfoPanel);
+        chapterButtonsList[0].SetDisplayedColor();
+        chapterButtonsList[0].SetHighlightedColor(true);
+        for (int chapterButtonIndex = 1; chapterButtonIndex < chapterButtonsList.Count; chapterButtonIndex++)
+        {
+            chapterButtonsList[chapterButtonIndex].SetNormalColor();
+        }
 
         // Call the UIManager to display the chapter selection screen
         UIManager.instance.ShowChapterSelectionScreen((chapterCount == 0));
+        chapterChoiceIsVisible = true;
     }
 
     public void PlaySelectedChapter()
@@ -828,123 +874,31 @@ public class ChapterManager : MonoBehaviour
         SelectChapter(displayedChapterIndex);
     }
 
-    public void DisplayChapter(int index)
+    /// <summary>
+    /// Set ups the selected chapters info on a selected info panel.
+    /// </summary>
+    /// <param name="chapterInfo"></param>
+    /// <param name="infoPanel"></param>
+    public void DisplayChapter(Chapter chapterInfo, ChapterInfoBehaviour infoPanel)
+    {
+        infoPanel.DisplayChapter(chapterInfo, infoPanel);
+    }
+
+    public void ClickChapterButtonToDisplayInfo(int index)
     {
         displayedChapterIndex = index;
-        // Set chapter info.
-        Chapter chapterInfo = selectionOfNextChaptersList[index];
-        infoTitleTextMesh.SetText(chapterInfo.chapterData.chapterTitle);
-        infoDescriptionTextMesh.SetText(chapterInfo.chapterData.chapterLore[0].Replace("\\n", "\n"));
-
-        // Fixed colelctibles.
-        // Get the chapters fixed collectibles.
-        List<FixedCollectible> listOfFixedCollectibles = chapterInfo.chapterData.specialCollectiblesOnTheMap;
-        List<Image> fixedCollectibleSlots = fixedCollectiblesParent.GetComponentsInChildren<Image>().ToList();
-        fixedCollectibleSlots.RemoveAt(0);
-        int slot = 0;
-
-        // Display fixed collectibles.
-        foreach (FixedCollectible fixedCollectible in listOfFixedCollectibles)
+        DisplayChapter(selectionOfNextChaptersList[index], chapterInfoPanel);
+        for (int chapterButtonIndex = 0; chapterButtonIndex < chapterButtonsList.Count; chapterButtonIndex++)
         {
-            Image fixedCollectibleSlot = fixedCollectibleSlots[slot];
-
-            // Sprite.
-            switch (fixedCollectible.collectibleType)
+            ChapterButtonBehaviour thisChapterButton = chapterButtonsList[chapterButtonIndex];
+            if (chapterButtonIndex == displayedChapterIndex)
             {
-                case FixedCollectibleType.STATS_ITEM:
-                    fixedCollectibleSlot.sprite = fixedCollectible.collectibleStatItemData.icon;
-                    fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 0, 0);
-                    break;
-                case FixedCollectibleType.WEAPON_ITEM:
-                    fixedCollectibleSlot.sprite = fixedCollectible.collectibleWeaponItemData.icon;
-                    fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 0, 0);
-                    break;
-                case FixedCollectibleType.HAT:
-                    fixedCollectibleSlot.sprite = DataManager.instance.GetSpriteForHat(fixedCollectible.collectibleHatType);
-                    fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 180, 0);
-                    break;
-                case FixedCollectibleType.FRIEND:
-                    fixedCollectibleSlot.sprite = DataManager.instance.GetSpriteForFriend(fixedCollectible.collectibleFriendType);
-                    fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 0, 0);
-                    break;
-                default:
-                    break;
-            }
-
-            slot++;
-            fixedCollectibleSlot.SetNativeSize();
-
-            // Found/not found.
-            if (chapterInfo.fixedCollectiblesFoundList.Contains(chapterInfo.fixedCollectiblesFoundList.FirstOrDefault(x => x.collectibleIdentifier.Equals(FixedCollectibleFound.GetIdentifierFromCoordinates(fixedCollectible.tileCoordinates)))))
-            {
-                fixedCollectibleSlot.material.SetInt("_Found", 1); // Found.
+                thisChapterButton.SetDisplayedColor();
             }
             else
             {
-                fixedCollectibleSlot.material.SetInt("_Found", 0); // Not found.
+                thisChapterButton.SetNormalColor();
             }
-        }
-
-        // Empty the unused slots and set shader to found (no overlay).
-        while (slot < fixedCollectibleSlots.Count)
-        {
-            fixedCollectibleSlots[slot].sprite = null;
-            fixedCollectibleSlots[slot].material.SetInt("_Found", 1);
-            slot++;
-        }
-
-        // Collectibles and power-ups.
-        List<CollectibleSpawnFrequency> powerUps = chapterInfo.chapterData.otherCollectibleSpawnFrequenciesList;
-        List<Image> powerUpSlots = powerUpsParent.GetComponentsInChildren<Image>().ToList();
-        powerUpSlots.RemoveAt(0);
-        slot = 0;
-
-        if (chapterInfo.chapterData.coinsSpawnFrequency != SpawnFrequency.NONE)
-        {
-            powerUpSlots[slot].sprite = collectibleSprites.Find(x => x.collectibleType == CollectibleType.FROINS && x.frequency == chapterInfo.chapterData.coinsSpawnFrequency).collectibleSprite;
-            slot++;
-        }
-
-        if (chapterInfo.chapterData.levelUpSpawnFrequency != SpawnFrequency.NONE)
-        {
-            powerUpSlots[slot].sprite = collectibleSprites.Find(x => x.collectibleType == CollectibleType.LEVEL_UP && x.frequency == chapterInfo.chapterData.levelUpSpawnFrequency).collectibleSprite;
-            slot++;
-        }
-
-        if (chapterInfo.chapterData.healthSpawnFrequency != SpawnFrequency.NONE)
-        {
-            powerUpSlots[slot].sprite = collectibleSprites.Find(x => x.collectibleType == CollectibleType.HEALTH && x.frequency == chapterInfo.chapterData.healthSpawnFrequency).collectibleSprite;
-            slot++;
-        }
-
-        foreach (CollectibleSpawnFrequency powerUp in powerUps)
-        {
-            Image powerUpSlot = powerUpSlots[slot];
-
-            if (powerUp.Frequency != SpawnFrequency.NONE)
-            {
-                if (powerUp.Type == CollectibleType.FROINS || powerUp.Type == CollectibleType.LEVEL_UP || powerUp.Type == CollectibleType.HEALTH)
-                {
-                    powerUpSlot.sprite = collectibleSprites.Find(x => x.collectibleType == powerUp.Type && x.frequency == powerUp.Frequency).collectibleSprite;
-                    slot++;
-                }
-                else if (!BuildManager.instance.demoBuild)
-                {
-                    powerUpSlot.sprite = collectibleSprites.Find(x => x.collectibleType == powerUp.Type).collectibleSprite;
-                    slot++;
-                }
-
-                if (slot >= powerUpSlots.Count)
-                {
-                    break;
-                }
-            }
-        }
-
-        while (slot < powerUpSlots.Count)
-        {
-            powerUpSlots[slot].sprite = null;
-            slot++;
         }
     }
 
@@ -977,6 +931,11 @@ public class ChapterManager : MonoBehaviour
         else
         {
             charCount.counter++;
+        }
+        if (isFirstChapter)
+        {
+            // If it's the first chapter starting, register a new attempt for that character
+            CharacterManager.instance.StartedARunWithCharacter(RunManager.instance.currentPlayedCharacter);
         }
         SaveDataManager.instance.isSaveDataDirty = true;
 

@@ -42,6 +42,8 @@ public class CharacterData : ScriptableObject
     [Header("Starting Stats")]
     [Tooltip("The stats of this character at the start of the game. Any omitted stat will be set to default value")]
     public List<StatValue> startingStatsList;
+    [Tooltip("The stats increase of this character when their story has been completed. Any omitted stat will be set to default value")]
+    public List<StatValue> startingStatsStoryUpgrade;
     [Space]
     [Tooltip("Is the character unlocked from the start? May be unlocked from an achievement")]
     public bool startingUnlockState;

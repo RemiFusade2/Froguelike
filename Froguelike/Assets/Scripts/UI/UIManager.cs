@@ -19,6 +19,7 @@ public class UIManager : MonoBehaviour
 
     [Header("Settings")]
     public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
+    public bool shopAndQuestsButtonsAreAlwaysVisible = true;
 
     [Header("Version")]
     public TextMeshProUGUI versionNumberText;
@@ -36,6 +37,7 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI titleScreenSaveLocationText;
     [Space]
     public Button startButton;
+    public GameObject quickStartButton;
     public GameObject shopButton;
     public GameObject achievementsButton;
     public GameObject settingsButton;
@@ -80,6 +82,7 @@ public class UIManager : MonoBehaviour
 
     [Header("In game UI")]
     public GameObject inGameUIPanel;
+    public GameObject inGameCountUI;
 
     [Header("Level UP Panel")]
     public GameObject levelUpPanel;
@@ -91,6 +94,7 @@ public class UIManager : MonoBehaviour
     public Animator pausePanelAnimator;
     public GameObject selectedButtonPausePanel;
     private bool makeLevelUpPanelInteractableAfterClosingPausePanel = false;
+    private bool makeChapterSelectionInteractableAfterClosingPausePanel = false;
 
     #endregion
 
@@ -104,6 +108,7 @@ public class UIManager : MonoBehaviour
     [Header("Score Screen")]
     public GameObject scoreScreen;
     public GameObject selectedButtonScoreScreen;
+    public GameObject tryAgainButton;
 
     #endregion
 
@@ -198,14 +203,40 @@ public class UIManager : MonoBehaviour
         backToTitleScreenConfirmationPanel.SetActive(false);
     }
 
-
     public void ShowTitleScreen()
     {
         MusicManager.instance.PlayTitleMusic();
         HideAllScreens();
         UpdateTitleScreenCurrencyText(GameManager.instance.gameData.availableCurrency);
 
-        bool shopAndQuestsButtonsAreAlwaysVisible = true;
+        UpdateShopAndQuestButtonsOnTitleScreen();
+
+        // Quick start button
+        quickStartButton.SetActive(GameManager.instance.AreThereQuickStartOptions());
+
+        titleScreen.SetActive(true);
+        SetScreenInteractability(menuButtonsGroup, true);
+
+        // Set a selected button.
+        SetSelectedButton(selectedButtonTitleScreen);
+
+        rememberThisButton.Clear();
+
+        /*titleScreenSaveLocationText.text = Application.persistentDataPath;
+        if (SteamManager.Initialized)
+        {
+            string steamName = SteamFriends.GetPersonaName();
+            titleScreenWelcomeMessageText.text = $"Welcome {steamName}! You are connected to Steam.";
+        }*/
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log("UI - Display Title screen");
+        }
+    }
+
+    public void UpdateShopAndQuestButtonsOnTitleScreen()
+    {
         if (shopAndQuestsButtonsAreAlwaysVisible)
         {
             shopButton.SetActive(true);
@@ -231,26 +262,7 @@ public class UIManager : MonoBehaviour
             shopButton.SetActive(ShopManager.instance.IsShopUnlocked());
             achievementsButton.SetActive(AchievementManager.instance.IsAchievementsListUnlocked());
         }
-
-        titleScreen.SetActive(true);
-        SetScreenInteractability(menuButtonsGroup, true);
-
-        // Set a selected button.
-        SetSelectedButton(selectedButtonTitleScreen);
-
-        rememberThisButton.Clear();
-
-        /*titleScreenSaveLocationText.text = Application.persistentDataPath;
-        if (SteamManager.Initialized)
-        {
-            string steamName = SteamFriends.GetPersonaName();
-            titleScreenWelcomeMessageText.text = $"Welcome {steamName}! You are connected to Steam.";
-        }*/
-
-        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
-        {
-            Debug.Log("UI - Display Title screen");
-        }
+        UpdateCurrencyDisplay();
     }
 
     public void UpdateCurrencyDisplay()
@@ -263,7 +275,7 @@ public class UIManager : MonoBehaviour
 
     private void UpdateTitleScreenCurrencyText(long currencyValue)
     {
-        titleScreenCurrencyText.text = Tools.FormatCurrency(currencyValue, " " + DataManager.instance.currencyName);
+        titleScreenCurrencyText.text = Tools.FormatCurrency(currencyValue, DataManager.instance.currencySymbol);
     }
 
     public void ShowCharacterSelectionScreen(bool thenGoToChapterSelection)
@@ -314,11 +326,9 @@ public class UIManager : MonoBehaviour
             titleScreen.SetActive(true);
             SetScreenInteractability(menuButtonsGroup, false);
         }
-        chapterSelectionScreen.SetActive(true);
 
-        // Pick the first chapter option as the selected button.
-        GameObject selectedButton = chapterSelectionButtons[4].activeSelf ? chapterSelectionButtons[4] : chapterSelectionButtons[0];
-        SetSelectedButton(selectedButton);
+        chapterSelectionScreen.SetActive(true);
+        SetSelectedButton(chapterSelectionButtons[0]);
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -344,11 +354,19 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public bool IsChapterStartScreenVisible()
+    {
+        return chapterStartScreen.activeSelf;
+    }
+
     public void ShowScoreScreen()
     {
         HideAllScreens();
         SetScreenInteractability(pausePanel, false);
         SetScreenInteractability(levelUpPanel, false);
+
+        // Try again button
+        tryAgainButton.SetActive(GameManager.instance.AreThereQuickStartOptions());
 
         // Display score screen
         inGameUIPanel.SetActive(true);
@@ -374,6 +392,11 @@ public class UIManager : MonoBehaviour
         HidePauseScreen();
         inGameUIPanel.SetActive(true);
         SoundManager.instance.UnpauseInGameLoopedSFX();
+    }
+
+    public void ShowCountUI(bool showCount)
+    {
+        inGameCountUI.SetActive(showCount);
     }
 
     public void ShowGameOver(int respawnsAvailable)
@@ -419,6 +442,12 @@ public class UIManager : MonoBehaviour
                 makeLevelUpPanelInteractableAfterClosingPausePanel = true;
                 SavePreviousSelectedButton();
             }
+            else if (chapterSelectionScreen.activeInHierarchy)
+            {
+                SetScreenInteractability(chapterSelectionScreen, false);
+                makeChapterSelectionInteractableAfterClosingPausePanel = true;
+                SavePreviousSelectedButton();
+            }
             else
             {
                 makeLevelUpPanelInteractableAfterClosingPausePanel = false;
@@ -459,7 +488,18 @@ public class UIManager : MonoBehaviour
             {
                 SetScreenInteractability(levelUpPanel, true);
                 SetPreviousSelectedButton();
-                //               SetSelectedButton(selectedButtonLevelUpPanel);
+                makeLevelUpPanelInteractableAfterClosingPausePanel = false;
+            }
+            else if (makeChapterSelectionInteractableAfterClosingPausePanel)
+            {
+                SetScreenInteractability(chapterSelectionScreen, true);
+                SetPreviousSelectedButton();
+                makeChapterSelectionInteractableAfterClosingPausePanel = false;
+            }
+            else
+            {
+                // Make sure there isn't a selected button if the game is unpaused (since the pause panel doesn't have automatic button selection this need to be here to not be able to navigate between the buttons when the pause panel is closed)
+                EventSystem.current.SetSelectedGameObject(null);
             }
         }
 
@@ -501,7 +541,7 @@ public class UIManager : MonoBehaviour
         return shopScreen.activeInHierarchy;
     }
 
-    #endregion
+    #endregion Shop
 
     #region Quests
 
@@ -533,7 +573,7 @@ public class UIManager : MonoBehaviour
         return achievementsScreen.activeInHierarchy;
     }
 
-    #endregion
+    #endregion Quests
 
     #region Credits
 
@@ -717,7 +757,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    #endregion
+    #endregion Disclaimer screens & end of demo
 
     #region Error pop ups
 
@@ -743,6 +783,9 @@ public class UIManager : MonoBehaviour
         settingsScreen.SetActive(true);
         SavePreviousSelectedButton();
         SetSelectedButton(selectedButtonSettingsScreen);
+        if (titleScreen.activeInHierarchy) SetScreenInteractability(titleScreen, false);
+        if (pausePanel.activeInHierarchy) SetScreenInteractability(pausePanel, false);
+        SettingsManager.instance.ChangeTab(0);
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -754,6 +797,8 @@ public class UIManager : MonoBehaviour
     {
         settingsScreen.SetActive(false);
         SetPreviousSelectedButton();
+        if (titleScreen.activeInHierarchy) SetScreenInteractability(titleScreen, true);
+        if (pausePanel.activeInHierarchy) SetScreenInteractability(pausePanel, true);
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -766,7 +811,7 @@ public class UIManager : MonoBehaviour
         return settingsScreen.activeInHierarchy;
     }
 
-    #endregion
+    #endregion Settings
 
     #region Buttons
 

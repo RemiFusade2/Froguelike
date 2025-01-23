@@ -1,3 +1,4 @@
+using FMODUnity;
 using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
@@ -106,9 +107,15 @@ public class RunManager : MonoBehaviour
     public string extraLivesPrefix;
     public TextMeshProUGUI extraLivesCountText;
     [Space]
-    public Transform tongueSlotsParent;
-    public Transform statItemSlotsParent;
-    public GameObject slotPrefab;
+    public TextMeshProUGUI conditionCountText;
+    public Image conditionCountIcon;
+    [Space]
+    public Transform tongueSlotsBackgroundsParent;
+    public Transform tongueSlotsIconsParent;
+    public Transform statItemSlotsBackgroundsParent;
+    public Transform statItemSlotsIconsParent;
+    public GameObject slotBackgroundPrefab;
+    public GameObject slotIconPrefab;
     [Space]
     public Transform compassParent;
     public GameObject compassArrowPrefab;
@@ -145,9 +152,20 @@ public class RunManager : MonoBehaviour
     public Image fixedCollectibleFriendIcon;
     public Image fixedCollectibleHatIcon;
     [Space]
-    public Button fixedCollectibleAcceptButton;
-    public TextMeshProUGUI fixedCollectibleAcceptText;
-    public TextMeshProUGUI fixedCollectibleRefuseText;
+    public GameObject fixedCollectibleTwoButtonsPanel;
+    public Button fixedCollectibleTwoButtonsAcceptButton;
+    public TextMeshProUGUI fixedCollectibleTwoButtonsAcceptText;
+    public TextMeshProUGUI fixedCollectibleTwoButtonsRefuseText;
+    [Space]
+    public GameObject fixedCollectibleForceAcceptPanel;
+    public TextMeshProUGUI fixedCollectibleForceAcceptDescriptionText;
+    public Button fixedCollectibleForceAcceptButton;
+    public TextMeshProUGUI fixedCollectibleForceAcceptText;
+    [Space]
+    public GameObject fixedCollectibleForceRefusePanel;
+    public TextMeshProUGUI fixedCollectibleForceRefuseDescriptionText;
+    public Button fixedCollectibleForceRefuseButton;
+    public TextMeshProUGUI fixedCollectibleForceRefuseText;
 
     [Header("Settings - In game UI")]
     public Color defaultTextColor;
@@ -280,6 +298,9 @@ public class RunManager : MonoBehaviour
                 EnemiesManager.instance.InitializeWave(GetCurrentWave());
                 waveRemainingTime = GetCurrentWave().duration;
             }
+
+            // Update condition counter
+            UpdateNextChapterConditionCount();
         }
     }
 
@@ -386,7 +407,7 @@ public class RunManager : MonoBehaviour
         }
     }
 
-    public void StartNewRun(PlayableCharacter character, GameMode gameModes)
+    public void StartNewRun(PlayableCharacter character, GameMode gameModes, Chapter startingChapter = null)
     {
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -417,9 +438,18 @@ public class RunManager : MonoBehaviour
 
         // Reset Chapters Weights
         ChapterManager.instance.ResetChaptersWeights();
+        ChapterManager.instance.isFirstChapter = true;
 
-        // Show a selection of Chapters to pick from for the first chapter of the Run
-        ChapterManager.instance.ShowChapterSelection(0);
+        if (startingChapter == null)
+        {
+            // Show a selection of Chapters to pick from for the first chapter of the Run
+            ChapterManager.instance.ShowChapterSelection(0);
+        }
+        else
+        {
+            // Start the first chapter immediately if it was already set
+            ChapterManager.instance.StartChapter(startingChapter);
+        }
     }
 
     private void UpdateInGameCurrencyText(long currencyValue, bool highlight)
@@ -594,11 +624,90 @@ public class RunManager : MonoBehaviour
         }
     }
 
+    public void SetNextChapterConditionCount(NextChapterConditionCount nextChapterConditionCount)
+    {
+        conditionCountIcon.sprite = DataManager.instance.GetNextChapterConditionCountTypeSpriteFromType(nextChapterConditionCount.countType);
+        conditionCountIcon.SetNativeSize();
+
+        Vector2 noteSize = new Vector2(0, conditionCountIcon.transform.parent.GetComponent<RectTransform>().sizeDelta.y);
+        Vector2 textContainerSize = new Vector2(0, 12);
+
+        string countText = "";
+        switch (nextChapterConditionCount.countType)
+        {
+            case NextChapterConditionCountType.EatBounties:
+                countText = "0/" + nextChapterConditionCount.goal.ToString();
+                noteSize.x = 57;
+                textContainerSize.x = 35;
+                break;
+            case NextChapterConditionCountType.HaveFriends:
+                countText = FriendsManager.instance.permanentFriendsList.Count().ToString() + "/" + nextChapterConditionCount.goal.ToString();
+                noteSize.x = 57;
+                textContainerSize.x = 35;
+                break;
+            case NextChapterConditionCountType.DistanceFromSpawn:
+                noteSize.x = 110;
+                textContainerSize.x = 78;
+                break;
+            case NextChapterConditionCountType.DistanceFromSpawnInDirection:
+                noteSize.x = 65;
+                textContainerSize.x = 35;
+                break;
+            default:
+                break;
+        }
+
+        conditionCountText.rectTransform.sizeDelta = textContainerSize;
+        conditionCountText.transform.parent.GetComponent<RectTransform>().sizeDelta = noteSize;
+
+        conditionCountText.SetText(countText);
+    }
+
+    /// <summary>
+    /// Update the counter for current chapter condition.
+    /// </summary>
+    public void UpdateNextChapterConditionCount()
+    {
+        // TODO where to trigger this? Both when adding firends and eating bounties? Is there a better way?
+        // Remi comment: now that it can also show distance, this counter needs to be updated often (every second or every frame)
+        NextChapterConditionCountType type = currentChapter.chapterData.nextChapterConditionCount.countType;
+        float distanceFromSpawn = Mathf.Clamp(player.transform.position.magnitude/10, 0, currentChapter.chapterData.nextChapterConditionCount.goal);
+        string countText = "";
+
+        switch (type)
+        {
+            case NextChapterConditionCountType.EatBounties:
+                countText = playedChaptersBountyEatCounts[GetChapterCount() - 1].ToString() + "/" + currentChapter.chapterData.nextChapterConditionCount.goal.ToString();
+                break;
+            case NextChapterConditionCountType.HaveFriends:
+                countText = FriendsManager.instance.permanentFriendsList.Count().ToString() + "/" + currentChapter.chapterData.nextChapterConditionCount.goal.ToString();
+                break;
+            case NextChapterConditionCountType.DistanceFromSpawn:
+                countText = $"{distanceFromSpawn.ToString("0")}/{currentChapter.chapterData.nextChapterConditionCount.goal}hops";
+                break;
+            case NextChapterConditionCountType.DistanceFromSpawnInDirection:
+                if (distanceFromSpawn >= currentChapter.chapterData.nextChapterConditionCount.goal)
+                {
+                    // display direction
+                    float dotRight = Vector2.Dot(player.transform.position, Vector2.right);
+                    float dotUp = Vector2.Dot(player.transform.position, Vector2.up);
+                    countText = Mathf.Abs(dotRight) > Mathf.Abs(dotUp) ? (dotRight > 0 ? "EAST" : "WEST") : (dotUp > 0 ? "NORTH" : "SOUTH");
+                }
+                else
+                {
+                    countText = "-       ";
+                }
+                break;
+        }
+
+        conditionCountText.SetText(countText);
+    }
+
     public void IncreaseKillCount(int kills)
     {
         int chapterCount = GetChapterCount();
         playedChaptersKillCounts[chapterCount - 1] += kills;
-        SetEatenCount(playedChaptersKillCounts[chapterCount - 1]);
+        SetEatenCount(GetTotalKillCount());
 
         // Update all stats that scale with score
         player.UpdateScalingWithScoreStats();
@@ -778,8 +887,14 @@ public class RunManager : MonoBehaviour
             }
         }
 
-        // Remove all temporary friends
+        // Remove all temporary friends and stop friends frenzy
         FriendsManager.instance.ClearAllFriends(onlyTemporary: true);
+        StopConfettis();
+
+        // Stop God Mode, Freeze/Poison/Curse & Level up/down all, Super goop
+        player.ResetGodMode();
+        player.StopAndResetAllExplosionEffects(); // global effects explosions
+        EnemiesManager.instance.StopAndResetAllGlobalEffects();
 
         if (completedChaptersList.Count >= maxChaptersInARun)
         {
@@ -812,9 +927,22 @@ public class RunManager : MonoBehaviour
         if (GetChapterCount() == 1)
         {
             GameManager.instance.RegisterANewAttempt();
+
+            // Save current selection to Game Manager, for future quick start and stuff
+
+            // EXCEPT IN THE CASE OF TOAD'S CHALLENGE
+            if (chapter.chapterID.Equals("[CH_ENDING_TOAD]"))
+            {
+                GameManager.instance.RemoveSelectedCharacterGameModeAndStartingChapter();
+            }
+            else
+            {
+                GameManager.instance.SaveSelectedCharacterGameModeAndStartingChapter(currentPlayedCharacter.characterID, playedGameModes.ToString(), chapter.chapterID);
+            }
         }
 
         currentChapter = chapter;
+
         StartCoroutine(StartChapterAsync());
     }
 
@@ -878,6 +1006,13 @@ public class RunManager : MonoBehaviour
                 GameObject arrow = Instantiate(compassArrowPrefab, compassParent);
                 arrow.GetComponent<CompassArrowBehaviour>().SetCollectibleTileCoordinates(collectible.tileCoordinates);
                 arrow.GetComponent<CompassArrowBehaviour>().SetCollectibleHasBeenFound(collectibleHasBeenFoundOnce);
+                arrow.GetComponent<CompassArrowBehaviour>().knownItemSprite.sprite = DataManager.instance.GetSpriteForCollectible(collectible);
+                if (collectible.collectibleType == FixedCollectibleType.HAT)
+                {
+                    arrow.GetComponent<CompassArrowBehaviour>().knownItemSprite.transform.rotation = new Quaternion(0, 0, 180, 0);
+                }
+                arrow.GetComponent<CompassArrowBehaviour>().knownItemSprite.SetNativeSize();
+
                 compassArrowsList.Add(arrow.GetComponent<CompassArrowBehaviour>());
             }
         }
@@ -910,11 +1045,11 @@ public class RunManager : MonoBehaviour
 
         GameManager.instance.SetTimeScale(1);
 
-        // Reset kill count
-        SetEatenCount(0);
+        // Show current total kill count
+        SetEatenCount(GetTotalKillCount());
 
         // Play level music
-        MusicManager.instance.PlayLevelMusic();
+        MusicManager.instance.PlayRunMusic();
 
         // Fade out chapter start screen
         float fadeOutDelay = 0.4f;
@@ -922,6 +1057,10 @@ public class RunManager : MonoBehaviour
 
         // Wait
         yield return new WaitForSecondsRealtime(0.1f);
+
+        // Set up condition count UI.
+        SetNextChapterConditionCount(currentChapter.chapterData.nextChapterConditionCount);
+        UIManager.instance.ShowCountUI(currentChapter.chapterData.nextChapterConditionCount.countType != NextChapterConditionCountType.None);
 
         // Show Game UI
         UIManager.instance.ShowGameUI();
@@ -948,12 +1087,27 @@ public class RunManager : MonoBehaviour
         if (Mathf.RoundToInt(chapterRemainingTime + Time.deltaTime) > 0 && Mathf.RoundToInt(chapterRemainingTime) <= 0)
         {
             SoundManager.instance.PlayChapterEndSound();
+
+            MusicManager.instance.chapterIsEnding = true;
+            RuntimeManager.StudioSystem.getParameterByName("Tension Level", out var tensionLevelOut);
+            if (tensionLevelOut != 1)
+            {
+                RuntimeManager.StudioSystem.setParameterByName("Tension Level", tensionLevelOut - 1);
+            }
         }
 
         SetTimer(chapterRemainingTime);
+
+        if (chapterRemainingTime < -(delayAfterEndOfChapter / 2))
+        {
+            RuntimeManager.StudioSystem.setParameterByName("Tension Level", 1);
+        }
+
         if (chapterRemainingTime < -delayAfterEndOfChapter)
         {
             chapterRemainingTime = 0; // float.MaxValue;
+
+            MusicManager.instance.chapterIsEnding = false;
             EndChapter();
         }
     }
@@ -1014,14 +1168,7 @@ public class RunManager : MonoBehaviour
                         itemIsNew = false;
                         pickedItemInfo = ownedItem;
                         log += " (already owned, level " + ownedItem.level + ")";
-
-                        if (ownedItem.level < itemData.GetMaxLevel())
-                        {
-                            // Level was not already maxed out
-                            ownedItem.level++;
-                        }
-
-                        level = ownedItem.level - 1;
+                        ownedItem.level++;
                         break;
                     }
                 }
@@ -1045,7 +1192,7 @@ public class RunManager : MonoBehaviour
 
                 // resolve the item picked (according to its current level)
                 int levelIndex = pickedItemInfo.level - 1;
-                levelIndex = Mathf.Clamp(levelIndex, 0, pickedItemInfo.GetRunItemData().GetMaxLevelCount());
+                levelIndex = Mathf.Clamp(levelIndex, 0, pickedItemInfo.GetRunItemData().GetMaxLevelCount() - 1);
                 RunStatItemLevel levelUpgrades = (pickedItemData as RunStatItemData).statBoostLevels[levelIndex];
                 log += " Improve stats: " + levelUpgrades.statUpgrades.ToString();
                 player.ResolvePickedStatItemLevel(levelUpgrades);
@@ -1068,14 +1215,10 @@ public class RunManager : MonoBehaviour
 
                         log += $" (already owned, level {ownedWeapon.level})"; // show previous level
 
-                        if (ownedWeapon.level < pickedItemData.GetMaxLevel())
-                        {
-                            // Level is not already maxed out
-                            ownedWeapon.level++; // Increase level
-                        }
+                        ownedWeapon.level++; // Increase level
 
                         // We need to upgrade all similar weapons
-                        level = ownedWeapon.level - 2; // This is level boost index
+                        level = Mathf.Clamp(ownedWeapon.level - 2, 0, ownedWeapon.weaponItemData.GetMaxLevelCount() - 1); // This is level boost index
                         foreach (GameObject weaponGo in ownedWeapon.activeWeaponsList)
                         {
                             if (level >= 0 && level < ownedWeapon.weaponItemData.GetMaxLevelCount())
@@ -1383,6 +1526,7 @@ public class RunManager : MonoBehaviour
         // Audio
         SoundManager.instance.PlaySlideBookSound();
         SoundManager.instance.PauseInGameLoopedSFX();
+        // MusicManager.instance.PlayLevelUpMusic(true); for now there is no special music for picking a level up
 
         UIManager.instance.levelUpPanel.SetActive(true);
         UIManager.instance.levelUpPanelAnimator.SetBool("Visible", true);
@@ -1507,19 +1651,23 @@ public class RunManager : MonoBehaviour
     {
         levelUpPanel.GetComponent<CanvasGroup>().interactable = false;
         UIManager.instance.levelUpPanelAnimator.SetBool("Visible", false);
+        UIManager.instance.SetSelectedButton(buttonGO: null);
         SoundManager.instance.PlaySlideBookSound();
         SoundManager.instance.UnpauseInGameLoopedSFX();
+        // MusicManager.instance.PlayLevelUpMusic(false); for now there is no special level up music
     }
 
     private void InitializeInRunItemSlots()
     {
         // Remove previous slots.
-        DestroyAndDeactivateChildren(tongueSlotsParent);
-        DestroyAndDeactivateChildren(statItemSlotsParent);
+        DestroyAndDeactivateChildren(tongueSlotsBackgroundsParent);
+        DestroyAndDeactivateChildren(tongueSlotsIconsParent);
+        DestroyAndDeactivateChildren(statItemSlotsBackgroundsParent);
+        DestroyAndDeactivateChildren(statItemSlotsIconsParent);
 
         // Show as manys slots as the player has.
-        for (int slots = 0; slots < player.weaponSlotsCount; slots++) AddNewRunItemSlot(tongueSlotsParent);
-        for (int slots = 0; slots < player.statItemSlotsCount; slots++) AddNewRunItemSlot(statItemSlotsParent);
+        for (int slots = 0; slots < player.weaponSlotsCount; slots++) AddNewRunItemSlot(tongueSlotsBackgroundsParent, tongueSlotsIconsParent);
+        for (int slots = 0; slots < player.statItemSlotsCount; slots++) AddNewRunItemSlot(statItemSlotsBackgroundsParent, statItemSlotsIconsParent);
     }
 
     private void DestroyAndDeactivateChildren(Transform parent)
@@ -1534,16 +1682,19 @@ public class RunManager : MonoBehaviour
     private void UpdateInRunItemSlots(RunItemData newItem)
     {
         // Pick the next empty slot.
-        SpriteRenderer nextFreeIconSlot = null;
-        Transform parent = null;
+        Image nextFreeIconSlot = null;
+        Transform backgroundParent = null;
+        Transform iconParent = null;
         switch (newItem.GetItemType())
         {
             case RunItemType.WEAPON:
-                parent = tongueSlotsParent;
+                backgroundParent = tongueSlotsBackgroundsParent;
+                iconParent = tongueSlotsIconsParent;
                 break;
 
             case RunItemType.STAT_BONUS:
-                parent = statItemSlotsParent;
+                backgroundParent = statItemSlotsBackgroundsParent;
+                iconParent = statItemSlotsIconsParent;
                 break;
 
             // If an item is not a tongue or a stat item, it should not be displayed.
@@ -1552,14 +1703,14 @@ public class RunManager : MonoBehaviour
         }
 
         // Look for the first empty slot in the right parent.
-        foreach (Transform slot in parent)
+        foreach (Transform slot in iconParent)
         {
             if (!slot.gameObject.activeSelf) continue;
 
             GameObject icon = slot.transform.Find("Icon").gameObject;
             if (!icon.activeSelf)
             {
-                nextFreeIconSlot = icon.GetComponent<SpriteRenderer>();
+                nextFreeIconSlot = icon.GetComponent<Image>();
                 break;
             }
         }
@@ -1567,7 +1718,7 @@ public class RunManager : MonoBehaviour
         // If no empty slot was found, create a new one.
         if (nextFreeIconSlot == null)
         {
-            nextFreeIconSlot = AddNewRunItemSlot(parent).Find("Icon").GetComponent<SpriteRenderer>();
+            nextFreeIconSlot = AddNewRunItemSlot(backgroundParent, iconParent).Find("Icon").GetComponent<Image>();
         }
 
         // Set the icon.
@@ -1575,9 +1726,10 @@ public class RunManager : MonoBehaviour
         nextFreeIconSlot.sprite = newItem.icon;
     }
 
-    private Transform AddNewRunItemSlot(Transform parent)
+    private Transform AddNewRunItemSlot(Transform backgroundParent, Transform iconParent)
     {
-        return Instantiate(slotPrefab, parent).transform;
+        Instantiate(slotBackgroundPrefab, backgroundParent);
+        return Instantiate(slotIconPrefab, iconParent).transform;
     }
 
     #endregion
@@ -1779,7 +1931,8 @@ public class RunManager : MonoBehaviour
             EventSystem.current.SetSelectedGameObject(levelUpChoicesPanels[0]);
         }
     }
-    public void ShowCollectSuperCollectiblePanel(FixedCollectible collectibleInfo)
+
+    public void ShowCollectSuperCollectiblePanel(FixedCollectible collectibleInfo, bool allowAccept = true, bool allowRefuse = true, string forceChoiceDescriptionStr = "", string forceChoiceButtonStr = "")
     {
         // Set Time Scale back to 0
         GameManager.instance.SetTimeScale(0);
@@ -1852,14 +2005,6 @@ public class RunManager : MonoBehaviour
         }
         fixedCollectibleBonusText.text = bonusText;
 
-        // Update "Accept" text
-        string foundCollectibleAcceptStr = string.IsNullOrEmpty(collectibleInfo.acceptCollectibleStr) ? DataManager.instance.defaultFoundCollectibleAcceptStr : collectibleInfo.acceptCollectibleStr;
-        fixedCollectibleAcceptText.text = foundCollectibleAcceptStr;
-
-        // Update "Refuse" text
-        string foundCollectibleRefuseStr = string.IsNullOrEmpty(collectibleInfo.refuseCollectibleStr) ? DataManager.instance.defaultFoundCollectibleRefuseStr : collectibleInfo.refuseCollectibleStr;
-        fixedCollectibleRefuseText.text = foundCollectibleRefuseStr;
-
         // Update icon
         fixedCollectibleItemIcon.enabled = false;
         fixedCollectibleFriendIcon.enabled = false;
@@ -1884,6 +2029,47 @@ public class RunManager : MonoBehaviour
                 break;
         }
 
+        fixedCollectibleTwoButtonsPanel.SetActive(false);
+        fixedCollectibleForceAcceptPanel.SetActive(false);
+        fixedCollectibleForceRefusePanel.SetActive(false);
+        Button defaultSelectedButton = fixedCollectibleTwoButtonsAcceptButton;
+        if (allowAccept && allowRefuse)
+        {
+            // Two buttons situation
+            fixedCollectibleTwoButtonsPanel.SetActive(true);
+            defaultSelectedButton = fixedCollectibleTwoButtonsAcceptButton;
+            // Update "Accept" text
+            string foundCollectibleAcceptStr = string.IsNullOrEmpty(collectibleInfo.acceptCollectibleStr) ? DataManager.instance.defaultFoundCollectibleAcceptStr : collectibleInfo.acceptCollectibleStr;
+            fixedCollectibleTwoButtonsAcceptText.text = foundCollectibleAcceptStr;
+            // Update "Refuse" text
+            string foundCollectibleRefuseStr = string.IsNullOrEmpty(collectibleInfo.refuseCollectibleStr) ? DataManager.instance.defaultFoundCollectibleRefuseStr : collectibleInfo.refuseCollectibleStr;
+            fixedCollectibleTwoButtonsRefuseText.text = foundCollectibleRefuseStr;
+        }
+        else if (allowAccept)
+        {
+            // Force Accept
+            fixedCollectibleForceAcceptPanel.SetActive(true);
+            defaultSelectedButton = fixedCollectibleForceAcceptButton;
+            // Update descriptions text
+            fixedCollectibleForceAcceptDescriptionText.text = forceChoiceDescriptionStr;
+            // Update "Accept" text
+            fixedCollectibleForceAcceptText.text = forceChoiceButtonStr;
+        }
+        else if (allowRefuse)
+        {
+            // Force Refuse
+            fixedCollectibleForceRefusePanel.SetActive(true);
+            defaultSelectedButton = fixedCollectibleForceRefuseButton;
+            // Update descriptions text
+            fixedCollectibleForceRefuseDescriptionText.text = forceChoiceDescriptionStr;
+            // Update "Refuse" text
+            fixedCollectibleForceRefuseText.text = forceChoiceButtonStr;
+        }
+        else
+        {
+            Debug.LogWarning("Trying to call ShowCollectSuperCollectiblePanel() but neither Accept nor Refuse are accepted options.");
+        }
+
         // Show UI Panel
         fixedCollectibleFoundPanel.SetActive(true);
         fixedCollectibleFoundPanelIsVisible = true;
@@ -1891,8 +2077,8 @@ public class RunManager : MonoBehaviour
 
         // Select Accept button by default
         fixedCollectibleFoundPanel.GetComponent<CanvasGroup>().interactable = true;
-        EventSystem.current.SetSelectedGameObject(fixedCollectibleAcceptButton.gameObject);
-        fixedCollectibleAcceptButton.Select();
+        EventSystem.current.SetSelectedGameObject(defaultSelectedButton.gameObject);
+        defaultSelectedButton.Select();
 
         // Stop sounds
         SoundManager.instance.PauseInGameLoopedSFX();
@@ -1909,5 +2095,11 @@ public class RunManager : MonoBehaviour
     public void PlayConfettis()
     {
         confettiParticleSystem.Play();
+    }
+
+    public void StopConfettis()
+    {
+        confettiParticleSystem.Stop();
+        confettiParticleSystem.Clear();
     }
 }

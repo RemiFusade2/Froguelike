@@ -290,6 +290,17 @@ public class RunItemManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Return true when Run item has already been unlocked.
+    /// </summary>
+    /// <param name="itemName"></param>
+    /// <returns></returns>
+    public bool IsRunItemUnlocked(string itemName)
+    {
+        RunItemSaveInfo unlockedRunItem = runItemsData.runItemsList.FirstOrDefault(x => x.itemName.Equals(itemName));
+        return unlockedRunItem.unlocked;
+    }
+
+    /// <summary>
     /// Try to unlock the run item having this name. Do not do anything if this item does not exist or is already unlocked.
     /// Return true if a new run item has been unlocked.
     /// </summary>

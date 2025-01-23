@@ -5,6 +5,15 @@ using UnityEngine;
 
 #region Enums
 
+public enum DirectionNESW
+{
+    NORTH,
+    EAST,
+    SOUTH,
+    WEST
+}
+
+
 /// <summary>
 /// A chapter can change the environment you're playing in. Here are the different environment available.
 /// </summary>
@@ -65,13 +74,6 @@ public enum SpawnFrequency
     LOTS
 }
 
-[System.Serializable]
-public class CollectibleSpawnFrequency
-{
-    public CollectibleType Type;
-    public SpawnFrequency Frequency;
-}
-
 /// <summary>
 /// All different types of conditions for a Chapter to appear
 /// </summary>
@@ -87,12 +89,40 @@ public enum ChapterConditionType
     RUN_ITEM,
     CHARACTER,
     FRIEND_COUNT,
-    BOUNTIES_EATEN_IN_PREVIOUS_CHAPTER
+    BOUNTIES_EATEN_IN_PREVIOUS_CHAPTER,
+    DISTANCE_FROM_SPAWN,
+    DISTANCE_FROM_SPAWN_IN_DIRECTION
 }
 
-#endregion
+/// <summary>
+/// All different counters that we would like to display when a chapter gives a goal that is connected to unlocking the next chapter in the story. (More might be added eventually)
+/// </summary>
+public enum NextChapterConditionCountType
+{
+    None,
+    EatBounties,
+    HaveFriends,
+    DistanceFromSpawn,
+    DistanceFromSpawnInDirection
+}
+
+public enum FixedCollectibleForceAcceptType
+{
+    NEVER,
+    ONLY_IF_ITEM_IS_LOCKED,
+    ALWAYS
+}
+
+#endregion Enums
 
 #region Classes
+
+[System.Serializable]
+public class CollectibleSpawnFrequency
+{
+    public CollectibleType Type;
+    public SpawnFrequency Frequency;
+}
 
 /// <summary>
 /// FixedCollectible describes a Collectible that is spawn somewhere on the Map (at specific coordinates)
@@ -113,6 +143,9 @@ public class FixedCollectible
     public string collectibleDescription;
     [Tooltip("The type of collectible")]
     public FixedCollectibleType collectibleType;
+
+    [Tooltip("Are you forced to accept this collectible?")]
+    public FixedCollectibleForceAcceptType forceAcceptType;
 
     // In case the collectible is a RunStatItem
     [Tooltip("The Run Stat Item in question")]
@@ -141,6 +174,12 @@ public class FixedCollectible
     public int compassLevel;
 }
 
+[System.Serializable]
+public class NextChapterConditionCount
+{
+    public NextChapterConditionCountType countType;
+    public int goal = 0;
+}
 
 /// <summary>
 /// ChapterCondition describe a condition for a Chapter to show up.
@@ -154,8 +193,10 @@ public class ChapterCondition
     [Tooltip("This would reverse the condition")]
     public bool not = false;
 
-    [Tooltip("Played Chapter")]
+    [Tooltip("This chapter can appear only if you've played that Chapter before")]
     public ChapterData chapterData;
+    [Tooltip("This chapter can appear only if you've played that Chapter RIGHT before (as latest chapter played)")]
+    public bool chapterDataMustBeLatestChapterPlayed;
 
     [Tooltip("This chapter can appear only after Chapter count # (included)")]
     [Range(1, 5)]
@@ -179,15 +220,25 @@ public class ChapterCondition
     [Tooltip("The current played Character")]
     public CharacterData characterData;
 
+    public static int MAXFRIENDSCOUNTINCONDITION = 20;
+
     [Tooltip("This chapter can appear only if you have at least this amount of friends")]
-    [Range(0, 10)]
+    [Range(0, 20)]
     public int minFriendsCount = 0;
     [Tooltip("This chapter can appear only if you have at most this amount of friends")]
-    [Range(0, 10)]
-    public int maxFriendsCount = 10;
+    [Range(0, 20)]
+    public int maxFriendsCount = MAXFRIENDSCOUNTINCONDITION;
 
     [Tooltip("This chapter can appear only if you have at least this amount of bounties eaten")]
     public int minBountiesEaten = 0;
+
+    [Tooltip("This chapter can appear only if you moved at least a distance from spawn point")]
+    public int minDistanceFromSpawn = 0;
+    [Tooltip("This chapter can appear only if you moved no more than a distance from spawn point")]
+    public int maxDistanceFromSpawn = 0;
+
+    [Tooltip("This chapter can appear only if you moved mostly in that direction")]
+    public DirectionNESW direction;
 }
 
 /// <summary>
@@ -215,6 +266,7 @@ public class ChapterWeightChange
     public float weightChange;
 }
 
+/*
 /// <summary>
 /// Bounty contains information about the nature and amount of collectibles
 /// </summary>
@@ -227,7 +279,7 @@ public class Bounty
     public int amount;
     [Tooltip("Value of rewards")]
     public int value;
-}
+}*/
 
 /// <summary>
 /// BountyBug contains information about when a bounty bug must be spawned and which bug
@@ -272,16 +324,19 @@ public class BountyBug
     [Tooltip("Does this bug ignore maximum speed?")]
     public bool ignoreMaxSpeed = false;
 
-    [Header("Bounty")]
-    [Tooltip("A list of collectibles + amount that serve as a bounty")]
-    public List<Bounty> bountyList;
+    [Header("Bounty Reward")]
+    [Tooltip("Override the Reward of that bounty?")]
+    public bool overrideRewards = false;
+    [Tooltip("A list of collectibles you'd get for that bountys reward")]
+    public List<CollectibleType> rewardsList;
 
-    public BountyBug(EnemyType enemyType, 
-        bool overrideHealthMultiplier, float healthMultiplier, 
-        bool overrideDamageMultiplier, float damageMultiplier, 
-        bool overrideXpMultiplier, float xpMultiplier, 
+    public BountyBug(EnemyType enemyType,
+        bool overrideHealthMultiplier, float healthMultiplier,
+        bool overrideDamageMultiplier, float damageMultiplier,
+        bool overrideXpMultiplier, float xpMultiplier,
         bool overrideKnockbackResistance, float knockbackResistance,
-        EnemyMovePattern movePattern)
+        EnemyMovePattern movePattern,
+        bool overrideRewards)
     {
         this.spawnTime = 0;
         this.enemyType = enemyType;
@@ -300,7 +355,9 @@ public class BountyBug
         this.knockbackResistance = knockbackResistance;
 
         this.movePattern = movePattern;
-        this.bountyList = new List<Bounty>();
+
+        this.overrideRewards = overrideRewards;
+        this.rewardsList = new List<CollectibleType>();
     }
 }
 
@@ -325,6 +382,7 @@ public class ChapterData : ScriptableObject
     [Header("Chapter settings - display")]
     [Tooltip("Chapter title")]
     public string chapterTitle = "[Chapter title]";
+    [TextArea(4, 10)]
     [Tooltip("First element would be default description, other elements would be unlocked and displayed later, maybe in the book for chapters")]
     public List<string> chapterLore;
     [Tooltip("The 3 icons that will describe a chapter. Icons can repeat.")]
@@ -352,6 +410,10 @@ public class ChapterData : ScriptableObject
     [Space]
     [Tooltip("A list of chunks of conditions. The chapter will show up only if at least one of these chunks of conditions is valid")]
     public List<ChapterConditionsChunk> conditions;
+
+    [Header("Condition count for next chapter in this story")]
+    [Tooltip("Set up a counter if the next chapter has conditions where the player needs to collect ore eat a certain amount of something")]
+    public NextChapterConditionCount nextChapterConditionCount;
 
     [Header("Chapter settings - Obstacles")]
     [Tooltip("The amount of rocks on a tile")]
@@ -394,5 +456,12 @@ public class ChapterData : ScriptableObject
     [Header("Chapter settings - Weight changes to other chapters")]
     [Tooltip("A list of all the modifications to chapters likelihood of appearance after playing this one")]
     public List<ChapterWeightChange> weightChanges;
+
+    public string GetDescription(string frogName)
+    {
+        string description = chapterLore[0].Replace("\\n", "\n");
+        description = description.Replace("[FROGNAME]", frogName);
+        return description;
+    }
 }
 
