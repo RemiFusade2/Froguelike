@@ -215,6 +215,10 @@ public class MapBehaviour : MonoBehaviour
                     CollectiblesManager.instance.SpawnCollectible(position, CollectibleType.FROINS, bonusValue);
                     spawnedCurrency += bonusValue;
                 }
+                else
+                {
+                    spawnedCurrency += 1;
+                }
             }
 
             // generate health collectibles
@@ -297,9 +301,9 @@ public class MapBehaviour : MonoBehaviour
     public void GenerateNewTilesAroundPosition(Vector2 position)
     {
         Vector2Int centralTileCoordinates = GetTileForPosition(position);
-        for (int y = -1; y <= 1; y++)
+        for (int y = -3; y <= 3; y++)
         {
-            for (int x = -1; x <= 1; x++)
+            for (int x = -3; x <= 3; x++)
             {
                 Vector2Int tileCoordinates = centralTileCoordinates + x * Vector2Int.right + y * Vector2Int.up;
                 if (!DoesTileExist(tileCoordinates))
