@@ -35,6 +35,7 @@ MonoBehaviour:
     - conditionType: 2
       not: 0
       chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 5
       maxChapterCount: 5
       environmentType: 0
@@ -45,9 +46,13 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 7
       not: 0
       chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 0
       maxChapterCount: 0
       environmentType: 0
@@ -58,9 +63,13 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 1
       not: 0
       chapterData: {fileID: 11400000, guid: acfc1f6cc97622b4a9d97c535cdf1a6d, type: 2}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 0
       maxChapterCount: 0
       environmentType: 0
@@ -71,9 +80,13 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 5
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
     - conditionType: 9
       not: 0
       chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 0
       maxChapterCount: 0
       environmentType: 0
@@ -84,8 +97,12 @@ MonoBehaviour:
       minFriendsCount: 0
       maxFriendsCount: 0
       minBountiesEaten: 6
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
   nextChapterConditionCount:
     countType: 0
+    maxDistance: 0
     goal: 0
   rocksSpawnFrequency: 3
   pondsSpawnFrequency: 0
@@ -101,6 +118,7 @@ MonoBehaviour:
     collectibleName: Toadis
     collectibleDescription: They are here to cheer you on!
     collectibleType: 3
+    forceAcceptType: 0
     collectibleStatItemData: {fileID: 0}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
@@ -114,6 +132,7 @@ MonoBehaviour:
     collectibleName: Toada
     collectibleDescription: She is here to cheer you on!
     collectibleType: 3
+    forceAcceptType: 0
     collectibleStatItemData: {fileID: 0}
     collectibleWeaponItemData: {fileID: 0}
     collectibleHatType: 0
@@ -135,9 +154,27 @@ MonoBehaviour:
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 2
-        spawnPatternShape: 1
+        overrideDefaultSpawnPosition: 0
+        spawnPositionAngle: 0
         spawnAmount: 40
         multipleSpawnDelay: 0.125
+        spawnPatternShape: 1
+        shapeCenteredOnFrog: 0
+        circleArcRadius: 0
+        circleArcStartAngle: 0
+        circleArcEndAngle: 0
+        spiralStartRadius: 0
+        spiralStartAngle: 0
+        spiralEndAngle: 0
+        spiralIsClockwise: 0
+        lineAngle: 0
+        lineLength: 0
+        waveLineAmplitude: 0
+        waveLineFrequency: 0
+        waveLineOffset: 0
+        shapeSize: 0
+        shapeAngle: 0
+        shapeSprite: {fileID: 0}
       spawnCooldown: 5
     - enemyType: 0
       tierFormula: 1
@@ -147,9 +184,27 @@ MonoBehaviour:
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 1
-        spawnPatternShape: 1
+        overrideDefaultSpawnPosition: 0
+        spawnPositionAngle: 0
         spawnAmount: 40
         multipleSpawnDelay: 0
+        spawnPatternShape: 1
+        shapeCenteredOnFrog: 0
+        circleArcRadius: 0
+        circleArcStartAngle: 0
+        circleArcEndAngle: 0
+        spiralStartRadius: 0
+        spiralStartAngle: 0
+        spiralEndAngle: 0
+        spiralIsClockwise: 0
+        lineAngle: 0
+        lineLength: 0
+        waveLineAmplitude: 0
+        waveLineFrequency: 0
+        waveLineOffset: 0
+        shapeSize: 0
+        shapeAngle: 0
+        shapeSprite: {fileID: 0}
       spawnCooldown: 10
     - enemyType: 0
       tierFormula: 2
@@ -159,9 +214,27 @@ MonoBehaviour:
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 1
-        spawnPatternShape: 1
+        overrideDefaultSpawnPosition: 0
+        spawnPositionAngle: 0
         spawnAmount: 40
         multipleSpawnDelay: 0
+        spawnPatternShape: 1
+        shapeCenteredOnFrog: 0
+        circleArcRadius: 0
+        circleArcStartAngle: 0
+        circleArcEndAngle: 0
+        spiralStartRadius: 0
+        spiralStartAngle: 0
+        spiralEndAngle: 0
+        spiralIsClockwise: 0
+        lineAngle: 0
+        lineLength: 0
+        waveLineAmplitude: 0
+        waveLineFrequency: 0
+        waveLineOffset: 0
+        shapeSize: 0
+        shapeAngle: 0
+        shapeSprite: {fileID: 0}
       spawnCooldown: 8
     - enemyType: 0
       tierFormula: 2
@@ -171,9 +244,27 @@ MonoBehaviour:
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 0
-        spawnPatternShape: 1
+        overrideDefaultSpawnPosition: 0
+        spawnPositionAngle: 0
         spawnAmount: 40
         multipleSpawnDelay: 0.225
+        spawnPatternShape: 1
+        shapeCenteredOnFrog: 0
+        circleArcRadius: 0
+        circleArcStartAngle: 0
+        circleArcEndAngle: 0
+        spiralStartRadius: 0
+        spiralStartAngle: 0
+        spiralEndAngle: 0
+        spiralIsClockwise: 0
+        lineAngle: 0
+        lineLength: 0
+        waveLineAmplitude: 0
+        waveLineFrequency: 0
+        waveLineOffset: 0
+        shapeSize: 0
+        shapeAngle: 0
+        shapeSprite: {fileID: 0}
       spawnCooldown: 9
     - enemyType: 0
       tierFormula: 3
@@ -183,9 +274,27 @@ MonoBehaviour:
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 1
-        spawnPatternShape: 1
+        overrideDefaultSpawnPosition: 0
+        spawnPositionAngle: 0
         spawnAmount: 40
         multipleSpawnDelay: 0.175
+        spawnPatternShape: 1
+        shapeCenteredOnFrog: 0
+        circleArcRadius: 0
+        circleArcStartAngle: 0
+        circleArcEndAngle: 0
+        spiralStartRadius: 0
+        spiralStartAngle: 0
+        spiralEndAngle: 0
+        spiralIsClockwise: 0
+        lineAngle: 0
+        lineLength: 0
+        waveLineAmplitude: 0
+        waveLineFrequency: 0
+        waveLineOffset: 0
+        shapeSize: 0
+        shapeAngle: 0
+        shapeSprite: {fileID: 0}
       spawnCooldown: 7
     - enemyType: 0
       tierFormula: 3
@@ -195,9 +304,27 @@ MonoBehaviour:
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 0
-        spawnPatternShape: 1
+        overrideDefaultSpawnPosition: 0
+        spawnPositionAngle: 0
         spawnAmount: 20
         multipleSpawnDelay: 0.25
+        spawnPatternShape: 1
+        shapeCenteredOnFrog: 0
+        circleArcRadius: 0
+        circleArcStartAngle: 0
+        circleArcEndAngle: 0
+        spiralStartRadius: 0
+        spiralStartAngle: 0
+        spiralEndAngle: 0
+        spiralIsClockwise: 0
+        lineAngle: 0
+        lineLength: 0
+        waveLineAmplitude: 0
+        waveLineFrequency: 0
+        waveLineOffset: 0
+        shapeSize: 0
+        shapeAngle: 0
+        shapeSprite: {fileID: 0}
       spawnCooldown: 10
     previewChapters: 05000000
   - duration: 60
@@ -210,9 +337,27 @@ MonoBehaviour:
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 2
-        spawnPatternShape: 1
+        overrideDefaultSpawnPosition: 0
+        spawnPositionAngle: 0
         spawnAmount: 40
         multipleSpawnDelay: 0
+        spawnPatternShape: 1
+        shapeCenteredOnFrog: 0
+        circleArcRadius: 0
+        circleArcStartAngle: 0
+        circleArcEndAngle: 0
+        spiralStartRadius: 0
+        spiralStartAngle: 0
+        spiralEndAngle: 0
+        spiralIsClockwise: 0
+        lineAngle: 0
+        lineLength: 0
+        waveLineAmplitude: 0
+        waveLineFrequency: 0
+        waveLineOffset: 0
+        shapeSize: 0
+        shapeAngle: 0
+        shapeSprite: {fileID: 0}
       spawnCooldown: 5
     - enemyType: 0
       tierFormula: 2
@@ -222,9 +367,27 @@ MonoBehaviour:
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 1
-        spawnPatternShape: 2
+        overrideDefaultSpawnPosition: 0
+        spawnPositionAngle: 0
         spawnAmount: 10
         multipleSpawnDelay: 0.2
+        spawnPatternShape: 2
+        shapeCenteredOnFrog: 0
+        circleArcRadius: 0
+        circleArcStartAngle: 0
+        circleArcEndAngle: 0
+        spiralStartRadius: 0
+        spiralStartAngle: 0
+        spiralEndAngle: 0
+        spiralIsClockwise: 0
+        lineAngle: 0
+        lineLength: 0
+        waveLineAmplitude: 0
+        waveLineFrequency: 0
+        waveLineOffset: 0
+        shapeSize: 0
+        shapeAngle: 0
+        shapeSprite: {fileID: 0}
       spawnCooldown: 2
     - enemyType: 0
       tierFormula: 3
@@ -234,9 +397,27 @@ MonoBehaviour:
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 1
-        spawnPatternShape: 1
+        overrideDefaultSpawnPosition: 0
+        spawnPositionAngle: 0
         spawnAmount: 40
         multipleSpawnDelay: 0
+        spawnPatternShape: 1
+        shapeCenteredOnFrog: 0
+        circleArcRadius: 0
+        circleArcStartAngle: 0
+        circleArcEndAngle: 0
+        spiralStartRadius: 0
+        spiralStartAngle: 0
+        spiralEndAngle: 0
+        spiralIsClockwise: 0
+        lineAngle: 0
+        lineLength: 0
+        waveLineAmplitude: 0
+        waveLineFrequency: 0
+        waveLineOffset: 0
+        shapeSize: 0
+        shapeAngle: 0
+        shapeSprite: {fileID: 0}
       spawnCooldown: 10
     - enemyType: 0
       tierFormula: 3
@@ -246,9 +427,27 @@ MonoBehaviour:
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 2
-        spawnPatternShape: 1
+        overrideDefaultSpawnPosition: 0
+        spawnPositionAngle: 0
         spawnAmount: 40
         multipleSpawnDelay: 0.125
+        spawnPatternShape: 1
+        shapeCenteredOnFrog: 0
+        circleArcRadius: 0
+        circleArcStartAngle: 0
+        circleArcEndAngle: 0
+        spiralStartRadius: 0
+        spiralStartAngle: 0
+        spiralEndAngle: 0
+        spiralIsClockwise: 0
+        lineAngle: 0
+        lineLength: 0
+        waveLineAmplitude: 0
+        waveLineFrequency: 0
+        waveLineOffset: 0
+        shapeSize: 0
+        shapeAngle: 0
+        shapeSprite: {fileID: 0}
       spawnCooldown: 5
     - enemyType: 0
       tierFormula: 4
@@ -258,9 +457,27 @@ MonoBehaviour:
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 0
-        spawnPatternShape: 1
+        overrideDefaultSpawnPosition: 0
+        spawnPositionAngle: 0
         spawnAmount: 10
         multipleSpawnDelay: 0.2
+        spawnPatternShape: 1
+        shapeCenteredOnFrog: 0
+        circleArcRadius: 0
+        circleArcStartAngle: 0
+        circleArcEndAngle: 0
+        spiralStartRadius: 0
+        spiralStartAngle: 0
+        spiralEndAngle: 0
+        spiralIsClockwise: 0
+        lineAngle: 0
+        lineLength: 0
+        waveLineAmplitude: 0
+        waveLineFrequency: 0
+        waveLineOffset: 0
+        shapeSize: 0
+        shapeAngle: 0
+        shapeSprite: {fileID: 0}
       spawnCooldown: 8
     - enemyType: 0
       tierFormula: 4
@@ -270,9 +487,27 @@ MonoBehaviour:
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 0
-        spawnPatternShape: 1
+        overrideDefaultSpawnPosition: 0
+        spawnPositionAngle: 0
         spawnAmount: 10
         multipleSpawnDelay: 0.2
+        spawnPatternShape: 1
+        shapeCenteredOnFrog: 0
+        circleArcRadius: 0
+        circleArcStartAngle: 0
+        circleArcEndAngle: 0
+        spiralStartRadius: 0
+        spiralStartAngle: 0
+        spiralEndAngle: 0
+        spiralIsClockwise: 0
+        lineAngle: 0
+        lineLength: 0
+        waveLineAmplitude: 0
+        waveLineFrequency: 0
+        waveLineOffset: 0
+        shapeSize: 0
+        shapeAngle: 0
+        shapeSprite: {fileID: 0}
       spawnCooldown: 5
     previewChapters: 05000000
   - duration: 210
@@ -285,9 +520,27 @@ MonoBehaviour:
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 1
-        spawnPatternShape: 1
+        overrideDefaultSpawnPosition: 0
+        spawnPositionAngle: 0
         spawnAmount: 40
         multipleSpawnDelay: 0
+        spawnPatternShape: 1
+        shapeCenteredOnFrog: 0
+        circleArcRadius: 0
+        circleArcStartAngle: 0
+        circleArcEndAngle: 0
+        spiralStartRadius: 0
+        spiralStartAngle: 0
+        spiralEndAngle: 0
+        spiralIsClockwise: 0
+        lineAngle: 0
+        lineLength: 0
+        waveLineAmplitude: 0
+        waveLineFrequency: 0
+        waveLineOffset: 0
+        shapeSize: 0
+        shapeAngle: 0
+        shapeSprite: {fileID: 0}
       spawnCooldown: 2
     - enemyType: 0
       tierFormula: 2
@@ -297,9 +550,27 @@ MonoBehaviour:
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 1
-        spawnPatternShape: 1
+        overrideDefaultSpawnPosition: 0
+        spawnPositionAngle: 0
         spawnAmount: 40
         multipleSpawnDelay: 0.2
+        spawnPatternShape: 1
+        shapeCenteredOnFrog: 0
+        circleArcRadius: 0
+        circleArcStartAngle: 0
+        circleArcEndAngle: 0
+        spiralStartRadius: 0
+        spiralStartAngle: 0
+        spiralEndAngle: 0
+        spiralIsClockwise: 0
+        lineAngle: 0
+        lineLength: 0
+        waveLineAmplitude: 0
+        waveLineFrequency: 0
+        waveLineOffset: 0
+        shapeSize: 0
+        shapeAngle: 0
+        shapeSprite: {fileID: 0}
       spawnCooldown: 8
     - enemyType: 0
       tierFormula: 3
@@ -309,9 +580,27 @@ MonoBehaviour:
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 2
-        spawnPatternShape: 1
+        overrideDefaultSpawnPosition: 0
+        spawnPositionAngle: 0
         spawnAmount: 40
         multipleSpawnDelay: 0.125
+        spawnPatternShape: 1
+        shapeCenteredOnFrog: 0
+        circleArcRadius: 0
+        circleArcStartAngle: 0
+        circleArcEndAngle: 0
+        spiralStartRadius: 0
+        spiralStartAngle: 0
+        spiralEndAngle: 0
+        spiralIsClockwise: 0
+        lineAngle: 0
+        lineLength: 0
+        waveLineAmplitude: 0
+        waveLineFrequency: 0
+        waveLineOffset: 0
+        shapeSize: 0
+        shapeAngle: 0
+        shapeSprite: {fileID: 0}
       spawnCooldown: 5
     - enemyType: 0
       tierFormula: 4
@@ -321,9 +610,27 @@ MonoBehaviour:
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 0
-        spawnPatternShape: 1
+        overrideDefaultSpawnPosition: 0
+        spawnPositionAngle: 0
         spawnAmount: 10
         multipleSpawnDelay: 0
+        spawnPatternShape: 1
+        shapeCenteredOnFrog: 0
+        circleArcRadius: 0
+        circleArcStartAngle: 0
+        circleArcEndAngle: 0
+        spiralStartRadius: 0
+        spiralStartAngle: 0
+        spiralEndAngle: 0
+        spiralIsClockwise: 0
+        lineAngle: 0
+        lineLength: 0
+        waveLineAmplitude: 0
+        waveLineFrequency: 0
+        waveLineOffset: 0
+        shapeSize: 0
+        shapeAngle: 0
+        shapeSprite: {fileID: 0}
       spawnCooldown: 7
     - enemyType: 0
       tierFormula: 5
@@ -333,9 +640,27 @@ MonoBehaviour:
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 0
-        spawnPatternShape: 1
+        overrideDefaultSpawnPosition: 0
+        spawnPositionAngle: 0
         spawnAmount: 40
         multipleSpawnDelay: 0.1
+        spawnPatternShape: 1
+        shapeCenteredOnFrog: 0
+        circleArcRadius: 0
+        circleArcStartAngle: 0
+        circleArcEndAngle: 0
+        spiralStartRadius: 0
+        spiralStartAngle: 0
+        spiralEndAngle: 0
+        spiralIsClockwise: 0
+        lineAngle: 0
+        lineLength: 0
+        waveLineAmplitude: 0
+        waveLineFrequency: 0
+        waveLineOffset: 0
+        shapeSize: 0
+        shapeAngle: 0
+        shapeSprite: {fileID: 0}
       spawnCooldown: 4
     - enemyType: 0
       tierFormula: 5
@@ -345,9 +670,27 @@ MonoBehaviour:
         bouncecount: 0
       spawnPattern:
         spawnPatternType: 0
-        spawnPatternShape: 1
+        overrideDefaultSpawnPosition: 0
+        spawnPositionAngle: 0
         spawnAmount: 10
         multipleSpawnDelay: 0.5
+        spawnPatternShape: 1
+        shapeCenteredOnFrog: 0
+        circleArcRadius: 0
+        circleArcStartAngle: 0
+        circleArcEndAngle: 0
+        spiralStartRadius: 0
+        spiralStartAngle: 0
+        spiralEndAngle: 0
+        spiralIsClockwise: 0
+        lineAngle: 0
+        lineLength: 0
+        waveLineAmplitude: 0
+        waveLineFrequency: 0
+        waveLineOffset: 0
+        shapeSize: 0
+        shapeAngle: 0
+        shapeSprite: {fileID: 0}
       spawnCooldown: 5
     previewChapters: 05000000
   bountyBugs:

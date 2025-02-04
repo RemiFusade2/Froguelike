@@ -117,6 +117,9 @@ public class EnemyInstance
     public WaveData wave;
     public bool neverDespawn;
 
+    // Origin spawn pattern
+    public SpawnPattern spawnPattern;
+
     // Difficulty tier
     public int difficultyTier;
 
@@ -456,25 +459,40 @@ public class EnemiesManager : MonoBehaviour
     /// <param name="playerPosition"></param>
     /// <param name="playerMoveDirection">This vector is either zero (player doesn't move) or normalized</param>
     /// <param name="spawnPosition">Out position, valid only if method returns true</param>
+    /// <param name="overrideDirection">If override, then we use directionAngle, otherwise spawnPosition is going to depend on frog position and movement direction</param>
+    /// <param name="directionAngle">Angle between Vector2.Right and frog to spawn position</param>
     /// <returns>Returns true if it successfully found a spawn position</returns>
-    private bool GetSpawnPosition(Vector2 playerPosition, Vector2 playerMoveDirection, out Vector3 spawnPosition)
+    private bool GetSpawnPosition(Vector2 playerPosition, Vector2 playerMoveDirection, out Vector3 spawnPosition, bool overrideDirection = false, float overridenDirectionAngle = 0, float overridenDirectionSpread = 1)
     {
         spawnPosition = Vector2.zero;
 
         // Will spawn in a circle around a position
-        // Compute the center of that circle (player position + move direction * a distance)
-        float spawnCenterDistanceToPlayer = (playerMoveDirection.Equals(Vector2.zero)) ? 0 : Random.Range(spawnCenterMinDistanceToPlayer, spawnCenterMaxDistanceToPlayer);
-        Vector2 spawnCenter = playerPosition + playerMoveDirection * spawnCenterDistanceToPlayer;
+        Vector2 spawnDirection = Vector2.zero;
+        float actualSpawnCircleRadius = spawnCircleRadius; // Default radius is quite big to also work when centered around frog
+        float spawnCenterDistanceToPlayer = Random.Range(spawnCenterMinDistanceToPlayer, spawnCenterMaxDistanceToPlayer);
+        if (overrideDirection)
+        {
+            // The center of that circle is in the given direction
+            spawnDirection = new Vector2(Mathf.Cos(overridenDirectionAngle * Mathf.Deg2Rad), Mathf.Sin(overridenDirectionAngle * Mathf.Deg2Rad));
+            actualSpawnCircleRadius = overridenDirectionSpread; // if we override direction, then the spawn circle must be small, otherwise it doesn't feel like the bugs are coming from the right direction
+        }
+        else if (!playerMoveDirection.Equals(Vector2.zero))
+        {
+            // The center of that circle is in front of the frog
+            spawnDirection = playerMoveDirection;
+        }
+        Vector2 spawnCenter = playerPosition + spawnDirection * spawnCenterDistanceToPlayer;
 
         // Attemp to find a valid spawn point. Loop and try again until it works.
         bool spawnPositionIsValid = false;
         int loopAttemptCount = findSpawnPositionMaxAttempts;
+
         do
         {
             // Get a random point in the spawn circle
             spawnPosition = spawnCenter;
             Vector2 randomVector = Random.insideUnitCircle;
-            spawnPosition += new Vector3(randomVector.x, randomVector.y) * spawnCircleRadius;
+            spawnPosition += new Vector3(randomVector.x, randomVector.y) * actualSpawnCircleRadius;
             loopAttemptCount--;
             // Check if that random point is not in sight (you don't want to spawn an enemy where you can see it)
             if (Vector2.Distance(spawnPosition, playerPosition) > minSpawnDistanceFromPlayer)
@@ -604,7 +622,7 @@ public class EnemiesManager : MonoBehaviour
 
                 // Spawn bug using info we have
                 Vector3 positionRelativeToFrog = (spawnPosition - GameManager.instance.player.transform.position) + Random.Range(-1.0f, 1.0f) * Vector3.right + Random.Range(-1.0f, 1.0f) * Vector3.up;
-                StartCoroutine(SpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, bountyBug.movePattern, originWave: null, delay: 0, difficultyTier: difficultyTier, neverDespawn: true, bounty: bountyBug));
+                StartCoroutine(SpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, bountyBug.movePattern, originWave: null, originSpawnPattern: null, delay: 0, difficultyTier: difficultyTier, neverDespawn: true, bounty: bountyBug));
 
             }
         }
@@ -655,62 +673,244 @@ public class EnemiesManager : MonoBehaviour
                     EnemyData enemyData = GetEnemyDataFromTypeAndDifficultyTier(enemySpawn.enemyType, difficultyTier);
                     GameObject enemyPrefab = enemyData.prefab;
 
-                    // Get spawn pattern info
+                    /// Get spawn pattern info
                     SpawnPattern spawnPattern = enemySpawn.spawnPattern;
-                    int enemyCount = spawnPattern.spawnAmount;
-                    SpawnPatternType patternType = spawnPattern.spawnPatternType;
-                    float delayBetweenSpawn = spawnPattern.multipleSpawnDelay;
-                    float currentDelay = delayBetweenSpawn;
-
+                    // Spawn type
+                    SpawnPatternType spawnPatternType = spawnPattern.spawnPatternType; // The type of spawn pattern (random, chunk, shape)
+                    // Spawn position settings
+                    bool spawnOverrideDefaultSpawnPosition = spawnPattern.overrideDefaultSpawnPosition; // Default is spawn ahead of frog movement direction, or random if frog isn't moving
+                    float spawnPositionAngle = spawnPattern.spawnPositionAngle; // Angle = 0 means East, Angle = 90 means North, etc.
+                    float spawnPositionSpread = spawnPattern.spawnPositionSpread; // Radius around overriden spawn position where the bugs can spawn
+                    // Multiple spawns settings
+                    int spawnBugsAmount = spawnPattern.spawnAmount; // How many enemies will spawn
+                    float spawnMultipleDelayBetweenSpawns = spawnPattern.multipleSpawnDelay; // The delay between these spawns
+                    // Shape settings
+                    SpawnShape spawnPatternShape = spawnPattern.spawnPatternShape; // Only if the type is Shape, then which Shape?
+                    bool spawnShapeCenteredOnFrog = spawnPattern.shapeCenteredOnFrog; // Is shape around frog or around spawn point?
+                    float shapeOrientationAngle = spawnPattern.shapeOrientationAngle;
+                    if (spawnPattern.shapeOrientationIsRandomized)
+                    {
+                        shapeOrientationAngle = Random.Range(spawnPattern.shapeOrientationMinAngle, spawnPattern.shapeOrientationMaxAngle);
+                    }
+                    // Shape CIRCLE_ARC settings
+                    float spawnShapeCircleArcRadius = spawnPattern.circleArcRadius; // Circle arc size
+                    float spawnShapeCircleArcStartAngle = spawnPattern.circleArcStartAngle; // Angle = 0 means aligned with vector 'frog to spawn'
+                    float spawnShapeCircleArcEndAngle = spawnPattern.circleArcEndAngle; // Angle = 0 means aligned with vector 'frog to spawn'
+                    // Shape SPIRAL settings
+                    float spawnShapeSpiralStartRadius = spawnPattern.spiralStartRadius; // Spiral start radius
+                    float spawnShapeSpiralRadiusIncrease = spawnPattern.spiralRadiusIncreasePerFullRotation; // Spiral radius increase per 360° rotation
+                    float spawnShapeSpiralStartAngle = spawnPattern.spiralStartAngle; // Spiral start angle
+                    float spawnShapeSpiralEndAngle = spawnPattern.spiralEndAngle; // Spiral end angle
+                    bool spawnShapeSpiralIsClockwise = spawnPattern.spiralIsClockwise; // Spiral direction
+                    // Shape LINES settings
+                    float spawnShapeLineAngle = spawnPattern.lineAngle; // Angle = 0 means aligned with vector 'frog to spawn'
+                    float spawnShapeLineLength = spawnPattern.lineLength; // Length of the line
+                    // Shape WAVE_LINE settings
+                    float spawnShapeWaveLineAmplitude = spawnPattern.waveLineAmplitude; // How big are the waves
+                    float spawnShapeWaveLineFrequency = spawnPattern.waveLineFrequency; // How close together are the waves
+                    float spawnShapeWaveLineOffset = spawnPattern.waveLineOffset; // Where do the waves start (default is zero/middle)
+                    // Shape SQUARE or TRIANGLE or SPRITE settings
+                    float spawnShapeSideSize = spawnPattern.shapeSize; // The size of the side of that shape
+                    float spawnShapeAngle = spawnPattern.shapeAngle; // The angle of that shape relative to the vector 'frog to spawn'
+                    // Shape SPRITE setting
+                    Sprite spawnShapeSprite = spawnPattern.shapeSprite; // Only for SpawnShape of type SPRITE
+                    
+                    float currentDelay = spawnMultipleDelayBetweenSpawns;
                     Vector3 spawnPosition;
-                    switch (patternType)
+
+                    switch (spawnPatternType)
                     {
                         case SpawnPatternType.CHUNK:
-                            // choose a position at a distance from the player and spawn a chunk of enemies
-                            if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out spawnPosition))
+                            // Choose a position at a distance from the player and spawn a chunk of enemies at that position
+                            if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out spawnPosition, overrideDirection: spawnOverrideDefaultSpawnPosition, overridenDirectionAngle: spawnPositionAngle, overridenDirectionSpread: spawnPositionSpread))
                             {
-                                for (int j = 0; j < enemyCount; j++)
+                                for (int j = 0; j < spawnBugsAmount; j++)
                                 {
                                     Vector3 positionRelativeToFrog = (spawnPosition - GameManager.instance.player.transform.position) + Random.Range(-1.0f, 1.0f) * Vector3.right + Random.Range(-1.0f, 1.0f) * Vector3.up;
-                                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, enemySpawn.movePattern, currentWave, currentDelay, difficultyTier));
-                                    currentDelay += delayBetweenSpawn;
+                                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, difficultyTier));
+                                    currentDelay += spawnMultipleDelayBetweenSpawns;
                                 }
                             }
                             break;
                         case SpawnPatternType.SHAPE:
-                            float arcAngle = 0;
-                            // TODO: other shapes than circles
-                            switch (spawnPattern.spawnPatternShape)
+
+                            Vector3 shapePositionRelativeToFrog = Vector3.zero;
+                            if (spawnShapeCenteredOnFrog)
+                            {
+                                // Shape is centered on the frog
+                                // WARNING: This won't work properly with lines 
+                            }
+                            else
+                            {
+                                // Shape is placed somewhere further around the frog
+                                if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out spawnPosition, overrideDirection: spawnOverrideDefaultSpawnPosition, overridenDirectionAngle: spawnPositionAngle, overridenDirectionSpread: spawnPositionSpread))
+                                {
+                                    // Here we got a position, but we'll need to push it a bit further depending on how big is the shape
+                                    shapePositionRelativeToFrog = (spawnPosition - GameManager.instance.player.transform.position);
+                                }
+                                else
+                                {
+                                    // If we couldn't figure out a position, then we give up on that spawn
+                                    break;
+                                }
+                            }
+
+                            // Special case: if bug movement pattern is straight line and if shape is not centered on frog, then we'll force movement direction to keep the shape intact
+                            bool forceMovementDirection = false;
+                            Vector2? movementDirection = null;
+                            if (!spawnShapeCenteredOnFrog && enemySpawn.movePattern.movePatternType == EnemyMovePatternType.STRAIGHT_LINE)
+                            {
+                                forceMovementDirection = true;
+                                movementDirection = new Vector2((-shapePositionRelativeToFrog).normalized.x, (-shapePositionRelativeToFrog).normalized.y);
+                            }
+
+                            switch (spawnPatternShape)
                             {
                                 case SpawnShape.NONE:
-                                case SpawnShape.CIRCLE:
-                                    arcAngle = 360.0f;
+                                case SpawnShape.CIRCLE_ARC:
+                                    float circleArcAngle = Mathf.Clamp(Mathf.Abs(spawnShapeCircleArcEndAngle - spawnShapeCircleArcStartAngle), 0, 360); // Angle between start and end, maximum full circle
+
+                                    float circleArcDeltaAngle = circleArcAngle / spawnBugsAmount; // Angle between two spanws
+
+                                    float circleArcMinAngle = (spawnShapeCircleArcEndAngle < spawnShapeCircleArcStartAngle) ? spawnShapeCircleArcEndAngle : spawnShapeCircleArcStartAngle;
+                                    float circleArcMaxAngle = (spawnShapeCircleArcEndAngle >= spawnShapeCircleArcStartAngle) ? spawnShapeCircleArcEndAngle : spawnShapeCircleArcStartAngle;
+
+                                    float circleArcRadius = spawnShapeCircleArcRadius;
+                                    if (spawnShapeCenteredOnFrog)
+                                    {
+                                        if (circleArcRadius < minSpawnDistanceFromPlayer)
+                                        {
+                                            // If overriden circle radius is under the minimum spawn distance from frog, and if the circle is centered on frog, then we force the radius to be big enough
+                                            circleArcRadius = minSpawnDistanceFromPlayer;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // If shape is not centered on frog, we want to make sure it spawns far enough so no part of the circle is visible
+                                        shapePositionRelativeToFrog += ((shapePositionRelativeToFrog.normalized) * (circleArcRadius/2));
+                                    }
+
+                                    for (float angle = circleArcMinAngle + shapeOrientationAngle; angle <= circleArcMaxAngle + shapeOrientationAngle; angle += circleArcDeltaAngle)
+                                    {
+                                        // Find position of next bug on the circle
+                                        spawnPosition = shapePositionRelativeToFrog + (Mathf.Cos(angle * Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(angle * Mathf.Deg2Rad) * Vector3.up) * circleArcRadius;
+
+                                        // Spawn one bug on the circle
+                                        StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, difficultyTier,
+                                        forceMovementDirection: forceMovementDirection, moveDirection: movementDirection));
+                                        
+                                        // Eventually increase the delay before a spawn (WARNING: delay will change how the shape looks)
+                                        currentDelay += spawnMultipleDelayBetweenSpawns;
+                                    }
+
                                     break;
-                                case SpawnShape.HALF_CIRCLE:
-                                    arcAngle = 180.0f;
+                                case SpawnShape.SPIRAL:
+                                    float spiralArcAngle = Mathf.Abs(spawnShapeSpiralEndAngle - spawnShapeSpiralStartAngle); // Angle between start and end, can be more than full circle
+
+                                    float spiralDeltaAngle = spiralArcAngle / spawnBugsAmount; // Angle between two spanws
+
+                                    float spiralMinAngle = (spawnShapeSpiralEndAngle < spawnShapeSpiralStartAngle) ? spawnShapeSpiralEndAngle : spawnShapeSpiralStartAngle;
+                                    float spiralMaxAngle = (spawnShapeSpiralEndAngle >= spawnShapeSpiralStartAngle) ? spawnShapeSpiralEndAngle : spawnShapeSpiralStartAngle;
+
+                                    float spiralRadius = spawnShapeSpiralStartRadius;
+
+                                    if (spawnShapeCenteredOnFrog)
+                                    {
+                                        if (spiralRadius < minSpawnDistanceFromPlayer)
+                                        {
+                                            // If overriden spiral start radius is under the minimum spawn distance from frog, and if the spiral is centered on frog, then we force the radius to be big enough
+                                            spiralRadius = minSpawnDistanceFromPlayer;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // If shape is not centered on frog, we want to make sure it spawns far enough so no part of the spiral is visible
+                                        shapePositionRelativeToFrog += ((shapePositionRelativeToFrog.normalized) * ((spawnShapeSpiralStartRadius + (spiralArcAngle / 360) * spawnShapeSpiralRadiusIncrease) / 2));
+                                    }
+
+                                    if (spawnShapeSpiralIsClockwise)
+                                    {
+                                        for (float angle = spiralMinAngle + shapeOrientationAngle; angle <= spiralMaxAngle + shapeOrientationAngle; angle += spiralDeltaAngle)
+                                        {
+                                            // Find position of next bug on the spiral
+                                            spawnPosition = shapePositionRelativeToFrog + (Mathf.Cos(angle * Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(angle * Mathf.Deg2Rad) * Vector3.up) * spiralRadius;
+
+                                            // Spiral radius increase with angle (Radius increase by 1 unit per full circle)
+                                            spiralRadius += ((spiralDeltaAngle / 360) * spawnShapeSpiralRadiusIncrease);
+
+                                            // Spawn one bug on the spiral
+                                            StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, difficultyTier,
+                                            forceMovementDirection: forceMovementDirection, moveDirection: movementDirection));
+
+                                            // Eventually increase the delay before a spawn (WARNING: delay will change how the shape looks)
+                                            currentDelay += spawnMultipleDelayBetweenSpawns;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        for (float angle = spiralMaxAngle + shapeOrientationAngle; angle >= spiralMinAngle + shapeOrientationAngle; angle -= spiralDeltaAngle)
+                                        {
+                                            // Find position of next bug on the spiral
+                                            spawnPosition = shapePositionRelativeToFrog + (Mathf.Cos(angle * Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(angle * Mathf.Deg2Rad) * Vector3.up) * spiralRadius;
+
+                                            // Spiral radius increase with angle (Radius increase by 1 unit per full circle)
+                                            spiralRadius += ((spiralDeltaAngle / 360) * spawnShapeSpiralRadiusIncrease);
+
+                                            // Spawn one bug on the spiral
+                                            StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, difficultyTier,
+                                            forceMovementDirection: forceMovementDirection, moveDirection: movementDirection));
+
+                                            // Eventually increase the delay before a spawn (WARNING: delay will change how the shape looks)
+                                            currentDelay += spawnMultipleDelayBetweenSpawns;
+                                        }
+                                    }
+                                    break;
+                                case SpawnShape.STRAIGHT_LINE:
+                                    /*spawnPattern.lineAngle;
+                                    spawnPattern.lineLength;*/
+                                    break;
+                                case SpawnShape.WAVE_LINE:
+                                    /*spawnPattern.lineAngle;
+                                    spawnPattern.lineLength;*/
+                                    /*spawnPattern.waveLineAmplitude;
+                                    spawnPattern.waveLineFrequency;
+                                    spawnPattern.waveLineOffset;*/
+                                    break;
+                                case SpawnShape.SQUARE:
+                                    /*spawnPattern.shapeSize;
+                                    spawnPattern.shapeAngle;*/
+                                    break;
+                                case SpawnShape.TRIANGLE:
+                                    /*spawnPattern.shapeSize;
+                                    spawnPattern.shapeAngle;*/
+                                    break;
+                                case SpawnShape.SPRITE:
+                                    /*spawnPattern.shapeSize;
+                                    spawnPattern.shapeAngle;
+                                    spawnPattern.shapeSprite;*/
                                     break;
                             }
 
-                            // spawn enemies all around the player
-                            float deltaAngle = arcAngle / enemyCount;
+                            // spawn enemies all around the player (circle)
+                            /*float circleArcDeltaAngle = arcAngle / spawnBugsAmount;
                             float spawnDistanceFromPlayer = minSpawnDistanceFromPlayer;
-                            for (float angle = 0; angle < arcAngle; angle += deltaAngle)
+                            for (float angle = 0; angle < arcAngle; angle += circleArcDeltaAngle)
                             {
                                 spawnPosition = (Mathf.Cos(angle * Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(angle * Mathf.Deg2Rad) * Vector3.up) * spawnDistanceFromPlayer;
-                                StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, currentDelay, difficultyTier));
-                                currentDelay += delayBetweenSpawn;
-                            }
+                                StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, difficultyTier));
+                                currentDelay += spawnMultipleDelayBetweenSpawns;
+                            }*/
                             break;
 
                         case SpawnPatternType.RANDOM:
                             // Spawn enemies at random positions
-                            for (int j = 0; j < enemyCount; j++)
+                            for (int j = 0; j < spawnBugsAmount; j++)
                             {
-                                if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out spawnPosition))
+                                if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out spawnPosition, overrideDirection: spawnOverrideDefaultSpawnPosition, overridenDirectionAngle: spawnPositionAngle, overridenDirectionSpread: spawnPositionSpread))
                                 {
                                     Vector3 positionRelativeToFrog = spawnPosition - GameManager.instance.player.transform.position;
-                                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, enemySpawn.movePattern, currentWave, currentDelay, difficultyTier));
-                                    currentDelay += delayBetweenSpawn;
+                                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, difficultyTier));
+                                    currentDelay += spawnMultipleDelayBetweenSpawns;
                                 }
                             }
                             break;
@@ -723,8 +923,11 @@ public class EnemiesManager : MonoBehaviour
         }
     }
 
-    private void ResetEnemyValues(EnemyInstance enemyInstance, GameObject prefab, EnemyData enemyData, EnemyMovePattern movePattern, WaveData originWave, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null, bool preventAnyPhysicsShenanigans = false)
+    private void ResetEnemyValues(EnemyInstance enemyInstance, GameObject prefab, EnemyData enemyData, EnemyMovePattern movePattern, WaveData originWave, SpawnPattern originSpawnPattern, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null, bool preventAnyPhysicsShenanigans = false)
     {
+        enemyInstance.movePattern = movePattern;
+        enemyInstance.spawnPattern = originSpawnPattern;
+
         if (!preventAnyPhysicsShenanigans)
         {
             enemyInstance.enemyTransform.localScale = prefab.GetComponent<Transform>().localScale;
@@ -765,6 +968,7 @@ public class EnemiesManager : MonoBehaviour
         enemyInstance.wave = originWave;
         enemyInstance.difficultyTier = difficultyTier;
         enemyInstance.neverDespawn = neverDespawn;
+        enemyInstance.spawnPattern = originSpawnPattern;
 
         // Set bounty
         SetBountyToEnemy(enemyInstance, bounty); // This will set HP Max, multipliers and bonuses
@@ -796,7 +1000,7 @@ public class EnemiesManager : MonoBehaviour
         }
     }
 
-    public void SpawnEnemy(GameObject prefab, Vector3 positionRelativeToFrog, EnemyData enemyData, EnemyMovePattern movePattern, WaveData originWave, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null)
+    public void SpawnEnemy(GameObject prefab, Vector3 positionRelativeToFrog, EnemyData enemyData, EnemyMovePattern movePattern, WaveData originWave, SpawnPattern originSpawnPattern, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null)
     {
         // Get an enemy from the pool
         EnemyInstance enemyFromPool = null;
@@ -808,7 +1012,7 @@ public class EnemiesManager : MonoBehaviour
             enemyFromPool.enemyRenderer.enabled = true;
             enemyFromPool.enemyRigidbody.simulated = true;
 
-            ResetEnemyValues(enemyFromPool, prefab, enemyData, movePattern, originWave, difficultyTier, neverDespawn, bounty, forceMovementDirection, moveDirection);
+            ResetEnemyValues(enemyFromPool, prefab, enemyData, movePattern, originWave, originSpawnPattern, difficultyTier, neverDespawn, bounty);
 
             Vector3 position = GameManager.instance.player.transform.position + positionRelativeToFrog;
             enemyFromPool.enemyTransform.position = position;
@@ -819,7 +1023,7 @@ public class EnemiesManager : MonoBehaviour
                 Debug.Log($"Spawning a {enemyData.enemyName} with move pattern {movePattern.movePatternType.ToString()}. Total amount of active enemies = {allActiveEnemiesDico.Count + 1}");
             }
 
-            AddEnemy(enemyFromPool, enemyData, movePattern);
+            AddEnemy(enemyFromPool, enemyData, movePattern, forceMovementDirection, moveDirection);
         }
     }
 
@@ -859,18 +1063,18 @@ public class EnemiesManager : MonoBehaviour
             if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out Vector3 spawnPosition))
             {
                 Vector3 positionRelativeToFrog = spawnPosition - GameManager.instance.player.transform.position;
-                StartCoroutine(SpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, movePatternFollowPlayer, originWave: RunManager.instance.GetCurrentWave(), delay: 0, difficultyTier: difficultyTier));
+                StartCoroutine(SpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, movePatternFollowPlayer, originWave: RunManager.instance.GetCurrentWave(), originSpawnPattern: null, delay: 0, difficultyTier: difficultyTier));
             }
         }
     }
 
-    private IEnumerator SpawnEnemyAsync(GameObject prefab, Vector3 positionRelativeToFrog, EnemyData enemyData, EnemyMovePattern movePattern, WaveData originWave, float delay, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null)
+    private IEnumerator SpawnEnemyAsync(GameObject prefab, Vector3 positionRelativeToFrog, EnemyData enemyData, EnemyMovePattern movePattern, WaveData originWave, SpawnPattern originSpawnPattern, float delay, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null)
     {
         yield return new WaitForSeconds(delay);
         if ((originWave != null && originWave.Equals(RunManager.instance.GetCurrentWave())) || (bounty != null))
         {
             // Only spawn the enemy if it's part of the current wave and that wave is still active
-            SpawnEnemy(prefab, positionRelativeToFrog, enemyData, movePattern, originWave, difficultyTier, neverDespawn, bounty, forceMovementDirection, moveDirection);
+            SpawnEnemy(prefab, positionRelativeToFrog, enemyData, movePattern, originWave, originSpawnPattern, difficultyTier, neverDespawn, bounty, forceMovementDirection, moveDirection);
         }
     }
 
@@ -981,7 +1185,7 @@ public class EnemiesManager : MonoBehaviour
         enemyInstance.knockbackResistance = knockbackResistance;
     }
 
-    public void AddEnemy(EnemyInstance newEnemy, EnemyData enemyData, EnemyMovePattern movePattern)
+    public void AddEnemy(EnemyInstance newEnemy, EnemyData enemyData, EnemyMovePattern movePattern, bool forceMovementDirection, Vector2? moveDirection)
     {
         // setup enemy - name
         newEnemy.enemyName = enemyData.enemyName;
@@ -1016,30 +1220,61 @@ public class EnemiesManager : MonoBehaviour
         enemiesToUpdateQueue.Enqueue(newEnemy);
 
         // Set starting velocity (depends on move pattern)
-        Vector2 vectorTowardsPlayer = (GameManager.instance.player.transform.position - newEnemy.enemyTransform.position).normalized;
-        switch (movePattern.movePatternType)
+        if (forceMovementDirection && moveDirection.HasValue)
         {
-            case EnemyMovePatternType.BOUNCE_ON_EDGES: // diagonal 45? movement, somewhat towards player
-                // Special move pattern where this enemy should not interact with anything, and would be displayed on top of everything
-                newEnemy.enemyCollider.isTrigger = true;
-                newEnemy.enemyRenderer.sortingOrder = 1000;
-                // Always follow a diagonal
-                newEnemy.moveDirection = (new Vector2(Mathf.Sign(vectorTowardsPlayer.x), Mathf.Sign(vectorTowardsPlayer.y))).normalized;
-                newEnemy.bounceCount = movePattern.bouncecount;
-                break;
-            case EnemyMovePatternType.DIRECTIONLESS: // starts static
-            case EnemyMovePatternType.NO_MOVEMENT:
-                newEnemy.enemyCollider.isTrigger = false;
-                newEnemy.moveDirection = Vector2.zero;
-                break;
-            case EnemyMovePatternType.FOLLOW_PLAYER:
-                newEnemy.enemyCollider.isTrigger = false;
-                newEnemy.moveDirection = vectorTowardsPlayer;
-                break;
-            case EnemyMovePatternType.STRAIGHT_LINE: // but still moving towards player
-                newEnemy.enemyCollider.isTrigger = true;
-                newEnemy.moveDirection = vectorTowardsPlayer;
-                break;
+            newEnemy.moveDirection = moveDirection.Value;
+            switch (movePattern.movePatternType)
+            {
+                case EnemyMovePatternType.BOUNCE_ON_EDGES: // diagonal 45? movement, somewhat towards player
+                                                           // Special move pattern where this enemy should not interact with anything, and would be displayed on top of everything
+                    newEnemy.enemyCollider.isTrigger = true;
+                    newEnemy.enemyRenderer.sortingOrder = 1000;
+                    // Always follow a diagonal
+                    newEnemy.moveDirection = (new Vector2(Mathf.Sign(moveDirection.Value.x), Mathf.Sign(moveDirection.Value.y))).normalized;
+                    newEnemy.bounceCount = movePattern.bouncecount;
+                    break;
+                case EnemyMovePatternType.DIRECTIONLESS:
+                    newEnemy.enemyCollider.isTrigger = false;
+                    break;
+                case EnemyMovePatternType.NO_MOVEMENT:
+                    newEnemy.enemyCollider.isTrigger = false;
+                    newEnemy.moveDirection = Vector2.zero;
+                    break;
+                case EnemyMovePatternType.FOLLOW_PLAYER:
+                    newEnemy.enemyCollider.isTrigger = false;
+                    break;
+                case EnemyMovePatternType.STRAIGHT_LINE: // but still moving towards player
+                    newEnemy.enemyCollider.isTrigger = true;
+                    break;
+            }
+        }
+        else
+        {
+            Vector2 vectorTowardsPlayer = (GameManager.instance.player.transform.position - newEnemy.enemyTransform.position).normalized;
+            switch (movePattern.movePatternType)
+            {
+                case EnemyMovePatternType.BOUNCE_ON_EDGES: // diagonal 45? movement, somewhat towards player
+                                                           // Special move pattern where this enemy should not interact with anything, and would be displayed on top of everything
+                    newEnemy.enemyCollider.isTrigger = true;
+                    newEnemy.enemyRenderer.sortingOrder = 1000;
+                    // Always follow a diagonal
+                    newEnemy.moveDirection = (new Vector2(Mathf.Sign(vectorTowardsPlayer.x), Mathf.Sign(vectorTowardsPlayer.y))).normalized;
+                    newEnemy.bounceCount = movePattern.bouncecount;
+                    break;
+                case EnemyMovePatternType.DIRECTIONLESS: // starts static
+                case EnemyMovePatternType.NO_MOVEMENT:
+                    newEnemy.enemyCollider.isTrigger = false;
+                    newEnemy.moveDirection = Vector2.zero;
+                    break;
+                case EnemyMovePatternType.FOLLOW_PLAYER:
+                    newEnemy.enemyCollider.isTrigger = false;
+                    newEnemy.moveDirection = vectorTowardsPlayer;
+                    break;
+                case EnemyMovePatternType.STRAIGHT_LINE: // but still moving towards player
+                    newEnemy.enemyCollider.isTrigger = true;
+                    newEnemy.moveDirection = vectorTowardsPlayer;
+                    break;
+            }
         }
         SetEnemyVelocity(newEnemy, 0);
     }
@@ -1079,7 +1314,7 @@ public class EnemiesManager : MonoBehaviour
             int randomMultiplier = Random.Range(2, 9);
             damageAmountStr =  $"{visualDamageAmountInt * randomMultiplier}\n-\n{randomMultiplier+1}";*/
 
-            damageTMPScript.text = damageAmountStr;
+                                    damageTMPScript.text = damageAmountStr;
 
             // Font settings
             TMP_FontAsset currentFontAsset = SettingsManager.instance.GetCurrentFontAsset();
@@ -1419,7 +1654,7 @@ public class EnemiesManager : MonoBehaviour
                             else
                             {
                                 // Place enemy in front of frog (as if it was spawned again)
-                                if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out Vector3 spawnPosition))
+                                if (enemy.spawnPattern != null && GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out Vector3 spawnPosition, overrideDirection: enemy.spawnPattern.overrideDefaultSpawnPosition, overridenDirectionAngle: enemy.spawnPattern.spawnPositionAngle, overridenDirectionSpread: enemy.spawnPattern.spawnPositionSpread))
                                 {
                                     // Teleport
                                     enemy.enemyTransform.position = spawnPosition;
@@ -1847,7 +2082,7 @@ public class EnemiesManager : MonoBehaviour
             else if (newDifficultyTier <= 5)
             {
                 // Reset the enemy to its new difficulty tier
-                ResetEnemyValues(enemyInstance, newEnemyData.prefab, newEnemyData, enemyMovePattern, enemyInstance.wave, newDifficultyTier, forceMovementDirection: true, moveDirection: enemyMoveDirection, preventAnyPhysicsShenanigans: false);
+                ResetEnemyValues(enemyInstance, newEnemyData.prefab, newEnemyData, enemyMovePattern, enemyInstance.wave, enemyInstance.spawnPattern, newDifficultyTier, forceMovementDirection: true, moveDirection: enemyMoveDirection, preventAnyPhysicsShenanigans: false);
                 //StartCoroutine(SpawnEnemyAsync(enemyPrefab, enemyPosition, newEnemyData, enemyMovePattern, enemyInstance.wave, delay: 0.01f, newDifficultyTier, forceMovementDirection: true, moveDirection: enemyMoveDirection));
             }
             else
@@ -1865,7 +2100,7 @@ public class EnemiesManager : MonoBehaviour
                 bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 10, value = 10 });
                 bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 10, value = 25 });
                 bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 10, value = 50 });*/
-                ResetEnemyValues(enemyInstance, originEnemyData.prefab, originEnemyData, enemyMovePattern, enemyInstance.wave, enemyInstance.difficultyTier, neverDespawn: true, bounty: bountyBug, forceMovementDirection: true, moveDirection: enemyMoveDirection, preventAnyPhysicsShenanigans: false);
+                ResetEnemyValues(enemyInstance, originEnemyData.prefab, originEnemyData, enemyMovePattern, enemyInstance.wave, enemyInstance.spawnPattern, enemyInstance.difficultyTier, neverDespawn: true, bounty: bountyBug, forceMovementDirection: true, moveDirection: enemyMoveDirection, preventAnyPhysicsShenanigans: false);
                 //StartCoroutine(SpawnEnemyAsync(originEnemyData.prefab, enemyPosition, originEnemyData, enemyMovePattern, enemyInstance.wave, delay: 0.01f, difficultyTier: enemyInstance.difficultyTier, neverDespawn: true, bounty: bountyBug, forceMovementDirection: true, moveDirection: enemyMoveDirection));
             }
 
@@ -1898,7 +2133,7 @@ public class EnemiesManager : MonoBehaviour
         enemy.enemyRigidbody.mass = newMass;
 
 
-        if (changeSpeedFactor > 0 && enemy.movePattern.movePatternType != EnemyMovePatternType.NO_MOVEMENT)
+        if (changeSpeedFactor > 0 && enemy.movePattern != null && enemy.movePattern.movePatternType != EnemyMovePatternType.NO_MOVEMENT)
         {
             // Set orientation
             float angle = -Vector2.SignedAngle(enemy.moveDirection, Vector2.right);
@@ -1913,11 +2148,15 @@ public class EnemiesManager : MonoBehaviour
         {
             enemyDataSpeed = enemyData.moveSpeed;
         }
-        else if (enemy.enemyInfo.enemyData != null)
+        else if (enemy.enemyInfo != null && enemy.enemyInfo.enemyData != null)
         {
             enemyDataSpeed = enemy.enemyInfo.enemyData.moveSpeed;
         }
-        float actualSpeed = enemyDataSpeed * changeSpeedFactor * enemy.movePattern.speedFactor;
+        float actualSpeed = enemyDataSpeed * changeSpeedFactor;
+        if (enemy.movePattern != null)
+        {
+            actualSpeed *= enemy.movePattern.speedFactor;
+        }
 
         // Game mode speed multiplier
         actualSpeed *= RunManager.instance.gameModeBugSpeedMultiplier;
@@ -1931,7 +2170,7 @@ public class EnemiesManager : MonoBehaviour
         actualSpeed = Mathf.Clamp(actualSpeed, 0, clampToMaxSpeed ? maximumSpeed : 10000);
         enemy.enemyRigidbody.velocity = enemy.moveDirection * actualSpeed;
 
-        if (enemy.movePattern.movePatternType == EnemyMovePatternType.NO_MOVEMENT)
+        if (enemy.movePattern != null && enemy.movePattern.movePatternType == EnemyMovePatternType.NO_MOVEMENT)
         {
             // Force animation to play at speed 1
             enemy.enemyAnimator.SetFloat("Speed", 1);

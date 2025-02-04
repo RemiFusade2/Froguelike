@@ -87,8 +87,13 @@ public class EnemyMovePattern
 public enum SpawnShape
 {
     NONE,
-    CIRCLE,
-    HALF_CIRCLE
+    CIRCLE_ARC, // 360 angle would be full circle
+    SPIRAL, // use Archimed spiral thing, like the rotatongue. Radius increase by 100% every full circle
+    STRAIGHT_LINE, // 0 angle would be a queue coming at the frog
+    WAVE_LINE, // use sinus or cosinus to spawn bugs on a wavy line
+    SQUARE, // full square
+    TRIANGLE, // full triangle
+    SPRITE // custom shape stored in a sprite
 }
 
 /// <summary>
@@ -111,14 +116,76 @@ public class SpawnPattern
     //[Header("Spawn type")]
     [Tooltip("The type of spawn pattern (random, chunk, shape)")]
     public SpawnPatternType spawnPatternType = SpawnPatternType.RANDOM;
-    [Tooltip("Only if the type is Shape, then which Shape? (optional)")]
-    public SpawnShape spawnPatternShape = SpawnShape.NONE;
 
-    //[Header("Multiple spawns")]
+    //[Header("Spawn position settings")]
+    [Tooltip("Default is spawn ahead of frog movement direction, or random if frog isn't moving")]
+    public bool overrideDefaultSpawnPosition;
+    [Tooltip("Angle = 0 means East, Angle = 90 means North, etc.")]
+    public float spawnPositionAngle;
+    [Tooltip("Radius around spawn position where the bugs can be spawned")]
+    public float spawnPositionSpread;
+
+    //[Header("Multiple spawns settings")]
     [Tooltip("How many enemies will spawn at the same time")]
     public int spawnAmount = 1;
     [Tooltip("The delay between these spawns")]
     public float multipleSpawnDelay = 0;
+
+    //[Header("Shape settings")]
+    [Tooltip("Only if the type is Shape, then which Shape?")]
+    public SpawnShape spawnPatternShape = SpawnShape.NONE;
+    [Tooltip("Is shape around frog or around spawn point?")]
+    public bool shapeCenteredOnFrog;
+    [Tooltip("Shape is rotated by a random angle")]
+    public bool shapeOrientationIsRandomized;
+    [Tooltip("Shape is rotated by a set angle")]
+    public float shapeOrientationAngle;
+    [Tooltip("Min angle shape is rotated randomly with")]
+    public float shapeOrientationMinAngle;
+    [Tooltip("Max angle shape is rotated randomly with")]
+    public float shapeOrientationMaxAngle;
+
+    //[Header("CIRCLE_ARC settings")]
+    [Tooltip("Circle arc size")]
+    public float circleArcRadius;
+    [Tooltip("Angle = 0 means aligned with vector 'frog to spawn'")]
+    public float circleArcStartAngle;
+    [Tooltip("Angle = 0 means aligned with vector 'frog to spawn'")]
+    public float circleArcEndAngle;
+
+    //[Header("SPIRAL settings")]
+    [Tooltip("Spiral start radius")]
+    public float spiralStartRadius;
+    [Tooltip("Spiral radius increase for a 360 rotation")]
+    public float spiralRadiusIncreasePerFullRotation;
+    [Tooltip("Spiral start angle")]
+    public float spiralStartAngle;
+    [Tooltip("Spiral end angle")]
+    public float spiralEndAngle;
+    [Tooltip("Spiral direction")]
+    public bool spiralIsClockwise;
+
+    //[Header("STRAIGHT_LINE and WAVE_LINE settings")]
+    [Tooltip("Angle = 0 means aligned with vector 'frog to spawn'")]
+    public float lineAngle;
+    [Tooltip("Length of the line")]
+    public float lineLength;
+
+    //[Header("WAVE_LINE settings")]
+    [Tooltip("How big are the waves")]
+    public float waveLineAmplitude;
+    [Tooltip("How close together are the waves")]
+    public float waveLineFrequency;
+    [Tooltip("Where do the waves start (default is zero/middle)")]
+    public float waveLineOffset;
+
+    //[Header("Geometrical shapes settings (square, triangle, and sprite)")]
+    [Tooltip("The size of the side of that shape")]
+    public float shapeSize;
+    [Tooltip("The angle of that shape relative to the vector 'frog to spawn'")]
+    public float shapeAngle;
+    [Tooltip("Only for SpawnShape of type SPRITE")]
+    public Sprite shapeSprite;
 }
 
 /// <summary>
