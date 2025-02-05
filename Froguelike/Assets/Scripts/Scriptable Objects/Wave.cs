@@ -91,8 +91,7 @@ public enum SpawnShape
     SPIRAL, // use Archimed spiral thing, like the rotatongue. Radius increase by 100% every full circle
     STRAIGHT_LINE, // 0 angle would be a queue coming at the frog
     WAVE_LINE, // use sinus or cosinus to spawn bugs on a wavy line
-    SQUARE, // full square
-    TRIANGLE, // full triangle
+    POLYGON, // a regular shape with N sides (N>2)
     SPRITE // custom shape stored in a sprite
 }
 
@@ -179,11 +178,17 @@ public class SpawnPattern
     [Tooltip("Where do the waves start (default is zero/middle)")]
     public float waveLineOffset;
 
-    //[Header("Geometrical shapes settings (square, triangle, and sprite)")]
+    //[Header("POLYGON and SPRITE settings")]
     [Tooltip("The size of the side of that shape")]
     public float shapeSize;
     [Tooltip("The angle of that shape relative to the vector 'frog to spawn'")]
     public float shapeAngle;
+
+    //[Header("POLYGON settings")]
+    [Tooltip("Only for SpawnShape of type POLYGON")]
+    public int shapePolygonNumberOfSides;
+
+    //[Header("SPRITE settings")]
     [Tooltip("Only for SpawnShape of type SPRITE")]
     public Sprite shapeSprite;
 }

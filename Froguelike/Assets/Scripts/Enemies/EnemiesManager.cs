@@ -709,12 +709,14 @@ public class EnemiesManager : MonoBehaviour
                     float spawnShapeWaveLineAmplitude = spawnPattern.waveLineAmplitude; // How big are the waves
                     float spawnShapeWaveLineFrequency = spawnPattern.waveLineFrequency; // How close together are the waves
                     float spawnShapeWaveLineOffset = spawnPattern.waveLineOffset; // Where do the waves start (default is zero/middle)
-                    // Shape SQUARE or TRIANGLE or SPRITE settings
+                    // Shape POLYGON and SPRITE settings
                     float spawnShapeSideSize = spawnPattern.shapeSize; // The size of the side of that shape
                     float spawnShapeAngle = spawnPattern.shapeAngle; // The angle of that shape relative to the vector 'frog to spawn'
+                    // Shape POLYGON setting
+                    int spawnShapePolygonNumberOfSides = spawnPattern.shapePolygonNumberOfSides; // Only for SpawnShape of type POLYGON
                     // Shape SPRITE setting
                     Sprite spawnShapeSprite = spawnPattern.shapeSprite; // Only for SpawnShape of type SPRITE
-                    
+                                        
                     float currentDelay = spawnMultipleDelayBetweenSpawns;
                     Vector3 spawnPosition;
 
@@ -945,23 +947,17 @@ public class EnemiesManager : MonoBehaviour
                                         currentDelay += spawnMultipleDelayBetweenSpawns;
                                     }
                                     break;
-                                case SpawnShape.SQUARE:
-                                    // 
-
+                                case SpawnShape.POLYGON:
                                     /*
-                    // Shape SQUARE or TRIANGLE or SPRITE settings
+                    // Shape POLYGON and SPRITE settings
                     float spawnShapeSideSize = spawnPattern.shapeSize; // The size of the side of that shape
-                    float spawnShapeAngle = spawnPattern.shapeAngle; // The angle of that shape relative to the vector 'frog to spawn'*/
-                                    break;
-                                case SpawnShape.TRIANGLE:
-                                    /*
-                    // Shape SQUARE or TRIANGLE or SPRITE settings
-                    float spawnShapeSideSize = spawnPattern.shapeSize; // The size of the side of that shape
-                    float spawnShapeAngle = spawnPattern.shapeAngle; // The angle of that shape relative to the vector 'frog to spawn'*/
+                    float spawnShapeAngle = spawnPattern.shapeAngle; // The angle of that shape relative to the vector 'frog to spawn'
+                    // Shape POLYGON setting
+                    int spawnShapePolygonNumberOfSides = spawnPattern.shapePolygonNumberOfSides; // Only for SpawnShape of type POLYGON*/
                                     break;
                                 case SpawnShape.SPRITE:
                                     /*
-                    // Shape SQUARE or TRIANGLE or SPRITE settings
+                    // Shape POLYGON and SPRITE settings
                     float spawnShapeSideSize = spawnPattern.shapeSize; // The size of the side of that shape
                     float spawnShapeAngle = spawnPattern.shapeAngle; // The angle of that shape relative to the vector 'frog to spawn'
                     // Shape SPRITE setting

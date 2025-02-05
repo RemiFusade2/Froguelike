@@ -324,20 +324,29 @@ public class SpawnPatternDrawer : PropertyDrawer
                     EditorGUI.PropertyField(waveLineOffsetRect, property.FindPropertyRelative("waveLineOffset"), GUIContent.none);
                 }
             }
-            else if (spawnShapeTypeProperty.enumValueFlag == (int)SpawnShape.SQUARE || spawnShapeTypeProperty.enumValueFlag == (int)SpawnShape.TRIANGLE || spawnShapeTypeProperty.enumValueFlag == (int)SpawnShape.SPRITE)
+            else if (spawnShapeTypeProperty.enumValueFlag == (int)SpawnShape.POLYGON || spawnShapeTypeProperty.enumValueFlag == (int)SpawnShape.SPRITE)
             {
                 float shapeSizeLabelWidth = 70;
                 float shapeAngleLabelWidth = 50;
+                float shapePolygonSideCountLabelWidth = 0;
                 float shapeSpriteLabelWidth = 0;
-                float shapeSizePropertyWidth = (position.width - shapeSizeLabelWidth - shapeAngleLabelWidth - shapeSpriteLabelWidth) * 0.5f;
-                float shapeAnglePropertyWidth = (position.width - shapeSizeLabelWidth - shapeAngleLabelWidth - shapeSpriteLabelWidth) * 0.5f;
+                float shapeSizePropertyWidth = (position.width - shapeSizeLabelWidth - shapeAngleLabelWidth - shapeSpriteLabelWidth) / 2;
+                float shapeAnglePropertyWidth = (position.width - shapeSizeLabelWidth - shapeAngleLabelWidth - shapeSpriteLabelWidth) / 2;
+                float shapePolygonSideCountPropertyWidth = 0;
                 float shapeSpritePropertyWidth = 0;
-                if (spawnShapeTypeProperty.enumValueFlag == (int)SpawnShape.SPRITE)
+                if (spawnShapeTypeProperty.enumValueFlag == (int)SpawnShape.POLYGON)
+                {
+                    shapePolygonSideCountLabelWidth = 70;
+                    shapeSizePropertyWidth = (position.width - shapeSizeLabelWidth - shapeAngleLabelWidth - shapePolygonSideCountLabelWidth) / 3;
+                    shapeAnglePropertyWidth = (position.width - shapeSizeLabelWidth - shapeAngleLabelWidth - shapePolygonSideCountLabelWidth) / 3;
+                    shapePolygonSideCountPropertyWidth = (position.width - shapeSizeLabelWidth - shapeAngleLabelWidth - shapePolygonSideCountLabelWidth) / 3;
+                }
+                else if (spawnShapeTypeProperty.enumValueFlag == (int)SpawnShape.SPRITE)
                 {
                     shapeSpriteLabelWidth = 70;
-                    shapeSizePropertyWidth = (position.width - shapeSizeLabelWidth - shapeAngleLabelWidth - shapeSpriteLabelWidth) * 0.33f;
-                    shapeAnglePropertyWidth = (position.width - shapeSizeLabelWidth - shapeAngleLabelWidth - shapeSpriteLabelWidth) * 0.33f;
-                    shapeSpritePropertyWidth = (position.width - shapeSizeLabelWidth - shapeAngleLabelWidth - shapeSpriteLabelWidth) * 0.34f; ;
+                    shapeSizePropertyWidth = (position.width - shapeSizeLabelWidth - shapeAngleLabelWidth - shapeSpriteLabelWidth) / 3;
+                    shapeAnglePropertyWidth = (position.width - shapeSizeLabelWidth - shapeAngleLabelWidth - shapeSpriteLabelWidth) / 3;
+                    shapeSpritePropertyWidth = (position.width - shapeSizeLabelWidth - shapeAngleLabelWidth - shapeSpriteLabelWidth) / 3;
                 }
 
                 xOffset = 0;
@@ -355,12 +364,21 @@ public class SpawnPatternDrawer : PropertyDrawer
                 EditorGUI.PropertyField(shapeAnglePropertyRect, property.FindPropertyRelative("shapeAngle"), GUIContent.none);
                 xOffset += shapeAnglePropertyWidth;
 
+                if (shapePolygonSideCountLabelWidth > 0)
+                {
+                    Rect shapePolygonSideCountLabelRect = new Rect(position.x + xOffset + 3, position.y, shapePolygonSideCountLabelWidth, EditorGUIUtility.singleLineHeight);
+                    EditorGUI.LabelField(shapePolygonSideCountLabelRect, new GUIContent("Side count:"));
+                    xOffset += shapePolygonSideCountLabelWidth;
+                    Rect shapePolygonSideCountRect = new Rect(position.x + xOffset, position.y, shapePolygonSideCountPropertyWidth, EditorGUIUtility.singleLineHeight);
+                    EditorGUI.PropertyField(shapePolygonSideCountRect, property.FindPropertyRelative("shapePolygonNumberOfSides"), GUIContent.none);
+                }
+
                 if (shapeSpriteLabelWidth > 0)
                 {
                     Rect shapeSpriteLabelRect = new Rect(position.x + xOffset + 3, position.y, shapeSpriteLabelWidth, EditorGUIUtility.singleLineHeight);
                     EditorGUI.LabelField(shapeSpriteLabelRect, new GUIContent("Sprite:"));
                     xOffset += shapeSpriteLabelWidth;
-                    Rect shapeSpriteRect = new Rect(position.x + xOffset, position.y, shapeSpritePropertyWidth, EditorGUIUtility.singleLineHeight);
+                    Rect shapeSpriteRect = new Rect(position.x + xOffset + 3, position.y, shapeSpritePropertyWidth, EditorGUIUtility.singleLineHeight);
                     EditorGUI.PropertyField(shapeSpriteRect, property.FindPropertyRelative("shapeSprite"), GUIContent.none);
                 }
             }
