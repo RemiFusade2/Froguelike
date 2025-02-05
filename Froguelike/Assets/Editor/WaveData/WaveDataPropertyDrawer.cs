@@ -81,7 +81,7 @@ public class SpawnPatternDrawer : PropertyDrawer
         xOffset += overrideDefaultSpawnPositionPropertyWidth;
 
         // Special case: if the shape is centered on frog, then we can't also set a spawn position
-        if (property.FindPropertyRelative("shapeCenteredOnFrog").boolValue)
+        if (property.FindPropertyRelative("spawnPatternShape").enumValueFlag != (int)SpawnShape.STRAIGHT_LINE && property.FindPropertyRelative("spawnPatternShape").enumValueFlag != (int)SpawnShape.WAVE_LINE && property.FindPropertyRelative("shapeCenteredOnFrog").boolValue)
         {
             overrideDefaultSpawnPositionProperty.boolValue = false;
         }

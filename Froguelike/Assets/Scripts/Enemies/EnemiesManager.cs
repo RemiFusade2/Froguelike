@@ -735,10 +735,16 @@ public class EnemiesManager : MonoBehaviour
                         case SpawnPatternType.SHAPE:
 
                             Vector3 shapePositionRelativeToFrog = Vector3.zero;
+
+                            if (spawnPatternShape == SpawnShape.STRAIGHT_LINE || spawnPatternShape == SpawnShape.WAVE_LINE)
+                            {
+                                // Lines can't be centered on frog, they have to spawn further
+                                spawnShapeCenteredOnFrog = false;
+                            }
+
                             if (spawnShapeCenteredOnFrog)
                             {
                                 // Shape is centered on the frog
-                                // WARNING: This won't work properly with lines 
                             }
                             else
                             {
@@ -807,7 +813,7 @@ public class EnemiesManager : MonoBehaviour
                                 case SpawnShape.SPIRAL:
                                     float spiralArcAngle = Mathf.Abs(spawnShapeSpiralEndAngle - spawnShapeSpiralStartAngle); // Angle between start and end, can be more than full circle
 
-                                    float spiralDeltaAngle = spiralArcAngle / spawnBugsAmount; // Angle between two spanws
+                                    float spiralDeltaAngle = spiralArcAngle / spawnBugsAmount; // Angle between two spawns
 
                                     float spiralMinAngle = (spawnShapeSpiralEndAngle < spawnShapeSpiralStartAngle) ? spawnShapeSpiralEndAngle : spawnShapeSpiralStartAngle;
                                     float spiralMaxAngle = (spawnShapeSpiralEndAngle >= spawnShapeSpiralStartAngle) ? spawnShapeSpiralEndAngle : spawnShapeSpiralStartAngle;
@@ -866,42 +872,103 @@ public class EnemiesManager : MonoBehaviour
                                     }
                                     break;
                                 case SpawnShape.STRAIGHT_LINE:
-                                    /*spawnPattern.lineAngle;
-                                    spawnPattern.lineLength;*/
+                                    float straightLineAngle = spawnShapeLineAngle + shapeOrientationAngle;
+                                    Vector3 straightLineDirectionVector = Mathf.Cos(straightLineAngle * Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(straightLineAngle * Mathf.Deg2Rad) * Vector3.up;
+                                    Vector3 straightLineStartPosition = shapePositionRelativeToFrog - straightLineDirectionVector * (spawnShapeLineLength / 2);
+                                    Vector3 straightLineEndPosition = shapePositionRelativeToFrog + straightLineDirectionVector * (spawnShapeLineLength / 2);
+
+                                    Vector3 straightLinePushAwayVector = Vector3.zero;
+                                    if (shapePositionRelativeToFrog.magnitude < minSpawnDistanceFromPlayer)
+                                    {
+                                        // Center of line is too close to frog
+                                        straightLinePushAwayVector = shapePositionRelativeToFrog.normalized * (minSpawnDistanceFromPlayer - shapePositionRelativeToFrog.magnitude);
+                                    }
+                                    if ((straightLineStartPosition + straightLinePushAwayVector).magnitude < minSpawnDistanceFromPlayer)
+                                    {
+                                        // Start position of line is too close to frog
+                                        straightLinePushAwayVector = shapePositionRelativeToFrog.normalized * (minSpawnDistanceFromPlayer - (straightLineStartPosition + straightLinePushAwayVector).magnitude);
+                                    }
+                                    if ((straightLineEndPosition + straightLinePushAwayVector).magnitude < minSpawnDistanceFromPlayer)
+                                    {
+                                        // End position of line is too close to frog
+                                        straightLinePushAwayVector = shapePositionRelativeToFrog.normalized * (minSpawnDistanceFromPlayer - (straightLineEndPosition + straightLinePushAwayVector).magnitude);
+                                    }
+
+                                    // Translate the line further
+                                    shapePositionRelativeToFrog += straightLinePushAwayVector;
+                                    straightLineStartPosition += straightLinePushAwayVector;
+                                    straightLineEndPosition += straightLinePushAwayVector;
+
+                                    StartCoroutine(SpawnLineOfEnemiesAsync(straightLineStartPosition, straightLineEndPosition, enemyPrefab, spawnBugsAmount, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, spawnMultipleDelayBetweenSpawns, difficultyTier,
+                                            forceMovementDirection: forceMovementDirection, moveDirection: movementDirection));
                                     break;
                                 case SpawnShape.WAVE_LINE:
-                                    /*spawnPattern.lineAngle;
-                                    spawnPattern.lineLength;*/
-                                    /*spawnPattern.waveLineAmplitude;
-                                    spawnPattern.waveLineFrequency;
-                                    spawnPattern.waveLineOffset;*/
+                                    float waveLineAngle = spawnShapeLineAngle + shapeOrientationAngle;
+                                    Vector3 waveLineDirectionVector = Mathf.Cos(waveLineAngle * Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(waveLineAngle * Mathf.Deg2Rad) * Vector3.up;
+                                    Vector3 waveLineNormalVector = Mathf.Cos(waveLineAngle * Mathf.Deg2Rad) * Vector3.up - Mathf.Sin(waveLineAngle * Mathf.Deg2Rad) * Vector3.right;
+                                    Vector3 waveLineStartPosition = shapePositionRelativeToFrog - waveLineDirectionVector * (spawnShapeLineLength / 2);
+                                    Vector3 waveLineEndPosition = shapePositionRelativeToFrog + waveLineDirectionVector * (spawnShapeLineLength / 2);
+
+                                    Vector3 waveLinePushAwayVector = Vector3.zero;
+                                    if (shapePositionRelativeToFrog.magnitude < minSpawnDistanceFromPlayer)
+                                    {
+                                        // Center of line is too close to frog
+                                        waveLinePushAwayVector = shapePositionRelativeToFrog.normalized * (minSpawnDistanceFromPlayer - shapePositionRelativeToFrog.magnitude);
+                                    }
+                                    if ((waveLineStartPosition + waveLinePushAwayVector).magnitude < minSpawnDistanceFromPlayer)
+                                    {
+                                        // Start position of line is too close to frog
+                                        waveLinePushAwayVector = shapePositionRelativeToFrog.normalized * (minSpawnDistanceFromPlayer - (waveLineStartPosition + waveLinePushAwayVector).magnitude);
+                                    }
+                                    if ((waveLineEndPosition + waveLinePushAwayVector).magnitude < minSpawnDistanceFromPlayer)
+                                    {
+                                        // End position of line is too close to frog
+                                        waveLinePushAwayVector = shapePositionRelativeToFrog.normalized * (minSpawnDistanceFromPlayer - (waveLineEndPosition + waveLinePushAwayVector).magnitude);
+                                    }
+
+                                    // Translate the line further
+                                    shapePositionRelativeToFrog += waveLinePushAwayVector;
+                                    waveLineStartPosition += waveLinePushAwayVector;
+                                    waveLineEndPosition += waveLinePushAwayVector;
+
+                                    for (int spawnCount = 0; spawnCount < spawnBugsAmount; spawnCount++)
+                                    {
+                                        // Find position of next bug on the line
+                                        spawnPosition = waveLineStartPosition + (spawnCount * 1.0f / (spawnBugsAmount - 1)) * (waveLineEndPosition - waveLineStartPosition);
+                                        spawnPosition += waveLineNormalVector * spawnShapeWaveLineAmplitude * Mathf.Sin((((spawnCount * 1.0f / (spawnBugsAmount - 1)) * 360) * spawnShapeWaveLineFrequency + spawnShapeWaveLineOffset) * Mathf.Deg2Rad);
+
+                                        // Spawn bug
+                                        StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, difficultyTier,
+                                            forceMovementDirection: forceMovementDirection, moveDirection: movementDirection));
+
+                                        // Eventually increase the delay before a spawn (WARNING: delay will change how the shape looks)
+                                        currentDelay += spawnMultipleDelayBetweenSpawns;
+                                    }
                                     break;
                                 case SpawnShape.SQUARE:
-                                    /*spawnPattern.shapeSize;
-                                    spawnPattern.shapeAngle;*/
+                                    // 
+
+                                    /*
+                    // Shape SQUARE or TRIANGLE or SPRITE settings
+                    float spawnShapeSideSize = spawnPattern.shapeSize; // The size of the side of that shape
+                    float spawnShapeAngle = spawnPattern.shapeAngle; // The angle of that shape relative to the vector 'frog to spawn'*/
                                     break;
                                 case SpawnShape.TRIANGLE:
-                                    /*spawnPattern.shapeSize;
-                                    spawnPattern.shapeAngle;*/
+                                    /*
+                    // Shape SQUARE or TRIANGLE or SPRITE settings
+                    float spawnShapeSideSize = spawnPattern.shapeSize; // The size of the side of that shape
+                    float spawnShapeAngle = spawnPattern.shapeAngle; // The angle of that shape relative to the vector 'frog to spawn'*/
                                     break;
                                 case SpawnShape.SPRITE:
-                                    /*spawnPattern.shapeSize;
-                                    spawnPattern.shapeAngle;
-                                    spawnPattern.shapeSprite;*/
+                                    /*
+                    // Shape SQUARE or TRIANGLE or SPRITE settings
+                    float spawnShapeSideSize = spawnPattern.shapeSize; // The size of the side of that shape
+                    float spawnShapeAngle = spawnPattern.shapeAngle; // The angle of that shape relative to the vector 'frog to spawn'
+                    // Shape SPRITE setting
+                    Sprite spawnShapeSprite = spawnPattern.shapeSprite; // Only for SpawnShape of type SPRITE*/
                                     break;
                             }
-
-                            // spawn enemies all around the player (circle)
-                            /*float circleArcDeltaAngle = arcAngle / spawnBugsAmount;
-                            float spawnDistanceFromPlayer = minSpawnDistanceFromPlayer;
-                            for (float angle = 0; angle < arcAngle; angle += circleArcDeltaAngle)
-                            {
-                                spawnPosition = (Mathf.Cos(angle * Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(angle * Mathf.Deg2Rad) * Vector3.up) * spawnDistanceFromPlayer;
-                                StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, difficultyTier));
-                                currentDelay += spawnMultipleDelayBetweenSpawns;
-                            }*/
                             break;
-
                         case SpawnPatternType.RANDOM:
                             // Spawn enemies at random positions
                             for (int j = 0; j < spawnBugsAmount; j++)
@@ -1065,6 +1132,26 @@ public class EnemiesManager : MonoBehaviour
                 Vector3 positionRelativeToFrog = spawnPosition - GameManager.instance.player.transform.position;
                 StartCoroutine(SpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, movePatternFollowPlayer, originWave: RunManager.instance.GetCurrentWave(), originSpawnPattern: null, delay: 0, difficultyTier: difficultyTier));
             }
+        }
+    }
+
+    private IEnumerator SpawnLineOfEnemiesAsync(Vector3 lineStartPosition, Vector3 lineEndPosition, GameObject enemyPrefab, int spawnBugsAmount, EnemyData enemyData, EnemyMovePattern movePattern, WaveData currentWave, SpawnPattern spawnPattern, float delay, float delayBetweenSpawns, int difficultyTier,
+                                            bool forceMovementDirection = false, Vector2? moveDirection = null)
+    {
+        yield return new WaitForSeconds(delay);
+        Vector3 spawnPosition;
+        float currentDelay = 0;
+        for (int spawnCount = 0; spawnCount < spawnBugsAmount; spawnCount++)
+        {
+            // Find position of next bug on the line
+            spawnPosition = lineStartPosition + (spawnCount * 1.0f / (spawnBugsAmount - 1)) * (lineEndPosition - lineStartPosition);
+
+            // Spawn bug
+            StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, movePattern, currentWave, spawnPattern, currentDelay, difficultyTier,
+                forceMovementDirection: forceMovementDirection, moveDirection: moveDirection));
+
+            // Eventually increase the delay before a spawn (WARNING: delay will change how the shape looks)
+            currentDelay += delayBetweenSpawns;
         }
     }
 
