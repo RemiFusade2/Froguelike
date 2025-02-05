@@ -778,7 +778,11 @@ public class EnemiesManager : MonoBehaviour
                                 case SpawnShape.CIRCLE_ARC:
                                     float circleArcAngle = Mathf.Clamp(Mathf.Abs(spawnShapeCircleArcEndAngle - spawnShapeCircleArcStartAngle), 0, 360); // Angle between start and end, maximum full circle
 
-                                    float circleArcDeltaAngle = circleArcAngle / spawnBugsAmount; // Angle between two spanws
+                                    if (spawnBugsAmount <= 1)
+                                    {
+                                        spawnBugsAmount = 2;
+                                    }
+                                    float circleArcDeltaAngle = circleArcAngle / (spawnBugsAmount-1); // Angle between two spanws
 
                                     float circleArcMinAngle = (spawnShapeCircleArcEndAngle < spawnShapeCircleArcStartAngle) ? spawnShapeCircleArcEndAngle : spawnShapeCircleArcStartAngle;
                                     float circleArcMaxAngle = (spawnShapeCircleArcEndAngle >= spawnShapeCircleArcStartAngle) ? spawnShapeCircleArcEndAngle : spawnShapeCircleArcStartAngle;
@@ -815,7 +819,11 @@ public class EnemiesManager : MonoBehaviour
                                 case SpawnShape.SPIRAL:
                                     float spiralArcAngle = Mathf.Abs(spawnShapeSpiralEndAngle - spawnShapeSpiralStartAngle); // Angle between start and end, can be more than full circle
 
-                                    float spiralDeltaAngle = spiralArcAngle / spawnBugsAmount; // Angle between two spawns
+                                    if (spawnBugsAmount <= 1)
+                                    {
+                                        spawnBugsAmount = 2;
+                                    }
+                                    float spiralDeltaAngle = spiralArcAngle / (spawnBugsAmount-1); // Angle between two spawns
 
                                     float spiralMinAngle = (spawnShapeSpiralEndAngle < spawnShapeSpiralStartAngle) ? spawnShapeSpiralEndAngle : spawnShapeSpiralStartAngle;
                                     float spiralMaxAngle = (spawnShapeSpiralEndAngle >= spawnShapeSpiralStartAngle) ? spawnShapeSpiralEndAngle : spawnShapeSpiralStartAngle;
