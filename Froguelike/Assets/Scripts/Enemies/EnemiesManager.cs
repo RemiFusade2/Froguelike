@@ -452,9 +452,35 @@ public class EnemiesManager : MonoBehaviour
         return applyGlobalFreeze;
     }
 
+    private bool IsSpawnPositionFreeFromCollisions(Vector3 spawnPosition, int layer)
+    {
+        bool collision = false;
+
+        string layerName = LayerMask.LayerToName(layer);
+        int layerMask;
+        if (layerName.Equals("EnemiesGrounded"))
+        {
+            layerMask = LayerMask.GetMask("LakeCollider", "Rock");
+        }
+        else if (layerName.Equals("EnemiesGroundedAndFloating"))
+        {
+            layerMask = LayerMask.GetMask("Rock");
+        }
+        else
+        {
+            layerMask = LayerMask.GetMask();
+        }
+
+        if (Physics2D.OverlapCircle(spawnPosition, 0.1f, layerMask) != null)
+        {
+            collision = true;
+        }
+
+        return !collision;
+    }
+
     /// <summary>
     /// Returns a random spawn position around the player and in the direction of its movement.
-    /// Prevent spawn on a rock or pond.
     /// </summary>
     /// <param name="playerPosition"></param>
     /// <param name="playerMoveDirection">This vector is either zero (player doesn't move) or normalized</param>
@@ -470,11 +496,15 @@ public class EnemiesManager : MonoBehaviour
         Vector2 spawnDirection = Vector2.zero;
         float actualSpawnCircleRadius = spawnCircleRadius; // Default radius is quite big to also work when centered around frog
         float spawnCenterDistanceToPlayer = Random.Range(spawnCenterMinDistanceToPlayer, spawnCenterMaxDistanceToPlayer);
+
+
+        string log = $"GetSpawnPosition({playerPosition.ToString("0.00")}, {playerMoveDirection.ToString("0.00")})";
+
         if (overrideDirection)
         {
             // The center of that circle is in the given direction
             spawnDirection = new Vector2(Mathf.Cos(overridenDirectionAngle * Mathf.Deg2Rad), Mathf.Sin(overridenDirectionAngle * Mathf.Deg2Rad));
-            actualSpawnCircleRadius = overridenDirectionSpread; // if we override direction, then the spawn circle must be small, otherwise it doesn't feel like the bugs are coming from the right direction
+            actualSpawnCircleRadius = overridenDirectionSpread; // if we override direction, then the spawn circle must be small, otherwise it doesn't feel like the bugs are coming from that direction
         }
         else if (!playerMoveDirection.Equals(Vector2.zero))
         {
@@ -482,7 +512,7 @@ public class EnemiesManager : MonoBehaviour
             spawnDirection = playerMoveDirection;
         }
         Vector2 spawnCenter = playerPosition + spawnDirection * spawnCenterDistanceToPlayer;
-
+        
         // Attemp to find a valid spawn point. Loop and try again until it works.
         bool spawnPositionIsValid = false;
         int loopAttemptCount = findSpawnPositionMaxAttempts;
@@ -491,21 +521,35 @@ public class EnemiesManager : MonoBehaviour
         {
             // Get a random point in the spawn circle
             spawnPosition = spawnCenter;
-            Vector2 randomVector = Random.insideUnitCircle;
+
+            float randomAngle = Random.Range(0, 360.0f) * (loopAttemptCount+1);
+            Vector2 randomVector = new Vector2(Mathf.Cos(randomAngle * Mathf.Deg2Rad), Mathf.Sin(randomAngle * Mathf.Deg2Rad)) * (Random.Range(0.0f, (loopAttemptCount+1)) / (loopAttemptCount+1));
             spawnPosition += new Vector3(randomVector.x, randomVector.y) * actualSpawnCircleRadius;
+
             loopAttemptCount--;
             // Check if that random point is not in sight (you don't want to spawn an enemy where you can see it)
             if (Vector2.Distance(spawnPosition, playerPosition) > minSpawnDistanceFromPlayer)
             {
                 spawnPositionIsValid = true;
             }
-            // Check if that random point is on an obstacle
+
+            log += $"\nattempt {loopAttemptCount}: randomAngle = {randomAngle} ; randomVector = {randomVector.ToString("0.00")} ; spawnCenter = {spawnCenter.ToString("0.00")} ; spawnPosition = {spawnPosition.ToString("0.00")} ; distance between position and player = {Vector2.Distance(spawnPosition, playerPosition)}";
+
+            // Don't check if that random point is on an obstacle
+            /*
             int layerMask = LayerMask.GetMask("Rock", "LakeCollider");
             if (Physics2D.OverlapCircle(spawnPosition, 0.1f, layerMask) != null)
             {
                 spawnPositionIsValid = false;
-            }
+            }*/
         } while (!spawnPositionIsValid && loopAttemptCount > 0); // Redo until the random point is out of sight
+
+        log += $"spawnPositionIsValid = {spawnPositionIsValid} ; loopAttemptCount = {loopAttemptCount}";
+
+        if (verbose == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log(log);
+        }
 
         return spawnPositionIsValid;
     }
@@ -622,7 +666,7 @@ public class EnemiesManager : MonoBehaviour
 
                 // Spawn bug using info we have
                 Vector3 positionRelativeToFrog = (spawnPosition - GameManager.instance.player.transform.position) + Random.Range(-1.0f, 1.0f) * Vector3.right + Random.Range(-1.0f, 1.0f) * Vector3.up;
-                StartCoroutine(SpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, bountyBug.movePattern, originWave: null, originSpawnPattern: null, delay: 0, difficultyTier: difficultyTier, neverDespawn: true, bounty: bountyBug));
+                StartCoroutine(TrySpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, bountyBug.movePattern, originWave: null, originSpawnPattern: null, delay: 0, difficultyTier: difficultyTier, neverDespawn: true, bounty: bountyBug));
 
             }
         }
@@ -633,10 +677,8 @@ public class EnemiesManager : MonoBehaviour
     {
         if (RunManager.instance.currentChapter != null && RunManager.instance.currentChapter.chapterData != null && !RunManager.instance.IsChapterTimeOver())
         {
-            if (verbose == VerboseLevel.MAXIMAL)
-            {
-                Debug.Log($"TrySpawnWave from chapter {RunManager.instance.currentChapter.chapterID}. Current wave is {currentWave.ToString()}");
-            }
+            string log = $"TrySpawnWave from chapter {RunManager.instance.currentChapter.chapterID}. Current wave is {currentWave.ToString()}";
+            bool showLog = false;
 
             // Here's a table to describe the figurine curse:
             // - Curse -100% =  Spawn halved     =  Spawn cooldown doubled (delay factor = 2) 
@@ -649,14 +691,13 @@ public class EnemiesManager : MonoBehaviour
             float figurineCurse = System.Math.Clamp(GameManager.instance.player.GetCurse(), -0.99f, 10); // Figurine curse value is between -99% and +1000%
             float figurineCurseDelayFactor = 1 / (1 + figurineCurse); // Figurine curse will affect the delay negatively (lower delay = more spawns)
 
-            int enemyIndex = 0;
             for (int i = 0; i < currentWave.enemies.Count; i++)
             {
                 // Pick a random spawn
-                enemyIndex = Random.Range(0, currentWave.enemies.Count);
+                //enemyIndex = Random.Range(0, currentWave.enemies.Count);
 
-                EnemySpawn enemySpawn = currentWave.enemies[enemyIndex];
-                float lastSpawnTime = lastSpawnTimesList[enemyIndex];
+                EnemySpawn enemySpawn = currentWave.enemies[i];
+                float lastSpawnTime = lastSpawnTimesList[i];
 
                 // Get info about spawn delays
                 double delayBetweenSpawns = enemySpawn.spawnCooldown * figurineCurseDelayFactor;
@@ -667,14 +708,19 @@ public class EnemiesManager : MonoBehaviour
                 if (spawn)
                 {
                     // If spawn cooldown is over, then spawn!
+                    log += $"\nSpawning enemy: {enemySpawn}. Last spawn time = {lastSpawnTime}. Delay between spawns = {delayBetweenSpawns}";
+                    showLog = true;
 
                     // Get EnemyData & prefab according to relevant difficulty tier
                     int difficultyTier = GetTierFromFormulaAndChapterCount(enemySpawn.tierFormula, RunManager.instance.GetChapterCount());
                     EnemyData enemyData = GetEnemyDataFromTypeAndDifficultyTier(enemySpawn.enemyType, difficultyTier);
                     GameObject enemyPrefab = enemyData.prefab;
 
+                    log += $". enemyPrefab = {enemyPrefab}";
+
                     /// Get spawn pattern info
                     SpawnPattern spawnPattern = enemySpawn.spawnPattern;
+                    log += $". spawnPattern = {spawnPattern}";
                     // Spawn type
                     SpawnPatternType spawnPatternType = spawnPattern.spawnPatternType; // The type of spawn pattern (random, chunk, shape)
                     // Spawn position settings
@@ -717,9 +763,10 @@ public class EnemiesManager : MonoBehaviour
                     // Shape SPRITE setting
                     Sprite spawnShapeSprite = spawnPattern.shapeSprite; // Only for SpawnShape of type SPRITE
                                         
-                    float currentDelay = spawnMultipleDelayBetweenSpawns;
-                    Vector3 spawnPosition;
+                    float currentDelay = 0;
+                    Vector3 spawnPosition = Vector3.zero;
 
+                    log += $". spawnPatternType = {spawnPatternType}";
                     switch (spawnPatternType)
                     {
                         case SpawnPatternType.CHUNK:
@@ -729,7 +776,7 @@ public class EnemiesManager : MonoBehaviour
                                 for (int j = 0; j < spawnBugsAmount; j++)
                                 {
                                     Vector3 positionRelativeToFrog = (spawnPosition - GameManager.instance.player.transform.position) + Random.Range(-1.0f, 1.0f) * Vector3.right + Random.Range(-1.0f, 1.0f) * Vector3.up;
-                                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, difficultyTier));
+                                    StartCoroutine(TrySpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, difficultyTier));
                                     currentDelay += spawnMultipleDelayBetweenSpawns;
                                 }
                             }
@@ -737,7 +784,9 @@ public class EnemiesManager : MonoBehaviour
                         case SpawnPatternType.SHAPE:
 
                             Vector3 shapePositionRelativeToFrog = Vector3.zero;
+                            log += $". shapePositionRelativeToFrog = {shapePositionRelativeToFrog.ToString("0.00")}";
 
+                            log += $". spawnPatternShape = {spawnPatternShape}";
                             if (spawnPatternShape == SpawnShape.STRAIGHT_LINE || spawnPatternShape == SpawnShape.WAVE_LINE)
                             {
                                 // Lines can't be centered on frog, they have to spawn further
@@ -747,10 +796,15 @@ public class EnemiesManager : MonoBehaviour
                             if (spawnShapeCenteredOnFrog)
                             {
                                 // Shape is centered on the frog
+                                log += $". spawnShapeCenteredOnFrog = {spawnShapeCenteredOnFrog}";
                             }
                             else
                             {
                                 // Shape is placed somewhere further around the frog
+                                log += $". spawnShapeCenteredOnFrog = {spawnShapeCenteredOnFrog}";
+                                log += $". spawnOverrideDefaultSpawnPosition = {spawnOverrideDefaultSpawnPosition}";
+                                log += $". spawnPositionAngle = {spawnPositionAngle}";
+                                log += $". spawnPositionSpread = {spawnPositionSpread}";
                                 if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out spawnPosition, overrideDirection: spawnOverrideDefaultSpawnPosition, overridenDirectionAngle: spawnPositionAngle, overridenDirectionSpread: spawnPositionSpread))
                                 {
                                     // Here we got a position, but we'll need to push it a bit further depending on how big is the shape
@@ -758,10 +812,20 @@ public class EnemiesManager : MonoBehaviour
                                 }
                                 else
                                 {
-                                    // If we couldn't figure out a position, then we give up on that spawn
-                                    break;
+                                    // If GetSpawnPosition didn't give a position, then we'll take the furthest one possible with current parameters
+                                    if (spawnOverrideDefaultSpawnPosition)
+                                    {
+                                        shapePositionRelativeToFrog = new Vector3(Mathf.Cos(spawnPositionAngle * Mathf.Deg2Rad), Mathf.Sin(spawnPositionAngle * Mathf.Deg2Rad)) * (minSpawnDistanceFromPlayer + spawnPositionSpread*2);
+                                    }
+                                    else
+                                    {
+                                        float randomAngle = Random.Range(0, 360.0f);
+                                        shapePositionRelativeToFrog = new Vector3(Mathf.Cos(randomAngle * Mathf.Deg2Rad), Mathf.Sin(randomAngle * Mathf.Deg2Rad)) * (minSpawnDistanceFromPlayer + spawnPositionSpread*2);
+                                    }
                                 }
                             }
+                            log += $". spawnShapeCenteredOnFrog = {spawnShapeCenteredOnFrog}";
+                            log += $". spawnPosition = {spawnPosition.ToString("0.00")}";
 
                             // Special case: if bug movement pattern is straight line and if shape is not centered on frog, then we'll force movement direction to keep the shape intact
                             bool forceMovementDirection = false;
@@ -772,18 +836,12 @@ public class EnemiesManager : MonoBehaviour
                                 movementDirection = new Vector2((-shapePositionRelativeToFrog).normalized.x, (-shapePositionRelativeToFrog).normalized.y);
                             }
 
+                            float angleInDegrees;
+                            log += $". spawnPatternShape = {spawnPatternShape}";
                             switch (spawnPatternShape)
                             {
                                 case SpawnShape.NONE:
                                 case SpawnShape.CIRCLE_ARC:
-                                    float circleArcAngle = Mathf.Clamp(Mathf.Abs(spawnShapeCircleArcEndAngle - spawnShapeCircleArcStartAngle), 0, 360); // Angle between start and end, maximum full circle
-
-                                    if (spawnBugsAmount <= 1)
-                                    {
-                                        spawnBugsAmount = 2;
-                                    }
-                                    float circleArcDeltaAngle = circleArcAngle / (spawnBugsAmount-1); // Angle between two spanws
-
                                     float circleArcMinAngle = (spawnShapeCircleArcEndAngle < spawnShapeCircleArcStartAngle) ? spawnShapeCircleArcEndAngle : spawnShapeCircleArcStartAngle;
                                     float circleArcMaxAngle = (spawnShapeCircleArcEndAngle >= spawnShapeCircleArcStartAngle) ? spawnShapeCircleArcEndAngle : spawnShapeCircleArcStartAngle;
 
@@ -802,28 +860,22 @@ public class EnemiesManager : MonoBehaviour
                                         shapePositionRelativeToFrog += ((shapePositionRelativeToFrog.normalized) * (circleArcRadius/2));
                                     }
 
-                                    for (float angle = circleArcMinAngle + shapeOrientationAngle; angle <= circleArcMaxAngle + shapeOrientationAngle; angle += circleArcDeltaAngle)
+                                    for (int spawnCount = 0; spawnCount < spawnBugsAmount; spawnCount++)
                                     {
                                         // Find position of next bug on the circle
-                                        spawnPosition = shapePositionRelativeToFrog + (Mathf.Cos(angle * Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(angle * Mathf.Deg2Rad) * Vector3.up) * circleArcRadius;
+                                        angleInDegrees = (circleArcMinAngle + ((spawnCount * 1.0f / spawnBugsAmount) * (circleArcMaxAngle - circleArcMinAngle))) + shapeOrientationAngle;
+                                        spawnPosition = shapePositionRelativeToFrog + (Mathf.Cos(angleInDegrees * Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(angleInDegrees * Mathf.Deg2Rad) * Vector3.up) * circleArcRadius;
 
                                         // Spawn one bug on the circle
-                                        StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, difficultyTier,
+                                        StartCoroutine(TrySpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, difficultyTier,
                                         forceMovementDirection: forceMovementDirection, moveDirection: movementDirection));
-                                        
+
                                         // Eventually increase the delay before a spawn (WARNING: delay will change how the shape looks)
                                         currentDelay += spawnMultipleDelayBetweenSpawns;
                                     }
-
                                     break;
                                 case SpawnShape.SPIRAL:
                                     float spiralArcAngle = Mathf.Abs(spawnShapeSpiralEndAngle - spawnShapeSpiralStartAngle); // Angle between start and end, can be more than full circle
-
-                                    if (spawnBugsAmount <= 1)
-                                    {
-                                        spawnBugsAmount = 2;
-                                    }
-                                    float spiralDeltaAngle = spiralArcAngle / (spawnBugsAmount-1); // Angle between two spawns
 
                                     float spiralMinAngle = (spawnShapeSpiralEndAngle < spawnShapeSpiralStartAngle) ? spawnShapeSpiralEndAngle : spawnShapeSpiralStartAngle;
                                     float spiralMaxAngle = (spawnShapeSpiralEndAngle >= spawnShapeSpiralStartAngle) ? spawnShapeSpiralEndAngle : spawnShapeSpiralStartAngle;
@@ -844,48 +896,39 @@ public class EnemiesManager : MonoBehaviour
                                         shapePositionRelativeToFrog += ((shapePositionRelativeToFrog.normalized) * ((spawnShapeSpiralStartRadius + (spiralArcAngle / 360) * spawnShapeSpiralRadiusIncrease) / 2));
                                     }
 
-                                    if (spawnShapeSpiralIsClockwise)
+                                    for (int spawnCount = 0; spawnCount < spawnBugsAmount; spawnCount++)
                                     {
-                                        for (float angle = spiralMinAngle + shapeOrientationAngle; angle <= spiralMaxAngle + shapeOrientationAngle; angle += spiralDeltaAngle)
-                                        {
-                                            // Find position of next bug on the spiral
-                                            spawnPosition = shapePositionRelativeToFrog + (Mathf.Cos(angle * Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(angle * Mathf.Deg2Rad) * Vector3.up) * spiralRadius;
+                                        // Find position of next bug on the spiral
+                                        angleInDegrees = (spawnShapeSpiralIsClockwise ? -1 : 1) * (spiralMinAngle + ((spawnCount * 1.0f / spawnBugsAmount) * (spiralMaxAngle - spiralMinAngle))) + shapeOrientationAngle;
+                                        spawnPosition = shapePositionRelativeToFrog + (Mathf.Cos(angleInDegrees * Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(angleInDegrees * Mathf.Deg2Rad) * Vector3.up) * spiralRadius;
 
-                                            // Spiral radius increase with angle (Radius increase by 1 unit per full circle)
-                                            spiralRadius += ((spiralDeltaAngle / 360) * spawnShapeSpiralRadiusIncrease);
+                                        // Spiral radius increase with angle (Radius increase by 1 unit per full circle)
+                                        spiralRadius += (1.0f / spawnBugsAmount) * (spiralArcAngle / 360) * spawnShapeSpiralRadiusIncrease;
 
-                                            // Spawn one bug on the spiral
-                                            StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, difficultyTier,
-                                            forceMovementDirection: forceMovementDirection, moveDirection: movementDirection));
+                                        // Spawn one bug on the spiral
+                                        StartCoroutine(TrySpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, difficultyTier,
+                                        forceMovementDirection: forceMovementDirection, moveDirection: movementDirection));
 
-                                            // Eventually increase the delay before a spawn (WARNING: delay will change how the shape looks)
-                                            currentDelay += spawnMultipleDelayBetweenSpawns;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        for (float angle = spiralMaxAngle + shapeOrientationAngle; angle >= spiralMinAngle + shapeOrientationAngle; angle -= spiralDeltaAngle)
-                                        {
-                                            // Find position of next bug on the spiral
-                                            spawnPosition = shapePositionRelativeToFrog + (Mathf.Cos(angle * Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(angle * Mathf.Deg2Rad) * Vector3.up) * spiralRadius;
-
-                                            // Spiral radius increase with angle (Radius increase by 1 unit per full circle)
-                                            spiralRadius += ((spiralDeltaAngle / 360) * spawnShapeSpiralRadiusIncrease);
-
-                                            // Spawn one bug on the spiral
-                                            StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, difficultyTier,
-                                            forceMovementDirection: forceMovementDirection, moveDirection: movementDirection));
-
-                                            // Eventually increase the delay before a spawn (WARNING: delay will change how the shape looks)
-                                            currentDelay += spawnMultipleDelayBetweenSpawns;
-                                        }
+                                        // Eventually increase the delay before a spawn (WARNING: delay will change how the shape looks)
+                                        currentDelay += spawnMultipleDelayBetweenSpawns;
                                     }
                                     break;
                                 case SpawnShape.STRAIGHT_LINE:
-                                    float straightLineAngle = spawnShapeLineAngle + shapeOrientationAngle;
+
+                                    log += $". Switch SpawnShape.STRAIGHT_LINE:";
+
+                                    // spawnShapeLineAngle == 0 means aligned with vector from frog
+                                    float straightLineAngle = Vector3.Angle(Vector3.right, shapePositionRelativeToFrog) + spawnShapeLineAngle;
+                                    // On top of that, we add the orientation angle that may have been randomized
+                                    straightLineAngle += shapeOrientationAngle;
+
+                                    log += $". Point 1";
+
                                     Vector3 straightLineDirectionVector = Mathf.Cos(straightLineAngle * Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(straightLineAngle * Mathf.Deg2Rad) * Vector3.up;
                                     Vector3 straightLineStartPosition = shapePositionRelativeToFrog - straightLineDirectionVector * (spawnShapeLineLength / 2);
                                     Vector3 straightLineEndPosition = shapePositionRelativeToFrog + straightLineDirectionVector * (spawnShapeLineLength / 2);
+
+                                    log += $". Point 2";
 
                                     Vector3 straightLinePushAwayVector = Vector3.zero;
                                     if (shapePositionRelativeToFrog.magnitude < minSpawnDistanceFromPlayer)
@@ -893,21 +936,26 @@ public class EnemiesManager : MonoBehaviour
                                         // Center of line is too close to frog
                                         straightLinePushAwayVector = shapePositionRelativeToFrog.normalized * (minSpawnDistanceFromPlayer - shapePositionRelativeToFrog.magnitude);
                                     }
+                                    log += $". Point 3";
                                     if ((straightLineStartPosition + straightLinePushAwayVector).magnitude < minSpawnDistanceFromPlayer)
                                     {
                                         // Start position of line is too close to frog
                                         straightLinePushAwayVector = shapePositionRelativeToFrog.normalized * (minSpawnDistanceFromPlayer - (straightLineStartPosition + straightLinePushAwayVector).magnitude);
                                     }
+                                    log += $". Point 4";
                                     if ((straightLineEndPosition + straightLinePushAwayVector).magnitude < minSpawnDistanceFromPlayer)
                                     {
                                         // End position of line is too close to frog
                                         straightLinePushAwayVector = shapePositionRelativeToFrog.normalized * (minSpawnDistanceFromPlayer - (straightLineEndPosition + straightLinePushAwayVector).magnitude);
                                     }
+                                    log += $". Point 5";
 
                                     // Translate the line further
                                     shapePositionRelativeToFrog += straightLinePushAwayVector;
                                     straightLineStartPosition += straightLinePushAwayVector;
                                     straightLineEndPosition += straightLinePushAwayVector;
+
+                                    log += $"\nStartCoroutine(SpawnLineOfEnemiesAsync); for {enemySpawn.ToString()}";
 
                                     StartCoroutine(SpawnLineOfEnemiesAsync(straightLineStartPosition, straightLineEndPosition, enemyPrefab, spawnBugsAmount, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, spawnMultipleDelayBetweenSpawns, difficultyTier,
                                             forceMovementDirection: forceMovementDirection, moveDirection: movementDirection));
@@ -948,7 +996,7 @@ public class EnemiesManager : MonoBehaviour
                                         spawnPosition += waveLineNormalVector * spawnShapeWaveLineAmplitude * Mathf.Sin((((spawnCount * 1.0f / (spawnBugsAmount - 1)) * 360) * spawnShapeWaveLineFrequency + spawnShapeWaveLineOffset) * Mathf.Deg2Rad);
 
                                         // Spawn bug
-                                        StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, difficultyTier,
+                                        StartCoroutine(TrySpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, difficultyTier,
                                             forceMovementDirection: forceMovementDirection, moveDirection: movementDirection));
 
                                         // Eventually increase the delay before a spawn (WARNING: delay will change how the shape looks)
@@ -980,16 +1028,23 @@ public class EnemiesManager : MonoBehaviour
                                 if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out spawnPosition, overrideDirection: spawnOverrideDefaultSpawnPosition, overridenDirectionAngle: spawnPositionAngle, overridenDirectionSpread: spawnPositionSpread))
                                 {
                                     Vector3 positionRelativeToFrog = spawnPosition - GameManager.instance.player.transform.position;
-                                    StartCoroutine(SpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, difficultyTier));
+                                    StartCoroutine(TrySpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, difficultyTier));
                                     currentDelay += spawnMultipleDelayBetweenSpawns;
                                 }
                             }
                             break;
                     }
-                    lastSpawnTimesList[enemyIndex] = Time.time;
+                    lastSpawnTimesList[i] = Time.time;
                 }
+                else
+                {
+                    log += $"\nNOT spawning enemy: {enemySpawn.ToString()}. Last spawn time = {lastSpawnTime}. Delay between spawns = {delayBetweenSpawns}";
+                }
+            }
 
-                enemyIndex++;
+            if (verbose == VerboseLevel.MAXIMAL && showLog)
+            {
+                Debug.Log(log);
             }
         }
     }
@@ -1134,7 +1189,7 @@ public class EnemiesManager : MonoBehaviour
             if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out Vector3 spawnPosition))
             {
                 Vector3 positionRelativeToFrog = spawnPosition - GameManager.instance.player.transform.position;
-                StartCoroutine(SpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, movePatternFollowPlayer, originWave: RunManager.instance.GetCurrentWave(), originSpawnPattern: null, delay: 0, difficultyTier: difficultyTier));
+                StartCoroutine(TrySpawnEnemyAsync(enemyPrefab, positionRelativeToFrog, enemyData, movePatternFollowPlayer, originWave: RunManager.instance.GetCurrentWave(), originSpawnPattern: null, delay: 0, difficultyTier: difficultyTier));
             }
         }
     }
@@ -1142,16 +1197,26 @@ public class EnemiesManager : MonoBehaviour
     private IEnumerator SpawnLineOfEnemiesAsync(Vector3 lineStartPosition, Vector3 lineEndPosition, GameObject enemyPrefab, int spawnBugsAmount, EnemyData enemyData, EnemyMovePattern movePattern, WaveData currentWave, SpawnPattern spawnPattern, float delay, float delayBetweenSpawns, int difficultyTier,
                                             bool forceMovementDirection = false, Vector2? moveDirection = null)
     {
+        if (verbose == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"SpawnLineOfEnemiesAsync before yield return {delay}");
+        }
+
         yield return new WaitForSeconds(delay);
+
+        if (verbose == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"SpawnLineOfEnemiesAsync after yield return {delay}");
+        }
         Vector3 spawnPosition;
         float currentDelay = 0;
         for (int spawnCount = 0; spawnCount < spawnBugsAmount; spawnCount++)
         {
             // Find position of next bug on the line
-            spawnPosition = lineStartPosition + (spawnCount * 1.0f / (spawnBugsAmount - 1)) * (lineEndPosition - lineStartPosition);
+            spawnPosition = lineStartPosition + (spawnCount * 1.0f / spawnBugsAmount) * (lineEndPosition - lineStartPosition);
 
             // Spawn bug
-            StartCoroutine(SpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, movePattern, currentWave, spawnPattern, currentDelay, difficultyTier,
+            StartCoroutine(TrySpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, movePattern, currentWave, spawnPattern, currentDelay, difficultyTier,
                 forceMovementDirection: forceMovementDirection, moveDirection: moveDirection));
 
             // Eventually increase the delay before a spawn (WARNING: delay will change how the shape looks)
@@ -1159,20 +1224,34 @@ public class EnemiesManager : MonoBehaviour
         }
     }
 
-    private IEnumerator SpawnEnemyAsync(GameObject prefab, Vector3 positionRelativeToFrog, EnemyData enemyData, EnemyMovePattern movePattern, WaveData originWave, SpawnPattern originSpawnPattern, float delay, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null)
+    private IEnumerator TrySpawnEnemyAsync(GameObject prefab, Vector3 positionRelativeToFrog, EnemyData enemyData, EnemyMovePattern movePattern, WaveData originWave, SpawnPattern originSpawnPattern, float delay, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null)
     {
+        if (verbose == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"TrySpawnEnemyAsync before yield return {delay}");
+        }
+
         yield return new WaitForSeconds(delay);
+
+        if (verbose == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log($"TrySpawnEnemyAsync after yield return {delay}");
+        }
+
         if ((originWave != null && originWave.Equals(RunManager.instance.GetCurrentWave())) || (bounty != null))
         {
-            // Only spawn the enemy if it's part of the current wave and that wave is still active
-            SpawnEnemy(prefab, positionRelativeToFrog, enemyData, movePattern, originWave, originSpawnPattern, difficultyTier, neverDespawn, bounty, forceMovementDirection, moveDirection);
+            if (IsSpawnPositionFreeFromCollisions(GameManager.instance.player.transform.position + positionRelativeToFrog, prefab.layer))
+            {
+                // Only spawn the enemy if it's part of the current wave and that wave is still active
+                SpawnEnemy(prefab, positionRelativeToFrog, enemyData, movePattern, originWave, originSpawnPattern, difficultyTier, neverDespawn, bounty, forceMovementDirection, moveDirection);
+            }
         }
     }
 
     public void InitializeWave(WaveData wave)
     {
         lastSpawnTimesList.Clear();
-        float time = float.MinValue; // or Time.time;
+        float time = -100; // or Time.time;
         foreach (EnemySpawn enemySpawn in wave.enemies)
         {
             lastSpawnTimesList.Add(time);
@@ -2174,7 +2253,7 @@ public class EnemiesManager : MonoBehaviour
             {
                 // Reset the enemy to its new difficulty tier
                 ResetEnemyValues(enemyInstance, newEnemyData.prefab, newEnemyData, enemyMovePattern, enemyInstance.wave, enemyInstance.spawnPattern, newDifficultyTier, forceMovementDirection: true, moveDirection: enemyMoveDirection, preventAnyPhysicsShenanigans: false);
-                //StartCoroutine(SpawnEnemyAsync(enemyPrefab, enemyPosition, newEnemyData, enemyMovePattern, enemyInstance.wave, delay: 0.01f, newDifficultyTier, forceMovementDirection: true, moveDirection: enemyMoveDirection));
+                //StartCoroutine(TrySpawnEnemyAsync(enemyPrefab, enemyPosition, newEnemyData, enemyMovePattern, enemyInstance.wave, delay: 0.01f, newDifficultyTier, forceMovementDirection: true, moveDirection: enemyMoveDirection));
             }
             else
             {
@@ -2192,7 +2271,7 @@ public class EnemiesManager : MonoBehaviour
                 bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 10, value = 25 });
                 bountyBug.bountyList.Add(new Bounty() { collectibleType = CollectibleType.XP_BONUS, amount = 10, value = 50 });*/
                 ResetEnemyValues(enemyInstance, originEnemyData.prefab, originEnemyData, enemyMovePattern, enemyInstance.wave, enemyInstance.spawnPattern, enemyInstance.difficultyTier, neverDespawn: true, bounty: bountyBug, forceMovementDirection: true, moveDirection: enemyMoveDirection, preventAnyPhysicsShenanigans: false);
-                //StartCoroutine(SpawnEnemyAsync(originEnemyData.prefab, enemyPosition, originEnemyData, enemyMovePattern, enemyInstance.wave, delay: 0.01f, difficultyTier: enemyInstance.difficultyTier, neverDespawn: true, bounty: bountyBug, forceMovementDirection: true, moveDirection: enemyMoveDirection));
+                //StartCoroutine(TrySpawnEnemyAsync(originEnemyData.prefab, enemyPosition, originEnemyData, enemyMovePattern, enemyInstance.wave, delay: 0.01f, difficultyTier: enemyInstance.difficultyTier, neverDespawn: true, bounty: bountyBug, forceMovementDirection: true, moveDirection: enemyMoveDirection));
             }
 
         }

@@ -50,7 +50,7 @@ public class SpawnPatternDrawer : PropertyDrawer
         }
         // Spawn amount
         Rect spawnAmountLabelRect = new Rect(position.x + spawnAmountLabelLeftPadding, position.y, spawnAmountLabelWidth - spawnAmountLabelLeftPadding, EditorGUIUtility.singleLineHeight);
-        EditorGUI.LabelField(spawnAmountLabelRect, new GUIContent("Amount of bugs:"));
+        EditorGUI.LabelField(spawnAmountLabelRect, new GUIContent("Amount of bugs:", "How many bugs are spawned at the same time"));
         Rect spawnAmountRect = new Rect(position.x + spawnAmountLabelWidth, position.y, spawnAmountWidth, EditorGUIUtility.singleLineHeight);
         EditorGUI.PropertyField(spawnAmountRect, property.FindPropertyRelative("spawnAmount"), GUIContent.none);
         position.x += spawnAmountLabelWidth + spawnAmountWidth;
@@ -58,7 +58,7 @@ public class SpawnPatternDrawer : PropertyDrawer
         {
             // multipleSpawnDelay
             Rect multipleSpawnDelayLabelRect = new Rect(position.x + multipleSpawnDelayLabelLeftPadding, position.y, multipleSpawnDelayLabelWidth - multipleSpawnDelayLabelLeftPadding, EditorGUIUtility.singleLineHeight);
-            EditorGUI.LabelField(multipleSpawnDelayLabelRect, new GUIContent("Delay btw spawns:"));
+            EditorGUI.LabelField(multipleSpawnDelayLabelRect, new GUIContent("Delay btw spawns:", "Delay in seconds between two spawns of that bug(s)"));
             Rect multipleSpawnDelayRect = new Rect(position.x + multipleSpawnDelayLabelWidth, position.y, multipleSpawnDelayWidth, EditorGUIUtility.singleLineHeight);
             EditorGUI.PropertyField(multipleSpawnDelayRect, property.FindPropertyRelative("multipleSpawnDelay"), GUIContent.none);
         }
@@ -73,7 +73,7 @@ public class SpawnPatternDrawer : PropertyDrawer
         float overrideDefaultSpawnPositionLabelWidth = 150;
         Rect overrideDefaultSpawnPositionLabelRect = new Rect(position.x + xOffset, position.y, overrideDefaultSpawnPositionLabelWidth, EditorGUIUtility.singleLineHeight);
         xOffset += overrideDefaultSpawnPositionLabelWidth;
-        EditorGUI.LabelField(overrideDefaultSpawnPositionLabelRect, new GUIContent("Override spawn position:"));
+        EditorGUI.LabelField(overrideDefaultSpawnPositionLabelRect, new GUIContent("Override spawn position:", "Default spawn position is randomized around the frog with a higher probability to spawn in front of it if it's moving. You can override it to specify a direction where the bug(s) spawn."));
         float overrideDefaultSpawnPositionPropertyWidth = 30;
         var overrideDefaultSpawnPositionProperty = property.FindPropertyRelative("overrideDefaultSpawnPosition");
         Rect overrideDefaultSpawnPositionRect = new Rect(position.x + xOffset, position.y, overrideDefaultSpawnPositionPropertyWidth, EditorGUIUtility.singleLineHeight);
@@ -94,14 +94,14 @@ public class SpawnPatternDrawer : PropertyDrawer
             float spawnPositionSpreadPropertyWidth = spawnPositionAngleProperyWidth;
 
             Rect spawnPositionAngleLabelRect = new Rect(position.x + xOffset, position.y, spawnPositionAngleLabelWidth, EditorGUIUtility.singleLineHeight);
-            EditorGUI.LabelField(spawnPositionAngleLabelRect, new GUIContent("Spawn dir angle:"));
+            EditorGUI.LabelField(spawnPositionAngleLabelRect, new GUIContent("Spawn dir angle:", "An angle of 0° means a spawn to the right (East) of the frog. An angle of 90° means a spawn to the top (North) of the frog."));
             xOffset += spawnPositionAngleLabelWidth;
             Rect spawnPositionAngleRect = new Rect(position.x + xOffset, position.y, spawnPositionAngleProperyWidth, EditorGUIUtility.singleLineHeight);
             EditorGUI.PropertyField(spawnPositionAngleRect, property.FindPropertyRelative("spawnPositionAngle"), GUIContent.none);
             xOffset += spawnPositionAngleProperyWidth;
 
             Rect spawnPositionSpreadLabelRect = new Rect(position.x + xOffset, position.y, spawnPositionSpreadLabelWidth, EditorGUIUtility.singleLineHeight);
-            EditorGUI.LabelField(spawnPositionSpreadLabelRect, new GUIContent("Spawn dir spread:"));
+            EditorGUI.LabelField(spawnPositionSpreadLabelRect, new GUIContent("Spawn dir spread:", "Will randomize the spawn in a circle around the specified direction. This parameter sets the radius of that circle."));
             xOffset += spawnPositionSpreadLabelWidth;
             Rect spawnPositionSpreadRect = new Rect(position.x + xOffset, position.y, spawnPositionSpreadPropertyWidth, EditorGUIUtility.singleLineHeight);
             EditorGUI.PropertyField(spawnPositionSpreadRect, property.FindPropertyRelative("spawnPositionSpread"), GUIContent.none);
