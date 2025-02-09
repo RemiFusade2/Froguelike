@@ -497,9 +497,6 @@ public class EnemiesManager : MonoBehaviour
         float actualSpawnCircleRadius = spawnCircleRadius; // Default radius is quite big to also work when centered around frog
         float spawnCenterDistanceToPlayer = Random.Range(spawnCenterMinDistanceToPlayer, spawnCenterMaxDistanceToPlayer);
 
-
-        string log = $"GetSpawnPosition({playerPosition.ToString("0.00")}, {playerMoveDirection.ToString("0.00")})";
-
         if (overrideDirection)
         {
             // The center of that circle is in the given direction
@@ -533,8 +530,6 @@ public class EnemiesManager : MonoBehaviour
                 spawnPositionIsValid = true;
             }
 
-            log += $"\nattempt {loopAttemptCount}: randomAngle = {randomAngle} ; randomVector = {randomVector.ToString("0.00")} ; spawnCenter = {spawnCenter.ToString("0.00")} ; spawnPosition = {spawnPosition.ToString("0.00")} ; distance between position and player = {Vector2.Distance(spawnPosition, playerPosition)}";
-
             // Don't check if that random point is on an obstacle
             /*
             int layerMask = LayerMask.GetMask("Rock", "LakeCollider");
@@ -543,13 +538,6 @@ public class EnemiesManager : MonoBehaviour
                 spawnPositionIsValid = false;
             }*/
         } while (!spawnPositionIsValid && loopAttemptCount > 0); // Redo until the random point is out of sight
-
-        log += $"spawnPositionIsValid = {spawnPositionIsValid} ; loopAttemptCount = {loopAttemptCount}";
-
-        if (verbose == VerboseLevel.MAXIMAL)
-        {
-            Debug.Log(log);
-        }
 
         return spawnPositionIsValid;
     }
@@ -677,8 +665,9 @@ public class EnemiesManager : MonoBehaviour
     {
         if (RunManager.instance.currentChapter != null && RunManager.instance.currentChapter.chapterData != null && !RunManager.instance.IsChapterTimeOver())
         {
+            // TODO: remove log
             string log = $"TrySpawnWave from chapter {RunManager.instance.currentChapter.chapterID}. Current wave is {currentWave.ToString()}";
-            bool showLog = false;
+            bool showLog = false; 
 
             // Here's a table to describe the figurine curse:
             // - Curse -100% =  Spawn halved     =  Spawn cooldown doubled (delay factor = 2) 
@@ -756,8 +745,8 @@ public class EnemiesManager : MonoBehaviour
                     float spawnShapeWaveLineFrequency = spawnPattern.waveLineFrequency; // How close together are the waves
                     float spawnShapeWaveLineOffset = spawnPattern.waveLineOffset; // Where do the waves start (default is zero/middle)
                     // Shape POLYGON and SPRITE settings
-                    float spawnShapeSideSize = spawnPattern.shapeSize; // The size of the side of that shape
-                    float spawnShapeAngle = spawnPattern.shapeAngle; // The angle of that shape relative to the vector 'frog to spawn'
+                    float spawnShapePolygonOrSpriteRadius = spawnPattern.shapeRadius; // The radius of a circle that contains that shape
+                    float spawnShapePolygonOrSpriteAngle = spawnPattern.shapeAngle; // The angle of that shape relative to the vector 'frog to spawn'
                     // Shape POLYGON setting
                     int spawnShapePolygonNumberOfSides = spawnPattern.shapePolygonNumberOfSides; // Only for SpawnShape of type POLYGON
                     // Shape SPRITE setting
@@ -922,13 +911,9 @@ public class EnemiesManager : MonoBehaviour
                                     // On top of that, we add the orientation angle that may have been randomized
                                     straightLineAngle += shapeOrientationAngle;
 
-                                    log += $". Point 1";
-
                                     Vector3 straightLineDirectionVector = Mathf.Cos(straightLineAngle * Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(straightLineAngle * Mathf.Deg2Rad) * Vector3.up;
                                     Vector3 straightLineStartPosition = shapePositionRelativeToFrog - straightLineDirectionVector * (spawnShapeLineLength / 2);
                                     Vector3 straightLineEndPosition = shapePositionRelativeToFrog + straightLineDirectionVector * (spawnShapeLineLength / 2);
-
-                                    log += $". Point 2";
 
                                     Vector3 straightLinePushAwayVector = Vector3.zero;
                                     if (shapePositionRelativeToFrog.magnitude < minSpawnDistanceFromPlayer)
@@ -936,26 +921,21 @@ public class EnemiesManager : MonoBehaviour
                                         // Center of line is too close to frog
                                         straightLinePushAwayVector = shapePositionRelativeToFrog.normalized * (minSpawnDistanceFromPlayer - shapePositionRelativeToFrog.magnitude);
                                     }
-                                    log += $". Point 3";
                                     if ((straightLineStartPosition + straightLinePushAwayVector).magnitude < minSpawnDistanceFromPlayer)
                                     {
                                         // Start position of line is too close to frog
                                         straightLinePushAwayVector = shapePositionRelativeToFrog.normalized * (minSpawnDistanceFromPlayer - (straightLineStartPosition + straightLinePushAwayVector).magnitude);
                                     }
-                                    log += $". Point 4";
                                     if ((straightLineEndPosition + straightLinePushAwayVector).magnitude < minSpawnDistanceFromPlayer)
                                     {
                                         // End position of line is too close to frog
                                         straightLinePushAwayVector = shapePositionRelativeToFrog.normalized * (minSpawnDistanceFromPlayer - (straightLineEndPosition + straightLinePushAwayVector).magnitude);
                                     }
-                                    log += $". Point 5";
 
                                     // Translate the line further
                                     shapePositionRelativeToFrog += straightLinePushAwayVector;
                                     straightLineStartPosition += straightLinePushAwayVector;
                                     straightLineEndPosition += straightLinePushAwayVector;
-
-                                    log += $"\nStartCoroutine(SpawnLineOfEnemiesAsync); for {enemySpawn.ToString()}";
 
                                     StartCoroutine(SpawnLineOfEnemiesAsync(straightLineStartPosition, straightLineEndPosition, enemyPrefab, spawnBugsAmount, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, spawnMultipleDelayBetweenSpawns, difficultyTier,
                                             forceMovementDirection: forceMovementDirection, moveDirection: movementDirection));
@@ -1004,12 +984,45 @@ public class EnemiesManager : MonoBehaviour
                                     }
                                     break;
                                 case SpawnShape.POLYGON:
-                                    /*
-                    // Shape POLYGON and SPRITE settings
-                    float spawnShapeSideSize = spawnPattern.shapeSize; // The size of the side of that shape
-                    float spawnShapeAngle = spawnPattern.shapeAngle; // The angle of that shape relative to the vector 'frog to spawn'
-                    // Shape POLYGON setting
-                    int spawnShapePolygonNumberOfSides = spawnPattern.shapePolygonNumberOfSides; // Only for SpawnShape of type POLYGON*/
+
+                                    if (spawnShapePolygonNumberOfSides < 3)
+                                    {
+                                        spawnShapePolygonNumberOfSides = 3; // polygon must be at least a triangle, otherwise it'll break
+                                    }
+
+                                    // spawnShapeLineAngle == 0 means aligned with vector from frog
+                                    float polygonAngle = Vector3.Angle(Vector3.right, shapePositionRelativeToFrog) + spawnShapePolygonOrSpriteAngle;
+                                    // On top of that, we add the orientation angle that may have been randomized
+                                    polygonAngle += shapeOrientationAngle;
+
+                                    // Polygon radius is the radius or the circumscribed circle (the circle outside of the polygon)
+                                    // We'll also use the inscribed circle (the circle inside of the polygon)
+                                    float polygonInscribedCircleRadius = spawnShapePolygonOrSpriteRadius / Mathf.Cos(Mathf.PI / spawnShapePolygonNumberOfSides);
+                                    if (spawnShapeCenteredOnFrog)
+                                    {
+                                        // Polygon is around frog, the radius of its inscribed circle must be big enough to circle the frog
+                                        if (polygonInscribedCircleRadius < minSpawnDistanceFromPlayer)
+                                        {
+                                            spawnShapePolygonOrSpriteRadius = minSpawnDistanceFromPlayer / Mathf.Cos(Mathf.PI / spawnShapePolygonNumberOfSides);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // If shape is not centered on frog, we want to make sure it spawns far enough so no part of the polygon is visible
+                                        shapePositionRelativeToFrog += ((shapePositionRelativeToFrog.normalized) * spawnShapePolygonOrSpriteRadius);
+                                    }
+
+                                    int bugAmountOnOneSide = spawnBugsAmount / spawnShapePolygonNumberOfSides;
+                                    for (int polygonSideCount = 0; polygonSideCount < spawnShapePolygonNumberOfSides; polygonSideCount++)
+                                    {
+                                        Vector3 polygonLineStartPosition = new Vector3 ( spawnShapePolygonOrSpriteRadius * Mathf.Cos(polygonAngle * Mathf.Deg2Rad + 2 * Mathf.PI * polygonSideCount / spawnShapePolygonNumberOfSides) + shapePositionRelativeToFrog.x, spawnShapePolygonOrSpriteRadius * Mathf.Sin(polygonAngle * Mathf.Deg2Rad + 2 * Mathf.PI * polygonSideCount / spawnShapePolygonNumberOfSides) + shapePositionRelativeToFrog.y);
+                                        Vector3 polygonLineEndPosition = new Vector3(spawnShapePolygonOrSpriteRadius * Mathf.Cos(polygonAngle * Mathf.Deg2Rad + 2 * Mathf.PI * (polygonSideCount+1) / spawnShapePolygonNumberOfSides) + shapePositionRelativeToFrog.x, spawnShapePolygonOrSpriteRadius * Mathf.Sin(polygonAngle * Mathf.Deg2Rad + 2 * Mathf.PI * (polygonSideCount + 1) / spawnShapePolygonNumberOfSides) + shapePositionRelativeToFrog.y);
+
+                                        StartCoroutine(SpawnLineOfEnemiesAsync(polygonLineStartPosition, polygonLineEndPosition, enemyPrefab, bugAmountOnOneSide, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, spawnMultipleDelayBetweenSpawns, difficultyTier,
+                                                forceMovementDirection: forceMovementDirection, moveDirection: movementDirection));
+
+                                        currentDelay += spawnMultipleDelayBetweenSpawns * bugAmountOnOneSide;
+                                    }
                                     break;
                                 case SpawnShape.SPRITE:
                                     /*
@@ -1035,10 +1048,6 @@ public class EnemiesManager : MonoBehaviour
                             break;
                     }
                     lastSpawnTimesList[i] = Time.time;
-                }
-                else
-                {
-                    log += $"\nNOT spawning enemy: {enemySpawn.ToString()}. Last spawn time = {lastSpawnTime}. Delay between spawns = {delayBetweenSpawns}";
                 }
             }
 
@@ -1197,17 +1206,8 @@ public class EnemiesManager : MonoBehaviour
     private IEnumerator SpawnLineOfEnemiesAsync(Vector3 lineStartPosition, Vector3 lineEndPosition, GameObject enemyPrefab, int spawnBugsAmount, EnemyData enemyData, EnemyMovePattern movePattern, WaveData currentWave, SpawnPattern spawnPattern, float delay, float delayBetweenSpawns, int difficultyTier,
                                             bool forceMovementDirection = false, Vector2? moveDirection = null)
     {
-        if (verbose == VerboseLevel.MAXIMAL)
-        {
-            Debug.Log($"SpawnLineOfEnemiesAsync before yield return {delay}");
-        }
-
         yield return new WaitForSeconds(delay);
 
-        if (verbose == VerboseLevel.MAXIMAL)
-        {
-            Debug.Log($"SpawnLineOfEnemiesAsync after yield return {delay}");
-        }
         Vector3 spawnPosition;
         float currentDelay = 0;
         for (int spawnCount = 0; spawnCount < spawnBugsAmount; spawnCount++)
@@ -1226,17 +1226,7 @@ public class EnemiesManager : MonoBehaviour
 
     private IEnumerator TrySpawnEnemyAsync(GameObject prefab, Vector3 positionRelativeToFrog, EnemyData enemyData, EnemyMovePattern movePattern, WaveData originWave, SpawnPattern originSpawnPattern, float delay, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null)
     {
-        if (verbose == VerboseLevel.MAXIMAL)
-        {
-            Debug.Log($"TrySpawnEnemyAsync before yield return {delay}");
-        }
-
         yield return new WaitForSeconds(delay);
-
-        if (verbose == VerboseLevel.MAXIMAL)
-        {
-            Debug.Log($"TrySpawnEnemyAsync after yield return {delay}");
-        }
 
         if ((originWave != null && originWave.Equals(RunManager.instance.GetCurrentWave())) || (bounty != null))
         {

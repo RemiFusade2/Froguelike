@@ -180,7 +180,7 @@ public class SpawnPattern
 
     //[Header("POLYGON and SPRITE settings")]
     [Tooltip("The size of the side of that shape")]
-    public float shapeSize;
+    public float shapeRadius;
     [Tooltip("The angle of that shape relative to the vector 'frog to spawn'")]
     public float shapeAngle;
 

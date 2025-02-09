@@ -351,10 +351,10 @@ public class SpawnPatternDrawer : PropertyDrawer
 
                 xOffset = 0;
                 Rect shapeSizeLabelRect = new Rect(position.x + xOffset, position.y, shapeSizeLabelWidth, EditorGUIUtility.singleLineHeight);
-                EditorGUI.LabelField(shapeSizeLabelRect, new GUIContent("Side length:"));
+                EditorGUI.LabelField(shapeSizeLabelRect, new GUIContent("Radius:"));
                 xOffset += shapeSizeLabelWidth;
                 Rect shapeSizePropertyRect = new Rect(position.x + xOffset, position.y, shapeSizePropertyWidth, EditorGUIUtility.singleLineHeight);
-                EditorGUI.PropertyField(shapeSizePropertyRect, property.FindPropertyRelative("shapeSize"), GUIContent.none);
+                EditorGUI.PropertyField(shapeSizePropertyRect, property.FindPropertyRelative("shapeRadius"), GUIContent.none);
                 xOffset += shapeSizePropertyWidth;
 
                 Rect shapeAngleLabelRect = new Rect(position.x + xOffset + 3, position.y, shapeAngleLabelWidth, EditorGUIUtility.singleLineHeight);
