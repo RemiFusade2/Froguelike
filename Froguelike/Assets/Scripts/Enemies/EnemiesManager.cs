@@ -96,6 +96,7 @@ public class EnemyInstance
     // Current in-game state
     public bool active;
     public bool alive;
+    public float spawnTime;
     public float HP;
     public float HPMax;
     public Vector2 moveDirection;
@@ -776,21 +777,20 @@ public class EnemiesManager : MonoBehaviour
                             log += $". shapePositionRelativeToFrog = {shapePositionRelativeToFrog.ToString("0.00")}";
 
                             log += $". spawnPatternShape = {spawnPatternShape}";
-                            if (spawnPatternShape == SpawnShape.STRAIGHT_LINE || spawnPatternShape == SpawnShape.WAVE_LINE)
+                            if (spawnPatternShape == SpawnShape.STRAIGHT_LINE || spawnPatternShape == SpawnShape.WAVE_LINE || spawnPatternShape == SpawnShape.SPRITE)
                             {
-                                // Lines can't be centered on frog, they have to spawn further
+                                // Lines and sprites can't be centered on frog, they have to spawn further
                                 spawnShapeCenteredOnFrog = false;
                             }
 
+                            log += $". spawnShapeCenteredOnFrog = {spawnShapeCenteredOnFrog}";
                             if (spawnShapeCenteredOnFrog)
                             {
                                 // Shape is centered on the frog
-                                log += $". spawnShapeCenteredOnFrog = {spawnShapeCenteredOnFrog}";
                             }
                             else
                             {
                                 // Shape is placed somewhere further around the frog
-                                log += $". spawnShapeCenteredOnFrog = {spawnShapeCenteredOnFrog}";
                                 log += $". spawnOverrideDefaultSpawnPosition = {spawnOverrideDefaultSpawnPosition}";
                                 log += $". spawnPositionAngle = {spawnPositionAngle}";
                                 log += $". spawnPositionSpread = {spawnPositionSpread}";
@@ -1025,12 +1025,33 @@ public class EnemiesManager : MonoBehaviour
                                     }
                                     break;
                                 case SpawnShape.SPRITE:
-                                    /*
-                    // Shape POLYGON and SPRITE settings
-                    float spawnShapeSideSize = spawnPattern.shapeSize; // The size of the side of that shape
-                    float spawnShapeAngle = spawnPattern.shapeAngle; // The angle of that shape relative to the vector 'frog to spawn'
-                    // Shape SPRITE setting
-                    Sprite spawnShapeSprite = spawnPattern.shapeSprite; // Only for SpawnShape of type SPRITE*/
+
+                                    float spriteDistanceBetweenSpawns = spawnShapePolygonOrSpriteRadius / Mathf.Max(spawnShapeSprite.texture.width, spawnShapeSprite.texture.height);
+                                    Color[] spritePixelsArray = spawnShapeSprite.texture.GetPixels();
+
+                                    shapePositionRelativeToFrog += spawnShapePolygonOrSpriteRadius * shapePositionRelativeToFrog.normalized;
+
+                                    float spriteAngle = spawnShapePolygonOrSpriteAngle;
+                                    // On top of that, we add the orientation angle that may have been randomized
+                                    spriteAngle += shapeOrientationAngle;
+                                    Vector3 spriteRightDirectionVector = Mathf.Cos(spriteAngle * Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(spriteAngle * Mathf.Deg2Rad) * Vector3.up;
+                                    Vector3 spriteUpDirectionVector = Mathf.Cos(spriteAngle * Mathf.Deg2Rad) * Vector3.up - Mathf.Sin(spriteAngle * Mathf.Deg2Rad) * Vector3.right;
+
+                                    for (int spriteY = 0; spriteY < spawnShapeSprite.texture.height; spriteY++)
+                                    {
+                                        for (int spriteX = 0; spriteX < spawnShapeSprite.texture.width; spriteX++)
+                                        {
+                                            Color pixelColor = spritePixelsArray[spriteY * spawnShapeSprite.texture.width + spriteX];
+                                            if (pixelColor.a > 0.5f)
+                                            {
+                                                spawnPosition = shapePositionRelativeToFrog + ((spriteX - spawnShapeSprite.texture.width / 2.0f) * spriteRightDirectionVector + (spriteY - spawnShapeSprite.texture.height / 2.0f) * spriteUpDirectionVector) * spriteDistanceBetweenSpawns;
+
+                                                // Spawn a bug on white pixels
+                                                StartCoroutine(TrySpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, difficultyTier,
+                                                    forceMovementDirection: forceMovementDirection, moveDirection: movementDirection));
+                                            }
+                                        }
+                                    }
                                     break;
                             }
                             break;
@@ -1135,12 +1156,42 @@ public class EnemiesManager : MonoBehaviour
         }
     }
 
+
+    private EnemyInstance DequeueEnemyInstance(bool recyclingAllowed = true)
+    {
+        EnemyInstance enemyInstance;
+        if (!inactiveEnemiesPool.TryDequeue(out enemyInstance) && recyclingAllowed)
+        {
+            // Couldn't dequeue an enemy (pool must be empty)
+
+            // Let's recycle an enemy that's out of sight
+            EnemyInstance oldestEnemyInstance = null;
+            float lowestSpawnTime = Time.time;
+            foreach (KeyValuePair<int, EnemyInstance> enemyInfo in allActiveEnemiesDico)
+            {
+                if (enemyInfo.Value.active && enemyInfo.Value.alive && Vector3.Distance(GameManager.instance.player.transform.position, enemyInfo.Value.enemyTransform.position) > minSpawnDistanceFromPlayer && enemyInfo.Value.spawnTime < lowestSpawnTime)
+                {
+                    lowestSpawnTime = enemyInfo.Value.spawnTime;
+                    oldestEnemyInstance = enemyInfo.Value;
+                }
+            }
+
+            if (oldestEnemyInstance != null)
+            {
+                allActiveEnemiesDico.Remove(oldestEnemyInstance.enemyID);
+                PutEnemyInThePool(oldestEnemyInstance);
+                inactiveEnemiesPool.TryDequeue(out enemyInstance);
+            }
+        }
+        return enemyInstance;
+    }
+
     public void SpawnEnemy(GameObject prefab, Vector3 positionRelativeToFrog, EnemyData enemyData, EnemyMovePattern movePattern, WaveData originWave, SpawnPattern originSpawnPattern, int difficultyTier, bool neverDespawn = false, BountyBug bounty = null, bool forceMovementDirection = false, Vector2? moveDirection = null)
     {
         // Get an enemy from the pool
-        EnemyInstance enemyFromPool = null;
-
-        if (inactiveEnemiesPool.TryDequeue(out enemyFromPool))
+        EnemyInstance enemyFromPool = DequeueEnemyInstance(recyclingAllowed: true);
+                
+        if (enemyFromPool != null)
         {
             enemyFromPool.enemyAnimator.enabled = true;
             enemyFromPool.enemyCollider.enabled = true;
@@ -1361,6 +1412,7 @@ public class EnemiesManager : MonoBehaviour
         newEnemy.HP = newEnemy.HPMax;
         newEnemy.active = true;
         newEnemy.alive = true;
+        newEnemy.spawnTime = Time.time;
 
         // setup enemy - misc
         newEnemy.movePattern = movePattern;
@@ -2035,6 +2087,7 @@ public class EnemiesManager : MonoBehaviour
         inactiveEnemiesPool.Enqueue(enemy);
         enemy.ForceStopAllStatusEffects();
         enemy.HP = 10000;
+        enemy.spawnTime = -100;
         enemy.RemovePoison();
         enemy.enemyTransform.name = pooledEnemyNameStr;
         enemy.active = false;
