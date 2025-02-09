@@ -997,7 +997,7 @@ public class EnemiesManager : MonoBehaviour
 
                                     // Polygon radius is the radius or the circumscribed circle (the circle outside of the polygon)
                                     // We'll also use the inscribed circle (the circle inside of the polygon)
-                                    float polygonInscribedCircleRadius = spawnShapePolygonOrSpriteRadius / Mathf.Cos(Mathf.PI / spawnShapePolygonNumberOfSides);
+                                    float polygonInscribedCircleRadius = spawnShapePolygonOrSpriteRadius * Mathf.Cos(Mathf.PI / spawnShapePolygonNumberOfSides);
                                     if (spawnShapeCenteredOnFrog)
                                     {
                                         // Polygon is around frog, the radius of its inscribed circle must be big enough to circle the frog
