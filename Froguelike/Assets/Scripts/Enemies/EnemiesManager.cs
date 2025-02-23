@@ -1037,6 +1037,8 @@ public class EnemiesManager : MonoBehaviour
                                     Vector3 spriteRightDirectionVector = Mathf.Cos(spriteAngle * Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(spriteAngle * Mathf.Deg2Rad) * Vector3.up;
                                     Vector3 spriteUpDirectionVector = Mathf.Cos(spriteAngle * Mathf.Deg2Rad) * Vector3.up - Mathf.Sin(spriteAngle * Mathf.Deg2Rad) * Vector3.right;
 
+                                    // We count how many enemies would be spawned with that shape
+                                    int enemyCount = 0;
                                     for (int spriteY = 0; spriteY < spawnShapeSprite.texture.height; spriteY++)
                                     {
                                         for (int spriteX = 0; spriteX < spawnShapeSprite.texture.width; spriteX++)
@@ -1044,14 +1046,30 @@ public class EnemiesManager : MonoBehaviour
                                             Color pixelColor = spritePixelsArray[spriteY * spawnShapeSprite.texture.width + spriteX];
                                             if (pixelColor.a > 0.5f)
                                             {
-                                                spawnPosition = shapePositionRelativeToFrog + ((spriteX - spawnShapeSprite.texture.width / 2.0f) * spriteRightDirectionVector + (spriteY - spawnShapeSprite.texture.height / 2.0f) * spriteUpDirectionVector) * spriteDistanceBetweenSpawns;
-
-                                                // Spawn a bug on white pixels
-                                                StartCoroutine(TrySpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, difficultyTier,
-                                                    forceMovementDirection: forceMovementDirection, moveDirection: movementDirection));
+                                                enemyCount++;
                                             }
                                         }
                                     }
+
+                                    if (enemyCount <= inactiveEnemiesPool.Count)
+                                    {
+                                        for (int spriteY = 0; spriteY < spawnShapeSprite.texture.height; spriteY++)
+                                        {
+                                            for (int spriteX = 0; spriteX < spawnShapeSprite.texture.width; spriteX++)
+                                            {
+                                                Color pixelColor = spritePixelsArray[spriteY * spawnShapeSprite.texture.width + spriteX];
+                                                if (pixelColor.a > 0.5f)
+                                                {
+                                                    spawnPosition = shapePositionRelativeToFrog + ((spriteX - spawnShapeSprite.texture.width / 2.0f) * spriteRightDirectionVector + (spriteY - spawnShapeSprite.texture.height / 2.0f) * spriteUpDirectionVector) * spriteDistanceBetweenSpawns;
+
+                                                    // Spawn a bug on visible pixels
+                                                    StartCoroutine(TrySpawnEnemyAsync(enemyPrefab, spawnPosition, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, difficultyTier,
+                                                        forceMovementDirection: forceMovementDirection, moveDirection: movementDirection));
+                                                }
+                                            }
+                                        }
+                                    }
+
                                     break;
                             }
                             break;
