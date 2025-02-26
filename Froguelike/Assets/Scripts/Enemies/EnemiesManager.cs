@@ -941,7 +941,11 @@ public class EnemiesManager : MonoBehaviour
                                             forceMovementDirection: forceMovementDirection, moveDirection: movementDirection));
                                     break;
                                 case SpawnShape.WAVE_LINE:
-                                    float waveLineAngle = spawnShapeLineAngle + shapeOrientationAngle;
+                                    // spawnShapeLineAngle == 0 means aligned with vector from frog
+                                    float waveLineAngle = Vector3.Angle(Vector3.right, shapePositionRelativeToFrog) + spawnShapeLineAngle;
+                                    // On top of that, we add the orientation angle that may have been randomized
+                                    waveLineAngle += shapeOrientationAngle;
+
                                     Vector3 waveLineDirectionVector = Mathf.Cos(waveLineAngle * Mathf.Deg2Rad) * Vector3.right + Mathf.Sin(waveLineAngle * Mathf.Deg2Rad) * Vector3.up;
                                     Vector3 waveLineNormalVector = Mathf.Cos(waveLineAngle * Mathf.Deg2Rad) * Vector3.up - Mathf.Sin(waveLineAngle * Mathf.Deg2Rad) * Vector3.right;
                                     Vector3 waveLineStartPosition = shapePositionRelativeToFrog - waveLineDirectionVector * (spawnShapeLineLength / 2);

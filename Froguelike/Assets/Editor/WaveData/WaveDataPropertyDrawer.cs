@@ -21,14 +21,35 @@ public class SpawnPatternDrawer : PropertyDrawer
     // Draw the property inside the given rect
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
+        float widthThresholdForShorterLabels = 450;
+        float minimumWidthThreshold = 300;
+
         // Using BeginProperty / EndProperty on the parent property means that prefab override logic works on the entire property.
         EditorGUI.BeginProperty(position, label, property);
 
         float xOffset = 0;
 
+        if (position.width < minimumWidthThreshold)
+        {
+            Rect errorBkgRect = new Rect(position.x, position.y, position.width, 5*EditorGUIUtility.singleLineHeight);
+            EditorGUI.DrawRect(errorBkgRect, new Color(0.5f,0,0));
+            Rect errorLabelRect = new Rect(position.x + 50, position.y + 2* EditorGUIUtility.singleLineHeight, position.width, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(errorLabelRect, new GUIContent("Not enough space", "Please widen the inspector"));
+            EditorGUI.EndProperty();
+            return;
+        }
+
         // Line 1: Spawn pattern + Amount + Delay between spawns (if amount > 1)
         float spawnPatternWidth = 100;
-        float spawnAmountLabelWidth = 120;
+        float spawnAmountLabelWidth;
+        if (position.width < widthThresholdForShorterLabels)
+        {
+            spawnAmountLabelWidth = 60;
+        }
+        else
+        {
+            spawnAmountLabelWidth = 105;
+        }
         float spawnAmountLabelLeftPadding = 5;
         // multipleSpawnDelay is relevant if spawnAmount is > 1
         float multipleSpawnDelayLabelWidth = 0;
@@ -43,14 +64,25 @@ public class SpawnPatternDrawer : PropertyDrawer
         var spawnAmount = property.FindPropertyRelative("spawnAmount");
         if (spawnAmount.intValue > 1)
         {
-            multipleSpawnDelayLabelWidth = 120;
+            if (position.width < widthThresholdForShorterLabels)
+            {
+                multipleSpawnDelayLabelWidth = 50;
+            }
+            else
+            {
+                multipleSpawnDelayLabelWidth = 120;
+            }
             remainingWidth = position.width - spawnPatternWidth - spawnAmountLabelWidth - multipleSpawnDelayLabelWidth;
-            spawnAmountWidth = remainingWidth *0.3f;
-            multipleSpawnDelayWidth = remainingWidth * 0.7f;
+            spawnAmountWidth = remainingWidth * 0.3f;
+            if (spawnAmountWidth < 30)
+            {
+                spawnAmountWidth = 30;
+            }
+            multipleSpawnDelayWidth = remainingWidth - spawnAmountWidth;
         }
         // Spawn amount
         Rect spawnAmountLabelRect = new Rect(position.x + spawnAmountLabelLeftPadding, position.y, spawnAmountLabelWidth - spawnAmountLabelLeftPadding, EditorGUIUtility.singleLineHeight);
-        EditorGUI.LabelField(spawnAmountLabelRect, new GUIContent("Amount of bugs:", "How many bugs are spawned at the same time"));
+        EditorGUI.LabelField(spawnAmountLabelRect, new GUIContent((position.width < widthThresholdForShorterLabels) ? "Amount:" : "Amount of bugs:", "How many bugs are spawned at the same time"));
         Rect spawnAmountRect = new Rect(position.x + spawnAmountLabelWidth, position.y, spawnAmountWidth, EditorGUIUtility.singleLineHeight);
         EditorGUI.PropertyField(spawnAmountRect, property.FindPropertyRelative("spawnAmount"), GUIContent.none);
         position.x += spawnAmountLabelWidth + spawnAmountWidth;
@@ -58,7 +90,7 @@ public class SpawnPatternDrawer : PropertyDrawer
         {
             // multipleSpawnDelay
             Rect multipleSpawnDelayLabelRect = new Rect(position.x + multipleSpawnDelayLabelLeftPadding, position.y, multipleSpawnDelayLabelWidth - multipleSpawnDelayLabelLeftPadding, EditorGUIUtility.singleLineHeight);
-            EditorGUI.LabelField(multipleSpawnDelayLabelRect, new GUIContent("Delay btw spawns:", "Delay in seconds between two spawns of that bug(s)"));
+            EditorGUI.LabelField(multipleSpawnDelayLabelRect, new GUIContent((position.width < widthThresholdForShorterLabels) ? "Delay:" : "Delay btw spawns:", "Delay in seconds between two spawns of that bug(s)"));
             Rect multipleSpawnDelayRect = new Rect(position.x + multipleSpawnDelayLabelWidth, position.y, multipleSpawnDelayWidth, EditorGUIUtility.singleLineHeight);
             EditorGUI.PropertyField(multipleSpawnDelayRect, property.FindPropertyRelative("multipleSpawnDelay"), GUIContent.none);
         }
@@ -127,9 +159,18 @@ public class SpawnPatternDrawer : PropertyDrawer
             // Shape centered on frog? (boolean)
             if (spawnShapeTypeProperty.enumValueFlag != (int)SpawnShape.STRAIGHT_LINE && spawnShapeTypeProperty.enumValueFlag != (int)SpawnShape.WAVE_LINE && spawnShapeTypeProperty.enumValueFlag != (int)SpawnShape.NONE)
             {
-                Rect shapeCenteredOnFrogLabelRect = new Rect(position.x + 50 + spawnShapeWidth + 10, position.y, 130, EditorGUIUtility.singleLineHeight);
-                EditorGUI.LabelField(shapeCenteredOnFrogLabelRect, new GUIContent("Centered on frog:"));
-                Rect shapeCenteredOnFrogRect = new Rect(position.x + 50 + spawnShapeWidth + 130, position.y, 100, EditorGUIUtility.singleLineHeight);
+                float shapeCenteredOnFrogLabelWidth;
+                if (position.width < widthThresholdForShorterLabels)
+                {
+                    shapeCenteredOnFrogLabelWidth = 75;
+                }
+                else
+                {
+                    shapeCenteredOnFrogLabelWidth = 120;
+                }
+                Rect shapeCenteredOnFrogLabelRect = new Rect(position.x + 50 + spawnShapeWidth + 10, position.y, shapeCenteredOnFrogLabelWidth, EditorGUIUtility.singleLineHeight);
+                EditorGUI.LabelField(shapeCenteredOnFrogLabelRect, new GUIContent((position.width < widthThresholdForShorterLabels) ? "Centered:" : "Centered on frog:"));
+                Rect shapeCenteredOnFrogRect = new Rect(position.x + 50 + spawnShapeWidth + shapeCenteredOnFrogLabelWidth, position.y, 100, EditorGUIUtility.singleLineHeight);
                 EditorGUI.PropertyField(shapeCenteredOnFrogRect, shapeCenteredOnFrogProperty, GUIContent.none);
             }
 
@@ -401,10 +442,20 @@ public class EnemyMovePatternDrawer : PropertyDrawer
     // Draw the property inside the given rect
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
+        float widthThresholdForShorterLabels = 450;
+
         // Using BeginProperty / EndProperty on the parent property means that prefab override logic works on the entire property.
         EditorGUI.BeginProperty(position, label, property);
 
-        float movePatternWidth = 200;
+        float movePatternWidth;
+        if (position.width < widthThresholdForShorterLabels)
+        {
+            movePatternWidth = 120;
+        }
+        else
+        {
+            movePatternWidth = 200;
+        }
 
         float speedFactorLabelWidth = 0;
         float speedFactorLabelPadding = 0;
@@ -476,11 +527,21 @@ public class EnemySpawnDrawer : PropertyDrawer
     // Draw the property inside the given rect
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
+        float widthThresholdForShorterLabels = 460;
+
         // Using BeginProperty / EndProperty on the parent property means that prefab override logic works on the entire property.
         EditorGUI.BeginProperty(position, label, property);
 
         // Line 1: Enemy type + Tier
-        float enemyTypeWidth = 210;
+        float enemyTypeWidth;
+        if (position.width < widthThresholdForShorterLabels)
+        {
+            enemyTypeWidth = 130;
+        }
+        else
+        {
+            enemyTypeWidth = 210;
+        }
         float tierFormulaLabelWidth = 60;
         float tierFormulaLabelPadding = 5;
         // Enemy type (enum)
@@ -512,7 +573,15 @@ public class EnemySpawnDrawer : PropertyDrawer
         // Line 3: Delay between spawns
         // Spawn label
         float spawnLabelWidth = 100;
-        float spawnCooldownUnitLabelWidth = 50;
+        float spawnCooldownUnitLabelWidth;
+        if (position.width < widthThresholdForShorterLabels-10)
+        {
+            spawnCooldownUnitLabelWidth = 10;
+        }
+        else
+        {
+            spawnCooldownUnitLabelWidth = 50;
+        }
         Rect spawnLabelRect = new Rect(position.x, position.y, spawnLabelWidth, EditorGUIUtility.singleLineHeight);
         EditorGUI.LabelField(spawnLabelRect, new GUIContent("Spawn every:"));
         // Spawn cooldown
@@ -521,7 +590,7 @@ public class EnemySpawnDrawer : PropertyDrawer
         EditorGUI.PropertyField(spawnCooldownRect, property.FindPropertyRelative("spawnCooldown"), GUIContent.none);
         // Unit Label
         Rect spawnCooldownUnitLabelRect = new Rect(position.x + spawnLabelWidth + spawnCooldownWidth, position.y, spawnCooldownUnitLabelWidth, EditorGUIUtility.singleLineHeight);
-        EditorGUI.LabelField(spawnCooldownUnitLabelRect, new GUIContent("seconds"));
+        EditorGUI.LabelField(spawnCooldownUnitLabelRect, new GUIContent((position.width < widthThresholdForShorterLabels-10) ? "s" : "seconds"));
 
         // Next line
         position.y += EditorGUIUtility.singleLineHeight;
