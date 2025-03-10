@@ -857,8 +857,10 @@ public class WaveDataPropertyDrawer : PropertyDrawer
                 string enemyKey = enemyCount.Key;
                 float enemyCountPerSec = enemyCount.Value;
 
-                Match m = Regex.Match(enemyKey, ".*([1-5])");
-                int tier = int.Parse(m.Groups[1].Value);
+                Match tierMatch = Regex.Match(enemyKey, ".*([1-5])");
+                Match typeMatch = Regex.Match(enemyKey, "(.*)_[1-5]");
+                int tier = int.Parse(tierMatch.Groups[1].Value);
+                string type = typeMatch.Groups[1].Value;
                 // chapter 1: tier 1: 100%
                 // chapter 2: tier 1: 50%
                 // chapter 1: tier 2: 150%
@@ -874,10 +876,23 @@ public class WaveDataPropertyDrawer : PropertyDrawer
                     diffFactor -= (previewChapter - tier) * 0.25f;
                 }
                 diffFactor = Mathf.Clamp(diffFactor, 0.05f, 10);
-                difficulty += (0.035f) * diffFactor * enemyCountPerSec;
 
                 if (enemiesTexturesDictionary.ContainsKey(enemyKey) && enemiesTexturesDictionary[enemyKey] != null)
                 {
+                    // Type of enemy will change difficulty
+                    if (type.Equals("PLANT"))
+                    {
+                        diffFactor *= 0.2f; // Plants don't move
+                    }
+                    else if (type.Equals("MOSQUITO"))
+                    {
+                        diffFactor *= 0.5f; // Mosquitoes have less health and are slower than flies
+                    }
+                    else if (type.Equals("WASP"))
+                    {
+                        diffFactor *= 1.1f; // Wasps have more health than flies and they fly (unlike beetles)
+                    }
+
                     // Picture
                     EditorGUI.DrawPreviewTexture(position, enemiesTexturesDictionary[enemyKey]);
 
@@ -887,6 +902,7 @@ public class WaveDataPropertyDrawer : PropertyDrawer
                     EditorGUI.LabelField(enemyCountPerSecRect, new GUIContent($"{enemyCountPerSec.ToString("0.#")} /s"));
                 }
 
+                difficulty += (0.035f) * diffFactor * enemyCountPerSec;
                 position.x += 60;
             }
 
