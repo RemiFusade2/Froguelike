@@ -147,6 +147,7 @@ public class EnemyInstance
     public ParticleSystem enemyFreezeParticles;
     public ParticleSystem enemyPoisonParticles;
     public ParticleSystem enemyCurseParticles;
+    public ParticleSystem enemyVampireParticles;
 
     // A link to the last weapon that hit this enemy
     public Transform lastWeaponHitTransform;
@@ -174,6 +175,7 @@ public class EnemyInstance
         enemyFreezeParticles = enemyTransform.Find("Freeze Particles").GetComponent<ParticleSystem>();
         enemyPoisonParticles = enemyTransform.Find("Poison Particles").GetComponent<ParticleSystem>();
         enemyCurseParticles = enemyTransform.Find("Curse Particles").GetComponent<ParticleSystem>();
+        enemyVampireParticles = enemyTransform.Find("Vampire Particles").GetComponent<ParticleSystem>();
     }
 
     public void RemovePoison()
@@ -259,6 +261,7 @@ public class EnemyInstance
         enemyCurseParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         enemyFreezeParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         enemyPoisonParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        enemyVampireParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
     }
 }
 
@@ -734,7 +737,7 @@ public class EnemiesManager : MonoBehaviour
                     float spawnShapeCircleArcEndAngle = spawnPattern.circleArcEndAngle; // Angle = 0 means aligned with vector 'frog to spawn'
                     // Shape SPIRAL settings
                     float spawnShapeSpiralStartRadius = spawnPattern.spiralStartRadius; // Spiral start radius
-                    float spawnShapeSpiralRadiusIncrease = spawnPattern.spiralRadiusIncreasePerFullRotation; // Spiral radius increase per 360° rotation
+                    float spawnShapeSpiralRadiusIncrease = spawnPattern.spiralRadiusIncreasePerFullRotation; // Spiral radius increase per 360ï¿½ rotation
                     float spawnShapeSpiralStartAngle = spawnPattern.spiralStartAngle; // Spiral start angle
                     float spawnShapeSpiralEndAngle = spawnPattern.spiralEndAngle; // Spiral end angle
                     bool spawnShapeSpiralIsClockwise = spawnPattern.spiralIsClockwise; // Spiral direction
@@ -1330,6 +1333,7 @@ public class EnemiesManager : MonoBehaviour
         }
         return result;
     }
+
     public EnemyInstance GetEnemyInstanceFromGameObjectName(string gameObjectName)
     {
         if (gameObjectName.Equals(pooledEnemyNameStr))
@@ -1650,12 +1654,14 @@ public class EnemiesManager : MonoBehaviour
             damageText.GetComponent<Rigidbody2D>().simulated = true;
             damageText.GetComponent<Rigidbody2D>().velocity = Vector2.up;
 
+            /* TODO can I remove this? /J
             if (applyVampireEffect)
             {
                 // damage is not null and vampire effect is ON
                 vampireEffect = true;
-                damageText.GetComponent<ParticleSystem>().Play();
+                // damageText.GetComponent<ParticleSystem>().Play();
             }
+            */
 
             visibleDamageTexts.Add(damageText);
             StartCoroutine(PutDamageTextIntoPoolAsync(damageText, damageTextLifespanInSeconds));
@@ -1710,9 +1716,10 @@ public class EnemiesManager : MonoBehaviour
             }
         }
 
-        if (vampireEffect)
+        if (applyVampireEffect)
         {
             SetOverlayColor(enemy, vampireOverlayColor, 0.3f);
+            enemy.enemyVampireParticles.Play();
         }
         else if (knockback)
         {
