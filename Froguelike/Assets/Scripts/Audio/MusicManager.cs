@@ -8,7 +8,7 @@ public class MusicManager : MonoBehaviour
 {
     public static MusicManager instance { get; private set; }
 
-    [field: Header("Music")]
+    [field: Header("Music - by Johanna")]
     [field: SerializeField] public EventReference titleMusic { get; private set; }
     [field: SerializeField] public EventReference inRunMusic { get; private set; }
 
