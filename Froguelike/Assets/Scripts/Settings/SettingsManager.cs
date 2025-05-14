@@ -53,18 +53,38 @@ public class SettingsManager : MonoBehaviour
     public Slider SFXSlider;
     public Toggle musicToggle;
     public Slider musicSlider;
+    public Toggle ambienceToggle;
+    public Slider ambienceSlider;
+    public Toggle bugSoundsToggle;
+    public Slider bugSoundsSlider;
 
+    // Remember previous volume when toggling sound off.
     private float previousSFXVolume;
     private float previousMusicVolume;
+    private float previousAmbienceVolume;
+    private float previousBugSoundsVolume;
 
+    // Save values in player prefs.
+    // SFX.
     private bool savedSFXOn;
     private string savedSFXOnKey = "Froguelike SFX on";
     private float savedSFXVolume;
     private string savedSFXVolumeKey = "Froguelike SFX volume";
+    // Music.
     private bool savedMusicOn;
     private string savedMusicOnKey = "Froguelike music on";
     private float savedMusicVolume;
     private string savedMusicVolumeKey = "Froguelike music volume";
+    // Ambience.
+    private bool savedAmbienceOn;
+    private string savedAmbienceOnKey = "Froguelike ambience on";
+    private float savedAmbienceVolume;
+    private string savedAmbienceVolumeKey = "Froguelike ambience volume";
+    // Bug sounds.
+    private bool savedBugSoundsOn;
+    private string savedBugSoundsOnKey = "Froguelike bug sounds on";
+    private float savedBugSoundsVolume;
+    private string savedBugSoundsVolumeKey = "Froguelike bug sounds volume";
 
     #endregion Sound
 
@@ -160,7 +180,7 @@ public class SettingsManager : MonoBehaviour
             FindAllowedResolutions();
         }
 
-        // Make sure the toggle is displaying correctly.
+        // Make sure the full screen toggle is displaying correctly.
         if ((Screen.fullScreen && !fullscreenToggle.isOn) || (!Screen.fullScreen && fullscreenToggle.isOn))
         {
             if (!isChangingFullscreen)
@@ -356,9 +376,41 @@ public class SettingsManager : MonoBehaviour
             musicSlider.SetValueWithoutNotify(previousMusicVolume);
         }
         musicToggle.isOn = savedMusicOn;
+
+        // Ambience.
+        savedAmbienceOn = PlayerPrefs.GetInt(savedAmbienceOnKey, 1) == 1;
+        if (savedAmbienceOn)
+        {
+            savedAmbienceVolume = PlayerPrefs.GetFloat(savedAmbienceVolumeKey);
+            SetAmbienceVolume(savedAmbienceVolume);
+            ambienceSlider.SetValueWithoutNotify(savedAmbienceVolume);
+        }
+        else
+        {
+            previousAmbienceVolume = PlayerPrefs.GetFloat(savedAmbienceVolumeKey);
+            ambienceSlider.SetValueWithoutNotify(previousAmbienceVolume);
+        }
+        ambienceToggle.isOn = savedAmbienceOn;
+
+        // Bug sounds.
+        savedBugSoundsOn = PlayerPrefs.GetInt(savedBugSoundsOnKey, 1) == 1;
+        if (savedBugSoundsOn)
+        {
+            savedBugSoundsVolume = PlayerPrefs.GetFloat(savedBugSoundsVolumeKey);
+            SetBugSoundsVolume(savedBugSoundsVolume);
+            bugSoundsSlider.SetValueWithoutNotify(savedBugSoundsVolume);
+        }
+        else
+        {
+            previousBugSoundsVolume = PlayerPrefs.GetFloat(savedBugSoundsVolumeKey);
+            bugSoundsSlider.SetValueWithoutNotify(previousBugSoundsVolume);
+        }
+        bugSoundsToggle.isOn = savedBugSoundsOn;
     }
 
-    // Turns SFX on with true, turns sound of with false.
+    #region Setters
+
+    // Turns SFX on with true, turns SFX of with false.
     public void SFXOn(bool on)
     {
         PlayerPrefs.SetInt(savedSFXOnKey, on ? 1 : 0);
@@ -386,7 +438,7 @@ public class SettingsManager : MonoBehaviour
         SoundManager.instance.MuteSFXBus(!on);
     }
 
-    // Turns music on with true, turns sound of with false.
+    // Turns music on with true, turns music of with false.
     public void MusicOn(bool on)
     {
         PlayerPrefs.SetInt(savedMusicOnKey, on ? 1 : 0);
@@ -412,6 +464,62 @@ public class SettingsManager : MonoBehaviour
         }
 
         SoundManager.instance.MuteMusicBus(!on);
+    }
+
+    // Turns ambience on with true, turns ambience of with false.
+    public void AmbienceOn(bool on)
+    {
+        PlayerPrefs.SetInt(savedAmbienceOnKey, on ? 1 : 0);
+
+        if (on)
+        {
+            SetAmbienceVolume(previousAmbienceVolume);
+            ambienceSlider.SetValueWithoutNotify(previousAmbienceVolume);
+        }
+        else
+        {
+            if (ambienceSlider.value == ambienceSlider.minValue)
+            {
+                previousAmbienceVolume = ambienceSlider.maxValue / 2;
+            }
+            else
+            {
+                previousAmbienceVolume = ambienceSlider.value;
+                ambienceSlider.SetValueWithoutNotify(ambienceSlider.minValue);
+            }
+
+            PlayerPrefs.SetFloat(savedAmbienceVolumeKey, previousAmbienceVolume);
+        }
+
+        SoundManager.instance.MuteAmbienceBus(!on);
+    }
+
+    // Turns bug sounds on with true, turns bug sounds of with false.
+    public void BugSoundsOn(bool on)
+    {
+        PlayerPrefs.SetInt(savedBugSoundsOnKey, on ? 1 : 0);
+
+        if (on)
+        {
+            SetBugSoundsVolume(previousBugSoundsVolume);
+            bugSoundsSlider.SetValueWithoutNotify(previousBugSoundsVolume);
+        }
+        else
+        {
+            if (bugSoundsSlider.value == bugSoundsSlider.minValue)
+            {
+                previousBugSoundsVolume = bugSoundsSlider.maxValue / 2;
+            }
+            else
+            {
+                previousBugSoundsVolume = bugSoundsSlider.value;
+                bugSoundsSlider.SetValueWithoutNotify(bugSoundsSlider.minValue);
+            }
+
+            PlayerPrefs.SetFloat(savedBugSoundsVolumeKey, previousBugSoundsVolume);
+        }
+
+        SoundManager.instance.MuteBugSoundsBus(!on);
     }
 
     // Sets volume and updates the check box if necessary.
@@ -469,6 +577,64 @@ public class SettingsManager : MonoBehaviour
 
         SoundManager.instance.SetNewMusicVolume(newVolume);
     }
+
+    // Sets volume and updates the check box if necessary.
+    public void SetAmbienceVolume(float volume)
+    {
+        PlayerPrefs.SetFloat(savedAmbienceVolumeKey, volume);
+
+        float newVolume = volume / ambienceSlider.maxValue * 2;
+
+        if (newVolume == ambienceSlider.minValue)
+        {
+            if (ambienceToggle.isOn)
+            {
+                ambienceToggle.SetIsOnWithoutNotify(false);
+                AmbienceOn(false);
+            }
+        }
+        else if (newVolume > 0)
+        {
+            if (!ambienceToggle.isOn)
+            {
+                ambienceToggle.SetIsOnWithoutNotify(true);
+                PlayerPrefs.SetInt(savedAmbienceOnKey, 1);
+                SoundManager.instance.MuteAmbienceBus(false);
+            }
+        }
+
+        SoundManager.instance.SetNewAmbienceVolume(newVolume);
+    }
+
+    // Sets volume and updates the check box if necessary.
+    public void SetBugSoundsVolume(float volume)
+    {
+        PlayerPrefs.SetFloat(savedBugSoundsVolumeKey, volume);
+
+        float newVolume = volume / bugSoundsSlider.maxValue * 2;
+
+        if (newVolume == bugSoundsSlider.minValue)
+        {
+            if (bugSoundsToggle.isOn)
+            {
+                bugSoundsToggle.SetIsOnWithoutNotify(false);
+                BugSoundsOn(false);
+            }
+        }
+        else if (newVolume > 0)
+        {
+            if (!bugSoundsToggle.isOn)
+            {
+                bugSoundsToggle.SetIsOnWithoutNotify(true);
+                PlayerPrefs.SetInt(savedBugSoundsOnKey, 1);
+                SoundManager.instance.MuteBugSoundsBus(false);
+            }
+        }
+
+        SoundManager.instance.SetNewBugSoundsVolume(newVolume);
+    }
+
+    #endregion Setters
 
     #endregion Sound
 
