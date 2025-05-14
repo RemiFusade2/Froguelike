@@ -811,6 +811,7 @@ public class RunManager : MonoBehaviour
         GameManager.instance.SetTimeScale(0);
         MusicManager.instance.StopMusic();
         MusicManager.instance.PlayTitleMusic();
+        SoundManager.instance.StopPondAmbience();
         SoundManager.instance.PauseInGameLoopedSFX();
 
         // Check if this is a win
@@ -1050,8 +1051,9 @@ public class RunManager : MonoBehaviour
         // Show current total kill count
         SetEatenCount(GetTotalKillCount());
 
-        // Play level music
+        // Play level music and ambience
         MusicManager.instance.PlayRunMusic();
+        SoundManager.instance.StartPondAmbience();
 
         // Fade out chapter start screen
         float fadeOutDelay = 0.4f;
