@@ -513,7 +513,7 @@ public class EnemiesManager : MonoBehaviour
             spawnDirection = playerMoveDirection;
         }
         Vector2 spawnCenter = playerPosition + spawnDirection * spawnCenterDistanceToPlayer;
-        
+
         // Attemp to find a valid spawn point. Loop and try again until it works.
         bool spawnPositionIsValid = false;
         int loopAttemptCount = findSpawnPositionMaxAttempts;
@@ -523,8 +523,8 @@ public class EnemiesManager : MonoBehaviour
             // Get a random point in the spawn circle
             spawnPosition = spawnCenter;
 
-            float randomAngle = Random.Range(0, 360.0f) * (loopAttemptCount+1);
-            Vector2 randomVector = new Vector2(Mathf.Cos(randomAngle * Mathf.Deg2Rad), Mathf.Sin(randomAngle * Mathf.Deg2Rad)) * (Random.Range(0.0f, (loopAttemptCount+1)) / (loopAttemptCount+1));
+            float randomAngle = Random.Range(0, 360.0f) * (loopAttemptCount + 1);
+            Vector2 randomVector = new Vector2(Mathf.Cos(randomAngle * Mathf.Deg2Rad), Mathf.Sin(randomAngle * Mathf.Deg2Rad)) * (Random.Range(0.0f, (loopAttemptCount + 1)) / (loopAttemptCount + 1));
             spawnPosition += new Vector3(randomVector.x, randomVector.y) * actualSpawnCircleRadius;
 
             loopAttemptCount--;
@@ -671,7 +671,7 @@ public class EnemiesManager : MonoBehaviour
         {
             // TODO: remove log
             string log = $"TrySpawnWave from chapter {RunManager.instance.currentChapter.chapterID}. Current wave is {currentWave.ToString()}";
-            bool showLog = false; 
+            bool showLog = false;
 
             // Here's a table to describe the figurine curse:
             // - Curse -100% =  Spawn halved     =  Spawn cooldown doubled (delay factor = 2) 
@@ -755,7 +755,7 @@ public class EnemiesManager : MonoBehaviour
                     int spawnShapePolygonNumberOfSides = spawnPattern.shapePolygonNumberOfSides; // Only for SpawnShape of type POLYGON
                     // Shape SPRITE setting
                     Sprite spawnShapeSprite = spawnPattern.shapeSprite; // Only for SpawnShape of type SPRITE
-                                        
+
                     float currentDelay = 0;
                     Vector3 spawnPosition = Vector3.zero;
 
@@ -807,12 +807,12 @@ public class EnemiesManager : MonoBehaviour
                                     // If GetSpawnPosition didn't give a position, then we'll take the furthest one possible with current parameters
                                     if (spawnOverrideDefaultSpawnPosition)
                                     {
-                                        shapePositionRelativeToFrog = new Vector3(Mathf.Cos(spawnPositionAngle * Mathf.Deg2Rad), Mathf.Sin(spawnPositionAngle * Mathf.Deg2Rad)) * (minSpawnDistanceFromPlayer + spawnPositionSpread*2);
+                                        shapePositionRelativeToFrog = new Vector3(Mathf.Cos(spawnPositionAngle * Mathf.Deg2Rad), Mathf.Sin(spawnPositionAngle * Mathf.Deg2Rad)) * (minSpawnDistanceFromPlayer + spawnPositionSpread * 2);
                                     }
                                     else
                                     {
                                         float randomAngle = Random.Range(0, 360.0f);
-                                        shapePositionRelativeToFrog = new Vector3(Mathf.Cos(randomAngle * Mathf.Deg2Rad), Mathf.Sin(randomAngle * Mathf.Deg2Rad)) * (minSpawnDistanceFromPlayer + spawnPositionSpread*2);
+                                        shapePositionRelativeToFrog = new Vector3(Mathf.Cos(randomAngle * Mathf.Deg2Rad), Mathf.Sin(randomAngle * Mathf.Deg2Rad)) * (minSpawnDistanceFromPlayer + spawnPositionSpread * 2);
                                     }
                                 }
                             }
@@ -849,7 +849,7 @@ public class EnemiesManager : MonoBehaviour
                                     else
                                     {
                                         // If shape is not centered on frog, we want to make sure it spawns far enough so no part of the circle is visible
-                                        shapePositionRelativeToFrog += ((shapePositionRelativeToFrog.normalized) * (circleArcRadius/2));
+                                        shapePositionRelativeToFrog += ((shapePositionRelativeToFrog.normalized) * (circleArcRadius / 2));
                                     }
 
                                     for (int spawnCount = 0; spawnCount < spawnBugsAmount; spawnCount++)
@@ -1022,8 +1022,8 @@ public class EnemiesManager : MonoBehaviour
                                     int bugAmountOnOneSide = spawnBugsAmount / spawnShapePolygonNumberOfSides;
                                     for (int polygonSideCount = 0; polygonSideCount < spawnShapePolygonNumberOfSides; polygonSideCount++)
                                     {
-                                        Vector3 polygonLineStartPosition = new Vector3 ( spawnShapePolygonOrSpriteRadius * Mathf.Cos(polygonAngle * Mathf.Deg2Rad + 2 * Mathf.PI * polygonSideCount / spawnShapePolygonNumberOfSides) + shapePositionRelativeToFrog.x, spawnShapePolygonOrSpriteRadius * Mathf.Sin(polygonAngle * Mathf.Deg2Rad + 2 * Mathf.PI * polygonSideCount / spawnShapePolygonNumberOfSides) + shapePositionRelativeToFrog.y);
-                                        Vector3 polygonLineEndPosition = new Vector3(spawnShapePolygonOrSpriteRadius * Mathf.Cos(polygonAngle * Mathf.Deg2Rad + 2 * Mathf.PI * (polygonSideCount+1) / spawnShapePolygonNumberOfSides) + shapePositionRelativeToFrog.x, spawnShapePolygonOrSpriteRadius * Mathf.Sin(polygonAngle * Mathf.Deg2Rad + 2 * Mathf.PI * (polygonSideCount + 1) / spawnShapePolygonNumberOfSides) + shapePositionRelativeToFrog.y);
+                                        Vector3 polygonLineStartPosition = new Vector3(spawnShapePolygonOrSpriteRadius * Mathf.Cos(polygonAngle * Mathf.Deg2Rad + 2 * Mathf.PI * polygonSideCount / spawnShapePolygonNumberOfSides) + shapePositionRelativeToFrog.x, spawnShapePolygonOrSpriteRadius * Mathf.Sin(polygonAngle * Mathf.Deg2Rad + 2 * Mathf.PI * polygonSideCount / spawnShapePolygonNumberOfSides) + shapePositionRelativeToFrog.y);
+                                        Vector3 polygonLineEndPosition = new Vector3(spawnShapePolygonOrSpriteRadius * Mathf.Cos(polygonAngle * Mathf.Deg2Rad + 2 * Mathf.PI * (polygonSideCount + 1) / spawnShapePolygonNumberOfSides) + shapePositionRelativeToFrog.x, spawnShapePolygonOrSpriteRadius * Mathf.Sin(polygonAngle * Mathf.Deg2Rad + 2 * Mathf.PI * (polygonSideCount + 1) / spawnShapePolygonNumberOfSides) + shapePositionRelativeToFrog.y);
 
                                         StartCoroutine(SpawnLineOfEnemiesAsync(polygonLineStartPosition, polygonLineEndPosition, enemyPrefab, bugAmountOnOneSide, enemyData, enemySpawn.movePattern, currentWave, spawnPattern, currentDelay, spawnMultipleDelayBetweenSpawns, difficultyTier,
                                                 forceMovementDirection: forceMovementDirection, moveDirection: movementDirection));
@@ -1215,7 +1215,7 @@ public class EnemiesManager : MonoBehaviour
     {
         // Get an enemy from the pool
         EnemyInstance enemyFromPool = DequeueEnemyInstance(recyclingAllowed: true);
-                
+
         if (enemyFromPool != null)
         {
             enemyFromPool.enemyAnimator.enabled = true;
@@ -1532,7 +1532,6 @@ public class EnemiesManager : MonoBehaviour
         enemy.HP -= randomizedDamage;
 
         bool knockback = false;
-        bool vampireEffect = false;
 
         float visualDamageAmount = randomizedDamage * 10;
         int visualDamageAmountInt = Mathf.RoundToInt(visualDamageAmount);
@@ -1552,7 +1551,7 @@ public class EnemiesManager : MonoBehaviour
             int randomMultiplier = Random.Range(2, 9);
             damageAmountStr =  $"{visualDamageAmountInt * randomMultiplier}\n-\n{randomMultiplier+1}";*/
 
-                                    damageTMPScript.text = damageAmountStr;
+            damageTMPScript.text = damageAmountStr;
 
             // Font settings
             TMP_FontAsset currentFontAsset = SettingsManager.instance.GetCurrentFontAsset();
@@ -1653,15 +1652,6 @@ public class EnemiesManager : MonoBehaviour
             damageText.GetComponent<MeshRenderer>().enabled = true;
             damageText.GetComponent<Rigidbody2D>().simulated = true;
             damageText.GetComponent<Rigidbody2D>().velocity = Vector2.up;
-
-            /* TODO can I remove this? /J
-            if (applyVampireEffect)
-            {
-                // damage is not null and vampire effect is ON
-                vampireEffect = true;
-                // damageText.GetComponent<ParticleSystem>().Play();
-            }
-            */
 
             visibleDamageTexts.Add(damageText);
             StartCoroutine(PutDamageTextIntoPoolAsync(damageText, damageTextLifespanInSeconds));
