@@ -119,6 +119,8 @@ public class SettingsManager : MonoBehaviour
     // Various private variables.
     private Vector2Int biggestResolutionForThisScreen;
     private List<Vector2Int> allowedResolutions;
+    private bool resFixDone = false;
+    private bool changeResBack = false;
 
     int gameWidth;
     int gameHeight;
@@ -200,6 +202,12 @@ public class SettingsManager : MonoBehaviour
         {
             ResizeCanvas();
             resolutionScrollRect.UpdateScroll(false, pixelPerfectCamera.pixelRatio);
+        }
+
+        // Makes sure the thintel font show up when not playing in fullscreen on mac.
+        if (Application.platform == RuntimePlatform.OSXPlayer && !resFixDone)
+        {
+            SetResAtStart();
         }
     }
 
@@ -764,6 +772,33 @@ public class SettingsManager : MonoBehaviour
         }
 
         fontsScrollRect.Initialize(listOfFonts, listOfFontNames, currentFontIndex);
+    }
+
+    // Fixes a bug that made the pixel font dissapear when starting the game not in fullscreen on mac, is only called if the application is running on mac.
+    private void SetResAtStart()
+    {
+        if (!Screen.fullScreen)
+        {
+            Vector2Int currentRes = allowedResolutions[Mathf.Max(currentResolutionIndex, 0)];
+
+            if (!changeResBack)
+            {
+                Screen.SetResolution(currentRes.x + 1, currentRes.y + 1, false);
+            }
+            else
+            {
+                Screen.SetResolution(currentRes.x, currentRes.y, false);
+            }
+        }
+
+        if (changeResBack)
+        {
+            resFixDone = true;
+        }
+        else
+        {
+            changeResBack = true;
+        }
     }
 
     #endregion Font
