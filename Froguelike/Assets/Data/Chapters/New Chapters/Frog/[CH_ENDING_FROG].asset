@@ -14,8 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chapterID: '[CH_ENDING_FROG]'
   partOfDemo: 0
-  chapterTitle: '[Chapter title]'
-  chapterLore: []
+  chapterTitle: The good ol'days
+  chapterLore:
+  - '"Ah, like the good ol'' days" [FROGNAME] sighed as they realised they only had
+    pink tongues and none of the new cool and hop colored tongues.\n"It was such
+    a different time in the pond before <color=#2b8d38>Frogue<color=#18191F> came.
+    Back then there was nothing out of the ordinary going on... the bugs were all
+    easy to eat and tongues only came in pink..." [FROGNAME] remembered and drifted
+    off into the memories.'
   icons: []
   startingStatBonuses:
     statsList: []
@@ -43,23 +49,6 @@ MonoBehaviour:
       minDistanceFromSpawn: 0
       maxDistanceFromSpawn: 0
       direction: 0
-    - conditionType: 6
-      not: 0
-      chapterData: {fileID: 0}
-      chapterDataMustBeLatestChapterPlayed: 0
-      minChapterCount: 0
-      maxChapterCount: 0
-      environmentType: 0
-      hatType: 0
-      friendType: 0
-      itemName: {fileID: 11400000, guid: 666b84c50932af543890f0677aa1d806, type: 2}
-      characterData: {fileID: 11400000, guid: e12bbdd99d50ae74ba6dbf789aa002a8, type: 2}
-      minFriendsCount: 0
-      maxFriendsCount: 0
-      minBountiesEaten: 0
-      minDistanceFromSpawn: 0
-      maxDistanceFromSpawn: 0
-      direction: 0
     - conditionType: 2
       not: 0
       chapterData: {fileID: 0}
@@ -78,15 +67,15 @@ MonoBehaviour:
       maxDistanceFromSpawn: 0
       direction: 0
     - conditionType: 6
-      not: 0
+      not: 1
       chapterData: {fileID: 0}
       chapterDataMustBeLatestChapterPlayed: 0
-      minChapterCount: 5
-      maxChapterCount: 5
+      minChapterCount: 0
+      maxChapterCount: 0
       environmentType: 0
       hatType: 0
       friendType: 0
-      itemName: {fileID: 11400000, guid: 9cd37b61c1dc1f24b8dda62c82e9e30d, type: 2}
+      itemName: {fileID: 11400000, guid: bd862a3f1f9f5c841bcc4f7d9e387077, type: 2}
       characterData: {fileID: 11400000, guid: e12bbdd99d50ae74ba6dbf789aa002a8, type: 2}
       minFriendsCount: 0
       maxFriendsCount: 0
@@ -95,7 +84,7 @@ MonoBehaviour:
       maxDistanceFromSpawn: 0
       direction: 0
     - conditionType: 6
-      not: 0
+      not: 1
       chapterData: {fileID: 0}
       chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 5
@@ -103,7 +92,7 @@ MonoBehaviour:
       environmentType: 0
       hatType: 0
       friendType: 0
-      itemName: {fileID: 11400000, guid: 1d461e1ba47e0984b97054a164db53c0, type: 2}
+      itemName: {fileID: 11400000, guid: 03ebd73d86878fb4490905d7ba754ba8, type: 2}
       characterData: {fileID: 11400000, guid: e12bbdd99d50ae74ba6dbf789aa002a8, type: 2}
       minFriendsCount: 0
       maxFriendsCount: 0
@@ -112,7 +101,7 @@ MonoBehaviour:
       maxDistanceFromSpawn: 0
       direction: 0
     - conditionType: 6
-      not: 0
+      not: 1
       chapterData: {fileID: 0}
       chapterDataMustBeLatestChapterPlayed: 0
       minChapterCount: 5
@@ -120,7 +109,41 @@ MonoBehaviour:
       environmentType: 0
       hatType: 0
       friendType: 0
-      itemName: {fileID: 11400000, guid: 2d9a038d7a0d598459693e935d87c88c, type: 2}
+      itemName: {fileID: 11400000, guid: 190382d4fe184964894da4982575bbf2, type: 2}
+      characterData: {fileID: 11400000, guid: e12bbdd99d50ae74ba6dbf789aa002a8, type: 2}
+      minFriendsCount: 0
+      maxFriendsCount: 0
+      minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
+    - conditionType: 6
+      not: 1
+      chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
+      minChapterCount: 5
+      maxChapterCount: 5
+      environmentType: 0
+      hatType: 0
+      friendType: 0
+      itemName: {fileID: 11400000, guid: 50cb09bf0cf0cb14789cb0d5c4924205, type: 2}
+      characterData: {fileID: 11400000, guid: e12bbdd99d50ae74ba6dbf789aa002a8, type: 2}
+      minFriendsCount: 0
+      maxFriendsCount: 0
+      minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
+    - conditionType: 6
+      not: 1
+      chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
+      minChapterCount: 5
+      maxChapterCount: 5
+      environmentType: 0
+      hatType: 0
+      friendType: 0
+      itemName: {fileID: 11400000, guid: 137040d8e57e0e24090e05a872030015, type: 2}
       characterData: {fileID: 11400000, guid: e12bbdd99d50ae74ba6dbf789aa002a8, type: 2}
       minFriendsCount: 0
       maxFriendsCount: 0
@@ -132,8 +155,8 @@ MonoBehaviour:
     countType: 0
     maxDistance: 0
     goal: 0
-  rocksSpawnFrequency: 0
-  pondsSpawnFrequency: 0
+  rocksSpawnFrequency: 2
+  pondsSpawnFrequency: 2
   coinsSpawnFrequency: 0
   healthSpawnFrequency: 0
   levelUpSpawnFrequency: 0
@@ -141,6 +164,21 @@ MonoBehaviour:
   specialCollectiblesOnTheMap: []
   environmentChange: 0
   characterStyleChange: 0
-  wavesList: []
+  wavesList:
+  - duration: 60
+    enemies: []
+    previewChapters: 01000000
+  - duration: 60
+    enemies: []
+    previewChapters: 01000000
+  - duration: 60
+    enemies: []
+    previewChapters: 01000000
+  - duration: 60
+    enemies: []
+    previewChapters: 01000000
+  - duration: 60
+    enemies: []
+    previewChapters: 01000000
   bountyBugs: []
   weightChanges: []

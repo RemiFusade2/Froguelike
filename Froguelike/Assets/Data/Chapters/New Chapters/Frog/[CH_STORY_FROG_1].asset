@@ -1,0 +1,147 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bad41dd93f187774b8bdbe4c23a9cc6f, type: 3}
+  m_Name: '[CH_STORY_FROG_1]'
+  m_EditorClassIdentifier: 
+  chapterID: '[CH_STORY_FROG_1]'
+  partOfDemo: 0
+  chapterTitle: Not the good ol'days
+  chapterLore:
+  - Once upon a time the pond had not yet seen such things as colored tongues and
+    quirky special bugs. It was the time before <color=#2b8d38>Frogue<color=#18191F>.\n\nBut
+    one day everything changed!\nThe first sign of <color=#2b8d38>Frogue<color=#18191F>
+    was the arrival of the hungry friends. They travelled in big groups and came
+    hopping for some party food as soon as they sensed that a party-bug had been
+    eaten.
+  icons: []
+  startingStatBonuses:
+    statsList: []
+  chapterLengthInSeconds: 300
+  freezeDurationMultiplier: 1
+  startingUnlockState: 0
+  startingWeight: 1
+  canBePlayedMultipleTimesInOneRun: 0
+  conditions:
+  - conditionsList:
+    - conditionType: 0
+      not: 0
+      chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
+      minChapterCount: 0
+      maxChapterCount: 0
+      environmentType: 0
+      hatType: 0
+      friendType: 0
+      itemName: {fileID: 0}
+      characterData: {fileID: 0}
+      minFriendsCount: 0
+      maxFriendsCount: 0
+      minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
+    - conditionType: 2
+      not: 0
+      chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
+      minChapterCount: 1
+      maxChapterCount: 1
+      environmentType: 0
+      hatType: 0
+      friendType: 0
+      itemName: {fileID: 0}
+      characterData: {fileID: 0}
+      minFriendsCount: 0
+      maxFriendsCount: 0
+      minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
+    - conditionType: 7
+      not: 0
+      chapterData: {fileID: 0}
+      chapterDataMustBeLatestChapterPlayed: 0
+      minChapterCount: 1
+      maxChapterCount: 1
+      environmentType: 0
+      hatType: 0
+      friendType: 0
+      itemName: {fileID: 0}
+      characterData: {fileID: 11400000, guid: e12bbdd99d50ae74ba6dbf789aa002a8, type: 2}
+      minFriendsCount: 0
+      maxFriendsCount: 0
+      minBountiesEaten: 0
+      minDistanceFromSpawn: 0
+      maxDistanceFromSpawn: 0
+      direction: 0
+  nextChapterConditionCount:
+    countType: 0
+    maxDistance: 0
+    goal: 0
+  rocksSpawnFrequency: 2
+  pondsSpawnFrequency: 2
+  coinsSpawnFrequency: 0
+  healthSpawnFrequency: 0
+  levelUpSpawnFrequency: 0
+  otherCollectibleSpawnFrequenciesList:
+  - Type: 8
+    Frequency: 3
+  specialCollectiblesOnTheMap:
+  - tileCoordinates: {x: 3, y: 1}
+    tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
+    collectibleName: Hoppis
+    collectibleDescription: She is ready to party!
+    collectibleType: 3
+    forceAcceptType: 0
+    collectibleStatItemData: {fileID: 0}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 0
+    foundCollectibleTitle: You meet
+    acceptCollectibleStr: Join us!
+    refuseCollectibleStr: Bye
+    compassLevel: 1
+  - tileCoordinates: {x: -7, y: 7}
+    tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
+    collectibleName: Boll
+    collectibleDescription: He is ready to party!
+    collectibleType: 3
+    forceAcceptType: 0
+    collectibleStatItemData: {fileID: 0}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 0
+    foundCollectibleTitle: You meet
+    acceptCollectibleStr: Join us!
+    refuseCollectibleStr: Bye
+    compassLevel: 2
+  - tileCoordinates: {x: 5, y: -2}
+    tilePrefab: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
+    collectibleName: Nala
+    collectibleDescription: They are ready to party!
+    collectibleType: 3
+    forceAcceptType: 0
+    collectibleStatItemData: {fileID: 0}
+    collectibleWeaponItemData: {fileID: 0}
+    collectibleHatType: 0
+    collectibleFriendType: 0
+    foundCollectibleTitle: You meet
+    acceptCollectibleStr: Join us!
+    refuseCollectibleStr: Bye
+    compassLevel: 3
+  environmentChange: 0
+  characterStyleChange: 0
+  wavesList: []
+  bountyBugs: []
+  weightChanges:
+  - chapter: {fileID: 11400000, guid: cca03f44cce1dae47be0ee8dda184b8a, type: 2}
+    weightChange: 10000
