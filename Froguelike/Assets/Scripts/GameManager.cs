@@ -314,10 +314,13 @@ public class GameManager : MonoBehaviour
                 break;
             case RewardFeatureType.TOAD_BUFF:
                 CharacterManager.instance.SetCharacterStoryCompleted("TOAD");
-                //CharacterManager.instance.IncrementCharacterStats("TOAD", new List<StatValue>() { new StatValue(CharacterStat.ARMOR, 2) }); // TODO decide on amount.
+                //CharacterManager.instance.IncrementCharacterStats("TOAD", new List<StatValue>() { new StatValue(CharacterStat.ARMOR, 2) });
                 break;
             case RewardFeatureType.KERMIT_BUFF:
                 CharacterManager.instance.SetCharacterStoryCompleted("SWIMMING_FROG");
+                break;
+            case RewardFeatureType.FROG_BUFF:
+                CharacterManager.instance.SetCharacterStoryCompleted("CLASSIC_FROG");
                 break;
         }
     }

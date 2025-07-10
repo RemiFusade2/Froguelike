@@ -123,7 +123,8 @@ public enum RewardFeatureType
     RIBBIT_BUFF, // Upgrade Ribbit starting stats. Remove its damage debuff
     STANLEY_BUFF, // Upgrade Stanley starting stats. Starts with 9 lives
     TOAD_BUFF, // Upgrade Toad starting stats. Gives more armor
-    KERMIT_BUFF // Upgrade Kermit starting stats. Gives a XP buff
+    KERMIT_BUFF, // Upgrade Kermit starting stats. Gives a XP buff
+    FROG_BUFF // Upgrade Frogs starting stats. Gives an extra tongue slot
 }
 
 /// <summary>
