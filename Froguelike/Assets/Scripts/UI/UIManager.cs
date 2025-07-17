@@ -46,6 +46,10 @@ public class UIManager : MonoBehaviour
     public GameObject shopScreen;
     private GameObject selectedButtonShopScreen;
 
+    [Header("Chapter Collection Screen")]
+    public GameObject chapterCollectionScreen;
+    public GameObject selectedButtonChapterCollectionScreen;
+
     [Header("Achievements")]
     public GameObject achievementsScreen;
     public GameObject selectedButtonAchievementsScreen;
@@ -507,6 +511,25 @@ public class UIManager : MonoBehaviour
         {
             Debug.Log("UI - Hide Pause screen");
         }
+    }
+
+
+    public void ShowChapterCollection()
+    {
+        SavePreviousSelectedButton();
+        HideAllScreens();
+        titleScreen.SetActive(true);
+        SetScreenInteractability(menuButtonsGroup, false);
+        chapterCollectionScreen.SetActive(true);
+        chapterCollectionScreen.GetComponent<ChapterCollectionScreenBehaviour>().DisplayTOC();
+        SetSelectedButton(selectedButtonChapterCollectionScreen);
+    }
+
+    public void HideChapterCollection()
+    {
+        chapterCollectionScreen.SetActive(false);
+        SetScreenInteractability(menuButtonsGroup, true);
+        SetPreviousSelectedButton();
     }
 
     #region Shop
