@@ -521,7 +521,7 @@ public class UIManager : MonoBehaviour
         titleScreen.SetActive(true);
         SetScreenInteractability(menuButtonsGroup, false);
         chapterCollectionScreen.SetActive(true);
-        chapterCollectionScreen.GetComponent<ChapterCollectionScreenBehaviour>().DisplayTOC();
+        chapterCollectionScreen.GetComponent<ChapterCollectionScreenBehaviour>().DisplayTOC(1);
         SetSelectedButton(selectedButtonChapterCollectionScreen);
     }
 

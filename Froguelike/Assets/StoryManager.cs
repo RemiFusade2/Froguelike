@@ -20,4 +20,19 @@ public class StoryManager : MonoBehaviour
             Destroy(this.gameObject);
         }
     }
+
+    public List<ChapterData> GetListOfChaptersFromListOfStories()
+    {
+        List<ChapterData> listOfChapters = new List<ChapterData> { };
+
+        foreach (Story story in storyScriptableObjectList)
+        {
+            foreach (ChapterData chapter in story.listOfChaptersInStory)
+            {
+                listOfChapters.Add(chapter);
+            }
+        }
+
+        return listOfChapters;
+    }
 }

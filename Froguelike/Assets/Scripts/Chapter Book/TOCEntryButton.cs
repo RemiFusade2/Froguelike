@@ -11,9 +11,9 @@ public class TOCEntryButton : MonoBehaviour, ISelectHandler
     public TextMeshProUGUI titleText;
     public TextMeshProUGUI dotsText;
     public TextMeshProUGUI numberText;
-    public Button TOCEntryButtonGO;
+    public Button TOCEntryButtonComponent;
 
-    public void Initialize(ChapterData chapter, int nrInList, int nrInStory)
+    public void Initialize(ChapterData chapter, int nrInList)
     {
         // Set symbol.
         // "Chapter completed" icon if everything has been found in that chapter + the chapter is not needed in any quest
@@ -47,8 +47,20 @@ public class TOCEntryButton : MonoBehaviour, ISelectHandler
         dotsText.rectTransform.localPosition = new Vector3(dotsXPosition, dotsText.rectTransform.localPosition.y, dotsText.rectTransform.localPosition.z);
     }
 
+    public void InitializeEmpty()
+    {
+        // Hide everything to create an empty entry.
+        // Used for the first TOC spread that has a title at the top of page 1.
+        iconImage.gameObject.SetActive(false);
+        titleText.gameObject.SetActive(false);
+        numberText.gameObject.SetActive(false);
+        dotsText.gameObject.SetActive(false);
+        TOCEntryButtonComponent.interactable = false;
+        TOCEntryButtonComponent.enabled = false;
+    }
+
     public void OnSelect(BaseEventData eventData)
     {
-        SoundManager.instance.PlayButtonSound(TOCEntryButtonGO);
+        SoundManager.instance.PlayButtonSound(TOCEntryButtonComponent);
     }
 }
