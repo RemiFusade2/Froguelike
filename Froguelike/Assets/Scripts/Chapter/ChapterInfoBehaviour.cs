@@ -149,4 +149,9 @@ public class ChapterInfoBehaviour : MonoBehaviour
 
         materialSetUpFinished = true;
     }
+
+    public void DisplayChapterSpreadInCollectionBook()
+    {
+
+    }
 }
