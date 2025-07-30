@@ -494,6 +494,8 @@ MonoBehaviour:
   dotsText: {fileID: 2167282801367620008}
   numberText: {fileID: 4576796496275421276}
   TOCEntryButtonComponent: {fileID: 6238758223926280669}
+  chapterData: {fileID: 0}
+  chapterCollectionScreenBehaviour: {fileID: 0}
 --- !u!114 &5086912541317633655
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -568,13 +570,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
+      - m_Target: {fileID: 5730616096881476784}
+        m_TargetAssemblyTypeName: TOCEntryButton, Assembly-CSharp
+        m_MethodName: OnClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 

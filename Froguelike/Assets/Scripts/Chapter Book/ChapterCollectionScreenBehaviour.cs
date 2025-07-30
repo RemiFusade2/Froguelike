@@ -45,7 +45,31 @@ public class ChapterCollectionScreenBehaviour : MonoBehaviour
         {
             neededNrOfTOCSpreads++;
         }
-        totalNrOfSpreadsNeeded = neededNrOfTOCSpreads + totalNrOfSpreadsNeeded + 1;
+        totalNrOfSpreadsNeeded = neededNrOfTOCSpreads + totalNrOfChapters + 1;
+    }
+
+    // Takes the player back to the Table of Contents spread where the chapter they were viewing is listed.
+    public void PressTOCButton()
+    {
+        if (currentSpreadNr == totalNrOfSpreadsNeeded)
+        {
+            DisplayTOC(1);
+            UIManager.instance.SetSelectedButton(glossaryButton);
+        }
+        else
+        {
+            int chapterIndex = currentSpreadNr - neededNrOfTOCSpreads;
+            int goToTOCSpreadNr = 1;
+            while (chapterIndex - (25 + ((goToTOCSpreadNr - 1) * 26)) > 0)
+            {
+                goToTOCSpreadNr++;
+            }
+
+            DisplayTOC(goToTOCSpreadNr);
+
+            chapterIndex -= (goToTOCSpreadNr - 1) * 26;
+            UIManager.instance.SetSelectedButton(tocEntryParent.GetChild(chapterIndex).GetComponent<Button>());
+        }
     }
 
     public void DisplayTOC(int tocSpread)
@@ -55,6 +79,13 @@ public class ChapterCollectionScreenBehaviour : MonoBehaviour
         chapterSpreadGO.SetActive(false);
         glossarySpreadGO.SetActive(false);
         tableOfContentsGO.SetActive(true);
+        // Activate the right buttons.
+        nextSpreadButton.interactable = true;
+        nextSpreadButton.gameObject.SetActive(true);
+        glossaryButton.interactable = true;
+        glossaryButton.gameObject.SetActive(true);
+        previousTOCButton.interactable = false;
+        previousTOCButton.gameObject.SetActive(false);
 
         // Remove previous entries.
         while (tocEntryParent.childCount > 0)
@@ -82,7 +113,7 @@ public class ChapterCollectionScreenBehaviour : MonoBehaviour
         {
             headerTextGO.SetActive(false);
             nrOfChaptersOnSpread = 26;
-            // Show the "go to previous page" button
+            // Show the "go to previous spread" button
             previousSpreadButton.interactable = true;
             previousSpreadButton.gameObject.SetActive(true);
         }
@@ -95,10 +126,19 @@ public class ChapterCollectionScreenBehaviour : MonoBehaviour
             ChapterData thisChapterData = StoryManager.instance.GetListOfChaptersFromListOfStories()[chapterIndex];
             GameObject tocEntryGO = Instantiate(tocEntryPrefab, tocEntryParent);
             TOCEntryButton tocEntry = tocEntryGO.GetComponent<TOCEntryButton>();
-            tocEntry.Initialize(thisChapterData, chapterIndex + 1);
+            tocEntry.Initialize(thisChapterData, chapterIndex + 1, this);
         }
 
         UpdateButtons(currentSpreadNr);
+    }
+
+    public void PressTOCEntryButton(ChapterData chapterData)
+    {
+        int chapterIndex = StoryManager.instance.GetListOfChaptersFromListOfStories().IndexOf(chapterData);
+        currentSpreadNr = chapterIndex + neededNrOfTOCSpreads + 1;
+        DisplayChapterInfo(chapterIndex);
+
+        UIManager.instance.SetSelectedButton(previousTOCButton);
     }
 
     public void DisplayChapterInfo(int chapterIndex)
@@ -111,8 +151,16 @@ public class ChapterCollectionScreenBehaviour : MonoBehaviour
         tableOfContentsGO.SetActive(false);
         glossarySpreadGO.SetActive(false);
         chapterSpreadGO.SetActive(true);
+        // Activate the right buttons.
+        previousSpreadButton.interactable = true;
+        previousSpreadButton.gameObject.SetActive(true);
         nextSpreadButton.interactable = true;
         nextSpreadButton.gameObject.SetActive(true);
+        glossaryButton.interactable = true;
+        glossaryButton.gameObject.SetActive(true);
+        previousTOCButton.interactable = true;
+        previousTOCButton.gameObject.SetActive(true);
+
         titleText.SetText(chapter.chapterTitle);
 
         UpdateButtons(currentSpreadNr);
@@ -125,8 +173,16 @@ public class ChapterCollectionScreenBehaviour : MonoBehaviour
         tableOfContentsGO.SetActive(false);
         chapterSpreadGO.SetActive(false);
         glossarySpreadGO.SetActive(true);
+
+        // Activate the right buttons.
+        previousSpreadButton.interactable = true;
+        previousSpreadButton.gameObject.SetActive(true);
         nextSpreadButton.interactable = false;
         nextSpreadButton.gameObject.SetActive(false);
+        glossaryButton.interactable = false;
+        glossaryButton.gameObject.SetActive(false);
+        previousTOCButton.interactable = true;
+        previousTOCButton.gameObject.SetActive(true);
         UIManager.instance.SetSelectedButton(previousSpreadButton);
 
         UpdateButtons(currentSpreadNr);

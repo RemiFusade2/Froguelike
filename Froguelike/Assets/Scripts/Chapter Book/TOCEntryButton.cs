@@ -12,19 +12,24 @@ public class TOCEntryButton : MonoBehaviour, ISelectHandler
     public TextMeshProUGUI dotsText;
     public TextMeshProUGUI numberText;
     public Button TOCEntryButtonComponent;
+    public ChapterData chapterData;
+    public ChapterCollectionScreenBehaviour chapterCollectionScreenBehaviour;
 
-    public void Initialize(ChapterData chapter, int nrInList)
+    public void Initialize(ChapterData chapterData, int nrInList, ChapterCollectionScreenBehaviour chapterCollectionScreenBehaviour)
     {
+        this.chapterCollectionScreenBehaviour = chapterCollectionScreenBehaviour;
+        this.chapterData = chapterData;
+
         // Set symbol.
         // "Chapter completed" icon if everything has been found in that chapter + the chapter is not needed in any quest
         iconImage.gameObject.SetActive(false);
 
-        bool thereIsSomethingToUnlockInStoryline = ChapterManager.instance.DoesChapterUnlockAnAchievementOrAnUnplayedChapter(ChapterManager.instance.GetChapterFromID(chapter.chapterID), RunManager.instance.GetChapterCount());
-        thereIsSomethingToUnlockInStoryline |= ChapterManager.instance.DoesChapterContainFixedItemsThatHaveNeverBeenFound(ChapterManager.instance.GetChapterFromID(chapter.chapterID));
+        bool thereIsSomethingToUnlockInStoryline = ChapterManager.instance.DoesChapterUnlockAnAchievementOrAnUnplayedChapter(ChapterManager.instance.GetChapterFromID(chapterData.chapterID), RunManager.instance.GetChapterCount());
+        thereIsSomethingToUnlockInStoryline |= ChapterManager.instance.DoesChapterContainFixedItemsThatHaveNeverBeenFound(ChapterManager.instance.GetChapterFromID(chapterData.chapterID));
         iconImage.gameObject.SetActive(!thereIsSomethingToUnlockInStoryline);
 
         // Set title.
-        titleText.SetText(chapter.chapterTitle.ToString());
+        titleText.SetText(chapterData.chapterTitle.ToString());
         int titleWidth = (int)titleText.preferredWidth;
         titleWidth += SettingsManager.instance.GetCurrentFontAsset().name.Contains("Liberation") ? 1 : 0;
         titleText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, titleWidth);
@@ -62,5 +67,10 @@ public class TOCEntryButton : MonoBehaviour, ISelectHandler
     public void OnSelect(BaseEventData eventData)
     {
         SoundManager.instance.PlayButtonSound(TOCEntryButtonComponent);
+    }
+
+    public void OnClick()
+    {
+        chapterCollectionScreenBehaviour.PressTOCEntryButton(chapterData);
     }
 }
