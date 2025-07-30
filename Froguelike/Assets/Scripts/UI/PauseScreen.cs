@@ -192,6 +192,6 @@ public class PauseScreen : MonoBehaviour
         chapterInfoPanel.transform.parent.gameObject.SetActive(true);
         runInfoButton.Select();
 
-        chapterInfoPanel.DisplayChapter(RunManager.instance.currentChapter, chapterInfoPanel);
+        chapterInfoPanel.DisplayChapter(RunManager.instance.currentChapter);
     }
 }

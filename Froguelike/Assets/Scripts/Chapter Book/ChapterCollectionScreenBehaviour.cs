@@ -30,10 +30,16 @@ public class ChapterCollectionScreenBehaviour : MonoBehaviour
     [Header("Chapter info")]
     public GameObject chapterSpreadGO;
     public TextMeshProUGUI titleText;
+    public TextMeshProUGUI descriptionText;
+    public GameObject fixedCollectiblesParent;
+    public GameObject powerUpsParent;
 
     private TypeOfPage currentPageType = TypeOfPage.None;
     private int currentPageNr = 1;
     private int nrOfChaptersOnSpread;
+
+    private bool materialSetUpFinished = false;
+
 
     private void Update()
     {
@@ -95,9 +101,12 @@ public class ChapterCollectionScreenBehaviour : MonoBehaviour
 
     public void DisplayChapterInfo(int chapterIndex)
     {
+        ChapterData chapter = StoryManager.instance.GetListOfChaptersFromListOfStories()[chapterIndex];
+        Chapter chapterInfo = ChapterManager.instance.GetChapterFromID(chapter.chapterID);
         currentPageType = TypeOfPage.ChapterSpread;
 
-        ChapterData chapter = StoryManager.instance.GetListOfChaptersFromListOfStories()[chapterIndex];
+        materialSetUpFinished = ChapterInfoDisplayManager.instance.DisplayChapterSpread(chapterInfo, titleText, descriptionText, materialSetUpFinished, fixedCollectiblesParent, powerUpsParent);
+
         tableOfContentsGO.SetActive(false);
         chapterSpreadGO.SetActive(true);
         titleText.SetText(chapter.chapterTitle);

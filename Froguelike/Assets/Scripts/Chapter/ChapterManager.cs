@@ -865,7 +865,7 @@ public class ChapterManager : MonoBehaviour
         }
 
         // Call the UIManager to display the chapter selection screen
-        UIManager.instance.ShowChapterSelectionScreen((chapterCount == 0));
+        UIManager.instance.ShowChapterSelectionScreen(chapterCount == 0);
         chapterChoiceIsVisible = true;
     }
 
@@ -881,7 +881,7 @@ public class ChapterManager : MonoBehaviour
     /// <param name="infoPanel"></param>
     public void DisplayChapter(Chapter chapterInfo, ChapterInfoBehaviour infoPanel)
     {
-        infoPanel.DisplayChapter(chapterInfo, infoPanel);
+        infoPanel.DisplayChapter(chapterInfo);
     }
 
     public void ClickChapterButtonToDisplayInfo(int index)
