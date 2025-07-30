@@ -11,10 +11,10 @@ public class ChapterInfoBehaviour : MonoBehaviour
     public GameObject powerUpsParent;
     public List<CollectibleSprites> collectibleSprites;
 
-    private bool materialSetUpFinished = false;
+    private bool setUpMaterials = true;
 
     public void DisplayChapter(Chapter chapterInfo)
     {
-        materialSetUpFinished = ChapterInfoDisplayManager.instance.DisplayChapterPage(chapterInfo, infoTitleTextMesh, infoDescriptionTextMesh, materialSetUpFinished, fixedCollectiblesParent, powerUpsParent);
+        setUpMaterials = ChapterInfoDisplayManager.instance.DisplayChapterPage(chapterInfo, infoTitleTextMesh, infoDescriptionTextMesh, setUpMaterials, fixedCollectiblesParent, powerUpsParent);
     }
 }

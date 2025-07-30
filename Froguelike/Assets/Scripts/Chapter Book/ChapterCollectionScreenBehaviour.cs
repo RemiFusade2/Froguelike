@@ -4,14 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-enum TypeOfPage
-{
-    None,
-    TOC,
-    ChapterSpread,
-    Glossary
-}
-
 public class ChapterCollectionScreenBehaviour : MonoBehaviour
 {
     [Header("Buttons")]
@@ -34,27 +26,34 @@ public class ChapterCollectionScreenBehaviour : MonoBehaviour
     public GameObject fixedCollectiblesParent;
     public GameObject powerUpsParent;
 
-    private TypeOfPage currentPageType = TypeOfPage.None;
-    private int currentPageNr = 1;
+    [Header("Glossary spread")]
+    public GameObject glossarySpreadGO;
+
+    private int totalNrOfSpreadsNeeded;
+    private int totalNrOfChapters;
+    private int neededNrOfTOCSpreads;
+    private int currentSpreadNr = 1;
     private int nrOfChaptersOnSpread;
 
-    private bool materialSetUpFinished = false;
+    private bool setUpMaterials = true;
 
-
-    private void Update()
+    private void Awake()
     {
-        if (Input.GetKeyDown(KeyCode.D))
+        totalNrOfChapters = ChapterManager.instance.chaptersScriptableObjectsList.Count;
+        neededNrOfTOCSpreads = 1;
+        while ((totalNrOfChapters + 1 - (25 + ((neededNrOfTOCSpreads - 1) * 26))) > 0)
         {
-            DisplayTOC(1);
+            neededNrOfTOCSpreads++;
         }
+        totalNrOfSpreadsNeeded = neededNrOfTOCSpreads + totalNrOfSpreadsNeeded + 1;
     }
 
     public void DisplayTOC(int tocSpread)
     {
-        currentPageNr = tocSpread;
-        currentPageType = TypeOfPage.TOC;
+        currentSpreadNr = tocSpread;
 
         chapterSpreadGO.SetActive(false);
+        glossarySpreadGO.SetActive(false);
         tableOfContentsGO.SetActive(true);
 
         // Remove previous entries.
@@ -77,6 +76,7 @@ public class ChapterCollectionScreenBehaviour : MonoBehaviour
             // Hide the "go to previous page" button
             previousSpreadButton.interactable = false;
             previousSpreadButton.gameObject.SetActive(false);
+            UIManager.instance.SetSelectedButton(nextSpreadButton);
         }
         else
         {
@@ -91,111 +91,93 @@ public class ChapterCollectionScreenBehaviour : MonoBehaviour
 
         for (int chapterIndex = startOfRangeToDisplay; chapterIndex < startOfRangeToDisplay + nrOfChaptersOnSpread; chapterIndex++)
         {
-            if (chapterIndex >= StoryManager.instance.GetListOfChaptersFromListOfStories().Count) break;
+            if (chapterIndex >= totalNrOfChapters) break;
             ChapterData thisChapterData = StoryManager.instance.GetListOfChaptersFromListOfStories()[chapterIndex];
             GameObject tocEntryGO = Instantiate(tocEntryPrefab, tocEntryParent);
             TOCEntryButton tocEntry = tocEntryGO.GetComponent<TOCEntryButton>();
             tocEntry.Initialize(thisChapterData, chapterIndex + 1);
         }
+
+        UpdateButtons(currentSpreadNr);
     }
 
     public void DisplayChapterInfo(int chapterIndex)
     {
         ChapterData chapter = StoryManager.instance.GetListOfChaptersFromListOfStories()[chapterIndex];
         Chapter chapterInfo = ChapterManager.instance.GetChapterFromID(chapter.chapterID);
-        currentPageType = TypeOfPage.ChapterSpread;
 
-        materialSetUpFinished = ChapterInfoDisplayManager.instance.DisplayChapterSpread(chapterInfo, titleText, descriptionText, materialSetUpFinished, fixedCollectiblesParent, powerUpsParent);
+        setUpMaterials = ChapterInfoDisplayManager.instance.DisplayChapterSpread(chapterInfo, titleText, descriptionText, setUpMaterials, fixedCollectiblesParent, powerUpsParent);
 
         tableOfContentsGO.SetActive(false);
+        glossarySpreadGO.SetActive(false);
         chapterSpreadGO.SetActive(true);
+        nextSpreadButton.interactable = true;
+        nextSpreadButton.gameObject.SetActive(true);
         titleText.SetText(chapter.chapterTitle);
+
+        UpdateButtons(currentSpreadNr);
     }
 
     public void DisplayGlossary()
     {
-        currentPageType = TypeOfPage.Glossary;
+        currentSpreadNr = totalNrOfSpreadsNeeded; 
+
+        tableOfContentsGO.SetActive(false);
+        chapterSpreadGO.SetActive(false);
+        glossarySpreadGO.SetActive(true);
+        nextSpreadButton.interactable = false;
+        nextSpreadButton.gameObject.SetActive(false);
+        UIManager.instance.SetSelectedButton(previousSpreadButton);
+
+        UpdateButtons(currentSpreadNr);
     }
 
-    public void UpdateButtons()
+    public void UpdateButtons(int spread)
     {
-
+        // Update buttons!
+        if (spread < neededNrOfTOCSpreads)
+        {
+            previousSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText("Table of contents");
+            nextSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText("Table of contents");
+        }
+        else if (spread == neededNrOfTOCSpreads || spread == neededNrOfTOCSpreads + 1)
+        {
+            previousSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText("Table of contents");
+            nextSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText(StoryManager.instance.GetListOfChaptersFromListOfStories()[spread - neededNrOfTOCSpreads].chapterTitle);
+        }
+        else if (spread >= neededNrOfTOCSpreads + totalNrOfChapters)
+        {
+            previousSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText(StoryManager.instance.GetListOfChaptersFromListOfStories()[spread - neededNrOfTOCSpreads - 2].chapterTitle);
+            nextSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText("Glossary");
+        }
+        else
+        {
+            previousSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText(StoryManager.instance.GetListOfChaptersFromListOfStories()[spread - neededNrOfTOCSpreads - 2].chapterTitle);
+            nextSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText(StoryManager.instance.GetListOfChaptersFromListOfStories()[spread - neededNrOfTOCSpreads].chapterTitle);
+        }
     }
 
     // Used by the buttons, the bool is used to change the current page index. True means +1 false means -1.
     public void ChangePageWithButton(bool nextPage)
     {
-        currentPageNr += nextPage ? 1 : -1;
-        ChangePage(currentPageNr);
+        currentSpreadNr += nextPage ? 1 : -1;
+        ChangePage(currentSpreadNr);
     }
 
     public void ChangePage(int spread)
     {
-        int totalNrOfChapters = ChapterManager.instance.chaptersScriptableObjectsList.Count;
-        int neededNrOfTOCPages = 1;
-        while ((totalNrOfChapters + 1 - (25 + ((neededNrOfTOCPages - 1) * 26))) > 0)
-        {
-            neededNrOfTOCPages++;
-        }
-
         // Check the current page and decide what the next page is going to be.
-        // TODO don't think I need the enums!
-        switch (currentPageType)
+        if (spread <= neededNrOfTOCSpreads)
         {
-            case TypeOfPage.None:
-                DisplayTOC(spread);
-                currentPageType = TypeOfPage.TOC;
-
-                break;
-            case TypeOfPage.TOC:
-                if (spread <= neededNrOfTOCPages)
-                {
-                    DisplayTOC(spread);
-                }
-                else
-                {
-                    DisplayChapterInfo(spread - neededNrOfTOCPages - 1);
-                }
-
-                break;
-            case TypeOfPage.ChapterSpread:
-                if (spread < neededNrOfTOCPages)
-                {
-                    DisplayTOC(spread);
-                }
-                else
-                {
-                    DisplayChapterInfo(spread - neededNrOfTOCPages - 1);
-                }
-
-                break;
-            case TypeOfPage.Glossary:
-                break;
-            default:
-                break;
+            DisplayTOC(spread);
         }
-
-        // Update buttons!
-
-        if (spread < neededNrOfTOCPages)
+        else if (spread > neededNrOfTOCSpreads && spread <= neededNrOfTOCSpreads + totalNrOfChapters)
         {
-            previousSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText("Table of contents");
-            nextSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText("Table of contents");
-        }
-        else if (spread == neededNrOfTOCPages || spread == neededNrOfTOCPages + 1)
-        {
-            previousSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText("Table of contents");
-            nextSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText(StoryManager.instance.GetListOfChaptersFromListOfStories()[spread - neededNrOfTOCPages].chapterTitle);
-        }
-        else if (spread == neededNrOfTOCPages + StoryManager.instance.GetListOfChaptersFromListOfStories().Count)
-        {
-            previousSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText(StoryManager.instance.GetListOfChaptersFromListOfStories()[spread - neededNrOfTOCPages - 2].chapterTitle);
-            nextSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText("Glossary");
+            DisplayChapterInfo(spread - neededNrOfTOCSpreads - 1);
         }
         else
         {
-            previousSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText(StoryManager.instance.GetListOfChaptersFromListOfStories()[spread - neededNrOfTOCPages - 2].chapterTitle);
-            nextSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText(StoryManager.instance.GetListOfChaptersFromListOfStories()[spread - neededNrOfTOCPages].chapterTitle);
+            DisplayGlossary();
         }
     }
 }

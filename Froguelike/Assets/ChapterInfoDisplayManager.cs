@@ -28,7 +28,6 @@ public class ChapterInfoDisplayManager : MonoBehaviour
 
     #endregion
 
-
     public bool DisplayFixedCollectibles(Chapter chapterInfo, GameObject fixedCollectiblesParent, bool setUpMarerials)
     {
         bool materialsSetUp = false;
@@ -161,8 +160,9 @@ public class ChapterInfoDisplayManager : MonoBehaviour
     {
         // Set chapter info
         infoTitleText.SetText(chapterInfo.chapterData.chapterTitle);
+        // Find a frog name to use in the description.
         string frogName = "";
-        if (!GameManager.instance.?)
+        if (RunManager.instance.currentPlayedCharacter.characterData == null) // When looking in the chapter book, look for if the chapter van only be played by a specific characater and use their name.
         {
             foreach (ChapterConditionsChunk chunk in chapterInfo.chapterData.conditions)
             {
@@ -174,17 +174,19 @@ public class ChapterInfoDisplayManager : MonoBehaviour
                         break;
                     }
                 }
+                if (frogName != "") break;
             }
-            // if (chapterInfo.chapterData.conditions.Find(x => x.conditionsList.Find(x => x.conditionType == ChapterConditionType.CHARACTER)))
         }
         else
         {
+            // If a character is selected, when starting or in run, use that characters name.
             frogName = RunManager.instance.currentPlayedCharacter.characterData.characterName;
         }
 
+        // If no frog name was found, use "Frog" as default.
         if (frogName == "")
         {
-            frogName = "NO FROG";
+            frogName = "Frog";
         }
 
         infoDescriptionText.SetText(chapterInfo.chapterData.GetDescription(frogName));
