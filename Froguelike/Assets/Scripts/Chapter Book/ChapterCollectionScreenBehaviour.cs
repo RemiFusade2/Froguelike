@@ -124,9 +124,10 @@ public class ChapterCollectionScreenBehaviour : MonoBehaviour
         {
             if (chapterIndex >= totalNrOfChapters) break;
             ChapterData thisChapterData = StoryManager.instance.GetListOfChaptersFromListOfStories()[chapterIndex];
+            Story story = StoryManager.instance.GetTheStoryThatContainsThisChapter(thisChapterData);
             GameObject tocEntryGO = Instantiate(tocEntryPrefab, tocEntryParent);
             TOCEntryButton tocEntry = tocEntryGO.GetComponent<TOCEntryButton>();
-            tocEntry.Initialize(thisChapterData, chapterIndex + 1, this);
+            tocEntry.Initialize(thisChapterData, story, chapterIndex + 1, this);
         }
 
         UpdateButtons(currentSpreadNr);
@@ -168,7 +169,7 @@ public class ChapterCollectionScreenBehaviour : MonoBehaviour
 
     public void DisplayGlossary()
     {
-        currentSpreadNr = totalNrOfSpreadsNeeded; 
+        currentSpreadNr = totalNrOfSpreadsNeeded;
 
         tableOfContentsGO.SetActive(false);
         chapterSpreadGO.SetActive(false);

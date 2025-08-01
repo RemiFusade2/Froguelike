@@ -35,4 +35,20 @@ public class StoryManager : MonoBehaviour
 
         return listOfChapters;
     }
+
+    public Story GetTheStoryThatContainsThisChapter(ChapterData chapterData)
+    {
+        Story chapterIsInThisStory = null;
+
+        foreach (Story story in storyScriptableObjectList)
+        {
+            if (story.listOfChaptersInStory.Contains(chapterData))
+            {
+                chapterIsInThisStory = story;
+                break;
+            }
+        }
+
+        return chapterIsInThisStory;
+    }
 }

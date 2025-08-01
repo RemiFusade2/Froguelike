@@ -14,25 +14,71 @@ public class TOCEntryButton : MonoBehaviour, ISelectHandler
     public Button TOCEntryButtonComponent;
     public ChapterData chapterData;
     public ChapterCollectionScreenBehaviour chapterCollectionScreenBehaviour;
+    public Sprite lockedIcon;
+    public Sprite starIcon;
+    public Color defaultColor;
+    public Color hiddenColor;
 
-    public void Initialize(ChapterData chapterData, int nrInList, ChapterCollectionScreenBehaviour chapterCollectionScreenBehaviour)
+    public void Initialize(ChapterData chapterData, Story story, int nrInList, ChapterCollectionScreenBehaviour chapterCollectionScreenBehaviour)
     {
         this.chapterCollectionScreenBehaviour = chapterCollectionScreenBehaviour;
         this.chapterData = chapterData;
 
-        // Set symbol.
-        // "Chapter completed" icon if everything has been found in that chapter + the chapter is not needed in any quest
-        iconImage.gameObject.SetActive(false);
+        if (ChapterManager.instance.chaptersData.chaptersList.Find(x => x.chapterData == story.listOfChaptersInStory[0]).unlocked)
+        {
+            if (ChapterManager.instance.chaptersData.chaptersList.Find(x => x.chapterData == chapterData).attemptCountByCharacters.Count > 0)
+            {
+                // Set symbol.
+                // "Chapter completed" icon if everything has been found in that chapter + the chapter is not needed in any quest
+                iconImage.gameObject.SetActive(false);
 
-        bool thereIsSomethingToUnlockInStoryline = ChapterManager.instance.DoesChapterUnlockAnAchievementOrAnUnplayedChapter(ChapterManager.instance.GetChapterFromID(chapterData.chapterID), RunManager.instance.GetChapterCount());
-        thereIsSomethingToUnlockInStoryline |= ChapterManager.instance.DoesChapterContainFixedItemsThatHaveNeverBeenFound(ChapterManager.instance.GetChapterFromID(chapterData.chapterID));
-        iconImage.gameObject.SetActive(!thereIsSomethingToUnlockInStoryline);
+                bool thereIsSomethingToUnlockInStoryline = ChapterManager.instance.DoesChapterUnlockAnAchievementOrAnUnplayedChapter(ChapterManager.instance.GetChapterFromID(chapterData.chapterID), RunManager.instance.GetChapterCount());
+                thereIsSomethingToUnlockInStoryline |= ChapterManager.instance.DoesChapterContainFixedItemsThatHaveNeverBeenFound(ChapterManager.instance.GetChapterFromID(chapterData.chapterID));
+                iconImage.sprite = starIcon;
+                iconImage.gameObject.SetActive(!thereIsSomethingToUnlockInStoryline);
 
-        // Set title.
-        titleText.SetText(chapterData.chapterTitle.ToString());
-        int titleWidth = (int)titleText.preferredWidth;
-        titleWidth += SettingsManager.instance.GetCurrentFontAsset().name.Contains("Liberation") ? 1 : 0;
-        titleText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, titleWidth);
+                // Set title.
+                titleText.color = defaultColor;
+                dotsText.color = defaultColor;
+                numberText.color = defaultColor;
+                titleText.SetText(chapterData.chapterTitle.ToString());
+                int titleWidth = (int)titleText.preferredWidth;
+                titleWidth += SettingsManager.instance.GetCurrentFontAsset().name.Contains("Liberation") ? 1 : 0;
+                titleText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, titleWidth);
+            }
+            else
+            {
+                // Set symbol.
+                // "Chapter completed" icon if everything has been found in that chapter + the chapter is not needed in any quest
+                iconImage.gameObject.SetActive(false);
+
+                // Set title.
+                titleText.color = hiddenColor;
+                dotsText.color = hiddenColor;
+                numberText.color = hiddenColor;
+                titleText.SetText("???");
+                int titleWidth = (int)titleText.preferredWidth;
+                titleWidth += SettingsManager.instance.GetCurrentFontAsset().name.Contains("Liberation") ? 1 : 0;
+                titleText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, titleWidth);
+            }
+
+        }
+        else
+        {
+            // Set symbol.
+            // "Chapter completed" icon if everything has been found in that chapter + the chapter is not needed in any quest
+            iconImage.sprite = lockedIcon;
+            iconImage.gameObject.SetActive(true);
+
+            // Set title.
+            titleText.color = hiddenColor;
+            dotsText.color = hiddenColor;
+            numberText.color = hiddenColor;
+            titleText.SetText("???");
+            int titleWidth = (int)titleText.preferredWidth;
+            titleWidth += SettingsManager.instance.GetCurrentFontAsset().name.Contains("Liberation") ? 1 : 0;
+            titleText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, titleWidth);
+        }
 
         // Set number in list.
         numberText.SetText(nrInList.ToString());
