@@ -13,7 +13,7 @@ public class StatScoreScaling
 
     public StatScoreScaling(StatValue valueIncrease, int scoreValue)
     {
-        this.valueIncrease = valueIncrease;
+        this.valueIncrease = new StatValue(valueIncrease);
         this.scoreValue = scoreValue;
     }
 }
@@ -88,7 +88,7 @@ public class FrogCharacterController : MonoBehaviour
     public int statItemSlotsCount;
     public int weaponSlotsCount;
     [Space]
-    public List<StatScoreScaling> statScaleWithScoreList; // TEMP
+    public List<StatScoreScaling> statScaleWithScoreList;
 
     [Header("Settings - controls")]
     public string horizontalInputName = "horizontal";
@@ -758,7 +758,7 @@ public class FrogCharacterController : MonoBehaviour
     {
         if (itemLevelData.scaleWithScore)
         {
-            // TEMP thing: this upgrade adds a bonus that scales with score
+            // This upgrade adds a bonus that scales with score
             foreach (StatValue statValue in itemLevelData.statUpgrades.statsList)
             {
                 bool statIncreaseAdded = false;

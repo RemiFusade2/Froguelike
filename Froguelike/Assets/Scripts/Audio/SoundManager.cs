@@ -44,11 +44,17 @@ public class SoundManager : MonoBehaviour
     [field: SerializeField] public EventReference powerUpPoisonAllSound { get; private set; }
     [field: SerializeField] public EventReference powerUpCurseAllSound { get; private set; }
 
+    [field: Header("Ambience")]
+    [field: SerializeField] public EventReference pondAmbience { get; private set; }
+
     private EventInstance takeDamageEvent;
     private EventInstance pickUpXPEvent;
+    private EventInstance pondAmbienceEvent;
 
     private Bus musicBus;
     private Bus SFXBus;
+    private Bus ambienceBus;
+    private Bus bugSoundsBus;
 
 
     private void Awake()
@@ -65,12 +71,16 @@ public class SoundManager : MonoBehaviour
 
         musicBus = RuntimeManager.GetBus("bus:/Music");
         SFXBus = RuntimeManager.GetBus("bus:/SFX");
+        ambienceBus = RuntimeManager.GetBus("bus:/Ambience");
+        bugSoundsBus = RuntimeManager.GetBus("bus:/Bug Sounds");
     }
 
     private void Start()
     {
         takeDamageEvent = RuntimeManager.CreateInstance(takeDamageSound);
         pickUpXPEvent = RuntimeManager.CreateInstance(pickUpXPSound);
+        pondAmbienceEvent = RuntimeManager.CreateInstance(pondAmbience);
+        pondAmbienceEvent.set3DAttributes(RuntimeUtils.To3DAttributes(Vector3.zero));
     }
 
     #region Settings
@@ -86,6 +96,16 @@ public class SoundManager : MonoBehaviour
         SFXBus.setVolume(volume);
     }
 
+    public void SetNewAmbienceVolume(float volume)
+    {
+        ambienceBus.setVolume(volume);
+    }
+
+    public void SetNewBugSoundsVolume(float volume)
+    {
+        bugSoundsBus.setVolume(volume);
+    }
+
     public void MuteMusicBus(bool mute)
     {
         musicBus.setMute(mute);
@@ -94,6 +114,16 @@ public class SoundManager : MonoBehaviour
     public void MuteSFXBus(bool mute)
     {
         SFXBus.setMute(mute);
+    }
+
+    public void MuteAmbienceBus(bool mute)
+    {
+        ambienceBus.setMute(mute);
+    }
+
+    public void MuteBugSoundsBus(bool mute)
+    {
+        bugSoundsBus.setMute(mute);
     }
 
     private void PauseInGameLoopedSFX(bool paused)
@@ -117,40 +147,57 @@ public class SoundManager : MonoBehaviour
 
     private void MakeLoopEventStart(EventInstance source)
     {
-        source.start();
+        PLAYBACK_STATE playbackState;
+        source.getPlaybackState(out playbackState);
+        if (playbackState.Equals(PLAYBACK_STATE.STOPPED))
+        {
+            source.start();
+        }
     }
 
     private void MakeLoopEventStop(EventInstance source)
     {
-        source.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+        PLAYBACK_STATE playbackState;
+        source.getPlaybackState(out playbackState);
+        if (playbackState.Equals(PLAYBACK_STATE.PLAYING))
+        {
+            source.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+        }
     }
 
     public void PlayTakeDamageLoopSound() // TODO
     {
         // TODO fade in.
-        // Start playing
-        PLAYBACK_STATE playbackState;
-        takeDamageEvent.getPlaybackState(out playbackState);
-        if (playbackState.Equals(PLAYBACK_STATE.STOPPED))
-        {
-            takeDamageEvent.start();
-        }
+        MakeLoopEventStart(takeDamageEvent);
     }
 
     public void StopPlayingTakeDamageLoopSound() // TODO
     {
         // TODO fade out.
-        PLAYBACK_STATE playbackState;
-        takeDamageEvent.getPlaybackState(out playbackState);
-        if (playbackState.Equals(PLAYBACK_STATE.PLAYING))
-        {
-            takeDamageEvent.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-        }
+        MakeLoopEventStop(takeDamageEvent);
+    }
+
+    public void SetPondAmbiencePondAmount()
+    {
+        int pondAmount = RunManager.instance.currentChapter.chapterData.pondsSpawnFrequency.GetHashCode();
+        RuntimeManager.StudioSystem.setParameterByName("PondAmount", pondAmount);
+    }
+
+    public void StartPondAmbience()
+    {
+        SetPondAmbiencePondAmount();
+        MakeLoopEventStart(pondAmbienceEvent);
+    }
+
+    public void StopPondAmbience()
+    {
+        MakeLoopEventStop(pondAmbienceEvent);
     }
 
     public void StopAllLoops()
     {
-        MakeLoopEventStop(takeDamageEvent); // Stop playing
+        MakeLoopEventStop(takeDamageEvent);
+        MakeLoopEventStop(pondAmbienceEvent);
     }
 
     #endregion Play loops

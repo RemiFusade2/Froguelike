@@ -559,7 +559,7 @@ public class AchievementManager : MonoBehaviour
         return unlockedAchievementsList;
     }
 
-    private void UnlockMetaAchievements(List<Achievement> metaAchievements, List<Achievement> unlockedAchievementsList) 
+    private void UnlockMetaAchievements(List<Achievement> metaAchievements, List<Achievement> unlockedAchievementsList)
     {
         foreach (Achievement achievement in metaAchievements)
         {
@@ -901,6 +901,12 @@ public class AchievementManager : MonoBehaviour
                                 }
                             }
                             break;
+                        case AchievementConditionType.SPECIAL:
+                            if (condition.specialKey == AchievementConditionSpecialKey.MOVE_FAR_ENOUGH_IN_KERMITS_END_CHAPTER)
+                            {
+                                achievementFound = true; // There is a goal in this chapter that must be reached to unlock this achievement.
+                            }
+                            break;
                     }
                     if (achievementFound)
                     {
@@ -946,7 +952,9 @@ public class AchievementManager : MonoBehaviour
             && (x.achievementData.reward.featureID == RewardFeatureType.GHOST_BUFF ||
                 x.achievementData.reward.featureID == RewardFeatureType.RIBBIT_BUFF ||
                 x.achievementData.reward.featureID == RewardFeatureType.STANLEY_BUFF ||
-                x.achievementData.reward.featureID == RewardFeatureType.TOAD_BUFF) // only if "feature" is a stat boost for a frog
+                x.achievementData.reward.featureID == RewardFeatureType.TOAD_BUFF ||
+                x.achievementData.reward.featureID == RewardFeatureType.KERMIT_BUFF ||
+                x.achievementData.reward.featureID == RewardFeatureType.FROG_BUFF) // only if "feature" is a stat boost for a frog
             ).ToList();
 
         foreach (Achievement achievement in unlockedStatIncrementAchievementsList)
@@ -965,6 +973,12 @@ public class AchievementManager : MonoBehaviour
                     break;
                 case RewardFeatureType.TOAD_BUFF:
                     playableFrog = CharacterManager.instance.charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals("TOAD"));
+                    break;
+                case RewardFeatureType.KERMIT_BUFF:
+                    playableFrog = CharacterManager.instance.charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals("SWIMMING_FROG"));
+                    break;
+                case RewardFeatureType.FROG_BUFF:
+                    playableFrog = CharacterManager.instance.charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals("CLASSIC_FROG"));
                     break;
                 default:
                     break;

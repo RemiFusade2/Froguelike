@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="MixerGroup" id="{e4ea67da-6092-456b-b96d-3818224445f1}">
+		<property name="name">
+			<value>Bug Sounds</value>
+		</property>
+		<relationship name="effectChain">
+			<destination>{3f4bc182-ec4e-480a-86fc-5504b41bd839}</destination>
+		</relationship>
+		<relationship name="panner">
+			<destination>{71318370-d79a-4d6f-976e-3048aa7ebbda}</destination>
+		</relationship>
+		<relationship name="output">
+			<destination>{b9773c62-c8f9-4e12-a7dd-f48fa264cecb}</destination>
+		</relationship>
+	</object>
+	<object class="MixerBusEffectChain" id="{3f4bc182-ec4e-480a-86fc-5504b41bd839}">
+		<relationship name="effects">
+			<destination>{0062fbc5-fb38-48e3-ab17-da0aeaf4b082}</destination>
+		</relationship>
+	</object>
+	<object class="MixerBusPanner" id="{71318370-d79a-4d6f-976e-3048aa7ebbda}" />
+	<object class="MixerBusFader" id="{0062fbc5-fb38-48e3-ab17-da0aeaf4b082}" />
+</objects>
