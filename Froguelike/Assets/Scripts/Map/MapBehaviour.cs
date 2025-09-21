@@ -181,24 +181,34 @@ public class MapBehaviour : MonoBehaviour
             // If there's no collectible, then we spawn an empty tile and a bunch of random obstacles and collectbiles
             tilePrefab = emptyTilePrefab;
             GameObject tile = Instantiate(tilePrefab, tileWorldPosition, Quaternion.identity, mapTilesParent);
+
+            Transform grassTile = tile.transform;
+            SpriteRenderer grassTileSpriteRenderer = grassTile.GetComponent<SpriteRenderer>();
+            Material grassTileMaterial = grassTileSpriteRenderer.material;
+            grassTileMaterial.SetVector("_TextureOffset", new Vector4(tileCoordinates.x, tileCoordinates.y, 0, 0));
+
+            Transform waterTile = tile.transform.Find("Water Tile");
+            SpriteRenderer waterTileSpriteRenderer = waterTile.GetComponent<SpriteRenderer>();
+            Material waterTileMaterial = waterTileSpriteRenderer.material;
+            waterTileMaterial.SetVector("_AlphaTextureOffset", new Vector4(tileCoordinates.x, tileCoordinates.y, 0, 0));
             
             // generate water
-            Vector2 waterMinMax = DataManager.instance.GetSpawnProbability("pond", currentPlayedChapter.chapterData.pondsSpawnFrequency);
+            /*Vector2 waterMinMax = DataManager.instance.GetSpawnProbability("pond", currentPlayedChapter.chapterData.pondsSpawnFrequency);
             float waterProba = Random.Range(waterMinMax.x, waterMinMax.y);
             float waterAmount = Mathf.Floor(waterProba) + ((Random.Range(Mathf.Floor(waterProba), Mathf.Ceil(waterProba)) < waterProba) ? 1 : 0);
             for (int i = 0; i < waterAmount; i++)
             {
                 AddSomething(watersPrefabs, tileCoordinates, false, preventSpawnPosition, tile.transform, validSortingOrderForWater, "LakeCollider");
-            }
+            }*/
 
             // generate rocks
-            Vector2 rockMinMax = DataManager.instance.GetSpawnProbability("rock", currentPlayedChapter.chapterData.rocksSpawnFrequency);
+            /*Vector2 rockMinMax = DataManager.instance.GetSpawnProbability("rock", currentPlayedChapter.chapterData.rocksSpawnFrequency);
             float rockProba = Random.Range(rockMinMax.x, rockMinMax.y);
             float rockAmount = Mathf.Floor(rockProba) + ((Random.Range(Mathf.Floor(rockProba), Mathf.Ceil(rockProba)) < rockProba) ? 1 : 0);
             for (int i = 0; i < rockAmount; i++)
             {
                 AddSomething(rocksPrefabs, tileCoordinates, preventSpawnRocksAtPosition, preventSpawnPosition, tile.transform, validSortingOrderForRocks, "Rock");
-            }
+            }*/
 
             // generate currency collectibles
             Vector2 currencyMinMax = DataManager.instance.GetSpawnProbability("currency", currentPlayedChapter.chapterData.coinsSpawnFrequency);
