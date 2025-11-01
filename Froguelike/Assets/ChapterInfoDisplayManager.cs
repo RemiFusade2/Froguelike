@@ -162,7 +162,7 @@ public class ChapterInfoDisplayManager : MonoBehaviour
         infoTitleText.SetText(chapterInfo.chapterData.chapterTitle);
         // Find a frog name to use in the description.
         string frogName = "";
-        if (RunManager.instance.currentPlayedCharacter.characterData == null) // When looking in the chapter book, look for if the chapter van only be played by a specific characater and use their name.
+        if (RunManager.instance.currentPlayedCharacter.characterData == null) // When looking in the chapter book, look for if the chapter can only be played by a specific characater and use their name.
         {
             foreach (ChapterConditionsChunk chunk in chapterInfo.chapterData.conditions)
             {
@@ -192,6 +192,13 @@ public class ChapterInfoDisplayManager : MonoBehaviour
         infoDescriptionText.SetText(chapterInfo.chapterData.GetDescription(frogName));
     }
 
+    public void DisplayUnplayedChapterText(TextMeshProUGUI infoTitleText, TextMeshProUGUI infoDescriptionText)
+    {
+        // Set chapter info
+        infoTitleText.SetText("???");
+        infoDescriptionText.SetText("???");
+    }
+
     // Used for displaying info when picking chapter and looking at the chapter on the pause screen.
     public bool DisplayChapterPage(Chapter chapterInfo, TextMeshProUGUI infoTitleText, TextMeshProUGUI infoDescriptionText, bool setUpMaterials, GameObject fixedCollectiblesParent, GameObject powerUpsParent)
     {
@@ -205,7 +212,15 @@ public class ChapterInfoDisplayManager : MonoBehaviour
     // Used for displaying chapter info in the chapter collection book.
     public bool DisplayChapterSpread(Chapter chapterInfo, TextMeshProUGUI infoTitleText, TextMeshProUGUI infoDescriptionText, bool setUpMaterials, GameObject fixedCollectiblesParent, GameObject powerUpsParent)
     {
-        DisplayChapterText(chapterInfo, infoTitleText, infoDescriptionText);
+        if (chapterInfo.attemptCountByCharacters.Count > 0) // This chapter has been played.
+        {
+            DisplayChapterText(chapterInfo, infoTitleText, infoDescriptionText);
+        }
+        else // This chapter has not been played.
+        {
+            DisplayUnplayedChapterText(infoTitleText, infoDescriptionText);
+        }
+
         bool materialsSetUp = DisplayFixedCollectibles(chapterInfo, fixedCollectiblesParent, setUpMaterials);
         DisplayCollectiblesAndPowerUps(chapterInfo, powerUpsParent);
 

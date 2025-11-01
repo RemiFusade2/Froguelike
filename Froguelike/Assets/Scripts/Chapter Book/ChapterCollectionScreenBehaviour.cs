@@ -162,8 +162,6 @@ public class ChapterCollectionScreenBehaviour : MonoBehaviour
         previousTOCButton.interactable = true;
         previousTOCButton.gameObject.SetActive(true);
 
-        titleText.SetText(chapter.chapterTitle);
-
         UpdateButtons(currentSpreadNr);
     }
 
@@ -191,26 +189,29 @@ public class ChapterCollectionScreenBehaviour : MonoBehaviour
 
     public void UpdateButtons(int spread)
     {
+        int previousChapterIndex = spread - neededNrOfTOCSpreads - 2;
+        int nextChapterIndex = spread - neededNrOfTOCSpreads;
+
         // Update buttons!
-        if (spread < neededNrOfTOCSpreads)
+        if (spread < neededNrOfTOCSpreads) // First to (last - 1) table of contents spread.
         {
             previousSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText("Table of contents");
             nextSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText("Table of contents");
         }
-        else if (spread == neededNrOfTOCSpreads || spread == neededNrOfTOCSpreads + 1)
+        else if (spread == neededNrOfTOCSpreads || spread == neededNrOfTOCSpreads + 1) // Last table of contents spread or first chapter info spread.
         {
             previousSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText("Table of contents");
-            nextSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText(StoryManager.instance.GetListOfChaptersFromListOfStories()[spread - neededNrOfTOCSpreads].chapterTitle);
+            nextSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText(GetChapterTitleOrQuestionmarks(nextChapterIndex));
         }
-        else if (spread >= neededNrOfTOCSpreads + totalNrOfChapters)
+        else if (spread >= neededNrOfTOCSpreads + totalNrOfChapters) // Last chapter info spread or glossary spread.
         {
-            previousSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText(StoryManager.instance.GetListOfChaptersFromListOfStories()[spread - neededNrOfTOCSpreads - 2].chapterTitle);
+            previousSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText(GetChapterTitleOrQuestionmarks(previousChapterIndex));
             nextSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText("Glossary");
         }
-        else
+        else // All inbetween chapter info spreads.
         {
-            previousSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText(StoryManager.instance.GetListOfChaptersFromListOfStories()[spread - neededNrOfTOCSpreads - 2].chapterTitle);
-            nextSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText(StoryManager.instance.GetListOfChaptersFromListOfStories()[spread - neededNrOfTOCSpreads].chapterTitle);
+            previousSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText(GetChapterTitleOrQuestionmarks(previousChapterIndex));
+            nextSpreadButton.GetComponentInChildren<TextMeshProUGUI>().SetText(GetChapterTitleOrQuestionmarks(nextChapterIndex));
         }
     }
 
@@ -236,5 +237,13 @@ public class ChapterCollectionScreenBehaviour : MonoBehaviour
         {
             DisplayGlossary();
         }
+    }
+
+    private string GetChapterTitleOrQuestionmarks(int chapterIndex)
+    {
+        Chapter chapter = ChapterManager.instance.GetChapterFromID(StoryManager.instance.GetListOfChaptersFromListOfStories()[chapterIndex].chapterID);
+        string chapterTitle = chapter.attemptCountByCharacters.Count > 0 ? chapter.chapterData.chapterTitle : "???";
+
+        return chapterTitle;
     }
 }
