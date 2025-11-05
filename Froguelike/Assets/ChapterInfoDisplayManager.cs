@@ -8,8 +8,8 @@ using TMPro;
 public class ChapterInfoDisplayManager : MonoBehaviour
 {
     public static ChapterInfoDisplayManager instance;
-
     public List<CollectibleSprites> collectibleSprites;
+    public Sprite questionmarkSprite;
 
     #region Unity Callback methods
 
@@ -28,7 +28,7 @@ public class ChapterInfoDisplayManager : MonoBehaviour
 
     #endregion
 
-    public bool DisplayFixedCollectibles(Chapter chapterInfo, GameObject fixedCollectiblesParent, bool setUpMarerials)
+    public bool DisplayFixedCollectibles(Chapter chapterInfo, GameObject fixedCollectiblesParent, bool setUpMarerials, bool useQuestionmarks)
     {
         bool materialsSetUp = false;
         if (setUpMarerials)
@@ -40,8 +40,17 @@ public class ChapterInfoDisplayManager : MonoBehaviour
             materialsSetUp = true;
         }
 
-        // Fixed collectibles
-        // Get the chapters fixed collectibles
+        // If questionmarks are wanted (they are used in the chapter collection book), just show questionmarks if the chapter haven't been played before.
+        if (useQuestionmarks)
+        {
+            if (chapterInfo.attemptCountByCharacters.Count > 0)
+            {
+                useQuestionmarks = false;
+            }
+        }
+
+        // Fixed collectibles.
+        // Get the chapters fixed collectibles.
         List<FixedCollectible> listOfFixedCollectibles = chapterInfo.chapterData.specialCollectiblesOnTheMap;
         List<Image> fixedCollectibleSlots = fixedCollectiblesParent.GetComponentsInChildren<Image>().ToList();
         fixedCollectibleSlots.RemoveAt(0);
@@ -52,33 +61,41 @@ public class ChapterInfoDisplayManager : MonoBehaviour
             Image fixedCollectibleSlot = fixedCollectibleSlots[slot];
 
             // Sprite.
-            switch (fixedCollectible.collectibleType)
+            if (useQuestionmarks)
             {
-                case FixedCollectibleType.STATS_ITEM:
-                    fixedCollectibleSlot.sprite = fixedCollectible.collectibleStatItemData.icon;
-                    fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 0, 0);
-                    break;
-                case FixedCollectibleType.WEAPON_ITEM:
-                    fixedCollectibleSlot.sprite = fixedCollectible.collectibleWeaponItemData.icon;
-                    fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 0, 0);
-                    break;
-                case FixedCollectibleType.HAT:
-                    fixedCollectibleSlot.sprite = DataManager.instance.GetSpriteForHat(fixedCollectible.collectibleHatType);
-                    fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 180, 0);
-                    break;
-                case FixedCollectibleType.FRIEND:
-                    fixedCollectibleSlot.sprite = DataManager.instance.GetSpriteForFriend(fixedCollectible.collectibleFriendType);
-                    fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 0, 0);
-                    break;
-                default:
-                    break;
+                fixedCollectibleSlot.sprite = questionmarkSprite;
+                fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 0, 0);
+            }
+            else
+            {
+                switch (fixedCollectible.collectibleType)
+                {
+                    case FixedCollectibleType.STATS_ITEM:
+                        fixedCollectibleSlot.sprite = fixedCollectible.collectibleStatItemData.icon;
+                        fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 0, 0);
+                        break;
+                    case FixedCollectibleType.WEAPON_ITEM:
+                        fixedCollectibleSlot.sprite = fixedCollectible.collectibleWeaponItemData.icon;
+                        fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 0, 0);
+                        break;
+                    case FixedCollectibleType.HAT:
+                        fixedCollectibleSlot.sprite = DataManager.instance.GetSpriteForHat(fixedCollectible.collectibleHatType);
+                        fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 180, 0);
+                        break;
+                    case FixedCollectibleType.FRIEND:
+                        fixedCollectibleSlot.sprite = DataManager.instance.GetSpriteForFriend(fixedCollectible.collectibleFriendType);
+                        fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 0, 0);
+                        break;
+                    default:
+                        break;
+                }
             }
 
             slot++;
             fixedCollectibleSlot.SetNativeSize();
 
             // Found/not found.
-            if (chapterInfo.fixedCollectiblesFoundList.Contains(chapterInfo.fixedCollectiblesFoundList.FirstOrDefault(x => x.collectibleIdentifier.Equals(FixedCollectibleFound.GetIdentifierFromCoordinates(fixedCollectible.tileCoordinates)))))
+            if (useQuestionmarks || chapterInfo.fixedCollectiblesFoundList.Contains(chapterInfo.fixedCollectiblesFoundList.FirstOrDefault(x => x.collectibleIdentifier.Equals(FixedCollectibleFound.GetIdentifierFromCoordinates(fixedCollectible.tileCoordinates)))))
             {
                 fixedCollectibleSlot.material.SetInt("_Found", 1); // Found.
             }
@@ -99,8 +116,17 @@ public class ChapterInfoDisplayManager : MonoBehaviour
         return materialsSetUp;
     }
 
-    public void DisplayCollectiblesAndPowerUps(Chapter chapterInfo, GameObject powerUpsParent)
+    public void DisplayCollectiblesAndPowerUps(Chapter chapterInfo, GameObject powerUpsParent, bool useQuestionmarks)
     {
+        // If questionmarks are wanted (they are used in the chapter collection book), just show questionmarks if the chapter haven't been played before.
+        if (useQuestionmarks)
+        {
+            if (chapterInfo.attemptCountByCharacters.Count > 0)
+            {
+                useQuestionmarks = false;
+            }
+        }
+
         // Collectibles and power-ups.
         List<CollectibleSpawnFrequency> powerUps = chapterInfo.chapterData.otherCollectibleSpawnFrequenciesList;
         List<Image> powerUpSlots = powerUpsParent.GetComponentsInChildren<Image>().ToList();
@@ -109,19 +135,40 @@ public class ChapterInfoDisplayManager : MonoBehaviour
 
         if (chapterInfo.chapterData.coinsSpawnFrequency != SpawnFrequency.NONE)
         {
-            powerUpSlots[slot].sprite = collectibleSprites.Find(x => x.collectibleType == CollectibleType.FROINS && x.frequency == chapterInfo.chapterData.coinsSpawnFrequency).collectibleSprite;
+            if (useQuestionmarks)
+            {
+                powerUpSlots[slot].sprite = questionmarkSprite;
+            }
+            else
+            {
+                powerUpSlots[slot].sprite = collectibleSprites.Find(x => x.collectibleType == CollectibleType.FROINS && x.frequency == chapterInfo.chapterData.coinsSpawnFrequency).collectibleSprite;
+            }
             slot++;
         }
 
         if (chapterInfo.chapterData.levelUpSpawnFrequency != SpawnFrequency.NONE)
         {
-            powerUpSlots[slot].sprite = collectibleSprites.Find(x => x.collectibleType == CollectibleType.LEVEL_UP && x.frequency == chapterInfo.chapterData.levelUpSpawnFrequency).collectibleSprite;
+            if (useQuestionmarks)
+            {
+                powerUpSlots[slot].sprite = questionmarkSprite;
+            }
+            else
+            {
+                powerUpSlots[slot].sprite = collectibleSprites.Find(x => x.collectibleType == CollectibleType.LEVEL_UP && x.frequency == chapterInfo.chapterData.levelUpSpawnFrequency).collectibleSprite;
+            }
             slot++;
         }
 
         if (chapterInfo.chapterData.healthSpawnFrequency != SpawnFrequency.NONE)
         {
-            powerUpSlots[slot].sprite = collectibleSprites.Find(x => x.collectibleType == CollectibleType.HEALTH && x.frequency == chapterInfo.chapterData.healthSpawnFrequency).collectibleSprite;
+            if (useQuestionmarks)
+            {
+                powerUpSlots[slot].sprite = questionmarkSprite;
+            }
+            else
+            {
+                powerUpSlots[slot].sprite = collectibleSprites.Find(x => x.collectibleType == CollectibleType.HEALTH && x.frequency == chapterInfo.chapterData.healthSpawnFrequency).collectibleSprite;
+            }
             slot++;
         }
 
@@ -133,12 +180,26 @@ public class ChapterInfoDisplayManager : MonoBehaviour
             {
                 if (powerUp.Type == CollectibleType.FROINS || powerUp.Type == CollectibleType.LEVEL_UP || powerUp.Type == CollectibleType.HEALTH)
                 {
-                    powerUpSlot.sprite = collectibleSprites.Find(x => x.collectibleType == powerUp.Type && x.frequency == powerUp.Frequency).collectibleSprite;
+                    if (useQuestionmarks)
+                    {
+                        powerUpSlot.sprite = questionmarkSprite;
+                    }
+                    else
+                    {
+                        powerUpSlot.sprite = collectibleSprites.Find(x => x.collectibleType == powerUp.Type && x.frequency == powerUp.Frequency).collectibleSprite;
+                    }
                     slot++;
                 }
                 else if (!BuildManager.instance.demoBuild)
                 {
-                    powerUpSlot.sprite = collectibleSprites.Find(x => x.collectibleType == powerUp.Type).collectibleSprite;
+                    if (useQuestionmarks)
+                    {
+                        powerUpSlot.sprite = questionmarkSprite;
+                    }
+                    else
+                    {
+                        powerUpSlot.sprite = collectibleSprites.Find(x => x.collectibleType == powerUp.Type).collectibleSprite;
+                    }
                     slot++;
                 }
 
@@ -203,14 +264,14 @@ public class ChapterInfoDisplayManager : MonoBehaviour
     public bool DisplayChapterPage(Chapter chapterInfo, TextMeshProUGUI infoTitleText, TextMeshProUGUI infoDescriptionText, bool setUpMaterials, GameObject fixedCollectiblesParent, GameObject powerUpsParent)
     {
         DisplayChapterText(chapterInfo, infoTitleText, infoDescriptionText);
-        bool materialsSetUp = DisplayFixedCollectibles(chapterInfo, fixedCollectiblesParent, setUpMaterials);
-        DisplayCollectiblesAndPowerUps(chapterInfo, powerUpsParent);
+        bool materialsSetUp = DisplayFixedCollectibles(chapterInfo, fixedCollectiblesParent, setUpMaterials, false);
+        DisplayCollectiblesAndPowerUps(chapterInfo, powerUpsParent, false);
 
         return materialsSetUp;
     }
 
     // Used for displaying chapter info in the chapter collection book.
-    public bool DisplayChapterSpread(Chapter chapterInfo, TextMeshProUGUI infoTitleText, TextMeshProUGUI infoDescriptionText, bool setUpMaterials, GameObject fixedCollectiblesParent, GameObject powerUpsParent)
+    public bool DisplayChapterSpread(Chapter chapterInfo, TextMeshProUGUI infoTitleText, TextMeshProUGUI infoDescriptionText, bool setUpMaterials, GameObject fixedCollectiblesParent, GameObject powerUpsParent, TextMeshProUGUI chaptersInStoryText, TextMeshProUGUI extraChaptersInStoryText)
     {
         if (chapterInfo.attemptCountByCharacters.Count > 0) // This chapter has been played.
         {
@@ -221,10 +282,102 @@ public class ChapterInfoDisplayManager : MonoBehaviour
             DisplayUnplayedChapterText(infoTitleText, infoDescriptionText);
         }
 
-        bool materialsSetUp = DisplayFixedCollectibles(chapterInfo, fixedCollectiblesParent, setUpMaterials);
-        DisplayCollectiblesAndPowerUps(chapterInfo, powerUpsParent);
+        DisplayChaptersInThisStory(chapterInfo, chaptersInStoryText, extraChaptersInStoryText);
+
+        bool materialsSetUp = DisplayFixedCollectibles(chapterInfo, fixedCollectiblesParent, setUpMaterials, true);
+        DisplayCollectiblesAndPowerUps(chapterInfo, powerUpsParent, true);
 
         return materialsSetUp;
+    }
+
+    private void DisplayChaptersInThisStory(Chapter chapterInfo, TextMeshProUGUI chaptersInStoryText, TextMeshProUGUI extraChaptersInStoryText)
+    {
+        GameObject parent = chaptersInStoryText.transform.parent.gameObject;
+        Story thisStory = StoryManager.instance.GetTheStoryThatContainsThisChapter(chapterInfo.chapterData);
+        string text = "This chapter is part of a story\n\n";
+
+
+        if (thisStory.listOfChaptersInStory.Count == 1)
+        {
+            // Hide the note.
+            parent.SetActive(false);
+        }
+        else if (thisStory.nameOfStory == "The riddle") // Because this story has a branch.
+        {
+            // Show the note.
+            parent.SetActive(true);
+            // Set size of note game objects.
+            chaptersInStoryText.transform.parent.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 214f);
+
+            // Set text for the first chapter and one of the branches.
+            for (int chapterIndex = 0; chapterIndex < 3; chapterIndex++)
+            {
+                Chapter thisChapter = ChapterManager.instance.GetChapterFromID(thisStory.listOfChaptersInStory[chapterIndex].chapterID);
+                string displayThisText;
+                if (thisChapter.attemptCountByCharacters.Count == 0)
+                {
+                    displayThisText = "???";
+                }
+                else
+                {
+                    displayThisText = thisChapter.chapterData.chapterTitle;
+                }
+
+                text += "- " + displayThisText + "\n";
+
+                if (chapterIndex == 0) text += "\n";
+            }
+
+            // Show extra text objects and set the text.
+            extraChaptersInStoryText.gameObject.SetActive(true);
+            string moreChaptersText = "";
+            for (int chapterIndex = 3; chapterIndex < 5; chapterIndex++)
+            {
+                Chapter thisChapter = ChapterManager.instance.GetChapterFromID(thisStory.listOfChaptersInStory[chapterIndex].chapterID);
+                string displayThisText;
+                if (thisChapter.attemptCountByCharacters.Count == 0)
+                {
+                    displayThisText = "???";
+                }
+                else
+                {
+                    displayThisText = thisChapter.chapterData.chapterTitle;
+                }
+
+                moreChaptersText += "- " + displayThisText + "\n";
+            }
+
+            extraChaptersInStoryText.SetText(moreChaptersText);
+        }
+        else
+        {
+            // Show the note.
+            parent.SetActive(true);
+            // Set size of note game objects.
+            chaptersInStoryText.transform.parent.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 149f);
+            // Hide extra text object (used for "the riddle").
+            extraChaptersInStoryText.gameObject.SetActive(false);
+
+            // Set text.
+            for (int chapterIndex = 0; chapterIndex < thisStory.listOfChaptersInStory.Count; chapterIndex++)
+            {
+                Chapter thisChapter = ChapterManager.instance.GetChapterFromID(thisStory.listOfChaptersInStory[chapterIndex].chapterID);
+                string displayThisText;
+                if (thisChapter.attemptCountByCharacters.Count == 0)
+                {
+                    displayThisText = "???";
+                }
+                else
+                {
+                    displayThisText = thisChapter.chapterData.chapterTitle;
+                }
+
+                text += "- " + displayThisText + "\n";
+            }
+        }
+
+        // Update and display list.
+        chaptersInStoryText.SetText(text);
     }
 
     public bool SetUpMaterials(GameObject fixedCollectiblesParent)

@@ -32,7 +32,6 @@ public class PauseScreen : MonoBehaviour
 
     public void UpdatePauseScreen()
     {
-
         // Update character info bookmark. Image, name, hats and friends.
         characterInfoBookmark.UpdateInRunBookmark();
 
@@ -48,7 +47,7 @@ public class PauseScreen : MonoBehaviour
 
             if (!ChapterManager.instance.chapterChoiceIsVisible)
             {
-                // Current chapter, if we're not in the process of selecting it
+                // Current chapter, if we're not in the process of selecting it.
                 text += "Chapter " + runManager.GetChapterCount().ToString() + " - " + runManager.currentChapter.chapterData.chapterTitle;
             }
 
