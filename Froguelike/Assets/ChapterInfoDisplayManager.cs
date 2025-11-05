@@ -271,7 +271,7 @@ public class ChapterInfoDisplayManager : MonoBehaviour
     }
 
     // Used for displaying chapter info in the chapter collection book.
-    public bool DisplayChapterSpread(Chapter chapterInfo, TextMeshProUGUI infoTitleText, TextMeshProUGUI infoDescriptionText, bool setUpMaterials, GameObject fixedCollectiblesParent, GameObject powerUpsParent, TextMeshProUGUI chaptersInStoryText, TextMeshProUGUI extraChaptersInStoryText)
+    public bool DisplayChapterSpread(Chapter chapterInfo, TextMeshProUGUI infoTitleText, TextMeshProUGUI infoDescriptionText, bool setUpMaterials, GameObject fixedCollectiblesParent, GameObject powerUpsParent, TextMeshProUGUI chaptersInStoryText, TextMeshProUGUI extraChaptersInStoryText, GameObject starParent)
     {
         if (chapterInfo.attemptCountByCharacters.Count > 0) // This chapter has been played.
         {
@@ -283,11 +283,34 @@ public class ChapterInfoDisplayManager : MonoBehaviour
         }
 
         DisplayChaptersInThisStory(chapterInfo, chaptersInStoryText, extraChaptersInStoryText);
+        DisplayStars(chapterInfo, starParent);
 
         bool materialsSetUp = DisplayFixedCollectibles(chapterInfo, fixedCollectiblesParent, setUpMaterials, true);
         DisplayCollectiblesAndPowerUps(chapterInfo, powerUpsParent, true);
 
         return materialsSetUp;
+    }
+
+    private void DisplayStars(Chapter chapterInfo, GameObject starParent)
+    {
+        List<CharacterCount> charactersThatCompletedTheChapter = chapterInfo.completionCountByCharacters;
+        List<Image> starSlots = starParent.GetComponentsInChildren<Image>().ToList();
+        starSlots.RemoveAt(0);
+        int slot = 0;
+
+        foreach (CharacterCount character in charactersThatCompletedTheChapter)
+        {
+            Image starSlot = starSlots[slot];
+
+            starSlot.sprite = CharacterManager.instance.GetCharacterData(character.characterIdentifier).characterStarSprite;
+            slot++;
+        }
+
+        while (slot < starSlots.Count)
+        {
+            starSlots[slot].sprite = null;
+            slot++;
+        }
     }
 
     private void DisplayChaptersInThisStory(Chapter chapterInfo, TextMeshProUGUI chaptersInStoryText, TextMeshProUGUI extraChaptersInStoryText)
