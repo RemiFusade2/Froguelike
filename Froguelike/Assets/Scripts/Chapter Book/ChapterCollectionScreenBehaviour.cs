@@ -21,13 +21,6 @@ public class ChapterCollectionScreenBehaviour : MonoBehaviour
 
     [Header("Chapter info")]
     public GameObject chapterSpreadGO;
-    public TextMeshProUGUI titleText;
-    public TextMeshProUGUI descriptionText;
-    public GameObject fixedCollectiblesParent;
-    public GameObject powerUpsParent;
-    public GameObject starParent;
-    public TextMeshProUGUI chaptersInStoryText;
-    public TextMeshProUGUI extraChaptersInStoryText;
 
     [Header("Glossary spread")]
     public GameObject glossarySpreadGO;
@@ -150,7 +143,8 @@ public class ChapterCollectionScreenBehaviour : MonoBehaviour
         ChapterData chapter = StoryManager.instance.GetListOfChaptersFromListOfStories()[chapterIndex];
         Chapter chapterInfo = ChapterManager.instance.GetChapterFromID(chapter.chapterID);
 
-        setUpMaterials = ChapterInfoDisplayManager.instance.DisplayChapterSpread(chapterInfo, titleText, descriptionText, setUpMaterials, fixedCollectiblesParent, powerUpsParent, chaptersInStoryText, extraChaptersInStoryText, starParent);
+        // setUpMaterials = ChapterInfoDisplayManager.instance.DisplayChapterSpread(chapterInfo, titleText, descriptionText, setUpMaterials, fixedCollectiblesParent, powerUpsParent, chaptersInStoryText, extraChaptersInStoryText, starParent);
+        setUpMaterials = chapterSpreadGO.GetComponent<ChapterInfoBehaviour>().DisplayChapterSpread(chapterInfo, setUpMaterials);
 
         tableOfContentsGO.SetActive(false);
         glossarySpreadGO.SetActive(false);

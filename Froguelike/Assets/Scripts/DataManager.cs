@@ -208,6 +208,8 @@ public class DataManager : MonoBehaviour
     public Sprite collectibleDefaultSprite;
     public Sprite achievementLockedDefaultSprite;
     public Sprite achievementUnlockedDefaultSprite;
+    public List<CollectibleSprites> collectibleSprites;
+    public Sprite questionmarkSprite;
 
     [Header("Fixed collectibles UI Strings")]
     public string defaultFoundCollectibleItemTitle = "You found";
