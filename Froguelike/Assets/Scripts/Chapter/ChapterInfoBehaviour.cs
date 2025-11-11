@@ -17,6 +17,7 @@ public class ChapterInfoBehaviour : MonoBehaviour
 
     [Header("Only for chapter spread")]
     public GameObject starParent;
+    public GameObject obstaclesParent;
     public TextMeshProUGUI chaptersInStoryText;
     public TextMeshProUGUI extraChaptersInStoryText;
 
@@ -299,11 +300,51 @@ public class ChapterInfoBehaviour : MonoBehaviour
 
         DisplayChaptersInThisStory(chapterInfo, chaptersInStoryText, extraChaptersInStoryText);
         DisplayStars(chapterInfo, starParent);
+        DisplayObstaclesInfo(chapterInfo, obstaclesParent, true);
 
         bool materialsSetUp = DisplayFixedCollectibles(chapterInfo, fixedCollectiblesParent, setUpMaterials, true);
         DisplayCollectiblesAndPowerUps(chapterInfo, powerUpsParent, true);
 
         return materialsSetUp;
+    }
+
+    private void DisplayObstaclesInfo(Chapter chapterInfo, GameObject obstacleParent, bool useQuestionmarks)
+    {
+        // If questionmarks are wanted (they are used in the chapter collection book), just show questionmarks if the chapter haven't been played before.
+        if (useQuestionmarks)
+        {
+            if (chapterInfo.attemptCountByCharacters.Count > 0)
+            {
+                useQuestionmarks = false;
+            }
+        }
+
+        int amountOfPonds = (int)chapterInfo.chapterData.pondsSpawnFrequency;
+        int amountOfRocks = (int)chapterInfo.chapterData.rocksSpawnFrequency;
+        List<Image> obstaclesSlots = obstacleParent.GetComponentsInChildren<Image>().ToList();
+        obstaclesSlots.RemoveAt(0);
+        int slot = 0;
+
+        if (useQuestionmarks)
+        {
+            obstaclesSlots[slot].sprite = questionmarkSpriteFromDataManager;
+            slot++;
+            obstaclesSlots[slot].sprite = questionmarkSpriteFromDataManager;
+            slot++;
+        }
+        else
+        {
+            obstaclesSlots[slot].sprite = DataManager.instance.obstacleSprites.Find(x => x.obstacleName == "Ponds").obstacleSprites[amountOfPonds];
+            slot++;
+            obstaclesSlots[slot].sprite = DataManager.instance.obstacleSprites.Find(x => x.obstacleName == "Rocks").obstacleSprites[amountOfRocks];
+            slot++;
+        }
+
+        while (slot < obstaclesSlots.Count)
+        {
+            obstaclesSlots[slot].sprite = null;
+            slot++;
+        }
     }
 
     private void DisplayStars(Chapter chapterInfo, GameObject starParent)
@@ -313,7 +354,7 @@ public class ChapterInfoBehaviour : MonoBehaviour
         starSlots.RemoveAt(0);
         int slot = 0;
 
-        // Show the the star of each character that have completed the chapter.
+        // Show the star of each character that have completed the chapter.
         foreach (CharacterCount character in charactersThatCompletedTheChapter)
         {
             Image starSlot = starSlots[slot];
