@@ -132,7 +132,9 @@ public class FrogCharacterController : MonoBehaviour
     [Space]
     public string cheat_steam_clearAchievements = "cheat_steam_clearAchievements";
 
-    #endregion 
+    #endregion
+
+    [Header("Runtime")]
 
     private Player rewiredPlayer;
     public float HorizontalInput { get; private set; }
@@ -142,7 +144,7 @@ public class FrogCharacterController : MonoBehaviour
 
     private Rigidbody2D playerRigidbody;
 
-    private bool isOnLand;
+    public bool isOnLand;
     private bool onlyUseWalkSpeed;
 
     private float orientationAngle;
@@ -202,6 +204,9 @@ public class FrogCharacterController : MonoBehaviour
             {
                 weaponTransform.GetComponent<WeaponBehaviour>().TryAttack();
             }
+
+            // Set isOnLand attribute (check current map tile)
+            isOnLand = MapBehaviour.instance.IsPositionOnLand(this.transform.position);
 
             // Set animator speed
             float speed = Mathf.Clamp(playerRigidbody.velocity.magnitude, 0, 10);
@@ -985,20 +990,9 @@ public class FrogCharacterController : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D collider)
     {
-        if (collider.CompareTag("Water"))
-        {
-            isOnLand = false;
-        }
         if (collider.CompareTag("Enemy") && GameManager.instance.isGameRunning)
         {
             DealWithEnemyCollision(collider);
-        }
-    }
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Water"))
-        {
-            isOnLand = true;
         }
     }
 

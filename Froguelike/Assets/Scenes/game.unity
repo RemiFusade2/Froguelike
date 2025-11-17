@@ -8284,7 +8284,7 @@ MonoBehaviour:
   demoBuild: 0
   showDemoDisclaimer: 1
   availablePowerUpsInDemo: 0
-  cheatsAreEnabled: 0
+  cheatsAreEnabled: 1
   everythingIsUnlocked: 0
   thingsWithMissingSpritesAreHidden: 0
 --- !u!4 &191903569
@@ -54140,6 +54140,7 @@ MonoBehaviour:
   cheat_unlockAllQuests: cheat_unlockAllQuests
   cheat_toggleVersionNumber: cheat_toggleVersionNumber
   cheat_steam_clearAchievements: cheat_steam_clearAchievements
+  isOnLand: 0
 --- !u!50 &1127068953
 Rigidbody2D:
   serializedVersion: 4
@@ -86640,13 +86641,17 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2141524312}
     m_Modifications:
+    - target: {fileID: 1732339937979844932, guid: 3e19cc06160b0f9459ac09e4e7007b42, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4710829156714125620, guid: 3e19cc06160b0f9459ac09e4e7007b42, type: 3}
       propertyPath: m_Name
       value: Empty Tile
       objectReference: {fileID: 0}
     - target: {fileID: 4710829156714125620, guid: 3e19cc06160b0f9459ac09e4e7007b42, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4710829156714125623, guid: 3e19cc06160b0f9459ac09e4e7007b42, type: 3}
       propertyPath: m_RootOrder
@@ -86692,6 +86697,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8003644818582766785, guid: 3e19cc06160b0f9459ac09e4e7007b42, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: a3718837ff26873448043ad6ab951bbe, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3e19cc06160b0f9459ac09e4e7007b42, type: 3}
 --- !u!1 &1647783023
@@ -114068,6 +114077,7 @@ MonoBehaviour:
   - {fileID: 1290153323901382038, guid: d3c109689492afb41a60f3177bd0c869, type: 3}
   - {fileID: 1934876521066728434, guid: 8c6724c1bdaf74941b66d105670234cd, type: 3}
   tileSize: {x: 12.5, y: 12.5}
+  tileResolution: {x: 200, y: 200}
   minDistanceWithPlayer: 6
   validSortingOrderForWater: {x: 1, y: 3}
   validSortingOrderForRocks: {x: 4, y: 5}
@@ -117020,7 +117030,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1840373897178454645, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1840373897178454646, guid: 9bab193327cd6ae4d8873600c0ef9cae, type: 3}
       propertyPath: m_RootOrder

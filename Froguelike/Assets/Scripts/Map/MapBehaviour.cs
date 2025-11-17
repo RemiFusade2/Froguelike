@@ -24,6 +24,7 @@ public class MapBehaviour : MonoBehaviour
 
     [Header("Settings")]
     public Vector2 tileSize = new Vector2(40, 22.5f);
+    public Vector2Int tileResolution = new Vector2Int(200, 200);
     public float minDistanceWithPlayer = 2;
     [Space]
     public Vector2Int validSortingOrderForWater;
@@ -31,6 +32,7 @@ public class MapBehaviour : MonoBehaviour
 
 
     private List<Vector2Int> existingTilesCoordinates;
+    private Dictionary<Vector2Int, GameObject> existingTilesDictionary;
 
 
     private void Awake()
@@ -42,11 +44,13 @@ public class MapBehaviour : MonoBehaviour
     void Start()
     {
         existingTilesCoordinates = new List<Vector2Int>();
+        existingTilesDictionary = new Dictionary<Vector2Int, GameObject>();
     }
 
     public void ClearMap()
     {
         existingTilesCoordinates.Clear();
+        existingTilesDictionary.Clear();
         List<GameObject> gameObjectsToDestroyList = new List<GameObject>();
         foreach (Transform tile in mapTilesParent)
         {
@@ -167,10 +171,11 @@ public class MapBehaviour : MonoBehaviour
         {
             superCollectibleOnCurrentTile = superCollectiblesList.FirstOrDefault(x => x.tileCoordinates.Equals(tileCoordinates));
         }
+        GameObject tile = null;
         if (superCollectibleOnCurrentTile != null)
         {
             // Special case when there is a super collectible on the new tile to spawn
-            GameObject tile = Instantiate(superCollectibleOnCurrentTile.tilePrefab, tileWorldPosition, Quaternion.identity, mapTilesParent);
+            tile = Instantiate(superCollectibleOnCurrentTile.tilePrefab, tileWorldPosition, Quaternion.identity, mapTilesParent);
 
             // In that situation, we just spawn the super collectible and that's it
             // Everything else is already on the treasure tile
@@ -180,7 +185,7 @@ public class MapBehaviour : MonoBehaviour
         {
             // If there's no collectible, then we spawn an empty tile and a bunch of random obstacles and collectbiles
             tilePrefab = emptyTilePrefab;
-            GameObject tile = Instantiate(tilePrefab, tileWorldPosition, Quaternion.identity, mapTilesParent);
+            tile = Instantiate(tilePrefab, tileWorldPosition, Quaternion.identity, mapTilesParent);
 
             Transform grassTile = tile.transform;
             SpriteRenderer grassTileSpriteRenderer = grassTile.GetComponent<SpriteRenderer>();
@@ -189,8 +194,18 @@ public class MapBehaviour : MonoBehaviour
 
             Transform waterTile = tile.transform.Find("Water Tile");
             SpriteRenderer waterTileSpriteRenderer = waterTile.GetComponent<SpriteRenderer>();
+            Vector2 noiseTileCoordinates = new Vector2(tileCoordinates.x + 100000, tileCoordinates.y + 100000);
+            int textureSize = tileResolution.x;
+            float pixelPerUnit200 = 16f;
+            float pixelPerUnit = pixelPerUnit200 * (textureSize / 200.0f);
+            float waterNoiseScale = 0.005f;
+            int waterNoiseSeed = 5;
+            ApplyTextureToSpriteRenderer(waterTileSpriteRenderer, GenerateNoiseTexture(textureSize, waterNoiseSeed, waterNoiseScale, noiseTileCoordinates), pixelPerUnit);
+
+            /*
             Material waterTileMaterial = waterTileSpriteRenderer.material;
-            waterTileMaterial.SetVector("_AlphaTextureOffset", new Vector4(tileCoordinates.x, tileCoordinates.y, 0, 0));
+            waterTileMaterial.SetTexture("_MainTex", Generate256(0, 1, tileCoordinates));*/
+
             
             // generate water
             /*Vector2 waterMinMax = DataManager.instance.GetSpawnProbability("pond", currentPlayedChapter.chapterData.pondsSpawnFrequency);
@@ -295,6 +310,7 @@ public class MapBehaviour : MonoBehaviour
 
         // We add that new tile in the list of existing tiles
         existingTilesCoordinates.Add(tileCoordinates);
+        existingTilesDictionary.Add(tileCoordinates, tile);
     }
 
     private Vector2Int GetTileForPosition(Vector2 position)
@@ -307,13 +323,21 @@ public class MapBehaviour : MonoBehaviour
         Vector2 position = tileCoordinates * tileSize;
         return position;
     }
+    private Vector2Int GetPixelCoordinatesOnTileForPosition(Vector2 position)
+    {
+        Vector2Int tileCoordinates = GetTileForPosition(position);
+        Vector2 pixelCoordinatesOnTile = ((position - tileCoordinates * tileSize + (tileSize/2)) / tileSize) * tileResolution;
+        return new Vector2Int(Mathf.RoundToInt(pixelCoordinatesOnTile.x), Mathf.RoundToInt(pixelCoordinatesOnTile.y));
+    }
 
     public void GenerateNewTilesAroundPosition(Vector2 position)
     {
         Vector2Int centralTileCoordinates = GetTileForPosition(position);
-        for (int y = -3; y <= 3; y++)
+        int minX = 3;
+        int minY = 2;
+        for (int y = -minY; y <= minY; y++)
         {
-            for (int x = -3; x <= 3; x++)
+            for (int x = -minX; x <= minX; x++)
             {
                 Vector2Int tileCoordinates = centralTileCoordinates + x * Vector2Int.right + y * Vector2Int.up;
                 if (!DoesTileExist(tileCoordinates))
@@ -322,5 +346,59 @@ public class MapBehaviour : MonoBehaviour
                 }
             }
         }
+    }
+
+    public bool IsPositionOnLand(Vector2 position)
+    {
+        bool isOnLand = false;
+        Vector2Int tilePosition = GetTileForPosition(position);
+        GameObject tileObject = existingTilesDictionary[tilePosition];
+        Vector2Int pixelCoordinatesOnTile = GetPixelCoordinatesOnTileForPosition(position);
+        Color pixelColor = tileObject.transform.Find("Water Tile").GetComponent<SpriteRenderer>().sprite.texture.GetPixel(pixelCoordinatesOnTile.x, pixelCoordinatesOnTile.y);
+        isOnLand = (pixelColor.r < 0.5f); 
+        Debug.Log($"Position of frog = ({position.x},{position.y}); tile coordinates = ({tilePosition.x},{tilePosition.y}); pixel coordinates = ({pixelCoordinatesOnTile.x},{pixelCoordinatesOnTile.y}), pixel color = ({pixelColor.r}); is on land = {isOnLand}");
+        return isOnLand;
+    }
+
+    void ApplyTextureToSpriteRenderer(SpriteRenderer sr, Texture2D tex, float pixelsPerUnit = 100f)
+    {
+        if (sr == null || tex == null)
+            return;
+
+        // Create a sprite from the texture
+        Sprite newSprite = Sprite.Create(
+            tex,
+            new Rect(0, 0, tex.width, tex.height),
+            new Vector2(0.5f, 0.5f),
+            pixelsPerUnit
+        );
+
+        sr.sprite = newSprite;
+    }
+
+    // Generate a noise texture
+    public static Texture2D GenerateNoiseTexture(int size, int seed, float scale, Vector2 offset)
+    {
+        var tex = new Texture2D(size, size, TextureFormat.R8, false);
+        tex.wrapMode = TextureWrapMode.Repeat;
+
+        // Noise generation
+        //string log = "";
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                float nx = (x + offset.x * size) * scale;
+                float ny = (y + offset.y * size) * scale;
+                float n = Mathf.PerlinNoise(nx, ny);
+                tex.SetPixel(x, y, new Color(n, n, n, 1f));
+                //log += $"Pixel({x},{y}) = {new Color(n, n, n, 1f)} ; ";
+            }
+            //log += "\n";
+        }
+        //Debug.Log(log);
+
+        tex.Apply(false); // no mipmaps
+        return tex;
     }
 }
