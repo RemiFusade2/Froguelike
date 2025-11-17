@@ -343,9 +343,10 @@ public class ShopManager : MonoBehaviour
     {
         // Update Refund Button availability
         refundButton.interactable = (shopData.currencySpentInShop > 0);
+        refundButton.GetComponent<CanvasGroup>().blocksRaycasts = shopData.currencySpentInShop > 0;
 
         // Update available currency
-        availableCurrencyText.text = Tools.FormatCurrency(GameManager.instance.gameData.availableCurrency, " " + DataManager.instance.currencyName);
+        availableCurrencyText.text = Tools.FormatCurrency(GameManager.instance.gameData.availableCurrency, DataManager.instance.currencySymbol);
 
         // Remove previous buttons
         /* foreach (Transform child in shopPanel)
@@ -445,6 +446,9 @@ public class ShopManager : MonoBehaviour
         ComputeCurrentFee();
         // Update the shop display
         DisplayShop(false);
+
+        // Stop scroll bar if it was moving
+        shopScrollRect.velocity = Vector2.zero;
 
         // Play sound
         SoundManager.instance.PlayRefundShopSound();

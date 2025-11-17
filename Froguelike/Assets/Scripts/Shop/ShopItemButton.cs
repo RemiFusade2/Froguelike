@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
+using Unity.VisualScripting;
+using Steamworks;
 
 public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandler, IDeselectHandler
 {
@@ -14,6 +16,7 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
     [Space]
     public Transform levelPanelParent;
     public GameObject levelPrefab;
+    public GameObject levelLockedPrefab;
     public Sprite levelBoughtSprite;
     public Sprite levelUnavailableSprite;
     [Space]
@@ -30,6 +33,8 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
     public Transform itemPanelTransform;
 
     private const float gap = 10;
+
+    private bool selectUsingMouseCursor = false;
 
     public void Initialize(ShopItem item, bool availableButCantBuy, int extraFee)
     {
@@ -58,6 +63,8 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
             Destroy(levelChild.gameObject);
         }
 
+        int futureRestocksCount = AchievementManager.instance.GetLockedRestocksForItem(item.data);
+
         for (int i = 0; i < item.GetMaxLevel(); i++)
         {
             bool levelIsBought = i < item.currentLevel;
@@ -67,10 +74,18 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
             levelBox.transform.GetChild(1).GetComponent<Image>().enabled = levelIsBought;
         }
 
+        for (int i = 0; i < futureRestocksCount; i++)
+        {
+            // Locked restocks
+            GameObject levelBox = Instantiate(levelLockedPrefab, levelPanelParent);
+            levelBox.transform.GetChild(1).GetComponent<Image>().sprite = null;
+            levelBox.transform.GetChild(1).GetComponent<Image>().enabled = false;
+        }
+
         if (item.currentLevel < item.data.costForEachLevel.Count)
         {
             int cost = item.data.costForEachLevel[item.currentLevel] + extraFee;
-            priceText.text = Tools.FormatCurrency(cost, "");
+            priceText.text = Tools.FormatCurrency(cost, DataManager.instance.currencySymbol);
         }
 
         name = item.itemName;
@@ -89,14 +104,18 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
             Debug.Log($"Shop Item Button - OnSelect(). eventData = {eventData}");
         }
 
-        // Scroll the button into view.
-        StartCoroutine(ScrollButtonIntoViewAsync());
+        if (!selectUsingMouseCursor)
+        {
+            StartCoroutine(ScrollButtonIntoViewAsync());
+        }
+        selectUsingMouseCursor = false;
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (eventData.delta.x != 0 || eventData.delta.y != 0)
         {
+            selectUsingMouseCursor = true;
             buyButton.Select();
         }
     }

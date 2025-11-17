@@ -132,6 +132,7 @@ public class ChapterManager : MonoBehaviour
     public List<ChapterData> chaptersScriptableObjectsList;
     public ChapterData tutorialChapterScriptableObject;
     public ChapterData toadEndChapterForSpecialStuff;
+    public ChapterData kermitEndChapterForSpecialStuff;
 
     [Header("UI - Chapter Selection screen")]
     public TextMeshProUGUI chapterSelectionTopText;
@@ -307,7 +308,7 @@ public class ChapterManager : MonoBehaviour
 
                 bool chapterConditionsAreMet = (currentChapterConditionsChunksList.Count == 0); // particular case if there are no conditions
 
-                float playerDistanceFromSpawn = RunManager.instance.player.transform.position.magnitude;
+                float playerDistanceFromSpawn = RunManager.instance.player.transform.position.magnitude / 10;
                 float playerDotRight = Vector3.Dot(RunManager.instance.player.transform.position, Vector2.right);
                 float playerDotUp = Vector3.Dot(RunManager.instance.player.transform.position, Vector2.up);
                 DirectionNESW playerDirectionFromSpawn = (Mathf.Abs(playerDotRight) > Mathf.Abs(playerDotUp)) ? (playerDotRight > 0 ? DirectionNESW.EAST : DirectionNESW.WEST) : (playerDotUp > 0 ? DirectionNESW.NORTH : DirectionNESW.SOUTH);
@@ -338,7 +339,19 @@ public class ChapterManager : MonoBehaviour
                                 break;
                             case ChapterConditionType.PLAYED_CHAPTER:
                                 Chapter c = completedChapters.FirstOrDefault(x => x.chapterData.Equals(condition.chapterData));
-                                conditionChunkIsValid = (c != null);
+                                if (condition.chapterDataMustBeLatestChapterPlayed)
+                                {
+                                    conditionChunkIsValid = false;
+                                    if (completedChapters.Count > 0)
+                                    {
+                                        Chapter latestChapterPlayed = completedChapters[completedChapters.Count - 1];
+                                        conditionChunkIsValid = (latestChapterPlayed.chapterData.Equals(condition.chapterData));
+                                    }
+                                }
+                                else
+                                {
+                                    conditionChunkIsValid = (c != null);
+                                }
                                 break;
                             case ChapterConditionType.RUN_ITEM:
                                 conditionChunkIsValid = (RunManager.instance.GetLevelForItem(condition.itemName) > 0);
@@ -819,7 +832,7 @@ public class ChapterManager : MonoBehaviour
 
     public void ShowChapterSelection(int currentChapterCount)
     {
-        MusicManager.instance.PlaySuperFrogMusic(false); // in case the previous chapter ended while supe frog was active.
+        MusicManager.instance.PlaySuperFrogMusic(false); // in case the previous chapter ended while super frog was active.
 
         // Update the top text
         int chapterCount = currentChapterCount;
@@ -918,6 +931,11 @@ public class ChapterManager : MonoBehaviour
         else
         {
             charCount.counter++;
+        }
+        if (isFirstChapter)
+        {
+            // If it's the first chapter starting, register a new attempt for that character
+            CharacterManager.instance.StartedARunWithCharacter(RunManager.instance.currentPlayedCharacter);
         }
         SaveDataManager.instance.isSaveDataDirty = true;
 

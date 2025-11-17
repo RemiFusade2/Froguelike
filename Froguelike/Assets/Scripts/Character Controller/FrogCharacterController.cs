@@ -13,7 +13,7 @@ public class StatScoreScaling
 
     public StatScoreScaling(StatValue valueIncrease, int scoreValue)
     {
-        this.valueIncrease = valueIncrease;
+        this.valueIncrease = new StatValue(valueIncrease);
         this.scoreValue = scoreValue;
     }
 }
@@ -88,7 +88,7 @@ public class FrogCharacterController : MonoBehaviour
     public int statItemSlotsCount;
     public int weaponSlotsCount;
     [Space]
-    public List<StatScoreScaling> statScaleWithScoreList; // TEMP
+    public List<StatScoreScaling> statScaleWithScoreList;
 
     [Header("Settings - controls")]
     public string horizontalInputName = "horizontal";
@@ -100,6 +100,7 @@ public class FrogCharacterController : MonoBehaviour
     [Space]
     public float inputAxisDeadZone = 0.3f;
     public float delayBeforeHidingCursor = 5;
+    public GameObject cursorBlock;
     [Space]
     public string restartInputName = "restartGame";
 
@@ -148,7 +149,7 @@ public class FrogCharacterController : MonoBehaviour
 
     private float orientationAngle;
 
-    private bool superFrogMode;
+    public bool superFrogMode { private set; get; }
     private Coroutine superFrogCoroutine;
 
     private Vector3 previousMousePosition;
@@ -171,6 +172,8 @@ public class FrogCharacterController : MonoBehaviour
             AchievementManager.instance.GetUnlockedAchievementsForCurrentRun(true, true);
             //UIManager.instance.ShowTitleScreen();
         }
+
+        HideCursor();
     }
 
     // Update is called once per frame
@@ -188,8 +191,12 @@ public class FrogCharacterController : MonoBehaviour
             // Get Pause input
             if (GetPauseInput())
             {
-                GameManager.instance.TogglePause();
-                ignoreUICancelInput = true;
+                // If black screen between chapters is visible, we prevent pausing the game
+                if (!UIManager.instance.IsChapterStartScreenVisible())
+                {
+                    GameManager.instance.TogglePause();
+                    ignoreUICancelInput = true;
+                }
             }
 
             // Attempt to attack with all active tongues
@@ -214,9 +221,16 @@ public class FrogCharacterController : MonoBehaviour
         // Hide / Show mouse cursor
         bool mouseLeftPressed = Input.GetMouseButton(0);
         bool mouseRightPressed = Input.GetMouseButton(1);
+        bool mouseWheelUsed = Input.mouseScrollDelta.magnitude > 0;
         float cursorMovedDistance = Vector3.Distance(previousMousePosition, Input.mousePosition);
-        if (mouseLeftPressed || mouseRightPressed || cursorMovedDistance > 0)
+        if (mouseLeftPressed || mouseRightPressed || cursorMovedDistance > 0 || mouseWheelUsed)
         {
+            if (cursorBlock.activeInHierarchy)
+            {
+                Cursor.visible = true;
+                cursorBlock.SetActive(false);
+            }
+
             // Mouse input has been received
             GameManager.instance.ResetDelayWithNoInput();
             // Make cursor visible and restart coroutine to hide cursor after a delay
@@ -237,7 +251,13 @@ public class FrogCharacterController : MonoBehaviour
     private IEnumerator WaitAndHideCursor(float delay)
     {
         yield return new WaitForSecondsRealtime(delay);
+        HideCursor();
+    }
+
+    private void HideCursor()
+    {
         Cursor.visible = false;
+        cursorBlock.SetActive(true);
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
             Debug.Log("No mouse input received for a while. Hide cursor");
@@ -281,7 +301,7 @@ public class FrogCharacterController : MonoBehaviour
     private float GetScoreScaledBoostForStat(CharacterStat statType)
     {
         float result = 0;
-        int score = RunManager.instance.GetCurrentChapterKillCount();
+        int score = RunManager.instance.GetTotalKillCount();
         IEnumerable<StatScoreScaling> statScoreScalingList = statScaleWithScoreList.Where(x => x.valueIncrease.stat.Equals(statType));
         foreach (StatScoreScaling statScoreScaling in statScoreScalingList)
         {
@@ -752,7 +772,7 @@ public class FrogCharacterController : MonoBehaviour
     {
         if (itemLevelData.scaleWithScore)
         {
-            // TEMP thing: this upgrade adds a bonus that scales with score
+            // This upgrade adds a bonus that scales with score
             foreach (StatValue statValue in itemLevelData.statUpgrades.statsList)
             {
                 bool statIncreaseAdded = false;
@@ -1041,13 +1061,19 @@ public class FrogCharacterController : MonoBehaviour
 
     private void TakingDamageEffect()
     {
-        characterRenderer.material.SetFloat("_OverlayVisible", 1);
-        SoundManager.instance.PlayTakeDamageLoopSound();
-        if (DamageTookEndOfEffectCoroutine != null)
+        // Overlay.
+        if (SettingsManager.instance.showFlashingEffects)
         {
-            StopCoroutine(DamageTookEndOfEffectCoroutine);
+            characterRenderer.material.SetFloat("_OverlayVisible", 1);
+            if (DamageTookEndOfEffectCoroutine != null)
+            {
+                StopCoroutine(DamageTookEndOfEffectCoroutine);
+            }
+            DamageTookEndOfEffectCoroutine = StartCoroutine(TakingDamageEndOfEffectAsync(0.7f));
         }
-        DamageTookEndOfEffectCoroutine = StartCoroutine(TakingDamageEndOfEffectAsync(0.7f));
+
+        // SFX.
+        SoundManager.instance.PlayTakeDamageLoopSound();
     }
 
     private void ChangeHealth(float change, bool cancelDamage)
@@ -1274,8 +1300,8 @@ public class FrogCharacterController : MonoBehaviour
             }
             if (rewiredPlayer.GetButtonDown(cheat_inRun_scorePlus))
             {
-                // +100 score (kills)
-                RunManager.instance.IncreaseKillCount(100);
+                // +1000 score (kills)
+                RunManager.instance.IncreaseKillCount(1000);
             }
             if (rewiredPlayer.GetButtonDown(cheat_inRun_maxHPPlus))
             {

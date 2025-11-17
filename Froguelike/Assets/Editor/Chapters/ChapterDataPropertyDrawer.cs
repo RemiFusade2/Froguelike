@@ -42,6 +42,12 @@ public class ChapterConditionDrawer : PropertyDrawer
             Rect chapterDataRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
             EditorGUI.LabelField(chapterLabelRect, new GUIContent("Chapter:"));
             EditorGUI.PropertyField(chapterDataRect, property.FindPropertyRelative("chapterData"), GUIContent.none);
+            position.y += EditorGUIUtility.singleLineHeight;
+            labelWidth = 180;
+            Rect chapterAsLatestLabelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+            Rect chapterAsLatestRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(chapterAsLatestLabelRect, new GUIContent("Must be latest chapter played:"));
+            EditorGUI.PropertyField(chapterAsLatestRect, property.FindPropertyRelative("chapterDataMustBeLatestChapterPlayed"), GUIContent.none);
         }
         else if (conditionType.enumValueFlag == (int)ChapterConditionType.CHAPTER_COUNT)
         {
@@ -173,6 +179,10 @@ public class ChapterConditionDrawer : PropertyDrawer
         {
             numberOfLines = 3;
         }
+        else if (conditionType.enumValueFlag == (int)ChapterConditionType.PLAYED_CHAPTER)
+        {
+            numberOfLines = 3;
+        }
 
         return numberOfLines * EditorGUIUtility.singleLineHeight;
     }
@@ -296,6 +306,16 @@ public class FixedCollectibleDrawer : PropertyDrawer
 
         // UI
         {
+            // Is there a force accept condition?
+            {
+                float labelWidth = alignWidth;
+                Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+                Rect propertyRect = new Rect(position.x + labelWidth, position.y, position.width - labelWidth, EditorGUIUtility.singleLineHeight);
+                EditorGUI.LabelField(labelRect, new GUIContent("Force accept:"));
+                EditorGUI.PropertyField(propertyRect, property.FindPropertyRelative("forceAcceptType"), GUIContent.none);
+            }
+            position.y += EditorGUIUtility.singleLineHeight;
+
             // Accept collectible text
             {
                 float labelWidth = alignWidth;
@@ -336,7 +356,7 @@ public class FixedCollectibleDrawer : PropertyDrawer
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
-        int numberOfLines = 14;
+        int numberOfLines = 15;
         return numberOfLines * EditorGUIUtility.singleLineHeight;
     }
 }

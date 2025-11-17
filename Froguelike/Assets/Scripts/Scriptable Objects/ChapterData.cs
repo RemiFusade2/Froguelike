@@ -106,6 +106,13 @@ public enum NextChapterConditionCountType
     DistanceFromSpawnInDirection
 }
 
+public enum FixedCollectibleForceAcceptType
+{
+    NEVER,
+    ONLY_IF_ITEM_IS_LOCKED,
+    ALWAYS
+}
+
 #endregion Enums
 
 #region Classes
@@ -136,6 +143,9 @@ public class FixedCollectible
     public string collectibleDescription;
     [Tooltip("The type of collectible")]
     public FixedCollectibleType collectibleType;
+
+    [Tooltip("Are you forced to accept this collectible?")]
+    public FixedCollectibleForceAcceptType forceAcceptType;
 
     // In case the collectible is a RunStatItem
     [Tooltip("The Run Stat Item in question")]
@@ -168,6 +178,8 @@ public class FixedCollectible
 public class NextChapterConditionCount
 {
     public NextChapterConditionCountType countType;
+    [Tooltip("Only used if the count is for max distance, to get the right icon.")]
+    public bool maxDistance = false;
     public int goal = 0;
 }
 
@@ -183,8 +195,10 @@ public class ChapterCondition
     [Tooltip("This would reverse the condition")]
     public bool not = false;
 
-    [Tooltip("Played Chapter")]
+    [Tooltip("This chapter can appear only if you've played that Chapter before")]
     public ChapterData chapterData;
+    [Tooltip("This chapter can appear only if you've played that Chapter RIGHT before (as latest chapter played)")]
+    public bool chapterDataMustBeLatestChapterPlayed;
 
     [Tooltip("This chapter can appear only after Chapter count # (included)")]
     [Range(1, 5)]

@@ -36,7 +36,7 @@ public class PauseScreen : MonoBehaviour
         // Update character info bookmark. Image, name, hats and friends.
         characterInfoBookmark.UpdateInRunBookmark();
 
-        // Display chapters.
+        // Display a list of selected chapters.
         try
         {
             string text = "";
@@ -74,7 +74,7 @@ public class PauseScreen : MonoBehaviour
         try
         {
             // Extra lives count.
-            livesCountText.SetText("Extra lives: " + runManager.extraLivesCountText.text);
+            livesCountText.SetText($"Extra lives: {DataManager.instance.extraLifeSymbol} {runManager.extraLivesCountText.text}");
         }
         catch (Exception e)
         {

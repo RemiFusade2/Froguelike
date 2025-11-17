@@ -63,8 +63,6 @@ public class WeaponBehaviour : MonoBehaviour
     private LineRenderer tongueLineRenderer;
     private LineRenderer outlineLineRenderer;
 
-    private Collider2D tongueCollider;
-
     private bool isTongueGoingOut;
 
     private int eatenFliesCount;
@@ -80,7 +78,6 @@ public class WeaponBehaviour : MonoBehaviour
     void Start()
     {
         lastAttackTime = Time.time;
-        tongueCollider = GetComponent<Collider2D>();
         tongueLineRenderer = GetComponent<LineRenderer>();
         outlineLineRenderer = outlineTransform.GetComponent<LineRenderer>();
         enemiesHitNamesList = new List<string>();
@@ -1042,7 +1039,7 @@ public class WeaponBehaviour : MonoBehaviour
         isAttacking = true;
         SetTongueDirection(Vector2.up);
 
-        float t = 0;
+        float t = 0.0001f;
         isTongueGoingOut = true;
 
         tongueScript.EnableTongue();
@@ -1131,7 +1128,6 @@ public class WeaponBehaviour : MonoBehaviour
         isTongueGoingOut = true;
         tongueLineRenderer.enabled = true;
         outlineLineRenderer.enabled = true;
-        tongueCollider.enabled = true;
         float actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.GetAttackSpeedBoost());
         while (isTongueGoingOut)
         {
@@ -1163,7 +1159,6 @@ public class WeaponBehaviour : MonoBehaviour
         }
         tongueLineRenderer.enabled = false;
         outlineLineRenderer.enabled = false;
-        tongueCollider.enabled = false;
         lastAttackTime = Time.time;
         isAttacking = false;
         preventAttack = false;
@@ -1185,7 +1180,6 @@ public class WeaponBehaviour : MonoBehaviour
         isTongueGoingOut = true;
         tongueLineRenderer.enabled = true;
         outlineLineRenderer.enabled = true;
-        tongueCollider.enabled = true;
         float actualAttackSpeed = attackSpeed * (1+GameManager.instance.player.GetAttackSpeedBoost());
         while (isTongueGoingOut)
         {
@@ -1205,7 +1199,6 @@ public class WeaponBehaviour : MonoBehaviour
         }
         tongueLineRenderer.enabled = false;
         outlineLineRenderer.enabled = false;
-        tongueCollider.enabled = false;
         lastAttackTime = Time.time;
         isAttacking = false;        
         preventAttack = false;

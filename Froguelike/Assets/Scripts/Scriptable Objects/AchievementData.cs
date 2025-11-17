@@ -14,7 +14,8 @@ public enum AchievementConditionSpecialKey
     UNLOCK_10_CHAPTERS = 7,
     COMPLETE_1_ACHIEVEMENT = 8,
     UNLOCK_5_CHAPTERS = 9,
-    DIE_IN_TOADS_END_CHAPTER = 10
+    DIE_IN_TOADS_END_CHAPTER = 10,
+    MOVE_FAR_ENOUGH_IN_KERMITS_END_CHAPTER = 11
 }
 
 /// <summary>
@@ -121,7 +122,9 @@ public enum RewardFeatureType
     GHOST_BUFF, // Upgrade Ghost starting stats. Remove its HPMax debuff
     RIBBIT_BUFF, // Upgrade Ribbit starting stats. Remove its damage debuff
     STANLEY_BUFF, // Upgrade Stanley starting stats. Starts with 9 lives
-    TOAD_BUFF // Upgrade Toad starting stats. Gives more armor
+    TOAD_BUFF, // Upgrade Toad starting stats. Gives more armor
+    KERMIT_BUFF, // Upgrade Kermit starting stats. Gives a XP buff
+    FROG_BUFF // Upgrade Frogs starting stats. Gives an extra tongue slot
 }
 
 /// <summary>

@@ -25,6 +25,9 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
     public Sprite characterAvailableFrameSprite;
     public Sprite characterSelectedFrameSprite;
     [Space]
+    public Sprite lockedCharacterSprite;
+    public Sprite lockedCharacterStartTongueSprite;    
+    [Space]
     public Color charactersDefaultTextColor;
     public Color charactersHintTextColor;
     [Space]
@@ -50,6 +53,8 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
 
     private const float gap = 22;
 
+    private bool selectUsingMouseCursor = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -71,8 +76,8 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
     {
         if (character != null && character.characterData != null && characterButton != null && characterButton.isActiveAndEnabled)
         {
-            characterButton.interactable = character.unlocked;
-            characterIconImage.enabled = character.unlocked;
+            // characterButton.interactable = character.unlocked;
+            characterIconImage.enabled = true; // character.unlocked;
             tongueIconImage.enabled = character.unlocked;
             if (character.unlocked)
             {
@@ -80,7 +85,8 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
                 characterFrameImage.sprite = isSelected ? characterSelectedFrameSprite : characterAvailableFrameSprite; // use the corresponding sprite if the character is selected
                 characterBackgroundImage.color = isSelected ? characterSelectedBackgroundColor : characterAvailableBackgroundColor;
                 characterBackgroundAnimationImage.color = isSelected ? characterSelectedBackgroundAnimationColor : characterAvailableBackgroundAnimationColor;
-                animationImage.color = isSelected ? characterSelectedFrameAnimationColor : characterAvailableFrameAnimationColor; // Set the color for the animation. 
+                animationImage.color = isSelected ? characterSelectedFrameAnimationColor : characterAvailableFrameAnimationColor; // Set the color for the animation.
+                animationImage.transform.rotation = new Quaternion(0, 0, 0, 0); // Set rotation (locked is rotated 180 around x).
                 characterNameText.color = charactersDefaultTextColor;
                 characterNameText.text = character.characterData.characterName;
                 characterDescriptionText.color = charactersDefaultTextColor;
@@ -91,17 +97,29 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
             }
             else
             {
-                // character is locked, so display hint to unlock it
+                // character is locked, display hint on how to unlock it (from achievement)
                 characterFrameImage.sprite = characterLockedFrameSprite;
                 characterBackgroundImage.color = characterLockedBackgroundColor;
                 characterBackgroundAnimationImage.color = characterLockedBackgroundAnimationColor;
                 animationImage.color = characterLockedFrameAnimationColor; // Set the color for the animation.
+                animationImage.transform.rotation = new Quaternion(180, 0, 0, 0); // Set rotation (locked is rotated 180 around x).
                 characterNameText.color = charactersHintTextColor;
-                characterNameText.text = "???";
+                characterNameText.text = character.characterData.characterName;
                 characterDescriptionText.color = charactersHintTextColor;
+                characterIconImage.sprite = lockedCharacterSprite;
+                characterIconImage.SetNativeSize();
+                tongueIconImage.sprite = character.characterData.startingItems[0].icon;
                 if (character.characterData.unlockHint != null)
                 {
-                    characterDescriptionText.text = $"UNLOCK: {character.characterData.unlockHint.Replace("\\n", "\n")}";
+                    Achievement ach = AchievementManager.instance.GetAchievementThatUnlocksCharacter(character.characterData.characterID);
+                    if (ach != null)
+                    {
+                        characterDescriptionText.text = $"How to unlock:\n{ach.GetAchievementDescription().Replace("\\n", "\n")}";
+                    }
+                    else
+                    {
+                        characterDescriptionText.text = "There's a secret thing to do to unlock that frog.";
+                    }
                 }
             }
         }
@@ -122,14 +140,19 @@ public class CharacterSelectionButton : MonoBehaviour, ISelectHandler, IPointerE
     {
         SoundManager.instance.PlayButtonSound(characterButton);
 
-        // Scroll the button into view.
-        StartCoroutine(ScrollButtonIntoViewAsync());
+        if (!selectUsingMouseCursor)
+        {
+            // Scroll the button into view.
+            StartCoroutine(ScrollButtonIntoViewAsync());
+        }
+        selectUsingMouseCursor = false;
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (eventData.delta.x != 0 || eventData.delta.y != 0)
         {
+            selectUsingMouseCursor = true;
             characterButton.Select();
         }
     }

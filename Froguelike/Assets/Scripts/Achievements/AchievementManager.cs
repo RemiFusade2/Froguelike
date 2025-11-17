@@ -134,6 +134,7 @@ public class AchievementManager : MonoBehaviour
     public ScrollbarKeepCursorSizeBehaviour achievementsScrollbar;
     [Space]
     public GameObject achievementEntryPrefab;
+    public GameObject achievementEntryWithCountPrefab;
 
     [Header("Runtime")]
     public AchievementsSaveData achievementsData; // Load from save file
@@ -314,6 +315,99 @@ public class AchievementManager : MonoBehaviour
 
     #endregion
 
+    public List<Achievement> TryUnlockAchievementsOutOfARun(bool unlockAchievements)
+    {
+        List<Achievement> unlockedAchievementsList = new List<Achievement>();
+
+        List<Achievement> metaAchievements = new List<Achievement>(); // achievements that depend on other achievements
+
+        foreach (Achievement achievement in achievementsData.achievementsList)
+        {
+            bool isDemoBuildAndAchievementIsNotPartOfDemo = IsAchievementLockedBehindDemo(achievement);
+            bool achievementIsLockedBehindMissingIcon = IsAchievementLockedBehindMissingIcon(achievement);
+            if (!achievement.unlocked && !isDemoBuildAndAchievementIsNotPartOfDemo /*&& !achievementIsLockedBehindMissingIcon*/)
+            {
+                bool conditionsAreMet = true;
+                foreach (AchievementCondition condition in achievement.achievementData.conditionsList)
+                {
+                    switch (condition.conditionType)
+                    {
+                        case AchievementConditionType.SPECIAL:
+                            switch (condition.specialKey)
+                            {
+                                case AchievementConditionSpecialKey.GET_100_FROINS:
+                                    conditionsAreMet &= (GameManager.instance.gameData.availableCurrency >= 100);
+                                    break;
+                                case AchievementConditionSpecialKey.UNLOCK_A_CHARACTER:
+                                    conditionsAreMet &= (CharacterManager.instance.GetUnlockedCharacterCount() > 1);
+                                    break;
+                                case AchievementConditionSpecialKey.COMPLETE_1_ACHIEVEMENT:
+                                    if (!metaAchievements.Contains(achievement))
+                                    {
+                                        metaAchievements.Add(achievement);
+                                    }
+                                    conditionsAreMet &= (achievementsData.achievementsList.Count(x => x.unlocked) >= 1);
+                                    break;
+                                case AchievementConditionSpecialKey.COMPLETE_10_ACHIEVEMENTS:
+                                    if (!metaAchievements.Contains(achievement))
+                                    {
+                                        metaAchievements.Add(achievement);
+                                    }
+                                    conditionsAreMet &= (achievementsData.achievementsList.Count(x => x.unlocked) >= 10);
+                                    break;
+                                case AchievementConditionSpecialKey.DIE_A_BUNCH_OF_TIMES:
+                                    conditionsAreMet &= GameManager.instance.gameData.deathCount >= 10;
+                                    break;
+                                case AchievementConditionSpecialKey.EAT_20000_BUGS:
+                                    conditionsAreMet &= (GameManager.instance.gameData.cumulatedScore >= 20000);
+                                    break;
+                                case AchievementConditionSpecialKey.UNLOCK_10_CHAPTERS:
+                                    if (!metaAchievements.Contains(achievement))
+                                    {
+                                        metaAchievements.Add(achievement);
+                                    }
+                                    conditionsAreMet &= (ChapterManager.instance.GetUnlockedChaptersCount() >= 10);
+                                    break;
+                                case AchievementConditionSpecialKey.UNLOCK_5_CHAPTERS:
+                                    if (!metaAchievements.Contains(achievement))
+                                    {
+                                        metaAchievements.Add(achievement);
+                                    }
+                                    conditionsAreMet &= (ChapterManager.instance.GetUnlockedChaptersCount() >= 5);
+                                    break;
+                                default:
+                                    conditionsAreMet = false;
+                                    break;
+                            }
+                            break;
+                        default:
+                            conditionsAreMet = false;
+                            break;
+                    }
+                    if (!conditionsAreMet)
+                    {
+                        break; // if one achievementCondition was false, there's no need to check the other ones, let's move on to the next achievement instead
+                    }
+                }
+                if (conditionsAreMet)
+                {
+                    // Conditions are met to unlock this Achievement!
+                    unlockedAchievementsList.Add(achievement);
+                    if (unlockAchievements)
+                    {
+                        UnlockAchievement(achievement);
+                    }
+                }
+            }
+        }
+
+        // Special case: there is one last achievement we want to "double check" after all other achievements were computed
+        UnlockMetaAchievements(metaAchievements, unlockedAchievementsList);
+
+        SteamStoreStats();
+
+        return unlockedAchievementsList;
+    }
 
     public List<Achievement> GetUnlockedAchievementsForCurrentRun(bool unlockAchievements, bool forceUnlockEverything)
     {
@@ -429,6 +523,13 @@ public class AchievementManager : MonoBehaviour
                                     Chapter lastChapter = RunManager.instance.currentChapter;
                                     conditionsAreMet &= (lastChapter?.chapterID == ChapterManager.instance.toadEndChapterForSpecialStuff.chapterID);
                                     break;
+                                case AchievementConditionSpecialKey.MOVE_FAR_ENOUGH_IN_KERMITS_END_CHAPTER:
+                                    ChapterData kermitEndChapter = ChapterManager.instance.kermitEndChapterForSpecialStuff;
+                                    float playerDistanceFromSpawn = RunManager.instance.player.transform.position.magnitude / 10;
+                                    float minDistanceNeeded = kermitEndChapter.nextChapterConditionCount.goal;
+                                    conditionsAreMet &= (RunManager.instance.currentChapter?.chapterID == kermitEndChapter.chapterID && playerDistanceFromSpawn >= minDistanceNeeded);
+                                    if (conditionsAreMet) UnlockAchievement(achievement);
+                                    break;
                             }
                             break;
                     }
@@ -451,6 +552,15 @@ public class AchievementManager : MonoBehaviour
         }
 
         // Special case: there is one last achievement we want to "double check" after all other achievements were computed
+        UnlockMetaAchievements(metaAchievements, unlockedAchievementsList);
+
+        SteamStoreStats();
+
+        return unlockedAchievementsList;
+    }
+
+    private void UnlockMetaAchievements(List<Achievement> metaAchievements, List<Achievement> unlockedAchievementsList)
+    {
         foreach (Achievement achievement in metaAchievements)
         {
             if (!achievement.unlocked)
@@ -483,10 +593,6 @@ public class AchievementManager : MonoBehaviour
                 }
             }
         }
-
-        SteamStoreStats();
-
-        return unlockedAchievementsList;
     }
 
     public void UnlockListOfAchievements(List<Achievement> loadedAchievementsList)
@@ -639,7 +745,7 @@ public class AchievementManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Update the UI of the Achievements screen.
+    /// Update the UI of the Achievements screen (Quest book).
     /// </summary>
     public void DisplayAchievementsScreen()
     {
@@ -690,7 +796,17 @@ public class AchievementManager : MonoBehaviour
 
                 if (addThisAchievementToTheList)
                 {
-                    GameObject achievementEntryGo = Instantiate(achievementEntryPrefab, achievementScrollEntriesParent);
+                    GameObject achievementEntryGo = null;
+
+                    if (achievement.achievementData.conditionsList[0].specialKey == AchievementConditionSpecialKey.DIE_A_BUNCH_OF_TIMES || (achievement.achievementData.conditionsList[0].specialKey == AchievementConditionSpecialKey.EAT_20000_BUGS && !BuildManager.instance.demoBuild))
+                    {
+                        achievementEntryGo = Instantiate(achievementEntryWithCountPrefab, achievementScrollEntriesParent);
+                    }
+                    else
+                    {
+                        achievementEntryGo = Instantiate(achievementEntryPrefab, achievementScrollEntriesParent);
+                    }
+
                     AchievementEntryPanelBehaviour achievementEntryScript = achievementEntryGo.GetComponent<AchievementEntryPanelBehaviour>();
                     bool darkerBkg = (entryCount / 2) % 2 == 0;
                     bool canAchieve = IsAchievementAvailable(achievement);
@@ -785,6 +901,12 @@ public class AchievementManager : MonoBehaviour
                                 }
                             }
                             break;
+                        case AchievementConditionType.SPECIAL:
+                            if (condition.specialKey == AchievementConditionSpecialKey.MOVE_FAR_ENOUGH_IN_KERMITS_END_CHAPTER)
+                            {
+                                achievementFound = true; // There is a goal in this chapter that must be reached to unlock this achievement.
+                            }
+                            break;
                     }
                     if (achievementFound)
                     {
@@ -830,7 +952,9 @@ public class AchievementManager : MonoBehaviour
             && (x.achievementData.reward.featureID == RewardFeatureType.GHOST_BUFF ||
                 x.achievementData.reward.featureID == RewardFeatureType.RIBBIT_BUFF ||
                 x.achievementData.reward.featureID == RewardFeatureType.STANLEY_BUFF ||
-                x.achievementData.reward.featureID == RewardFeatureType.TOAD_BUFF) // only if "feature" is a stat boost for a frog
+                x.achievementData.reward.featureID == RewardFeatureType.TOAD_BUFF ||
+                x.achievementData.reward.featureID == RewardFeatureType.KERMIT_BUFF ||
+                x.achievementData.reward.featureID == RewardFeatureType.FROG_BUFF) // only if "feature" is a stat boost for a frog
             ).ToList();
 
         foreach (Achievement achievement in unlockedStatIncrementAchievementsList)
@@ -850,6 +974,12 @@ public class AchievementManager : MonoBehaviour
                 case RewardFeatureType.TOAD_BUFF:
                     playableFrog = CharacterManager.instance.charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals("TOAD"));
                     break;
+                case RewardFeatureType.KERMIT_BUFF:
+                    playableFrog = CharacterManager.instance.charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals("SWIMMING_FROG"));
+                    break;
+                case RewardFeatureType.FROG_BUFF:
+                    playableFrog = CharacterManager.instance.charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals("CLASSIC_FROG"));
+                    break;
                 default:
                     break;
             }
@@ -866,5 +996,26 @@ public class AchievementManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    public int GetLockedRestocksForItem(ShopItemData shopItemData)
+    {
+        List<Achievement> lockedAchievementsThatRestockThisItem = achievementsData.achievementsList.Where(
+            x => !x.unlocked // only locked achievements
+            && (!BuildManager.instance.demoBuild || x.achievementData.partOfDemo) // if we're playing the Demo then only achievements that are part of Demo
+            && x.achievementData.reward.rewardType == AchievementRewardType.SHOP_ITEM // only achievements that give a shop item
+            && (x.achievementData.reward.shopItem == shopItemData) // only if shop item is the one we want
+            ).ToList();
+
+        return lockedAchievementsThatRestockThisItem.Count;
+    }
+
+    public Achievement GetAchievementThatUnlocksCharacter(string characterID)
+    {
+        Achievement achievementThatUnlocksCharacter = achievementsData.achievementsList.FirstOrDefault(x =>
+            x.achievementData.reward.rewardType == AchievementRewardType.CHARACTER
+            && (x.achievementData.reward.character.characterID == characterID)
+            );
+        return achievementThatUnlocksCharacter;
     }
 }

@@ -25,15 +25,25 @@ public class SettingsManager : MonoBehaviour
     public PixelPerfectCamera pixelPerfectCamera;
     public CanvasScaler canvasScaler;
 
+    #region Disclaimer screens
+
     [Header("Disclaimer settings")]
     public Toggle disclaimerToggle;
     public DisclaimerScreen eaDisclaimerScreen;
     public DisclaimerScreen demoDisclaimerScreen;
+    private string savedShowDemoDisclaimerSettingKey = "Froguelike Demo Disclaimer on";
+    private string savedShowEADisclaimerSettingKey = "Froguelike EA Disclaimer on";
+
+    #endregion Disclaimer screens
+
+    #region Damage text
 
     [Header("Damage text settings")]
     public Toggle damageTextToggle;
     public bool showDamageText { get; private set; }
     private string savedDamageTextSettingKey = "Froguelike damage text visible";
+
+    #endregion Damage text
 
     #region Sound
 
@@ -43,27 +53,40 @@ public class SettingsManager : MonoBehaviour
     public Slider SFXSlider;
     public Toggle musicToggle;
     public Slider musicSlider;
+    public Toggle ambienceToggle;
+    public Slider ambienceSlider;
+    public Toggle bugSoundsToggle;
+    public Slider bugSoundsSlider;
 
+    // Remember previous volume when toggling sound off.
     private float previousSFXVolume;
     private float previousMusicVolume;
+    private float previousAmbienceVolume;
+    private float previousBugSoundsVolume;
 
+    // Save values in player prefs.
+    // SFX.
     private bool savedSFXOn;
     private string savedSFXOnKey = "Froguelike SFX on";
     private float savedSFXVolume;
     private string savedSFXVolumeKey = "Froguelike SFX volume";
+    // Music.
     private bool savedMusicOn;
     private string savedMusicOnKey = "Froguelike music on";
     private float savedMusicVolume;
     private string savedMusicVolumeKey = "Froguelike music volume";
+    // Ambience.
+    private bool savedAmbienceOn;
+    private string savedAmbienceOnKey = "Froguelike ambience on";
+    private float savedAmbienceVolume;
+    private string savedAmbienceVolumeKey = "Froguelike ambience volume";
+    // Bug sounds.
+    private bool savedBugSoundsOn;
+    private string savedBugSoundsOnKey = "Froguelike bug sounds on";
+    private float savedBugSoundsVolume;
+    private string savedBugSoundsVolumeKey = "Froguelike bug sounds volume";
 
     #endregion Sound
-
-    #region Disclaimer screens
-
-    private string savedShowDemoDisclaimerKey = "Froguelike Demo Disclaimer on";
-    private string savedShowEADisclaimerKey = "Froguelike EA Disclaimer on";
-
-    #endregion Disclaimer screens
 
     #region Font
 
@@ -75,10 +98,19 @@ public class SettingsManager : MonoBehaviour
     [SerializeField] private GameObject pixelTextOnShopNote;
     [SerializeField] private GameObject notPixelTextOnShopNote;
     private UnityEngine.Object[] textObjectsList = new UnityEngine.Object[] { };
-    private string savedFont = "Froguelike Saved Font";
+    private string savedFontSettingKey = "Froguelike Saved Font";
     private int currentFontIndex;
 
     #endregion Font
+
+    #region Flashing effects
+
+    [Header("Flashing effects setting")]
+    public Toggle flashingEffectsToggle;
+    public bool showFlashingEffects { get; private set; }
+    private string savedFlashingEffectSettingKey = "Froguelike flashing effect visible";
+
+    #endregion Flashing effects
 
     [Header("For debugging")]
     public TextMeshProUGUI text;
@@ -87,6 +119,8 @@ public class SettingsManager : MonoBehaviour
     // Various private variables.
     private Vector2Int biggestResolutionForThisScreen;
     private List<Vector2Int> allowedResolutions;
+    private bool resFixDone = false;
+    private bool changeResBack = false;
 
     int gameWidth;
     int gameHeight;
@@ -127,6 +161,7 @@ public class SettingsManager : MonoBehaviour
         LoadAudioSettings();
         LoadDisclaimerSettings();
         LoadDamageTextSetting();
+        LoadFlashingEffectsSetting();
 
         // Find all text boxes in the game.
         textObjectsList = Resources.FindObjectsOfTypeAll(typeof(TextMeshProUGUI));
@@ -147,7 +182,7 @@ public class SettingsManager : MonoBehaviour
             FindAllowedResolutions();
         }
 
-        // Make sure the toggle is displaying correctly.
+        // Make sure the full screen toggle is displaying correctly.
         if ((Screen.fullScreen && !fullscreenToggle.isOn) || (!Screen.fullScreen && fullscreenToggle.isOn))
         {
             if (!isChangingFullscreen)
@@ -167,6 +202,12 @@ public class SettingsManager : MonoBehaviour
         {
             ResizeCanvas();
             resolutionScrollRect.UpdateScroll(false, pixelPerfectCamera.pixelRatio);
+        }
+
+        // Makes sure the thintel font show up when not playing in fullscreen on mac.
+        if (Application.platform == RuntimePlatform.OSXPlayer && !resFixDone)
+        {
+            SetResAtStart();
         }
     }
 
@@ -343,9 +384,41 @@ public class SettingsManager : MonoBehaviour
             musicSlider.SetValueWithoutNotify(previousMusicVolume);
         }
         musicToggle.isOn = savedMusicOn;
+
+        // Ambience.
+        savedAmbienceOn = PlayerPrefs.GetInt(savedAmbienceOnKey, 1) == 1;
+        if (savedAmbienceOn)
+        {
+            savedAmbienceVolume = PlayerPrefs.GetFloat(savedAmbienceVolumeKey);
+            SetAmbienceVolume(savedAmbienceVolume);
+            ambienceSlider.SetValueWithoutNotify(savedAmbienceVolume);
+        }
+        else
+        {
+            previousAmbienceVolume = PlayerPrefs.GetFloat(savedAmbienceVolumeKey);
+            ambienceSlider.SetValueWithoutNotify(previousAmbienceVolume);
+        }
+        ambienceToggle.isOn = savedAmbienceOn;
+
+        // Bug sounds.
+        savedBugSoundsOn = PlayerPrefs.GetInt(savedBugSoundsOnKey, 1) == 1;
+        if (savedBugSoundsOn)
+        {
+            savedBugSoundsVolume = PlayerPrefs.GetFloat(savedBugSoundsVolumeKey);
+            SetBugSoundsVolume(savedBugSoundsVolume);
+            bugSoundsSlider.SetValueWithoutNotify(savedBugSoundsVolume);
+        }
+        else
+        {
+            previousBugSoundsVolume = PlayerPrefs.GetFloat(savedBugSoundsVolumeKey);
+            bugSoundsSlider.SetValueWithoutNotify(previousBugSoundsVolume);
+        }
+        bugSoundsToggle.isOn = savedBugSoundsOn;
     }
 
-    // Turns SFX on with true, turns sound of with false.
+    #region Setters
+
+    // Turns SFX on with true, turns SFX of with false.
     public void SFXOn(bool on)
     {
         PlayerPrefs.SetInt(savedSFXOnKey, on ? 1 : 0);
@@ -373,7 +446,7 @@ public class SettingsManager : MonoBehaviour
         SoundManager.instance.MuteSFXBus(!on);
     }
 
-    // Turns music on with true, turns sound of with false.
+    // Turns music on with true, turns music of with false.
     public void MusicOn(bool on)
     {
         PlayerPrefs.SetInt(savedMusicOnKey, on ? 1 : 0);
@@ -399,6 +472,62 @@ public class SettingsManager : MonoBehaviour
         }
 
         SoundManager.instance.MuteMusicBus(!on);
+    }
+
+    // Turns ambience on with true, turns ambience of with false.
+    public void AmbienceOn(bool on)
+    {
+        PlayerPrefs.SetInt(savedAmbienceOnKey, on ? 1 : 0);
+
+        if (on)
+        {
+            SetAmbienceVolume(previousAmbienceVolume);
+            ambienceSlider.SetValueWithoutNotify(previousAmbienceVolume);
+        }
+        else
+        {
+            if (ambienceSlider.value == ambienceSlider.minValue)
+            {
+                previousAmbienceVolume = ambienceSlider.maxValue / 2;
+            }
+            else
+            {
+                previousAmbienceVolume = ambienceSlider.value;
+                ambienceSlider.SetValueWithoutNotify(ambienceSlider.minValue);
+            }
+
+            PlayerPrefs.SetFloat(savedAmbienceVolumeKey, previousAmbienceVolume);
+        }
+
+        SoundManager.instance.MuteAmbienceBus(!on);
+    }
+
+    // Turns bug sounds on with true, turns bug sounds of with false.
+    public void BugSoundsOn(bool on)
+    {
+        PlayerPrefs.SetInt(savedBugSoundsOnKey, on ? 1 : 0);
+
+        if (on)
+        {
+            SetBugSoundsVolume(previousBugSoundsVolume);
+            bugSoundsSlider.SetValueWithoutNotify(previousBugSoundsVolume);
+        }
+        else
+        {
+            if (bugSoundsSlider.value == bugSoundsSlider.minValue)
+            {
+                previousBugSoundsVolume = bugSoundsSlider.maxValue / 2;
+            }
+            else
+            {
+                previousBugSoundsVolume = bugSoundsSlider.value;
+                bugSoundsSlider.SetValueWithoutNotify(bugSoundsSlider.minValue);
+            }
+
+            PlayerPrefs.SetFloat(savedBugSoundsVolumeKey, previousBugSoundsVolume);
+        }
+
+        SoundManager.instance.MuteBugSoundsBus(!on);
     }
 
     // Sets volume and updates the check box if necessary.
@@ -457,6 +586,64 @@ public class SettingsManager : MonoBehaviour
         SoundManager.instance.SetNewMusicVolume(newVolume);
     }
 
+    // Sets volume and updates the check box if necessary.
+    public void SetAmbienceVolume(float volume)
+    {
+        PlayerPrefs.SetFloat(savedAmbienceVolumeKey, volume);
+
+        float newVolume = volume / ambienceSlider.maxValue * 2;
+
+        if (newVolume == ambienceSlider.minValue)
+        {
+            if (ambienceToggle.isOn)
+            {
+                ambienceToggle.SetIsOnWithoutNotify(false);
+                AmbienceOn(false);
+            }
+        }
+        else if (newVolume > 0)
+        {
+            if (!ambienceToggle.isOn)
+            {
+                ambienceToggle.SetIsOnWithoutNotify(true);
+                PlayerPrefs.SetInt(savedAmbienceOnKey, 1);
+                SoundManager.instance.MuteAmbienceBus(false);
+            }
+        }
+
+        SoundManager.instance.SetNewAmbienceVolume(newVolume);
+    }
+
+    // Sets volume and updates the check box if necessary.
+    public void SetBugSoundsVolume(float volume)
+    {
+        PlayerPrefs.SetFloat(savedBugSoundsVolumeKey, volume);
+
+        float newVolume = volume / bugSoundsSlider.maxValue * 2;
+
+        if (newVolume == bugSoundsSlider.minValue)
+        {
+            if (bugSoundsToggle.isOn)
+            {
+                bugSoundsToggle.SetIsOnWithoutNotify(false);
+                BugSoundsOn(false);
+            }
+        }
+        else if (newVolume > 0)
+        {
+            if (!bugSoundsToggle.isOn)
+            {
+                bugSoundsToggle.SetIsOnWithoutNotify(true);
+                PlayerPrefs.SetInt(savedBugSoundsOnKey, 1);
+                SoundManager.instance.MuteBugSoundsBus(false);
+            }
+        }
+
+        SoundManager.instance.SetNewBugSoundsVolume(newVolume);
+    }
+
+    #endregion Setters
+
     #endregion Sound
 
     #region Disclaimer screens
@@ -475,23 +662,23 @@ public class SettingsManager : MonoBehaviour
 
     public bool IsDemoDisclaimerOn()
     {
-        return PlayerPrefs.GetInt(savedShowDemoDisclaimerKey, 1) == 1;
+        return PlayerPrefs.GetInt(savedShowDemoDisclaimerSettingKey, 1) == 1;
     }
 
     public void SetDemoDisclaimerOn(bool on)
     {
-        PlayerPrefs.SetInt(savedShowDemoDisclaimerKey, on ? 1 : 0);
+        PlayerPrefs.SetInt(savedShowDemoDisclaimerSettingKey, on ? 1 : 0);
         disclaimerToggle.SetIsOnWithoutNotify(on);
     }
 
     public bool IsEADisclaimerOn()
     {
-        return PlayerPrefs.GetInt(savedShowEADisclaimerKey, 1) == 1;
+        return PlayerPrefs.GetInt(savedShowEADisclaimerSettingKey, 1) == 1;
     }
 
     public void SetEADisclaimerOn(bool on)
     {
-        PlayerPrefs.SetInt(savedShowEADisclaimerKey, on ? 1 : 0);
+        PlayerPrefs.SetInt(savedShowEADisclaimerSettingKey, on ? 1 : 0);
         disclaimerToggle.SetIsOnWithoutNotify(on);
     }
 
@@ -511,7 +698,7 @@ public class SettingsManager : MonoBehaviour
 
     #region Damage text
 
-    public void LoadDamageTextSetting()
+    private void LoadDamageTextSetting()
     {
         showDamageText = PlayerPrefs.GetInt(savedDamageTextSettingKey, 1) == 1 ? true : false;
         damageTextToggle.SetIsOnWithoutNotify(showDamageText);
@@ -531,13 +718,13 @@ public class SettingsManager : MonoBehaviour
 
     public void LoadFontSetting()
     {
-        currentFontIndex = PlayerPrefs.GetInt(savedFont, 0);
+        currentFontIndex = PlayerPrefs.GetInt(savedFontSettingKey, 0);
         SetFont(currentFontIndex);
     }
 
     public void SaveFontSetting(int fontIndex)
     {
-        PlayerPrefs.SetInt(savedFont, fontIndex);
+        PlayerPrefs.SetInt(savedFontSettingKey, fontIndex);
     }
 
     // Used when loading font setting.
@@ -587,7 +774,51 @@ public class SettingsManager : MonoBehaviour
         fontsScrollRect.Initialize(listOfFonts, listOfFontNames, currentFontIndex);
     }
 
+    // Fixes a bug that made the pixel font dissapear when starting the game not in fullscreen on mac, is only called if the application is running on mac.
+    private void SetResAtStart()
+    {
+        if (!Screen.fullScreen)
+        {
+            Vector2Int currentRes = allowedResolutions[Mathf.Max(currentResolutionIndex, 0)];
+
+            if (!changeResBack)
+            {
+                Screen.SetResolution(currentRes.x + 1, currentRes.y + 1, false);
+            }
+            else
+            {
+                Screen.SetResolution(currentRes.x, currentRes.y, false);
+            }
+        }
+
+        if (changeResBack)
+        {
+            resFixDone = true;
+        }
+        else
+        {
+            changeResBack = true;
+        }
+    }
+
     #endregion Font
+
+    #region Flashing effects
+
+    private void LoadFlashingEffectsSetting()
+    {
+        showFlashingEffects = PlayerPrefs.GetInt(savedFlashingEffectSettingKey, 1) == 1 ? true : false;
+        flashingEffectsToggle.SetIsOnWithoutNotify(showFlashingEffects);
+    }
+
+    public void ToggleFlashingEffects()
+    {
+        // Revert the current status for using flashing effects and save it.
+        showFlashingEffects = !showFlashingEffects;
+        PlayerPrefs.SetInt(savedFlashingEffectSettingKey, showFlashingEffects == true ? 1 : 0);
+    }
+
+    #endregion Flashing effects
 
     #region Tabs
 

@@ -19,6 +19,7 @@ public class UIManager : MonoBehaviour
 
     [Header("Settings")]
     public VerboseLevel logsVerboseLevel = VerboseLevel.NONE;
+    public bool shopAndQuestsButtonsAreAlwaysVisible = true;
 
     [Header("Version")]
     public TextMeshProUGUI versionNumberText;
@@ -93,6 +94,7 @@ public class UIManager : MonoBehaviour
     public Animator pausePanelAnimator;
     public GameObject selectedButtonPausePanel;
     private bool makeLevelUpPanelInteractableAfterClosingPausePanel = false;
+    private bool makeChapterSelectionInteractableAfterClosingPausePanel = false;
 
     #endregion
 
@@ -219,32 +221,7 @@ public class UIManager : MonoBehaviour
         HideAllScreens();
         UpdateTitleScreenCurrencyText(GameManager.instance.gameData.availableCurrency);
 
-        bool shopAndQuestsButtonsAreAlwaysVisible = true;
-        if (shopAndQuestsButtonsAreAlwaysVisible)
-        {
-            shopButton.SetActive(true);
-            shopButton.GetComponent<Button>().interactable = ShopManager.instance.IsShopUnlocked();
-            shopButton.GetComponent<CanvasGroup>().blocksRaycasts = ShopManager.instance.IsShopUnlocked();
-            if (!ShopManager.instance.IsShopUnlocked())
-            {
-                shopButtonActiveNote.SetActive(false);
-                shopButtonLockedNote.SetActive(true);
-            }
-            else
-            {
-                shopButtonActiveNote.SetActive(true);
-                shopButtonLockedNote.SetActive(false);
-            }
-
-            achievementsButton.SetActive(true);
-            achievementsButton.GetComponent<Button>().interactable = AchievementManager.instance.IsAchievementsListUnlocked();
-            achievementsButton.GetComponent<CanvasGroup>().blocksRaycasts = AchievementManager.instance.IsAchievementsListUnlocked();
-        }
-        else
-        {
-            shopButton.SetActive(ShopManager.instance.IsShopUnlocked());
-            achievementsButton.SetActive(AchievementManager.instance.IsAchievementsListUnlocked());
-        }
+        UpdateShopAndQuestButtonsOnTitleScreen();
 
         // Quick start button
         quickStartButton.SetActive(GameManager.instance.AreThereQuickStartOptions());
@@ -270,6 +247,36 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void UpdateShopAndQuestButtonsOnTitleScreen()
+    {
+        if (shopAndQuestsButtonsAreAlwaysVisible)
+        {
+            shopButton.SetActive(true);
+            shopButton.GetComponent<Button>().interactable = ShopManager.instance.IsShopUnlocked();
+            shopButton.GetComponent<CanvasGroup>().blocksRaycasts = ShopManager.instance.IsShopUnlocked();
+            if (!ShopManager.instance.IsShopUnlocked())
+            {
+                shopButtonActiveNote.SetActive(false);
+                shopButtonLockedNote.SetActive(true);
+            }
+            else
+            {
+                shopButtonActiveNote.SetActive(true);
+                shopButtonLockedNote.SetActive(false);
+            }
+
+            achievementsButton.SetActive(true);
+            achievementsButton.GetComponent<Button>().interactable = AchievementManager.instance.IsAchievementsListUnlocked();
+            achievementsButton.GetComponent<CanvasGroup>().blocksRaycasts = AchievementManager.instance.IsAchievementsListUnlocked();
+        }
+        else
+        {
+            shopButton.SetActive(ShopManager.instance.IsShopUnlocked());
+            achievementsButton.SetActive(AchievementManager.instance.IsAchievementsListUnlocked());
+        }
+        UpdateCurrencyDisplay();
+    }
+
     public void UpdateCurrencyDisplay()
     {
         long currencyValue = GameManager.instance.gameData.availableCurrency;
@@ -280,7 +287,7 @@ public class UIManager : MonoBehaviour
 
     private void UpdateTitleScreenCurrencyText(long currencyValue)
     {
-        titleScreenCurrencyText.text = Tools.FormatCurrency(currencyValue, " " + DataManager.instance.currencyName);
+        titleScreenCurrencyText.text = Tools.FormatCurrency(currencyValue, DataManager.instance.currencySymbol);
     }
 
     public void ShowCharacterSelectionScreen(bool thenGoToChapterSelection)
@@ -357,6 +364,11 @@ public class UIManager : MonoBehaviour
         {
             Debug.Log("UI - Display Chapter start screen");
         }
+    }
+
+    public bool IsChapterStartScreenVisible()
+    {
+        return chapterStartScreen.activeSelf;
     }
 
     public void ShowScoreScreen()
@@ -442,6 +454,12 @@ public class UIManager : MonoBehaviour
                 makeLevelUpPanelInteractableAfterClosingPausePanel = true;
                 SavePreviousSelectedButton();
             }
+            else if (chapterSelectionScreen.activeInHierarchy)
+            {
+                SetScreenInteractability(chapterSelectionScreen, false);
+                makeChapterSelectionInteractableAfterClosingPausePanel = true;
+                SavePreviousSelectedButton();
+            }
             else
             {
                 makeLevelUpPanelInteractableAfterClosingPausePanel = false;
@@ -482,6 +500,13 @@ public class UIManager : MonoBehaviour
             {
                 SetScreenInteractability(levelUpPanel, true);
                 SetPreviousSelectedButton();
+                makeLevelUpPanelInteractableAfterClosingPausePanel = false;
+            }
+            else if (makeChapterSelectionInteractableAfterClosingPausePanel)
+            {
+                SetScreenInteractability(chapterSelectionScreen, true);
+                SetPreviousSelectedButton();
+                makeChapterSelectionInteractableAfterClosingPausePanel = false;
             }
             else
             {

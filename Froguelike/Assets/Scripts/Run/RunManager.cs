@@ -1,3 +1,4 @@
+using FMODUnity;
 using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
@@ -437,6 +438,7 @@ public class RunManager : MonoBehaviour
 
         // Reset Chapters Weights
         ChapterManager.instance.ResetChaptersWeights();
+        ChapterManager.instance.isFirstChapter = true;
 
         if (startingChapter == null)
         {
@@ -624,9 +626,7 @@ public class RunManager : MonoBehaviour
 
     public void SetNextChapterConditionCount(NextChapterConditionCount nextChapterConditionCount)
     {
-        conditionCountIcon.sprite = DataManager.instance.GetNextChapterConditionCountTypeSpriteFromType(nextChapterConditionCount.countType);
-        conditionCountIcon.SetNativeSize();
-
+        Sprite sprite = DataManager.instance.GetNextChapterConditionCountTypeSpriteFromType(nextChapterConditionCount.countType);
         Vector2 noteSize = new Vector2(0, conditionCountIcon.transform.parent.GetComponent<RectTransform>().sizeDelta.y);
         Vector2 textContainerSize = new Vector2(0, 12);
 
@@ -644,6 +644,7 @@ public class RunManager : MonoBehaviour
                 textContainerSize.x = 35;
                 break;
             case NextChapterConditionCountType.DistanceFromSpawn:
+                if (nextChapterConditionCount.maxDistance) sprite = DataManager.instance.GetNextChapterConditionCountTypeSpriteFromType(nextChapterConditionCount.countType, true);
                 noteSize.x = 110;
                 textContainerSize.x = 78;
                 break;
@@ -654,6 +655,9 @@ public class RunManager : MonoBehaviour
             default:
                 break;
         }
+
+        conditionCountIcon.sprite = sprite;
+        conditionCountIcon.SetNativeSize();
 
         conditionCountText.rectTransform.sizeDelta = textContainerSize;
         conditionCountText.transform.parent.GetComponent<RectTransform>().sizeDelta = noteSize;
@@ -669,7 +673,7 @@ public class RunManager : MonoBehaviour
         // TODO where to trigger this? Both when adding firends and eating bounties? Is there a better way?
         // Remi comment: now that it can also show distance, this counter needs to be updated often (every second or every frame)
         NextChapterConditionCountType type = currentChapter.chapterData.nextChapterConditionCount.countType;
-        float distanceFromSpawn = Mathf.Clamp(player.transform.position.magnitude/10, 0, currentChapter.chapterData.nextChapterConditionCount.goal);
+        float distanceFromSpawn = Mathf.Clamp(player.transform.position.magnitude / 10, 0, currentChapter.chapterData.nextChapterConditionCount.goal);
         string countText = "";
 
         switch (type)
@@ -681,7 +685,7 @@ public class RunManager : MonoBehaviour
                 countText = FriendsManager.instance.permanentFriendsList.Count().ToString() + "/" + currentChapter.chapterData.nextChapterConditionCount.goal.ToString();
                 break;
             case NextChapterConditionCountType.DistanceFromSpawn:
-                countText = $"{distanceFromSpawn.ToString("0")}/{currentChapter.chapterData.nextChapterConditionCount.goal}hops";
+                countText = $"{distanceFromSpawn.ToString("0")}/{currentChapter.chapterData.nextChapterConditionCount.goal} hops";
                 break;
             case NextChapterConditionCountType.DistanceFromSpawnInDirection:
                 if (distanceFromSpawn >= currentChapter.chapterData.nextChapterConditionCount.goal)
@@ -705,7 +709,7 @@ public class RunManager : MonoBehaviour
     {
         int chapterCount = GetChapterCount();
         playedChaptersKillCounts[chapterCount - 1] += kills;
-        SetEatenCount(playedChaptersKillCounts[chapterCount - 1]);
+        SetEatenCount(GetTotalKillCount());
 
         // Update all stats that scale with score
         player.UpdateScalingWithScoreStats();
@@ -807,6 +811,7 @@ public class RunManager : MonoBehaviour
         GameManager.instance.SetTimeScale(0);
         MusicManager.instance.StopMusic();
         MusicManager.instance.PlayTitleMusic();
+        SoundManager.instance.StopPondAmbience();
         SoundManager.instance.PauseInGameLoopedSFX();
 
         // Check if this is a win
@@ -1023,6 +1028,13 @@ public class RunManager : MonoBehaviour
                 GameObject arrow = Instantiate(compassArrowPrefab, compassParent);
                 arrow.GetComponent<CompassArrowBehaviour>().SetCollectibleTileCoordinates(collectible.tileCoordinates);
                 arrow.GetComponent<CompassArrowBehaviour>().SetCollectibleHasBeenFound(collectibleHasBeenFoundOnce);
+                arrow.GetComponent<CompassArrowBehaviour>().knownItemSprite.sprite = DataManager.instance.GetSpriteForCollectible(collectible);
+                if (collectible.collectibleType == FixedCollectibleType.HAT)
+                {
+                    arrow.GetComponent<CompassArrowBehaviour>().knownItemSprite.transform.rotation = new Quaternion(0, 0, 180, 0);
+                }
+                arrow.GetComponent<CompassArrowBehaviour>().knownItemSprite.SetNativeSize();
+
                 compassArrowsList.Add(arrow.GetComponent<CompassArrowBehaviour>());
             }
         }
@@ -1059,11 +1071,12 @@ public class RunManager : MonoBehaviour
 
         GameManager.instance.SetTimeScale(1);
 
-        // Reset kill count
-        SetEatenCount(0);
+        // Show current total kill count
+        SetEatenCount(GetTotalKillCount());
 
-        // Play level music
+        // Play level music and ambience
         MusicManager.instance.PlayRunMusic();
+        SoundManager.instance.StartPondAmbience();
 
         // Fade out chapter start screen
         float fadeOutDelay = 0.4f;
@@ -1107,12 +1120,27 @@ public class RunManager : MonoBehaviour
         if (Mathf.RoundToInt(chapterRemainingTime + Time.deltaTime) > 0 && Mathf.RoundToInt(chapterRemainingTime) <= 0)
         {
             SoundManager.instance.PlayChapterEndSound();
+
+            MusicManager.instance.chapterIsEnding = true;
+            RuntimeManager.StudioSystem.getParameterByName("Tension Level", out var tensionLevelOut);
+            if (tensionLevelOut != 1)
+            {
+                RuntimeManager.StudioSystem.setParameterByName("Tension Level", tensionLevelOut - 1);
+            }
         }
 
         SetTimer(chapterRemainingTime);
+
+        if (chapterRemainingTime < -(delayAfterEndOfChapter / 2))
+        {
+            RuntimeManager.StudioSystem.setParameterByName("Tension Level", 1);
+        }
+
         if (chapterRemainingTime < -delayAfterEndOfChapter)
         {
             chapterRemainingTime = 0; // float.MaxValue;
+
+            MusicManager.instance.chapterIsEnding = false;
             EndChapter();
         }
     }
@@ -1531,7 +1559,7 @@ public class RunManager : MonoBehaviour
         // Audio
         SoundManager.instance.PlaySlideBookSound();
         SoundManager.instance.PauseInGameLoopedSFX();
-        // MusicManager.instance.PlayLevelUpMusic(true); for now there is now special music for picking a level up
+        // MusicManager.instance.PlayLevelUpMusic(true); for now there is no special music for picking a level up
 
         UIManager.instance.levelUpPanel.SetActive(true);
         UIManager.instance.levelUpPanelAnimator.SetBool("Visible", true);
@@ -1656,6 +1684,7 @@ public class RunManager : MonoBehaviour
     {
         levelUpPanel.GetComponent<CanvasGroup>().interactable = false;
         UIManager.instance.levelUpPanelAnimator.SetBool("Visible", false);
+        UIManager.instance.SetSelectedButton(buttonGO: null);
         SoundManager.instance.PlaySlideBookSound();
         SoundManager.instance.UnpauseInGameLoopedSFX();
         // MusicManager.instance.PlayLevelUpMusic(false); for now there is no special level up music

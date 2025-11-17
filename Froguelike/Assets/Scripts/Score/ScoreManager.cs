@@ -128,7 +128,7 @@ public class ScoreManager : MonoBehaviour
         totalTimeText.text = totalMinutes.ToString("00") + ":" + totalSeconds.ToString("00");
 
         // Display collected currency.
-        currencyCollectedText.text = Tools.FormatCurrency(currencyCollected, " " + DataManager.instance.currencyName);
+        currencyCollectedText.text = Tools.FormatCurrency(currencyCollected, DataManager.instance.currencySymbol);
 
         // Pick a random moral to display
         string moral = GetRandomMoral();
@@ -237,6 +237,13 @@ public class ScoreManager : MonoBehaviour
 
         // Show the score screen
         UIManager.instance.ShowScoreScreen();
+
+        // Add some froins in the credits screen, for funsies
+        if (CreditsScreenBehaviour.instance != null)
+        {
+            float probabilityOfFroinsInCredits = (totalScore / 100000.0f);
+            CreditsScreenBehaviour.instance.RespawnCreditFroins(probabilityOfFroinsInCredits);
+        }
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
