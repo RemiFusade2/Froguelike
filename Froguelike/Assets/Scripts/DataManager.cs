@@ -157,6 +157,13 @@ public class ObstacleSprites
     public List<Sprite> obstacleSprites;
 }
 
+[System.Serializable]
+public class BugTypeSprites
+{
+    public EnemyType bugType;
+    public Sprite bugTypeSprites;
+}
+
 /// <summary>
 /// DataManager is a class used to give access to handy methods to get relevant data for the game (weapon types, items, enemy types, etc.)
 /// </summary>
@@ -219,7 +226,9 @@ public class DataManager : MonoBehaviour
     public Sprite achievementUnlockedDefaultSprite;
     public List<CollectibleSprites> collectibleSprites;
     public List<ObstacleSprites> obstacleSprites;
+    public List<BugTypeSprites> bugTypeSprites;
     public Sprite questionmarkSprite;
+    public Sprite bigQuestionmarkSprite;
 
     [Header("Fixed collectibles UI Strings")]
     public string defaultFoundCollectibleItemTitle = "You found";

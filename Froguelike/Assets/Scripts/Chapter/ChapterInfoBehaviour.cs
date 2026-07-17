@@ -18,6 +18,7 @@ public class ChapterInfoBehaviour : MonoBehaviour
     [Header("Only for chapter spread")]
     public GameObject starParent;
     public GameObject obstaclesParent;
+    public GameObject bugTypeParent;
     public TextMeshProUGUI chaptersInStoryText;
     public TextMeshProUGUI extraChaptersInStoryText;
 
@@ -27,6 +28,7 @@ public class ChapterInfoBehaviour : MonoBehaviour
     // Private.
     private List<CollectibleSprites> collectibleSpritesFromDataManager;
     private Sprite questionmarkSpriteFromDataManager;
+    private Sprite bigQuestionmarkSpriteFromDataManager;
     private bool setUpMaterials = true;
 
     public void DisplayChapter(Chapter chapterInfo)
@@ -136,11 +138,6 @@ public class ChapterInfoBehaviour : MonoBehaviour
         if (collectibleSpritesFromDataManager == null)
         {
             collectibleSpritesFromDataManager = DataManager.instance.collectibleSprites;
-        }
-
-        if (questionmarkSpriteFromDataManager == null)
-        {
-            questionmarkSpriteFromDataManager = DataManager.instance.questionmarkSprite;
         }
 
         // Collectibles and power-ups.
@@ -289,9 +286,21 @@ public class ChapterInfoBehaviour : MonoBehaviour
     // Used for displaying chapter info in the chapter collection book.
     public bool DisplayChapterSpread(Chapter chapterInfo, bool setUpMaterials)
     {
+        bool useQuestionmarks = true;
+        if (questionmarkSpriteFromDataManager == null)
+        {
+            questionmarkSpriteFromDataManager = DataManager.instance.questionmarkSprite;
+        }
+
+        if (bigQuestionmarkSpriteFromDataManager == null)
+        {
+            bigQuestionmarkSpriteFromDataManager = DataManager.instance.bigQuestionmarkSprite;
+        }
+
         if (chapterInfo.attemptCountByCharacters.Count > 0) // This chapter has been played.
         {
             DisplayChapterText(chapterInfo, infoTitleText, infoDescriptionText);
+            useQuestionmarks = false;
         }
         else // This chapter has not been played.
         {
@@ -300,25 +309,67 @@ public class ChapterInfoBehaviour : MonoBehaviour
 
         DisplayChaptersInThisStory(chapterInfo, chaptersInStoryText, extraChaptersInStoryText);
         DisplayStars(chapterInfo, starParent);
-        DisplayObstaclesInfo(chapterInfo, obstaclesParent, true);
+        DisplayObstaclesInfo(chapterInfo, obstaclesParent, useQuestionmarks);
+        DisplayBugTypes(chapterInfo, bugTypeParent, useQuestionmarks);
 
-        bool materialsSetUp = DisplayFixedCollectibles(chapterInfo, fixedCollectiblesParent, setUpMaterials, true);
-        DisplayCollectiblesAndPowerUps(chapterInfo, powerUpsParent, true);
+        bool materialsSetUp = DisplayFixedCollectibles(chapterInfo, fixedCollectiblesParent, setUpMaterials, useQuestionmarks);
+        DisplayCollectiblesAndPowerUps(chapterInfo, powerUpsParent, useQuestionmarks);
 
         return materialsSetUp;
     }
 
-    private void DisplayObstaclesInfo(Chapter chapterInfo, GameObject obstacleParent, bool useQuestionmarks)
+    private void DisplayBugTypes(Chapter chapterInfo, GameObject bugTypeParent, bool useQuestionmarks)
     {
-        // If questionmarks are wanted (they are used in the chapter collection book), just show questionmarks if the chapter haven't been played before.
+        List<Image> bugTypeSlots = bugTypeParent.GetComponentsInChildren<Image>().ToList();
+        bugTypeSlots.RemoveAt(0);
+        int slot = 0;
+
         if (useQuestionmarks)
         {
-            if (chapterInfo.attemptCountByCharacters.Count > 0)
+            bugTypeSlots[slot].sprite = bigQuestionmarkSpriteFromDataManager;
+            slot++;
+        }
+        else
+        {
+            List<EnemyType> enemyTypes = new List<EnemyType>();
+
+            foreach (WaveData wave in chapterInfo.chapterData.wavesList)
             {
-                useQuestionmarks = false;
+                foreach (EnemySpawn enemy in wave.enemies)
+                {
+                    if (enemyTypes.Contains(enemy.enemyType) == false)
+                    {
+                        enemyTypes.Add(enemy.enemyType);
+                        if (enemyTypes.Count >= 6)
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                if (enemyTypes.Count >= 6)
+                {
+                    break;
+                }
+            }
+
+            foreach (EnemyType enemyType in enemyTypes)
+            {
+                bugTypeSlots[slot].enabled = true;
+                bugTypeSlots[slot].sprite = DataManager.instance.bugTypeSprites.Find(x => x.bugType == enemyType).bugTypeSprites;
+                slot++;
             }
         }
 
+        while (slot < 6)
+        {
+            bugTypeSlots[slot].enabled = false;
+            slot++;
+        }
+    }
+
+    private void DisplayObstaclesInfo(Chapter chapterInfo, GameObject obstacleParent, bool useQuestionmarks)
+    {
         int amountOfPonds = (int)chapterInfo.chapterData.pondsSpawnFrequency;
         int amountOfRocks = (int)chapterInfo.chapterData.rocksSpawnFrequency;
         List<Image> obstaclesSlots = obstacleParent.GetComponentsInChildren<Image>().ToList();
