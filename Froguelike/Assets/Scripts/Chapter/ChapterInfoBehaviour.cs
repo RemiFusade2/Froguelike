@@ -30,6 +30,8 @@ public class ChapterInfoBehaviour : MonoBehaviour
     private Sprite questionmarkSpriteFromDataManager;
     private Sprite bigQuestionmarkSpriteFromDataManager;
     private bool setUpMaterials = true;
+    string defaultTextColor = "<color=#18191F>";
+    string selectedTextColor = "<color=#4e95d7>";
 
     public void DisplayChapter(Chapter chapterInfo)
     {
@@ -449,6 +451,7 @@ public class ChapterInfoBehaviour : MonoBehaviour
     {
         GameObject parent = chaptersInStoryText.transform.parent.gameObject;
         Story thisStory = StoryManager.instance.GetTheStoryThatContainsThisChapter(chapterInfo.chapterData);
+        int chapterIndexInStory = thisStory.listOfChaptersInStory.IndexOf(chapterInfo.chapterData);
         string text = "This chapter is part of a story\n\n";
 
 
@@ -471,11 +474,25 @@ public class ChapterInfoBehaviour : MonoBehaviour
                 string displayThisText;
                 if (thisChapter.attemptCountByCharacters.Count == 0)
                 {
-                    displayThisText = "???";
+                    if (chapterIndex == chapterIndexInStory)
+                    {
+                        displayThisText = selectedTextColor + "???" + defaultTextColor;
+                    }
+                    else
+                    {
+                        displayThisText = "???";
+                    }
                 }
                 else
                 {
-                    displayThisText = thisChapter.chapterData.chapterTitle;
+                    if (chapterIndex == chapterIndexInStory)
+                    {
+                        displayThisText = selectedTextColor + thisChapter.chapterData.chapterTitle + defaultTextColor;
+                    }
+                    else
+                    {
+                        displayThisText = thisChapter.chapterData.chapterTitle;
+                    }
                 }
 
                 text += "- " + displayThisText + "\n";
@@ -492,11 +509,11 @@ public class ChapterInfoBehaviour : MonoBehaviour
                 string displayThisText;
                 if (thisChapter.attemptCountByCharacters.Count == 0)
                 {
-                    displayThisText = "???";
+                    displayThisText = SelectedStoryText("???", chapterIndex == chapterIndexInStory);
                 }
                 else
                 {
-                    displayThisText = thisChapter.chapterData.chapterTitle;
+                    displayThisText = SelectedStoryText(thisChapter.chapterData.chapterTitle, chapterIndex == chapterIndexInStory);
                 }
 
                 moreChaptersText += "- " + displayThisText + "\n";
@@ -520,11 +537,25 @@ public class ChapterInfoBehaviour : MonoBehaviour
                 string displayThisText;
                 if (thisChapter.attemptCountByCharacters.Count == 0)
                 {
-                    displayThisText = "???";
+                    if (chapterIndex == chapterIndexInStory)
+                    {
+                        displayThisText = selectedTextColor + "???" + defaultTextColor;
+                    }
+                    else
+                    {
+                        displayThisText = "???";
+                    }
                 }
                 else
                 {
-                    displayThisText = thisChapter.chapterData.chapterTitle;
+                    if (chapterIndex == chapterIndexInStory)
+                    {
+                        displayThisText = selectedTextColor + thisChapter.chapterData.chapterTitle + defaultTextColor;
+                    }
+                    else
+                    {
+                        displayThisText = thisChapter.chapterData.chapterTitle;
+                    }
                 }
 
                 text += "- " + displayThisText + "\n";
@@ -533,6 +564,22 @@ public class ChapterInfoBehaviour : MonoBehaviour
 
         // Update and display list.
         chaptersInStoryText.SetText(text);
+    }
+
+    private string SelectedStoryText(string chapterName, bool selectedChaper)
+    {
+        string displayThisText = "";
+
+        if (selectedChaper)
+        {
+            displayThisText = selectedTextColor + chapterName + defaultTextColor;
+        }
+        else
+        {
+            displayThisText = chapterName
+        }
+
+        return displayThisText;
     }
 
     private bool SetUpMaterials(GameObject fixedCollectiblesParent)
