@@ -116,6 +116,7 @@ public class ChapterCollectionScreenBehaviour : MonoBehaviour
 
         int startOfRangeToDisplay = Mathf.Max(((tocSpread - 1) * nrOfChaptersOnSpread) - 1, 0);
 
+        // Sett up each TOC entry.
         for (int chapterIndex = startOfRangeToDisplay; chapterIndex < startOfRangeToDisplay + nrOfChaptersOnSpread; chapterIndex++)
         {
             if (chapterIndex >= totalNrOfChapters) break;

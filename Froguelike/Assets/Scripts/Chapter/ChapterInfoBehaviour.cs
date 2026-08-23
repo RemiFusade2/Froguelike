@@ -21,6 +21,7 @@ public class ChapterInfoBehaviour : MonoBehaviour
     public GameObject bugTypeParent;
     public TextMeshProUGUI chaptersInStoryText;
     public TextMeshProUGUI extraChaptersInStoryText;
+    public GameObject toadsMessage;
 
     public Color defaultFrameColor;
     public Color goldFrameColor;
@@ -50,6 +51,10 @@ public class ChapterInfoBehaviour : MonoBehaviour
             materialsSetUp = true;
         }
 
+        // Frame should be able to turn gold if we are in the chapter collection book (and we are if useQuestionmarks are true).
+        bool frameCanTurnGold = useQuestionmarks;
+        int foundCollectibles = 0;
+
         // If questionmarks are wanted (they are used in the chapter collection book), just show questionmarks if the chapter haven't been played before.
         if (useQuestionmarks)
         {
@@ -71,48 +76,68 @@ public class ChapterInfoBehaviour : MonoBehaviour
             Image fixedCollectibleSlot = fixedCollectibleSlots[slot];
 
             // Sprite.
-            if (useQuestionmarks)
+            if (chapterInfo.chapterID == "[CH_ENDING_TOAD]")
             {
-                fixedCollectibleSlot.sprite = questionmarkSpriteFromDataManager;
-                fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 0, 0);
+                // Hide the fixed collectibles (because it is not possible to get them if the player didn't when playing this chapter the one time they can play it.
+                fixedCollectibleSlot.sprite = null;
+                fixedCollectibleSlot.material.SetInt("_Found", 1); // Found.
             }
             else
             {
-                switch (fixedCollectible.collectibleType)
+                if (useQuestionmarks)
                 {
-                    case FixedCollectibleType.STATS_ITEM:
-                        fixedCollectibleSlot.sprite = fixedCollectible.collectibleStatItemData.icon;
-                        fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 0, 0);
-                        break;
-                    case FixedCollectibleType.WEAPON_ITEM:
-                        fixedCollectibleSlot.sprite = fixedCollectible.collectibleWeaponItemData.icon;
-                        fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 0, 0);
-                        break;
-                    case FixedCollectibleType.HAT:
-                        fixedCollectibleSlot.sprite = DataManager.instance.GetSpriteForHat(fixedCollectible.collectibleHatType);
-                        fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 180, 0);
-                        break;
-                    case FixedCollectibleType.FRIEND:
-                        fixedCollectibleSlot.sprite = DataManager.instance.GetSpriteForFriend(fixedCollectible.collectibleFriendType);
-                        fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 0, 0);
-                        break;
-                    default:
-                        break;
+                    fixedCollectibleSlot.sprite = questionmarkSpriteFromDataManager;
+                    fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 0, 0);
+                }
+                else
+                {
+                    switch (fixedCollectible.collectibleType)
+                    {
+                        case FixedCollectibleType.STATS_ITEM:
+                            fixedCollectibleSlot.sprite = fixedCollectible.collectibleStatItemData.icon;
+                            fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 0, 0);
+                            break;
+                        case FixedCollectibleType.WEAPON_ITEM:
+                            fixedCollectibleSlot.sprite = fixedCollectible.collectibleWeaponItemData.icon;
+                            fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 0, 0);
+                            break;
+                        case FixedCollectibleType.HAT:
+                            fixedCollectibleSlot.sprite = DataManager.instance.GetSpriteForHat(fixedCollectible.collectibleHatType);
+                            fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 180, 0);
+                            break;
+                        case FixedCollectibleType.FRIEND:
+                            fixedCollectibleSlot.sprite = DataManager.instance.GetSpriteForFriend(fixedCollectible.collectibleFriendType);
+                            fixedCollectibleSlot.transform.rotation = new Quaternion(0, 0, 0, 0);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                // Found/not found.
+                if (useQuestionmarks || chapterInfo.fixedCollectiblesFoundList.Contains(chapterInfo.fixedCollectiblesFoundList.FirstOrDefault(x => x.collectibleIdentifier.Equals(FixedCollectibleFound.GetIdentifierFromCoordinates(fixedCollectible.tileCoordinates)))))
+                {
+                    fixedCollectibleSlot.material.SetInt("_Found", 1); // Found.
+                    if (!useQuestionmarks) foundCollectibles++;
+                }
+                else
+                {
+                    fixedCollectibleSlot.material.SetInt("_Found", 0); // Not found.
                 }
             }
 
             slot++;
             fixedCollectibleSlot.SetNativeSize();
+        }
 
-            // Found/not found.
-            if (useQuestionmarks || chapterInfo.fixedCollectiblesFoundList.Contains(chapterInfo.fixedCollectiblesFoundList.FirstOrDefault(x => x.collectibleIdentifier.Equals(FixedCollectibleFound.GetIdentifierFromCoordinates(fixedCollectible.tileCoordinates)))))
-            {
-                fixedCollectibleSlot.material.SetInt("_Found", 1); // Found.
-            }
-            else
-            {
-                fixedCollectibleSlot.material.SetInt("_Found", 0); // Not found.
-            }
+        // Turn fram gold.
+        if (!useQuestionmarks && (foundCollectibles == slot || chapterInfo.chapterID == "[CH_ENDING_TOAD]"))
+        {
+            fixedCollectiblesParent.GetComponent<Image>().color = goldFrameColor;
+        }
+        else
+        {
+            fixedCollectiblesParent.GetComponent<Image>().color = defaultFrameColor;
         }
 
         // Empty the unused slots and set shader to found (no overlay).
@@ -310,6 +335,7 @@ public class ChapterInfoBehaviour : MonoBehaviour
         }
 
         DisplayChaptersInThisStory(chapterInfo, chaptersInStoryText, extraChaptersInStoryText);
+        toadsMessage.SetActive(false);
         DisplayStars(chapterInfo, starParent);
         DisplayObstaclesInfo(chapterInfo, obstaclesParent, useQuestionmarks);
         DisplayBugTypes(chapterInfo, bugTypeParent, useQuestionmarks);
@@ -416,6 +442,19 @@ public class ChapterInfoBehaviour : MonoBehaviour
             slot++;
         }
 
+        if (chapterInfo.chapterID == "[CH_ENDING_TOAD]")
+        {
+            if (chapterInfo.attemptCountByCharacters.Count > 0)
+            {
+                toadsMessage.SetActive(true);
+                Sprite toadStarSprite = CharacterManager.instance.GetCharacterData(chapterInfo.attemptCountByCharacters[0].characterIdentifier).characterStarSprite;
+                Image starSlot = starSlots[slot];
+
+                starSlot.sprite = toadStarSprite;
+                slot++;
+            }
+        }
+
         while (slot < starSlots.Count)
         {
             starSlots[slot].sprite = null;
@@ -424,7 +463,7 @@ public class ChapterInfoBehaviour : MonoBehaviour
 
         List<CharacterData> listOfCharactersThatCanPlayThisChapter = new List<CharacterData>();
 
-        // Change the color fo the border if all characters that can play this chapter have completed the chapter.
+        // Change the color of the border if all characters that can play this chapter have completed the chapter.
         foreach (ChapterConditionsChunk chunk in chapterInfo.chapterData.conditions)
         {
             foreach (ChapterCondition condition in chunk.conditionsList)
@@ -437,7 +476,7 @@ public class ChapterInfoBehaviour : MonoBehaviour
         }
 
         // Turn frame gold.
-        if (charactersThatCompletedTheChapter.Count == CharacterManager.instance.charactersScriptableObjectsList.Count || (listOfCharactersThatCanPlayThisChapter.Count > 0 && listOfCharactersThatCanPlayThisChapter.Count == charactersThatCompletedTheChapter.Count) || chapterInfo.chapterID == "[CH_ENDING_TOAD]")
+        if (charactersThatCompletedTheChapter.Count == CharacterManager.instance.charactersScriptableObjectsList.Count || (listOfCharactersThatCanPlayThisChapter.Count > 0 && listOfCharactersThatCanPlayThisChapter.Count == charactersThatCompletedTheChapter.Count) || (chapterInfo.chapterID == "[CH_ENDING_TOAD]" && chapterInfo.attemptCountByCharacters.Count > 0))
         {
             starParent.GetComponent<Image>().color = goldFrameColor;
         }
@@ -576,7 +615,7 @@ public class ChapterInfoBehaviour : MonoBehaviour
         }
         else
         {
-            displayThisText = chapterName
+            displayThisText = chapterName;
         }
 
         return displayThisText;

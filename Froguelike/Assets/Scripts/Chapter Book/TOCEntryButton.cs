@@ -35,7 +35,14 @@ public class TOCEntryButton : MonoBehaviour, ISelectHandler
                 bool thereIsSomethingToUnlockInStoryline = ChapterManager.instance.DoesChapterUnlockAnAchievementOrAnUnplayedChapter(ChapterManager.instance.GetChapterFromID(chapterData.chapterID), RunManager.instance.GetChapterCount());
                 thereIsSomethingToUnlockInStoryline |= ChapterManager.instance.DoesChapterContainFixedItemsThatHaveNeverBeenFound(ChapterManager.instance.GetChapterFromID(chapterData.chapterID));
                 iconImage.sprite = starIcon;
-                iconImage.gameObject.SetActive(!thereIsSomethingToUnlockInStoryline);
+                if (chapterData.chapterID == "[CH_ENDING_TOAD]")
+                {
+                    iconImage.gameObject.SetActive(true);
+                }
+                else
+                {
+                    iconImage.gameObject.SetActive(!thereIsSomethingToUnlockInStoryline);
+                }
 
                 // Set title.
                 titleText.color = defaultColor;
