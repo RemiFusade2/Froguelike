@@ -174,6 +174,24 @@ public class SettingsManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // For switching fonts without going to the settings, used for debugging.
+        /*
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            if (currentFontIndex < 2)
+            {
+                currentFontIndex++;
+            }
+            else
+            {
+                currentFontIndex = 0;
+            }
+
+            Debug.Log(currentFontIndex);
+            SetFont(currentFontIndex);
+        }
+        */
+
         // For debugging resolution settings
         // text.SetText("Windows size: " + Screen.width + "x" + Screen.height + ", " + Screen.fullScreenMode + ", display: " + savedDisplayInfo.width + "x" + savedDisplayInfo.height);
         // text.SetText(currentResolutionIndex.ToString());
