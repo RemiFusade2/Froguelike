@@ -125,5 +125,6 @@ public class TOCEntryButton : MonoBehaviour, ISelectHandler
     public void OnClick()
     {
         chapterCollectionScreenBehaviour.PressTOCEntryButton(chapterData);
+        SoundManager.instance.PlayShortPageSound();
     }
 }
