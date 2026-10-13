@@ -8,7 +8,7 @@ public class MenuTongueLineRendererBehaviour : MonoBehaviour
     [Header("References")]
     public LineRenderer tongueLineRenderer;
     public LineRenderer tongueOutlineLineRenderer;
-    public TongueTipBehaviour tongueTip;
+    public MenuTongueTipBehaviour tongueTip;
 
     [Header("Settings")]
     public float colliderRadius = 0.1f;
@@ -68,7 +68,7 @@ public class MenuTongueLineRendererBehaviour : MonoBehaviour
         Keyframe[] tongueLineRendererWidthKeys = new Keyframe[3];
         if (withFrogTongueTip)
         {
-            tongueLineRendererWidthKeys[0] = new Keyframe(0, 0.5f, 0, 0);
+            tongueLineRendererWidthKeys[0] = new Keyframe(0, 0.15f, 0, 3);
             tongueLineRendererWidthKeys[1] = new Keyframe(tipRatio, 0.5f, 0, 3);
             tongueLineRendererWidthKeys[2] = new Keyframe(1, 1, 0, 0);
         }
@@ -84,11 +84,11 @@ public class MenuTongueLineRendererBehaviour : MonoBehaviour
 
         // The outline renderer does about the same thing, except the root width is (0.5 * width + outline * 2) and the tip width is (1 * width + outline * 2)
         Keyframe[] outlineLineRendererWidthKeys = new Keyframe[3];
-        float outlineRootWidthRatio = (0.5f * width + outlineWeight * 2) / (width + outlineWeight * 2);
+        float outlineRootWidthRatio = (0.1f * width + outlineWeight * 2) / (width + outlineWeight * 2);
         if (withFrogTongueTip)
         {
-            outlineLineRendererWidthKeys[0] = new Keyframe(0, outlineRootWidthRatio, 0, 0);
-            outlineLineRendererWidthKeys[1] = new Keyframe(tipRatio, outlineRootWidthRatio, 0, 3);
+            outlineLineRendererWidthKeys[0] = new Keyframe(0, 0.4f, 0, 3);
+            outlineLineRendererWidthKeys[1] = new Keyframe(tipRatio, 0.6f, 0, 3);
             outlineLineRendererWidthKeys[2] = new Keyframe(1, 1, 0, 0);
         }
         else
@@ -215,7 +215,7 @@ public class MenuTongueLineRendererBehaviour : MonoBehaviour
         colorKeys.Add(new GradientColorKey(DataManager.instance.GetColorForTongueEffect(previousEffect), 0));
         alphaKeys.Add(new GradientAlphaKey(1, 0));
 
-        float actualColliderRadius = colliderRadius * (GetComponent<WeaponBehaviour>().tongueWidth * (1 + GameManager.instance.player.GetAttackSizeBoost())) * 10;
+        float actualColliderRadius = colliderRadius * (GetComponent<MenuTongueTargetingBehaviour>().tongueWidth * (1 + GameManager.instance.player.GetAttackSizeBoost())) * 10;
 
         float epsilon = 0.001f;
 
@@ -240,7 +240,8 @@ public class MenuTongueLineRendererBehaviour : MonoBehaviour
                 // Set position on the line renderers
                 Vector3 linePointPosition = new Vector3(actualPos.x, actualPos.y, 0);
                 tongueLineRenderer.SetPosition(index, linePointPosition);
-                tongueOutlineLineRenderer.SetPosition(index, linePointPosition);
+                Vector3 outlinePointPosition = new Vector3(0.01f, actualPos.y, 0);
+                tongueOutlineLineRenderer.SetPosition(index, outlinePointPosition);
 
                 // Set gradient on the tongue line renderer
                 int newEffectIndex = Mathf.FloorToInt(currentT * tongueEffectsList.Count);
