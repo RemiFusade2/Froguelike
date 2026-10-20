@@ -293,11 +293,19 @@ public class ChapterInfoBehaviour : MonoBehaviour
         infoDescriptionText.SetText(chapterInfo.chapterData.GetDescription(frogName));
     }
 
-    private void DisplayUnplayedChapterText(TextMeshProUGUI infoTitleText, TextMeshProUGUI infoDescriptionText)
+    private void DisplayUnplayedChapterText(TextMeshProUGUI infoTitleText, TextMeshProUGUI infoDescriptionText, bool partOfDemo)
     {
         // Set chapter info
+        if (BuildManager.instance.demoBuild && !partOfDemo)
+        {
+            infoDescriptionText.SetText("This chapter isn't part of the demo unfortunatly.");
+        }
+        else
+        {
+            infoDescriptionText.SetText("???");
+        }
+        
         infoTitleText.SetText("???");
-        infoDescriptionText.SetText("???");
     }
 
     // Used for displaying info when picking chapter and looking at the chapter on the pause screen.
@@ -331,7 +339,7 @@ public class ChapterInfoBehaviour : MonoBehaviour
         }
         else // This chapter has not been played.
         {
-            DisplayUnplayedChapterText(infoTitleText, infoDescriptionText);
+            DisplayUnplayedChapterText(infoTitleText, infoDescriptionText, chapterInfo.chapterData.partOfDemo);
         }
 
         DisplayChaptersInThisStory(chapterInfo, chaptersInStoryText, extraChaptersInStoryText);

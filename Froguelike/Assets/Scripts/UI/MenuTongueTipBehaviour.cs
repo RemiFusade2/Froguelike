@@ -84,9 +84,6 @@ public class MenuTongueTipBehaviour : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Enemy"))
-        {
-            parentTongue.ComputeCollision(collision, true);
-        }
+        // TODO add sprite that hits book here?
     }
 }

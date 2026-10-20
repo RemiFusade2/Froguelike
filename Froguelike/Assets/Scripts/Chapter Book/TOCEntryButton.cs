@@ -55,25 +55,29 @@ public class TOCEntryButton : MonoBehaviour, ISelectHandler
             }
             else
             {
-                // Set symbol.
-                // "Chapter completed" icon if everything has been found in that chapter + the chapter is not needed in any quest
+                // Hide symbol.
                 iconImage.gameObject.SetActive(false);
-
-                // Set title.
                 titleText.color = hiddenColor;
                 dotsText.color = hiddenColor;
                 numberText.color = hiddenColor;
-                titleText.SetText("???");
+                // Set title.
+                if (BuildManager.instance.demoBuild && !chapterData.partOfDemo) // This is the demo and the chapter is not available.
+                {
+                    titleText.SetText("*This chapter isn't part of the demo*");
+                }
+                else
+                {
+                    titleText.SetText("???");
+                }
                 int titleWidth = (int)titleText.preferredWidth;
                 titleWidth += SettingsManager.instance.GetCurrentFontAsset().name.Contains("Liberation") ? 1 : 0;
                 titleText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, titleWidth);
             }
-
         }
         else
         {
             // Set symbol.
-            // "Chapter completed" icon if everything has been found in that chapter + the chapter is not needed in any quest
+            // "Locked icon" if the chapter isn't unlocked.
             iconImage.sprite = lockedIcon;
             iconImage.gameObject.SetActive(true);
 
@@ -81,7 +85,16 @@ public class TOCEntryButton : MonoBehaviour, ISelectHandler
             titleText.color = hiddenColor;
             dotsText.color = hiddenColor;
             numberText.color = hiddenColor;
-            titleText.SetText("???");
+            // Set title.
+            if (BuildManager.instance.demoBuild && !chapterData.partOfDemo) // This is the demo and the chapter is not available.
+            {
+                iconImage.gameObject.SetActive(false);
+                titleText.SetText("*This chapter isn't part of the demo*");
+            }
+            else
+            {
+                titleText.SetText("???");
+            }
             int titleWidth = (int)titleText.preferredWidth;
             titleWidth += SettingsManager.instance.GetCurrentFontAsset().name.Contains("Liberation") ? 1 : 0;
             titleText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, titleWidth);
