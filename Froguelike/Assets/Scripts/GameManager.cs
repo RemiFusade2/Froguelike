@@ -88,6 +88,7 @@ public class GameManager : MonoBehaviour
 
     private const string totalBugEatenSteamStatName = "total_bugs_eaten";
     private const string totalDeathCountSteamStatName = "total_deaths";
+    private const string totalChaptersStartedSteamStatName = "total_chapters_started";
 
     private const string savedLastSelectedCharacter = "Froguelike last selected character";
     private const string savedLastSelectedGameMode = "Froguelike last selected game mode";
@@ -210,6 +211,7 @@ public class GameManager : MonoBehaviour
         // Update the stats on Steam (it's gonna show progress towards the achievements too)
         SetSteamStatIfPossible(totalBugEatenSteamStatName, gameData.cumulatedScore);
         SetSteamStatIfPossible(totalDeathCountSteamStatName, gameData.deathCount);
+        SetSteamStatIfPossible(totalChaptersStartedSteamStatName, ChapterManager.instance.GetStartedChaptersCount());
         AchievementManager.instance.SteamStoreStats();
     }
 
@@ -299,6 +301,9 @@ public class GameManager : MonoBehaviour
                 break;
             case RewardFeatureType.CHAPTER_SELECTION_5:
                 ChapterManager.instance.SetChapterCountInSelection(5);
+                break;
+            case RewardFeatureType.CHAPTER_COLLECTION:
+                ChapterManager.instance.UnlockChapterCollection();
                 break;
             case RewardFeatureType.GHOST_BUFF:
                 CharacterManager.instance.SetCharacterStoryCompleted("GHOST");
@@ -561,6 +566,7 @@ public class GameManager : MonoBehaviour
         UIManager.instance.UpdateCurrencyDisplay();
         SetSteamStatIfPossible(totalBugEatenSteamStatName, gameData.cumulatedScore);
         SetSteamStatIfPossible(totalDeathCountSteamStatName, gameData.deathCount);
+        SetSteamStatIfPossible(totalChaptersStartedSteamStatName, ChapterManager.instance.GetStartedChaptersCount());
         AchievementManager.instance.SteamStoreStats();
     }
 

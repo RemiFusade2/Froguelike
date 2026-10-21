@@ -375,6 +375,9 @@ public class AchievementManager : MonoBehaviour
                                     }
                                     conditionsAreMet &= (ChapterManager.instance.GetUnlockedChaptersCount() >= 5);
                                     break;
+                                case AchievementConditionSpecialKey.START_10_CHAPTERS:
+                                    conditionsAreMet &= (ChapterManager.instance.GetStartedChaptersCount() >= 10);
+                                    break;
                                 default:
                                     conditionsAreMet = false;
                                     break;
@@ -529,6 +532,9 @@ public class AchievementManager : MonoBehaviour
                                     float minDistanceNeeded = kermitEndChapter.nextChapterConditionCount.goal;
                                     conditionsAreMet &= (RunManager.instance.currentChapter?.chapterID == kermitEndChapter.chapterID && playerDistanceFromSpawn >= minDistanceNeeded);
                                     if (conditionsAreMet) UnlockAchievement(achievement);
+                                    break;
+                                case AchievementConditionSpecialKey.START_10_CHAPTERS:
+                                    conditionsAreMet &= (ChapterManager.instance.GetStartedChaptersCount() >= 10);
                                     break;
                             }
                             break;
@@ -798,7 +804,7 @@ public class AchievementManager : MonoBehaviour
                 {
                     GameObject achievementEntryGo = null;
 
-                    if (achievement.achievementData.conditionsList[0].specialKey == AchievementConditionSpecialKey.DIE_A_BUNCH_OF_TIMES || (achievement.achievementData.conditionsList[0].specialKey == AchievementConditionSpecialKey.EAT_20000_BUGS && !BuildManager.instance.demoBuild))
+                    if (achievement.achievementData.conditionsList[0].specialKey == AchievementConditionSpecialKey.DIE_A_BUNCH_OF_TIMES || (achievement.achievementData.conditionsList[0].specialKey == AchievementConditionSpecialKey.EAT_20000_BUGS && !BuildManager.instance.demoBuild) || achievement.achievementData.conditionsList[0].specialKey == AchievementConditionSpecialKey.START_10_CHAPTERS)
                     {
                         achievementEntryGo = Instantiate(achievementEntryWithCountPrefab, achievementScrollEntriesParent);
                     }

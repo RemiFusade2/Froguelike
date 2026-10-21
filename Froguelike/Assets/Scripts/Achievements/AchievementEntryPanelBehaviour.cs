@@ -88,6 +88,11 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
                 achievementCountTextMesh.text = "10/10";
                 achievementCountSlider.value = 1;
             }
+            else if (achievement.achievementData.conditionsList[0].specialKey == AchievementConditionSpecialKey.START_10_CHAPTERS)
+            {
+                achievementCountTextMesh.text = "10/10";
+                achievementCountSlider.value = 1;
+            }
 
             checkboxImage.gameObject.SetActive(true);
             checkboxImage.sprite = achievedSprite;
@@ -154,6 +159,14 @@ public class AchievementEntryPanelBehaviour : MonoBehaviour
                 achievementCountTextMesh.text = $"{deathCountCapped}/10";
                 float deathCountPercentage = deathCountCapped / 10f;
                 achievementCountSlider.value = deathCountPercentage;
+            }
+            else if (achievement.achievementData.conditionsList[0].specialKey == AchievementConditionSpecialKey.START_10_CHAPTERS)
+            {
+                int startedChaptersCountCapped = ChapterManager.instance.GetStartedChaptersCount();
+                startedChaptersCountCapped = Mathf.Clamp(startedChaptersCountCapped, 0, 10);
+                achievementCountTextMesh.text = $"{startedChaptersCountCapped}/10";
+                float startedChaptersCountPercentage = startedChaptersCountCapped / 10f;
+                achievementCountSlider.value = startedChaptersCountPercentage;
             }
 
             checkboxImage.gameObject.SetActive(true);

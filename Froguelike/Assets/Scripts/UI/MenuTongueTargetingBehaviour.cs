@@ -149,11 +149,9 @@ public class MenuTongueTargetingBehaviour : MonoBehaviour
 
     public void ReturnFromButton(GameObject target)
     {
-        if (target.GetComponent<MenuTongueOnBook>().thisBooksTongue != null)
-        {
-            // Hide tongue hitting button sprite.
-            target.GetComponent<MenuTongueOnBook>().thisBooksTongue.SetActive(false);
-        }
+        // Hide tongue hitting button sprite.
+        target.GetComponent<MenuTongueOnBook>().thisBooksTongue.SetActive(false);
+
         // Hide eyes.
         target.GetComponent<MenuTongueOnBook>().thisBooksEyes.SetActive(false);
 
@@ -182,10 +180,7 @@ public class MenuTongueTargetingBehaviour : MonoBehaviour
             }
         }
 
-        if (target.GetComponent<MenuTongueOnBook>().thisBooksTongue != null)
-        {
-            // Show tongue hitting button sprite.
-            target.GetComponent<MenuTongueOnBook>().thisBooksTongue.SetActive(true);
-        }
+        // Show tongue hitting button sprite.
+        target.GetComponent<MenuTongueOnBook>().thisBooksTongue.SetActive(true);
     }
 }
