@@ -41,10 +41,15 @@ public class UIManager : MonoBehaviour
     public GameObject shopButton;
     public GameObject achievementsButton;
     public GameObject settingsButton;
+    public GameObject chaptersButton;
 
     [Header("Shop")]
     public GameObject shopScreen;
     private GameObject selectedButtonShopScreen;
+
+    [Header("Chapter Collection Screen")]
+    public GameObject chapterCollectionScreen;
+    public GameObject selectedButtonChapterCollectionScreen;
 
     [Header("Achievements")]
     public GameObject achievementsScreen;
@@ -256,11 +261,15 @@ public class UIManager : MonoBehaviour
             achievementsButton.SetActive(true);
             achievementsButton.GetComponent<Button>().interactable = AchievementManager.instance.IsAchievementsListUnlocked();
             achievementsButton.GetComponent<CanvasGroup>().blocksRaycasts = AchievementManager.instance.IsAchievementsListUnlocked();
+
+            chaptersButton.GetComponent<Button>().interactable = ChapterManager.instance.IsChapterCollectionUnlocked();
+            chaptersButton.GetComponent<CanvasGroup>().blocksRaycasts = ChapterManager.instance.IsChapterCollectionUnlocked();
         }
         else
         {
             shopButton.SetActive(ShopManager.instance.IsShopUnlocked());
             achievementsButton.SetActive(AchievementManager.instance.IsAchievementsListUnlocked());
+            chaptersButton.SetActive(ChapterManager.instance.IsChapterCollectionUnlocked());
         }
         UpdateCurrencyDisplay();
     }
@@ -507,6 +516,25 @@ public class UIManager : MonoBehaviour
         {
             Debug.Log("UI - Hide Pause screen");
         }
+    }
+
+
+    public void ShowChapterCollection()
+    {
+        SavePreviousSelectedButton();
+        HideAllScreens();
+        titleScreen.SetActive(true);
+        SetScreenInteractability(menuButtonsGroup, false);
+        chapterCollectionScreen.SetActive(true);
+        chapterCollectionScreen.GetComponent<ChapterCollectionScreenBehaviour>().ChangePage(1);
+        SetSelectedButton(selectedButtonChapterCollectionScreen);
+    }
+
+    public void HideChapterCollection()
+    {
+        chapterCollectionScreen.SetActive(false);
+        SetScreenInteractability(menuButtonsGroup, true);
+        SetPreviousSelectedButton();
     }
 
     #region Shop

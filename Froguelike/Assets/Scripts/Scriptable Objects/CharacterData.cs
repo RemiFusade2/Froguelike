@@ -36,6 +36,8 @@ public class CharacterData : ScriptableObject
     [Header("Display Settings")]
     [Tooltip("The sprite used to represent this character in menus")]
     public Sprite characterSprite;
+    [Tooltip("The star sprite that represents this character (used in the chapter collection book)")]
+    public Sprite characterStarSprite;
     [Tooltip("The value (integer) used in the character controller animator")]
     public int characterAnimatorValue;
 
@@ -62,7 +64,7 @@ public class CharacterData : ScriptableObject
         {
             order = CharacterManager.instance.charactersScriptableObjectsList.IndexOf(this) + 1;
         }
-        
+
         return order;
     }
 }

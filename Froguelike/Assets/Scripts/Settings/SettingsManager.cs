@@ -97,6 +97,8 @@ public class SettingsManager : MonoBehaviour
 
     [SerializeField] private GameObject pixelTextOnShopNote;
     [SerializeField] private GameObject notPixelTextOnShopNote;
+    [SerializeField] private GameObject pixelTextToadsMessage;
+    [SerializeField] private GameObject notPixelTextToadsMessage;
     private UnityEngine.Object[] textObjectsList = new UnityEngine.Object[] { };
     private string savedFontSettingKey = "Froguelike Saved Font";
     private int currentFontIndex;
@@ -172,6 +174,24 @@ public class SettingsManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // For switching fonts without going to the settings, used for debugging.
+        /*
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            if (currentFontIndex < 2)
+            {
+                currentFontIndex++;
+            }
+            else
+            {
+                currentFontIndex = 0;
+            }
+
+            Debug.Log(currentFontIndex);
+            SetFont(currentFontIndex);
+        }
+        */
+
         // For debugging resolution settings
         // text.SetText("Windows size: " + Screen.width + "x" + Screen.height + ", " + Screen.fullScreenMode + ", display: " + savedDisplayInfo.width + "x" + savedDisplayInfo.height);
         // text.SetText(currentResolutionIndex.ToString());
@@ -739,11 +759,15 @@ public class SettingsManager : MonoBehaviour
         {
             pixelTextOnShopNote.SetActive(true);
             notPixelTextOnShopNote.SetActive(false);
+            pixelTextToadsMessage.SetActive(true);
+            notPixelTextToadsMessage.SetActive(false);
         }
         else
         {
             notPixelTextOnShopNote.SetActive(true);
             pixelTextOnShopNote.SetActive(false);
+            notPixelTextToadsMessage.SetActive(true);
+            pixelTextToadsMessage.SetActive(false);
         }
 
         SaveFontSetting(currentFontIndex);

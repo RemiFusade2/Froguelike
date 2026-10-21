@@ -148,6 +148,22 @@ public class NextChapterConditionCountInfo
     public Sprite icon;
 }
 
+[System.Serializable]
+public class ObstacleSprites
+{
+    public string obstacleName;
+    [Header("See tooltip!")]
+    [Tooltip("First sprite in list is for spawn frequenzy none, then few, medium, lots in that order.")]
+    public List<Sprite> obstacleSprites;
+}
+
+[System.Serializable]
+public class BugTypeSprites
+{
+    public EnemyType bugType;
+    public Sprite bugTypeSprites;
+}
+
 /// <summary>
 /// DataManager is a class used to give access to handy methods to get relevant data for the game (weapon types, items, enemy types, etc.)
 /// </summary>
@@ -208,6 +224,11 @@ public class DataManager : MonoBehaviour
     public Sprite collectibleDefaultSprite;
     public Sprite achievementLockedDefaultSprite;
     public Sprite achievementUnlockedDefaultSprite;
+    public List<CollectibleSprites> collectibleSprites;
+    public List<ObstacleSprites> obstacleSprites;
+    public List<BugTypeSprites> bugTypeSprites;
+    public Sprite questionmarkSprite;
+    public Sprite bigQuestionmarkSprite;
 
     [Header("Fixed collectibles UI Strings")]
     public string defaultFoundCollectibleItemTitle = "You found";
