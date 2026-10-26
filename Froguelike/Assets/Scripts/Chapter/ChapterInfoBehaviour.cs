@@ -436,13 +436,13 @@ public class ChapterInfoBehaviour : MonoBehaviour
 
     private void DisplayStars(Chapter chapterInfo, GameObject starParent)
     {
-        List<CharacterCount> charactersThatCompletedTheChapter = chapterInfo.completionCountByCharacters;
+        List<CharacterCount> charactersThatStartedTheChapter = chapterInfo.attemptCountByCharacters;
         List<Image> starSlots = starParent.GetComponentsInChildren<Image>().ToList();
         starSlots.RemoveAt(0);
         int slot = 0;
 
-        // Show the star of each character that have completed the chapter.
-        foreach (CharacterCount character in charactersThatCompletedTheChapter)
+        // Show the star of each character that have started the chapter.
+        foreach (CharacterCount character in charactersThatStartedTheChapter)
         {
             Image starSlot = starSlots[slot];
 
@@ -450,6 +450,7 @@ public class ChapterInfoBehaviour : MonoBehaviour
             slot++;
         }
 
+        /*
         if (chapterInfo.chapterID == "[CH_ENDING_TOAD]")
         {
             if (chapterInfo.attemptCountByCharacters.Count > 0)
@@ -462,6 +463,7 @@ public class ChapterInfoBehaviour : MonoBehaviour
                 slot++;
             }
         }
+        */
 
         while (slot < starSlots.Count)
         {
@@ -484,7 +486,7 @@ public class ChapterInfoBehaviour : MonoBehaviour
         }
 
         // Turn frame gold.
-        if (charactersThatCompletedTheChapter.Count == CharacterManager.instance.charactersScriptableObjectsList.Count || (listOfCharactersThatCanPlayThisChapter.Count > 0 && listOfCharactersThatCanPlayThisChapter.Count == charactersThatCompletedTheChapter.Count) || (chapterInfo.chapterID == "[CH_ENDING_TOAD]" && chapterInfo.attemptCountByCharacters.Count > 0))
+        if (charactersThatStartedTheChapter.Count == CharacterManager.instance.charactersScriptableObjectsList.Count || (listOfCharactersThatCanPlayThisChapter.Count > 0 && listOfCharactersThatCanPlayThisChapter.Count == charactersThatStartedTheChapter.Count) || (chapterInfo.chapterID == "[CH_ENDING_TOAD]" && chapterInfo.attemptCountByCharacters.Count > 0))
         {
             starParent.GetComponent<Image>().color = goldFrameColor;
         }
