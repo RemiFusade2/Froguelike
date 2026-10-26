@@ -263,24 +263,24 @@ public class ChapterInfoBehaviour : MonoBehaviour
         infoTitleText.SetText(chapterInfo.chapterData.chapterTitle);
         // Find a frog name to use in the description.
         string frogName = "";
-        if (RunManager.instance.currentPlayedCharacter.characterData == null) // When looking in the chapter book, look for if the chapter can only be played by a specific characater and use their name.
+
+        // First look for if the chapter can only be played by a specific characater and use their name.
+        foreach (ChapterConditionsChunk chunk in chapterInfo.chapterData.conditions)
         {
-            foreach (ChapterConditionsChunk chunk in chapterInfo.chapterData.conditions)
+            foreach (ChapterCondition condition in chunk.conditionsList)
             {
-                foreach (ChapterCondition condition in chunk.conditionsList)
+                if (condition.conditionType == ChapterConditionType.CHARACTER)
                 {
-                    if (condition.conditionType == ChapterConditionType.CHARACTER)
-                    {
-                        frogName = condition.characterData.characterName;
-                        break;
-                    }
+                    frogName = condition.characterData.characterName;
+                    break;
                 }
-                if (frogName != "") break;
             }
+            if (frogName != "") break;
         }
-        else
+
+        // If the chapter is not tied to a specific character get the name of the latest played frog, if there is one.
+        if (RunManager.instance.currentPlayedCharacter.characterData != null && frogName == "")
         {
-            // If a character is selected, when starting or in run, use that characters name.
             frogName = RunManager.instance.currentPlayedCharacter.characterData.characterName;
         }
 

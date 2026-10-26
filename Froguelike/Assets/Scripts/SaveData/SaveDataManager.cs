@@ -478,6 +478,7 @@ public class SaveDataManager : MonoBehaviour
         ChapterManager.instance.ResetChapters(true);
         RunItemManager.instance.ResetRunItems();
         AchievementManager.instance.ResetAchievements();
+        GameManager.instance.RemoveSelectedCharacterGameModeAndStartingChapter();
 
         return Save();
     }

@@ -385,6 +385,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void GiveUp()
     {
+        ChapterManager.instance.chapterChoiceIsVisible = false;
         Pause(false);
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
@@ -465,7 +466,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    #endregion
+    #endregion Pause
 
     public void UICancel()
     {
@@ -602,5 +603,5 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    #endregion
+    #endregion Steam
 }
