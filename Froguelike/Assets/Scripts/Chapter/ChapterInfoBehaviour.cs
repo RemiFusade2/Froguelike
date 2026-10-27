@@ -263,24 +263,24 @@ public class ChapterInfoBehaviour : MonoBehaviour
         infoTitleText.SetText(chapterInfo.chapterData.chapterTitle);
         // Find a frog name to use in the description.
         string frogName = "";
-        if (RunManager.instance.currentPlayedCharacter.characterData == null) // When looking in the chapter book, look for if the chapter can only be played by a specific characater and use their name.
+
+        // First look for if the chapter can only be played by a specific characater and use their name.
+        foreach (ChapterConditionsChunk chunk in chapterInfo.chapterData.conditions)
         {
-            foreach (ChapterConditionsChunk chunk in chapterInfo.chapterData.conditions)
+            foreach (ChapterCondition condition in chunk.conditionsList)
             {
-                foreach (ChapterCondition condition in chunk.conditionsList)
+                if (condition.conditionType == ChapterConditionType.CHARACTER)
                 {
-                    if (condition.conditionType == ChapterConditionType.CHARACTER)
-                    {
-                        frogName = condition.characterData.characterName;
-                        break;
-                    }
+                    frogName = condition.characterData.characterName;
+                    break;
                 }
-                if (frogName != "") break;
             }
+            if (frogName != "") break;
         }
-        else
+
+        // If the chapter is not tied to a specific character get the name of the latest played frog, if there is one.
+        if (RunManager.instance.currentPlayedCharacter.characterData != null && frogName == "")
         {
-            // If a character is selected, when starting or in run, use that characters name.
             frogName = RunManager.instance.currentPlayedCharacter.characterData.characterName;
         }
 
@@ -293,11 +293,19 @@ public class ChapterInfoBehaviour : MonoBehaviour
         infoDescriptionText.SetText(chapterInfo.chapterData.GetDescription(frogName));
     }
 
-    private void DisplayUnplayedChapterText(TextMeshProUGUI infoTitleText, TextMeshProUGUI infoDescriptionText)
+    private void DisplayUnplayedChapterText(TextMeshProUGUI infoTitleText, TextMeshProUGUI infoDescriptionText, bool partOfDemo)
     {
         // Set chapter info
+        if (BuildManager.instance.demoBuild && !partOfDemo)
+        {
+            infoDescriptionText.SetText("This chapter isn't part of the demo unfortunatly.");
+        }
+        else
+        {
+            infoDescriptionText.SetText("???");
+        }
+        
         infoTitleText.SetText("???");
-        infoDescriptionText.SetText("???");
     }
 
     // Used for displaying info when picking chapter and looking at the chapter on the pause screen.
@@ -331,7 +339,7 @@ public class ChapterInfoBehaviour : MonoBehaviour
         }
         else // This chapter has not been played.
         {
-            DisplayUnplayedChapterText(infoTitleText, infoDescriptionText);
+            DisplayUnplayedChapterText(infoTitleText, infoDescriptionText, chapterInfo.chapterData.partOfDemo);
         }
 
         DisplayChaptersInThisStory(chapterInfo, chaptersInStoryText, extraChaptersInStoryText);
@@ -428,13 +436,13 @@ public class ChapterInfoBehaviour : MonoBehaviour
 
     private void DisplayStars(Chapter chapterInfo, GameObject starParent)
     {
-        List<CharacterCount> charactersThatCompletedTheChapter = chapterInfo.completionCountByCharacters;
+        List<CharacterCount> charactersThatStartedTheChapter = chapterInfo.attemptCountByCharacters;
         List<Image> starSlots = starParent.GetComponentsInChildren<Image>().ToList();
         starSlots.RemoveAt(0);
         int slot = 0;
 
-        // Show the star of each character that have completed the chapter.
-        foreach (CharacterCount character in charactersThatCompletedTheChapter)
+        // Show the star of each character that have started the chapter.
+        foreach (CharacterCount character in charactersThatStartedTheChapter)
         {
             Image starSlot = starSlots[slot];
 
@@ -442,6 +450,7 @@ public class ChapterInfoBehaviour : MonoBehaviour
             slot++;
         }
 
+        /*
         if (chapterInfo.chapterID == "[CH_ENDING_TOAD]")
         {
             if (chapterInfo.attemptCountByCharacters.Count > 0)
@@ -454,6 +463,7 @@ public class ChapterInfoBehaviour : MonoBehaviour
                 slot++;
             }
         }
+        */
 
         while (slot < starSlots.Count)
         {
@@ -476,7 +486,7 @@ public class ChapterInfoBehaviour : MonoBehaviour
         }
 
         // Turn frame gold.
-        if (charactersThatCompletedTheChapter.Count == CharacterManager.instance.charactersScriptableObjectsList.Count || (listOfCharactersThatCanPlayThisChapter.Count > 0 && listOfCharactersThatCanPlayThisChapter.Count == charactersThatCompletedTheChapter.Count) || (chapterInfo.chapterID == "[CH_ENDING_TOAD]" && chapterInfo.attemptCountByCharacters.Count > 0))
+        if (charactersThatStartedTheChapter.Count == CharacterManager.instance.charactersScriptableObjectsList.Count || (listOfCharactersThatCanPlayThisChapter.Count > 0 && listOfCharactersThatCanPlayThisChapter.Count == charactersThatStartedTheChapter.Count) || (chapterInfo.chapterID == "[CH_ENDING_TOAD]" && chapterInfo.attemptCountByCharacters.Count > 0))
         {
             starParent.GetComponent<Image>().color = goldFrameColor;
         }

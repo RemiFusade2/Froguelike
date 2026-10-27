@@ -95,6 +95,7 @@ public class ChaptersSaveData : SaveData
     public List<Chapter> chaptersList;
 
     public int chapterCountInSelection;
+    public bool chapterCollectionUnlocked;
 
     public ChaptersSaveData()
     {
@@ -106,6 +107,7 @@ public class ChaptersSaveData : SaveData
         base.Reset();
         chaptersList = new List<Chapter>();
         chapterCountInSelection = 3;
+        chapterCollectionUnlocked = false;
     }
 }
 
@@ -185,6 +187,17 @@ public class ChapterManager : MonoBehaviour
 
     #endregion
 
+    public bool IsChapterCollectionUnlocked()
+    {
+        return chaptersData.chapterCollectionUnlocked;
+    }
+
+    public void UnlockChapterCollection()
+    {
+        chaptersData.chapterCollectionUnlocked = true;
+        SaveDataManager.instance.isSaveDataDirty = true;
+    }
+
     /// <summary>
     /// Unlock the given chapter.
     /// </summary>
@@ -215,6 +228,26 @@ public class ChapterManager : MonoBehaviour
             }
         }
         return unlockedCount;
+    }
+
+    public int GetStartedChaptersCount()
+    {
+        int startedChapters = 0;
+
+        foreach (Chapter chapter in chaptersData.chaptersList)
+        {
+            if (chapter.attemptCountByCharacters.Count > 0)
+            {
+                startedChapters++;
+            }
+
+            if (startedChapters >= 10)
+            {
+                break;
+            }
+        }
+
+        return startedChapters;
     }
 
     /// <summary>
@@ -1205,6 +1238,7 @@ public class ChapterManager : MonoBehaviour
         if (hardReset)
         {
             // A hard reset will reset everything to the start game values
+            chaptersData.chapterCollectionUnlocked = false;
             chaptersData.chaptersList.Clear();
             chaptersData.chapterCountInSelection = 3;
             foreach (ChapterData chapterData in chaptersScriptableObjectsList)
@@ -1249,6 +1283,7 @@ public class ChapterManager : MonoBehaviour
     /// <param name="saveData"></param>
     public void SetChaptersData(ChaptersSaveData saveData)
     {
+        chaptersData.chapterCollectionUnlocked = saveData.chapterCollectionUnlocked;
         chaptersData.chapterCountInSelection = 3;
         if (saveData.chapterCountInSelection >= 3)
         {

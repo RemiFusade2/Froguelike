@@ -25,6 +25,9 @@ public class ChapterCollectionScreenBehaviour : MonoBehaviour
     [Header("Glossary spread")]
     public GameObject glossarySpreadGO;
 
+    [Header("Demo button")]
+    public GameObject demoButton;
+
     private int totalNrOfSpreadsNeeded;
     private int totalNrOfChapters;
     private int neededNrOfTOCSpreads;
@@ -35,6 +38,8 @@ public class ChapterCollectionScreenBehaviour : MonoBehaviour
 
     private void Awake()
     {
+        demoButton.SetActive(BuildManager.instance.demoBuild);
+
         totalNrOfChapters = ChapterManager.instance.chaptersScriptableObjectsList.Count;
         neededNrOfTOCSpreads = 1;
         while ((totalNrOfChapters + 1 - (25 + ((neededNrOfTOCSpreads - 1) * 26))) > 0)

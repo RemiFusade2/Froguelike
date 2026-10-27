@@ -41,6 +41,7 @@ public class UIManager : MonoBehaviour
     public GameObject shopButton;
     public GameObject achievementsButton;
     public GameObject settingsButton;
+    public GameObject chaptersButton;
 
     [Header("Shop")]
     public GameObject shopScreen;
@@ -260,11 +261,15 @@ public class UIManager : MonoBehaviour
             achievementsButton.SetActive(true);
             achievementsButton.GetComponent<Button>().interactable = AchievementManager.instance.IsAchievementsListUnlocked();
             achievementsButton.GetComponent<CanvasGroup>().blocksRaycasts = AchievementManager.instance.IsAchievementsListUnlocked();
+
+            chaptersButton.GetComponent<Button>().interactable = ChapterManager.instance.IsChapterCollectionUnlocked();
+            chaptersButton.GetComponent<CanvasGroup>().blocksRaycasts = ChapterManager.instance.IsChapterCollectionUnlocked();
         }
         else
         {
             shopButton.SetActive(ShopManager.instance.IsShopUnlocked());
             achievementsButton.SetActive(AchievementManager.instance.IsAchievementsListUnlocked());
+            chaptersButton.SetActive(ChapterManager.instance.IsChapterCollectionUnlocked());
         }
         UpdateCurrencyDisplay();
     }

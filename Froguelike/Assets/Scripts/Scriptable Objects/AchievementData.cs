@@ -15,7 +15,8 @@ public enum AchievementConditionSpecialKey
     COMPLETE_1_ACHIEVEMENT = 8,
     UNLOCK_5_CHAPTERS = 9,
     DIE_IN_TOADS_END_CHAPTER = 10,
-    MOVE_FAR_ENOUGH_IN_KERMITS_END_CHAPTER = 11
+    MOVE_FAR_ENOUGH_IN_KERMITS_END_CHAPTER = 11,
+    START_10_CHAPTERS = 12
 }
 
 /// <summary>
@@ -124,7 +125,8 @@ public enum RewardFeatureType
     STANLEY_BUFF, // Upgrade Stanley starting stats. Starts with 9 lives
     TOAD_BUFF, // Upgrade Toad starting stats. Gives more armor
     KERMIT_BUFF, // Upgrade Kermit starting stats. Gives a XP buff
-    FROG_BUFF // Upgrade Frogs starting stats. Gives an extra tongue slot
+    FROG_BUFF, // Upgrade Frogs starting stats. Gives an extra tongue slot
+    CHAPTER_COLLECTION // Unlocks the chapter collection book
 }
 
 /// <summary>
