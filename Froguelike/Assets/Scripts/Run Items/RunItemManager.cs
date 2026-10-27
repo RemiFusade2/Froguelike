@@ -29,9 +29,7 @@ public class RunItemSaveInfo
 }
 
 /// <summary>
-/// CharactersSaveData contains all information that must be saved about the characters.
-/// - shopItems is the list of items in their current state
-/// - currencySpentInShop is the amount of money that has been spent in the Shop (can be refunded when Shop is reset)
+/// RunItemsSaveData ...
 /// </summary>
 [System.Serializable]
 public class RunItemsSaveData : SaveData

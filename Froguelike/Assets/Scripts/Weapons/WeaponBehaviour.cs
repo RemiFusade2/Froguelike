@@ -173,6 +173,12 @@ public class WeaponBehaviour : MonoBehaviour
             case TongueType.CURSED:
                 SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.CURSE));
                 break;
+            case TongueType.ROTATING:
+                if (poisonDamage > 0)
+                {
+                    SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.POISON));
+                }
+                break;
             default:
                 SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.NONE));
                 break;
@@ -846,7 +852,14 @@ public class WeaponBehaviour : MonoBehaviour
             if (tongueType == TongueType.ROTATING)
             {
                 pos = GetPositionsTowardsEnemy(null, LineShape.SPIRAL_LINE, false);
-                effects.Add(TongueEffect.NONE);
+                if (poisonDamage > 0)
+                {
+                    effects.Add(TongueEffect.POISON); // poison rotatongue
+                }
+                else
+                {
+                    effects.Add(TongueEffect.NONE);
+                }
                 this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects);
                 this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
                 AttackLineRotating(this.GetComponent<TongueLineRendererBehaviour>());
@@ -1270,6 +1283,12 @@ public class WeaponBehaviour : MonoBehaviour
                     break;
                 case TongueType.FREEZE:
                     activeEffect = TongueEffect.FREEZE;
+                    break;
+                case TongueType.ROTATING:
+                    if (poisonDamage > 0)
+                    {
+                        activeEffect = TongueEffect.POISON;
+                    }
                     break;
             }
 
