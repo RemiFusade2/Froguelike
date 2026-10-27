@@ -130,7 +130,7 @@ public class WeaponBehaviour : MonoBehaviour
     private void SetTongueDirection(Vector2 direction)
     {
         float angle = -Vector2.SignedAngle(direction.normalized, Vector2.right);
-        if (tongueType != TongueType.ROTATING)
+        if (tongueType != TongueType.ROTATING && tongueType != TongueType.POISONTATING)
         {
             this.transform.rotation = Quaternion.identity;
         }
@@ -173,11 +173,8 @@ public class WeaponBehaviour : MonoBehaviour
             case TongueType.CURSED:
                 SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.CURSE));
                 break;
-            case TongueType.ROTATING:
-                if (poisonDamage > 0)
-                {
-                    SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.POISON));
-                }
+            case TongueType.POISONTATING:
+                SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.POISON));
                 break;
             default:
                 SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.NONE));
@@ -285,7 +282,7 @@ public class WeaponBehaviour : MonoBehaviour
 
         ResetTongue();
 
-        if (tongueType == TongueType.ROTATING)
+        if (tongueType == TongueType.ROTATING || tongueType == TongueType.POISONTATING)
         {
             preventAttack = true; // so this new tongue will not attack before the previous one stops it attack first
         }
@@ -1243,7 +1240,7 @@ public class WeaponBehaviour : MonoBehaviour
         if (!enemyName.Equals(EnemiesManager.pooledEnemyNameStr) && !enemiesHitNamesList.Contains(enemyName))
         {
             enemiesHitNamesList.Add(enemyName); // to prevent a single tongue to hit the same enemy multiple times
-            if (tongueType == TongueType.ROTATING)
+            if (tongueType == TongueType.ROTATING || tongueType == TongueType.POISONTATING)
             {
                 float actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.GetAttackSpeedBoost());
                 StartCoroutine(RemoveEnemyNameWithDelay(enemyName, 1.0f / actualAttackSpeed));
@@ -1287,11 +1284,8 @@ public class WeaponBehaviour : MonoBehaviour
                 case TongueType.FREEZE:
                     activeEffect = TongueEffect.FREEZE;
                     break;
-                case TongueType.ROTATING:
-                    if (poisonDamage > 0)
-                    {
-                        activeEffect = TongueEffect.POISON;
-                    }
+                case TongueType.POISONTATING:
+                    activeEffect = TongueEffect.POISON;
                     break;
             }
 
