@@ -60,8 +60,11 @@ public class ChapterButtonBehaviour : MonoBehaviour
         chapterCompletedTooltip.SetActive(false);
         if (!isChapterNew)
         {
+            // If any of these are true, the star will not show.
             bool thereIsSomethingToUnlockInStoryline = ChapterManager.instance.DoesChapterUnlockAnAchievementOrAnUnplayedChapter(chapter, RunManager.instance.GetChapterCount());
             thereIsSomethingToUnlockInStoryline |= ChapterManager.instance.DoesChapterContainFixedItemsThatHaveNeverBeenFound(chapter);
+            thereIsSomethingToUnlockInStoryline |= chapter.completionCountByCharacters.Count == 0;
+
             chapterCompletedIcon.SetActive(!thereIsSomethingToUnlockInStoryline);
             chapterCompletedTooltip.SetActive(false);
         }

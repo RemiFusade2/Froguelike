@@ -908,7 +908,7 @@ public class AchievementManager : MonoBehaviour
                             }
                             break;
                         case AchievementConditionType.SPECIAL:
-                            if (condition.specialKey == AchievementConditionSpecialKey.MOVE_FAR_ENOUGH_IN_KERMITS_END_CHAPTER)
+                            if (chapter.chapterID == "[CH_ENDING_KERMIT]" && condition.specialKey == AchievementConditionSpecialKey.MOVE_FAR_ENOUGH_IN_KERMITS_END_CHAPTER)
                             {
                                 achievementFound = true; // There is a goal in this chapter that must be reached to unlock this achievement.
                             }
