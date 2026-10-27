@@ -27,6 +27,8 @@ public class ScoreManager : MonoBehaviour
     public TextMeshProUGUI totalScoreText;
     public TextMeshProUGUI totalTimeText;
     public TextMeshProUGUI currencyCollectedText;
+    public TextMeshProUGUI difficultyText;
+    public string difficultyPrefix;
     public TextMeshProUGUI moralText;
     [Space]
     public Transform tonguesPanel;
@@ -126,8 +128,20 @@ public class ScoreManager : MonoBehaviour
         // Display collected currency.
         currencyCollectedText.text = Tools.FormatCurrency(currencyCollected, DataManager.instance.currencySymbol);
 
-        // Pick a random moral to display
-        string moral = GetRandomMoral();
+        // Display difficulty.
+        string gameMode = GameManager.instance.GetRetryRunInfoGameMode();
+        if (gameMode != "NONE")
+        {
+            difficultyText.gameObject.SetActive(true);
+            difficultyText.text = difficultyPrefix + gameMode[0].ToString().ToUpper() + gameMode.Substring(1).ToLower().Replace(", ", "+");
+        }
+        else
+        {
+            difficultyText.gameObject.SetActive(false);
+        }
+
+            // Pick a random moral to display
+            string moral = GetRandomMoral();
         moralText.text = moral;
         scoreLog += $"-> Moral is: {moral}\n";
 
