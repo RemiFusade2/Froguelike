@@ -10,14 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5a3e6f35f2243724ab20b25b57def90b, type: 3}
-  m_Name: RotaPoisontongue
+  m_Name: Poisotatongue
   m_EditorClassIdentifier: 
-  itemName: RotaPoisontongue
+  itemName: Poisotatongue
   icon: {fileID: 21300000, guid: 48cb2b6e1e41f9641809a90ac1f96bd8, type: 3}
   unlockedFromStart: 1
   partOfDemo: 1
+  frusionRequirementList:
+  - {fileID: 11400000, guid: 1d461e1ba47e0984b97054a164db53c0, type: 2}
+  - {fileID: 11400000, guid: 4f94eda1e628c8544bdbe476f6718bac, type: 2}
+  frusionRequirementsRequireMaxLevel: 1
   weaponData:
-    weaponName: RotaPoisontongue
+    weaponName: Poisotatongue
     description: A poisonous tongue that turns around you
     weaponPrefab: {fileID: 1975712983084687256, guid: b5e58840ccebbba46a26ead0b1cb2716, type: 3}
     frogMovementWeightOnTongue:
@@ -68,82 +72,25 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    weaponType: 3
+    weaponType: 10
     weaponBaseStats:
       statsList:
       - stat: 0
         value: 0
       - stat: 2
-        value: 3.5
+        value: 0.5
       - stat: 11
-        value: 1
+        value: 20
       - stat: 1
-        value: 3
+        value: 5
       - stat: 3
-        value: 2
+        value: 4
       - stat: 4
         value: 0.1
       - stat: 12
         value: 1
       - stat: 6
-        value: 1
+        value: 4
       - stat: 8
-        value: 0.1
-  weaponBoostLevels:
-  - description: 
-    weaponStatUpgrades:
-      statsList:
-      - stat: 11
-        value: 0.25
-      - stat: 3
-        value: 0.1
-  - description: 
-    weaponStatUpgrades:
-      statsList:
-      - stat: 2
-        value: -0.25
-      - stat: 1
-        value: 0.1
-  - description: 
-    weaponStatUpgrades:
-      statsList:
-      - stat: 6
         value: 1
-  - description: 
-    weaponStatUpgrades:
-      statsList:
-      - stat: 11
-        value: 0.25
-      - stat: 3
-        value: 0.1
-  - description: 
-    weaponStatUpgrades:
-      statsList:
-      - stat: 1
-        value: 0.1
-      - stat: 3
-        value: 0.1
-  - description: 
-    weaponStatUpgrades:
-      statsList:
-      - stat: 6
-        value: 1
-  - description: 
-    weaponStatUpgrades:
-      statsList:
-      - stat: 11
-        value: 0.25
-      - stat: 3
-        value: 0.1
-  - description: 
-    weaponStatUpgrades:
-      statsList:
-      - stat: 2
-        value: -0.25
-      - stat: 3
-        value: 0.1
-  - description: 
-    weaponStatUpgrades:
-      statsList:
-      - stat: 6
-        value: 1
+  weaponBoostLevels: []

@@ -1140,12 +1140,82 @@ public class RunManager : MonoBehaviour
         weaponItem.activeWeaponsList.Add(weaponGo);
     }
 
+    public void RemoveRunItem(RunItemData removedItemData)
+    {
+        string log = "Run - Remove a Run item: " + removedItemData.itemName;
+
+        // Remove run item from UI, free the slot
+
+        // Despawn any tongue from that item (might be multiple tongues)
+
+        // Decrease any stat bonus
+
+
+
+        // Get Item Type (weapon, stat boost, or consumable)
+        RunItemType pickedItemType = removedItemData.GetItemType();
+        switch (pickedItemType)
+        {
+            case RunItemType.CONSUMABLE:
+                break;
+            case RunItemType.STAT_BONUS: // Remove this item from the list
+                log += " > item is a stat bonus";
+
+                RunStatItemInfo removedStatItemInfo = null;
+                // Find the item in the owned items list
+                foreach (RunItemInfo ownedItem in ownedItems)
+                {
+                    RunItemData itemData = ownedItem.GetRunItemData();
+                    if (itemData.Equals(removedItemData))
+                    {
+                        // We own such an item
+                        removedStatItemInfo = ownedItem as RunStatItemInfo;
+                        log += " (owned, level " + ownedItem.level + ")";
+
+                        break;
+                    }
+                }
+
+                // Resolve the item removed for the player
+                player.RemoveStatItem(removedStatItemInfo);
+
+                // Remove the RunItemInfo object from the list of owned items
+                if (removedStatItemInfo != null)
+                    ownedItems.Remove(removedStatItemInfo);
+
+                // TODO: Free the slot in the UI
+                
+                break;
+            case RunItemType.WEAPON:
+                break;
+
+
+
+
+        }
+
+        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+        {
+            Debug.Log(log);
+        }
+    }
+
     public void PickRunItem(RunItemData pickedItemData)
     {
         string log = "Run - Pick a Run item: " + pickedItemData.itemName;
 
         // Get Item Type (weapon, stat boost, or consumable)
         RunItemType pickedItemType = pickedItemData.GetItemType();
+
+        bool itemIsAFrusion = (pickedItemData.frusionRequirementList.Count > 0);
+        if (itemIsAFrusion)
+        {
+            // Remove required items
+            foreach (RunItemData requiredItemData in pickedItemData.frusionRequirementList)
+            {
+                RemoveRunItem(requiredItemData);
+            }
+        }
 
         bool itemIsNew = true;
         int level = 0;
@@ -1553,6 +1623,8 @@ public class RunManager : MonoBehaviour
             bool newItem = false;
             bool maxLevelItem = false;
 
+            bool frusionItem = (item.frusionRequirementList.Count > 0);
+
             switch (itemType)
             {
                 case RunItemType.CONSUMABLE:
@@ -1573,7 +1645,12 @@ public class RunManager : MonoBehaviour
 
             if (itemType != RunItemType.CONSUMABLE)
             {
-                if (newItem)
+                if (frusionItem)
+                {
+                    levelUpChoicesLevels[index].color = newItemColor;
+                    levelUpChoicesLevels[index].text = "FRUSION";
+                }
+                else if (newItem)
                 {
                     levelUpChoicesLevels[index].color = newItemColor;
                     levelUpChoicesLevels[index].text = "New!";

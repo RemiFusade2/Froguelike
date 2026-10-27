@@ -143,6 +143,50 @@ public class RunItemManager : MonoBehaviour
                 unlocked = false;
             }
 
+            // ONLY FOR FRUSIONS: check if requirements are met
+            if (itemData.frusionRequirementList.Count > 0)
+            {
+                bool requirementsAreMet = true;
+                foreach (RunItemData requiredItemData in itemData.frusionRequirementList)
+                {
+                    int requiredItemCurrentLevel = 0;
+                    int requiredItemMaxLevel = 10;
+                    if (requiredItemData is RunStatItemData)
+                    {
+                        // The required item is a stat item
+                        RunStatItemData requiredStatItemData = (requiredItemData as RunStatItemData);
+                        requiredItemCurrentLevel = RunManager.instance.GetLevelForItem(requiredStatItemData);
+                        requiredItemMaxLevel = requiredStatItemData.GetMaxLevelCount();
+                    }
+                    else if (requiredItemData is RunWeaponItemData)
+                    {
+                        // The required item is a tongue item
+                        RunWeaponItemData requiredStatItemData = (requiredItemData as RunWeaponItemData);
+                        requiredItemCurrentLevel = RunManager.instance.GetLevelForItem(requiredStatItemData);
+                        requiredItemMaxLevel = requiredStatItemData.GetMaxLevelCount() + 1;
+                    }
+
+                    // The required item has to at least be part of the currently owned items
+                    if (requiredItemCurrentLevel == 0)
+                    {
+                        requirementsAreMet = false;
+                        break;
+                    }
+
+                    // The required item has to be at max level
+                    if (itemData.frusionRequirementsRequireMaxLevel && requiredItemCurrentLevel < requiredItemMaxLevel)
+                    {
+                        requirementsAreMet = false;
+                        break;
+                    }
+                }
+
+                if (!requirementsAreMet)
+                {
+                    continue; // This frusion cannot be part of the pool because requirements are not met
+                }
+            }
+
             if (itemData is RunStatItemData)
             {
                 // stat item
@@ -176,14 +220,24 @@ public class RunItemManager : MonoBehaviour
         // Fill the rest with consumable items
         foreach (RunConsumableItemData consumableItem in allConsumableRunItemsScriptableObjects)
         {
-            if (runItemsPool.Count >= minimumItemCount)
-            {
-                break; // Stop when the pool is big enough
-            }
-
             if (RunManager.instance.IsRunItemBanished(consumableItem))
             {
                 continue; // Ignore banished items
+            }
+
+            // Exception for healing item: if player health is low, it can be part of the pool
+            if (consumableItem.itemName.Equals("Medicine"))
+            {
+                if (player.healthBar.IsCritical())
+                {
+                    runItemsPool.Add(consumableItem); // Add consumable item to the pool
+                }
+                continue; // Do not do anything else
+            }
+
+            if (runItemsPool.Count >= minimumItemCount)
+            {
+                break; // Stop when the pool is big enough
             }
 
             if (!runItemsPool.Contains(consumableItem))

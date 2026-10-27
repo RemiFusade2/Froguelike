@@ -16,7 +16,7 @@ public class RunWeaponData
     public string description;
 
     [Header("Prefab reference")]
-    [Tooltip("The prefab that is spawn when a new instance of that weapon appears in game")]
+    [Tooltip("The prefab that is spawned when a new instance of that weapon appears in game")]
     public GameObject weaponPrefab;
 
     [Header("Line curves")]

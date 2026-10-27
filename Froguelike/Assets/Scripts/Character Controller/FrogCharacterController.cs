@@ -754,6 +754,31 @@ public class FrogCharacterController : MonoBehaviour
         Heal(consumableData.effect.healthBonus, cancelDamage: true);
     }
 
+    public void RemoveStatItem(RunStatItemInfo removeItemInfo)
+    {
+        // We'll have to remove each level effect one by one
+        while (removeItemInfo.level > 0)
+        {
+            RunStatItemLevel removeItemLevel = removeItemInfo.itemData.statBoostLevels[Mathf.Clamp(removeItemInfo.level, 0, removeItemInfo.itemData.GetMaxLevel()-1)];
+            RemoveStatItemLevel(removeItemLevel);
+            removeItemInfo.level--;
+        }
+    }
+
+    public void RemoveStatItemLevel(RunStatItemLevel itemLevelData)
+    {
+        if (itemLevelData.scaleWithScore)
+        {
+            // This upgrade added a bonus that scales with score
+            //todo
+        }
+        else
+        {
+            //todo
+        }
+        UpdateScalingWithScoreStats();
+    }
+
     public void ResolvePickedStatItemLevel(RunStatItemLevel itemLevelData)
     {
         if (itemLevelData.scaleWithScore)

@@ -36,6 +36,12 @@ public class RunItemData : ScriptableObject
     [Tooltip("Is this item available in the demo?")]
     public bool partOfDemo;
 
+    [Header("Optional - Frusion settings")]
+    [Tooltip("A list of all the items that you need in order to get this 'frused' item offered as an option")]
+    public List<RunItemData> frusionRequirementList;
+    [Tooltip("A boolean to have the required items be max level before the frusion is offered")]
+    public bool frusionRequirementsRequireMaxLevel;
+
     #region overrides
 
     /// <summary>

@@ -849,17 +849,20 @@ public class WeaponBehaviour : MonoBehaviour
                 AttackLine(this.GetComponent<TongueLineRendererBehaviour>());
             }
 
+            // Added for the poison rotatongue frusion
+            if (tongueType == TongueType.POISONTATING)
+            {
+                pos = GetPositionsTowardsEnemy(null, LineShape.SPIRAL_LINE, false);
+                effects.Add(TongueEffect.POISON);
+                this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects);
+                this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
+                AttackLineRotating(this.GetComponent<TongueLineRendererBehaviour>());
+            }
+
             if (tongueType == TongueType.ROTATING)
             {
                 pos = GetPositionsTowardsEnemy(null, LineShape.SPIRAL_LINE, false);
-                if (poisonDamage > 0)
-                {
-                    effects.Add(TongueEffect.POISON); // poison rotatongue
-                }
-                else
-                {
-                    effects.Add(TongueEffect.NONE);
-                }
+                effects.Add(TongueEffect.NONE);
                 this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects);
                 this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
                 AttackLineRotating(this.GetComponent<TongueLineRendererBehaviour>());

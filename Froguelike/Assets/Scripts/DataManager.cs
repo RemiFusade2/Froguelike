@@ -61,7 +61,9 @@ public enum TongueType
     FREEZE, // target nearest, high range, low damage, stop enemies. BLUE
     CURSED, // target nearest, medium range, high damage, high speed, make enemies faster. PURPLE OR ORANGE
     RANDOM, // target random direction, high range, high damage, medium speed. Random effects and random colors
-    CAT // target in front of frog, SUPER WIDE, shorter, TONS OF DAMAGE
+    CAT, // target in front of frog, SUPER WIDE, shorter, TONS OF DAMAGE
+
+    POISONTATING, // same movement as a rotatongue, but it does poison damage instead of regular damage
 }
 
 /// <summary>
