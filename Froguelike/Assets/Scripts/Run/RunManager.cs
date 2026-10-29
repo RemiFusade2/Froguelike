@@ -1144,14 +1144,6 @@ public class RunManager : MonoBehaviour
     {
         string log = "Run - Remove a Run item: " + removedItemData.itemName;
 
-        // Remove run item from UI, free the slot
-
-        // Despawn any tongue from that item (might be multiple tongues)
-
-        // Decrease any stat bonus
-
-
-
         // Get Item Type (weapon, stat boost, or consumable)
         RunItemType pickedItemType = removedItemData.GetItemType();
         switch (pickedItemType)
@@ -1182,17 +1174,44 @@ public class RunManager : MonoBehaviour
                 // Remove the RunItemInfo object from the list of owned items
                 if (removedStatItemInfo != null)
                     ownedItems.Remove(removedStatItemInfo);
-
-                // TODO: Free the slot in the UI
                 
                 break;
             case RunItemType.WEAPON:
+                log += " > item is a tongue";
+
+                // We need to despawn any tongue of that type and remove the item itself
+                List<RunWeaponInfo> ownedWeapons = GetOwnedWeapons();
+                RunWeaponInfo removedWeaponInfo = null;
+                foreach (RunWeaponInfo ownedWeapon in ownedWeapons)
+                {
+                    if (ownedWeapon.weaponItemData.Equals(removedItemData))
+                    {
+                        // We own such an item and we want to remove it
+                        removedWeaponInfo = ownedWeapon;
+
+                        log += $" (owned, level {ownedWeapon.level})";
+
+                        removedWeaponInfo.level = 0; // Set level to zero
+
+                        // We need to destroy all similar active weapons
+                        float destroyDelay = 0.03f;
+                        foreach (GameObject weaponGo in removedWeaponInfo.activeWeaponsList)
+                        {
+                            GameObject.Destroy(weaponGo, destroyDelay);
+                        }
+                        removedWeaponInfo.activeWeaponsList.Clear();
+
+                        if (ownedItems.Contains(removedWeaponInfo))
+                            ownedItems.Remove(removedWeaponInfo);                        
+
+                        break;
+                    }
+                }
                 break;
-
-
-
-
         }
+
+        // Remove run item from UI, free the slot
+        FreeRunItemSlot(removedItemData);
 
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
@@ -1757,6 +1776,51 @@ public class RunManager : MonoBehaviour
         {
             child.gameObject.SetActive(false);
             Destroy(child.gameObject);
+        }
+    }
+
+    private void FreeRunItemSlot(RunItemData item)
+    {
+        // Find the slot occupied by the item
+        Transform backgroundParent = null;
+        Transform iconParent = null;
+        switch (item.GetItemType())
+        {
+            case RunItemType.WEAPON:
+                backgroundParent = tongueSlotsBackgroundsParent;
+                iconParent = tongueSlotsIconsParent;
+                break;
+
+            case RunItemType.STAT_BONUS:
+                backgroundParent = statItemSlotsBackgroundsParent;
+                iconParent = statItemSlotsIconsParent;
+                break;
+
+            // If an item is not a tongue or a stat item, it should not be displayed.
+            default:
+                return;
+        }
+
+        // Find the child that contains the icon we want to remove
+        // Clear that icon then push the empty slot to the end of the hierarchy
+        foreach (Transform currentSlot in iconParent)
+        {
+            GameObject currentIcon = currentSlot.transform.Find("Icon").gameObject;
+
+            if (!currentIcon.activeSelf)
+                continue; // The slot we are checking has no active icon (no item)
+
+            Image currentImage = currentIcon.GetComponent<Image>();
+            Sprite currentSprite = currentImage.sprite;
+
+            if (currentSprite == item.icon)
+            {
+                // We found the slot that contains the item we want to remove
+                currentImage.sprite = null;
+                currentIcon.SetActive(false);
+                currentSlot.SetAsLastSibling();
+                break;
+            }
         }
     }
 

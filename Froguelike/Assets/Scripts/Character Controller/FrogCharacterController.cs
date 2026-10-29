@@ -770,12 +770,75 @@ public class FrogCharacterController : MonoBehaviour
         if (itemLevelData.scaleWithScore)
         {
             // This upgrade added a bonus that scales with score
-            //todo
+            foreach (StatValue statValue in itemLevelData.statUpgrades.statsList)
+            {
+                bool statIncreaseNeedsToBeRemoved = false;
+
+                StatScoreScaling statScoreScalingToRemove = new StatScoreScaling(statValue, itemLevelData.scaleWithScoreValue);
+
+                foreach (StatScoreScaling statScoreScaling in statScaleWithScoreList)
+                {
+                    if (statScoreScaling.valueIncrease.Equals(statValue))
+                    {
+                        // We found the stat increase that we want to remove
+                        if (statScoreScaling.scoreValue == statScoreScalingToRemove.scoreValue)
+                        {
+                            // The value is the same, which means we want to remove it completely from the list
+                            statIncreaseNeedsToBeRemoved = true;
+                        }
+                        else
+                        {
+                            // The values are different, which means we want to decrease the value
+                            statScoreScaling.valueIncrease.value -= statScoreScalingToRemove.valueIncrease.value;
+                        }
+                        break; // no need to check more stat score scallings
+                    }
+                }
+                if (statIncreaseNeedsToBeRemoved)
+                {
+                    statScaleWithScoreList.Remove(statScoreScalingToRemove);
+                    continue;
+                }
+            }
         }
         else
         {
-            //todo
+            // This is a regular level up, no scaling with score
+            curse -= (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.CURSE).value;
+
+            // character stats
+            armor -= (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ARMOR).value;
+            experienceBoost -= (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.XP_BOOST).value;
+            currencyBoost -= (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.CURRENCY_BOOST).value;
+
+            maxHealth -= (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.MAX_HEALTH).value;
+            healthRecovery -= (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.HEALTH_RECOVERY).value;
+
+            revivals -= (int)itemLevelData.statUpgrades.GetStatValue(CharacterStat.REVIVAL).value;
+            if (revivals < 0)
+            {
+                revivals = 0;
+            }
+            RunManager.instance.SetExtraLives(revivals, true);
+
+            magnetRangeBoost -= (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.MAGNET_RANGE_BOOST).value;
+
+            walkSpeedBoost -= (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.WALK_SPEED_BOOST).value;
+            swimSpeedBoost -= (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.SWIM_SPEED_BOOST).value;
+
+            // attack stuff
+            attackCooldownBoost -= (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_COOLDOWN_BOOST).value;
+            attackDamageBoost -= (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_DAMAGE_BOOST).value;
+            attackRangeBoost -= (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_RANGE_BOOST).value;
+            attackSpeedBoost -= (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_SPEED_BOOST).value;
+            attackSizeBoost -= (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_SIZE_BOOST).value;
+            attackDurationBoost -= (float)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ATK_DURATION_BOOST).value;
+
+            // item and weapon slots
+            statItemSlotsCount -= (int)itemLevelData.statUpgrades.GetStatValue(CharacterStat.ITEM_SLOT).value;
+            weaponSlotsCount -= (int)itemLevelData.statUpgrades.GetStatValue(CharacterStat.WEAPON_SLOT).value;
         }
+
         UpdateScalingWithScoreStats();
     }
 

@@ -144,6 +144,8 @@ public class RunItemManager : MonoBehaviour
             }
 
             // ONLY FOR FRUSIONS: check if requirements are met
+            bool frusionWouldClearStatItemSlot = false;
+            bool frusionWouldClearTongueSlot = false;
             if (itemData.frusionRequirementList.Count > 0)
             {
                 bool requirementsAreMet = true;
@@ -157,6 +159,7 @@ public class RunItemManager : MonoBehaviour
                         RunStatItemData requiredStatItemData = (requiredItemData as RunStatItemData);
                         requiredItemCurrentLevel = RunManager.instance.GetLevelForItem(requiredStatItemData);
                         requiredItemMaxLevel = requiredStatItemData.GetMaxLevelCount();
+                        frusionWouldClearStatItemSlot = true;
                     }
                     else if (requiredItemData is RunWeaponItemData)
                     {
@@ -164,6 +167,7 @@ public class RunItemManager : MonoBehaviour
                         RunWeaponItemData requiredStatItemData = (requiredItemData as RunWeaponItemData);
                         requiredItemCurrentLevel = RunManager.instance.GetLevelForItem(requiredStatItemData);
                         requiredItemMaxLevel = requiredStatItemData.GetMaxLevelCount() + 1;
+                        frusionWouldClearTongueSlot = true;
                     }
 
                     // The required item has to at least be part of the currently owned items
@@ -195,7 +199,7 @@ public class RunItemManager : MonoBehaviour
                 int maxItemLevel = statItemData.GetMaxLevelCount();                
 
                 if ((itemLevel > 0 && itemLevel < maxItemLevel) // item is owned and not maxed out
-                   || (itemLevel == 0 && ownedStatItems.Count < player.statItemSlotsCount && unlocked) // item is not owned, item is unlocked and there's space for it
+                   || (itemLevel == 0 && (ownedStatItems.Count < player.statItemSlotsCount || frusionWouldClearStatItemSlot) && unlocked) // item is not owned, item is unlocked and there's space for it
                    )
                 {
                     runItemsPool.Add(statItemData);
@@ -209,7 +213,7 @@ public class RunItemManager : MonoBehaviour
                 int maxItemLevel = weaponItemData.GetMaxLevelCount() + 1;
 
                 if ( (itemLevel > 0 && itemLevel < maxItemLevel) // weapon is owned and not maxed out
-                   ||(itemLevel == 0 && ownedWeapons.Count < player.weaponSlotsCount && unlocked) // weapon is not owned, weapon is unlocked and there's space for it
+                   ||(itemLevel == 0 && (ownedWeapons.Count < player.weaponSlotsCount || frusionWouldClearTongueSlot) && unlocked) // weapon is not owned, weapon is unlocked and there's space for it
                    )
                 {
                     runItemsPool.Add(weaponItemData);
@@ -237,7 +241,7 @@ public class RunItemManager : MonoBehaviour
 
             if (runItemsPool.Count >= minimumItemCount)
             {
-                break; // Stop when the pool is big enough
+                continue; // Stop when the pool is big enough
             }
 
             if (!runItemsPool.Contains(consumableItem))

@@ -165,6 +165,7 @@ public class WeaponBehaviour : MonoBehaviour
                 SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.VAMPIRE));
                 break;
             case TongueType.POISON:
+            case TongueType.POISONTATING:
                 SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.POISON));
                 break;
             case TongueType.FREEZE:
@@ -172,9 +173,6 @@ public class WeaponBehaviour : MonoBehaviour
                 break;
             case TongueType.CURSED:
                 SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.CURSE));
-                break;
-            case TongueType.POISONTATING:
-                SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.POISON));
                 break;
             default:
                 SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.NONE));
@@ -221,7 +219,6 @@ public class WeaponBehaviour : MonoBehaviour
 
         this.GetComponent<TongueLineRendererBehaviour>().SetCurves(tongueData.frogMovementWeightOnTongue, tongueData.targetMovementWeightOnTongue);
         
-
         attackSpeed = (float)tongueData.weaponBaseStats.GetStatValue(TongueStat.SPEED).value;
         cooldown = (float)tongueData.weaponBaseStats.GetStatValue(TongueStat.COOLDOWN).value;
         damage = (float)tongueData.weaponBaseStats.GetStatValue(TongueStat.DAMAGE).value;
@@ -764,7 +761,20 @@ public class WeaponBehaviour : MonoBehaviour
     public void TryAttack()
     {
         float actualCooldown = cooldown * (1 + GameManager.instance.player.GetAttackCooldownBoost());
-        if (!preventAttack && !isAttacking && Time.time - lastAttackTime > actualCooldown)
+
+        bool lastAttackWasEnoughTimeAgo = Time.time - lastAttackTime > actualCooldown;
+
+        /*if (tongueType == TongueType.ROTATING || tongueType == TongueType.POISONTATING)
+        {
+            // All tongues of the same type should sync their attacks, we can only launch an attack if all tongues are ready
+            foreach (GameObject otherTongueOfTheSameType in activeTonguesOfSameTypeList)
+            {
+                WeaponBehaviour otherTongueOfTheSameTypeWeaponBehaviourScript = otherTongueOfTheSameType.GetComponent<WeaponBehaviour>();
+                lastAttackWasEnoughTimeAgo &= Time.time - otherTongueOfTheSameTypeWeaponBehaviourScript.lastAttackTime > actualCooldown;
+            }
+        }*/
+
+        if (!preventAttack && !isAttacking && lastAttackWasEnoughTimeAgo)
         {
             GameObject targetEnemy = null;
             List<Vector2> pos = new List<Vector2>();
@@ -854,6 +864,8 @@ public class WeaponBehaviour : MonoBehaviour
                 this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects);
                 this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
                 AttackLineRotating(this.GetComponent<TongueLineRendererBehaviour>());
+
+                //todo: make all tongues attack togetehr
             }
 
             if (tongueType == TongueType.ROTATING)
@@ -880,6 +892,7 @@ public class WeaponBehaviour : MonoBehaviour
     {
         eatenFliesCount = 0;
         lastAttackTime = Time.time;
+
         Vector2 direction = GameManager.instance.player.transform.up;
         if (tongueScript != null)
         {
@@ -944,7 +957,6 @@ public class WeaponBehaviour : MonoBehaviour
                     isTongueGoingOut = false;
                 }
             }
-
 
             actualAttackSpeed = attackSpeed * (1 + GameManager.instance.player.GetAttackSpeedBoost());
             angle += actualAttackSpeed * Time.fixedDeltaTime;
@@ -1279,13 +1291,11 @@ public class WeaponBehaviour : MonoBehaviour
                     activeEffect = TongueEffect.VAMPIRE;
                     break;
                 case TongueType.POISON:
+                case TongueType.POISONTATING:
                     activeEffect = TongueEffect.POISON;
                     break;
                 case TongueType.FREEZE:
                     activeEffect = TongueEffect.FREEZE;
-                    break;
-                case TongueType.POISONTATING:
-                    activeEffect = TongueEffect.POISON;
                     break;
             }
 
