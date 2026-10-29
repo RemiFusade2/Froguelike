@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using static UnityEngine.Rendering.DebugUI;
 
@@ -281,7 +282,25 @@ public class WeaponBehaviour : MonoBehaviour
 
         if (tongueType == TongueType.ROTATING || tongueType == TongueType.POISONTATING)
         {
-            preventAttack = true; // so this new tongue will not attack before the previous one stops it attack first
+            foreach (GameObject otherTongue in otherWeaponsOfTheSameType)
+            {
+                WeaponBehaviour otherTongueBehaviour = otherTongue.GetComponent<WeaponBehaviour>();
+                if (otherTongueBehaviour.isTongueGoingOut) // The old tongues are going out, cancel that. They will all go out after the cooldown together with the new tongue. // TODO find a way to ingonre the cooldown?
+                {
+                    otherTongueBehaviour.isTongueGoingOut = false;
+                }
+                else if (otherTongueBehaviour.preventAttack) // The old tongues are on their way in, wait for them. They will all go out after the cooldown together with the new tongue. // TODO find a way to ingonre the cooldown?
+                {
+                    preventAttack = true;
+                }
+                else // The other tongues are in, make all the old ones go out together right away. // TODO make them wait for the cooldown?
+                {
+                    lastAttackTime = otherTongueBehaviour.lastAttackTime;
+                    otherTongueBehaviour.TryAttack(0f);
+                }
+            }
+
+            TryAttack(0f); // This will make the new tongue go out right away, but it will only work when all the old tongues where in. // TODO make them wait for the cooldown? Right now it is different depending on case, make it the same?
         }
     }
 
@@ -758,9 +777,9 @@ public class WeaponBehaviour : MonoBehaviour
         return result;
     }
 
-    public void TryAttack()
+    public void TryAttack(float cooldownModifier = 1)
     {
-        float actualCooldown = cooldown * (1 + GameManager.instance.player.GetAttackCooldownBoost());
+        float actualCooldown = (cooldown * cooldownModifier) * (1 + GameManager.instance.player.GetAttackCooldownBoost());
 
         bool lastAttackWasEnoughTimeAgo = Time.time - lastAttackTime > actualCooldown;
 
