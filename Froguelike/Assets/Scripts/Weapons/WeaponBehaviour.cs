@@ -147,52 +147,11 @@ public class WeaponBehaviour : MonoBehaviour
         this.transform.position = weaponStartPosition.position;
     }
 
-    private bool GetEdgeTonguePosition(Vector2 playerPosition, Vector2 playerMoveDirection, out Vector3 spawnPosition, bool overrideDirection = false, float overridenDirectionAngle = 0, float overridenDirectionSpread = 1)
+    private Vector3 GetRandomEdgeTongueStartPosition()
     {
-        // TODO make it like a frame instead of a circle.
-        spawnPosition = Vector2.zero;
-
-        // Will spawn in a circle around a position
-        Vector2 spawnDirection = Vector2.zero;
-        float actualSpawnCircleRadius = 30; // spawnCircleRadius; // Default radius is quite big to also work when centered around frog
-        float spawnCenterDistanceToPlayer = Random.Range(10 /*spawnCenterMinDistanceToPlayer*/, 30 /*spawnCenterMaxDistanceToPlayer*/);
-
-        if (overrideDirection)
-        {
-            // The center of that circle is in the given direction
-            spawnDirection = new Vector2(Mathf.Cos(overridenDirectionAngle * Mathf.Deg2Rad), Mathf.Sin(overridenDirectionAngle * Mathf.Deg2Rad));
-            actualSpawnCircleRadius = overridenDirectionSpread; // if we override direction, then the spawn circle must be small, otherwise it doesn't feel like the bugs are coming from that direction
-        }
-        else if (!playerMoveDirection.Equals(Vector2.zero))
-        {
-            // The center of that circle is in front of the frog
-            spawnDirection = playerMoveDirection;
-        }
-        Vector2 spawnCenter = playerPosition + spawnDirection * spawnCenterDistanceToPlayer;
-
-        // Attemp to find a valid spawn point. Loop and try again until it works.
-        bool spawnPositionIsValid = false;
-        int loopAttemptCount = 10; // findSpawnPositionMaxAttempts;
-
-        do
-        {
-            // Get a random point in the spawn circle
-            spawnPosition = spawnCenter;
-
-            float randomAngle = Random.Range(0, 360.0f) * (loopAttemptCount + 1);
-            Vector2 randomVector = new Vector2(Mathf.Cos(randomAngle * Mathf.Deg2Rad), Mathf.Sin(randomAngle * Mathf.Deg2Rad)) * (Random.Range(0.0f, (loopAttemptCount + 1)) / (loopAttemptCount + 1));
-            spawnPosition += new Vector3(randomVector.x, randomVector.y) * actualSpawnCircleRadius;
-
-            loopAttemptCount--;
-            // Check if that random point is not in sight (you don't want to spawn an enemy where you can see it)
-            if (Vector2.Distance(spawnPosition, playerPosition) > 22 /*minSpawnDistanceFromPlayer*/)
-            {
-                spawnPositionIsValid = true;
-            }
-
-        } while (!spawnPositionIsValid && loopAttemptCount > 0); // Redo until the random point is out of sight
-
-        return spawnPositionIsValid;
+        Vector3[] possiblePositions = new Vector3[] { new Vector3(-22, Random.Range(-9f, 9f)), new Vector3(22, Random.Range(-9f, 9f)), new Vector3(Random.Range(-18f, 18f), -22), new Vector3(Random.Range(-18f, 18f), 22) };
+        Vector3 spawnPosition = possiblePositions[Random.Range(0, possiblePositions.Length)];
+        return spawnPosition;
     }
 
     public void ResetTongue()
@@ -469,67 +428,53 @@ public class WeaponBehaviour : MonoBehaviour
         return enemy;
     }
 
-    private GameObject GetTargetForEdgeTongue(int nearestRank = 1)
+    private Vector2 GetTargetForEdgeTongue()
+    {
+        // Target a random bug, if none is found target a random spot.
+
+        GameObject bug = GetBugForEdgeTongue();
+        if (bug != null)
+        {
+            return bug.transform.position;
+        }
+
+        Vector2 targetWorldPosition = Vector2.zero;
+        Vector2 playerWorldPosition = GameManager.instance.player.transform.position;
+        Vector2 xRange = new Vector2(playerWorldPosition.x - 18, playerWorldPosition.x + 18);
+        Vector2 yRange = new Vector2(playerWorldPosition.y - 10, playerWorldPosition.y + 10);
+        targetWorldPosition.x = Random.Range(xRange.x, xRange.y);
+        targetWorldPosition.y = Random.Range(yRange.x, yRange.y);
+
+        // Go in a straight line.
+        /*
+        Vector2 tongueStartLocalPosition = this.transform.localPosition;
+        Vector2 tongueStartWorlPosition = this.transform.position;
+
+        if (tongueStartLocalPosition.x >= 21 || tongueStartLocalPosition.x <= -21) // Starting left or right.
+        {
+            targetWorldPosition.x = range;
+            targetWorldPosition.y = tongueStartWorlPosition.y; // Send tongue straight.
+        }
+        else
+        {
+            targetWorldPosition.x = tongueStartWorlPosition.x; // Send tongue straight.
+            targetWorldPosition.y = range;
+        }
+        */
+        return targetWorldPosition;
+    }
+
+    private GameObject GetBugForEdgeTongue()
     {
         GameObject enemy = null;
         Vector2 weaponOriginPosition = GameManager.instance.player.transform.position;
-        float actualRange = range * (1 + GameManager.instance.player.GetAttackRangeBoost());
-        Collider2D[] allColliders = Physics2D.OverlapCircleAll(weaponOriginPosition, actualRange, foodLayer);
+        Collider2D[] allColliders = Physics2D.OverlapCircleAll(weaponOriginPosition, 9, foodLayer);
+
         if (allColliders.Length > 0)
         {
-            List<float> shortestDistancesList = new List<float>();
-            List<Collider2D> nearestEnemiesList = new List<Collider2D>();
-            foreach (Collider2D col in allColliders)
-            {
-                EnemyInstance enemyInfo = EnemiesManager.instance.GetEnemyInstanceFromGameObjectName(col.gameObject.name);
-                float distanceWithPlayer = Vector2.Distance(col.transform.position, weaponOriginPosition);
-
-                if (enemyInfo != null && enemyInfo.active)
-                {
-                    // Enemy is valid target
-
-                    // Compare current enemy to all enemies in the list
-                    int indexOfNewEnemy = -1;
-                    for (int index = 0; index < shortestDistancesList.Count; index++)
-                    {
-                        float shortestDistanceOfEnemy = shortestDistancesList[index];
-                        Collider2D currentEnemy = nearestEnemiesList[index];
-
-                        if (distanceWithPlayer < shortestDistanceOfEnemy)
-                        {
-                            // Found one enemy that is not as near as the new one
-                            indexOfNewEnemy = index;
-                            break;
-                        }
-                    }
-
-                    if (indexOfNewEnemy > -1)
-                    {
-                        // New enemy was found closer to another one in the list
-                        shortestDistancesList.Insert(indexOfNewEnemy, distanceWithPlayer);
-                        nearestEnemiesList.Insert(indexOfNewEnemy, col);
-                    }
-                    else if (shortestDistancesList.Count < nearestRank)
-                    {
-                        // We don't have enough enemies in the list, let's add this one at the end of the list
-                        shortestDistancesList.Add(distanceWithPlayer);
-                        nearestEnemiesList.Add(col);
-                    }
-
-                    // Special case if we have too many enemies in the list, we get rid of the last one
-                    if (shortestDistancesList.Count > nearestRank)
-                    {
-                        shortestDistancesList.RemoveAt(shortestDistancesList.Count - 1);
-                        nearestEnemiesList.RemoveAt(nearestEnemiesList.Count - 1);
-                    }
-                }
-            }
-
-            if (nearestEnemiesList.Count >= nearestRank)
-            {
-                enemy = nearestEnemiesList[nearestRank - 1].gameObject;
-            }
+            enemy = allColliders[Random.Range(0, allColliders.Length)].gameObject;
         }
+
         return enemy;
     }
 
@@ -571,15 +516,24 @@ public class WeaponBehaviour : MonoBehaviour
     private List<Vector2> GetPositionsTowardsEnemy(GameObject targetEnemy, LineShape lineShape = LineShape.STRAIGHT_LINE, bool stopAtTarget = false, bool inverseValues = false, bool amplitudeScaleWithRange = false)
     {
         List<Vector2> result = new List<Vector2>();
+
+        result = GetPositionsTowardsEnemy(targetEnemy.transform.position, lineShape, stopAtTarget, inverseValues, amplitudeScaleWithRange);
+
+        return result;
+    }
+
+    private List<Vector2> GetPositionsTowardsEnemy(Vector3 targetEnemyVector3, LineShape lineShape = LineShape.STRAIGHT_LINE, bool stopAtTarget = false, bool inverseValues = false, bool amplitudeScaleWithRange = false)
+    {
+        List<Vector2> result = new List<Vector2>();
         
         float actualRange = range * (1 + GameManager.instance.player.GetAttackRangeBoost());
         Vector2 direction = Vector2.up;
         float distanceToTarget = actualRange;
 
-        if (targetEnemy != null)
+        if (targetEnemyVector3 != null)
         {
-            direction = (targetEnemy.transform.position - this.transform.position).normalized;
-            distanceToTarget = (targetEnemy.transform.position - this.transform.position).magnitude;
+            direction = (targetEnemyVector3 - this.transform.position).normalized;
+            distanceToTarget = (targetEnemyVector3 - this.transform.position).magnitude;
         }
 
         float distanceFromFrog = 0;
@@ -993,18 +947,18 @@ public class WeaponBehaviour : MonoBehaviour
             {
                 // Get starting position for edge tongue.
                 Vector3 tonguePosition = Vector3.zero;
-                GetEdgeTonguePosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out tonguePosition);
-                this.transform.position = tonguePosition;
-                
+                this.transform.localPosition = GetRandomEdgeTongueStartPosition();
+
+
                 // TODO need to make sure the tongue goes towards the frog, and maybe in a straight line sort of?
                 // If the tongue starts up, it goes straight down, if the tongue starts left it goes straight right
                 // and so on, but not like the cat tongue, it needs to stick to the world.
-                
+
                 // Get the direction based on where the frog is compared to the starting point?
                 // Get positions in a straight line towards the direction?
 
                 // Set random positions
-                pos = GetPositionsTowardsEnemy(GetTargetForEdgeTongue()); // rework GetTargetForEdgeTongue()
+                pos = GetPositionsTowardsEnemy(GetTargetForEdgeTongue(), LineShape.STRAIGHT_LINE, true); // rework GetTargetForEdgeTongue()
                 effects.Add(TongueEffect.NONE);
                 this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects);
                 this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
@@ -1251,11 +1205,11 @@ public class WeaponBehaviour : MonoBehaviour
                 this.transform.localRotation = RunManager.instance.player.transform.localRotation;
             }
 
+
             // Make the edge tongue stick to the ground after it has fully gone out.
             if (tongueType == TongueType.EDGE && t >= 1)
             {
                 float durationPassed = 0;
-
                 while (durationPassed <= duration)
                 {
                     // Display tongue
