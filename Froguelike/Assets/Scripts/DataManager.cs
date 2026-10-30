@@ -64,7 +64,8 @@ public enum TongueType
     CAT, // target in front of frog, SUPER WIDE, shorter, TONS OF DAMAGE
 
     POISONTATING, // same movement as a rotatongue, but it does poison damage instead of regular damage
-    EDGE //This tongue moves in a straight line from the edges of the screen
+    EDGE, // This tongue moves in a straight line from the edges of the screen
+    DART // Super quick and goes off the screen, hitting everything in its way
 }
 
 /// <summary>
