@@ -75,7 +75,7 @@ public class TongueLineRendererBehaviour : MonoBehaviour
 
     public void SetLineRenderersWidth(float width, float outlineWeight, float length, bool withFrogTongueTip)
     {
-        float tipRatio = (length - 0.5f) / (length+0.01f);
+        float tipRatio = (length - 0.5f) / (length+0.01f) - width / 25;
         tipRatio = Mathf.Clamp(tipRatio, 0, 1);
 
         // The tongue line renderer goes from 0.5 * width for its root and 1 * width for the tip

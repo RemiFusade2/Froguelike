@@ -154,6 +154,44 @@ public class WeaponBehaviour : MonoBehaviour
         return spawnPosition;
     }
 
+    private Vector3 GetRandomEdgeTongueStartPosition(Vector3 targetPosition)
+    {
+        // Check what part of the screen the target is on.
+        // It is going to detend on negative and positive x and y.
+        Vector3 spawnPosition = Vector3.zero;
+        Vector3[] possiblePositions = new Vector3[] { 
+            new Vector3(-22, Random.Range(-9f, 9f)), // -x, left    0
+            new Vector3(22, Random.Range(-9f, 9f)), // +x, right    1
+            new Vector3(Random.Range(-18f, 18f), -22), // -y, down  2
+            new Vector3(Random.Range(-18f, 18f), 22) }; // +y, up   3
+
+        if (Mathf.Abs(targetPosition.x) > Mathf.Abs(targetPosition.y)) // Left or right.
+        {
+            if (targetPosition.x < 0)
+            {
+                spawnPosition = possiblePositions[0]; // Left.
+            }
+            else
+            {
+                spawnPosition = possiblePositions[1]; // Right.
+            }
+        }
+        else // Up or down.
+        {
+            if (targetPosition.y < 0)
+            {
+                spawnPosition = possiblePositions[2]; // Down.
+            }
+            else
+            {
+                spawnPosition = possiblePositions[3]; // Up.
+            }
+        }
+
+        // TODO ^ not working
+        return spawnPosition;
+    }
+
     public void ResetTongue()
     {
         isAttacking = false;
@@ -329,7 +367,10 @@ public class WeaponBehaviour : MonoBehaviour
 
         // Width
         float newTongueWidth = tongueWidth * (1 + (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(TongueStat.SIZE).value);
-        SetTongueWidth(newTongueWidth);
+        if (tongueWidth != newTongueWidth)
+        {
+            SetTongueWidth(newTongueWidth);
+        }
 
         // Special attack: Vampire
         if (healthAbsorbRatio == 0)
@@ -430,14 +471,16 @@ public class WeaponBehaviour : MonoBehaviour
 
     private Vector2 GetTargetForEdgeTongue()
     {
-        // Target a random bug, if none is found target a random spot.
-
+        /*
+        // Target a random bug, if none is found target a random spot.        
         GameObject bug = GetBugForEdgeTongue();
         if (bug != null)
         {
             return bug.transform.position;
         }
+        */
 
+        // Random target (not a bug, just a position on the screen).
         Vector2 targetWorldPosition = Vector2.zero;
         Vector2 playerWorldPosition = GameManager.instance.player.transform.position;
         Vector2 xRange = new Vector2(playerWorldPosition.x - 18, playerWorldPosition.x + 18);
@@ -448,16 +491,16 @@ public class WeaponBehaviour : MonoBehaviour
         // Go in a straight line.
         /*
         Vector2 tongueStartLocalPosition = this.transform.localPosition;
-        Vector2 tongueStartWorlPosition = this.transform.position;
+        Vector2 tongueStartWorldPosition = this.transform.position;
 
         if (tongueStartLocalPosition.x >= 21 || tongueStartLocalPosition.x <= -21) // Starting left or right.
         {
             targetWorldPosition.x = range;
-            targetWorldPosition.y = tongueStartWorlPosition.y; // Send tongue straight.
+            targetWorldPosition.y = tongueStartWorldPosition.y; // Send tongue straight.
         }
         else
         {
-            targetWorldPosition.x = tongueStartWorlPosition.x; // Send tongue straight.
+            targetWorldPosition.x = tongueStartWorldPosition.x; // Send tongue straight.
             targetWorldPosition.y = range;
         }
         */
@@ -947,18 +990,14 @@ public class WeaponBehaviour : MonoBehaviour
             {
                 // Get starting position for edge tongue.
                 Vector3 tonguePosition = Vector3.zero;
-                this.transform.localPosition = GetRandomEdgeTongueStartPosition();
-
-
-                // TODO need to make sure the tongue goes towards the frog, and maybe in a straight line sort of?
-                // If the tongue starts up, it goes straight down, if the tongue starts left it goes straight right
-                // and so on, but not like the cat tongue, it needs to stick to the world.
-
-                // Get the direction based on where the frog is compared to the starting point?
-                // Get positions in a straight line towards the direction?
+                Vector3 tongueTarget = GetTargetForEdgeTongue();
+                Debug.Log(tongueTarget);
+                Vector3 localTargetPosition = tongueTarget - GameManager.instance.player.transform.position;
+                Debug.Log(localTargetPosition);
+                this.transform.localPosition = GetRandomEdgeTongueStartPosition(localTargetPosition);
 
                 // Set random positions
-                pos = GetPositionsTowardsEnemy(GetTargetForEdgeTongue(), LineShape.STRAIGHT_LINE, true); // rework GetTargetForEdgeTongue()
+                pos = GetPositionsTowardsEnemy(tongueTarget, LineShape.STRAIGHT_LINE, true); // rework GetTargetForEdgeTongue()
                 effects.Add(TongueEffect.NONE);
                 this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects);
                 this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
@@ -1204,7 +1243,6 @@ public class WeaponBehaviour : MonoBehaviour
             {
                 this.transform.localRotation = RunManager.instance.player.transform.localRotation;
             }
-
 
             // Make the edge tongue stick to the ground after it has fully gone out.
             if (tongueType == TongueType.EDGE && t >= 1)
