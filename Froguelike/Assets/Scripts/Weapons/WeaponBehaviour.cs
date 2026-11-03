@@ -550,7 +550,14 @@ public class WeaponBehaviour : MonoBehaviour
     {
         List<Vector2> result = new List<Vector2>();
 
-        result = GetPositionsTowardsEnemy(targetEnemy.transform.position, lineShape, stopAtTarget, inverseValues, amplitudeScaleWithRange);
+        Vector3 position = Vector2.up;
+
+        if (targetEnemy != null)
+        {
+            position = targetEnemy.transform.position;
+        }
+
+        result = GetPositionsTowardsEnemy(position, lineShape, stopAtTarget, inverseValues, amplitudeScaleWithRange);
 
         return result;
     }
@@ -563,7 +570,7 @@ public class WeaponBehaviour : MonoBehaviour
         Vector2 direction = Vector2.up;
         float distanceToTarget = actualRange;
 
-        if (targetEnemyVector3 != null)
+        if ((Vector2)targetEnemyVector3 != direction)
         {
             direction = (targetEnemyVector3 - this.transform.position).normalized;
             distanceToTarget = (targetEnemyVector3 - this.transform.position).magnitude;
