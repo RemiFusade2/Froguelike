@@ -907,7 +907,7 @@ public class WeaponBehaviour : MonoBehaviour
             List<TongueEffect> effects = new List<TongueEffect>();
 
             // Pick an enemy to target
-            bool tongueDoesTarget = (tongueType == TongueType.CLASSIC || tongueType == TongueType.CURSED || tongueType == TongueType.FREEZE || tongueType == TongueType.POISON || tongueType == TongueType.QUICK || tongueType == TongueType.VAMPIRE || tongueType == TongueType.WIDE);
+            bool tongueDoesTarget = (tongueType == TongueType.CLASSIC || tongueType == TongueType.CURSED || tongueType == TongueType.FREEZE || tongueType == TongueType.POISON || tongueType == TongueType.QUICK || tongueType == TongueType.VAMPIRE || tongueType == TongueType.WIDE || tongueType == TongueType.DART);
             if (tongueDoesTarget)
             {
                 targetEnemy = GetNearestEnemy(tongueTypeIndex + 1);
@@ -955,7 +955,7 @@ public class WeaponBehaviour : MonoBehaviour
                     pos = GetPositionsTowardsEnemy(targetEnemy, LineShape.SQUARE_LINE, stopAtTarget: false, inverseValues: isCurseEffectActive);
                     effects.Add(TongueEffect.CURSE);
                 }
-                else if (tongueType == TongueType.WIDE)
+                else if (tongueType == TongueType.WIDE || tongueType == TongueType.DART)
                 {
                     pos = GetPositionsTowardsEnemy(targetEnemy, LineShape.STRAIGHT_LINE, false);
                     effects.Add(TongueEffect.NONE);
@@ -1236,7 +1236,7 @@ public class WeaponBehaviour : MonoBehaviour
                 this.transform.localRotation = RunManager.instance.player.transform.localRotation;
             }
 
-            // Make the edge tongue stick to the ground after it has fully gone out.
+            // Make the edge tongue stay stuck to the ground for duration after it has fully gone out.
             if (tongueType == TongueType.EDGE && t >= 1)
             {
                 float durationPassed = 0;
