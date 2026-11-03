@@ -147,48 +147,38 @@ public class WeaponBehaviour : MonoBehaviour
         this.transform.position = weaponStartPosition.position;
     }
 
-    private Vector3 GetRandomEdgeTongueStartPosition()
-    {
-        Vector3[] possiblePositions = new Vector3[] { new Vector3(-22, Random.Range(-9f, 9f)), new Vector3(22, Random.Range(-9f, 9f)), new Vector3(Random.Range(-18f, 18f), -22), new Vector3(Random.Range(-18f, 18f), 22) };
-        Vector3 spawnPosition = possiblePositions[Random.Range(0, possiblePositions.Length)];
-        return spawnPosition;
-    }
-
-    private Vector3 GetRandomEdgeTongueStartPosition(Vector3 targetPosition)
+    private Vector3 GetRandomEdgeTongueStartPosition(Vector3 localTargetPosition)
     {
         // Check what part of the screen the target is on.
-        // It is going to detend on negative and positive x and y.
         Vector3 spawnPosition = Vector3.zero;
-        Vector3[] possiblePositions = new Vector3[] { 
+        Vector3[] possibleStartPositions = new Vector3[] { 
             new Vector3(-22, Random.Range(-9f, 9f)), // -x, left    0
             new Vector3(22, Random.Range(-9f, 9f)), // +x, right    1
             new Vector3(Random.Range(-18f, 18f), -22), // -y, down  2
             new Vector3(Random.Range(-18f, 18f), 22) }; // +y, up   3
 
-        if (Mathf.Abs(targetPosition.x) > Mathf.Abs(targetPosition.y)) // Left or right.
+        if (Mathf.Abs(localTargetPosition.x) / 2 > Mathf.Abs(localTargetPosition.y)) // Left or right.
         {
-            if (targetPosition.x < 0)
+            if (localTargetPosition.x < 0)
             {
-                spawnPosition = possiblePositions[0]; // Left.
+                spawnPosition = possibleStartPositions[0]; // Left.
             }
             else
             {
-                spawnPosition = possiblePositions[1]; // Right.
+                spawnPosition = possibleStartPositions[1]; // Right.
             }
         }
         else // Up or down.
         {
-            if (targetPosition.y < 0)
+            if (localTargetPosition.y < 0)
             {
-                spawnPosition = possiblePositions[2]; // Down.
+                spawnPosition = possibleStartPositions[2]; // Down.
             }
             else
             {
-                spawnPosition = possiblePositions[3]; // Up.
+                spawnPosition = possibleStartPositions[3]; // Up.
             }
         }
-
-        // TODO ^ not working
         return spawnPosition;
     }
 
@@ -988,16 +978,13 @@ public class WeaponBehaviour : MonoBehaviour
 
             if (tongueType == TongueType.EDGE)
             {
-                // Get starting position for edge tongue.
-                Vector3 tonguePosition = Vector3.zero;
-                Vector3 tongueTarget = GetTargetForEdgeTongue();
-                Debug.Log(tongueTarget);
-                Vector3 localTargetPosition = tongueTarget - GameManager.instance.player.transform.position;
-                Debug.Log(localTargetPosition);
+                // Get target position and starting position for edge tongue.
+                Vector3 tongueTargetPosition = GetTargetForEdgeTongue();
+                Vector3 localTargetPosition = tongueTargetPosition - GameManager.instance.player.transform.position;
                 this.transform.localPosition = GetRandomEdgeTongueStartPosition(localTargetPosition);
 
                 // Set random positions
-                pos = GetPositionsTowardsEnemy(tongueTarget, LineShape.STRAIGHT_LINE, true); // rework GetTargetForEdgeTongue()
+                pos = GetPositionsTowardsEnemy(tongueTargetPosition, LineShape.STRAIGHT_LINE, true);
                 effects.Add(TongueEffect.NONE);
                 this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects);
                 this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
@@ -1013,8 +1000,6 @@ public class WeaponBehaviour : MonoBehaviour
                 this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects);
                 this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
                 AttackLineRotating(this.GetComponent<TongueLineRendererBehaviour>());
-
-                //todo: make all tongues attack togetehr
             }
 
             if (tongueType == TongueType.ROTATING)
