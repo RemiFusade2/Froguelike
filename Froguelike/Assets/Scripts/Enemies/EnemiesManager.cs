@@ -1699,7 +1699,15 @@ public class EnemiesManager : MonoBehaviour
         if (enemy.HP < 0.01f)
         {
             // enemy died, let's eat it now
-            SetEnemyDead(enemy, despawnEnemyAndSpawnXP: true, applyFroinEffect: applyFroinEffect, applyXPEffect: applyXPEffect, weapon.GetComponent<WeaponBehaviour>());
+            if (weapon != null)
+            {
+                SetEnemyDead(enemy, despawnEnemyAndSpawnXP: true, applyFroinEffect: applyFroinEffect, applyXPEffect: applyXPEffect, weapon.GetComponent<WeaponBehaviour>());
+            }
+            else
+            {
+                SetEnemyDead(enemy, despawnEnemyAndSpawnXP: true, applyFroinEffect: applyFroinEffect, applyXPEffect: applyXPEffect);
+            }
+
             enemyDied = true;
         }
 
