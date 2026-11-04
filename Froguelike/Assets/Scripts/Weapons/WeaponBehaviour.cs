@@ -46,6 +46,8 @@ public class WeaponBehaviour : MonoBehaviour
     [Space]
     public bool freezeEffect;
     public float curseChance;
+    public float froinEffect;
+    public float xpEffect;
 
     [Header("Collision Layer")]
     public LayerMask foodLayer;
@@ -240,6 +242,8 @@ public class WeaponBehaviour : MonoBehaviour
         poisonDamage = (float)tongueBaseStats.GetStatValue(TongueStat.POISON_DAMAGE).value;
         freezeEffect = (float)tongueBaseStats.GetStatValue(TongueStat.FREEZE_EFFECT).value > 0;
         curseChance = (float)tongueBaseStats.GetStatValue(TongueStat.CURSE_EFFECT).value;
+        froinEffect = (float)tongueBaseStats.GetStatValue(TongueStat.FROIN_EFFECT).value;
+        xpEffect = (float)tongueBaseStats.GetStatValue(TongueStat.XP_EFFECT).value;
 
         SetTongueWidth((float)tongueBaseStats.GetStatValue(TongueStat.SIZE).value);
 
@@ -268,6 +272,8 @@ public class WeaponBehaviour : MonoBehaviour
         poisonDamage = (float)tongueData.weaponBaseStats.GetStatValue(TongueStat.POISON_DAMAGE).value;
         freezeEffect = (float)tongueData.weaponBaseStats.GetStatValue(TongueStat.FREEZE_EFFECT).value > 0;
         curseChance = (float)tongueData.weaponBaseStats.GetStatValue(TongueStat.CURSE_EFFECT).value;
+        froinEffect = (float)tongueData.weaponBaseStats.GetStatValue(TongueStat.FROIN_EFFECT).value;
+        xpEffect = (float)tongueData.weaponBaseStats.GetStatValue(TongueStat.XP_EFFECT).value;
 
         SetTongueWidth((float)tongueData.weaponBaseStats.GetStatValue(TongueStat.SIZE).value);
 
@@ -321,22 +327,22 @@ public class WeaponBehaviour : MonoBehaviour
             foreach (GameObject otherTongue in otherWeaponsOfTheSameType)
             {
                 WeaponBehaviour otherTongueBehaviour = otherTongue.GetComponent<WeaponBehaviour>();
-                if (otherTongueBehaviour.isTongueGoingOut) // The old tongues are going out, cancel that. They will all go out after the cooldown together with the new tongue. // TODO find a way to ingonre the cooldown?
+                if (otherTongueBehaviour.isTongueGoingOut) // The old tongues are going out, cancel that. They will all go out after the cooldown together with the new tongue.
                 {
                     otherTongueBehaviour.isTongueGoingOut = false;
                 }
-                else if (otherTongueBehaviour.preventAttack) // The old tongues are on their way in, wait for them. They will all go out after the cooldown together with the new tongue. // TODO find a way to ingonre the cooldown?
+                else if (otherTongueBehaviour.preventAttack) // The old tongues are on their way in, wait for them. They will all go out after the cooldown together with the new tongue.
                 {
                     preventAttack = true;
                 }
-                else // The other tongues are in, make all the old ones go out together right away. // TODO make them wait for the cooldown?
+                else // The other tongues are in, make all the old ones go out together right away.
                 {
                     lastAttackTime = otherTongueBehaviour.lastAttackTime;
                     otherTongueBehaviour.TryAttack(0f);
                 }
             }
 
-            TryAttack(0f); // This will make the new tongue go out right away, but it will only work when all the old tongues where in. // TODO make them wait for the cooldown? Right now it is different depending on case, make it the same?
+            TryAttack(0f); // This will make the new tongue go out right away, but it will only work when all the old tongues where in.
         }
     }
 
@@ -459,6 +465,46 @@ public class WeaponBehaviour : MonoBehaviour
         return enemy;
     }
 
+    private GameObject GetNearestBugAverage()
+    {
+        GameObject bug = null;
+        Vector2 tongueOriginPosition = this.transform.position;
+        float radius = 5;
+        Collider2D[] allColliders = Physics2D.OverlapCircleAll(tongueOriginPosition, radius, foodLayer);
+
+        // Choose an area.
+        int offset = 5;
+        List<Collider2D[]> collidersFound = new List<Collider2D[]>();
+        collidersFound.Add(Physics2D.OverlapCircleAll(new Vector2 (tongueOriginPosition.x, tongueOriginPosition.y + offset), radius, foodLayer));
+        collidersFound.Add(Physics2D.OverlapCircleAll(new Vector2(tongueOriginPosition.x + offset, tongueOriginPosition.y + offset), radius, foodLayer));
+        collidersFound.Add(Physics2D.OverlapCircleAll(new Vector2(tongueOriginPosition.x + offset, tongueOriginPosition.y), radius, foodLayer));
+        collidersFound.Add(Physics2D.OverlapCircleAll(new Vector2(tongueOriginPosition.x + offset, tongueOriginPosition.y - offset), radius, foodLayer));
+        collidersFound.Add(Physics2D.OverlapCircleAll(new Vector2(tongueOriginPosition.x, tongueOriginPosition.y - offset), radius, foodLayer));
+        collidersFound.Add(Physics2D.OverlapCircleAll(new Vector2(tongueOriginPosition.x - offset, tongueOriginPosition.y - offset), radius, foodLayer));
+        collidersFound.Add(Physics2D.OverlapCircleAll(new Vector2(tongueOriginPosition.x - offset, tongueOriginPosition.y), radius, foodLayer));
+        collidersFound.Add(Physics2D.OverlapCircleAll(new Vector2(tongueOriginPosition.x - offset, tongueOriginPosition.y + offset), radius, foodLayer));
+
+        Collider2D[] choosenArea = collidersFound[0];
+        for (int indexOfAmount = 0; indexOfAmount < collidersFound.Count; indexOfAmount++)
+        {
+            if (collidersFound[indexOfAmount].Length > choosenArea.Length)
+            {
+                choosenArea = collidersFound[indexOfAmount];
+            }
+        }
+
+        if (choosenArea.Length == 0)
+        {
+            bug = GetNearestEnemy();
+        }
+        else
+        {
+            bug = choosenArea[Random.Range(0, choosenArea.Length)].gameObject;
+        }
+
+        return bug;
+    }
+
     private Vector2 GetTargetForEdgeTongue()
     {
         /*
@@ -495,20 +541,6 @@ public class WeaponBehaviour : MonoBehaviour
         }
         */
         return targetWorldPosition;
-    }
-
-    private GameObject GetBugForEdgeTongue()
-    {
-        GameObject enemy = null;
-        Vector2 weaponOriginPosition = GameManager.instance.player.transform.position;
-        Collider2D[] allColliders = Physics2D.OverlapCircleAll(weaponOriginPosition, 9, foodLayer);
-
-        if (allColliders.Length > 0)
-        {
-            enemy = allColliders[Random.Range(0, allColliders.Length)].gameObject;
-        }
-
-        return enemy;
     }
 
     private List<TongueEffect> GetRandomEffects()
@@ -907,7 +939,7 @@ public class WeaponBehaviour : MonoBehaviour
             List<TongueEffect> effects = new List<TongueEffect>();
 
             // Pick an enemy to target
-            bool tongueDoesTarget = (tongueType == TongueType.CLASSIC || tongueType == TongueType.CURSED || tongueType == TongueType.FREEZE || tongueType == TongueType.POISON || tongueType == TongueType.QUICK || tongueType == TongueType.VAMPIRE || tongueType == TongueType.WIDE || tongueType == TongueType.DART);
+            bool tongueDoesTarget = (tongueType == TongueType.CLASSIC || tongueType == TongueType.CURSED || tongueType == TongueType.FREEZE || tongueType == TongueType.POISON || tongueType == TongueType.QUICK || tongueType == TongueType.VAMPIRE || tongueType == TongueType.WIDE || tongueType == TongueType.FROIN || tongueType == TongueType.XP);
             if (tongueDoesTarget)
             {
                 targetEnemy = GetNearestEnemy(tongueTypeIndex + 1);
@@ -955,10 +987,20 @@ public class WeaponBehaviour : MonoBehaviour
                     pos = GetPositionsTowardsEnemy(targetEnemy, LineShape.SQUARE_LINE, stopAtTarget: false, inverseValues: isCurseEffectActive);
                     effects.Add(TongueEffect.CURSE);
                 }
-                else if (tongueType == TongueType.WIDE || tongueType == TongueType.DART)
+                else if (tongueType == TongueType.WIDE)
                 {
                     pos = GetPositionsTowardsEnemy(targetEnemy, LineShape.STRAIGHT_LINE, false);
                     effects.Add(TongueEffect.NONE);
+                }
+                else if (tongueType == TongueType.FROIN)
+                {
+                    pos = GetPositionsTowardsEnemy(targetEnemy, LineShape.TRIANGLE_LINE, false); // TODO might need a new shape
+                    effects.Add(TongueEffect.FROIN);
+                }
+                else if (tongueType == TongueType.XP)
+                {
+                    pos = GetPositionsTowardsEnemy(targetEnemy, LineShape.TRIANGLE_LINE, false); // TODO might need a new shape
+                    effects.Add(TongueEffect.XP);
                 }
                 else
                 {
@@ -966,6 +1008,16 @@ public class WeaponBehaviour : MonoBehaviour
                     effects.Add(TongueEffect.NONE);
                 }
                 this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects, targetEnemy);
+                this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
+
+                AttackLine(this.GetComponent<TongueLineRendererBehaviour>());
+            }
+
+            if (tongueType == TongueType.DART)
+            {
+                pos = GetPositionsTowardsEnemy(GetNearestBugAverage(), LineShape.STRAIGHT_LINE, false);
+                effects.Add(TongueEffect.NONE);
+                this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects);
                 this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
 
                 AttackLine(this.GetComponent<TongueLineRendererBehaviour>());
@@ -1452,6 +1504,12 @@ public class WeaponBehaviour : MonoBehaviour
                 case TongueType.FREEZE:
                     activeEffect = TongueEffect.FREEZE;
                     break;
+                case TongueType.FROIN:
+                    activeEffect = TongueEffect.FROIN;
+                    break;
+                case TongueType.XP:
+                    activeEffect = TongueEffect.XP;
+                    break;
             }
 
             // curse part, increase enemy speed
@@ -1465,7 +1523,7 @@ public class WeaponBehaviour : MonoBehaviour
 
             bool vampireEffect = (activeEffect == TongueEffect.VAMPIRE);
             bool enemyIsDead = EnemiesManager.instance.DamageEnemy(enemyName, actualDamage, this.transform, 
-                applyVampireEffect: vampireEffect, applyFreezeEffect: (activeEffect == TongueEffect.FREEZE), applyCurse: (tongueIsCursedTongueAndCurseIsActive || tongueIsRandomTongueAndEffectIsCurse), poisonSource: (activeEffect == TongueEffect.POISON));
+                applyVampireEffect: vampireEffect, applyFreezeEffect: (activeEffect == TongueEffect.FREEZE), applyCurse: (tongueIsCursedTongueAndCurseIsActive || tongueIsRandomTongueAndEffectIsCurse), poisonSource: (activeEffect == TongueEffect.POISON), applyFroinEffect: (activeEffect == TongueEffect.FROIN), applyXPEffect: (activeEffect == TongueEffect.XP));
 
             // vampire part, absorb part of damage done
             if (vampireEffect)
@@ -1507,6 +1565,24 @@ public class WeaponBehaviour : MonoBehaviour
                 // Tongue is the random tongue and it hits on a cursed part of the tongue
                 // Duration is less than the overall duration (otherwise, that tongue becomes too bad)
                 EnemiesManager.instance.ApplyCurseEffect(enemyName, actualStatusDuration / 5);
+            }
+
+            // Froin part, make the enemy drop a single froin.
+            if (activeEffect == TongueEffect.FROIN)
+            {
+                if (!enemyIsDead)
+                {
+                    EnemiesManager.instance.ApplyFroinEffect(enemyName, 1);
+                }
+            }
+
+            // XP part, make the enemy drop a single XP.
+            if (activeEffect == TongueEffect.XP)
+            {
+                if (!enemyIsDead)
+                {
+                    EnemiesManager.instance.ApplyXPEffect(enemyName, 1);
+                }
             }
 
             if (enemyIsDead)
