@@ -12,7 +12,8 @@ public enum LineShape
     TRIANGLE_LINE,
     SQUARE_LINE,
     LOOPS_LINE,
-    SPIRAL_LINE
+    SPIRAL_LINE,
+    STAR_LINE
 }
 
 public class WeaponBehaviour : MonoBehaviour
@@ -629,7 +630,6 @@ public class WeaponBehaviour : MonoBehaviour
                     distanceFromFrog += 0.1f;
                 }
                 break;
-
             case LineShape.SINUSOID_LINE:
                 frequency = 0.6f;
 
@@ -691,7 +691,6 @@ public class WeaponBehaviour : MonoBehaviour
                     t += 0.1f * frequency;
                 }
                 break;
-
             case LineShape.SQUARE_LINE:
                 float squareLineMoveState = 0; // 0 is going straight, 1 is going up, -1 is going down
                 bool lastMoveWasUp = inverseValues;
@@ -739,7 +738,6 @@ public class WeaponBehaviour : MonoBehaviour
                     result.Add(lastPosition);
                 }
                 break;
-
             case LineShape.LOOPS_LINE:
 
                 //int loopState = (inverseValues ? 3 : 0); // 6 steps
@@ -855,8 +853,6 @@ public class WeaponBehaviour : MonoBehaviour
                     result.Add(lastPosition);
                 }
                 break;
-
-
             case LineShape.SPIRAL_LINE:
                 direction = Vector2.up;
                 lastPosition = Vector2.zero;
@@ -877,6 +873,94 @@ public class WeaponBehaviour : MonoBehaviour
 
                     result.Add(lastPosition);                    
                 }
+                break;
+            case LineShape.STAR_LINE:
+
+                // TODO , not happy with the shape yet, to sharp turns
+                // Maybe make it randomly choose start corner? Or direction (clockwise or counterclockwise)
+
+                actualRange *= 0.1f; // Means that the range can be higher and that makes the tip look nicer.
+
+                result.Add(new Vector2(0 * actualRange, 0 * actualRange));
+                result.Add(new Vector2(1 * actualRange, 1 * actualRange));
+                result.Add(new Vector2(2 * actualRange, 2 * actualRange));
+                result.Add(new Vector2(2.5f * actualRange, 3 * actualRange));
+                result.Add(new Vector2(2.5f * actualRange, 4 * actualRange));
+                result.Add(new Vector2(1.5f * actualRange, 5 * actualRange));
+                result.Add(new Vector2(0.5f * actualRange, 6 * actualRange));
+                result.Add(new Vector2(-0.5f * actualRange, 6 * actualRange));
+                result.Add(new Vector2(-1.5f * actualRange, 5 * actualRange));
+                result.Add(new Vector2(-2.5f * actualRange, 4 * actualRange));
+                result.Add(new Vector2(-2.5f * actualRange, 3 * actualRange));
+                result.Add(new Vector2(-3.5f * actualRange, 2 * actualRange));
+                result.Add(new Vector2(-4.5f * actualRange, 2 * actualRange));
+                result.Add(new Vector2(-5.5f * actualRange, 2 * actualRange));
+                result.Add(new Vector2(-6.5f * actualRange, 1 * actualRange));
+                result.Add(new Vector2(-6.5f * actualRange, 0 * actualRange));
+                result.Add(new Vector2(-5.5f * actualRange, -1 * actualRange));
+                result.Add(new Vector2(-4.5f * actualRange, -2 * actualRange));
+                result.Add(new Vector2(-4.5f * actualRange, -3 * actualRange));
+                result.Add(new Vector2(-4.5f * actualRange, -4 * actualRange));
+                result.Add(new Vector2(-4.5f * actualRange, -5 * actualRange));
+                result.Add(new Vector2(-3.5f * actualRange, -6 * actualRange));
+                result.Add(new Vector2(-2.5f * actualRange, -6 * actualRange));
+                result.Add(new Vector2(-1.5f * actualRange, -5 * actualRange));
+                result.Add(new Vector2(-0.5f * actualRange, -4 * actualRange));
+                result.Add(new Vector2(0.5f * actualRange, -4 * actualRange));
+                result.Add(new Vector2(1.5f * actualRange, -5 * actualRange));
+                result.Add(new Vector2(2.5f * actualRange, -6 * actualRange));
+                result.Add(new Vector2(3.5f * actualRange, -6 * actualRange));
+                result.Add(new Vector2(4.5f * actualRange, -5 * actualRange));
+                result.Add(new Vector2(4.5f * actualRange, -4 * actualRange));
+                result.Add(new Vector2(4.5f * actualRange, -3 * actualRange));
+                result.Add(new Vector2(4.5f * actualRange, -2 * actualRange));
+                result.Add(new Vector2(5.5f * actualRange, -1 * actualRange));
+                result.Add(new Vector2(6.5f * actualRange, 0 * actualRange));
+                result.Add(new Vector2(6.5f * actualRange, 1 * actualRange));
+                result.Add(new Vector2(5.5f * actualRange, 2 * actualRange));
+                result.Add(new Vector2(4.5f * actualRange, 2 * actualRange));
+                result.Add(new Vector2(3.5f * actualRange, 2 * actualRange));
+                result.Add(new Vector2(2.5f * actualRange, 2 * actualRange));
+
+                for (int index = result.Count - 1; index > 0; index--)
+                {
+                    Vector2 inbetween = (result[index] + result[index - 1]) / 2;
+                    result.Insert(index, inbetween);
+                }
+
+                /*result.Add(new Vector2(0, 0));
+                result.Add(new Vector2(1, 2));
+                result.Add(new Vector2(1, 2));
+                result.Add(new Vector2(1, 2));
+                result.Add(new Vector2(0, 5));
+                result.Add(new Vector2(0, 5));
+                result.Add(new Vector2(0, 5));
+                result.Add(new Vector2(-1, 2));
+                result.Add(new Vector2(-1, 2));
+                result.Add(new Vector2(-1, 2));
+                result.Add(new Vector2(-5, 2));
+                result.Add(new Vector2(-5, 2));
+                result.Add(new Vector2(-5, 2));
+                result.Add(new Vector2(-2, 0));
+                result.Add(new Vector2(-2, 0));
+                result.Add(new Vector2(-2, 0));
+                result.Add(new Vector2(-3, -4));
+                result.Add(new Vector2(-3, -4));
+                result.Add(new Vector2(-3, -4));
+                result.Add(new Vector2(0, -2));
+                result.Add(new Vector2(0, -2));
+                result.Add(new Vector2(0, -2));
+                result.Add(new Vector2(3, -4));
+                result.Add(new Vector2(3, -4));
+                result.Add(new Vector2(3, -4));
+                result.Add(new Vector2(2, 0));
+                result.Add(new Vector2(2, 0));
+                result.Add(new Vector2(2, 0));
+                result.Add(new Vector2(5, 2));
+                result.Add(new Vector2(5, 2));
+                result.Add(new Vector2(5, 2));
+                result.Add(new Vector2(1, 2));
+                */
                 break;
         }
 
@@ -939,7 +1023,7 @@ public class WeaponBehaviour : MonoBehaviour
             List<TongueEffect> effects = new List<TongueEffect>();
 
             // Pick an enemy to target
-            bool tongueDoesTarget = (tongueType == TongueType.CLASSIC || tongueType == TongueType.CURSED || tongueType == TongueType.FREEZE || tongueType == TongueType.POISON || tongueType == TongueType.QUICK || tongueType == TongueType.VAMPIRE || tongueType == TongueType.WIDE || tongueType == TongueType.FROIN || tongueType == TongueType.XP);
+            bool tongueDoesTarget = (tongueType == TongueType.CLASSIC || tongueType == TongueType.CURSED || tongueType == TongueType.FREEZE || tongueType == TongueType.POISON || tongueType == TongueType.QUICK || tongueType == TongueType.VAMPIRE || tongueType == TongueType.WIDE || tongueType == TongueType.FROIN);
             if (tongueDoesTarget)
             {
                 targetEnemy = GetNearestEnemy(tongueTypeIndex + 1);
@@ -994,13 +1078,8 @@ public class WeaponBehaviour : MonoBehaviour
                 }
                 else if (tongueType == TongueType.FROIN)
                 {
-                    pos = GetPositionsTowardsEnemy(targetEnemy, LineShape.TRIANGLE_LINE, false); // TODO might need a new shape
+                    pos = GetPositionsTowardsEnemy(targetEnemy, LineShape.TRIANGLE_LINE, stopAtTarget: false, amplitudeScaleWithRange: true); // TODO should it instead target an area with many bugs? I think it depends on other stats, if it is rare, then it feels bad if the closest bug happens to be alone
                     effects.Add(TongueEffect.FROIN);
-                }
-                else if (tongueType == TongueType.XP)
-                {
-                    pos = GetPositionsTowardsEnemy(targetEnemy, LineShape.TRIANGLE_LINE, false); // TODO might need a new shape
-                    effects.Add(TongueEffect.XP);
                 }
                 else
                 {
@@ -1015,7 +1094,7 @@ public class WeaponBehaviour : MonoBehaviour
 
             if (tongueType == TongueType.DART)
             {
-                pos = GetPositionsTowardsEnemy(GetNearestBugAverage(), LineShape.STRAIGHT_LINE, false);
+                pos = GetPositionsTowardsEnemy(GetNearestBugAverage(), LineShape.STRAIGHT_LINE, stopAtTarget: false);
                 effects.Add(TongueEffect.NONE);
                 this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects);
                 this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
@@ -1034,7 +1113,6 @@ public class WeaponBehaviour : MonoBehaviour
                 AttackLine(this.GetComponent<TongueLineRendererBehaviour>());
             }
 
-
             if (tongueType == TongueType.EDGE)
             {
                 // Get target position and starting position for edge tongue.
@@ -1043,7 +1121,7 @@ public class WeaponBehaviour : MonoBehaviour
                 this.transform.localPosition = GetRandomEdgeTongueStartPosition(localTargetPosition);
 
                 // Set random positions
-                pos = GetPositionsTowardsEnemy(tongueTargetPosition, LineShape.STRAIGHT_LINE, true);
+                pos = GetPositionsTowardsEnemy(tongueTargetPosition, LineShape.STRAIGHT_LINE, stopAtTarget: true);
                 effects.Add(TongueEffect.NONE);
                 this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects);
                 this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
@@ -1074,6 +1152,15 @@ public class WeaponBehaviour : MonoBehaviour
             {
                 pos = GetPositionsTowardsEnemy(null, LineShape.STRAIGHT_LINE, false);
                 effects.Add(TongueEffect.NONE);
+                this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects);
+                this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
+                AttackLine(this.GetComponent<TongueLineRendererBehaviour>());
+            }
+
+            if (tongueType == TongueType.XP)
+            {
+                pos = GetPositionsTowardsEnemy(null, LineShape.STAR_LINE, stopAtTarget: false);
+                effects.Add(TongueEffect.XP); // TODO maybe be really quick out, the stay for a bit, and then really quick in?
                 this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects);
                 this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
                 AttackLine(this.GetComponent<TongueLineRendererBehaviour>());

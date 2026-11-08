@@ -2217,7 +2217,7 @@ public class EnemiesManager : MonoBehaviour
 
     public void ApplyXPEffect(EnemyInstance enemy, float duration)
     {
-        SetOverlayColor(enemy, froinOverlayColor, 0.3f);
+        SetOverlayColor(enemy, xpOverlayColor, 0.3f);
         enemy.enemyXPParticles.Play();
 
         // Spawn 1 XP.
