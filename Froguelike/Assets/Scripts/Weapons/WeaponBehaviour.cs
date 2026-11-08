@@ -279,7 +279,7 @@ public class WeaponBehaviour : MonoBehaviour
 
         ResetTongue();
 
-        if (tongueType == TongueType.ROTATING)
+        if (tongueType == TongueType.ROTATING || tongueType == TongueType.POISONTATING)
         {
             preventAttack = true; // so this new tongue will not attack before the previous one stops it attack first
         }
@@ -1297,6 +1297,7 @@ public class WeaponBehaviour : MonoBehaviour
                 case TongueType.FREEZE:
                     activeEffect = TongueEffect.FREEZE;
                     break;
+
             }
 
             // curse part, increase enemy speed
