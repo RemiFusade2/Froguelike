@@ -880,7 +880,8 @@ public class WeaponBehaviour : MonoBehaviour
                 // Maybe make it randomly choose start corner? Or direction (clockwise or counterclockwise)
 
                 actualRange *= 0.1f; // Means that the range can be higher and that makes the tip look nicer.
-
+                                     // Like the completion star
+                /*
                 result.Add(new Vector2(0 * actualRange, 0 * actualRange));
                 result.Add(new Vector2(1 * actualRange, 1 * actualRange));
                 result.Add(new Vector2(2 * actualRange, 2 * actualRange));
@@ -921,14 +922,11 @@ public class WeaponBehaviour : MonoBehaviour
                 result.Add(new Vector2(4.5f * actualRange, 2 * actualRange));
                 result.Add(new Vector2(3.5f * actualRange, 2 * actualRange));
                 result.Add(new Vector2(2.5f * actualRange, 2 * actualRange));
+                */
 
-                for (int index = result.Count - 1; index > 0; index--)
-                {
-                    Vector2 inbetween = (result[index] + result[index - 1]) / 2;
-                    result.Insert(index, inbetween);
-                }
-
-                /*result.Add(new Vector2(0, 0));
+                // Pointy star.
+                /*
+                result.Add(new Vector2(0, 0));
                 result.Add(new Vector2(1, 2));
                 result.Add(new Vector2(1, 2));
                 result.Add(new Vector2(1, 2));
@@ -961,6 +959,77 @@ public class WeaponBehaviour : MonoBehaviour
                 result.Add(new Vector2(5, 2));
                 result.Add(new Vector2(1, 2));
                 */
+
+                result.Add(new Vector2(0, 0));
+                result.Add(new Vector2(1, 2));
+                result.Add(new Vector2(1, 2));
+                result.Add(new Vector2(1, 2));
+                result.Add(new Vector2(0.1f, 5)); 
+                result.Add(new Vector2(0.1f, 5)); 
+                result.Add(new Vector2(0.1f, 5));
+                result.Add(new Vector2(0, 5));
+                result.Add(new Vector2(0, 5));
+                result.Add(new Vector2(0, 5));
+                result.Add(new Vector2(-0.1f, 5));
+                result.Add(new Vector2(-0.1f, 5));
+                result.Add(new Vector2(-0.1f, 5));
+                result.Add(new Vector2(-1, 2));
+                result.Add(new Vector2(-1, 2));
+                result.Add(new Vector2(-1, 2));
+                result.Add(new Vector2(-5, 2));
+                result.Add(new Vector2(-5, 2));
+                result.Add(new Vector2(-5, 2));
+                result.Add(new Vector2(-5, 1.9f));
+                result.Add(new Vector2(-5, 1.9f));
+                result.Add(new Vector2(-5, 1.9f));
+                result.Add(new Vector2(-5, 1.8f));
+                result.Add(new Vector2(-5, 1.8f));
+                result.Add(new Vector2(-5, 1.8f));
+                result.Add(new Vector2(-2, 0));
+                result.Add(new Vector2(-2, 0));
+                result.Add(new Vector2(-2, 0));
+                result.Add(new Vector2(-3.1f, -4));
+                result.Add(new Vector2(-3.1f, -4));
+                result.Add(new Vector2(-3.1f, -4));
+                result.Add(new Vector2(-3, -4));
+                result.Add(new Vector2(-3, -4));
+                result.Add(new Vector2(-3, -4));
+                result.Add(new Vector2(-2.9f, -4));
+                result.Add(new Vector2(-2.9f, -4));
+                result.Add(new Vector2(-2.9f, -4));
+                result.Add(new Vector2(0, -2));
+                result.Add(new Vector2(0, -2));
+                result.Add(new Vector2(0, -2));
+                result.Add(new Vector2(2.9f, -4));
+                result.Add(new Vector2(2.9f, -4));
+                result.Add(new Vector2(2.9f, -4));
+                result.Add(new Vector2(3, -4));
+                result.Add(new Vector2(3, -4));
+                result.Add(new Vector2(3, -4));
+                result.Add(new Vector2(3.1f, -4));
+                result.Add(new Vector2(3.1f, -4));
+                result.Add(new Vector2(3.1f, -4));
+                result.Add(new Vector2(2, 0));
+                result.Add(new Vector2(2, 0));
+                result.Add(new Vector2(2, 0));
+                result.Add(new Vector2(5, 1.8f));
+                result.Add(new Vector2(5, 1.8f));
+                result.Add(new Vector2(5, 1.8f));
+                result.Add(new Vector2(5, 1.9f));
+                result.Add(new Vector2(5, 1.9f));
+                result.Add(new Vector2(5, 1.9f));
+                result.Add(new Vector2(5, 2));
+                result.Add(new Vector2(5, 2));
+                result.Add(new Vector2(5, 2));
+                result.Add(new Vector2(1, 2));
+
+
+
+                for (int index = result.Count - 1; index > 0; index-=3)
+                {
+                    Vector2 inbetween = (result[index] + result[index - 1]) / 2;
+                    result.Insert(index, inbetween);
+                }
                 break;
         }
 
