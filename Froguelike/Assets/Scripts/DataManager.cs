@@ -26,7 +26,9 @@ public enum TongueEffect
     VAMPIRE = 1,
     POISON = 2,
     FREEZE = 4,
-    CURSE = 8
+    CURSE = 8,
+    FROIN = 9,
+    XP = 10
 }
 
 [System.Serializable]
@@ -63,7 +65,12 @@ public enum TongueType
     RANDOM, // target random direction, high range, high damage, medium speed. Random effects and random colors
     CAT, // target in front of frog, SUPER WIDE, shorter, TONS OF DAMAGE
 
+    // Frusions
     POISONTATING, // same movement as a rotatongue, but it does poison damage instead of regular damage
+    EDGE, // This tongue moves in a straight line from the edges of the screen
+    DART, // Super quick and goes off the screen, hitting everything in its way
+    FROIN, // Dark yellow, zig zag, long, quick and makes the bugs spawn froins when hit and only froins when eaten
+    XP // Dark blue, shape of a star, makes bugs spawn XP and only drop XP when eaten
 }
 
 /// <summary>

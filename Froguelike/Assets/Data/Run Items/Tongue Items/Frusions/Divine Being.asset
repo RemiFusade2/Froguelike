@@ -1,0 +1,112 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a3e6f35f2243724ab20b25b57def90b, type: 3}
+  m_Name: Divine Being
+  m_EditorClassIdentifier: 
+  itemName: Divine Being
+  icon: {fileID: 21300000, guid: a2689ceb1da0f5a4cb3d6492158d4c04, type: 3}
+  unlockedFromStart: 1
+  partOfDemo: 1
+  frusionRequirementList:
+  - {fileID: 11400000, guid: 2d9a038d7a0d598459693e935d87c88c, type: 2}
+  - {fileID: 11400000, guid: 6e96535a23ad42f47bad1b739c2e9fa3, type: 2}
+  frusionRequirementsRequireMaxLevel: 1
+  weaponData:
+    weaponName: Divine Being
+    description: Whose tongue is it?
+    weaponPrefab: {fileID: 3990334965163639182, guid: bbfd4fafa59242249bbdf593af43ebbb, type: 3}
+    frogMovementWeightOnTongue:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: -1.0099471
+        outSlope: -1.0099471
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.07325753
+      - serializedVersion: 3
+        time: 0.9881938
+        value: 0.0018950403
+        inSlope: -0.18377359
+        outSlope: 0.043124393
+        tangentMode: 1
+        weightedMode: 0
+        inWeight: 0.09359327
+        outWeight: 0.37463894
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    targetMovementWeightOnTongue:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.98999995
+        value: 0.0023971766
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 3.6792421
+        outSlope: 3.6792421
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.05494509
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    weaponType: 11
+    weaponBaseStats:
+      statsList:
+      - stat: 0
+        value: 5
+      - stat: 2
+        value: 4
+      - stat: 11
+        value: 2
+      - stat: 1
+        value: 30
+      - stat: 3
+        value: 30
+      - stat: 4
+        value: 2
+      - stat: 12
+        value: 3
+      - stat: 6
+        value: 1
+  weaponBoostLevels: []

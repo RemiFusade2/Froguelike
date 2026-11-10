@@ -1,0 +1,112 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a3e6f35f2243724ab20b25b57def90b, type: 3}
+  m_Name: Dart Tongue
+  m_EditorClassIdentifier: 
+  itemName: Dart Tongue
+  icon: {fileID: 21300000, guid: 6faa4fdf41fa0824d9c664f865f6831c, type: 3}
+  unlockedFromStart: 1
+  partOfDemo: 1
+  frusionRequirementList:
+  - {fileID: 11400000, guid: 9cd37b61c1dc1f24b8dda62c82e9e30d, type: 2}
+  - {fileID: 11400000, guid: 92cbe87706b8b934d9243f9305bbba56, type: 2}
+  frusionRequirementsRequireMaxLevel: 1
+  weaponData:
+    weaponName: Dart Tongue
+    description: The quickest and longest tongue there is
+    weaponPrefab: {fileID: 1975712983084687256, guid: b5e58840ccebbba46a26ead0b1cb2716, type: 3}
+    frogMovementWeightOnTongue:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: -0.24347477
+        outSlope: -0.24347477
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.18624796
+      - serializedVersion: 3
+        time: 0.9881938
+        value: 0.0018950403
+        inSlope: -2.3400016
+        outSlope: 0.043124393
+        tangentMode: 1
+        weightedMode: 0
+        inWeight: 0.21030867
+        outWeight: 0.37463894
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    targetMovementWeightOnTongue:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.98999995
+        value: 0.0023971766
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 3.6792421
+        outSlope: 3.6792421
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.05494509
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    weaponType: 12
+    weaponBaseStats:
+      statsList:
+      - stat: 0
+        value: 15
+      - stat: 2
+        value: 10
+      - stat: 11
+        value: 1
+      - stat: 1
+        value: 100
+      - stat: 3
+        value: 22
+      - stat: 4
+        value: 0.2
+      - stat: 12
+        value: 4.5
+      - stat: 6
+        value: 1
+  weaponBoostLevels: []
