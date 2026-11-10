@@ -10,17 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5a3e6f35f2243724ab20b25b57def90b, type: 3}
-  m_Name: Edge Tongue
+  m_Name: Fortungue
   m_EditorClassIdentifier: 
-  itemName: Edge
-  icon: {fileID: 21300000, guid: a2689ceb1da0f5a4cb3d6492158d4c04, type: 3}
+  itemName: Fortungue
+  icon: {fileID: 21300000, guid: 1c085f22a0923e346ac820919a3a8513, type: 3}
   unlockedFromStart: 1
   partOfDemo: 1
-  frusionRequirementList: []
-  frusionRequirementsRequireMaxLevel: 0
+  frusionRequirementList:
+  - {fileID: 11400000, guid: 666b84c50932af543890f0677aa1d806, type: 2}
+  - {fileID: 11400000, guid: 4719979f0ffab724bbfbff34b7416ba9, type: 2}
+  frusionRequirementsRequireMaxLevel: 1
   weaponData:
-    weaponName: Edge
-    description: Comes from the edges. Whos tongue is it?
+    weaponName: Fortungue
+    description: Turns everything it licks to gold, but makes bugs not drop any XP
     weaponPrefab: {fileID: 3990334965163639182, guid: bbfd4fafa59242249bbdf593af43ebbb, type: 3}
     frogMovementWeightOnTongue:
       serializedVersion: 2
@@ -28,21 +30,21 @@ MonoBehaviour:
       - serializedVersion: 3
         time: 0
         value: 1
-        inSlope: -1.0099471
-        outSlope: -1.0099471
+        inSlope: -1.6273587
+        outSlope: -1.6273587
         tangentMode: 0
         weightedMode: 0
         inWeight: 0
-        outWeight: 0.07325753
+        outWeight: 0.041666668
       - serializedVersion: 3
-        time: 0.9881938
-        value: 0.0018950403
-        inSlope: -0.18377359
-        outSlope: 0.043124393
-        tangentMode: 1
+        time: 0.9263535
+        value: 0.007084109
+        inSlope: -0.75397766
+        outSlope: -0.75397766
+        tangentMode: 0
         weightedMode: 0
-        inWeight: 0.09359327
-        outWeight: 0.37463894
+        inWeight: 0.066814646
+        outWeight: 0.33333334
       - serializedVersion: 3
         time: 1
         value: 0
@@ -68,8 +70,8 @@ MonoBehaviour:
         inWeight: 0
         outWeight: 0.33333334
       - serializedVersion: 3
-        time: 0.98999995
-        value: 0.0023971766
+        time: 0.85613495
+        value: 0
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -88,23 +90,25 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    weaponType: 11
+    weaponType: 13
     weaponBaseStats:
       statsList:
       - stat: 0
-        value: 2
+        value: 0.1
       - stat: 2
-        value: 0.5
-      - stat: 11
         value: 2
-      - stat: 1
-        value: 30
-      - stat: 3
-        value: 30
-      - stat: 4
+      - stat: 11
         value: 1
+      - stat: 1
+        value: 20
+      - stat: 3
+        value: 10
+      - stat: 4
+        value: 0.2
       - stat: 12
-        value: 3
+        value: 1
       - stat: 6
         value: 1
+      - stat: 13
+        value: 10
   weaponBoostLevels: []

@@ -214,6 +214,12 @@ public class WeaponBehaviour : MonoBehaviour
             case TongueType.CURSED:
                 SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.CURSE));
                 break;
+            case TongueType.FROIN:
+                SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.FROIN));
+                break;
+            case TongueType.XP:
+                SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.XP));
+                break;
             default:
                 SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.NONE));
                 break;
@@ -520,8 +526,8 @@ public class WeaponBehaviour : MonoBehaviour
         // Random target (not a bug, just a position on the screen).
         Vector2 targetWorldPosition = Vector2.zero;
         Vector2 playerWorldPosition = GameManager.instance.player.transform.position;
-        Vector2 xRange = new Vector2(playerWorldPosition.x - 18, playerWorldPosition.x + 18);
-        Vector2 yRange = new Vector2(playerWorldPosition.y - 10, playerWorldPosition.y + 10);
+        Vector2 xRange = new Vector2(playerWorldPosition.x - 15, playerWorldPosition.x + 15);
+        Vector2 yRange = new Vector2(playerWorldPosition.y - 7, playerWorldPosition.y + 7);
         targetWorldPosition.x = Random.Range(xRange.x, xRange.y);
         targetWorldPosition.y = Random.Range(yRange.x, yRange.y);
 
@@ -876,11 +882,9 @@ public class WeaponBehaviour : MonoBehaviour
                 break;
             case LineShape.STAR_LINE:
 
-                // TODO , not happy with the shape yet, to sharp turns
-                // Maybe make it randomly choose start corner? Or direction (clockwise or counterclockwise)
-
                 actualRange *= 0.1f; // Means that the range can be higher and that makes the tip look nicer.
-                                     // Like the completion star
+                
+                // Like the completion star.
                 /*
                 result.Add(new Vector2(0 * actualRange, 0 * actualRange));
                 result.Add(new Vector2(1 * actualRange, 1 * actualRange));
@@ -1025,77 +1029,79 @@ public class WeaponBehaviour : MonoBehaviour
                 result.Add(new Vector2(1, 2));
                 */
 
-                result.Add(new Vector2(1.2f, 1.7f));      // top right corner
-                result.Add(new Vector2(1.2f, 1.7f));
-                result.Add(new Vector2(1.2f, 1.7f));
-                result.Add(new Vector2(0.1f, 4.9f));    // top point
-                result.Add(new Vector2(0.1f, 4.9f));
-                result.Add(new Vector2(0.1f, 4.9f));
-                result.Add(new Vector2(0, 5f));
-                result.Add(new Vector2(0, 5f));
-                result.Add(new Vector2(0, 5f));
-                result.Add(new Vector2(-0.1f, 4.9f));
-                result.Add(new Vector2(-0.1f, 4.9f));
-                result.Add(new Vector2(-0.1f, 4.9f));
-                result.Add(new Vector2(-1.2f, 1.7f));      // top left corner
-                result.Add(new Vector2(-1.2f, 1.7f));
-                result.Add(new Vector2(-1.2f, 1.7f));
-                result.Add(new Vector2(-4.8f, 1.7f));   // left point
-                result.Add(new Vector2(-4.8f, 1.7f));
-                result.Add(new Vector2(-4.8f, 1.7f));
-                result.Add(new Vector2(-4.9f, 1.6f));
-                result.Add(new Vector2(-4.9f, 1.6f));
-                result.Add(new Vector2(-4.9f, 1.6f));
-                result.Add(new Vector2(-5, 1.5f));
-                result.Add(new Vector2(-5, 1.5f));
-                result.Add(new Vector2(-5, 1.5f));
-                result.Add(new Vector2(-2, -0.5f));         // bottom left corner
-                result.Add(new Vector2(-2, -0.5f));
-                result.Add(new Vector2(-2, -0.5f));
-                result.Add(new Vector2(-3.1f, -3.9f));  // bottom left point
-                result.Add(new Vector2(-3.1f, -3.9f));
-                result.Add(new Vector2(-3.1f, -3.9f));
-                result.Add(new Vector2(-3, -4));
-                result.Add(new Vector2(-3, -4));
-                result.Add(new Vector2(-3, -4));
-                result.Add(new Vector2(-2.9f, -3.9f));
-                result.Add(new Vector2(-2.9f, -3.9f));
-                result.Add(new Vector2(-2.9f, -3.9f));
-                result.Add(new Vector2(0, -2));         // bottom corner
-                result.Add(new Vector2(0, -2));
-                result.Add(new Vector2(0, -2));
-                result.Add(new Vector2(2.9f, -3.9f));   // bottom right point
-                result.Add(new Vector2(2.9f, -3.9f));
-                result.Add(new Vector2(2.9f, -3.9f));
-                result.Add(new Vector2(3, -4));
-                result.Add(new Vector2(3, -4));
-                result.Add(new Vector2(3, -4));
-                result.Add(new Vector2(3.1f, -3.9f));
-                result.Add(new Vector2(3.1f, -3.9f));
-                result.Add(new Vector2(3.1f, -3.9f));
-                result.Add(new Vector2(2, -0.5f));          // bottom right corner
-                result.Add(new Vector2(2, -0.5f));
-                result.Add(new Vector2(2, -0.5f));
-                result.Add(new Vector2(5, 1.5f));       // right point
-                result.Add(new Vector2(5, 1.5f));
-                result.Add(new Vector2(5, 1.5f));
-                result.Add(new Vector2(4.9f, 1.6f));
-                result.Add(new Vector2(4.9f, 1.6f));
-                result.Add(new Vector2(4.9f, 1.6f));
-                result.Add(new Vector2(4.8f, 1.7f));
-                result.Add(new Vector2(4.8f, 1.7f));
-                result.Add(new Vector2(4.8f, 1.7f));
-                result.Add(new Vector2(1.2f, 1.7f));       // top right corner
-                result.Add(new Vector2(1.2f, 1.7f));
-                result.Add(new Vector2(1.2f, 1.7f));
+                // Pointy star but with slightly softer corners.
+                result.Add(new Vector2(1.2f * actualRange, 1.7f * actualRange));      // top right corner
+                result.Add(new Vector2(1.2f * actualRange, 1.7f * actualRange));
+                result.Add(new Vector2(1.2f * actualRange, 1.7f * actualRange));
+                result.Add(new Vector2(0.1f * actualRange, 4.9f * actualRange));    // top point
+                result.Add(new Vector2(0.1f * actualRange, 4.9f * actualRange));
+                result.Add(new Vector2(0.1f * actualRange, 4.9f * actualRange));
+                result.Add(new Vector2(0 * actualRange, 5f * actualRange));
+                result.Add(new Vector2(0 * actualRange, 5f * actualRange));
+                result.Add(new Vector2(0 * actualRange, 5f * actualRange));
+                result.Add(new Vector2(-0.1f * actualRange, 4.9f * actualRange));
+                result.Add(new Vector2(-0.1f * actualRange, 4.9f * actualRange));
+                result.Add(new Vector2(-0.1f * actualRange, 4.9f * actualRange));
+                result.Add(new Vector2(-1.2f * actualRange, 1.7f * actualRange));      // top left corner
+                result.Add(new Vector2(-1.2f * actualRange, 1.7f * actualRange));
+                result.Add(new Vector2(-1.2f * actualRange, 1.7f * actualRange));
+                result.Add(new Vector2(-4.8f * actualRange, 1.7f * actualRange));   // left point
+                result.Add(new Vector2(-4.8f * actualRange, 1.7f * actualRange));
+                result.Add(new Vector2(-4.8f * actualRange, 1.7f * actualRange));
+                result.Add(new Vector2(-4.9f * actualRange, 1.6f * actualRange));
+                result.Add(new Vector2(-4.9f * actualRange, 1.6f * actualRange));
+                result.Add(new Vector2(-4.9f * actualRange, 1.6f * actualRange));
+                result.Add(new Vector2(-5 * actualRange, 1.5f * actualRange));
+                result.Add(new Vector2(-5 * actualRange, 1.5f * actualRange));
+                result.Add(new Vector2(-5 * actualRange, 1.5f * actualRange));
+                result.Add(new Vector2(-2 * actualRange, -0.5f * actualRange));         // bottom left corner
+                result.Add(new Vector2(-2 * actualRange, -0.5f * actualRange));
+                result.Add(new Vector2(-2 * actualRange, -0.5f * actualRange));
+                result.Add(new Vector2(-3.1f * actualRange, -3.9f * actualRange));  // bottom left point
+                result.Add(new Vector2(-3.1f * actualRange, -3.9f * actualRange));
+                result.Add(new Vector2(-3.1f * actualRange, -3.9f * actualRange));
+                result.Add(new Vector2(-3 * actualRange, -4 * actualRange));
+                result.Add(new Vector2(-3 * actualRange, -4 * actualRange));
+                result.Add(new Vector2(-3 * actualRange, -4 * actualRange));
+                result.Add(new Vector2(-2.9f * actualRange, -3.9f * actualRange));
+                result.Add(new Vector2(-2.9f * actualRange, -3.9f * actualRange));
+                result.Add(new Vector2(-2.9f * actualRange, -3.9f * actualRange));
+                result.Add(new Vector2(0 * actualRange, -2 * actualRange));         // bottom corner
+                result.Add(new Vector2(0 * actualRange, -2 * actualRange));
+                result.Add(new Vector2(0 * actualRange, -2 * actualRange));
+                result.Add(new Vector2(2.9f * actualRange, -3.9f * actualRange));   // bottom right point
+                result.Add(new Vector2(2.9f * actualRange, -3.9f * actualRange));
+                result.Add(new Vector2(2.9f * actualRange, -3.9f * actualRange));
+                result.Add(new Vector2(3 * actualRange, -4 * actualRange));
+                result.Add(new Vector2(3 * actualRange, -4 * actualRange));
+                result.Add(new Vector2(3 * actualRange, -4 * actualRange));
+                result.Add(new Vector2(3.1f * actualRange, -3.9f * actualRange));
+                result.Add(new Vector2(3.1f * actualRange, -3.9f * actualRange));
+                result.Add(new Vector2(3.1f * actualRange, -3.9f * actualRange));
+                result.Add(new Vector2(2 * actualRange, -0.5f * actualRange));          // bottom right corner
+                result.Add(new Vector2(2 * actualRange, -0.5f * actualRange));
+                result.Add(new Vector2(2 * actualRange, -0.5f * actualRange));
+                result.Add(new Vector2(5 * actualRange, 1.5f * actualRange));       // right point
+                result.Add(new Vector2(5 * actualRange, 1.5f * actualRange));
+                result.Add(new Vector2(5 * actualRange, 1.5f * actualRange));
+                result.Add(new Vector2(4.9f * actualRange, 1.6f * actualRange));
+                result.Add(new Vector2(4.9f * actualRange, 1.6f * actualRange));
+                result.Add(new Vector2(4.9f * actualRange, 1.6f * actualRange));
+                result.Add(new Vector2(4.8f * actualRange, 1.7f * actualRange));
+                result.Add(new Vector2(4.8f * actualRange, 1.7f * actualRange));
+                result.Add(new Vector2(4.8f * actualRange, 1.7f * actualRange));
+                result.Add(new Vector2(1.2f * actualRange, 1.7f * actualRange));       // top right corner
+                result.Add(new Vector2(1.2f * actualRange, 1.7f * actualRange));
+                result.Add(new Vector2(1.2f * actualRange, 1.7f * actualRange));
 
                 if (Random.Range(0, 2) == 0)
                 {
                     result.Reverse();
-                    result.Insert(0, new Vector2(0, 0));
-                    result.RemoveAt(result.Count - 1);
-                    result.RemoveAt(result.Count - 1);
                 }
+
+                result.Insert(0, new Vector2(0, 0));
+                result.RemoveAt(result.Count - 1);
+                result.RemoveAt(result.Count - 1);
 
                 for (int index = result.Count - 1; index > 0; index-=3)
                 {
@@ -1220,7 +1226,7 @@ public class WeaponBehaviour : MonoBehaviour
                 }
                 else if (tongueType == TongueType.FROIN)
                 {
-                    pos = GetPositionsTowardsEnemy(targetEnemy, LineShape.TRIANGLE_LINE, stopAtTarget: false, amplitudeScaleWithRange: true); // TODO should it instead target an area with many bugs? I think it depends on other stats, if it is rare, then it feels bad if the closest bug happens to be alone
+                    pos = GetPositionsTowardsEnemy(targetEnemy, LineShape.TRIANGLE_LINE, stopAtTarget: false, amplitudeScaleWithRange: true);
                     effects.Add(TongueEffect.FROIN);
                 }
                 else
@@ -1302,7 +1308,7 @@ public class WeaponBehaviour : MonoBehaviour
             if (tongueType == TongueType.XP)
             {
                 pos = GetPositionsTowardsEnemy(null, LineShape.STAR_LINE, stopAtTarget: false);
-                effects.Add(TongueEffect.XP); // TODO maybe be really quick out, the stay for a bit, and then really quick in?
+                effects.Add(TongueEffect.XP);
                 this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects);
                 this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
                 AttackLine(this.GetComponent<TongueLineRendererBehaviour>());
@@ -1518,7 +1524,7 @@ public class WeaponBehaviour : MonoBehaviour
             }
 
             // Make the edge tongue stay stuck to the ground for duration after it has fully gone out.
-            if (tongueType == TongueType.EDGE && t >= 1)
+            if ((tongueType == TongueType.EDGE || tongueType == TongueType.XP) && t >= 1)
             {
                 float durationPassed = 0;
                 while (durationPassed <= duration)

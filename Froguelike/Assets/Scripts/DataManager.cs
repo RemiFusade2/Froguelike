@@ -69,8 +69,8 @@ public enum TongueType
     POISONTATING, // same movement as a rotatongue, but it does poison damage instead of regular damage
     EDGE, // This tongue moves in a straight line from the edges of the screen
     DART, // Super quick and goes off the screen, hitting everything in its way
-    FROIN, // Light yellow, zig zag, long, quick and makes the bugs spawn more froins
-    XP // TODO
+    FROIN, // Dark yellow, zig zag, long, quick and makes the bugs spawn froins when hit and only froins when eaten
+    XP // Dark blue, shape of a star, makes bugs spawn XP and only drop XP when eaten
 }
 
 /// <summary>

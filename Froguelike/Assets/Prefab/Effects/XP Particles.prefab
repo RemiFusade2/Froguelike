@@ -48,7 +48,7 @@ ParticleSystem:
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
-  looping: 1
+  looping: 0
   prewarm: 0
   playOnAwake: 0
   useUnscaledTime: 0
@@ -1435,9 +1435,9 @@ ParticleSystem:
         m_Curve:
         - serializedVersion: 3
           time: 0
-          value: 0.27692303
-          inSlope: 0.72307694
-          outSlope: 0.72307694
+          value: 0
+          inSlope: 1
+          outSlope: 1
           tangentMode: 34
           weightedMode: 0
           inWeight: 0
@@ -1445,8 +1445,8 @@ ParticleSystem:
         - serializedVersion: 3
           time: 1
           value: 1
-          inSlope: 0.72307694
-          outSlope: 0.72307694
+          inSlope: 1
+          outSlope: 1
           tangentMode: 34
           weightedMode: 0
           inWeight: 0.33333334
@@ -1532,7 +1532,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     speedRange: {x: 0, y: 1}
-    tilesX: 4
+    tilesX: 7
     tilesY: 1
     animationType: 0
     rowIndex: 0
@@ -2406,10 +2406,10 @@ ParticleSystem:
     randomizePerFrame: 0
   ExternalForcesModule:
     serializedVersion: 2
-    enabled: 0
+    enabled: 1
     multiplierCurve:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 1
       scalar: 1
       minScalar: 1
       maxCurve:
@@ -2417,21 +2417,21 @@ ParticleSystem:
         m_Curve:
         - serializedVersion: 3
           time: 0
-          value: 1
-          inSlope: 0
-          outSlope: 0
+          value: 0
+          inSlope: -0.4689599
+          outSlope: -0.4689599
           tangentMode: 0
           weightedMode: 0
           inWeight: 0.33333334
-          outWeight: 0.33333334
+          outWeight: 0.13447432
         - serializedVersion: 3
           time: 1
-          value: 1
-          inSlope: 0
-          outSlope: 0
+          value: 0
+          inSlope: 0.5527027
+          outSlope: 0.5527027
           tangentMode: 0
           weightedMode: 0
-          inWeight: 0.33333334
+          inWeight: 0.14669925
           outWeight: 0.33333334
         m_PreInfinity: 2
         m_PostInfinity: 2
