@@ -212,6 +212,7 @@ public class WeaponBehaviour : MonoBehaviour
             case TongueType.CURSED:
                 SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.CURSE));
                 break;
+                break;
             case TongueType.FROIN:
                 SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.FROIN));
                 break;
@@ -1736,6 +1737,7 @@ public class WeaponBehaviour : MonoBehaviour
                     break;
                 case TongueType.FREEZE:
                     activeEffect = TongueEffect.FREEZE;
+                    break;
                     break;
                 case TongueType.FROIN:
                     activeEffect = TongueEffect.FROIN;

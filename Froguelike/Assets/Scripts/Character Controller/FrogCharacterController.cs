@@ -763,12 +763,18 @@ public class FrogCharacterController : MonoBehaviour
         Heal(consumableData.effect.healthBonus, cancelDamage: true);
     }
 
+    public void ResolvePickedPermanentUpgrade(PlayableCharacter currentPlayedCharacter, RunPermanentUpgradeItemData permanentUpgradeData)
+    {
+        CharacterManager.instance.IncrementCharacterStats(currentPlayedCharacter.characterID, permanentUpgradeData.effect.statUpgrades.statsList);
+
+    }
+
     public void RemoveStatItem(RunStatItemInfo removeItemInfo)
     {
         // We'll have to remove each level effect one by one
         while (removeItemInfo.level > 0)
         {
-            RunStatItemLevel removeItemLevel = removeItemInfo.itemData.statBoostLevels[Mathf.Clamp(removeItemInfo.level, 0, removeItemInfo.itemData.GetMaxLevel()-1)];
+            RunStatItemLevel removeItemLevel = removeItemInfo.itemData.statBoostLevels[Mathf.Clamp(removeItemInfo.level-1, 0, removeItemInfo.itemData.GetMaxLevel()-1)];
             RemoveStatItemLevel(removeItemLevel);
             removeItemInfo.level--;
         }
@@ -782,30 +788,30 @@ public class FrogCharacterController : MonoBehaviour
             foreach (StatValue statValue in itemLevelData.statUpgrades.statsList)
             {
                 bool statIncreaseNeedsToBeRemoved = false;
+                int statIncreaseToBeRemoved_Index = -1;
 
                 StatScoreScaling statScoreScalingToRemove = new StatScoreScaling(statValue, itemLevelData.scaleWithScoreValue);
 
+                int currentIndex = 0;
                 foreach (StatScoreScaling statScoreScaling in statScaleWithScoreList)
                 {
-                    if (statScoreScaling.valueIncrease.Equals(statValue))
+                    if (statScoreScaling.valueIncrease.stat == statScoreScalingToRemove.valueIncrease.stat)
                     {
                         // We found the stat increase that we want to remove
-                        if (statScoreScaling.scoreValue == statScoreScalingToRemove.scoreValue)
+                        statScoreScaling.valueIncrease.value -= statScoreScalingToRemove.valueIncrease.value;
+
+                        if (statScoreScaling.valueIncrease.value <= 0)
                         {
-                            // The value is the same, which means we want to remove it completely from the list
                             statIncreaseNeedsToBeRemoved = true;
-                        }
-                        else
-                        {
-                            // The values are different, which means we want to decrease the value
-                            statScoreScaling.valueIncrease.value -= statScoreScalingToRemove.valueIncrease.value;
+                            statIncreaseToBeRemoved_Index = currentIndex;
                         }
                         break; // no need to check more stat score scallings
                     }
+                    currentIndex++;
                 }
                 if (statIncreaseNeedsToBeRemoved)
                 {
-                    statScaleWithScoreList.Remove(statScoreScalingToRemove);
+                    statScaleWithScoreList.RemoveAt(statIncreaseToBeRemoved_Index);
                     continue;
                 }
             }

@@ -60,6 +60,7 @@ public class RunItemManager : MonoBehaviour
     public List<RunWeaponItemData> allRunWeaponsItemsScriptableObjects;
     public List<RunStatItemData> allRunStatsItemsScriptableObjects;
     public List<RunConsumableItemData> allConsumableRunItemsScriptableObjects;
+    public List<RunPermanentUpgradeItemData> allPermanentUpgradeRunItemsScriptableObjects;
     public RunConsumableItemData nothingRunItemScriptableObject;
 
     [Header("Runtime")]
@@ -120,8 +121,14 @@ public class RunItemManager : MonoBehaviour
         // Get a reference to PlayerController
         FrogCharacterController player = GameManager.instance.player;
 
-        // For each item in saved data...
-        foreach (RunItemSaveInfo itemSaveInfo in runItemsData.runItemsList)
+        // Shuffle the list of run items
+        List<RunItemSaveInfo> runItemsListDeepCopy = new List<RunItemSaveInfo>(runItemsData.runItemsList);
+        List<RunItemSaveInfo> shuffledRunItemsList = runItemsListDeepCopy.OrderBy(x => Random.value).ToList();
+
+        int permanentUpgradeCount = 0;
+        int maxPermanentUpgradesInPool = 1;
+
+        foreach (RunItemSaveInfo itemSaveInfo in shuffledRunItemsList)
         {
             // Get the corresponding data
             RunItemData itemData = runItemDataDictionary[itemSaveInfo.itemName];
@@ -146,6 +153,7 @@ public class RunItemManager : MonoBehaviour
             // ONLY FOR FRUSIONS: check if requirements are met
             bool frusionWouldClearStatItemSlot = false;
             bool frusionWouldClearTongueSlot = false;
+
             if (itemData.frusionRequirementList.Count > 0)
             {
                 bool requirementsAreMet = true;
@@ -219,6 +227,16 @@ public class RunItemManager : MonoBehaviour
                     runItemsPool.Add(weaponItemData);
                 }
             }
+            else if (itemData is RunPermanentUpgradeItemData)
+            {
+                // permanent upgrade
+                RunPermanentUpgradeItemData permanentUpgradeItemData = (itemData as RunPermanentUpgradeItemData);
+                if (permanentUpgradeCount < maxPermanentUpgradesInPool)
+                {
+                    runItemsPool.Add(permanentUpgradeItemData);
+                    permanentUpgradeCount++;
+                }
+            }
         }
         
         // Fill the rest with consumable items
@@ -235,8 +253,8 @@ public class RunItemManager : MonoBehaviour
                 if (player.healthBar.IsCritical())
                 {
                     runItemsPool.Add(consumableItem); // Add consumable item to the pool
+                    continue; // Do not do anything else
                 }
-                continue; // Do not do anything else
             }
 
             if (runItemsPool.Count >= minimumItemCount)
@@ -292,6 +310,7 @@ public class RunItemManager : MonoBehaviour
                 }
 
                 int randomIndex = Random.Range(0, possibleItems.Count);
+
                 runItemsList.Add(possibleItems[randomIndex]);
                 possibleItems.RemoveAt(randomIndex);
             }
@@ -318,6 +337,18 @@ public class RunItemManager : MonoBehaviour
 
         // Add all stat items
         foreach (RunStatItemData runItemData in allRunStatsItemsScriptableObjects)
+        {
+            RunItemSaveInfo newItemSaveInfo = new RunItemSaveInfo()
+            {
+                itemName = runItemData.itemName,
+                unlocked = runItemData.unlockedFromStart
+            };
+            runItemDataDictionary.Add(runItemData.itemName, runItemData);
+            runItemsData.runItemsList.Add(newItemSaveInfo);
+        }
+
+        // Add all permanent upgrade items
+        foreach (RunPermanentUpgradeItemData runItemData in allPermanentUpgradeRunItemsScriptableObjects)
         {
             RunItemSaveInfo newItemSaveInfo = new RunItemSaveInfo()
             {

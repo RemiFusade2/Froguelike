@@ -991,11 +991,6 @@ public class AchievementManager : MonoBehaviour
             }
             if (playableFrog != null && playableFrog.unlocked)
             {
-                playableFrog.characterStatsIncrements = new StatsWrapper();
-                /*if (playableFrog.characterStatsIncrements == null)
-                {
-                    playableFrog.characterStatsIncrements = new StatsWrapper();
-                }*/
                 if (!playableFrog.storyCompleted)
                 {
                     GameManager.instance.UnlockFeature(achievement.achievementData.reward.featureID); // Add story stat increment
