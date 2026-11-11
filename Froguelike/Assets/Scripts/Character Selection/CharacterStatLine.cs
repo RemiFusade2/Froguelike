@@ -24,7 +24,7 @@ public class CharacterStatLine : MonoBehaviour
             }
             else
             {
-                result = $"{sign}{value.ToString("0.#")}";
+                result = $"{sign}{value.ToString("0.##")}";
             }
         }
         return result;

@@ -41,7 +41,8 @@ public enum RunItemType
 {
     CONSUMABLE,
     STAT_BONUS,
-    WEAPON
+    WEAPON,
+    PERMANENT_UPGRADE
 }
 
 /// <summary>
