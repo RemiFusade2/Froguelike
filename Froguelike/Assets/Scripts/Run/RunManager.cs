@@ -15,8 +15,24 @@ using UnityEngine.XR;
 public enum GameMode
 {
     NONE = 0,
-    HARD = 1,
-    HARDER = 2
+    HARD = 1, // +50%
+    HARDER = 1 << 1, // +100%
+    HARDEST = 1 << 2, // +250%
+    HARDESTER = 1 << 3, // +500%
+    TIME_HALF = 1 << 4,
+    TIME_DOUBLE = 1 << 5,
+    BUGS_UP = 1 << 6, // All bugs one tier up (if possible)
+    BUGS_DOWN = 1 << 7, // All bugs one tier down (if possible)
+    BUGS_MAX = 1 << 8, // All bugs tier 5
+    BUGS_MIN = 1 << 9, // All bugs tier 1
+    POWER_UP_FREEZE = 1 << 10,
+    POWER_UP_POISON = 1 << 11,
+    POWER_UP_CURSE = 1 << 12,
+    POWER_UP_SUPERFROG = 1 << 13,
+    POWER_UP_PARTY = 1 << 14,
+    POWER_UP_GOOP = 1 << 15,
+    POWER_UP_UP = 1 << 16,
+    POWER_UP_DOWN = 1 << 17
 }
 
 [System.Serializable]
@@ -404,6 +420,22 @@ public class RunManager : MonoBehaviour
             gameModeBugSpeedMultiplier += 1;
             gameModeBugDamageMultiplier += 1;
             gameModeFroinsMultiplier += 1;
+        }
+        if ((gameModes & GameMode.HARDEST) == GameMode.HARDEST)
+        {
+            // Hardest mode activated
+            gameModeBugHPMultiplier += 2.5f;
+            gameModeBugSpeedMultiplier += 2.5f;
+            gameModeBugDamageMultiplier += 2.5f;
+            gameModeFroinsMultiplier += 2.5f;
+        }
+        if ((gameModes & GameMode.HARDESTER) == GameMode.HARDESTER)
+        {
+            // Hardesest mode activated
+            gameModeBugHPMultiplier += 5;
+            gameModeBugSpeedMultiplier += 5;
+            gameModeBugDamageMultiplier += 5;
+            gameModeFroinsMultiplier += 5;
         }
     }
 

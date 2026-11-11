@@ -117,11 +117,6 @@ public class CharacterManager : MonoBehaviour
     public ScrollRect statsListScrollRect;
     public ScrollbarKeepCursorSizeBehaviour statListScrollbar;
     public GameObject hideShopStats;
-    [Space]
-    public GameObject difficultyPanel1;
-    public TextMeshProUGUI difficultyPanel1InfoText;
-    public GameObject difficultyPanel2;
-    public TextMeshProUGUI difficultyPanel2InfoText;
 
     [Header("UI Prefab")]
     public GameObject characterPanelPrefab;
@@ -130,8 +125,6 @@ public class CharacterManager : MonoBehaviour
     [Header("Runtime")]
     public CharactersSaveData charactersData; // Will be loaded and saved when needed
     public PlayableCharacter currentSelectedCharacter;
-    [Space]
-    public GameMode selectedGameModes;
 
     private Dictionary<string, CharacterData> charactersDataFromNameDico;
 
@@ -281,7 +274,7 @@ public class CharacterManager : MonoBehaviour
             thisCharacterButtonNav.selectOnLeft = backButton;
             thisCharacterButtonNav.selectOnRight = startButton;
 
-            // TODO set stat scroll to navigate to selected character on left
+            // set stat scroll to navigate to selected character on left
             // same for character scroll on right
             // instead of looping make navigation from characters to back button on up and to steam page or start (?) on down?
             // Figure out how scroll will work
@@ -290,7 +283,7 @@ public class CharacterManager : MonoBehaviour
 
             thisCharacterPanel.navigation = thisCharacterButtonNav;
         }
-        */ //TODO ^
+        */
         #endregion Button navigation
 
         characterLog = "Display " + buttonCount + " buttons\n" + characterLog;
@@ -319,24 +312,7 @@ public class CharacterManager : MonoBehaviour
 
         UpdateStatsList();
 
-        // Display the right difficulty panel if unlocked.
-        if (IsGameModeUnlocked(GameMode.HARD))
-        {
-            GameObject difficultyPanel = difficultyPanel1;
-            difficultyPanel1.SetActive(true);
-            difficultyPanel2.SetActive(false);
-
-            if (IsGameModeUnlocked(GameMode.HARDER))
-            {
-                difficultyPanel = difficultyPanel2;
-                difficultyPanel2.SetActive(true);
-                difficultyPanel1.SetActive(false);
-            }
-
-            ResetDifficulty();
-            difficultyPanel.GetComponent<DifficultyPanelBehaviour>().SetToggleCheckmarks(GetSelectedGameModes());
-            DisplayDifficultyInfo(GetSelectedGameModes());
-        }
+        // TODO Show the modifier info on the side. With a button to switch to that spread. Needs to check if any modifiers are unlocked, if so show note.
 
         if (buttonCount == 1 && defaultCharacter != null)
         {
@@ -626,7 +602,7 @@ public class CharacterManager : MonoBehaviour
 
     public void StartRun()
     {
-        GameManager.instance.StartRunWithCharacter(currentSelectedCharacter, GetSelectedGameModes());
+        GameManager.instance.StartRunWithCharacter(currentSelectedCharacter, RunModifierManager.instance.GetSelectedGameModes());
     }
 
     /// <summary>
@@ -682,82 +658,6 @@ public class CharacterManager : MonoBehaviour
         }
 
         SaveDataManager.instance.isSaveDataDirty = true;
-    }
-
-    public bool IsGameModeUnlocked(GameMode gameMode)
-    {
-        return (charactersData.availableGameModes & gameMode) == gameMode;
-    }
-
-    public void UnlockGameMode(GameMode gameMode)
-    {
-        charactersData.availableGameModes |= gameMode;
-        SaveDataManager.instance.isSaveDataDirty = true;
-    }
-
-    public GameMode GetSelectedGameModes()
-    {
-        return selectedGameModes;
-    }
-
-    public void SelectGameModeHard(Toggle thisToggle)
-    {
-        bool hardModeIsSelected = thisToggle.isOn;
-
-        if (hardModeIsSelected)
-        {
-            selectedGameModes |= GameMode.HARD; // Add flag
-        }
-        else
-        {
-            selectedGameModes &= ~GameMode.HARD; // Remove flag
-        }
-
-        DisplayDifficultyInfo(GetSelectedGameModes());
-    }
-
-    public void SelectGameModeHarder(Toggle thisToggle)
-    {
-        bool harderModeIsSelected = thisToggle.isOn;
-
-        if (harderModeIsSelected)
-        {
-            selectedGameModes |= GameMode.HARDER; // Add flag
-        }
-        else
-        {
-            selectedGameModes &= ~GameMode.HARDER; // Remove flag
-        }
-
-        DisplayDifficultyInfo(GetSelectedGameModes());
-    }
-
-    public void ResetDifficulty()
-    {
-        selectedGameModes = GameMode.NONE;
-    }
-
-    public void DisplayDifficultyInfo(GameMode gameMode)
-    {
-        string text = "";
-        TextMeshProUGUI setThisText = IsGameModeUnlocked(GameMode.HARDER) ? difficultyPanel2InfoText : difficultyPanel1InfoText;
-        if (gameMode == GameMode.HARD)
-        {
-            // 50%
-            text = "+50% bug health\n+50% bug speed\n+50% bug strength\n+50% froins";
-        }
-        else if (gameMode == GameMode.HARDER)
-        {
-            // 100%
-            text = "+100% bug health\n+100% bug speed\n+100% bug strength\n+100% froins";
-        }
-        else if (gameMode == (GameMode.HARD | GameMode.HARDER))
-        {
-            // 150%
-            text = "+150% bug health\n+150% bug speed\n+150% bug strength\n+150% froins";
-        }
-
-        setThisText.SetText(text);
     }
 
     /// <summary>

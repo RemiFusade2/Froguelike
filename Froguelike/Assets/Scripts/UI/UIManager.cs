@@ -58,6 +58,8 @@ public class UIManager : MonoBehaviour
     [Header("Character Selection")]
     public GameObject characterSelectionScreen;
     public GameObject characterSelectionGridLayoutGroup;
+    public GameObject characterSelectionBookImage;
+    public GameObject modifierScreen;
 
     [Header("Settings Screen")]
     public GameObject settingsScreen;
@@ -296,6 +298,7 @@ public class UIManager : MonoBehaviour
         titleScreen.SetActive(true);
         SetScreenInteractability(menuButtonsGroup, !isThereCharacterSelection);
         characterSelectionScreen.SetActive(isThereCharacterSelection);
+        characterSelectionBookImage.SetActive(true);
 
         if (isThereCharacterSelection)
         {
@@ -320,6 +323,13 @@ public class UIManager : MonoBehaviour
         {
             Debug.Log("UI - Display Character selection screen");
         }
+    }
+
+    public void ShowModifierScreen()
+    {
+        characterSelectionBookImage.SetActive(false);
+        modifierScreen.SetActive(true);
+        RunModifierManager.instance.UpdateModifierScreen();
     }
 
     public bool IsCharacterSelectionScreenVisible()

@@ -261,10 +261,10 @@ public class GameManager : MonoBehaviour
         string lastSelectedChapter = GetRetryRunInfoChapter();
 
         CharacterManager.instance.currentSelectedCharacter = CharacterManager.instance.GetPlayableCharacter(lastSelectedCharacterID);
-        CharacterManager.instance.selectedGameModes = Enum.Parse<GameMode>(lastSelectedGameMode);
+        RunModifierManager.instance.selectedGameModes = Enum.Parse<GameMode>(lastSelectedGameMode);
         Chapter startChapter = ChapterManager.instance.GetChapterFromID(lastSelectedChapter);
 
-        RunManager.instance.StartNewRun(CharacterManager.instance.currentSelectedCharacter, CharacterManager.instance.selectedGameModes, startChapter);
+        RunManager.instance.StartNewRun(CharacterManager.instance.currentSelectedCharacter, RunModifierManager.instance.selectedGameModes, startChapter);
     }
 
     #region Get info helpers
@@ -539,7 +539,7 @@ public class GameManager : MonoBehaviour
         RemoveSelectedCharacterGameModeAndStartingChapter();
 
         // Clear game mode.
-        CharacterManager.instance.ResetDifficulty();
+        RunModifierManager.instance.ResetDifficulty();
 
         // Clear save file and create a new one
         bool fileErased = SaveDataManager.instance.EraseSaveFile(true);
