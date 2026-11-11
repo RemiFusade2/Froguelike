@@ -29,7 +29,6 @@ public class MapBehaviour : MonoBehaviour
     public Vector2Int validSortingOrderForWater;
     public Vector2Int validSortingOrderForRocks;
 
-
     private List<Vector2Int> existingTilesCoordinates;
 
 
@@ -263,6 +262,24 @@ public class MapBehaviour : MonoBehaviour
             // generate other collectibles
             foreach (CollectibleSpawnFrequency collectibleSpawnFrequency in currentPlayedChapter.chapterData.otherCollectibleSpawnFrequenciesList)
             {                
+                if (BuildManager.instance.IsCollectibleAvailable(collectibleSpawnFrequency.Type))
+                {
+                    Vector2 powerUpMinMax = DataManager.instance.GetSpawnProbability("powerUp", collectibleSpawnFrequency.Frequency);
+                    float powerUpProba = Random.Range(powerUpMinMax.x, powerUpMinMax.y);
+                    float powerUpAmount = Mathf.Floor(powerUpProba) + ((Random.Range(Mathf.Floor(powerUpProba), Mathf.Ceil(powerUpProba)) < powerUpProba) ? 1 : 0);
+                    for (int i = 0; i < powerUpAmount; i++)
+                    {
+                        if (GetRandomSpawnPositionOnTile(tileCoordinates, out Vector2 position))
+                        {
+                            CollectiblesManager.instance.SpawnCollectible(position, collectibleSpawnFrequency.Type, 1);
+                        }
+                    }
+                }
+            }
+
+            // Generate other collectibles from run modifers. 
+            foreach (CollectibleSpawnFrequency collectibleSpawnFrequency in RunModifierManager.instance.powerUpsModiferSpawnFrequencies)
+            {
                 if (BuildManager.instance.IsCollectibleAvailable(collectibleSpawnFrequency.Type))
                 {
                     Vector2 powerUpMinMax = DataManager.instance.GetSpawnProbability("powerUp", collectibleSpawnFrequency.Frequency);

@@ -399,43 +399,91 @@ public class RunManager : MonoBehaviour
 
     #endregion
 
-    private void SetupGameModesMultipliers(GameMode gameModes)
+    private void SetupModifiers(GameMode gameModes)
     {
+        // Difficulty.
+        float hardModifier = RunModifierManager.instance.hardModifier;
+        float harderModifier = RunModifierManager.instance.harderModifier;
+        float hardestModifier = RunModifierManager.instance.hardestModifier;
+        float hardesterModifier = RunModifierManager.instance.hardesterModifier;
+
         gameModeBugHPMultiplier = 1;
         gameModeBugSpeedMultiplier = 1;
         gameModeBugDamageMultiplier = 1;
         gameModeFroinsMultiplier = 1;
+
         if ((gameModes & GameMode.HARD) == GameMode.HARD)
         {
             // Hard mode activated
-            gameModeBugHPMultiplier += 0.5f;
-            gameModeBugSpeedMultiplier += 0.5f;
-            gameModeBugDamageMultiplier += 0.5f;
-            gameModeFroinsMultiplier += 0.5f;
+            gameModeBugHPMultiplier += hardModifier;
+            gameModeBugSpeedMultiplier += hardModifier;
+            gameModeBugDamageMultiplier += hardModifier;
+            gameModeFroinsMultiplier += hardModifier;
         }
         if ((gameModes & GameMode.HARDER) == GameMode.HARDER)
         {
             // Harder mode activated
-            gameModeBugHPMultiplier += 1;
-            gameModeBugSpeedMultiplier += 1;
-            gameModeBugDamageMultiplier += 1;
-            gameModeFroinsMultiplier += 1;
+            gameModeBugHPMultiplier += harderModifier;
+            gameModeBugSpeedMultiplier += harderModifier;
+            gameModeBugDamageMultiplier += harderModifier;
+            gameModeFroinsMultiplier += harderModifier;
         }
         if ((gameModes & GameMode.HARDEST) == GameMode.HARDEST)
         {
             // Hardest mode activated
-            gameModeBugHPMultiplier += 2.5f;
-            gameModeBugSpeedMultiplier += 2.5f;
-            gameModeBugDamageMultiplier += 2.5f;
-            gameModeFroinsMultiplier += 2.5f;
+            gameModeBugHPMultiplier += hardestModifier;
+            gameModeBugSpeedMultiplier += hardestModifier;
+            gameModeBugDamageMultiplier += hardestModifier;
+            gameModeFroinsMultiplier += hardestModifier;
         }
         if ((gameModes & GameMode.HARDESTER) == GameMode.HARDESTER)
         {
             // Hardesest mode activated
-            gameModeBugHPMultiplier += 5;
-            gameModeBugSpeedMultiplier += 5;
-            gameModeBugDamageMultiplier += 5;
-            gameModeFroinsMultiplier += 5;
+            gameModeBugHPMultiplier += hardesterModifier;
+            gameModeBugSpeedMultiplier += hardesterModifier;
+            gameModeBugDamageMultiplier += hardesterModifier;
+            gameModeFroinsMultiplier += hardesterModifier;
+        }
+
+        // Power-ups.
+        if ((gameModes & GameMode.POWER_UP_FREEZE) == GameMode.POWER_UP_FREEZE)
+        {
+            RunModifierManager.instance.powerUpsModiferSpawnFrequencies.Add(RunModifierManager.instance.powerupFreeze);
+        }
+
+        if ((gameModes & GameMode.POWER_UP_POISON) == GameMode.POWER_UP_POISON)
+        {
+            RunModifierManager.instance.powerUpsModiferSpawnFrequencies.Add(RunModifierManager.instance.powerupPoison);
+        }
+
+        if ((gameModes & GameMode.POWER_UP_CURSE) == GameMode.POWER_UP_CURSE)
+        {
+            RunModifierManager.instance.powerUpsModiferSpawnFrequencies.Add(RunModifierManager.instance.powerupCurse);
+        }
+
+        if ((gameModes & GameMode.POWER_UP_SUPERFROG) == GameMode.POWER_UP_SUPERFROG)
+        {
+            RunModifierManager.instance.powerUpsModiferSpawnFrequencies.Add(RunModifierManager.instance.powerupSuperfrog);
+        }
+
+        if ((gameModes & GameMode.POWER_UP_PARTY) == GameMode.POWER_UP_PARTY)
+        {
+            RunModifierManager.instance.powerUpsModiferSpawnFrequencies.Add(RunModifierManager.instance.powerupParty);
+        }
+
+        if ((gameModes & GameMode.POWER_UP_GOOP) == GameMode.POWER_UP_GOOP)
+        {
+            RunModifierManager.instance.powerUpsModiferSpawnFrequencies.Add(RunModifierManager.instance.powerupGoop);
+        }
+
+        if ((gameModes & GameMode.POWER_UP_UP) == GameMode.POWER_UP_UP)
+        {
+            RunModifierManager.instance.powerUpsModiferSpawnFrequencies.Add(RunModifierManager.instance.powerupUp);
+        }
+
+        if ((gameModes & GameMode.POWER_UP_DOWN) == GameMode.POWER_UP_DOWN)
+        {
+            RunModifierManager.instance.powerUpsModiferSpawnFrequencies.Add(RunModifierManager.instance.powerupDown);
         }
     }
 
@@ -458,7 +506,7 @@ public class RunManager : MonoBehaviour
 
         // Setup game mode multipliers
         this.playedGameModes = gameModes;
-        SetupGameModesMultipliers(gameModes);
+        SetupModifiers(gameModes);
 
         InitializeNewRun();
 

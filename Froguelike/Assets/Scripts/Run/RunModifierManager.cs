@@ -13,8 +13,28 @@ public class RunModifierManager : MonoBehaviour
     public GameObject difficultyPanel;
     public TextMeshProUGUI difficultyPanelInfoText;
 
+    [Header("Settings")]
+    [Tooltip("1 = 100% bug buff")]
+    public float hardModifier;
+    [Tooltip("1 = 100% bug buff")]
+    public float harderModifier;
+    [Tooltip("1 = 100% bug buff")]
+    public float hardestModifier;
+    [Tooltip("1 = 100% bug buff")]
+    public float hardesterModifier;
+    public CollectibleSpawnFrequency powerupFreeze;
+    public CollectibleSpawnFrequency powerupPoison;
+    public CollectibleSpawnFrequency powerupCurse;
+    public CollectibleSpawnFrequency powerupSuperfrog;
+    public CollectibleSpawnFrequency powerupParty;
+    public CollectibleSpawnFrequency powerupGoop;
+    public CollectibleSpawnFrequency powerupUp;
+    public CollectibleSpawnFrequency powerupDown;
+
+
     [Header("Runtime")]
     public GameMode selectedGameModes;
+    public List<CollectibleSpawnFrequency> powerUpsModiferSpawnFrequencies; // TODO this needs to be cleared
 
     private void Awake()
     {
@@ -32,7 +52,7 @@ public class RunModifierManager : MonoBehaviour
     public void UpdateModifierScreen()
     {
         difficultyPanel.SetActive(true);
-        ResetDifficulty();
+        // ResetDifficulty();
         difficultyPanel.GetComponent<DifficultyPanelBehaviour>().SetToggleCheckmarks(GetSelectedGameModes());
         DisplayDifficultyInfo(GetSelectedGameModes());
     }
@@ -53,6 +73,13 @@ public class RunModifierManager : MonoBehaviour
         return selectedGameModes;
     }
 
+    public void ResetModifiers()
+    {
+        selectedGameModes = GameMode.NONE;
+        powerUpsModiferSpawnFrequencies.Clear();
+    }
+
+    #region Difficulty
 
     public void SelectGameModeHard(Toggle thisToggle)
     {
@@ -118,12 +145,7 @@ public class RunModifierManager : MonoBehaviour
         DisplayDifficultyInfo(GetSelectedGameModes());
     }
 
-
-    public void ResetDifficulty()
-    {
-        selectedGameModes = GameMode.NONE;
-    }
-
+    #endregion Difficulty
 
     public void DisplayDifficultyInfo(GameMode gameMode)
     {
@@ -135,27 +157,141 @@ public class RunModifierManager : MonoBehaviour
         if ((gameMode & GameMode.HARD) == GameMode.HARD)
         {
             // Hard mode activated
-            modifierAmount += 50;
+            modifierAmount += (int)(hardModifier * 100);
         }
         if ((gameMode & GameMode.HARDER) == GameMode.HARDER)
         {
             // Harder mode activated
-            modifierAmount += 100;
+            modifierAmount += (int)(harderModifier * 100);
         }
         if ((gameMode & GameMode.HARDEST) == GameMode.HARDEST)
         {
             // Hardest mode activated
-            modifierAmount += 250;
+            modifierAmount += (int)(hardestModifier * 100);
         }
         if ((gameMode & GameMode.HARDESTER) == GameMode.HARDESTER)
         {
             // Hardesest mode activated
-            modifierAmount += 500;
+            modifierAmount += (int)(hardesterModifier * 100);
         }
 
         text = "+" + modifierAmount + "% bug health\n+" + modifierAmount + "% bug speed\n+" + modifierAmount + "% bug strength\n+" + modifierAmount + "% froins";
         setThisText.text = text;
     }
 
+    #region Power-ups
 
+    public void SelectGameModeFreeze(Toggle thisToggle)
+    {
+        bool harderModeIsSelected = thisToggle.isOn;
+
+        if (harderModeIsSelected)
+        {
+            selectedGameModes |= GameMode.POWER_UP_FREEZE; // Add flag
+        }
+        else
+        {
+            selectedGameModes &= ~GameMode.POWER_UP_FREEZE; // Remove flag
+        }
+    }
+
+    public void SelectGameModePoison(Toggle thisToggle)
+    {
+        bool harderModeIsSelected = thisToggle.isOn;
+
+        if (harderModeIsSelected)
+        {
+            selectedGameModes |= GameMode.POWER_UP_POISON; // Add flag
+        }
+        else
+        {
+            selectedGameModes &= ~GameMode.POWER_UP_POISON; // Remove flag
+        }
+    }
+
+    public void SelectGameModeCurse(Toggle thisToggle)
+    {
+        bool harderModeIsSelected = thisToggle.isOn;
+
+        if (harderModeIsSelected)
+        {
+            selectedGameModes |= GameMode.POWER_UP_CURSE; // Add flag
+        }
+        else
+        {
+            selectedGameModes &= ~GameMode.POWER_UP_CURSE; // Remove flag
+        }
+    }
+
+    public void SelectGameModeSuperfrog(Toggle thisToggle)
+    {
+        bool harderModeIsSelected = thisToggle.isOn;
+
+        if (harderModeIsSelected)
+        {
+            selectedGameModes |= GameMode.POWER_UP_SUPERFROG; // Add flag
+        }
+        else
+        {
+            selectedGameModes &= ~GameMode.POWER_UP_SUPERFROG; // Remove flag
+        }
+    }
+
+    public void SelectGameModeParty(Toggle thisToggle)
+    {
+        bool harderModeIsSelected = thisToggle.isOn;
+
+        if (harderModeIsSelected)
+        {
+            selectedGameModes |= GameMode.POWER_UP_PARTY; // Add flag
+        }
+        else
+        {
+            selectedGameModes &= ~GameMode.POWER_UP_PARTY; // Remove flag
+        }
+    }
+
+    public void SelectGameModeGoop(Toggle thisToggle)
+    {
+        bool harderModeIsSelected = thisToggle.isOn;
+
+        if (harderModeIsSelected)
+        {
+            selectedGameModes |= GameMode.POWER_UP_GOOP; // Add flag
+        }
+        else
+        {
+            selectedGameModes &= ~GameMode.POWER_UP_GOOP; // Remove flag
+        }
+    }
+
+    public void SelectGameModeUp(Toggle thisToggle)
+    {
+        bool harderModeIsSelected = thisToggle.isOn;
+
+        if (harderModeIsSelected)
+        {
+            selectedGameModes |= GameMode.POWER_UP_UP; // Add flag
+        }
+        else
+        {
+            selectedGameModes &= ~GameMode.POWER_UP_UP; // Remove flag
+        }
+    }
+
+    public void SelectGameModeDown(Toggle thisToggle)
+    {
+        bool harderModeIsSelected = thisToggle.isOn;
+
+        if (harderModeIsSelected)
+        {
+            selectedGameModes |= GameMode.POWER_UP_DOWN; // Add flag
+        }
+        else
+        {
+            selectedGameModes &= ~GameMode.POWER_UP_DOWN; // Remove flag
+        }
+    }
+
+    #endregion Power-ups
 }

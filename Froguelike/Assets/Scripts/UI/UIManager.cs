@@ -195,6 +195,8 @@ public class UIManager : MonoBehaviour
         ClearSelectedButton();
         titleScreen.SetActive(false);
         characterSelectionScreen.SetActive(false);
+        modifierScreen.SetActive(false);
+        characterSelectionBookImage.SetActive(true);
         chapterSelectionScreen.SetActive(false);
         chapterStartScreen.SetActive(false);
         scoreScreen.SetActive(false);
@@ -325,7 +327,13 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void ShowModifierScreen()
+    public void SwitchToCharacterSelectionScreen()
+    {
+        modifierScreen.SetActive(false);
+        characterSelectionBookImage.SetActive(true);
+    }
+
+    public void SwitchToModifierScreen()
     {
         characterSelectionBookImage.SetActive(false);
         modifierScreen.SetActive(true);

@@ -539,7 +539,7 @@ public class GameManager : MonoBehaviour
         RemoveSelectedCharacterGameModeAndStartingChapter();
 
         // Clear game mode.
-        RunModifierManager.instance.ResetDifficulty();
+        RunModifierManager.instance.ResetModifiers();
 
         // Clear save file and create a new one
         bool fileErased = SaveDataManager.instance.EraseSaveFile(true);
