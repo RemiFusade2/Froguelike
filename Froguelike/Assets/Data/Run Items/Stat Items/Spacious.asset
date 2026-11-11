@@ -16,6 +16,8 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 74d3955472d9541df8bd7846e5ae165a, type: 3}
   unlockedFromStart: 0
   partOfDemo: 0
+  frusionRequirementList: []
+  frusionRequirementsRequireMaxLevel: 0
   statBoostLevels:
   - description: '[all] Tongue size +10%'
     statUpgrades:
@@ -45,10 +47,10 @@ MonoBehaviour:
         value: 0.1
     scaleWithScore: 0
     scaleWithScoreValue: 0
-  - description: '[all] Tongue size +0.1% per 25<sprite name=Score>'
+  - description: '[all] Tongue size +1% per 250<sprite name=Score>'
     statUpgrades:
       statsList:
       - stat: 16
-        value: 0.001
+        value: 0.01
     scaleWithScore: 1
-    scaleWithScoreValue: 25
+    scaleWithScoreValue: 250

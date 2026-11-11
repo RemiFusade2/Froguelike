@@ -121,6 +121,10 @@ public class RunItemData : ScriptableObject
         {
             itemType = RunItemType.WEAPON;
         }
+        if (this is RunPermanentUpgradeItemData)
+        {
+            itemType = RunItemType.PERMANENT_UPGRADE;
+        }
 
         return itemType;
     }
@@ -136,6 +140,10 @@ public class RunItemData : ScriptableObject
         if (this is RunWeaponItemData && (this as RunWeaponItemData).weaponBoostLevels.Count > 0 && (this as RunWeaponItemData).weaponBoostLevels[0].weaponStatUpgrades.statsList.Count > 0)
         {
             order = (int)(this as RunWeaponItemData).weaponBoostLevels[0].weaponStatUpgrades.statsList[0].stat;
+        }
+        if (this is RunPermanentUpgradeItemData && (this as RunPermanentUpgradeItemData).effect.statUpgrades.statsList.Count > 0)
+        {
+            order = (int)(this as RunPermanentUpgradeItemData).effect.statUpgrades.statsList[0].stat;
         }
 
         return order;

@@ -78,6 +78,112 @@ public class RunWeaponInfo : RunItemInfo
     }
 }
 
+
+[System.Serializable]
+public class UILevelUpChoicePanel
+{
+    public GameObject parentPanel;
+
+    public CLevelUpChoiceButtonBehaviour choiceButtonBehaviourComponent;
+
+    public Image frame;
+    public Image animation;
+
+    public Image background;
+    public Image animatedBackground;
+
+    public Animator animator;
+
+    public TextMeshProUGUI title;
+    public TextMeshProUGUI level;
+    public TextMeshProUGUI description;
+    public Image itemIcon;
+
+    public GameObject frusionParentPanel;
+    public Image frusionItemIcon1;
+    public Image frusionItemIcon2;
+    public Image frusionItemIcon3;
+
+    public GameObject newItemParentPanel;
+    public GameObject newTongueParentPanel;
+    public GameObject maxLevelParentPanel;
+    public GameObject permanentParentPanel;
+
+    private UILevelUpChoicePanelStyle currentStyle;
+
+    /// <summary>
+    /// When Choice Panel is initialized, save its style (depends on the type of item it shows)
+    /// </summary>
+    /// <param name="style"></param>
+    public void SetPanelStyle(UILevelUpChoicePanelStyle style)
+    {
+        currentStyle = style;
+        parentPanel.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, currentStyle.buttonHeight);
+        choiceButtonBehaviourComponent.SetUILevelUpChoicePanel(this);
+    }
+
+    /// <summary>
+    /// When Choice Panel changes animation state, set its sub style (colors) (depends on its enabled/selected/pressed status)
+    /// </summary>
+    /// <param name="substyleName"></param>
+    public void SetSubStyle(string substyleName)
+    {
+        UILevelUpChoicePanelColors panelColors = currentStyle.normal;
+        switch (substyleName)
+        {
+            case "Normal":
+                panelColors = currentStyle.normal;
+                break;
+            case "Pressed":
+                panelColors = currentStyle.pressed;
+                break;
+            case "Highlighted":
+                panelColors = currentStyle.highlighted;
+                break;
+            case "Disabled":
+                panelColors = currentStyle.disabled;
+                break;
+            case "Selected":
+                panelColors = currentStyle.selected;
+                break;
+            case "Banish":
+                panelColors = currentStyle.banish;
+                break;
+        }
+
+        frame.color = panelColors.frameColor;
+        background.color = panelColors.backgroundColor;
+        animation.color = panelColors.animationColor;
+        animatedBackground.gameObject.SetActive(panelColors.useAnimatedBackground);
+        if (panelColors.useAnimatedBackground)
+            animatedBackground.color = panelColors.animatedBackgroundColor;
+    }
+}
+
+[System.Serializable]
+public class UILevelUpChoicePanelColors
+{
+    public Color frameColor;
+    public Color backgroundColor;
+    public Color animationColor;
+
+    public bool useAnimatedBackground;
+    public Color animatedBackgroundColor;
+}
+
+[System.Serializable]
+public class UILevelUpChoicePanelStyle
+{
+    public int buttonHeight;
+    public UILevelUpChoicePanelColors normal;
+    public UILevelUpChoicePanelColors highlighted;
+    public UILevelUpChoicePanelColors pressed;
+    public UILevelUpChoicePanelColors selected;
+    public UILevelUpChoicePanelColors banish;
+    public UILevelUpChoicePanelColors disabled;
+}
+
+
 public class RunManager : MonoBehaviour
 {
     // Singleton
@@ -122,16 +228,13 @@ public class RunManager : MonoBehaviour
 
     [Header("References - UI Level Up")]
     public GameObject levelUpPanel;
-    public List<GameObject> levelUpChoicesPanels;
-    public List<TextMeshProUGUI> levelUpChoicesTitles;
-    public List<TextMeshProUGUI> levelUpChoicesLevels;
-    public List<TextMeshProUGUI> levelUpChoicesDescriptions;
-    public List<Image> levelUpChoicesIcons;
-    public List<Animator> levelUpChoicesButtonAnimators;
-    [Space]
-    public Color defaultUIColor;
-    public Color newItemColor;
-    public Color maxLevelColor;
+    public List<UILevelUpChoicePanel> levelUpChoicesPanels;
+    public UILevelUpChoicePanelStyle levelUpChoicesPanelStyle_newItem;
+    public UILevelUpChoicePanelStyle levelUpChoicesPanelStyle_levelUpItem;
+    public UILevelUpChoicePanelStyle levelUpChoicesPanelStyle_maxLevelItem;
+    public UILevelUpChoicePanelStyle levelUpChoicesPanelStyle_frusion;
+    public UILevelUpChoicePanelStyle levelUpChoicesPanelStyle_permanent;
+    public UILevelUpChoicePanelStyle levelUpChoicesPanelStyle_consumable;
     [Space]
     public GameObject rerollPostit;
     public Button rerollButton;
@@ -1242,6 +1345,11 @@ public class RunManager : MonoBehaviour
 
         switch (pickedItemType)
         {
+            case RunItemType.PERMANENT_UPGRADE:
+                // Resolve this permanent upgrade once
+                log += " > item is a permanent upgrade\n";
+                player.ResolvePickedPermanentUpgrade(currentPlayedCharacter, pickedItemData as RunPermanentUpgradeItemData);
+                break;
             case RunItemType.CONSUMABLE:
                 // Resolve this consumable once
                 log += " > item is a consumable\n";
@@ -1503,13 +1611,13 @@ public class RunManager : MonoBehaviour
             // Update post its values
             UpdateRerollBanishSkipPostIts();
 
-            foreach (Animator animator in levelUpChoicesButtonAnimators)
+            foreach (UILevelUpChoicePanel levelUpChoicePanel in levelUpChoicesPanels)
             {
-                animator.SetBool("Banish", false);
+                levelUpChoicePanel.animator.SetBool("Banish", false);
             }
 
             // Default select first item
-            UIManager.instance.SetSelectedButton(levelUpChoicesPanels[0]);
+            UIManager.instance.SetSelectedButton(levelUpChoicesPanels[0].parentPanel);
 
             if (logsVerboseLevel == VerboseLevel.MAXIMAL)
             {
@@ -1532,13 +1640,13 @@ public class RunManager : MonoBehaviour
             banishPostit.GetComponent<CanvasGroup>().blocksRaycasts = true;
 
             isUsingBanishForCurrentItemSelection = true;
-            foreach (Animator animator in levelUpChoicesButtonAnimators)
+            foreach (UILevelUpChoicePanel levelUpChoicePanel in levelUpChoicesPanels)
             {
-                animator.SetBool("Banish", true);
+                levelUpChoicePanel.animator.SetBool("Banish", true);
             }
 
             // Default select first item
-            UIManager.instance.SetSelectedButton(levelUpChoicesPanels[0]);
+            UIManager.instance.SetSelectedButton(levelUpChoicesPanels[0].parentPanel);
 
             if (logsVerboseLevel == VerboseLevel.MAXIMAL)
             {
@@ -1550,11 +1658,11 @@ public class RunManager : MonoBehaviour
     public void LevelUP()
     {
         isUsingBanishForCurrentItemSelection = false;
-        foreach (Animator animator in levelUpChoicesButtonAnimators)
+        foreach (UILevelUpChoicePanel levelUpChoicePanel in levelUpChoicesPanels)
         {
             if (levelUpPanel.activeSelf)
             {
-                animator.SetBool("Banish", false);
+                levelUpChoicePanel.animator.SetBool("Banish", false);
             }
         }
         levelUpChoiceIsVisible = true;
@@ -1611,7 +1719,7 @@ public class RunManager : MonoBehaviour
     public void ShowLevelUpItemSelection(List<RunItemData> possibleItems, List<int> itemLevels)
     {
         levelUpPanel.GetComponent<CanvasGroup>().interactable = true;
-        EventSystem.current.SetSelectedGameObject(levelUpChoicesPanels[0]);
+        EventSystem.current.SetSelectedGameObject(levelUpChoicesPanels[0].parentPanel);
 
         int similarItemsCountInCaseOfReroll = RunItemManager.instance.ItemRerollSimilarItemsCount(possibleItems);
         UpdateRerollBanishSkipPostIts((similarItemsCountInCaseOfReroll < 3));
@@ -1624,8 +1732,9 @@ public class RunManager : MonoBehaviour
         UIManager.instance.levelUpPanel.SetActive(true);
         UIManager.instance.levelUpPanelAnimator.SetBool("Visible", true);
 
-        foreach (GameObject panel in levelUpChoicesPanels)
+        foreach (UILevelUpChoicePanel levelUpChoicePanel in levelUpChoicesPanels)
         {
+            GameObject panel = levelUpChoicePanel.parentPanel;
             panel.SetActive(false);
         }
 
@@ -1636,56 +1745,97 @@ public class RunManager : MonoBehaviour
             int level = itemLevels[index];
             int nextLevel = level + 1;
 
-            levelUpChoicesPanels[index].SetActive(true);
-            levelUpChoicesTitles[index].text = item.itemName;
+            levelUpChoicesPanels[index].parentPanel.SetActive(true);
+
+            levelUpChoicesPanels[index].title.text = item.itemName;
 
             bool newItem = false;
             bool maxLevelItem = false;
 
             bool frusionItem = (item.frusionRequirementList.Count > 0);
+            levelUpChoicesPanels[index].frusionParentPanel.SetActive(frusionItem);
+            if (frusionItem)
+            {
+                levelUpChoicesPanels[index].frusionItemIcon1.gameObject.SetActive(item.frusionRequirementList.Count >= 1);
+                if (item.frusionRequirementList.Count >= 1)
+                {
+                    levelUpChoicesPanels[index].frusionItemIcon1.sprite = item.frusionRequirementList[0].icon;
+                }
 
+                levelUpChoicesPanels[index].frusionItemIcon2.gameObject.SetActive(item.frusionRequirementList.Count >= 2);
+                if (item.frusionRequirementList.Count >= 2)
+                {
+                    levelUpChoicesPanels[index].frusionItemIcon2.sprite = item.frusionRequirementList[1].icon;
+                }
+
+                levelUpChoicesPanels[index].frusionItemIcon3.gameObject.SetActive(item.frusionRequirementList.Count >= 3);
+                if (item.frusionRequirementList.Count >= 3)
+                {
+                    levelUpChoicesPanels[index].frusionItemIcon3.sprite = item.frusionRequirementList[2].icon;
+                }
+            }
+
+            UILevelUpChoicePanelStyle buttonStyle = levelUpChoicesPanelStyle_levelUpItem;
+
+            levelUpChoicesPanels[index].newItemParentPanel.SetActive(false);
+            levelUpChoicesPanels[index].newTongueParentPanel.SetActive(false);
+            levelUpChoicesPanels[index].permanentParentPanel.SetActive(false);
             switch (itemType)
             {
                 case RunItemType.CONSUMABLE:
                     // item without levels
-                    levelUpChoicesLevels[index].color = defaultUIColor;
-                    levelUpChoicesLevels[index].text = "";
-                    levelUpChoicesDescriptions[index].text = (item as RunConsumableItemData).description;
+                    levelUpChoicesPanels[index].level.text = "";
+                    levelUpChoicesPanels[index].description.text = (item as RunConsumableItemData).description;
+                    buttonStyle = levelUpChoicesPanelStyle_consumable;
                     break;
                 case RunItemType.WEAPON:
                     newItem = (level == 0);
                     maxLevelItem = (nextLevel >= item.GetMaxLevel());
+                    levelUpChoicesPanels[index].newTongueParentPanel.SetActive(newItem);
                     break;
                 case RunItemType.STAT_BONUS:
                     newItem = (level == 0);
                     maxLevelItem = (nextLevel >= item.GetMaxLevelCount());
+                    levelUpChoicesPanels[index].newItemParentPanel.SetActive(newItem);
+                    break;
+                case RunItemType.PERMANENT_UPGRADE:
+                    // item without levels
+                    levelUpChoicesPanels[index].level.text = "";
+                    levelUpChoicesPanels[index].permanentParentPanel.SetActive(true);
+                    buttonStyle = levelUpChoicesPanelStyle_permanent;
                     break;
             }
+
+
+            levelUpChoicesPanels[index].maxLevelParentPanel.SetActive(maxLevelItem && !frusionItem);
 
             if (itemType != RunItemType.CONSUMABLE)
             {
                 if (frusionItem)
                 {
-                    levelUpChoicesLevels[index].color = newItemColor;
-                    levelUpChoicesLevels[index].text = "FRUSION";
+                    levelUpChoicesPanels[index].level.text = "";
+                    if (itemType != RunItemType.PERMANENT_UPGRADE)
+                        buttonStyle = levelUpChoicesPanelStyle_frusion;
                 }
                 else if (newItem)
                 {
-                    levelUpChoicesLevels[index].color = newItemColor;
-                    levelUpChoicesLevels[index].text = "New!";
+                    levelUpChoicesPanels[index].level.text = "";
+                    buttonStyle = levelUpChoicesPanelStyle_newItem;
                 }
                 else if (maxLevelItem)
                 {
-                    levelUpChoicesLevels[index].color = maxLevelColor;
                     //levelUpChoicesLevels[index].text = $"LVL {nextLevel} (MAX)";
-                    levelUpChoicesLevels[index].text = "LVL " + nextLevel.ToString();
+                    //levelUpChoicesPanels[index].level.text = "LVL " + nextLevel.ToString();
+                    levelUpChoicesPanels[index].level.text = "";
+                    buttonStyle = levelUpChoicesPanelStyle_maxLevelItem;
                 }
                 else
                 {
-                    levelUpChoicesLevels[index].color = defaultUIColor;
-                    levelUpChoicesLevels[index].text = "LVL " + nextLevel.ToString();
+                    levelUpChoicesPanels[index].level.text = "LVL " + nextLevel.ToString();
+                    buttonStyle = levelUpChoicesPanelStyle_levelUpItem;
                 }
 
+                // Set description
                 string description = "Better?";
                 if (newItem)
                 {
@@ -1718,18 +1868,25 @@ public class RunManager : MonoBehaviour
                     // Stat bonus item that we already have
                     description = (item as RunStatItemData).statBoostLevels[level].description;
                 }
+                else if (itemType == RunItemType.PERMANENT_UPGRADE)
+                {
+                    // A permanent upgrade
+                    description = (item as RunPermanentUpgradeItemData).description;
+                }
 
-                levelUpChoicesDescriptions[index].text = description.Replace("\\n", "\n");
+                levelUpChoicesPanels[index].description.text = description.Replace("\\n", "\n");
             }
 
-            levelUpChoicesIcons[index].sprite = item.icon;
-            levelUpChoicesIcons[index].color = (item.icon == null) ? new Color(0, 0, 0, 0) : Color.white;
+            levelUpChoicesPanels[index].SetPanelStyle(buttonStyle);
+
+            levelUpChoicesPanels[index].itemIcon.sprite = item.icon;
+            levelUpChoicesPanels[index].itemIcon.color = (item.icon == null) ? new Color(0, 0, 0, 0) : Color.white;
 
             index++;
         }
 
         // Default select first item
-        UIManager.instance.SetSelectedButton(levelUpChoicesPanels[0]);
+        UIManager.instance.SetSelectedButton(levelUpChoicesPanels[0].parentPanel);
     }
 
     #endregion
@@ -2073,7 +2230,7 @@ public class RunManager : MonoBehaviour
         {
             // Select first choice on level up panel
             levelUpPanel.GetComponent<CanvasGroup>().interactable = true;
-            EventSystem.current.SetSelectedGameObject(levelUpChoicesPanels[0]);
+            EventSystem.current.SetSelectedGameObject(levelUpChoicesPanels[0].parentPanel);
         }
     }
 

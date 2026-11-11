@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e64be94f8ccd954080cff18a15bfd76, type: 3}
+  m_Name: PermanentTongueSpeedUpgradeData
+  m_EditorClassIdentifier: 
+  itemName: Eternal Speed
+  icon: {fileID: 21300000, guid: b8755e812ab434877a6d1ab71fb59697, type: 3}
+  unlockedFromStart: 1
+  partOfDemo: 0
+  frusionRequirementList:
+  - {fileID: 11400000, guid: 604c84c44bb3113488b9a5fadc978ee4, type: 2}
+  - {fileID: 11400000, guid: 6e96535a23ad42f47bad1b739c2e9fa3, type: 2}
+  - {fileID: 11400000, guid: 92cbe87706b8b934d9243f9305bbba56, type: 2}
+  frusionRequirementsRequireMaxLevel: 1
+  description: Tongue speed +1%\nFor current frog
+  effect:
+    statUpgrades:
+      statsList:
+      - stat: 13
+        value: 0.01
