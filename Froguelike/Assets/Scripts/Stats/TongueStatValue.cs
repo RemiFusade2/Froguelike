@@ -27,7 +27,10 @@ public enum TongueStat
 
     DURATION, // Time during which the tongue is out / the effect is active
 
-    KNOCKBACK // Knockback force
+    KNOCKBACK, // Knockback force
+
+    FROIN_EFFECT, // Froin effect, the number is the amount of froins a bug drops when it is eaten.
+    XP_EFFECT // XP effect, the number is the amount of bonus XP the bug drops when it is eaten.
 }
 
 /// <summary>

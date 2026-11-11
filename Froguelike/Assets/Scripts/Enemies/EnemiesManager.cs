@@ -148,6 +148,8 @@ public class EnemyInstance
     public ParticleSystem enemyPoisonParticles;
     public ParticleSystem enemyCurseParticles;
     public ParticleSystem enemyVampireParticles;
+    public ParticleSystem enemyFroinParticles;
+    public ParticleSystem enemyXPParticles;
 
     // A link to the last weapon that hit this enemy
     public Transform lastWeaponHitTransform;
@@ -176,6 +178,8 @@ public class EnemyInstance
         enemyPoisonParticles = enemyTransform.Find("Poison Particles").GetComponent<ParticleSystem>();
         enemyCurseParticles = enemyTransform.Find("Curse Particles").GetComponent<ParticleSystem>();
         enemyVampireParticles = enemyTransform.Find("Vampire Particles").GetComponent<ParticleSystem>();
+        enemyFroinParticles = enemyTransform.Find("Froin Particles").GetComponent<ParticleSystem>();
+        enemyXPParticles = enemyTransform.Find("XP Particles").GetComponent<ParticleSystem>();
     }
 
     public void RemovePoison()
@@ -262,6 +266,8 @@ public class EnemyInstance
         enemyFreezeParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         enemyPoisonParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         enemyVampireParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        enemyFroinParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        enemyXPParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
     }
 }
 
@@ -326,6 +332,8 @@ public class EnemiesManager : MonoBehaviour
     public Color damageTextColor_poison;
     public Color damageTextColor_freeze;
     public Color damageTextColor_curse;
+    public Color damageTextColor_froin;
+    public Color damageTextColor_xp;
 
     [Header("Settings - Effects (poison, frozen, etc.)")]
     public Color poisonedOverlayColor;
@@ -333,6 +341,8 @@ public class EnemiesManager : MonoBehaviour
     public Color cursedOverlayColor;
     public Color vampireOverlayColor;
     public Color knockbackOverlayColor;
+    public Color froinOverlayColor;
+    public Color xpOverlayColor;
     public float delayBetweenPoisonDamage = 0.6f;
 
     [Header("Settings - Movement")]
@@ -1524,7 +1534,7 @@ public class EnemiesManager : MonoBehaviour
     /// <param name="damage"></param>
     /// <param name="weapon"></param>
     /// <returns></returns>
-    public bool DamageEnemy(int enemyIndex, float damage, Transform weapon, bool applyVampireEffect = false, bool applyFreezeEffect = false, bool applyCurse = false, bool poisonSource = false)
+    public bool DamageEnemy(int enemyIndex, float damage, Transform weapon, bool applyVampireEffect = false, bool applyFreezeEffect = false, bool applyCurse = false, bool poisonSource = false, bool applyFroinEffect = false, bool applyXPEffect = false)
     {
         EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
 
@@ -1635,6 +1645,14 @@ public class EnemiesManager : MonoBehaviour
                 damageAmountStr = "#";
                 damageTMPScript.color = damageTextColor_curse;
             }
+            else if (applyFroinEffect)
+            {
+                damageTMPScript.color = damageTextColor_froin;
+            }
+            else if (applyXPEffect)
+            {
+                damageTMPScript.color = damageTextColor_xp;
+            }
 
             damageTMPScript.fontSize = fontSize;
 
@@ -1681,7 +1699,15 @@ public class EnemiesManager : MonoBehaviour
         if (enemy.HP < 0.01f)
         {
             // enemy died, let's eat it now
-            SetEnemyDead(enemy, despawnEnemyAndSpawnXP: true);
+            if (weapon != null)
+            {
+                SetEnemyDead(enemy, despawnEnemyAndSpawnXP: true, applyFroinEffect: applyFroinEffect, applyXPEffect: applyXPEffect, weapon.GetComponent<WeaponBehaviour>());
+            }
+            else
+            {
+                SetEnemyDead(enemy, despawnEnemyAndSpawnXP: true, applyFroinEffect: applyFroinEffect, applyXPEffect: applyXPEffect);
+            }
+
             enemyDied = true;
         }
 
@@ -1739,10 +1765,10 @@ public class EnemiesManager : MonoBehaviour
     }
 
     // Return true if enemy dieded
-    public bool DamageEnemy(string enemyGoName, float damage, Transform weapon, bool applyVampireEffect = false, bool applyFreezeEffect = false, bool applyCurse = false, bool poisonSource = false)
+    public bool DamageEnemy(string enemyGoName, float damage, Transform weapon, bool applyVampireEffect = false, bool applyFreezeEffect = false, bool applyCurse = false, bool poisonSource = false, bool applyFroinEffect = false, bool applyXPEffect = false)
     {
         int index = int.Parse(enemyGoName);
-        return DamageEnemy(index, damage, weapon, applyVampireEffect, applyFreezeEffect, applyCurse, poisonSource);
+        return DamageEnemy(index, damage, weapon, applyVampireEffect, applyFreezeEffect, applyCurse, poisonSource, applyFroinEffect, applyXPEffect);
     }
 
     public void ClearAllDamageTexts()
@@ -2160,6 +2186,44 @@ public class EnemiesManager : MonoBehaviour
         UpdateStatusParticles(enemy);
     }
 
+    public void ApplyFroinEffect(string enemyGoName, float duration)
+    {
+        int enemyIndex = int.Parse(enemyGoName);
+        if (allActiveEnemiesDico.ContainsKey(enemyIndex))
+        {
+            EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
+            ApplyFroinEffect(enemy, duration);
+        }
+    }
+
+    public void ApplyFroinEffect(EnemyInstance enemy, float duration)
+    {
+        SetOverlayColor(enemy, froinOverlayColor, 0.3f);
+        enemy.enemyFroinParticles.Play();
+
+        // Spawn 1 froin.
+        CollectiblesManager.instance.SpawnCollectible(enemy.enemyTransform.position, CollectibleType.FROINS, bonusValue: 1, pushAwayForce: 1);
+    }
+
+    public void ApplyXPEffect(string enemyGoName, float duration)
+    {
+        int enemyIndex = int.Parse(enemyGoName);
+        if (allActiveEnemiesDico.ContainsKey(enemyIndex))
+        {
+            EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
+            ApplyXPEffect(enemy, duration);
+        }
+    }
+
+    public void ApplyXPEffect(EnemyInstance enemy, float duration)
+    {
+        SetOverlayColor(enemy, xpOverlayColor, 0.3f);
+        enemy.enemyXPParticles.Play();
+
+        // Spawn 1 XP.
+        CollectiblesManager.instance.SpawnCollectible(enemy.enemyTransform.position, CollectibleType.XP_BONUS, 1, 1);
+    }
+
     public void ApplyGlobalFreezeEffect()
     {
         applyGlobalFreeze = true;
@@ -2494,7 +2558,7 @@ public class EnemiesManager : MonoBehaviour
         }
     }
 
-    public void SetEnemyDead(EnemyInstance enemyInstance, bool despawnEnemyAndSpawnXP = false)
+    public void SetEnemyDead(EnemyInstance enemyInstance, bool despawnEnemyAndSpawnXP = false, bool applyFroinEffect = false, bool applyXPEffect = false, WeaponBehaviour tongue = null)
     {
         if (enemyInstance.enemyInfo != null)
         {
@@ -2593,43 +2657,59 @@ public class EnemiesManager : MonoBehaviour
             RunManager.instance.IncreaseKillCount(1);
 
             // Spawn XP
-            Vector3 xpSpawnPosition = enemyInstance.enemyTransform.position - 0.1f * Vector3.up;
-            float XPEarned = enemyInstance.enemyInfo.enemyData.xPBonus;
-            float RealXPEarner = XPEarned * enemyInstance.xpMultiplier;
-
-            float xpCounter = RealXPEarner;
-            Vector2 randomPointInCircle = Vector2.zero;
-            do
+            if (!applyFroinEffect) // If the froin effect is active, no XP will spawn.
             {
-                float xpSpawn = Mathf.Min(xpCounter, 100);
-                xpCounter -= xpSpawn;
-                Vector3 randomizedSpawnPosition = xpSpawnPosition + randomPointInCircle.x * Vector3.right + randomPointInCircle.y * Vector3.up;
-                CollectiblesManager.instance.SpawnCollectible(randomizedSpawnPosition, CollectibleType.XP_BONUS, xpSpawn);
-                randomPointInCircle = 0.5f * Random.insideUnitCircle;
-            } while (xpCounter > 0);
+                Vector3 xpSpawnPosition = enemyInstance.enemyTransform.position - 0.1f * Vector3.up;
+                float XPEarned = enemyInstance.enemyInfo.enemyData.xPBonus;
+                float RealXPEarner = XPEarned * enemyInstance.xpMultiplier;
+                
+                if (applyXPEffect)
+                {
+                    RealXPEarner += tongue.xpEffect;
+                }
+
+                float xpCounter = RealXPEarner;
+                Vector2 randomPointInCircle = Vector2.zero;
+                do
+                {
+                    float xpSpawn = Mathf.Min(xpCounter, 100);
+                    xpCounter -= xpSpawn;
+                    Vector3 randomizedSpawnPosition = xpSpawnPosition + randomPointInCircle.x * Vector3.right + randomPointInCircle.y * Vector3.up;
+                    CollectiblesManager.instance.SpawnCollectible(randomizedSpawnPosition, CollectibleType.XP_BONUS, xpSpawn);
+                    randomPointInCircle = 0.5f * Random.insideUnitCircle;
+                } while (xpCounter > 0);
+            }
 
             // Spawn Froins (a chance to get froins when killing a bug)
-            float probabilityToSpawn1SmolFroin = DataManager.instance.baseCurrencyProbabilitySpawnFromBugs * (1 + GameManager.instance.player.GetCurrencyBoost()); // worth 1 Froin
+            if (!applyXPEffect) // If the XP effect is active, no froins will spawn.
+            {
+                float probabilityToSpawn1SmolFroin = DataManager.instance.baseCurrencyProbabilitySpawnFromBugs * (1 + GameManager.instance.player.GetCurrencyBoost()); // worth 1 Froin
 
-            // Game mode froins multiplier
-            probabilityToSpawn1SmolFroin *= RunManager.instance.gameModeFroinsMultiplier;
+                // Game mode froins multiplier
+                probabilityToSpawn1SmolFroin *= RunManager.instance.gameModeFroinsMultiplier;
 
-            float probabilityToSpawn1BigFroin = probabilityToSpawn1SmolFroin / 10; // worth 5 Froins
-            float spawnFroinsRoll = Random.Range(0, 1f);
-            float valueOfFroinSpawned = 0;
-            if (spawnFroinsRoll <= probabilityToSpawn1BigFroin)
-            {
-                valueOfFroinSpawned = 5;
-            }
-            else if (spawnFroinsRoll <= probabilityToSpawn1SmolFroin)
-            {
-                valueOfFroinSpawned = 1;
-            }
-            if (valueOfFroinSpawned > 0)
-            {
-                // Spawn froin
-                Vector3 froinsSpawnPosition = enemyInstance.enemyTransform.position;
-                CollectiblesManager.instance.SpawnCollectible(froinsSpawnPosition, CollectibleType.FROINS, bonusValue: valueOfFroinSpawned, pushAwayForce: 1);
+                float probabilityToSpawn1BigFroin = probabilityToSpawn1SmolFroin / 10; // worth 5 Froins
+                float spawnFroinsRoll = Random.Range(0, 1f);
+                float valueOfFroinSpawned = 0;
+                if (applyFroinEffect) // If a bug was eaten by the froin tongue it always drops more froins.
+                {
+                    valueOfFroinSpawned = tongue.froinEffect;
+                }
+                else if (spawnFroinsRoll <= probabilityToSpawn1BigFroin)
+                {
+                    valueOfFroinSpawned = 5;
+                }
+                else if (spawnFroinsRoll <= probabilityToSpawn1SmolFroin)
+                {
+                    valueOfFroinSpawned = 1;
+                }
+
+                if (valueOfFroinSpawned > 0)
+                {
+                    // Spawn froin
+                    Vector3 froinsSpawnPosition = enemyInstance.enemyTransform.position;
+                    CollectiblesManager.instance.SpawnCollectible(froinsSpawnPosition, CollectibleType.FROINS, bonusValue: valueOfFroinSpawned, pushAwayForce: 1);
+                }
             }
 
             PutEnemyInThePool(enemyInstance);

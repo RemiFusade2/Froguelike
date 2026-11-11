@@ -10,7 +10,8 @@ public enum LineShape
     TRIANGLE_LINE,
     SQUARE_LINE,
     LOOPS_LINE,
-    SPIRAL_LINE
+    SPIRAL_LINE,
+    STAR_LINE
 }
 
 public class WeaponBehaviour : MonoBehaviour
@@ -44,6 +45,8 @@ public class WeaponBehaviour : MonoBehaviour
     [Space]
     public bool freezeEffect;
     public float curseChance;
+    public float froinEffect;
+    public float xpEffect;
 
     [Header("Collision Layer")]
     public LayerMask foodLayer;
@@ -145,6 +148,41 @@ public class WeaponBehaviour : MonoBehaviour
         this.transform.position = weaponStartPosition.position;
     }
 
+    private Vector3 GetRandomEdgeTongueStartPosition(Vector3 localTargetPosition)
+    {
+        // Check what part of the screen the target is on.
+        Vector3 spawnPosition = Vector3.zero;
+        Vector3[] possibleStartPositions = new Vector3[] { 
+            new Vector3(-22, Random.Range(-9f, 9f)), // -x, left    0
+            new Vector3(22, Random.Range(-9f, 9f)), // +x, right    1
+            new Vector3(Random.Range(-18f, 18f), -22), // -y, down  2
+            new Vector3(Random.Range(-18f, 18f), 22) }; // +y, up   3
+
+        if (Mathf.Abs(localTargetPosition.x) / 2 > Mathf.Abs(localTargetPosition.y)) // Left or right.
+        {
+            if (localTargetPosition.x < 0)
+            {
+                spawnPosition = possibleStartPositions[0]; // Left.
+            }
+            else
+            {
+                spawnPosition = possibleStartPositions[1]; // Right.
+            }
+        }
+        else // Up or down.
+        {
+            if (localTargetPosition.y < 0)
+            {
+                spawnPosition = possibleStartPositions[2]; // Down.
+            }
+            else
+            {
+                spawnPosition = possibleStartPositions[3]; // Up.
+            }
+        }
+        return spawnPosition;
+    }
+
     public void ResetTongue()
     {
         isAttacking = false;
@@ -173,6 +211,13 @@ public class WeaponBehaviour : MonoBehaviour
                 break;
             case TongueType.CURSED:
                 SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.CURSE));
+                break;
+                break;
+            case TongueType.FROIN:
+                SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.FROIN));
+                break;
+            case TongueType.XP:
+                SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.XP));
                 break;
             default:
                 SetTongueColor(DataManager.instance.GetColorForTongueEffect(TongueEffect.NONE));
@@ -203,6 +248,8 @@ public class WeaponBehaviour : MonoBehaviour
         poisonDamage = (float)tongueBaseStats.GetStatValue(TongueStat.POISON_DAMAGE).value;
         freezeEffect = (float)tongueBaseStats.GetStatValue(TongueStat.FREEZE_EFFECT).value > 0;
         curseChance = (float)tongueBaseStats.GetStatValue(TongueStat.CURSE_EFFECT).value;
+        froinEffect = (float)tongueBaseStats.GetStatValue(TongueStat.FROIN_EFFECT).value;
+        xpEffect = (float)tongueBaseStats.GetStatValue(TongueStat.XP_EFFECT).value;
 
         SetTongueWidth((float)tongueBaseStats.GetStatValue(TongueStat.SIZE).value);
 
@@ -231,6 +278,8 @@ public class WeaponBehaviour : MonoBehaviour
         poisonDamage = (float)tongueData.weaponBaseStats.GetStatValue(TongueStat.POISON_DAMAGE).value;
         freezeEffect = (float)tongueData.weaponBaseStats.GetStatValue(TongueStat.FREEZE_EFFECT).value > 0;
         curseChance = (float)tongueData.weaponBaseStats.GetStatValue(TongueStat.CURSE_EFFECT).value;
+        froinEffect = (float)tongueData.weaponBaseStats.GetStatValue(TongueStat.FROIN_EFFECT).value;
+        xpEffect = (float)tongueData.weaponBaseStats.GetStatValue(TongueStat.XP_EFFECT).value;
 
         SetTongueWidth((float)tongueData.weaponBaseStats.GetStatValue(TongueStat.SIZE).value);
 
@@ -281,7 +330,25 @@ public class WeaponBehaviour : MonoBehaviour
 
         if (tongueType == TongueType.ROTATING || tongueType == TongueType.POISONTATING)
         {
-            preventAttack = true; // so this new tongue will not attack before the previous one stops it attack first
+            foreach (GameObject otherTongue in otherWeaponsOfTheSameType)
+            {
+                WeaponBehaviour otherTongueBehaviour = otherTongue.GetComponent<WeaponBehaviour>();
+                if (otherTongueBehaviour.isTongueGoingOut) // The old tongues are going out, cancel that. They will all go out after the cooldown together with the new tongue.
+                {
+                    otherTongueBehaviour.isTongueGoingOut = false;
+                }
+                else if (otherTongueBehaviour.preventAttack) // The old tongues are on their way in, wait for them. They will all go out after the cooldown together with the new tongue.
+                {
+                    preventAttack = true;
+                }
+                else // The other tongues are in, make all the old ones go out together right away.
+                {
+                    lastAttackTime = otherTongueBehaviour.lastAttackTime;
+                    otherTongueBehaviour.TryAttack(0f);
+                }
+            }
+
+            TryAttack(0f); // This will make the new tongue go out right away, but it will only work when all the old tongues where in.
         }
     }
 
@@ -302,7 +369,10 @@ public class WeaponBehaviour : MonoBehaviour
 
         // Width
         float newTongueWidth = tongueWidth * (1 + (float)weaponItemLevel.weaponStatUpgrades.GetStatValue(TongueStat.SIZE).value);
-        SetTongueWidth(newTongueWidth);
+        if (tongueWidth != newTongueWidth)
+        {
+            SetTongueWidth(newTongueWidth);
+        }
 
         // Special attack: Vampire
         if (healthAbsorbRatio == 0)
@@ -401,6 +471,84 @@ public class WeaponBehaviour : MonoBehaviour
         return enemy;
     }
 
+    private GameObject GetNearestBugAverage()
+    {
+        GameObject bug = null;
+        Vector2 tongueOriginPosition = this.transform.position;
+        float radius = 5;
+        Collider2D[] allColliders = Physics2D.OverlapCircleAll(tongueOriginPosition, radius, foodLayer);
+
+        // Choose an area.
+        int offset = 5;
+        List<Collider2D[]> collidersFound = new List<Collider2D[]>();
+        collidersFound.Add(Physics2D.OverlapCircleAll(new Vector2 (tongueOriginPosition.x, tongueOriginPosition.y + offset), radius, foodLayer));
+        collidersFound.Add(Physics2D.OverlapCircleAll(new Vector2(tongueOriginPosition.x + offset, tongueOriginPosition.y + offset), radius, foodLayer));
+        collidersFound.Add(Physics2D.OverlapCircleAll(new Vector2(tongueOriginPosition.x + offset, tongueOriginPosition.y), radius, foodLayer));
+        collidersFound.Add(Physics2D.OverlapCircleAll(new Vector2(tongueOriginPosition.x + offset, tongueOriginPosition.y - offset), radius, foodLayer));
+        collidersFound.Add(Physics2D.OverlapCircleAll(new Vector2(tongueOriginPosition.x, tongueOriginPosition.y - offset), radius, foodLayer));
+        collidersFound.Add(Physics2D.OverlapCircleAll(new Vector2(tongueOriginPosition.x - offset, tongueOriginPosition.y - offset), radius, foodLayer));
+        collidersFound.Add(Physics2D.OverlapCircleAll(new Vector2(tongueOriginPosition.x - offset, tongueOriginPosition.y), radius, foodLayer));
+        collidersFound.Add(Physics2D.OverlapCircleAll(new Vector2(tongueOriginPosition.x - offset, tongueOriginPosition.y + offset), radius, foodLayer));
+
+        Collider2D[] choosenArea = collidersFound[0];
+        for (int indexOfAmount = 0; indexOfAmount < collidersFound.Count; indexOfAmount++)
+        {
+            if (collidersFound[indexOfAmount].Length > choosenArea.Length)
+            {
+                choosenArea = collidersFound[indexOfAmount];
+            }
+        }
+
+        if (choosenArea.Length == 0)
+        {
+            bug = GetNearestEnemy();
+        }
+        else
+        {
+            bug = choosenArea[Random.Range(0, choosenArea.Length)].gameObject;
+        }
+
+        return bug;
+    }
+
+    private Vector2 GetTargetForEdgeTongue()
+    {
+        /*
+        // Target a random bug, if none is found target a random spot.        
+        GameObject bug = GetBugForEdgeTongue();
+        if (bug != null)
+        {
+            return bug.transform.position;
+        }
+        */
+
+        // Random target (not a bug, just a position on the screen).
+        Vector2 targetWorldPosition = Vector2.zero;
+        Vector2 playerWorldPosition = GameManager.instance.player.transform.position;
+        Vector2 xRange = new Vector2(playerWorldPosition.x - 15, playerWorldPosition.x + 15);
+        Vector2 yRange = new Vector2(playerWorldPosition.y - 7, playerWorldPosition.y + 7);
+        targetWorldPosition.x = Random.Range(xRange.x, xRange.y);
+        targetWorldPosition.y = Random.Range(yRange.x, yRange.y);
+
+        // Go in a straight line.
+        /*
+        Vector2 tongueStartLocalPosition = this.transform.localPosition;
+        Vector2 tongueStartWorldPosition = this.transform.position;
+
+        if (tongueStartLocalPosition.x >= 21 || tongueStartLocalPosition.x <= -21) // Starting left or right.
+        {
+            targetWorldPosition.x = range;
+            targetWorldPosition.y = tongueStartWorldPosition.y; // Send tongue straight.
+        }
+        else
+        {
+            targetWorldPosition.x = tongueStartWorldPosition.x; // Send tongue straight.
+            targetWorldPosition.y = range;
+        }
+        */
+        return targetWorldPosition;
+    }
+
     private List<TongueEffect> GetRandomEffects()
     {
         List<TongueEffect> result = new List<TongueEffect>();
@@ -439,15 +587,31 @@ public class WeaponBehaviour : MonoBehaviour
     private List<Vector2> GetPositionsTowardsEnemy(GameObject targetEnemy, LineShape lineShape = LineShape.STRAIGHT_LINE, bool stopAtTarget = false, bool inverseValues = false, bool amplitudeScaleWithRange = false)
     {
         List<Vector2> result = new List<Vector2>();
+
+        Vector3 position = Vector2.up;
+
+        if (targetEnemy != null)
+        {
+            position = targetEnemy.transform.position;
+        }
+
+        result = GetPositionsTowardsEnemy(position, lineShape, stopAtTarget, inverseValues, amplitudeScaleWithRange);
+
+        return result;
+    }
+
+    private List<Vector2> GetPositionsTowardsEnemy(Vector3 targetEnemyVector3, LineShape lineShape = LineShape.STRAIGHT_LINE, bool stopAtTarget = false, bool inverseValues = false, bool amplitudeScaleWithRange = false)
+    {
+        List<Vector2> result = new List<Vector2>();
         
         float actualRange = range * (1 + GameManager.instance.player.GetAttackRangeBoost());
         Vector2 direction = Vector2.up;
         float distanceToTarget = actualRange;
 
-        if (targetEnemy != null)
+        if ((Vector2)targetEnemyVector3 != direction)
         {
-            direction = (targetEnemy.transform.position - this.transform.position).normalized;
-            distanceToTarget = (targetEnemy.transform.position - this.transform.position).magnitude;
+            direction = (targetEnemyVector3 - this.transform.position).normalized;
+            distanceToTarget = (targetEnemyVector3 - this.transform.position).magnitude;
         }
 
         float distanceFromFrog = 0;
@@ -471,7 +635,6 @@ public class WeaponBehaviour : MonoBehaviour
                     distanceFromFrog += 0.1f;
                 }
                 break;
-
             case LineShape.SINUSOID_LINE:
                 frequency = 0.6f;
 
@@ -533,7 +696,6 @@ public class WeaponBehaviour : MonoBehaviour
                     t += 0.1f * frequency;
                 }
                 break;
-
             case LineShape.SQUARE_LINE:
                 float squareLineMoveState = 0; // 0 is going straight, 1 is going up, -1 is going down
                 bool lastMoveWasUp = inverseValues;
@@ -581,7 +743,6 @@ public class WeaponBehaviour : MonoBehaviour
                     result.Add(lastPosition);
                 }
                 break;
-
             case LineShape.LOOPS_LINE:
 
                 //int loopState = (inverseValues ? 3 : 0); // 6 steps
@@ -697,8 +858,6 @@ public class WeaponBehaviour : MonoBehaviour
                     result.Add(lastPosition);
                 }
                 break;
-
-
             case LineShape.SPIRAL_LINE:
                 direction = Vector2.up;
                 lastPosition = Vector2.zero;
@@ -719,6 +878,236 @@ public class WeaponBehaviour : MonoBehaviour
 
                     result.Add(lastPosition);                    
                 }
+                break;
+            case LineShape.STAR_LINE:
+
+                actualRange *= 0.1f; // Means that the range can be higher and that makes the tip look nicer.
+                
+                // Like the completion star.
+                /*
+                result.Add(new Vector2(0 * actualRange, 0 * actualRange));
+                result.Add(new Vector2(1 * actualRange, 1 * actualRange));
+                result.Add(new Vector2(2 * actualRange, 2 * actualRange));
+                result.Add(new Vector2(2.5f * actualRange, 3 * actualRange));
+                result.Add(new Vector2(2.5f * actualRange, 4 * actualRange));
+                result.Add(new Vector2(1.5f * actualRange, 5 * actualRange));
+                result.Add(new Vector2(0.5f * actualRange, 6 * actualRange));
+                result.Add(new Vector2(-0.5f * actualRange, 6 * actualRange));
+                result.Add(new Vector2(-1.5f * actualRange, 5 * actualRange));
+                result.Add(new Vector2(-2.5f * actualRange, 4 * actualRange));
+                result.Add(new Vector2(-2.5f * actualRange, 3 * actualRange));
+                result.Add(new Vector2(-3.5f * actualRange, 2 * actualRange));
+                result.Add(new Vector2(-4.5f * actualRange, 2 * actualRange));
+                result.Add(new Vector2(-5.5f * actualRange, 2 * actualRange));
+                result.Add(new Vector2(-6.5f * actualRange, 1 * actualRange));
+                result.Add(new Vector2(-6.5f * actualRange, 0 * actualRange));
+                result.Add(new Vector2(-5.5f * actualRange, -1 * actualRange));
+                result.Add(new Vector2(-4.5f * actualRange, -2 * actualRange));
+                result.Add(new Vector2(-4.5f * actualRange, -3 * actualRange));
+                result.Add(new Vector2(-4.5f * actualRange, -4 * actualRange));
+                result.Add(new Vector2(-4.5f * actualRange, -5 * actualRange));
+                result.Add(new Vector2(-3.5f * actualRange, -6 * actualRange));
+                result.Add(new Vector2(-2.5f * actualRange, -6 * actualRange));
+                result.Add(new Vector2(-1.5f * actualRange, -5 * actualRange));
+                result.Add(new Vector2(-0.5f * actualRange, -4 * actualRange));
+                result.Add(new Vector2(0.5f * actualRange, -4 * actualRange));
+                result.Add(new Vector2(1.5f * actualRange, -5 * actualRange));
+                result.Add(new Vector2(2.5f * actualRange, -6 * actualRange));
+                result.Add(new Vector2(3.5f * actualRange, -6 * actualRange));
+                result.Add(new Vector2(4.5f * actualRange, -5 * actualRange));
+                result.Add(new Vector2(4.5f * actualRange, -4 * actualRange));
+                result.Add(new Vector2(4.5f * actualRange, -3 * actualRange));
+                result.Add(new Vector2(4.5f * actualRange, -2 * actualRange));
+                result.Add(new Vector2(5.5f * actualRange, -1 * actualRange));
+                result.Add(new Vector2(6.5f * actualRange, 0 * actualRange));
+                result.Add(new Vector2(6.5f * actualRange, 1 * actualRange));
+                result.Add(new Vector2(5.5f * actualRange, 2 * actualRange));
+                result.Add(new Vector2(4.5f * actualRange, 2 * actualRange));
+                result.Add(new Vector2(3.5f * actualRange, 2 * actualRange));
+                result.Add(new Vector2(2.5f * actualRange, 2 * actualRange));
+                */
+
+                // Pointy star.
+                /*
+                result.Add(new Vector2(0, 0));
+                result.Add(new Vector2(1, 2));
+                result.Add(new Vector2(1, 2));
+                result.Add(new Vector2(1, 2));
+                result.Add(new Vector2(0, 5));
+                result.Add(new Vector2(0, 5));
+                result.Add(new Vector2(0, 5));
+                result.Add(new Vector2(-1, 2));
+                result.Add(new Vector2(-1, 2));
+                result.Add(new Vector2(-1, 2));
+                result.Add(new Vector2(-5, 2));
+                result.Add(new Vector2(-5, 2));
+                result.Add(new Vector2(-5, 2));
+                result.Add(new Vector2(-2, 0));
+                result.Add(new Vector2(-2, 0));
+                result.Add(new Vector2(-2, 0));
+                result.Add(new Vector2(-3, -4));
+                result.Add(new Vector2(-3, -4));
+                result.Add(new Vector2(-3, -4));
+                result.Add(new Vector2(0, -2));
+                result.Add(new Vector2(0, -2));
+                result.Add(new Vector2(0, -2));
+                result.Add(new Vector2(3, -4));
+                result.Add(new Vector2(3, -4));
+                result.Add(new Vector2(3, -4));
+                result.Add(new Vector2(2, 0));
+                result.Add(new Vector2(2, 0));
+                result.Add(new Vector2(2, 0));
+                result.Add(new Vector2(5, 2));
+                result.Add(new Vector2(5, 2));
+                result.Add(new Vector2(5, 2));
+                result.Add(new Vector2(1, 2));
+                */
+
+                /*
+                result.Add(new Vector2(0, 0));
+                result.Add(new Vector2(1, 2));
+                result.Add(new Vector2(1, 2));
+                result.Add(new Vector2(1, 2));
+                result.Add(new Vector2(0.1f, 5)); 
+                result.Add(new Vector2(0.1f, 5)); 
+                result.Add(new Vector2(0.1f, 5));
+                result.Add(new Vector2(0, 5));
+                result.Add(new Vector2(0, 5));
+                result.Add(new Vector2(0, 5));
+                result.Add(new Vector2(-0.1f, 5));
+                result.Add(new Vector2(-0.1f, 5));
+                result.Add(new Vector2(-0.1f, 5));
+                result.Add(new Vector2(-1, 2));
+                result.Add(new Vector2(-1, 2));
+                result.Add(new Vector2(-1, 2));
+                result.Add(new Vector2(-5, 2));
+                result.Add(new Vector2(-5, 2));
+                result.Add(new Vector2(-5, 2));
+                result.Add(new Vector2(-5, 1.9f));
+                result.Add(new Vector2(-5, 1.9f));
+                result.Add(new Vector2(-5, 1.9f));
+                result.Add(new Vector2(-5, 1.8f));
+                result.Add(new Vector2(-5, 1.8f));
+                result.Add(new Vector2(-5, 1.8f));
+                result.Add(new Vector2(-2, 0));
+                result.Add(new Vector2(-2, 0));
+                result.Add(new Vector2(-2, 0));
+                result.Add(new Vector2(-3.1f, -4));
+                result.Add(new Vector2(-3.1f, -4));
+                result.Add(new Vector2(-3.1f, -4));
+                result.Add(new Vector2(-3, -4));
+                result.Add(new Vector2(-3, -4));
+                result.Add(new Vector2(-3, -4));
+                result.Add(new Vector2(-2.9f, -4));
+                result.Add(new Vector2(-2.9f, -4));
+                result.Add(new Vector2(-2.9f, -4));
+                result.Add(new Vector2(0, -2));
+                result.Add(new Vector2(0, -2));
+                result.Add(new Vector2(0, -2));
+                result.Add(new Vector2(2.9f, -4));
+                result.Add(new Vector2(2.9f, -4));
+                result.Add(new Vector2(2.9f, -4));
+                result.Add(new Vector2(3, -4));
+                result.Add(new Vector2(3, -4));
+                result.Add(new Vector2(3, -4));
+                result.Add(new Vector2(3.1f, -4));
+                result.Add(new Vector2(3.1f, -4));
+                result.Add(new Vector2(3.1f, -4));
+                result.Add(new Vector2(2, 0));
+                result.Add(new Vector2(2, 0));
+                result.Add(new Vector2(2, 0));
+                result.Add(new Vector2(5, 1.8f));
+                result.Add(new Vector2(5, 1.8f));
+                result.Add(new Vector2(5, 1.8f));
+                result.Add(new Vector2(5, 1.9f));
+                result.Add(new Vector2(5, 1.9f));
+                result.Add(new Vector2(5, 1.9f));
+                result.Add(new Vector2(5, 2));
+                result.Add(new Vector2(5, 2));
+                result.Add(new Vector2(5, 2));
+                result.Add(new Vector2(1, 2));
+                */
+
+                // Pointy star but with slightly softer corners.
+                result.Add(new Vector2(1.2f * actualRange, 1.7f * actualRange));      // top right corner
+                result.Add(new Vector2(1.2f * actualRange, 1.7f * actualRange));
+                result.Add(new Vector2(1.2f * actualRange, 1.7f * actualRange));
+                result.Add(new Vector2(0.1f * actualRange, 4.9f * actualRange));    // top point
+                result.Add(new Vector2(0.1f * actualRange, 4.9f * actualRange));
+                result.Add(new Vector2(0.1f * actualRange, 4.9f * actualRange));
+                result.Add(new Vector2(0 * actualRange, 5f * actualRange));
+                result.Add(new Vector2(0 * actualRange, 5f * actualRange));
+                result.Add(new Vector2(0 * actualRange, 5f * actualRange));
+                result.Add(new Vector2(-0.1f * actualRange, 4.9f * actualRange));
+                result.Add(new Vector2(-0.1f * actualRange, 4.9f * actualRange));
+                result.Add(new Vector2(-0.1f * actualRange, 4.9f * actualRange));
+                result.Add(new Vector2(-1.2f * actualRange, 1.7f * actualRange));      // top left corner
+                result.Add(new Vector2(-1.2f * actualRange, 1.7f * actualRange));
+                result.Add(new Vector2(-1.2f * actualRange, 1.7f * actualRange));
+                result.Add(new Vector2(-4.8f * actualRange, 1.7f * actualRange));   // left point
+                result.Add(new Vector2(-4.8f * actualRange, 1.7f * actualRange));
+                result.Add(new Vector2(-4.8f * actualRange, 1.7f * actualRange));
+                result.Add(new Vector2(-4.9f * actualRange, 1.6f * actualRange));
+                result.Add(new Vector2(-4.9f * actualRange, 1.6f * actualRange));
+                result.Add(new Vector2(-4.9f * actualRange, 1.6f * actualRange));
+                result.Add(new Vector2(-5 * actualRange, 1.5f * actualRange));
+                result.Add(new Vector2(-5 * actualRange, 1.5f * actualRange));
+                result.Add(new Vector2(-5 * actualRange, 1.5f * actualRange));
+                result.Add(new Vector2(-2 * actualRange, -0.5f * actualRange));         // bottom left corner
+                result.Add(new Vector2(-2 * actualRange, -0.5f * actualRange));
+                result.Add(new Vector2(-2 * actualRange, -0.5f * actualRange));
+                result.Add(new Vector2(-3.1f * actualRange, -3.9f * actualRange));  // bottom left point
+                result.Add(new Vector2(-3.1f * actualRange, -3.9f * actualRange));
+                result.Add(new Vector2(-3.1f * actualRange, -3.9f * actualRange));
+                result.Add(new Vector2(-3 * actualRange, -4 * actualRange));
+                result.Add(new Vector2(-3 * actualRange, -4 * actualRange));
+                result.Add(new Vector2(-3 * actualRange, -4 * actualRange));
+                result.Add(new Vector2(-2.9f * actualRange, -3.9f * actualRange));
+                result.Add(new Vector2(-2.9f * actualRange, -3.9f * actualRange));
+                result.Add(new Vector2(-2.9f * actualRange, -3.9f * actualRange));
+                result.Add(new Vector2(0 * actualRange, -2 * actualRange));         // bottom corner
+                result.Add(new Vector2(0 * actualRange, -2 * actualRange));
+                result.Add(new Vector2(0 * actualRange, -2 * actualRange));
+                result.Add(new Vector2(2.9f * actualRange, -3.9f * actualRange));   // bottom right point
+                result.Add(new Vector2(2.9f * actualRange, -3.9f * actualRange));
+                result.Add(new Vector2(2.9f * actualRange, -3.9f * actualRange));
+                result.Add(new Vector2(3 * actualRange, -4 * actualRange));
+                result.Add(new Vector2(3 * actualRange, -4 * actualRange));
+                result.Add(new Vector2(3 * actualRange, -4 * actualRange));
+                result.Add(new Vector2(3.1f * actualRange, -3.9f * actualRange));
+                result.Add(new Vector2(3.1f * actualRange, -3.9f * actualRange));
+                result.Add(new Vector2(3.1f * actualRange, -3.9f * actualRange));
+                result.Add(new Vector2(2 * actualRange, -0.5f * actualRange));          // bottom right corner
+                result.Add(new Vector2(2 * actualRange, -0.5f * actualRange));
+                result.Add(new Vector2(2 * actualRange, -0.5f * actualRange));
+                result.Add(new Vector2(5 * actualRange, 1.5f * actualRange));       // right point
+                result.Add(new Vector2(5 * actualRange, 1.5f * actualRange));
+                result.Add(new Vector2(5 * actualRange, 1.5f * actualRange));
+                result.Add(new Vector2(4.9f * actualRange, 1.6f * actualRange));
+                result.Add(new Vector2(4.9f * actualRange, 1.6f * actualRange));
+                result.Add(new Vector2(4.9f * actualRange, 1.6f * actualRange));
+                result.Add(new Vector2(4.8f * actualRange, 1.7f * actualRange));
+                result.Add(new Vector2(4.8f * actualRange, 1.7f * actualRange));
+                result.Add(new Vector2(4.8f * actualRange, 1.7f * actualRange));
+                result.Add(new Vector2(1.2f * actualRange, 1.7f * actualRange));       // top right corner
+                result.Add(new Vector2(1.2f * actualRange, 1.7f * actualRange));
+                result.Add(new Vector2(1.2f * actualRange, 1.7f * actualRange));
+
+                if (Random.Range(0, 2) == 0)
+                {
+                    result.Reverse();
+                }
+
+                result.Insert(0, new Vector2(0, 0));
+                result.RemoveAt(result.Count - 1);
+                result.RemoveAt(result.Count - 1);
+
+                for (int index = result.Count - 1; index > 0; index-=3)
+                {
+                    Vector2 inbetween = (result[index] + result[index - 1]) / 2;
+                    result.Insert(index, inbetween);
+                }
+
                 break;
         }
 
@@ -758,9 +1147,9 @@ public class WeaponBehaviour : MonoBehaviour
         return result;
     }
 
-    public void TryAttack()
+    public void TryAttack(float cooldownModifier = 1)
     {
-        float actualCooldown = cooldown * (1 + GameManager.instance.player.GetAttackCooldownBoost());
+        float actualCooldown = (cooldown * cooldownModifier) * (1 + GameManager.instance.player.GetAttackCooldownBoost());
 
         bool lastAttackWasEnoughTimeAgo = Time.time - lastAttackTime > actualCooldown;
 
@@ -781,7 +1170,7 @@ public class WeaponBehaviour : MonoBehaviour
             List<TongueEffect> effects = new List<TongueEffect>();
 
             // Pick an enemy to target
-            bool tongueDoesTarget = (tongueType == TongueType.CLASSIC || tongueType == TongueType.CURSED || tongueType == TongueType.FREEZE || tongueType == TongueType.POISON || tongueType == TongueType.QUICK || tongueType == TongueType.VAMPIRE || tongueType == TongueType.WIDE);
+            bool tongueDoesTarget = (tongueType == TongueType.CLASSIC || tongueType == TongueType.CURSED || tongueType == TongueType.FREEZE || tongueType == TongueType.POISON || tongueType == TongueType.QUICK || tongueType == TongueType.VAMPIRE || tongueType == TongueType.WIDE || tongueType == TongueType.FROIN);
             if (tongueDoesTarget)
             {
                 targetEnemy = GetNearestEnemy(tongueTypeIndex + 1);
@@ -834,12 +1223,27 @@ public class WeaponBehaviour : MonoBehaviour
                     pos = GetPositionsTowardsEnemy(targetEnemy, LineShape.STRAIGHT_LINE, false);
                     effects.Add(TongueEffect.NONE);
                 }
+                else if (tongueType == TongueType.FROIN)
+                {
+                    pos = GetPositionsTowardsEnemy(targetEnemy, LineShape.TRIANGLE_LINE, stopAtTarget: false, amplitudeScaleWithRange: true);
+                    effects.Add(TongueEffect.FROIN);
+                }
                 else
                 {
                     pos = GetPositionsTowardsEnemy(targetEnemy, LineShape.STRAIGHT_LINE, true);
                     effects.Add(TongueEffect.NONE);
                 }
                 this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects, targetEnemy);
+                this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
+
+                AttackLine(this.GetComponent<TongueLineRendererBehaviour>());
+            }
+
+            if (tongueType == TongueType.DART)
+            {
+                pos = GetPositionsTowardsEnemy(GetNearestBugAverage(), LineShape.STRAIGHT_LINE, stopAtTarget: false);
+                effects.Add(TongueEffect.NONE);
+                this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects);
                 this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
 
                 AttackLine(this.GetComponent<TongueLineRendererBehaviour>());
@@ -856,6 +1260,22 @@ public class WeaponBehaviour : MonoBehaviour
                 AttackLine(this.GetComponent<TongueLineRendererBehaviour>());
             }
 
+            if (tongueType == TongueType.EDGE)
+            {
+                // Get target position and starting position for edge tongue.
+                Vector3 tongueTargetPosition = GetTargetForEdgeTongue();
+                Vector3 localTargetPosition = tongueTargetPosition - GameManager.instance.player.transform.position;
+                this.transform.localPosition = GetRandomEdgeTongueStartPosition(localTargetPosition);
+
+                // Set random positions
+                pos = GetPositionsTowardsEnemy(tongueTargetPosition, LineShape.STRAIGHT_LINE, stopAtTarget: true);
+                effects.Add(TongueEffect.NONE);
+                this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects);
+                this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
+
+                AttackLine(this.GetComponent<TongueLineRendererBehaviour>());
+            }
+
             // Added for the poison rotatongue frusion
             if (tongueType == TongueType.POISONTATING)
             {
@@ -864,8 +1284,6 @@ public class WeaponBehaviour : MonoBehaviour
                 this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects);
                 this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
                 AttackLineRotating(this.GetComponent<TongueLineRendererBehaviour>());
-
-                //todo: make all tongues attack togetehr
             }
 
             if (tongueType == TongueType.ROTATING)
@@ -881,6 +1299,15 @@ public class WeaponBehaviour : MonoBehaviour
             {
                 pos = GetPositionsTowardsEnemy(null, LineShape.STRAIGHT_LINE, false);
                 effects.Add(TongueEffect.NONE);
+                this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects);
+                this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
+                AttackLine(this.GetComponent<TongueLineRendererBehaviour>());
+            }
+
+            if (tongueType == TongueType.XP)
+            {
+                pos = GetPositionsTowardsEnemy(null, LineShape.STAR_LINE, stopAtTarget: false);
+                effects.Add(TongueEffect.XP);
                 this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects);
                 this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
                 AttackLine(this.GetComponent<TongueLineRendererBehaviour>());
@@ -1095,6 +1522,19 @@ public class WeaponBehaviour : MonoBehaviour
                 this.transform.localRotation = RunManager.instance.player.transform.localRotation;
             }
 
+            // Make the edge tongue stay stuck to the ground for duration after it has fully gone out.
+            if ((tongueType == TongueType.EDGE || tongueType == TongueType.XP) && t >= 1)
+            {
+                float durationPassed = 0;
+                while (durationPassed <= duration)
+                {
+                    // Display tongue
+                    tongueScript.DisplayTongue(1);
+                    durationPassed += Time.fixedDeltaTime;
+                    yield return new WaitForFixedUpdate();
+                }
+            }
+
             yield return new WaitForFixedUpdate();
             if (t >= 1)
             {
@@ -1102,6 +1542,7 @@ public class WeaponBehaviour : MonoBehaviour
                 isTongueGoingOut = false;
             }
         }
+
         while (t > 0)
         {
             // Set width
@@ -1297,7 +1738,13 @@ public class WeaponBehaviour : MonoBehaviour
                 case TongueType.FREEZE:
                     activeEffect = TongueEffect.FREEZE;
                     break;
-
+                    break;
+                case TongueType.FROIN:
+                    activeEffect = TongueEffect.FROIN;
+                    break;
+                case TongueType.XP:
+                    activeEffect = TongueEffect.XP;
+                    break;
             }
 
             // curse part, increase enemy speed
@@ -1311,7 +1758,7 @@ public class WeaponBehaviour : MonoBehaviour
 
             bool vampireEffect = (activeEffect == TongueEffect.VAMPIRE);
             bool enemyIsDead = EnemiesManager.instance.DamageEnemy(enemyName, actualDamage, this.transform, 
-                applyVampireEffect: vampireEffect, applyFreezeEffect: (activeEffect == TongueEffect.FREEZE), applyCurse: (tongueIsCursedTongueAndCurseIsActive || tongueIsRandomTongueAndEffectIsCurse), poisonSource: (activeEffect == TongueEffect.POISON));
+                applyVampireEffect: vampireEffect, applyFreezeEffect: (activeEffect == TongueEffect.FREEZE), applyCurse: (tongueIsCursedTongueAndCurseIsActive || tongueIsRandomTongueAndEffectIsCurse), poisonSource: (activeEffect == TongueEffect.POISON), applyFroinEffect: (activeEffect == TongueEffect.FROIN), applyXPEffect: (activeEffect == TongueEffect.XP));
 
             // vampire part, absorb part of damage done
             if (vampireEffect)
@@ -1353,6 +1800,24 @@ public class WeaponBehaviour : MonoBehaviour
                 // Tongue is the random tongue and it hits on a cursed part of the tongue
                 // Duration is less than the overall duration (otherwise, that tongue becomes too bad)
                 EnemiesManager.instance.ApplyCurseEffect(enemyName, actualStatusDuration / 5);
+            }
+
+            // Froin part, make the enemy drop a single froin.
+            if (activeEffect == TongueEffect.FROIN)
+            {
+                if (!enemyIsDead)
+                {
+                    EnemiesManager.instance.ApplyFroinEffect(enemyName, 1);
+                }
+            }
+
+            // XP part, make the enemy drop a single XP.
+            if (activeEffect == TongueEffect.XP)
+            {
+                if (!enemyIsDead)
+                {
+                    EnemiesManager.instance.ApplyXPEffect(enemyName, 1);
+                }
             }
 
             if (enemyIsDead)
