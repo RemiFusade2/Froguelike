@@ -549,6 +549,8 @@ public class RunManager : MonoBehaviour
         }
 
         // Power-ups.
+        RunModifierManager.instance.powerUpsModiferSpawnFrequencies.Clear();
+
         if ((gameModes & GameMode.POWER_UP_FREEZE) == GameMode.POWER_UP_FREEZE)
         {
             RunModifierManager.instance.powerUpsModiferSpawnFrequencies.Add(RunModifierManager.instance.powerupFreeze);
@@ -1178,6 +1180,11 @@ public class RunManager : MonoBehaviour
         player.healthBar.SetMaxHealth(player.GetMaxHealth());
         player.healthBar.SetHealthRecovery(player.GetHealthRecovery());
         player.healthBar.ResetHealth();
+
+        // Stop God Mode, Freeze/Poison/Curse & Level up/down all, Super goop
+        player.ResetGodMode();
+        player.StopAndResetAllExplosionEffects(); // global effects explosions
+        EnemiesManager.instance.StopAndResetAllGlobalEffects();
 
         // Clear old map
         MapBehaviour.instance.ClearMap();

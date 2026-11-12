@@ -34,7 +34,7 @@ public class RunModifierManager : MonoBehaviour
 
     [Header("Runtime")]
     public GameMode selectedGameModes;
-    public List<CollectibleSpawnFrequency> powerUpsModiferSpawnFrequencies; // TODO this needs to be cleared
+    public List<CollectibleSpawnFrequency> powerUpsModiferSpawnFrequencies;
 
     private void Awake()
     {
