@@ -360,6 +360,7 @@ public class RunManager : MonoBehaviour
 
     private float runPlayTime;
     private float runTotalTime; // pause time included
+    private float runTimeModifer; // Used to modify a chapters time.
 
     private Coroutine setCurrencyTextMeshColorCoroutine;
     private Coroutine setExtraLivesTextMeshColorCoroutine;
@@ -415,7 +416,7 @@ public class RunManager : MonoBehaviour
                 // When wave is finished, move on to the next one
                 currentWaveIndex = (currentWaveIndex + 1) % currentChapter.chapterData.wavesList.Count;
                 EnemiesManager.instance.InitializeWave(GetCurrentWave());
-                waveRemainingTime = GetCurrentWave().duration;
+                waveRemainingTime = GetCurrentWave().duration * runTimeModifer;
             }
 
             // Update condition counter
@@ -505,6 +506,7 @@ public class RunManager : MonoBehaviour
     private void SetupModifiers(GameMode gameModes)
     {
         // Difficulty.
+        #region
         float hardModifier = RunModifierManager.instance.hardModifier;
         float harderModifier = RunModifierManager.instance.harderModifier;
         float hardestModifier = RunModifierManager.instance.hardestModifier;
@@ -547,8 +549,10 @@ public class RunManager : MonoBehaviour
             gameModeBugDamageMultiplier += hardesterModifier;
             gameModeFroinsMultiplier += hardesterModifier;
         }
+        #endregion
 
         // Power-ups.
+        #region
         RunModifierManager.instance.powerUpsModiferSpawnFrequencies.Clear();
 
         if ((gameModes & GameMode.POWER_UP_FREEZE) == GameMode.POWER_UP_FREEZE)
@@ -590,6 +594,20 @@ public class RunManager : MonoBehaviour
         {
             RunModifierManager.instance.powerUpsModiferSpawnFrequencies.Add(RunModifierManager.instance.powerupDown);
         }
+        #endregion
+
+        // Time.
+        #region
+        if ((gameModes & GameMode.TIME_HALF) == GameMode.TIME_HALF)
+        {
+            runTimeModifer = 0.5f;
+        }
+
+        if ((gameModes & GameMode.TIME_DOUBLE) == GameMode.TIME_DOUBLE)
+        {
+            runTimeModifer = 2;
+        }
+        #endregion
     }
 
     public void StartNewRun(PlayableCharacter character, GameMode gameModes, Chapter startingChapter = null)
@@ -611,6 +629,7 @@ public class RunManager : MonoBehaviour
 
         // Setup game mode multipliers
         this.playedGameModes = gameModes;
+        runTimeModifer = 1;
         SetupModifiers(gameModes);
 
         InitializeNewRun();
@@ -1039,11 +1058,11 @@ public class RunManager : MonoBehaviour
             Debug.Log("Run - Show scores. " + chapterRemainingTime.ToString("0.00") + " seconds left on the timer");
         }
 
-        int playedTimeThisChapter = Mathf.RoundToInt(currentChapter.chapterData.chapterLengthInSeconds - Mathf.Clamp(chapterRemainingTime, 0, currentChapter.chapterData.chapterLengthInSeconds));
+        int playedTimeThisChapter = Mathf.RoundToInt(currentChapter.chapterData.chapterLengthInSeconds * runTimeModifer - Mathf.Clamp(chapterRemainingTime, 0, currentChapter.chapterData.chapterLengthInSeconds * runTimeModifer));
 
 
         // Display the score screen
-        ScoreManager.instance.ShowScores(chaptersPlayed, playedChaptersKillCounts, currentPlayedCharacter, ownedItems, unlockedAchievements, playedTimeThisChapter, currencyCollectedInThisRun);
+        ScoreManager.instance.ShowScores(chaptersPlayed, playedChaptersKillCounts, currentPlayedCharacter, ownedItems, unlockedAchievements, playedTimeThisChapter, currencyCollectedInThisRun, runTimeModifer);
     }
 
     public void EndChapter()
@@ -1100,7 +1119,7 @@ public class RunManager : MonoBehaviour
     public void StartChapter(Chapter chapter)
     {
         // Set timer
-        chapterRemainingTime = chapter.chapterData.chapterLengthInSeconds;
+        chapterRemainingTime = chapter.chapterData.chapterLengthInSeconds * runTimeModifer;
 
         // Remove enemies on screen
         EnemiesManager.instance.ClearAllEnemies();
@@ -1228,7 +1247,7 @@ public class RunManager : MonoBehaviour
         // Set current wave
         currentWaveIndex = 0;
         WaveData currentWave = GetCurrentWave();
-        waveRemainingTime = currentWave.duration;
+        waveRemainingTime = currentWave.duration * runTimeModifer;
         EnemiesManager.instance.InitializeWave(GetCurrentWave());
 
         // If character is ghost in that chapter, force it to ghost sprite
@@ -1260,7 +1279,7 @@ public class RunManager : MonoBehaviour
         UIManager.instance.ShowGameUI();
 
         // Start game!
-        chapterRemainingTime = currentChapter.chapterData.chapterLengthInSeconds;
+        chapterRemainingTime = currentChapter.chapterData.chapterLengthInSeconds * runTimeModifer;
         GameManager.instance.hasGameStarted = true;
         GameManager.instance.isGameRunning = true;
         ChapterManager.instance.chapterChoiceIsVisible = false;
@@ -2121,7 +2140,7 @@ public class RunManager : MonoBehaviour
         return Instantiate(slotIconPrefab, iconParent).transform;
     }
 
-    #endregion
+    #endregion UI
 
     #region Collect Collectible
 

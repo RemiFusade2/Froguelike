@@ -9,9 +9,12 @@ public class RunModifierManager : MonoBehaviour
     // Singleton
     public static RunModifierManager instance;
 
-    [Header("UI References")]
+    [Header("UI References")] // TODO add all sections, should the be empty before having one option unlocked? Or just ???? 
     public GameObject difficultyPanel;
     public TextMeshProUGUI difficultyPanelInfoText;
+    [Space]
+    public Toggle halfTimeToggle;
+    public Toggle doubleTimeToggle;
 
     [Header("Settings")]
     [Tooltip("1 = 100% bug buff")]
@@ -55,6 +58,8 @@ public class RunModifierManager : MonoBehaviour
         // ResetDifficulty();
         difficultyPanel.GetComponent<DifficultyPanelBehaviour>().SetToggleCheckmarks(GetSelectedGameModes());
         DisplayDifficultyInfo(GetSelectedGameModes());
+
+        // TODO add hiding locked modifiers.
     }
 
     public bool IsGameModeUnlocked(GameMode gameMode)
@@ -83,9 +88,9 @@ public class RunModifierManager : MonoBehaviour
 
     public void SelectGameModeHard(Toggle thisToggle)
     {
-        bool hardModeIsSelected = thisToggle.isOn;
+        bool modeIsSelected = thisToggle.isOn;
 
-        if (hardModeIsSelected)
+        if (modeIsSelected)
         {
             selectedGameModes |= GameMode.HARD; // Add flag
         }
@@ -99,9 +104,9 @@ public class RunModifierManager : MonoBehaviour
 
     public void SelectGameModeHarder(Toggle thisToggle)
     {
-        bool harderModeIsSelected = thisToggle.isOn;
+        bool modeIsSelected = thisToggle.isOn;
 
-        if (harderModeIsSelected)
+        if (modeIsSelected)
         {
             selectedGameModes |= GameMode.HARDER; // Add flag
         }
@@ -115,9 +120,9 @@ public class RunModifierManager : MonoBehaviour
 
     public void SelectGameModeHardest(Toggle thisToggle)
     {
-        bool harderModeIsSelected = thisToggle.isOn;
+        bool modeIsSelected = thisToggle.isOn;
 
-        if (harderModeIsSelected)
+        if (modeIsSelected)
         {
             selectedGameModes |= GameMode.HARDEST; // Add flag
         }
@@ -131,9 +136,9 @@ public class RunModifierManager : MonoBehaviour
 
     public void SelectGameModeHardester(Toggle thisToggle)
     {
-        bool harderModeIsSelected = thisToggle.isOn;
+        bool modeIsSelected = thisToggle.isOn;
 
-        if (harderModeIsSelected)
+        if (modeIsSelected)
         {
             selectedGameModes |= GameMode.HARDESTER; // Add flag
         }
@@ -183,9 +188,9 @@ public class RunModifierManager : MonoBehaviour
 
     public void SelectGameModeFreeze(Toggle thisToggle)
     {
-        bool harderModeIsSelected = thisToggle.isOn;
+        bool modeIsSelected = thisToggle.isOn;
 
-        if (harderModeIsSelected)
+        if (modeIsSelected)
         {
             selectedGameModes |= GameMode.POWER_UP_FREEZE; // Add flag
         }
@@ -197,9 +202,9 @@ public class RunModifierManager : MonoBehaviour
 
     public void SelectGameModePoison(Toggle thisToggle)
     {
-        bool harderModeIsSelected = thisToggle.isOn;
+        bool modeIsSelected = thisToggle.isOn;
 
-        if (harderModeIsSelected)
+        if (modeIsSelected)
         {
             selectedGameModes |= GameMode.POWER_UP_POISON; // Add flag
         }
@@ -211,9 +216,9 @@ public class RunModifierManager : MonoBehaviour
 
     public void SelectGameModeCurse(Toggle thisToggle)
     {
-        bool harderModeIsSelected = thisToggle.isOn;
+        bool modeIsSelected = thisToggle.isOn;
 
-        if (harderModeIsSelected)
+        if (modeIsSelected)
         {
             selectedGameModes |= GameMode.POWER_UP_CURSE; // Add flag
         }
@@ -225,9 +230,9 @@ public class RunModifierManager : MonoBehaviour
 
     public void SelectGameModeSuperfrog(Toggle thisToggle)
     {
-        bool harderModeIsSelected = thisToggle.isOn;
+        bool modeIsSelected = thisToggle.isOn;
 
-        if (harderModeIsSelected)
+        if (modeIsSelected)
         {
             selectedGameModes |= GameMode.POWER_UP_SUPERFROG; // Add flag
         }
@@ -239,9 +244,9 @@ public class RunModifierManager : MonoBehaviour
 
     public void SelectGameModeParty(Toggle thisToggle)
     {
-        bool harderModeIsSelected = thisToggle.isOn;
+        bool modeIsSelected = thisToggle.isOn;
 
-        if (harderModeIsSelected)
+        if (modeIsSelected)
         {
             selectedGameModes |= GameMode.POWER_UP_PARTY; // Add flag
         }
@@ -253,9 +258,9 @@ public class RunModifierManager : MonoBehaviour
 
     public void SelectGameModeGoop(Toggle thisToggle)
     {
-        bool harderModeIsSelected = thisToggle.isOn;
+        bool modeIsSelected = thisToggle.isOn;
 
-        if (harderModeIsSelected)
+        if (modeIsSelected)
         {
             selectedGameModes |= GameMode.POWER_UP_GOOP; // Add flag
         }
@@ -267,9 +272,9 @@ public class RunModifierManager : MonoBehaviour
 
     public void SelectGameModeUp(Toggle thisToggle)
     {
-        bool harderModeIsSelected = thisToggle.isOn;
+        bool modeIsSelected = thisToggle.isOn;
 
-        if (harderModeIsSelected)
+        if (modeIsSelected)
         {
             selectedGameModes |= GameMode.POWER_UP_UP; // Add flag
         }
@@ -281,9 +286,9 @@ public class RunModifierManager : MonoBehaviour
 
     public void SelectGameModeDown(Toggle thisToggle)
     {
-        bool harderModeIsSelected = thisToggle.isOn;
+        bool modeIsSelected = thisToggle.isOn;
 
-        if (harderModeIsSelected)
+        if (modeIsSelected)
         {
             selectedGameModes |= GameMode.POWER_UP_DOWN; // Add flag
         }
@@ -294,4 +299,48 @@ public class RunModifierManager : MonoBehaviour
     }
 
     #endregion Power-ups
+
+    #region Time
+
+    public void SelectGameModeHalfTime(Toggle thisToggle)
+    {
+        // Turn on half time.
+        bool modeIsSelected = thisToggle.isOn;
+
+        if (modeIsSelected)
+        {
+            selectedGameModes |= GameMode.TIME_HALF; // Add flag
+        }
+        else
+        {
+            selectedGameModes &= ~GameMode.TIME_HALF; // Remove flag
+        }
+
+
+        // Turn off double time. set toggle
+        doubleTimeToggle.SetIsOnWithoutNotify(false);
+        selectedGameModes &= ~GameMode.TIME_DOUBLE; // Remove flag
+    }
+
+    public void SelectGameModeDoubleTime(Toggle thisToggle)
+    {
+        // Turn on double time.
+        bool modeIsSelected = thisToggle.isOn;
+
+        if (modeIsSelected)
+        {
+            selectedGameModes |= GameMode.TIME_DOUBLE; // Add flag
+        }
+        else
+        {
+            selectedGameModes &= ~GameMode.TIME_DOUBLE; // Remove flag
+        }
+
+
+        // Turn off half time.
+        halfTimeToggle.SetIsOnWithoutNotify(false);
+        selectedGameModes &= ~GameMode.TIME_HALF; // Remove flag
+    }
+
+    #endregion Time
 }

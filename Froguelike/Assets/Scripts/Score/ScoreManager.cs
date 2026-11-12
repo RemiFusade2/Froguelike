@@ -68,7 +68,7 @@ public class ScoreManager : MonoBehaviour
     /// <param name="chaptersPlayed"></param>
     /// <param name="playedCharacter"></param>
     /// <param name="ownedItems"></param>
-    public void ShowScores(List<Chapter> chaptersPlayed, int[] chapterKillCounts, PlayableCharacter playedCharacter, List<RunItemInfo> ownedItems, List<Achievement> unlockedAchievements, int playedTimeLatestChapter, int currencyCollected)
+    public void ShowScores(List<Chapter> chaptersPlayed, int[] chapterKillCounts, PlayableCharacter playedCharacter, List<RunItemInfo> ownedItems, List<Achievement> unlockedAchievements, int playedTimeLatestChapter, int currencyCollected, float runTimeModifier)
     {
         string scoreLog = "";
 
@@ -86,7 +86,7 @@ public class ScoreManager : MonoBehaviour
             {
                 Chapter chapter = chaptersPlayed[i];
                 int enemiesKilledCount = chapterKillCounts[i];
-                int chapterTime = Mathf.FloorToInt(chapter.chapterData.chapterLengthInSeconds);
+                int chapterTime = Mathf.FloorToInt(chapter.chapterData.chapterLengthInSeconds * runTimeModifier);
                 scoreLines[i].SetActive(true);
 
                 // Chapter number and name.
