@@ -9,12 +9,17 @@ public class RunModifierManager : MonoBehaviour
     // Singleton
     public static RunModifierManager instance;
 
-    [Header("UI References")] // TODO add all sections, should the be empty before having one option unlocked? Or just ???? 
+    [Header("UI References")] // TODO add all panels, should the be blank/hidden before having one option unlocked? Or just ???? 
     public GameObject difficultyPanel;
     public TextMeshProUGUI difficultyPanelInfoText;
     [Space]
     public Toggle halfTimeToggle;
     public Toggle doubleTimeToggle;
+    [Space]
+    public Toggle bugsUpToggle;
+    public Toggle bugsDownToggle;
+    public Toggle bugsMaxToggle;
+    public Toggle bugsMinToggle;
 
     [Header("Settings")]
     [Tooltip("1 = 100% bug buff")]
@@ -38,6 +43,7 @@ public class RunModifierManager : MonoBehaviour
     [Header("Runtime")]
     public GameMode selectedGameModes;
     public List<CollectibleSpawnFrequency> powerUpsModiferSpawnFrequencies;
+    public int bugTierModifier = 0;
 
     private void Awake()
     {
@@ -82,6 +88,7 @@ public class RunModifierManager : MonoBehaviour
     {
         selectedGameModes = GameMode.NONE;
         powerUpsModiferSpawnFrequencies.Clear();
+        bugTierModifier = 0;
     }
 
     #region Difficulty
@@ -316,7 +323,6 @@ public class RunModifierManager : MonoBehaviour
             selectedGameModes &= ~GameMode.TIME_HALF; // Remove flag
         }
 
-
         // Turn off double time. set toggle
         doubleTimeToggle.SetIsOnWithoutNotify(false);
         selectedGameModes &= ~GameMode.TIME_DOUBLE; // Remove flag
@@ -336,11 +342,106 @@ public class RunModifierManager : MonoBehaviour
             selectedGameModes &= ~GameMode.TIME_DOUBLE; // Remove flag
         }
 
-
         // Turn off half time.
         halfTimeToggle.SetIsOnWithoutNotify(false);
         selectedGameModes &= ~GameMode.TIME_HALF; // Remove flag
     }
 
     #endregion Time
+
+    #region Bug tier
+
+    public void SelectGameModeBugTierUp(Toggle thisToggle)
+    {
+        // Turn on bugs up.
+        bool modeIsSelected = thisToggle.isOn;
+
+        if (modeIsSelected)
+        {
+            selectedGameModes |= GameMode.BUGS_UP; // Add flag
+        }
+        else
+        {
+            selectedGameModes &= ~GameMode.BUGS_UP; // Remove flag
+        }
+
+        // Turn off the other bug tier modifiers.
+        bugsDownToggle.SetIsOnWithoutNotify(false);
+        bugsMaxToggle.SetIsOnWithoutNotify(false);
+        bugsMinToggle.SetIsOnWithoutNotify(false);
+        selectedGameModes &= ~GameMode.BUGS_DOWN; // Remove flag
+        selectedGameModes &= ~GameMode.BUGS_MAX; // Remove flag
+        selectedGameModes &= ~GameMode.BUGS_MIN; // Remove flag
+    }
+
+    public void SelectGameModeBugTierDown(Toggle thisToggle)
+    {
+        // Turn on bugs down.
+        bool modeIsSelected = thisToggle.isOn;
+
+        if (modeIsSelected)
+        {
+            selectedGameModes |= GameMode.BUGS_DOWN; // Add flag
+        }
+        else
+        {
+            selectedGameModes &= ~GameMode.BUGS_DOWN; // Remove flag
+        }
+
+        // Turn off the other bug tier modifiers.
+        bugsUpToggle.SetIsOnWithoutNotify(false);
+        bugsMaxToggle.SetIsOnWithoutNotify(false);
+        bugsMinToggle.SetIsOnWithoutNotify(false);
+        selectedGameModes &= ~GameMode.BUGS_UP; // Remove flag
+        selectedGameModes &= ~GameMode.BUGS_MAX; // Remove flag
+        selectedGameModes &= ~GameMode.BUGS_MIN; // Remove flag
+    }
+
+    public void SelectGameModeBugTierMax(Toggle thisToggle)
+    {
+        // Turn on bugs max.
+        bool modeIsSelected = thisToggle.isOn;
+
+        if (modeIsSelected)
+        {
+            selectedGameModes |= GameMode.BUGS_MAX; // Add flag
+        }
+        else
+        {
+            selectedGameModes &= ~GameMode.BUGS_MAX; // Remove flag
+        }
+
+        // Turn off the other bug tier modifiers.
+        bugsUpToggle.SetIsOnWithoutNotify(false);
+        bugsDownToggle.SetIsOnWithoutNotify(false);
+        bugsMinToggle.SetIsOnWithoutNotify(false);
+        selectedGameModes &= ~GameMode.BUGS_UP; // Remove flag
+        selectedGameModes &= ~GameMode.BUGS_DOWN; // Remove flag
+        selectedGameModes &= ~GameMode.BUGS_MIN; // Remove flag
+    }
+
+    public void SelectGameModeBugTierMin(Toggle thisToggle)
+    {
+        // Turn on bugs min.
+        bool modeIsSelected = thisToggle.isOn;
+
+        if (modeIsSelected)
+        {
+            selectedGameModes |= GameMode.BUGS_MIN; // Add flag
+        }
+        else
+        {
+            selectedGameModes &= ~GameMode.BUGS_MIN; // Remove flag
+        }
+
+        // Turn off the other bug tier modifiers.
+        bugsUpToggle.SetIsOnWithoutNotify(false);
+        bugsDownToggle.SetIsOnWithoutNotify(false);
+        bugsMaxToggle.SetIsOnWithoutNotify(false);
+        selectedGameModes &= ~GameMode.BUGS_UP; // Remove flag
+        selectedGameModes &= ~GameMode.BUGS_DOWN; // Remove flag
+        selectedGameModes &= ~GameMode.BUGS_MAX; // Remove flag
+    }
+
+    #endregion Bug tier
 }

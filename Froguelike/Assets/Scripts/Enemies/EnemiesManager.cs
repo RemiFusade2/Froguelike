@@ -561,7 +561,7 @@ public class EnemiesManager : MonoBehaviour
         int result = 0;
         if (!formula.Contains('+') && !formula.Contains('-') && !formula.Contains('*') && !formula.Contains('/'))
         {
-            // formula doesn't contain any operation symbol, so it's either a number of the keyord "chapter"
+            // formula doesn't contain any operation symbol, so it's either a number or the keyword "chapter"
             if (formula.Equals("chapter"))
             {
                 result = chapterCount;
@@ -623,12 +623,22 @@ public class EnemiesManager : MonoBehaviour
                 return result;
             }
         }
+
         return result;
+    }
+
+    private static int ModifyFormula(int tier)
+    {
+        int modifiedTier = tier + RunModifierManager.instance.bugTierModifier;
+
+        return modifiedTier;
     }
 
     private int GetTierFromFormulaAndChapterCount(string tierFormula, int chapterCount)
     {
         int formulaValue = GetFormulaValue(tierFormula, chapterCount);
+        formulaValue = Mathf.Clamp(formulaValue, 1, 5);
+        formulaValue = ModifyFormula(formulaValue);
         return Mathf.Clamp(formulaValue, 1, 5);
     }
 

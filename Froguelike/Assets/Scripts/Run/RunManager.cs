@@ -608,6 +608,32 @@ public class RunManager : MonoBehaviour
             runTimeModifer = 2;
         }
         #endregion
+
+        // Bug tier.
+        #region
+        RunModifierManager.instance.bugTierModifier = 0;
+
+        if ((gameModes & GameMode.BUGS_UP) == GameMode.BUGS_UP)
+        {
+            RunModifierManager.instance.bugTierModifier = 1;
+        }
+
+        if ((gameModes & GameMode.BUGS_DOWN) == GameMode.BUGS_DOWN)
+        {
+            RunModifierManager.instance.bugTierModifier = -1;
+        }
+
+        if ((gameModes & GameMode.BUGS_MAX) == GameMode.BUGS_MAX)
+        {
+            RunModifierManager.instance.bugTierModifier = 5;
+        }
+
+        if ((gameModes & GameMode.BUGS_MIN) == GameMode.BUGS_MIN)
+        {
+            RunModifierManager.instance.bugTierModifier = -5;
+        }
+
+        #endregion
     }
 
     public void StartNewRun(PlayableCharacter character, GameMode gameModes, Chapter startingChapter = null)
@@ -1288,6 +1314,7 @@ public class RunManager : MonoBehaviour
     public void EndRun()
     {
         GameManager.instance.isGameRunning = false;
+        RunModifierManager.instance.ResetModifiers(); // TODO is this a good place for this? it will mean modifiers are reset between runs
 
         // Show score screen
         ComputeScore();
