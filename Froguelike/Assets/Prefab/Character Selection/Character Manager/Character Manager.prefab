@@ -44,6 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c98ef743f16f2f242b7f1ebf68169d8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  logsVerboseLevel: 0
+  showLockedCharacters: 0
   charactersScriptableObjectsList:
   - {fileID: 11400000, guid: e12bbdd99d50ae74ba6dbf789aa002a8, type: 2}
   - {fileID: 11400000, guid: 48bf8a1f6fb11cd4aba4d9e2e54c2f11, type: 2}
@@ -52,39 +54,35 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5ab0e6d6ba86eaa49b03dd06719d4e52, type: 2}
   - {fileID: 11400000, guid: 8532a20df8a530548b6aa40feab1c90b, type: 2}
   - {fileID: 11400000, guid: 63cab506d07186443bfd2babb7702689, type: 2}
-  charactersButtonsList:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  charactersImagesList:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  charactersNamesTextList:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  charactersDescriptionTextList:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  charactersDefaultTextColor: {r: 0.16862746, g: 0.16470589, b: 0.2784314, a: 1}
-  charactersHintTextColor: {r: 0.44705886, g: 0.5254902, b: 0.5921569, a: 1}
+  - {fileID: 11400000, guid: 1575006db245f2e42894ab54e8e672ac, type: 2}
+  startButton: {fileID: 0}
+  backButton: {fileID: 0}
+  characterListContent: {fileID: 0}
+  characterListGridLayoutGroup: {fileID: 0}
+  characterListScrollRect: {fileID: 0}
+  characterListScrollbar: {fileID: 0}
+  characterName: {fileID: 0}
+  statsListContent: {fileID: 0}
+  statsListGridLayoutGroup: {fileID: 0}
+  statsListScrollRect: {fileID: 0}
+  statListScrollbar: {fileID: 0}
+  hideShopStats: {fileID: 0}
+  difficultyPanel1: {fileID: 0}
+  difficultyPanel1InfoText: {fileID: 0}
+  difficultyPanel2: {fileID: 0}
+  difficultyPanel2InfoText: {fileID: 0}
+  characterPanelPrefab: {fileID: 0}
+  statLinePrefab: {fileID: 0}
   charactersData:
     charactersList: []
+    availableGameModes: 0
+  currentSelectedCharacter:
+    characterID: 
+    characterStatsIncrements:
+      statsList: []
+    unlocked: 0
+    hidden: 0
+    runStartedWith: 0
+    wonWith: 0
+    storyCompleted: 0
+  selectedGameModes: 0

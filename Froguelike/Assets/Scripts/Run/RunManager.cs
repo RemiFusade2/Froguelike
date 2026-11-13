@@ -2006,6 +2006,18 @@ public class RunManager : MonoBehaviour
                 {
                     // A permanent upgrade
                     description = (item as RunPermanentUpgradeItemData).description;
+
+                    if (description.Contains("[FROGNAME]"))
+                    {
+                        if (currentPlayedCharacter.characterData.characterName.Equals("Minifrog"))
+                        {
+                            description = description.Replace("[FROGNAME]", "Minifrog, twice!");
+                        }
+                        else
+                        {
+                            description = description.Replace("[FROGNAME]", currentPlayedCharacter.characterData.characterName + " and Minifrog");
+                        }
+                    }
                 }
 
                 levelUpChoicesPanels[index].description.text = description.Replace("\\n", "\n");

@@ -614,7 +614,15 @@ public class CharacterManager : MonoBehaviour
         charactersData.availableGameModes = saveData.availableGameModes;
         foreach (PlayableCharacter character in charactersData.charactersList)
         {
-            PlayableCharacter characterFromSave = saveData.charactersList.First(x => x.characterID.Equals(character.characterID));
+            PlayableCharacter characterFromSave = null;
+            try
+            {
+                characterFromSave = saveData.charactersList.First(x => x.characterID.Equals(character.characterID));
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning("Save file didn't contain info for character: " + character.characterID + " ; Exception = " + ex.Message);
+            }
             if (characterFromSave != null)
             {
                 character.unlocked = characterFromSave.unlocked;
@@ -693,9 +701,11 @@ public class CharacterManager : MonoBehaviour
     public void IncrementCharacterStats(string characterID, List<StatValue> changedStatsValues)
     {
         PlayableCharacter character = charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals(characterID));
+        PlayableCharacter minifrogCharacter = charactersData.charactersList.FirstOrDefault(x => x.characterID.Equals("MINIFROG"));
         if (character != null)
         {
             character.characterStatsIncrements = StatsWrapper.JoinLists(character.characterStatsIncrements, changedStatsValues);
+            minifrogCharacter.characterStatsIncrements = StatsWrapper.JoinLists(minifrogCharacter.characterStatsIncrements, changedStatsValues);
             SaveDataManager.instance.isSaveDataDirty = true;
         }
     }
