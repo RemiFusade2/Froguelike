@@ -9,17 +9,27 @@ public class RunModifierManager : MonoBehaviour
     // Singleton
     public static RunModifierManager instance;
 
+    public PanelBehaviour panelBehaviour;
+
     [Header("UI References")] // TODO add all panels, should the be blank/hidden before having one option unlocked? Or just ???? 
     public GameObject difficultyPanel;
     public TextMeshProUGUI difficultyPanelInfoText;
     [Space]
+    public GameObject timePanel;
     public Toggle halfTimeToggle;
     public Toggle doubleTimeToggle;
     [Space]
+    public GameObject bugTierPanel;
     public Toggle bugsUpToggle;
     public Toggle bugsDownToggle;
     public Toggle bugsMaxToggle;
     public Toggle bugsMinToggle;
+    [Space]
+    public GameObject powerupPanel;
+    [Space]
+    public GameObject eternalsPanel;
+    [Space]
+    public GameObject hatPanel;
 
     [Header("Settings")]
     [Tooltip("1 = 100% bug buff")]
@@ -60,12 +70,20 @@ public class RunModifierManager : MonoBehaviour
 
     public void UpdateModifierScreen()
     {
-        difficultyPanel.SetActive(true);
-        // ResetDifficulty();
-        difficultyPanel.GetComponent<DifficultyPanelBehaviour>().SetToggleCheckmarks(GetSelectedGameModes());
+        panelBehaviour.SetAllCheckmarks(GetSelectedGameModes());
+
+        difficultyPanel.SetActive(true); // TODO depending on if it is unlocked
         DisplayDifficultyInfo(GetSelectedGameModes());
 
-        // TODO add hiding locked modifiers.
+        timePanel.SetActive(true); // TODO depending on if it is unlocked
+
+        bugTierPanel.SetActive(true); // TODO depending on if it is unlocked
+
+        powerupPanel.SetActive(true); // TODO depending on if it is unlocked
+
+        // eternalsPanel.SetActive(true); // TODO depending on if it is unlocked
+
+        // hatPanel.SetActive(true); // TODO depending on if it is unlocked
     }
 
     public bool IsGameModeUnlocked(GameMode gameMode)
@@ -89,6 +107,7 @@ public class RunModifierManager : MonoBehaviour
         selectedGameModes = GameMode.NONE;
         powerUpsModiferSpawnFrequencies.Clear();
         bugTierModifier = 0;
+
     }
 
     #region Difficulty

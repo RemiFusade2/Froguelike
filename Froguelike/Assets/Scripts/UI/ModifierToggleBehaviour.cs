@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class DifficultyToggleBehaviour : MonoBehaviour
+public class ModifierToggleBehaviour : MonoBehaviour
 {
     [Header("References")]
     public Toggle toggle;

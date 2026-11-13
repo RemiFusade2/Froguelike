@@ -32,7 +32,8 @@ public enum GameMode
     POWER_UP_PARTY = 1 << 14,
     POWER_UP_GOOP = 1 << 15,
     POWER_UP_UP = 1 << 16,
-    POWER_UP_DOWN = 1 << 17
+    POWER_UP_DOWN = 1 << 17,
+    IGNORE_ETERNALS = 1 << 18
 }
 
 [System.Serializable]
@@ -1314,7 +1315,7 @@ public class RunManager : MonoBehaviour
     public void EndRun()
     {
         GameManager.instance.isGameRunning = false;
-        RunModifierManager.instance.ResetModifiers(); // TODO is this a good place for this? it will mean modifiers are reset between runs
+        // RunModifierManager.instance.ResetModifiers(); // TODO is this a good place for this? it will mean modifiers are reset between runs
 
         // Show score screen
         ComputeScore();
