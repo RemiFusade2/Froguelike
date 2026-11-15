@@ -68,7 +68,7 @@ public class ScoreManager : MonoBehaviour
     /// <param name="chaptersPlayed"></param>
     /// <param name="playedCharacter"></param>
     /// <param name="ownedItems"></param>
-    public void ShowScores(List<Chapter> chaptersPlayed, int[] chapterKillCounts, PlayableCharacter playedCharacter, List<RunItemInfo> ownedItems, List<Achievement> unlockedAchievements, int playedTimeLatestChapter, int currencyCollected, float runTimeModifier)
+    public void ShowScores(List<Chapter> chaptersPlayed, int[] chapterKillCounts, PlayableCharacter playedCharacter, List<RunItemInfo> ownedItems, List<Achievement> unlockedAchievements, int playedTimeLatestChapter, int currencyCollected, float runTimeModifier, bool isEndlessMode = false)
     {
         string scoreLog = "";
 
@@ -80,42 +80,66 @@ public class ScoreManager : MonoBehaviour
         // Display every played chapter and its kill count
         int totalScore = 0;
         int totalTime = 0;
-        for (int i = 0; i < chaptersPlayed.Count; i++)
+        if (!isEndlessMode)
         {
-            if (i < chaptersTextList.Count && i < chaptersScoreTextList.Count)
+            for (int i = 0; i < chaptersPlayed.Count; i++)
             {
-                Chapter chapter = chaptersPlayed[i];
-                int enemiesKilledCount = chapterKillCounts[i];
-                int chapterTime = Mathf.FloorToInt(chapter.chapterData.chapterLengthInSeconds * runTimeModifier);
-                scoreLines[i].SetActive(true);
-
-                // Chapter number and name.
-                chaptersTextList[i].text = "Chapter " + (i + 1) + "\n          " + chapter.chapterData.chapterTitle;
-
-                // Flies eaten.
-                chaptersScoreTextList[i].text = enemiesKilledCount.ToString();
-                totalScore += enemiesKilledCount;
-
-                // Chapter time.
-                if (i == chaptersPlayed.Count - 1 && playedTimeLatestChapter != chapterTime)
+                if (i < chaptersTextList.Count && i < chaptersScoreTextList.Count)
                 {
-                    // For the last chapter if the run was not won.
-                    int chapterMinutes = playedTimeLatestChapter / 60;
-                    int chapterSeconds = playedTimeLatestChapter % 60;
-                    chaptersTimeTextList[i].text = chapterMinutes.ToString("00") + ":" + chapterSeconds.ToString("00");
-                    totalTime += playedTimeLatestChapter;
-                }
-                else
-                {
-                    int chapterMinutes = chapterTime / 60;
-                    int chapterSeconds = chapterTime % 60;
-                    chaptersTimeTextList[i].text = chapterMinutes.ToString("00") + ":" + chapterSeconds.ToString("00");
-                    totalTime += chapterTime;
-                }
+                    Chapter chapter = chaptersPlayed[i];
+                    int enemiesKilledCount = chapterKillCounts[i];
+                    int chapterTime = Mathf.FloorToInt(chapter.chapterData.chapterLengthInSeconds * runTimeModifier);
+                    scoreLines[i].SetActive(true);
 
-                scoreLog += $"Chapter {i} - {chapter.chapterID} - Kills: {enemiesKilledCount}\n";
+                    // Chapter number and name.
+                    chaptersTextList[i].text = "Chapter " + (i + 1) + "\n          " + chapter.chapterData.chapterTitle;
+
+                    // Flies eaten.
+                    chaptersScoreTextList[i].text = enemiesKilledCount.ToString();
+                    totalScore += enemiesKilledCount;
+
+                    // Chapter time.
+                    if (i == chaptersPlayed.Count - 1 && playedTimeLatestChapter != chapterTime)
+                    {
+                        // For the last chapter if the run was not won.
+                        int chapterMinutes = playedTimeLatestChapter / 60;
+                        int chapterSeconds = playedTimeLatestChapter % 60;
+                        chaptersTimeTextList[i].text = chapterMinutes.ToString("00") + ":" + chapterSeconds.ToString("00");
+                        totalTime += playedTimeLatestChapter;
+                    }
+                    else
+                    {
+                        int chapterMinutes = chapterTime / 60;
+                        int chapterSeconds = chapterTime % 60;
+                        chaptersTimeTextList[i].text = chapterMinutes.ToString("00") + ":" + chapterSeconds.ToString("00");
+                        totalTime += chapterTime;
+                    }
+
+                    scoreLog += $"Chapter {i} - {chapter.chapterID} - Kills: {enemiesKilledCount}\n";
+                }
             }
         }
+        else
+        {
+            // Endless
+            scoreLines[0].SetActive(true);
+
+            // Chapter number and name.
+            chaptersTextList[0].text = "Chapter 1 - \nEndless";
+
+            // Flies eaten.
+            chaptersScoreTextList[0].text = chapterKillCounts[0].ToString();
+
+            // Chapter time.
+            // For the last chapter if the run was not won.
+            totalTime = playedTimeLatestChapter;
+            int chapterMinutes = playedTimeLatestChapter / 60;
+            int chapterSeconds = playedTimeLatestChapter % 60;
+            chaptersTimeTextList[0].text = chapterMinutes.ToString("00") + ":" + chapterSeconds.ToString("00");
+
+            scoreLog += $"Chapter - Endless - Kills: {chapterKillCounts[0]}\n"; // TODO
+        }
+
         // Display total kill count
         scoreLog += $"-> Total score: {totalScore}\n";
         totalScoreText.text = totalScore.ToString();

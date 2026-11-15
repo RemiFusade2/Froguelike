@@ -661,7 +661,8 @@ public class EnemiesManager : MonoBehaviour
     /// <param name="bountyBugData">EnemyData contains data about the enemy to spawn</param>
     public void TrySpawnBounty(int bountyID, BountyBug bountyBug)
     {
-        if (RunManager.instance.currentChapter != null && RunManager.instance.currentChapter.chapterData != null && !RunManager.instance.IsChapterTimeOver())
+        if ((RunManager.instance.currentChapter != null && RunManager.instance.currentChapter.chapterData != null && !RunManager.instance.IsChapterTimeOver())
+            || (RunManager.instance.IsCurrentRunEndless()))
         {
             if (spawnedBugsWithBountiesIDs != null && !spawnedBugsWithBountiesIDs.Contains(bountyID))
             {
@@ -687,12 +688,8 @@ public class EnemiesManager : MonoBehaviour
 
     public void TrySpawnWave(WaveData currentWave)
     {
-        if (RunManager.instance.currentChapter != null && RunManager.instance.currentChapter.chapterData != null && !RunManager.instance.IsChapterTimeOver())
+        if ((RunManager.instance.IsCurrentRunEndless() || (RunManager.instance.currentChapter != null && RunManager.instance.currentChapter.chapterData != null)) && !RunManager.instance.IsChapterTimeOver())
         {
-            // TODO: remove log
-            string log = $"TrySpawnWave from chapter {RunManager.instance.currentChapter.chapterID}. Current wave is {currentWave.ToString()}";
-            bool showLog = false;
-
             // Here's a table to describe the figurine curse:
             // - Curse -100% =  Spawn halved     =  Spawn cooldown doubled (delay factor = 2) 
             // - Curse 0%    =  Spawn untouched  =  Spawn cooldown untouched (delay factor = 1)
@@ -721,19 +718,19 @@ public class EnemiesManager : MonoBehaviour
                 if (spawn)
                 {
                     // If spawn cooldown is over, then spawn!
-                    log += $"\nSpawning enemy: {enemySpawn}. Last spawn time = {lastSpawnTime}. Delay between spawns = {delayBetweenSpawns}";
-                    showLog = true;
+                    /*log += $"\nSpawning enemy: {enemySpawn}. Last spawn time = {lastSpawnTime}. Delay between spawns = {delayBetweenSpawns}";
+                    showLog = true;*/
 
                     // Get EnemyData & prefab according to relevant difficulty tier
                     int difficultyTier = GetTierFromFormulaAndChapterCount(enemySpawn.tierFormula, RunManager.instance.GetChapterCount());
                     EnemyData enemyData = GetEnemyDataFromTypeAndDifficultyTier(enemySpawn.enemyType, difficultyTier);
                     GameObject enemyPrefab = enemyData.prefab;
 
-                    log += $". enemyPrefab = {enemyPrefab}";
+                    //log += $". enemyPrefab = {enemyPrefab}";
 
                     /// Get spawn pattern info
                     SpawnPattern spawnPattern = enemySpawn.spawnPattern;
-                    log += $". spawnPattern = {spawnPattern}";
+                    //log += $". spawnPattern = {spawnPattern}";
                     // Spawn type
                     SpawnPatternType spawnPatternType = spawnPattern.spawnPatternType; // The type of spawn pattern (random, chunk, shape)
                     // Spawn position settings
@@ -779,7 +776,7 @@ public class EnemiesManager : MonoBehaviour
                     float currentDelay = 0;
                     Vector3 spawnPosition = Vector3.zero;
 
-                    log += $". spawnPatternType = {spawnPatternType}";
+                    //log += $". spawnPatternType = {spawnPatternType}";
                     switch (spawnPatternType)
                     {
                         case SpawnPatternType.CHUNK:
@@ -797,16 +794,16 @@ public class EnemiesManager : MonoBehaviour
                         case SpawnPatternType.SHAPE:
 
                             Vector3 shapePositionRelativeToFrog = Vector3.zero;
-                            log += $". shapePositionRelativeToFrog = {shapePositionRelativeToFrog.ToString("0.00")}";
+                            //log += $". shapePositionRelativeToFrog = {shapePositionRelativeToFrog.ToString("0.00")}";
 
-                            log += $". spawnPatternShape = {spawnPatternShape}";
+                            //log += $". spawnPatternShape = {spawnPatternShape}";
                             if (spawnPatternShape == SpawnShape.STRAIGHT_LINE || spawnPatternShape == SpawnShape.WAVE_LINE || spawnPatternShape == SpawnShape.SPRITE)
                             {
                                 // Lines and sprites can't be centered on frog, they have to spawn further
                                 spawnShapeCenteredOnFrog = false;
                             }
 
-                            log += $". spawnShapeCenteredOnFrog = {spawnShapeCenteredOnFrog}";
+                            //log += $". spawnShapeCenteredOnFrog = {spawnShapeCenteredOnFrog}";
                             if (spawnShapeCenteredOnFrog)
                             {
                                 // Shape is centered on the frog
@@ -814,9 +811,9 @@ public class EnemiesManager : MonoBehaviour
                             else
                             {
                                 // Shape is placed somewhere further around the frog
-                                log += $". spawnOverrideDefaultSpawnPosition = {spawnOverrideDefaultSpawnPosition}";
-                                log += $". spawnPositionAngle = {spawnPositionAngle}";
-                                log += $". spawnPositionSpread = {spawnPositionSpread}";
+                                //log += $". spawnOverrideDefaultSpawnPosition = {spawnOverrideDefaultSpawnPosition}";
+                                //log += $". spawnPositionAngle = {spawnPositionAngle}";
+                                //log += $". spawnPositionSpread = {spawnPositionSpread}";
                                 if (GetSpawnPosition(GameManager.instance.player.transform.position, GameManager.instance.player.GetMoveDirection(), out spawnPosition, overrideDirection: spawnOverrideDefaultSpawnPosition, overridenDirectionAngle: spawnPositionAngle, overridenDirectionSpread: spawnPositionSpread))
                                 {
                                     // Here we got a position, but we'll need to push it a bit further depending on how big is the shape
@@ -836,8 +833,8 @@ public class EnemiesManager : MonoBehaviour
                                     }
                                 }
                             }
-                            log += $". spawnShapeCenteredOnFrog = {spawnShapeCenteredOnFrog}";
-                            log += $". spawnPosition = {spawnPosition.ToString("0.00")}";
+                            //log += $". spawnShapeCenteredOnFrog = {spawnShapeCenteredOnFrog}";
+                            //log += $". spawnPosition = {spawnPosition.ToString("0.00")}";
 
                             // Special case: if bug movement pattern is straight line and if shape is not centered on frog, then we'll force movement direction to keep the shape intact
                             bool forceMovementDirection = false;
@@ -849,7 +846,7 @@ public class EnemiesManager : MonoBehaviour
                             }
 
                             float angleInDegrees;
-                            log += $". spawnPatternShape = {spawnPatternShape}";
+                            //log += $". spawnPatternShape = {spawnPatternShape}";
                             switch (spawnPatternShape)
                             {
                                 case SpawnShape.NONE:
@@ -927,7 +924,7 @@ public class EnemiesManager : MonoBehaviour
                                     break;
                                 case SpawnShape.STRAIGHT_LINE:
 
-                                    log += $". Switch SpawnShape.STRAIGHT_LINE:";
+                                    //log += $". Switch SpawnShape.STRAIGHT_LINE:";
 
                                     // spawnShapeLineAngle == 0 means aligned with vector from frog
                                     float straightLineAngle = Vector3.Angle(Vector3.right, shapePositionRelativeToFrog) + spawnShapeLineAngle;
@@ -1117,10 +1114,11 @@ public class EnemiesManager : MonoBehaviour
                 }
             }
 
+            /*
             if (verbose == VerboseLevel.MAXIMAL && showLog)
             {
                 Debug.Log(log);
-            }
+            }*/
         }
     }
 
@@ -1436,6 +1434,10 @@ public class EnemiesManager : MonoBehaviour
 
         // Game mode HP multiplier
         enemyInstance.HPMax *= RunManager.instance.gameModeBugHPMultiplier;
+        if (RunManager.instance.IsCurrentRunEndless())
+        {
+            enemyInstance.HPMax *= (1 + (RunManager.instance.CurrentRunPlayTime() / 1200)); // double in 20mn
+        }
 
         enemyInstance.damageMultiplier = damageMultiplier;
         enemyInstance.xpMultiplier = xpMultiplier;
@@ -2189,7 +2191,11 @@ public class EnemiesManager : MonoBehaviour
     public void ApplyFreezeEffect(EnemyInstance enemy, float duration)
     {
         // SPECIAL CASE: CURRENT PLAYED CHAPTER MAY HAVE A FREEZE DURATION MULTIPLIER
-        float realDuration = duration * RunManager.instance.currentChapter.chapterData.freezeDurationMultiplier;
+        float realDuration = duration;
+        if (RunManager.instance.currentChapter != null && RunManager.instance.currentChapter.chapterData != null)
+        {
+            realDuration = duration * RunManager.instance.currentChapter.chapterData.freezeDurationMultiplier;
+        }
 
         enemy.freezeRemainingTime = realDuration;
         SetOverlayColor(enemy, frozenOverlayColor, 0.3f);
@@ -2466,6 +2472,12 @@ public class EnemiesManager : MonoBehaviour
 
         // Game mode speed multiplier
         actualSpeed *= RunManager.instance.gameModeBugSpeedMultiplier;
+        if (RunManager.instance.IsCurrentRunEndless())
+        {
+            float endlessSpeedMultiplier = (1 + (RunManager.instance.CurrentRunPlayTime() / 2400)); // double in 40mn
+            endlessSpeedMultiplier = Mathf.Clamp(endlessSpeedMultiplier, 1, 2); // not more than *2
+            actualSpeed *= endlessSpeedMultiplier;
+        }
 
         float maximumSpeed = 8;
         bool clampToMaxSpeed = true;
@@ -2671,14 +2683,20 @@ public class EnemiesManager : MonoBehaviour
             {
                 Vector3 xpSpawnPosition = enemyInstance.enemyTransform.position - 0.1f * Vector3.up;
                 float XPEarned = enemyInstance.enemyInfo.enemyData.xPBonus;
-                float RealXPEarner = XPEarned * enemyInstance.xpMultiplier;
-                
-                if (applyXPEffect)
+                float RealXPEarned = XPEarned * enemyInstance.xpMultiplier;
+
+                if (RunManager.instance.IsCurrentRunEndless())
                 {
-                    RealXPEarner += tongue.xpEffect;
+                    RealXPEarned *= (1 + (RunManager.instance.CurrentRunPlayTime() / 600)); // XP double every 10mn
                 }
 
-                float xpCounter = RealXPEarner;
+                if (applyXPEffect)
+                {
+                    RealXPEarned += tongue.xpEffect;
+                }
+
+
+                float xpCounter = RealXPEarned;
                 Vector2 randomPointInCircle = Vector2.zero;
                 do
                 {

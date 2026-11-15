@@ -951,6 +951,14 @@ public class ChapterManager : MonoBehaviour
         StartChapter(chapterInfo);
     }
 
+    public void StartEndless()
+    {
+        // No need to store any information about chapter starting: this is endless mode, we ignore chapters
+
+        // Tell the RunManager to start the endless mode
+        RunManager.instance.StartEndless();
+    }
+
     public void StartChapter(Chapter chapter)
     {
         // Save information about the current character attempting to play that chapter        
@@ -1140,7 +1148,14 @@ public class ChapterManager : MonoBehaviour
         // Debug log
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
-            Debug.Log("Chapter - Start screen - " + chapter.chapterID);
+            if (chapter != null)
+            {
+                Debug.Log("Chapter - Start screen - " + chapter.chapterID);
+            }
+            else
+            {
+                Debug.Log("Chapter - Start screen - No chapter");
+            }
         }
 
         if (fadeOutChapterStartScreenCoroutine != null)
@@ -1154,7 +1169,14 @@ public class ChapterManager : MonoBehaviour
         // Display title
         chapterStartTopText.text = "Chapter " + chapterCount.ToString();
         chapterStartTopText.color = new Color(chapterStartTopText.color.r, chapterStartTopText.color.g, chapterStartTopText.color.b, 1);
-        chapterStartBottomText.text = chapter.chapterData.chapterTitle;
+        if (chapter != null)
+        {
+            chapterStartBottomText.text = chapter.chapterData.chapterTitle;
+        }
+        else
+        {
+            chapterStartBottomText.text = "ENDLESS";
+        }
         chapterStartBottomText.color = new Color(chapterStartBottomText.color.r, chapterStartBottomText.color.g, chapterStartBottomText.color.b, 1);
 
         // Display icons        
@@ -1162,11 +1184,14 @@ public class ChapterManager : MonoBehaviour
         {
             chapterStartIconsImageList[i].gameObject.SetActive(false);
         }
-        for (int i = 0; i < chapter.chapterData.icons.Count; i++)
+        if (chapter != null)
         {
-            chapterStartIconsImageList[i].color = new Color(chapterStartIconsImageList[i].color.r, chapterStartIconsImageList[i].color.g, chapterStartIconsImageList[i].color.b, 1);
-            chapterStartIconsImageList[i].gameObject.SetActive(true);
-            chapterStartIconsImageList[i].sprite = chapter.chapterData.icons[i];
+            for (int i = 0; i < chapter.chapterData.icons.Count; i++)
+            {
+                chapterStartIconsImageList[i].color = new Color(chapterStartIconsImageList[i].color.r, chapterStartIconsImageList[i].color.g, chapterStartIconsImageList[i].color.b, 1);
+                chapterStartIconsImageList[i].gameObject.SetActive(true);
+                chapterStartIconsImageList[i].sprite = chapter.chapterData.icons[i];
+            }
         }
 
         UIManager.instance.ShowChapterStart();

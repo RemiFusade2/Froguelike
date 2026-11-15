@@ -33,7 +33,8 @@ public enum GameMode
     POWER_UP_GOOP = 1 << 15,
     POWER_UP_UP = 1 << 16,
     POWER_UP_DOWN = 1 << 17,
-    IGNORE_ETERNALS = 1 << 18
+    IGNORE_ETERNALS = 1 << 18,
+    TIME_ENDLESS = 1 << 19
 }
 
 [System.Serializable]
@@ -362,9 +363,13 @@ public class RunManager : MonoBehaviour
     private float runPlayTime;
     private float runTotalTime; // pause time included
     private float runTimeModifer; // Used to modify a chapters time.
+    private bool runIsEndless; // ENDLESS MODE!
+    private int endlessModeBountyCount;
 
     private Coroutine setCurrencyTextMeshColorCoroutine;
     private Coroutine setExtraLivesTextMeshColorCoroutine;
+
+    private WaveData currentWaveEndlessMode;
 
     #region Unity Callback Methods
 
@@ -392,20 +397,54 @@ public class RunManager : MonoBehaviour
         runPlayTime += Time.deltaTime;
         runTotalTime += Time.unscaledDeltaTime;
 
-        if (GameManager.instance.isGameRunning && currentChapter != null && Time.timeScale > 0)
+        if (GameManager.instance.isGameRunning && (currentChapter != null || IsCurrentRunEndless()) && Time.timeScale > 0)
         {
             // Spawn current wave
             EnemiesManager.instance.TrySpawnWave(GetCurrentWave());
 
             // Spawn bounties
-            int playedTimeThisChapter = Mathf.RoundToInt(currentChapter.chapterData.chapterLengthInSeconds - chapterRemainingTime);
-            float delayDuringWhichWeTryToSpawnBounties = 5; // For 5 seconds after bounty spawn time, we try to spawn bounty
-            for (int i = 0; i < currentChapter.chapterData.bountyBugs.Count; i++)
+            if (currentChapter != null)
             {
-                BountyBug bounty = currentChapter.chapterData.bountyBugs[i];
-                if (playedTimeThisChapter >= bounty.spawnTime && playedTimeThisChapter <= bounty.spawnTime + delayDuringWhichWeTryToSpawnBounties)
+                int playedTimeThisChapter = Mathf.RoundToInt(currentChapter.chapterData.chapterLengthInSeconds - chapterRemainingTime);
+                float delayDuringWhichWeTryToSpawnBounties = 5; // For 5 seconds after bounty spawn time, we try to spawn bounty
+                for (int i = 0; i < currentChapter.chapterData.bountyBugs.Count; i++)
                 {
-                    EnemiesManager.instance.TrySpawnBounty(i, bounty);
+                    BountyBug bounty = currentChapter.chapterData.bountyBugs[i];
+                    if (playedTimeThisChapter >= bounty.spawnTime && playedTimeThisChapter <= bounty.spawnTime + delayDuringWhichWeTryToSpawnBounties)
+                    {
+                        EnemiesManager.instance.TrySpawnBounty(i, bounty);
+                    }
+                }
+            }
+            else if (IsCurrentRunEndless())
+            {
+                // In endless mode, we spawn random bounties sometimes. One every 2 minutes
+                int playedTime = Mathf.RoundToInt(runPlayTime);
+                int equivalentChapterCount = (playedTime / 300) + 1;
+                if (playedTime / 120 > endlessModeBountyCount)
+                {
+                    EnemyType bountyType = EnemyType.PLANT;
+                    while (bountyType == EnemyType.PLANT)
+                    {
+                        bountyType = (EnemyType)Random.Range(0, 6);
+                    }
+
+                    EnemyMovePattern bountyMovePattern = new EnemyMovePattern(EnemyMovePatternType.FOLLOW_PLAYER, Random.Range(1.2f, 1.8f));
+                    BountyBug randomBounty = new BountyBug(bountyType,
+                        overrideHealthMultiplier: false, healthMultiplier: 10,
+                        overrideDamageMultiplier: false, damageMultiplier: 5,
+                        overrideXpMultiplier: false, xpMultiplier: 10,
+                        overrideKnockbackResistance: false, knockbackResistance: 5,
+                        movePattern: bountyMovePattern, overrideRewards: false);
+
+                    int bountyTier;
+                    bountyTier = Random.Range(1 + (equivalentChapterCount / 2), 1 + (equivalentChapterCount));
+                    bountyTier += Random.Range(-1, 2);
+                    bountyTier = Mathf.Clamp(bountyTier, 1, 5);
+                    randomBounty.tierFormula = bountyTier.ToString();
+
+                    endlessModeBountyCount++;
+                    EnemiesManager.instance.TrySpawnBounty(endlessModeBountyCount, randomBounty);
                 }
             }
 
@@ -415,13 +454,27 @@ public class RunManager : MonoBehaviour
             if (waveRemainingTime < 0)
             {
                 // When wave is finished, move on to the next one
-                currentWaveIndex = (currentWaveIndex + 1) % currentChapter.chapterData.wavesList.Count;
-                EnemiesManager.instance.InitializeWave(GetCurrentWave());
-                waveRemainingTime = GetCurrentWave().duration * runTimeModifer;
+                if (currentChapter != null)
+                {
+                    currentWaveIndex = (currentWaveIndex + 1) % currentChapter.chapterData.wavesList.Count;
+                    EnemiesManager.instance.InitializeWave(GetCurrentWave());
+                    waveRemainingTime = GetCurrentWave().duration * runTimeModifer;
+                }
+                else if (IsCurrentRunEndless())
+                {
+                    currentWaveIndex++;
+                    currentWaveEndlessMode = null;
+                    WaveData randomWaveData = GetCurrentWave();
+                    EnemiesManager.instance.InitializeWave(randomWaveData);
+                    waveRemainingTime = randomWaveData.duration;
+                }
             }
 
-            // Update condition counter
-            UpdateNextChapterConditionCount();
+            if (currentChapter != null)
+            {
+                // Update condition counter
+                UpdateNextChapterConditionCount();
+            }
         }
     }
 
@@ -429,14 +482,198 @@ public class RunManager : MonoBehaviour
 
     #region Accessors
 
+    public bool IsCurrentRunEndless()
+    {
+        return runIsEndless;
+    }
+
+    public float CurrentRunPlayTime()
+    {
+        return runPlayTime;
+    }
+
     public bool IsCurrentRunWon()
     {
         return completedChaptersList.Count >= maxChaptersInARun;
     }
 
+    private WaveData GetRandomWave()
+    {
+        WaveData result = new WaveData();
+        result.duration = 60;
+        result.enemies = new List<EnemySpawn>();
+        int playedTime = Mathf.RoundToInt(runPlayTime);
+        int equivalentChapterCount = (playedTime / 300) + 1;
+
+        int enemyCount = Random.Range(2 + (equivalentChapterCount / 2), 3 + equivalentChapterCount);
+        enemyCount = Mathf.Clamp(enemyCount, 1, 10);
+        bool atLeastOneMovingEnemy = false;
+        float enemiesPerSecond = 0;
+        float minimumEnemiesPerSecond = 7 + (playedTime / 120);
+        for (int i = 0; i < enemyCount; i++)
+        {
+            EnemySpawn enemySpawn = new EnemySpawn();
+
+            EnemyType enemyType = (EnemyType)Random.Range(0, 6);
+            if (i == enemyCount-1 && !atLeastOneMovingEnemy && enemyType == EnemyType.PLANT)
+            {
+                enemyType = EnemyType.FLY;
+            }
+            enemySpawn.enemyType = enemyType;
+
+            EnemyMovePatternType movePatternType = EnemyMovePatternType.FOLLOW_PLAYER;
+            float speedFactor = Random.Range(0.5f, 1.5f);
+            float cooldown = Random.Range(0.1f, 1.0f);
+            switch (enemyType)
+            {
+                case EnemyType.BUTTERFLY:
+                    movePatternType = (Random.Range(0, 5) == 0) ? EnemyMovePatternType.FOLLOW_PLAYER : EnemyMovePatternType.STRAIGHT_LINE;
+                    if (movePatternType == EnemyMovePatternType.STRAIGHT_LINE)
+                        speedFactor += 0.5f;
+                    atLeastOneMovingEnemy = true;
+                    break;
+                case EnemyType.MOSQUITO:
+                    movePatternType = (Random.Range(0, 5) == 0) ? EnemyMovePatternType.FOLLOW_PLAYER : EnemyMovePatternType.DIRECTIONLESS;
+                    if (movePatternType == EnemyMovePatternType.DIRECTIONLESS)
+                        speedFactor -= 0.2f;
+                    atLeastOneMovingEnemy = true;
+                    break;
+                case EnemyType.WASP:
+                    movePatternType = (Random.Range(0, 5) == 0) ? EnemyMovePatternType.FOLLOW_PLAYER : EnemyMovePatternType.BOUNCE_ON_EDGES;
+                    if (movePatternType == EnemyMovePatternType.BOUNCE_ON_EDGES)
+                    {
+                        speedFactor += 0.2f;
+                        cooldown *= 4;
+                    }
+                    atLeastOneMovingEnemy = true;
+                    break;
+                case EnemyType.PLANT:
+                    movePatternType = EnemyMovePatternType.NO_MOVEMENT;
+                    break;
+                default:
+                    atLeastOneMovingEnemy = true;
+                    break;
+            }
+
+            enemySpawn.movePattern = new EnemyMovePattern(movePatternType, speedFactor, bouncecount: Random.Range(1,5));
+
+            int tier = 1;
+            if (i > 0)
+            {
+                tier = Random.Range(1 + (playedTime / 300), 2 + (playedTime / 200));
+                tier += Random.Range(-1, 2);
+                tier = Mathf.Clamp(tier, 1, 5);
+            }
+            string tierFormula = tier.ToString();
+            enemySpawn.tierFormula = tierFormula;
+
+            int patternTypeRandomValue = Random.Range(0, 4);
+            int amount = 1;
+            SpawnPatternType patternType = SpawnPatternType.RANDOM;
+            enemySpawn.spawnPattern = new SpawnPattern();
+            if (patternTypeRandomValue <= 1)
+            {
+                patternType = SpawnPatternType.RANDOM;
+                amount = Random.Range(1, 10);
+                cooldown *= amount;
+            }
+            else if (patternTypeRandomValue == 2)
+            {
+                patternType = SpawnPatternType.CHUNK;
+                amount = Random.Range(1, 10);
+                cooldown *= amount;
+            }
+            else if (patternTypeRandomValue == 3)
+            {
+                patternType = SpawnPatternType.SHAPE;
+                SetRandomShape(enemySpawn.spawnPattern);
+                amount = enemySpawn.spawnPattern.shapeCenteredOnFrog ? Random.Range(15,50) : Random.Range(5, 10);
+                cooldown *= amount;
+            }
+
+            cooldown = Mathf.Clamp(cooldown, 0.05f, 30);
+
+            enemiesPerSecond += (amount / cooldown);
+            if (i == enemyCount - 1 && enemiesPerSecond < minimumEnemiesPerSecond)
+            {
+                amount += Mathf.FloorToInt((minimumEnemiesPerSecond - enemiesPerSecond) * cooldown);
+            }
+
+            enemySpawn.spawnCooldown = cooldown;
+            enemySpawn.spawnPattern.spawnPatternType = patternType;
+            enemySpawn.spawnPattern.spawnAmount = amount;
+
+            result.enemies.Add(enemySpawn);
+        }
+
+        return result;
+    }
+
+    private void SetRandomShape(SpawnPattern pattern)
+    {
+        pattern.shapeCenteredOnFrog = false;
+        pattern.shapeOrientationIsRandomized = true;
+        pattern.shapeOrientationMinAngle = Random.Range(0, 90.0f);
+        pattern.shapeOrientationMaxAngle = Random.Range(90, 270.0f);
+        int shapeRandomValue = Random.Range(0, 4);
+        switch(shapeRandomValue)
+        {
+            case 0:
+                pattern.spawnPatternShape = SpawnShape.CIRCLE_ARC;
+                pattern.shapeCenteredOnFrog = Random.Range(0,3) == 0;
+                pattern.circleArcRadius = pattern.shapeCenteredOnFrog ? Random.Range(20,30) : Random.Range(2, 5);
+                pattern.circleArcStartAngle = Random.Range(0, 90);
+                pattern.circleArcEndAngle = pattern.circleArcStartAngle + Random.Range(90, 270);
+                break;
+            case 1:
+                pattern.spawnPatternShape = SpawnShape.SPIRAL;
+                pattern.shapeCenteredOnFrog = Random.Range(0, 3) != 0;
+                pattern.spiralStartRadius = pattern.shapeCenteredOnFrog ? Random.Range(20, 30.0f) : Random.Range(2, 4.0f);
+                pattern.spiralRadiusIncreasePerFullRotation = pattern.shapeCenteredOnFrog ? Random.Range(5, 15.0f) : Random.Range(1, 3.0f);
+                pattern.spiralStartAngle = Random.Range(0, 360);
+                pattern.spiralEndAngle = Random.Range(720, 2000);
+                pattern.spiralIsClockwise = Random.Range(0, 2) != 0;
+                break;
+            case 2:
+                pattern.spawnPatternShape = SpawnShape.STRAIGHT_LINE;
+                pattern.lineAngle = Random.Range(0, 90.0f);
+                pattern.lineLength = Random.Range(2, 8.0f);
+                break;
+            case 3:
+                pattern.spawnPatternShape = SpawnShape.WAVE_LINE;
+                pattern.lineAngle = Random.Range(0, 90.0f);
+                pattern.lineLength = Random.Range(2, 8.0f);
+                pattern.waveLineAmplitude = Random.Range(1, 3.0f);
+                pattern.waveLineFrequency = Random.Range(0.5f, 3.0f);
+                pattern.waveLineOffset = Random.Range(0, 90);
+                break;
+            default:
+                pattern.spawnPatternShape = SpawnShape.POLYGON;
+                pattern.shapeRadius = Random.Range(3, 10.0f);
+                pattern.shapeAngle = Random.Range(0, 180.0f);
+                pattern.shapePolygonNumberOfSides = Random.Range(3, 8);
+                break;
+        }
+    }
+
     public WaveData GetCurrentWave()
     {
-        return currentChapter.chapterData.wavesList[currentWaveIndex];
+        WaveData result;
+        if (IsCurrentRunEndless() || currentChapter == null)
+        {
+            if (currentWaveEndlessMode == null)
+            {
+                // Create random wave data
+                currentWaveEndlessMode = GetRandomWave();
+            }
+
+            result = currentWaveEndlessMode;
+        }
+        else
+        {
+            result = currentChapter.chapterData.wavesList[currentWaveIndex];
+        }
+        return result;
     }
 
     public List<RunWeaponInfo> GetOwnedWeapons()
@@ -608,6 +845,11 @@ public class RunManager : MonoBehaviour
         {
             runTimeModifer = 2;
         }
+
+        if ((gameModes & GameMode.TIME_ENDLESS) == GameMode.TIME_ENDLESS)
+        {
+            runIsEndless = true;
+        }
         #endregion
 
         // Bug tier.
@@ -644,6 +886,8 @@ public class RunManager : MonoBehaviour
             Debug.Log("Run Manager - Start a new Run with character: " + character.characterID);
         }
 
+        endlessModeBountyCount = 0;
+
         // Remove banished items
         banishedItemsList.Clear();
 
@@ -671,7 +915,12 @@ public class RunManager : MonoBehaviour
         ChapterManager.instance.ResetChaptersWeights();
         ChapterManager.instance.isFirstChapter = true;
 
-        if (startingChapter == null)
+        if (runIsEndless)
+        {
+            // Immediately start the run without a chapter
+            ChapterManager.instance.StartEndless();
+        }
+        else if (startingChapter == null)
         {
             // Show a selection of Chapters to pick from for the first chapter of the Run
             ChapterManager.instance.ShowChapterSelection(0);
@@ -795,6 +1044,11 @@ public class RunManager : MonoBehaviour
     public void UpdateMap()
     {
         MapBehaviour.instance.GenerateNewTilesAroundPosition(player.transform.position);
+        if (IsCurrentRunEndless())
+        {
+            float distanceFromPlayerToStartDeletingTiles = 100;
+            MapBehaviour.instance.RemoveTilesAroundPosition(player.transform.position, distanceFromPlayerToStartDeletingTiles);
+        }
     }
 
     public void IncreaseXP(float moreXP, bool preventXPIncrease = false)
@@ -1071,9 +1325,12 @@ public class RunManager : MonoBehaviour
 
         // Add the current chapter to the list (even if current chapter was not completed)
         List<Chapter> chaptersPlayed = new List<Chapter>(completedChaptersList);
-        if (currentChapter != null && (chaptersPlayed.Count == 0 || (chaptersPlayed.Count > 0 && !chaptersPlayed[chaptersPlayed.Count - 1].Equals(currentChapter))))
+        if (!IsCurrentRunEndless())
         {
-            chaptersPlayed.Add(currentChapter);
+            if (currentChapter != null && (chaptersPlayed.Count == 0 || (chaptersPlayed.Count > 0 && !chaptersPlayed[chaptersPlayed.Count - 1].Equals(currentChapter))))
+            {
+                chaptersPlayed.Add(currentChapter);
+            }
         }
 
         // Game must be saved
@@ -1085,11 +1342,18 @@ public class RunManager : MonoBehaviour
             Debug.Log("Run - Show scores. " + chapterRemainingTime.ToString("0.00") + " seconds left on the timer");
         }
 
-        int playedTimeThisChapter = Mathf.RoundToInt(currentChapter.chapterData.chapterLengthInSeconds * runTimeModifer - Mathf.Clamp(chapterRemainingTime, 0, currentChapter.chapterData.chapterLengthInSeconds * runTimeModifer));
-
+        int playedTimeThisChapter = 0;
+        if (IsCurrentRunEndless())
+        {
+            playedTimeThisChapter = Mathf.RoundToInt(runPlayTime);
+        }
+        else
+        {
+            playedTimeThisChapter = Mathf.RoundToInt(currentChapter.chapterData.chapterLengthInSeconds * runTimeModifer - Mathf.Clamp(chapterRemainingTime, 0, currentChapter.chapterData.chapterLengthInSeconds * runTimeModifer));
+        }
 
         // Display the score screen
-        ScoreManager.instance.ShowScores(chaptersPlayed, playedChaptersKillCounts, currentPlayedCharacter, ownedItems, unlockedAchievements, playedTimeThisChapter, currencyCollectedInThisRun, runTimeModifer);
+        ScoreManager.instance.ShowScores(chaptersPlayed, playedChaptersKillCounts, currentPlayedCharacter, ownedItems, unlockedAchievements, playedTimeThisChapter, currencyCollectedInThisRun, runTimeModifer, isEndlessMode: IsCurrentRunEndless());
     }
 
     public void EndChapter()
@@ -1141,6 +1405,27 @@ public class RunManager : MonoBehaviour
             // This was a chapter before 5th, so we offer a choice for the next chapter
             ChapterManager.instance.ShowChapterSelection(GetChapterCount());
         }
+    }
+
+    public void StartEndless()
+    {
+        runIsEndless = true;
+
+        // Timer starts at zero and increases
+        chapterRemainingTime = 0;
+
+        // Remove enemies on screen
+        EnemiesManager.instance.ClearAllEnemies();
+
+        // Remove damage texts
+        EnemiesManager.instance.ClearAllDamageTexts();
+
+        // Remove collectibles on screen
+        CollectiblesManager.instance.ClearAllCollectibles();
+
+        currentChapter = null;
+
+        StartCoroutine(StartChapterAsync());
     }
 
     public void StartChapter(Chapter chapter)
@@ -1237,22 +1522,25 @@ public class RunManager : MonoBehaviour
 
         // Prepare compass arrows
         ClearCompassArrows();
-        List<FixedCollectible> fixedCollectiblesList = currentChapter.chapterData.specialCollectiblesOnTheMap;
-        foreach (FixedCollectible collectible in fixedCollectiblesList)
+        if (currentChapter != null)
         {
-            if (ChapterManager.instance.IsFixedCollectibleShownByCompassInChapter(currentChapter, collectible, out bool collectibleHasBeenFoundOnce))
+            List<FixedCollectible> fixedCollectiblesList = currentChapter.chapterData.specialCollectiblesOnTheMap;
+            foreach (FixedCollectible collectible in fixedCollectiblesList)
             {
-                GameObject arrow = Instantiate(compassArrowPrefab, compassParent);
-                arrow.GetComponent<CompassArrowBehaviour>().SetCollectibleTileCoordinates(collectible.tileCoordinates);
-                arrow.GetComponent<CompassArrowBehaviour>().SetCollectibleHasBeenFound(collectibleHasBeenFoundOnce);
-                arrow.GetComponent<CompassArrowBehaviour>().knownItemSprite.sprite = DataManager.instance.GetSpriteForCollectible(collectible);
-                if (collectible.collectibleType == FixedCollectibleType.HAT)
+                if (ChapterManager.instance.IsFixedCollectibleShownByCompassInChapter(currentChapter, collectible, out bool collectibleHasBeenFoundOnce))
                 {
-                    arrow.GetComponent<CompassArrowBehaviour>().knownItemSprite.transform.rotation = new Quaternion(0, 0, 180, 0);
-                }
-                arrow.GetComponent<CompassArrowBehaviour>().knownItemSprite.SetNativeSize();
+                    GameObject arrow = Instantiate(compassArrowPrefab, compassParent);
+                    arrow.GetComponent<CompassArrowBehaviour>().SetCollectibleTileCoordinates(collectible.tileCoordinates);
+                    arrow.GetComponent<CompassArrowBehaviour>().SetCollectibleHasBeenFound(collectibleHasBeenFoundOnce);
+                    arrow.GetComponent<CompassArrowBehaviour>().knownItemSprite.sprite = DataManager.instance.GetSpriteForCollectible(collectible);
+                    if (collectible.collectibleType == FixedCollectibleType.HAT)
+                    {
+                        arrow.GetComponent<CompassArrowBehaviour>().knownItemSprite.transform.rotation = new Quaternion(0, 0, 180, 0);
+                    }
+                    arrow.GetComponent<CompassArrowBehaviour>().knownItemSprite.SetNativeSize();
 
-                compassArrowsList.Add(arrow.GetComponent<CompassArrowBehaviour>());
+                    compassArrowsList.Add(arrow.GetComponent<CompassArrowBehaviour>());
+                }
             }
         }
 
@@ -1273,12 +1561,14 @@ public class RunManager : MonoBehaviour
 
         // Set current wave
         currentWaveIndex = 0;
+        currentWaveEndlessMode = null;
         WaveData currentWave = GetCurrentWave();
         waveRemainingTime = currentWave.duration * runTimeModifer;
         EnemiesManager.instance.InitializeWave(GetCurrentWave());
 
         // If character is ghost in that chapter, force it to ghost sprite
-        player.ForceGhost(currentChapter.chapterData.characterStyleChange == CharacterStyle.GHOST);
+        if (currentChapter != null)
+            player.ForceGhost(currentChapter.chapterData.characterStyleChange == CharacterStyle.GHOST);
 
         yield return new WaitForSecondsRealtime(2.9f);
 
@@ -1299,14 +1589,24 @@ public class RunManager : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.1f);
 
         // Set up condition count UI.
-        SetNextChapterConditionCount(currentChapter.chapterData.nextChapterConditionCount);
-        UIManager.instance.ShowCountUI(currentChapter.chapterData.nextChapterConditionCount.countType != NextChapterConditionCountType.None);
+        if (currentChapter != null)
+        {
+            SetNextChapterConditionCount(currentChapter.chapterData.nextChapterConditionCount);
+            UIManager.instance.ShowCountUI(currentChapter.chapterData.nextChapterConditionCount.countType != NextChapterConditionCountType.None);
+        }
 
         // Show Game UI
         UIManager.instance.ShowGameUI();
 
         // Start game!
-        chapterRemainingTime = currentChapter.chapterData.chapterLengthInSeconds * runTimeModifer;
+        if (runIsEndless || currentChapter == null)
+        {
+            chapterRemainingTime = 0;
+        }
+        else
+        {
+            chapterRemainingTime = currentChapter.chapterData.chapterLengthInSeconds * runTimeModifer;
+        }
         GameManager.instance.hasGameStarted = true;
         GameManager.instance.isGameRunning = true;
         ChapterManager.instance.chapterChoiceIsVisible = false;
@@ -1323,9 +1623,16 @@ public class RunManager : MonoBehaviour
 
     public void UpdateTime(float deltaTime)
     {
-        chapterRemainingTime -= Time.deltaTime;
+        if (IsCurrentRunEndless())
+        {
+            chapterRemainingTime += Time.deltaTime;
+        }
+        else
+        {
+            chapterRemainingTime -= Time.deltaTime;
+        }
 
-        if (Mathf.RoundToInt(chapterRemainingTime + Time.deltaTime) > 0 && Mathf.RoundToInt(chapterRemainingTime) <= 0)
+        if (!IsCurrentRunEndless() && Mathf.RoundToInt(chapterRemainingTime + Time.deltaTime) > 0 && Mathf.RoundToInt(chapterRemainingTime) <= 0)
         {
             SoundManager.instance.PlayChapterEndSound();
 
@@ -2532,7 +2839,10 @@ public class RunManager : MonoBehaviour
         SoundManager.instance.PauseInGameLoopedSFX();
 
         // Save that data in the save file: this fixed collectible has been found!
-        ChapterManager.instance.FoundFixedCollectible(currentChapter, collectibleInfo);
+        if (currentChapter != null)
+        {
+            ChapterManager.instance.FoundFixedCollectible(currentChapter, collectibleInfo);
+        }
     }
 
     #endregion

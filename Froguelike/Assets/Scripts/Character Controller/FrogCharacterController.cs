@@ -1074,6 +1074,12 @@ public class FrogCharacterController : MonoBehaviour
                 // Game mode damage multiplier
                 damage *= RunManager.instance.gameModeBugDamageMultiplier;
 
+                if (RunManager.instance.IsCurrentRunEndless())
+                {
+                    float endlessDamagedMultiplier = (1 + (RunManager.instance.CurrentRunPlayTime() / 1200)); // +100% every 20mn
+                    damage *= endlessDamagedMultiplier;
+                }
+
                 damage = Mathf.Clamp(damage - GetArmor(), 0.1f, maxDamage);
 
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)

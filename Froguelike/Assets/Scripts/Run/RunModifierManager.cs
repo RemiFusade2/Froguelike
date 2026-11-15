@@ -18,6 +18,7 @@ public class RunModifierManager : MonoBehaviour
     public GameObject timePanel;
     public Toggle halfTimeToggle;
     public Toggle doubleTimeToggle;
+    public Toggle endlessModeToggle;
     [Space]
     public GameObject bugTierPanel;
     public Toggle bugsUpToggle;
@@ -342,9 +343,11 @@ public class RunModifierManager : MonoBehaviour
             selectedGameModes &= ~GameMode.TIME_HALF; // Remove flag
         }
 
-        // Turn off double time. set toggle
+        // Turn off double time and endless mode. set toggle
         doubleTimeToggle.SetIsOnWithoutNotify(false);
+        endlessModeToggle.SetIsOnWithoutNotify(false);
         selectedGameModes &= ~GameMode.TIME_DOUBLE; // Remove flag
+        selectedGameModes &= ~GameMode.TIME_ENDLESS; // Remove flag
     }
 
     public void SelectGameModeDoubleTime(Toggle thisToggle)
@@ -361,9 +364,33 @@ public class RunModifierManager : MonoBehaviour
             selectedGameModes &= ~GameMode.TIME_DOUBLE; // Remove flag
         }
 
-        // Turn off half time.
+        // Turn off half time and endless mode
         halfTimeToggle.SetIsOnWithoutNotify(false);
+        endlessModeToggle.SetIsOnWithoutNotify(false);
         selectedGameModes &= ~GameMode.TIME_HALF; // Remove flag
+        selectedGameModes &= ~GameMode.TIME_ENDLESS; // Remove flag
+    }
+
+
+    public void SelectGameModeEndlessTime(Toggle thisToggle)
+    {
+        // Turn on endless mode.
+        bool modeIsSelected = thisToggle.isOn;
+
+        if (modeIsSelected)
+        {
+            selectedGameModes |= GameMode.TIME_ENDLESS; // Add flag
+        }
+        else
+        {
+            selectedGameModes &= ~GameMode.TIME_ENDLESS; // Remove flag
+        }
+
+        // Turn off half and double time.
+        halfTimeToggle.SetIsOnWithoutNotify(false);
+        doubleTimeToggle.SetIsOnWithoutNotify(false);
+        selectedGameModes &= ~GameMode.TIME_HALF; // Remove flag
+        selectedGameModes &= ~GameMode.TIME_DOUBLE; // Remove flag
     }
 
     #endregion Time

@@ -352,6 +352,22 @@ public class CollectiblesManager : MonoBehaviour
 
     #region Fixed Collectibles (not pooled)
 
+    public void RemoveFixedCollectibleAroundPosition(Vector2 position, float radius)
+    {
+        List<GameObject> collectiblesToDestroy = new List<GameObject>();
+        foreach (Transform fixedCollectibleChildTransform in fixedCollectiblesParent)
+        {
+            if (Vector2.Distance(position, fixedCollectibleChildTransform.position) < radius)
+            {
+                collectiblesToDestroy.Add(fixedCollectibleChildTransform.gameObject);
+            }
+        }
+        foreach (GameObject collectibleObject in collectiblesToDestroy)
+        {
+            Destroy(collectibleObject, 0.01f);
+        }
+    }
+
     public void SpawnFixedCollectible(FixedCollectible collectible, Vector2 position)
     {
         GameObject newCollectible = Instantiate(fixedCollectiblePrefab, position, Quaternion.identity, fixedCollectiblesParent);
