@@ -836,6 +836,9 @@ public class RunManager : MonoBehaviour
 
         // Time.
         #region
+
+        runIsEndless = false;
+
         if ((gameModes & GameMode.TIME_HALF) == GameMode.TIME_HALF)
         {
             runTimeModifer = 0.5f;
@@ -877,6 +880,18 @@ public class RunManager : MonoBehaviour
         }
 
         #endregion
+
+        // Ignore eternals.
+        #region
+
+        RunModifierManager.instance.ignoreEternals = false;
+
+        if ((gameModes & GameMode.IGNORE_ETERNALS) == GameMode.IGNORE_ETERNALS)
+        {
+            RunModifierManager.instance.ignoreEternals = true;
+        }
+
+        #endregion
     }
 
     public void StartNewRun(PlayableCharacter character, GameMode gameModes, Chapter startingChapter = null)
@@ -901,6 +916,7 @@ public class RunManager : MonoBehaviour
         // Setup game mode multipliers
         this.playedGameModes = gameModes;
         runTimeModifer = 1;
+        RunModifierManager.instance.ResetModifierValues();
         SetupModifiers(gameModes);
 
         InitializeNewRun();
@@ -1424,6 +1440,9 @@ public class RunManager : MonoBehaviour
         CollectiblesManager.instance.ClearAllCollectibles();
 
         currentChapter = null;
+
+        // Save current selection to Game Manager, for future quick start and stuff
+        GameManager.instance.SaveSelectedCharacterGameModeAndStartingChapter(currentPlayedCharacter.characterID, playedGameModes.ToString(), "Endless");
 
         StartCoroutine(StartChapterAsync());
     }

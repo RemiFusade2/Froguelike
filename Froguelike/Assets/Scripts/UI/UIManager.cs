@@ -304,8 +304,16 @@ public class UIManager : MonoBehaviour
 
         if (isThereCharacterSelection)
         {
-            // Pick the first character button.
-            SetSelectedButton(characterSelectionGridLayoutGroup.GetComponentInChildren<Transform>().GetComponentInChildren<Button>().gameObject);
+            if (CharacterManager.instance.currentSelectedCharacter.characterData != null)
+            {
+                CharacterManager.instance.SelectCharacter(CharacterManager.instance.currentSelectedCharacter);
+            }
+            else
+            {
+                // Pick the first character button.
+                SetSelectedButton(characterSelectionGridLayoutGroup.GetComponentInChildren<Transform>().GetComponentInChildren<Button>().gameObject);
+            }
+
         }
         else
         {

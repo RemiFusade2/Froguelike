@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// PlayableCharacter describes a character in its current state.
@@ -41,7 +42,9 @@ public class PlayableCharacter
         {
             result = StatsWrapper.JoinLists(characterData.startingStatsList, characterData.startingStatsStoryUpgrade);
         }
-        if (characterStatsIncrements != null && characterStatsIncrements.statsList != null && characterStatsIncrements.statsList.Count > 0)
+
+        bool ignoreEternals = (RunModifierManager.instance.selectedGameModes & GameMode.IGNORE_ETERNALS) == GameMode.IGNORE_ETERNALS;
+        if (!ignoreEternals && characterStatsIncrements != null && characterStatsIncrements.statsList != null && characterStatsIncrements.statsList.Count > 0)
         {
             result = StatsWrapper.JoinLists(result.statsList, characterStatsIncrements.statsList);
         }
@@ -71,6 +74,8 @@ public class CharactersSaveData : SaveData
     public List<PlayableCharacter> charactersList;
 
     public GameMode availableGameModes;
+    public string selectedGameModes;
+    public string previousGameModes;
 
     public CharactersSaveData()
     {
@@ -180,7 +185,7 @@ public class CharacterManager : MonoBehaviour
     public bool UpdateCharacterSelectionScreen()
     {
         bool isCharacterSelectionScreen = true;
-        currentSelectedCharacter = null;
+        // currentSelectedCharacter = null; TODO why is this here? can I remove it?
 
         // Remove previous buttons
         foreach (Transform child in characterListGridLayoutGroup)
@@ -299,7 +304,15 @@ public class CharacterManager : MonoBehaviour
         characterListContent.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, buttonCount * buttonHeight + padding);
 
         // Select first character by default
-        SelectCharacter(defaultCharacter);
+        if (currentSelectedCharacter.characterData == null)
+        {
+            SelectCharacter(defaultCharacter);
+        }
+        else
+        {
+            SelectCharacter(currentSelectedCharacter);
+        }
+
 
         // Set the cursor to the top.
         characterListScrollRect.verticalScrollbar.value = 0;
@@ -352,6 +365,11 @@ public class CharacterManager : MonoBehaviour
             if (characterButton != null)
             {
                 characterButton.SetSelected(characterButton.character.Equals(selectedCharacter));
+                if (characterButton.character.Equals(selectedCharacter))
+                {
+                    // Set selected button.
+                    EventSystem.current.SetSelectedGameObject(characterButton.gameObject);
+                }
 
                 if (characterButton.character.Equals(selectedCharacter))
                 {
@@ -370,6 +388,11 @@ public class CharacterManager : MonoBehaviour
         currentSelectedCharacter = selectedCharacter;
 
         // Update stats
+        UpdateStatsList();
+    }
+
+    public void ReloadCharacterStats()
+    {
         UpdateStatsList();
     }
 

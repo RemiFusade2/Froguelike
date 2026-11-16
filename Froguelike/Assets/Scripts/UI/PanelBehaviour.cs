@@ -12,6 +12,7 @@ public class PanelBehaviour : MonoBehaviour
     [Space]
     public Toggle halfTimeToggle;
     public Toggle doubleTimeToggle;
+    public Toggle endlessTimeToggle;
     [Space]
     public Toggle upOneToggle;
     public Toggle downOneToggle;
@@ -37,7 +38,7 @@ public class PanelBehaviour : MonoBehaviour
         SetTimeCheckmarks(gameModes);
         SetBugtierCheckmarks(gameModes);
         SetPowerupsCheckmarks(gameModes);
-        // SetEternalsCheckmarks(gameModes);
+        SetEternalsCheckmarks(gameModes);
         // SetHatCheckmarks(gameModes);
     }
 
@@ -71,6 +72,10 @@ public class PanelBehaviour : MonoBehaviour
         modeIsOn = (gameModes & GameMode.TIME_DOUBLE) == GameMode.TIME_DOUBLE;
         doubleTimeToggle.isOn = modeIsOn;
         doubleTimeToggle.GetComponent<ModifierToggleBehaviour>().staticCheckmark.SetActive(modeIsOn);
+        // Endless.
+        modeIsOn = (gameModes & GameMode.TIME_ENDLESS) == GameMode.TIME_ENDLESS;
+        endlessTimeToggle.isOn = modeIsOn;
+        endlessTimeToggle.GetComponent<ModifierToggleBehaviour>().staticCheckmark.SetActive(modeIsOn);
     }
 
     public void SetBugtierCheckmarks(GameMode gameModes)

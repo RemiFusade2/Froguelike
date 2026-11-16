@@ -55,6 +55,7 @@ public class RunModifierManager : MonoBehaviour
     public GameMode selectedGameModes;
     public List<CollectibleSpawnFrequency> powerUpsModiferSpawnFrequencies;
     public int bugTierModifier = 0;
+    public bool ignoreEternals = false;
 
     private void Awake()
     {
@@ -82,7 +83,7 @@ public class RunModifierManager : MonoBehaviour
 
         powerupPanel.SetActive(true); // TODO depending on if it is unlocked
 
-        // eternalsPanel.SetActive(true); // TODO depending on if it is unlocked
+        eternalsPanel.SetActive(true); // TODO depending on if it is unlocked
 
         // hatPanel.SetActive(true); // TODO depending on if it is unlocked
     }
@@ -106,10 +107,16 @@ public class RunModifierManager : MonoBehaviour
     public void ResetModifiers()
     {
         selectedGameModes = GameMode.NONE;
+        ResetModifierValues();
+    }
+
+    public void ResetModifierValues()
+    {
         powerUpsModiferSpawnFrequencies.Clear();
         bugTierModifier = 0;
-
+        ignoreEternals = false;
     }
+
 
     #region Difficulty
 
@@ -490,4 +497,23 @@ public class RunModifierManager : MonoBehaviour
     }
 
     #endregion Bug tier
+
+    #region Eternals
+
+    public void SelectGameModeIgonoreEternals(Toggle thisToggle)
+    {
+        // Turn off eternals.
+        bool modeIsSelected = thisToggle.isOn;
+
+        if (modeIsSelected)
+        {
+            selectedGameModes |= GameMode.IGNORE_ETERNALS; // Add flag
+        }
+        else
+        {
+            selectedGameModes &= ~GameMode.IGNORE_ETERNALS; // Remove flag
+        }
+    }
+
+    #endregion Eternals
 }

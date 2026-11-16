@@ -14,7 +14,16 @@ public class RetryButtonInfoBehaviour : MonoBehaviour
     {
         characterImage.sprite = CharacterManager.instance.GetCharacterData(GameManager.instance.GetRetryRunInfoCharacterID()).characterSprite;
         characterImage.SetNativeSize();
-        string infoText = ChapterManager.instance.GetChapterFromID(GameManager.instance.GetRetryRunInfoChapter()).chapterData.chapterTitle;
+        string infoText;
+        if ((RunModifierManager.instance.GetSelectedGameModes() & GameMode.TIME_ENDLESS) == GameMode.TIME_ENDLESS)
+        {
+            infoText = "Endless";
+        }
+        else
+        {
+            infoText = ChapterManager.instance.GetChapterFromID(GameManager.instance.GetRetryRunInfoChapter()).chapterData.chapterTitle; // TODO need to load this date at the start of the game
+        }
+
         string gameMode = GameManager.instance.GetRetryRunInfoGameMode();
 
         if (gameMode != "NONE")

@@ -125,7 +125,7 @@ public class ScoreManager : MonoBehaviour
             scoreLines[0].SetActive(true);
 
             // Chapter number and name.
-            chaptersTextList[0].text = "Chapter 1 - \nEndless";
+            chaptersTextList[0].text = "Chapter 1\n          Endless";
 
             // Flies eaten.
             chaptersScoreTextList[0].text = chapterKillCounts[0].ToString();
