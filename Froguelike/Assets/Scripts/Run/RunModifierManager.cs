@@ -10,7 +10,7 @@ public class RunModifierManager : MonoBehaviour
     public static RunModifierManager instance;
 
     public PanelBehaviour panelBehaviour;
-
+    public FrogCharacterController frogCharacterController;
     [Header("UI References")] // TODO add all panels, should the be blank/hidden before having one option unlocked? Or just ???? 
     public GameObject difficultyPanel;
     public TextMeshProUGUI difficultyPanelInfoText;
@@ -31,6 +31,7 @@ public class RunModifierManager : MonoBehaviour
     public GameObject eternalsPanel;
     [Space]
     public GameObject hatPanel;
+    public List<Toggle> hatToggles;
 
     [Header("Settings")]
     [Tooltip("1 = 100% bug buff")]
@@ -56,6 +57,7 @@ public class RunModifierManager : MonoBehaviour
     public List<CollectibleSpawnFrequency> powerUpsModiferSpawnFrequencies;
     public int bugTierModifier = 0;
     public bool ignoreEternals = false;
+    public HatType selectedHat = HatType.NO_HAT;
 
     private void Awake()
     {
@@ -85,7 +87,7 @@ public class RunModifierManager : MonoBehaviour
 
         eternalsPanel.SetActive(true); // TODO depending on if it is unlocked
 
-        // hatPanel.SetActive(true); // TODO depending on if it is unlocked
+        hatPanel.SetActive(true); // TODO depending on if it is unlocked
     }
 
     public bool IsGameModeUnlocked(GameMode gameMode)
@@ -516,4 +518,37 @@ public class RunModifierManager : MonoBehaviour
     }
 
     #endregion Eternals
+
+    #region Hats
+
+    public void SelectHatToWear(HatToggle thisToggle)
+    {
+        List<HatType> foundHats = CollectiblesManager.instance.GetFoundHats();
+        // Hat.
+        bool modeIsSelected = thisToggle.thisToggle.isOn;
+
+        if (modeIsSelected)
+        {
+            selectedHat = thisToggle.hatType;
+        }
+        else
+        {
+            selectedHat = HatType.NO_HAT;
+        }
+
+        foreach (Toggle otherToggle in hatToggles)
+        {
+            if (otherToggle.GetComponent<HatToggle>().hatType != thisToggle.GetComponent<HatToggle>().hatType && otherToggle.isOn)
+            {
+                otherToggle.SetIsOnWithoutNotify(false);
+            }
+        }
+
+        frogCharacterController.ClearHats();
+        frogCharacterController.AddHat(thisToggle.hatType);
+
+        // TODO remeber the hat, and show the hat on the quick start.
+    }
+
+    #endregion Hats
 }

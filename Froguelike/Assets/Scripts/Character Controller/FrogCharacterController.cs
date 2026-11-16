@@ -49,6 +49,7 @@ public class FrogCharacterController : MonoBehaviour
     public Transform hatsParent;
     public GameObject hatPrefab;
     public int hatSortingOrder = 10;
+    public Transform trash;
 
     [Header("Character data - Settings")]
     public Color characterBeingHitOverlayColor;
@@ -954,9 +955,10 @@ public class FrogCharacterController : MonoBehaviour
 
     public void ClearHats()
     {
-        foreach (Transform child in hatsParent)
+        while (hatsParent.childCount > 0)
         {
-            Destroy(child.gameObject);
+            Destroy(hatsParent.GetChild(0).gameObject);
+            hatsParent.GetChild(0).SetParent(trash);
         }
     }
 

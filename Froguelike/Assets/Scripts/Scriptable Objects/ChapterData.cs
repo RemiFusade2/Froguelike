@@ -45,7 +45,8 @@ public enum HatType
     SUN_HAT,
     BOW_BLUE,
     BOW_RED,
-    BOW_PURPLE
+    BOW_PURPLE,
+    NO_HAT
 }
 
 /// <summary>

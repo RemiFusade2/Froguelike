@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Rewired;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -242,6 +243,9 @@ public class ScoreManager : MonoBehaviour
 
         // Display character info.
         characterInfoBookmark.UpdateInRunBookmark();
+
+        // Clear hats.
+        RunManager.instance.player.ClearHats();
 
         // Show the score screen
         UIManager.instance.ShowScoreScreen();

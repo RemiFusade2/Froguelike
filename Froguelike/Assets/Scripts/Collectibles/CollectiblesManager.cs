@@ -423,6 +423,32 @@ public class CollectiblesManager : MonoBehaviour
         }
     }
 
+    public List<HatType> GetFoundHats()
+    {
+        List<HatType> foundHats = new List<HatType>();
+
+        foreach (Chapter chapter in ChapterManager.instance.chaptersData.chaptersList)
+        {
+            foreach (FixedCollectible collectible in chapter.chapterData.specialCollectiblesOnTheMap)
+            {
+                string thisCollectiblesCoords = $"{collectible.tileCoordinates.x}_{collectible.tileCoordinates.y}";
+
+                if (collectible.collectibleType == FixedCollectibleType.HAT && chapter.fixedCollectiblesFoundList.Count > 0)
+                {
+                    for (int collectibleFoundIndex = 0; collectibleFoundIndex < chapter.fixedCollectiblesFoundList.Count; collectibleFoundIndex++)
+                    {
+                        if (chapter.fixedCollectiblesFoundList[collectibleFoundIndex].collectibleIdentifier == thisCollectiblesCoords && !foundHats.Contains(collectible.collectibleHatType))
+                        {
+                            foundHats.Add(collectible.collectibleHatType);
+                        }
+                    }
+                }
+            }
+        }
+
+        return foundHats;
+    }
+
     #endregion
 
     public void CaptureCollectible(Transform collectibleTransform)

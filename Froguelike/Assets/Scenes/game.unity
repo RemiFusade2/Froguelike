@@ -38166,6 +38166,28 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &874956455 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4226463369197660034, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+  m_PrefabInstance: {fileID: 6639502272040409616}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c21e6ef3da6e54374b397629dd55c0c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &874956459 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5462563048462211636, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+  m_PrefabInstance: {fileID: 6639502272040409616}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &878724614
 GameObject:
   m_ObjectHideFlags: 0
@@ -49480,6 +49502,11 @@ CanvasRenderer:
 GameObject:
   m_CorrespondingSourceObject: {fileID: 851805521193640583, guid: 6bd0cd3f4854d4a40a573a274f7fcd2e, type: 3}
   m_PrefabInstance: {fileID: 1186605340}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &967378908 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7452318871531517306, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+  m_PrefabInstance: {fileID: 6639502272040409616}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &973217311
 GameObject:
@@ -63555,6 +63582,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1197014998}
   m_CullTransparentMesh: 1
+--- !u!114 &1199703426 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7373975204691158152, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+  m_PrefabInstance: {fileID: 6639502272040409616}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1208843226 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8548076152880813738, guid: 6bd0cd3f4854d4a40a573a274f7fcd2e, type: 3}
@@ -84747,7 +84785,11 @@ MonoBehaviour:
   bugsMinToggle: {fileID: 1871851602}
   powerupPanel: {fileID: 1140134209}
   eternalsPanel: {fileID: 372936226}
-  hatPanel: {fileID: 0}
+  hatPanel: {fileID: 967378908}
+  hatToggles:
+  - {fileID: 874956459}
+  - {fileID: 1621450951}
+  - {fileID: 1199703426}
   hardModifier: 0.5
   harderModifier: 1
   hardestModifier: 2.5
@@ -84780,6 +84822,7 @@ MonoBehaviour:
   powerUpsModiferSpawnFrequencies: []
   bugTierModifier: 0
   ignoreEternals: 0
+  selectedHat: 0
 --- !u!4 &1593780127
 Transform:
   m_ObjectHideFlags: 0
@@ -85302,6 +85345,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1621450951 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3066341588442438935, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+  m_PrefabInstance: {fileID: 6639502272040409616}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1621616514
 GameObject:
   m_ObjectHideFlags: 0
@@ -124764,6 +124818,10 @@ PrefabInstance:
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 464157710}
+    - target: {fileID: 3066341588442438935, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1593780126}
     - target: {fileID: 3189947284684142485, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
       value: 2
@@ -124920,6 +124978,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 3842837454012882856, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+      propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 464157710}
     - target: {fileID: 3883751900972768306, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -125308,6 +125370,26 @@ PrefabInstance:
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.UI.Toggle, UnityEngine.UI
       objectReference: {fileID: 0}
+    - target: {fileID: 5462563048462211636, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1593780126}
+    - target: {fileID: 5462563048462211636, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SelectHatToWear
+      objectReference: {fileID: 0}
+    - target: {fileID: 5462563048462211636, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: RunModifierManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 5462563048462211636, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgument
+      value: 
+      objectReference: {fileID: 874956455}
+    - target: {fileID: 5462563048462211636, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: HatToggle, Assembly-CSharp
+      objectReference: {fileID: 0}
     - target: {fileID: 5529880961343549948, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -125424,6 +125506,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6059515262323693707, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+      propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 464157710}
     - target: {fileID: 6123700435083051715, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -125748,6 +125834,10 @@ PrefabInstance:
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 464157710}
+    - target: {fileID: 7373975204691158152, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1593780126}
     - target: {fileID: 7535175060722629850, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -125956,6 +126046,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8758597757481575991, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+      propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 464157710}
     - target: {fileID: 8822774081056979898, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0

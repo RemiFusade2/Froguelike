@@ -983,7 +983,7 @@ public class RunManager : MonoBehaviour
 
         // Remove all friends and hats
         FriendsManager.instance.ClearAllFriends();
-        player.ClearHats();
+        // player.ClearHats(); moved to after the score is displayed. Because of the option to choose a hat in the modifiers.
 
         // Level and XP
         level = 1;
