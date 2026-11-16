@@ -56220,6 +56220,7 @@ Transform:
   - {fileID: 913190561}
   - {fileID: 912660554}
   - {fileID: 1315784736}
+  - {fileID: 1296557645}
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -56325,6 +56326,7 @@ MonoBehaviour:
   hatsParent: {fileID: 974585524}
   hatPrefab: {fileID: 6961706316015745635, guid: 608d611b5b7414b4ea3539092133e1e1, type: 3}
   hatSortingOrder: 10
+  trash: {fileID: 1296557645}
   characterBeingHitOverlayColor: {r: 0.9843138, g: 0.9921569, b: 0.9843138, a: 1}
   godModeOutlineWidth: 1
   godModeOutlineColors:
@@ -70341,6 +70343,42 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1291877710}
   m_CullTransparentMesh: 1
+--- !u!1 &1296557644
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1296557645}
+  m_Layer: 5
+  m_Name: Trash
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &1296557645
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1296557644}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1127068949}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 320, y: 180}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1305413273 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8352833360983527598, guid: a29b3d0441ba9674c838c8b600441ff6, type: 3}
@@ -77758,6 +77796,17 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &1444356824 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1674240980009507134, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+  m_PrefabInstance: {fileID: 6639502272040409616}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c21e6ef3da6e54374b397629dd55c0c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1453852955
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -84772,6 +84821,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panelBehaviour: {fileID: 1997987529}
+  frogCharacterController: {fileID: 1127068952}
   difficultyPanel: {fileID: 1116846055}
   difficultyPanelInfoText: {fileID: 1548442320}
   timePanel: {fileID: 176307728}
@@ -85354,6 +85404,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1621450953 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6621508892942114977, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+  m_PrefabInstance: {fileID: 6639502272040409616}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c21e6ef3da6e54374b397629dd55c0c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1621616514
@@ -124822,6 +124883,22 @@ PrefabInstance:
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1593780126}
+    - target: {fileID: 3066341588442438935, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SelectHatToWear
+      objectReference: {fileID: 0}
+    - target: {fileID: 3066341588442438935, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: RunModifierManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 3066341588442438935, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgument
+      value: 
+      objectReference: {fileID: 1621450953}
+    - target: {fileID: 3066341588442438935, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: HatToggle, Assembly-CSharp
+      objectReference: {fileID: 0}
     - target: {fileID: 3189947284684142485, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
       value: 2
@@ -125838,6 +125915,22 @@ PrefabInstance:
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1593780126}
+    - target: {fileID: 7373975204691158152, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SelectHatToWear
+      objectReference: {fileID: 0}
+    - target: {fileID: 7373975204691158152, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: RunModifierManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7373975204691158152, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgument
+      value: 
+      objectReference: {fileID: 1444356824}
+    - target: {fileID: 7373975204691158152, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: HatToggle, Assembly-CSharp
+      objectReference: {fileID: 0}
     - target: {fileID: 7535175060722629850, guid: 9e2df57362c7fbd48bccef89dfcc54f9, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
