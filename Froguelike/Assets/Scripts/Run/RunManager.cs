@@ -1891,7 +1891,9 @@ public class RunManager : MonoBehaviour
                         }
                         else
                         {
-                            description = description.Replace("[FROGNAME]", currentPlayedCharacter.characterData.characterName + " and Minifrog");
+                            // TODO: Edit this for when we actually add Minifrog as a playable frog
+                            //description = description.Replace("[FROGNAME]", currentPlayedCharacter.characterData.characterName + " and Minifrog");
+                            description = description.Replace("[FROGNAME]", currentPlayedCharacter.characterData.characterName);
                         }
                     }
                 }
