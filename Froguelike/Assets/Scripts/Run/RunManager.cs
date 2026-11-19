@@ -1634,7 +1634,6 @@ public class RunManager : MonoBehaviour
     public void EndRun()
     {
         GameManager.instance.isGameRunning = false;
-        // RunModifierManager.instance.ResetModifiers(); // TODO is this a good place for this? it will mean modifiers are reset between runs
 
         // Show score screen
         ComputeScore();

@@ -1,8 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 public class RunModifierManager : MonoBehaviour
 {
@@ -57,7 +58,7 @@ public class RunModifierManager : MonoBehaviour
     public List<CollectibleSpawnFrequency> powerUpsModiferSpawnFrequencies;
     public int bugTierModifier = 0;
     public bool ignoreEternals = false;
-    public string selectedHatName;
+    public string selectedHatName = "NONE";
 
     private void Awake()
     {
@@ -74,7 +75,7 @@ public class RunModifierManager : MonoBehaviour
 
     public void UpdateModifierScreen()
     {
-        panelBehaviour.SetAllCheckmarks(GetSelectedGameModes());
+        selectedGameModes = Enum.Parse<GameMode>(GameManager.instance.GetCurrentSetGameModes());
 
         difficultyPanel.SetActive(true); // TODO depending on if it is unlocked
         DisplayDifficultyInfo(GetSelectedGameModes());
@@ -88,6 +89,9 @@ public class RunModifierManager : MonoBehaviour
         eternalsPanel.SetActive(true); // TODO depending on if it is unlocked
 
         hatPanel.SetActive(true); // TODO depending on if it is unlocked
+        selectedHatName = GameManager.instance.GetCurrentSetHatName();
+
+        panelBehaviour.SetAllCheckmarks(GetSelectedGameModes(), DataManager.instance.GetTypeOfHatFromString(selectedHatName));
     }
 
     public bool IsGameModeUnlocked(GameMode gameMode)
@@ -109,6 +113,7 @@ public class RunModifierManager : MonoBehaviour
     public void ResetModifiers()
     {
         selectedGameModes = GameMode.NONE;
+        selectedHatName = "NONE";
         ResetModifierValues();
     }
 
@@ -136,6 +141,7 @@ public class RunModifierManager : MonoBehaviour
         }
 
         DisplayDifficultyInfo(GetSelectedGameModes());
+        GameManager.instance.SaveCurrentSetGameMode(selectedGameModes.ToString());
     }
 
     public void SelectGameModeHarder(Toggle thisToggle)
@@ -152,6 +158,7 @@ public class RunModifierManager : MonoBehaviour
         }
 
         DisplayDifficultyInfo(GetSelectedGameModes());
+        GameManager.instance.SaveCurrentSetGameMode(selectedGameModes.ToString());
     }
 
     public void SelectGameModeHardest(Toggle thisToggle)
@@ -168,6 +175,7 @@ public class RunModifierManager : MonoBehaviour
         }
 
         DisplayDifficultyInfo(GetSelectedGameModes());
+        GameManager.instance.SaveCurrentSetGameMode(selectedGameModes.ToString());
     }
 
     public void SelectGameModeHardester(Toggle thisToggle)
@@ -184,6 +192,7 @@ public class RunModifierManager : MonoBehaviour
         }
 
         DisplayDifficultyInfo(GetSelectedGameModes());
+        GameManager.instance.SaveCurrentSetGameMode(selectedGameModes.ToString());
     }
 
     #endregion Difficulty
@@ -234,6 +243,8 @@ public class RunModifierManager : MonoBehaviour
         {
             selectedGameModes &= ~GameMode.POWER_UP_FREEZE; // Remove flag
         }
+
+        GameManager.instance.SaveCurrentSetGameMode(selectedGameModes.ToString());
     }
 
     public void SelectGameModePoison(Toggle thisToggle)
@@ -248,6 +259,8 @@ public class RunModifierManager : MonoBehaviour
         {
             selectedGameModes &= ~GameMode.POWER_UP_POISON; // Remove flag
         }
+
+        GameManager.instance.SaveCurrentSetGameMode(selectedGameModes.ToString());
     }
 
     public void SelectGameModeCurse(Toggle thisToggle)
@@ -262,6 +275,8 @@ public class RunModifierManager : MonoBehaviour
         {
             selectedGameModes &= ~GameMode.POWER_UP_CURSE; // Remove flag
         }
+
+        GameManager.instance.SaveCurrentSetGameMode(selectedGameModes.ToString());
     }
 
     public void SelectGameModeSuperfrog(Toggle thisToggle)
@@ -276,6 +291,8 @@ public class RunModifierManager : MonoBehaviour
         {
             selectedGameModes &= ~GameMode.POWER_UP_SUPERFROG; // Remove flag
         }
+
+        GameManager.instance.SaveCurrentSetGameMode(selectedGameModes.ToString());
     }
 
     public void SelectGameModeParty(Toggle thisToggle)
@@ -290,6 +307,8 @@ public class RunModifierManager : MonoBehaviour
         {
             selectedGameModes &= ~GameMode.POWER_UP_PARTY; // Remove flag
         }
+
+        GameManager.instance.SaveCurrentSetGameMode(selectedGameModes.ToString());
     }
 
     public void SelectGameModeGoop(Toggle thisToggle)
@@ -304,6 +323,8 @@ public class RunModifierManager : MonoBehaviour
         {
             selectedGameModes &= ~GameMode.POWER_UP_GOOP; // Remove flag
         }
+
+        GameManager.instance.SaveCurrentSetGameMode(selectedGameModes.ToString());
     }
 
     public void SelectGameModeUp(Toggle thisToggle)
@@ -318,6 +339,8 @@ public class RunModifierManager : MonoBehaviour
         {
             selectedGameModes &= ~GameMode.POWER_UP_UP; // Remove flag
         }
+
+        GameManager.instance.SaveCurrentSetGameMode(selectedGameModes.ToString());
     }
 
     public void SelectGameModeDown(Toggle thisToggle)
@@ -332,6 +355,8 @@ public class RunModifierManager : MonoBehaviour
         {
             selectedGameModes &= ~GameMode.POWER_UP_DOWN; // Remove flag
         }
+
+        GameManager.instance.SaveCurrentSetGameMode(selectedGameModes.ToString());
     }
 
     #endregion Power-ups
@@ -357,6 +382,8 @@ public class RunModifierManager : MonoBehaviour
         endlessModeToggle.SetIsOnWithoutNotify(false);
         selectedGameModes &= ~GameMode.TIME_DOUBLE; // Remove flag
         selectedGameModes &= ~GameMode.TIME_ENDLESS; // Remove flag
+
+        GameManager.instance.SaveCurrentSetGameMode(selectedGameModes.ToString());
     }
 
     public void SelectGameModeDoubleTime(Toggle thisToggle)
@@ -378,6 +405,8 @@ public class RunModifierManager : MonoBehaviour
         endlessModeToggle.SetIsOnWithoutNotify(false);
         selectedGameModes &= ~GameMode.TIME_HALF; // Remove flag
         selectedGameModes &= ~GameMode.TIME_ENDLESS; // Remove flag
+
+        GameManager.instance.SaveCurrentSetGameMode(selectedGameModes.ToString());
     }
 
 
@@ -400,6 +429,8 @@ public class RunModifierManager : MonoBehaviour
         doubleTimeToggle.SetIsOnWithoutNotify(false);
         selectedGameModes &= ~GameMode.TIME_HALF; // Remove flag
         selectedGameModes &= ~GameMode.TIME_DOUBLE; // Remove flag
+
+        GameManager.instance.SaveCurrentSetGameMode(selectedGameModes.ToString());
     }
 
     #endregion Time
@@ -427,6 +458,8 @@ public class RunModifierManager : MonoBehaviour
         selectedGameModes &= ~GameMode.BUGS_DOWN; // Remove flag
         selectedGameModes &= ~GameMode.BUGS_MAX; // Remove flag
         selectedGameModes &= ~GameMode.BUGS_MIN; // Remove flag
+
+        GameManager.instance.SaveCurrentSetGameMode(selectedGameModes.ToString());
     }
 
     public void SelectGameModeBugTierDown(Toggle thisToggle)
@@ -450,6 +483,8 @@ public class RunModifierManager : MonoBehaviour
         selectedGameModes &= ~GameMode.BUGS_UP; // Remove flag
         selectedGameModes &= ~GameMode.BUGS_MAX; // Remove flag
         selectedGameModes &= ~GameMode.BUGS_MIN; // Remove flag
+
+        GameManager.instance.SaveCurrentSetGameMode(selectedGameModes.ToString());
     }
 
     public void SelectGameModeBugTierMax(Toggle thisToggle)
@@ -473,6 +508,8 @@ public class RunModifierManager : MonoBehaviour
         selectedGameModes &= ~GameMode.BUGS_UP; // Remove flag
         selectedGameModes &= ~GameMode.BUGS_DOWN; // Remove flag
         selectedGameModes &= ~GameMode.BUGS_MIN; // Remove flag
+
+        GameManager.instance.SaveCurrentSetGameMode(selectedGameModes.ToString());
     }
 
     public void SelectGameModeBugTierMin(Toggle thisToggle)
@@ -496,6 +533,8 @@ public class RunModifierManager : MonoBehaviour
         selectedGameModes &= ~GameMode.BUGS_UP; // Remove flag
         selectedGameModes &= ~GameMode.BUGS_DOWN; // Remove flag
         selectedGameModes &= ~GameMode.BUGS_MAX; // Remove flag
+
+        GameManager.instance.SaveCurrentSetGameMode(selectedGameModes.ToString());
     }
 
     #endregion Bug tier
@@ -515,6 +554,8 @@ public class RunModifierManager : MonoBehaviour
         {
             selectedGameModes &= ~GameMode.IGNORE_ETERNALS; // Remove flag
         }
+
+        GameManager.instance.SaveCurrentSetGameMode(selectedGameModes.ToString());
     }
 
     #endregion Eternals
@@ -545,10 +586,9 @@ public class RunModifierManager : MonoBehaviour
         }
 
         frogCharacterController.ClearHats();
-        frogCharacterController.AddHat(thisToggle.hatType);
+        if (modeIsSelected) frogCharacterController.AddHat(thisToggle.hatType);
 
-        // TODO remember the hat, and show the hat on the quick start.
-        // Save hat to previous selected hat.
+        GameManager.instance.SaveCurrentSetHat(selectedHatName);
     }
 
     #endregion Hats

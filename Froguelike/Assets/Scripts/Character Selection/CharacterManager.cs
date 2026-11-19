@@ -183,7 +183,7 @@ public class CharacterManager : MonoBehaviour
     public bool UpdateCharacterSelectionScreen()
     {
         bool isCharacterSelectionScreen = true;
-        // currentSelectedCharacter = null; TODO why is this here? can I remove it?
+        currentSelectedCharacter = GetPlayableCharacter(GameManager.instance.GetCurrentSetCharacterID());
 
         // Remove previous buttons
         foreach (Transform child in characterListGridLayoutGroup)
@@ -384,6 +384,7 @@ public class CharacterManager : MonoBehaviour
 
         // Display stats of this character and Start Run button
         currentSelectedCharacter = selectedCharacter;
+        GameManager.instance.SaveCurrentSetCharacter(currentSelectedCharacter.characterID);
 
         // Update stats
         UpdateStatsList();

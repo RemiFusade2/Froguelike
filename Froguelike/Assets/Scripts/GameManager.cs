@@ -30,15 +30,6 @@ public class GameSaveData : SaveData
     public string lastPlayedCharacterID;
     public string lastPlayedChapterID;
 
-    public string demoCurrentSetModifiers;
-    public string demoCurrentSetHatName;
-    public string demoCurrentSetCharacterID;
-
-    public string demoLastPlayedModifiers;
-    public string demoLastPlayedHatName;
-    public string demoLastPlayedCharacterID;
-    public string demoLastPlayedChapterID;
-
     public bool isFullGame;
 
     public string versionNumber;
@@ -85,7 +76,7 @@ public class GameSaveData : SaveData
         result += "currentSetCharacterID" + currentSetCharacterID + "\n";
         result += "lastPlayedModifiers" + lastPlayedModifiers + "\n";
         result += "lastPlayedHatName" + lastPlayedHatName + "\n";
-        result += "lastPlayedCharacterID" + lastPlayedCharacterID + "\n"; // TODO should this use the demo variables if demo is played? what is this?
+        result += "lastPlayedCharacterID" + lastPlayedCharacterID + "\n";
         result += "lastPlayedChapterID" + lastPlayedChapterID;
         return result;
     }
@@ -123,6 +114,7 @@ public class GameManager : MonoBehaviour
     private const string totalDeathCountSteamStatName = "total_deaths";
     private const string totalChaptersStartedSteamStatName = "total_chapters_started";
 
+    /*
     // Used for saving and loading quick start info
     private const string savedLastSelectedCharacter = "Froguelike last selected character";
     private const string savedLastSelectedGameMode = "Froguelike last selected game mode";
@@ -130,7 +122,7 @@ public class GameManager : MonoBehaviour
 
     private const string savedLastSelectedCharacterDemo = "Froguelike Demo last selected character";
     private const string savedLastSelectedGameModeDemo = "Froguelike Demo last selected game mode";
-    private const string savedLastSelectedStartingChapterDemo = "Froguelike Demo last selected starting chapter";
+    private const string savedLastSelectedStartingChapterDemo = "Froguelike Demo last selected starting chapter";*/
 
     private void Awake()
     {
@@ -166,6 +158,9 @@ public class GameManager : MonoBehaviour
 
         // Make sure that the right screen is interactive and others behind it are inactive
         UIManager.instance.ResetTitleScreenInteractability();
+
+        // Clear hats.
+        RunManager.instance.player.ClearHats();
     }
 
     private void Update()
@@ -254,31 +249,53 @@ public class GameManager : MonoBehaviour
         UIManager.instance.ShowCharacterSelectionScreen(true);
     }
 
-
+    /*
     // Keys for quick run.
     #region Keys
-    private string GetSavedLastSelectedCharacter()
+    private string GetSavedLastSelectedCharacter() // OLD
     {
         return BuildManager.instance.demoBuild ? savedLastSelectedCharacterDemo : savedLastSelectedCharacter;
     }
 
-    private string GetSavedLastSelectedGameMode()
+    private string GetSavedLastSelectedGameMode() // OLD
     {
         return BuildManager.instance.demoBuild ? savedLastSelectedGameModeDemo : savedLastSelectedGameMode;
     }
 
-    private string GetSavedLastSelectedStartingChapter()
+    
+    private string GetSavedLastSelectedStartingChapter() // OLD
     {
         return BuildManager.instance.demoBuild ? savedLastSelectedStartingChapterDemo : savedLastSelectedStartingChapter;
     }
     #endregion Keys
 
-    // TODO keep this one, to remove the old keys in the player prefs?
-    public void RemoveSelectedCharacterGameModeAndStartingChapter()
+    */
+    private bool CheckIfLastPlayedIsAvailable()
     {
-        PlayerPrefs.DeleteKey(GetSavedLastSelectedCharacter());
-        PlayerPrefs.DeleteKey(GetSavedLastSelectedGameMode());
-        PlayerPrefs.DeleteKey(GetSavedLastSelectedStartingChapter());
+        bool isAvailable = false;
+        if (ChapterManager.instance.chaptersData.chaptersList.Find(x => x.chapterID == gameData.lastPlayedChapterID).unlocked && ChapterManager.instance.chaptersData.chaptersList.Find(x => x.chapterID == gameData.lastPlayedChapterID).attemptCountByCharacters.Count > 0)
+        {
+            if (CharacterManager.instance.charactersData.charactersList.Find(x => x.characterID == gameData.lastPlayedCharacterID).unlocked)
+            {
+                if (RunModifierManager.instance.IsGameModeUnlocked(Enum.Parse<GameMode>(gameData.lastPlayedModifiers)))
+                {
+                    if (gameData.lastPlayedHatName == "NONE" || CollectiblesManager.instance.GetFoundHats().Contains(DataManager.instance.GetTypeOfHatFromString(gameData.lastPlayedHatName)))
+                    {
+                        isAvailable = true;
+                    }
+                }
+            }
+        }
+
+        if (isAvailable)
+        {
+            return true;
+        }
+        else
+        {
+            ClearLastPlayedCharacterGameModeStartingChapterAndHat();
+            return false;
+        }
     }
 
     public void ClearLastPlayedCharacterGameModeStartingChapterAndHat()
@@ -289,21 +306,94 @@ public class GameManager : MonoBehaviour
         gameData.lastPlayedChapterID = "";
     }
 
+    public void ClearCurrentSetCharacterGameModeAndHat()
+    {
+        gameData.currentSetModifiers = "";
+        gameData.currentSetHatName = "";
+        gameData.currentSetCharacterID = "";
+    }
+
     public void SaveLastPlayedCharacterGameModeStartingChapterAndHat(string characterID, string gameModes, string chapterID, string hatName)
     {
-        /*PlayerPrefs.SetString(GetSavedLastSelectedCharacter(), characterID);
-        PlayerPrefs.SetString(GetSavedLastSelectedGameMode(), gameMode);
-        PlayerPrefs.SetString(GetSavedLastSelectedStartingChapter(), chapterID);*/
         gameData.lastPlayedModifiers = gameModes;
         gameData.lastPlayedHatName = hatName;
         gameData.lastPlayedCharacterID = characterID;
         gameData.lastPlayedChapterID = chapterID;
+
+        // This means that the current ones are also these options.
+        gameData.currentSetModifiers = gameModes;
+        gameData.currentSetHatName = hatName;
+        gameData.currentSetCharacterID = characterID;
+
+        SaveDataManager.instance.isSaveDataDirty = true;
+    }
+
+    public void SaveCurrentSetCharacter(string characterID)
+    {
+        gameData.currentSetCharacterID = characterID;
+        SaveDataManager.instance.isSaveDataDirty = true;
+    }
+
+    public void SaveCurrentSetGameMode(string gameModes)
+    {
+        gameData.currentSetModifiers = gameModes;
+        SaveDataManager.instance.isSaveDataDirty = true;
+    }
+
+    public void SaveCurrentSetHat(string hatName)
+    {
+        gameData.currentSetHatName = hatName;
+        SaveDataManager.instance.isSaveDataDirty = true;
+    }
+
+    public string GetCurrentSetCharacterID()
+    {
+        if (gameData.currentSetCharacterID == "" || gameData.currentSetCharacterID == null)
+        {
+            return "CLASSIC_FROG";
+        }
+        else
+        {
+            return gameData.currentSetCharacterID;
+        }
+    }
+
+    public string GetCurrentSetGameModes()
+    {
+        if (gameData.currentSetModifiers == "" || gameData.currentSetModifiers == null)
+        {
+            return "NONE";
+        }
+        else
+        {
+            return gameData.currentSetModifiers;
+        }
+    }
+
+    public string GetCurrentSetHatName()
+    {
+        if (gameData.currentSetHatName == "" || gameData.currentSetHatName == null)
+        {
+            return "NONE";
+        }
+        else
+        {
+            return gameData.currentSetHatName;
+        }
     }
 
     // Checks if the quick start/try again buttons should be shown.
     public bool AreThereQuickStartOptions()
     {
         if (gameData.lastPlayedModifiers == "" || gameData.lastPlayedHatName == "" || gameData.lastPlayedCharacterID == "" || gameData.lastPlayedChapterID == "")
+        {
+            return false;
+        }
+        else if (gameData.lastPlayedModifiers == null || gameData.lastPlayedHatName == null || gameData.lastPlayedCharacterID == null || gameData.lastPlayedChapterID == null)
+        {
+            return false;
+        }
+        else if (!CheckIfLastPlayedIsAvailable())
         {
             return false;
         }
@@ -320,11 +410,13 @@ public class GameManager : MonoBehaviour
         RunModifierManager.instance.selectedGameModes = Enum.Parse<GameMode>(GetRetryRunInfoGameModes());
         Chapter startChapter = ChapterManager.instance.GetChapterFromID(GetRetryRunInfoChapterID());
 
+        // Set and add the hat.
+        RunModifierManager.instance.selectedHatName = GetRetryRunInfoHatName();
+        RunManager.instance.player.ClearHats();
+        RunManager.instance.player.AddHat(DataManager.instance.GetTypeOfHatFromString(GetRetryRunInfoHatName()));
+
         // Start the run.
         RunManager.instance.StartNewRun(CharacterManager.instance.currentSelectedCharacter, RunModifierManager.instance.selectedGameModes, startChapter);
-
-        // Add the hat.
-        RunManager.instance.player.AddHat(DataManager.instance.GetTypeOfHatFromString(GetRetryRunInfoHatName()));
     }
 
     #region Get info helpers
@@ -347,7 +439,7 @@ public class GameManager : MonoBehaviour
     public string GetRetryRunInfoGameModes()
     {
         string gameModes;
-        if (gameData.lastPlayedCharacterID != "")
+        if (gameData.lastPlayedModifiers != "")
         {
             gameModes = gameData.lastPlayedModifiers;
         }
@@ -377,7 +469,7 @@ public class GameManager : MonoBehaviour
     public string GetRetryRunInfoHatName()
     {
         string hatName;
-        if (gameData.lastPlayedCharacterID != "")
+        if (gameData.lastPlayedHatName != "")
         {
             hatName = gameData.lastPlayedHatName;
         }
@@ -642,7 +734,7 @@ public class GameManager : MonoBehaviour
         }
 
         // Clear Quick start options
-        RemoveSelectedCharacterGameModeAndStartingChapter();
+        // RemoveSelectedCharacterGameModeAndStartingChapter();
 
         // Clear game mode.
         RunModifierManager.instance.ResetModifiers();

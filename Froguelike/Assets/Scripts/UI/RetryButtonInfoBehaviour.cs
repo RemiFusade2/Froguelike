@@ -27,6 +27,7 @@ public class RetryButtonInfoBehaviour : MonoBehaviour
             HatInfo hatInfo = DataManager.instance.GetInfoForHat(DataManager.instance.GetTypeOfHatFromString(GameManager.instance.GetRetryRunInfoHatName()));
             hatImage.gameObject.SetActive(true);
             hatImage.sprite = hatInfo.hatSprite;
+            hatImage.SetNativeSize();
         }
 
 
@@ -41,7 +42,7 @@ public class RetryButtonInfoBehaviour : MonoBehaviour
         }
         else
         {
-            infoText = ChapterManager.instance.GetChapterFromID(GameManager.instance.GetRetryRunInfoChapterID()).chapterData.chapterTitle; // TODO need to load this date at the start of the game
+            infoText = ChapterManager.instance.GetChapterFromID(GameManager.instance.GetRetryRunInfoChapterID()).chapterData.chapterTitle;
         }
 
         // Game modes.

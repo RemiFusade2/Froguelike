@@ -30,16 +30,16 @@ public class PanelBehaviour : MonoBehaviour
     [Space]
     public Toggle eternalsToggle;
     [Space]
-    public Toggle hatToggle; // ?
+    public List<HatToggle> hatToggles;
 
-    public void SetAllCheckmarks(GameMode gameModes)
+    public void SetAllCheckmarks(GameMode gameModes, HatType hatType)
     {
         SetDifficultyCheckmarks(gameModes);
         SetTimeCheckmarks(gameModes);
         SetBugtierCheckmarks(gameModes);
         SetPowerupsCheckmarks(gameModes);
         SetEternalsCheckmarks(gameModes);
-        // SetHatCheckmarks(gameModes);
+        SetHatCheckmarks(hatType);
     }
 
     public void SetDifficultyCheckmarks(GameMode gameModes)
@@ -142,8 +142,22 @@ public class PanelBehaviour : MonoBehaviour
         eternalsToggle.GetComponent<ModifierToggleBehaviour>().staticCheckmark.SetActive(modeIsOn);
     }
 
-    public void SetHatCheckmarks(GameMode gameModes)
+    public void SetHatCheckmarks(HatType hatType)
     {
-        // Hats. TODO should be handled seperatly? and differently.
+        // Hats.
+        foreach (HatToggle hatToggle in hatToggles)
+        {
+            if (hatType == HatType.NO_HAT)
+            {
+                hatToggle.thisToggle.SetIsOnWithoutNotify(false);
+                continue;
+            }
+
+            if (hatToggle.hatType == hatType)
+            {
+                hatToggle.thisToggle.isOn = true;
+                hatToggle.thisToggle.GetComponent<ModifierToggleBehaviour>().staticCheckmark.SetActive(true);
+            }
+        }
     }
 }
