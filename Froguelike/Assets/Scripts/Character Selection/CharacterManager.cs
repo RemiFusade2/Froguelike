@@ -74,8 +74,6 @@ public class CharactersSaveData : SaveData
     public List<PlayableCharacter> charactersList;
 
     public GameMode availableGameModes;
-    public string selectedGameModes;
-    public string previousGameModes;
 
     public CharactersSaveData()
     {

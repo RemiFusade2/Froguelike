@@ -57,7 +57,7 @@ public class RunModifierManager : MonoBehaviour
     public List<CollectibleSpawnFrequency> powerUpsModiferSpawnFrequencies;
     public int bugTierModifier = 0;
     public bool ignoreEternals = false;
-    public HatType selectedHat = HatType.NO_HAT;
+    public string selectedHatName;
 
     private void Awake()
     {
@@ -529,11 +529,11 @@ public class RunModifierManager : MonoBehaviour
 
         if (modeIsSelected)
         {
-            selectedHat = thisToggle.hatType;
+            selectedHatName = DataManager.instance.GetInfoForHat(thisToggle.hatType).hatName;
         }
         else
         {
-            selectedHat = HatType.NO_HAT;
+            selectedHatName = "NONE";
         }
 
         foreach (Toggle otherToggle in hatToggles)
@@ -547,7 +547,8 @@ public class RunModifierManager : MonoBehaviour
         frogCharacterController.ClearHats();
         frogCharacterController.AddHat(thisToggle.hatType);
 
-        // TODO remeber the hat, and show the hat on the quick start.
+        // TODO remember the hat, and show the hat on the quick start.
+        // Save hat to previous selected hat.
     }
 
     #endregion Hats

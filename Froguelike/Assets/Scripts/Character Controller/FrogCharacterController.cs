@@ -964,23 +964,26 @@ public class FrogCharacterController : MonoBehaviour
 
     public void AddHat(HatType hatType)
     {
-        int hatCount = hatsParent.childCount;
-        Transform previousHatTransform = (hatCount <= 0) ? null : hatsParent.GetChild(hatCount - 1);
-        GameObject newHatGo = Instantiate(hatPrefab, hatsParent);
-        HatInfo hatInfo = DataManager.instance.GetInfoForHat(hatType);
-        int sortingOrder = hatSortingOrder;
-        if (previousHatTransform != null)
+        if (hatType != HatType.NO_HAT)
         {
-            // hat is not the first, we move it
-            float previousHatHeight = previousHatTransform.GetComponent<HatBehaviour>().GetHatHeight();
-            newHatGo.transform.localPosition = previousHatTransform.localPosition - previousHatHeight * Vector3.up;
-        }
-        sortingOrder += hatCount;
-        newHatGo.GetComponent<HatBehaviour>().Initialize(hatInfo);
+            int hatCount = hatsParent.childCount;
+            Transform previousHatTransform = (hatCount <= 0) ? null : hatsParent.GetChild(hatCount - 1);
+            GameObject newHatGo = Instantiate(hatPrefab, hatsParent);
+            HatInfo hatInfo = DataManager.instance.GetInfoForHat(hatType);
+            int sortingOrder = hatSortingOrder;
+            if (previousHatTransform != null)
+            {
+                // hat is not the first, we move it
+                float previousHatHeight = previousHatTransform.GetComponent<HatBehaviour>().GetHatHeight();
+                newHatGo.transform.localPosition = previousHatTransform.localPosition - previousHatHeight * Vector3.up;
+            }
+            sortingOrder += hatCount;
+            newHatGo.GetComponent<HatBehaviour>().Initialize(hatInfo);
 
-        if (logsVerboseLevel == VerboseLevel.MAXIMAL)
-        {
-            Debug.Log($"Player - Add Hat:{hatType}");
+            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log($"Player - Add Hat:{hatType}");
+            }
         }
     }
 

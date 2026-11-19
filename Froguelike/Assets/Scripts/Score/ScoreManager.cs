@@ -154,7 +154,7 @@ public class ScoreManager : MonoBehaviour
         currencyCollectedText.text = Tools.FormatCurrency(currencyCollected, DataManager.instance.currencySymbol);
 
         // Display difficulty.
-        string gameMode = GameManager.instance.GetRetryRunInfoGameMode();
+        string gameMode = GameManager.instance.GetRetryRunInfoGameModes();
         if (gameMode != "NONE")
         {
             difficultyText.gameObject.SetActive(true);

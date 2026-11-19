@@ -102,6 +102,7 @@ public class HatInfo
     public HatType hatType;
     public Sprite hatSprite;
     public float hatHeight;
+    public string hatName;
 }
 
 [System.Serializable]
@@ -172,6 +173,13 @@ public class BugTypeSprites
 {
     public EnemyType bugType;
     public Sprite bugTypeSprites;
+}
+
+[System.Serializable]
+public class GameModeNames
+{
+    public GameMode gameMode;
+    public string displayName;
 }
 
 /// <summary>
@@ -265,6 +273,8 @@ public class DataManager : MonoBehaviour
     [Header("Next Chapter Condition Count")]
     public List<NextChapterConditionCountInfo> nextChapterConditionCountInfoList;
 
+    [Header("Game mode display names")]
+    public List<GameModeNames> gameModeDisplayNames;
 
     private Vector3 farAwayPosition;
 
@@ -456,6 +466,19 @@ public class DataManager : MonoBehaviour
             result = info.hatSprite;
         }
         return result;
+    }
+
+    public HatType GetTypeOfHatFromString(string hatName)
+    {
+        HatType returnThisHatType = HatType.NO_HAT;
+        foreach (HatInfo hatInfo in hatInfoList)
+        {
+            if (hatInfo.hatName == hatName)
+            {
+                returnThisHatType = hatInfo.hatType;
+            }
+        }
+        return returnThisHatType;
     }
 
     public Sprite GetSpriteForCollectible(FixedCollectible collectible)

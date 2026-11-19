@@ -1442,7 +1442,7 @@ public class RunManager : MonoBehaviour
         currentChapter = null;
 
         // Save current selection to Game Manager, for future quick start and stuff
-        GameManager.instance.SaveSelectedCharacterGameModeAndStartingChapter(currentPlayedCharacter.characterID, playedGameModes.ToString(), "Endless");
+        GameManager.instance.SaveLastPlayedCharacterGameModeStartingChapterAndHat(currentPlayedCharacter.characterID, playedGameModes.ToString(), "Endless", RunModifierManager.instance.selectedHatName);
 
         StartCoroutine(StartChapterAsync());
     }
@@ -1471,11 +1471,11 @@ public class RunManager : MonoBehaviour
             // EXCEPT IN THE CASE OF TOAD'S CHALLENGE
             if (chapter.chapterID.Equals("[CH_ENDING_TOAD]"))
             {
-                GameManager.instance.RemoveSelectedCharacterGameModeAndStartingChapter();
+                GameManager.instance.ClearLastPlayedCharacterGameModeStartingChapterAndHat();
             }
             else
             {
-                GameManager.instance.SaveSelectedCharacterGameModeAndStartingChapter(currentPlayedCharacter.characterID, playedGameModes.ToString(), chapter.chapterID);
+                GameManager.instance.SaveLastPlayedCharacterGameModeStartingChapterAndHat(currentPlayedCharacter.characterID, playedGameModes.ToString(), chapter.chapterID, RunModifierManager.instance.selectedHatName);
             }
         }
 

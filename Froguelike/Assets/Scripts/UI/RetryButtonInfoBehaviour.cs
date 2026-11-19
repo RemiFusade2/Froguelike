@@ -9,28 +9,48 @@ public class RetryButtonInfoBehaviour : MonoBehaviour
     public Image characterImage;
     public TextMeshProUGUI infoTextTMP;
     public string difficultyPrefix;
+    public Image hatImage;
 
     public void SetRetryInfo()
     {
+        // Character image.
         characterImage.sprite = CharacterManager.instance.GetCharacterData(GameManager.instance.GetRetryRunInfoCharacterID()).characterSprite;
         characterImage.SetNativeSize();
+
+        // Hat image.
+        if (GameManager.instance.GetRetryRunInfoHatName() == "NONE")
+        {
+            hatImage.gameObject.SetActive(false);
+        }
+        else
+        {
+            HatInfo hatInfo = DataManager.instance.GetInfoForHat(DataManager.instance.GetTypeOfHatFromString(GameManager.instance.GetRetryRunInfoHatName()));
+            hatImage.gameObject.SetActive(true);
+            hatImage.sprite = hatInfo.hatSprite;
+        }
+
+
+        // Info.
         string infoText;
-        if ((RunModifierManager.instance.GetSelectedGameModes() & GameMode.TIME_ENDLESS) == GameMode.TIME_ENDLESS)
+        string gameModes = GameManager.instance.GetRetryRunInfoGameModes();
+
+        // Chapter name.
+        if (gameModes.Contains("TIME_ENDLESS")) // TODO does this work??
         {
             infoText = "Endless";
         }
         else
         {
-            infoText = ChapterManager.instance.GetChapterFromID(GameManager.instance.GetRetryRunInfoChapter()).chapterData.chapterTitle; // TODO need to load this date at the start of the game
+            infoText = ChapterManager.instance.GetChapterFromID(GameManager.instance.GetRetryRunInfoChapterID()).chapterData.chapterTitle; // TODO need to load this date at the start of the game
         }
 
-        string gameMode = GameManager.instance.GetRetryRunInfoGameMode();
-
-        if (gameMode != "NONE")
+        // Game modes.
+        if (gameModes != "NONE")
         {
-            infoText += "\n" + difficultyPrefix + gameMode[0].ToString().ToUpper() + gameMode.Substring(1).ToLower().Replace(", ", "+");
+            infoText += "\n" + difficultyPrefix + gameModes[0].ToString().ToUpper() + gameModes.Substring(1).ToLower().Replace(", ", "+");
         }
 
+        // Display the info.
         infoTextTMP.SetText(infoText);
     }
 }
