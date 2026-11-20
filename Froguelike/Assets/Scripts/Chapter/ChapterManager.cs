@@ -1334,6 +1334,31 @@ public class ChapterManager : MonoBehaviour
         }
     }
 
+    public void TransferAttemptsCompletionAndFoundCollectiblesForChaptersFromDemoToEA(List<Chapter> chaptersList)
+    {
+        foreach (Chapter chapter in chaptersData.chaptersList)
+        {
+            if (chapter.chapterID != "[CH_COLLECT_COINS]") // Skip that chapter, because it is unlocked in the demo from start but is not in the full game from the start. Altough, I figure out that that chapter still can't be played in the demo, but I will keep this code anyway.
+            {
+                Chapter chapterFromSave = chaptersList.FirstOrDefault(x => x.chapterID.Equals(chapter.chapterID));
+                if (chapterFromSave != null)
+                { 
+
+                    chapter.attemptCountByCharacters = new List<CharacterCount>(chapterFromSave.attemptCountByCharacters);
+                    chapter.completionCountByCharacters = new List<CharacterCount>(chapterFromSave.completionCountByCharacters);
+                    if (chapterFromSave.fixedCollectiblesFoundList != null)
+                    {
+                        chapter.fixedCollectiblesFoundList = new List<FixedCollectibleFound>(chapterFromSave.fixedCollectiblesFoundList);
+                    }
+                    else
+                    {
+                        chapter.fixedCollectiblesFoundList = new List<FixedCollectibleFound>();
+                    }
+                }
+            }
+        }
+    }
+
     #endregion
 
     /// <summary>
