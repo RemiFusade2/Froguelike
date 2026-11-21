@@ -273,7 +273,7 @@ public class GameManager : MonoBehaviour
     private bool CheckIfLastPlayedIsAvailable()
     {
         bool isAvailable = false;
-        if (ChapterManager.instance.chaptersData.chaptersList.Find(x => x.chapterID == gameData.lastPlayedChapterID).unlocked && ChapterManager.instance.chaptersData.chaptersList.Find(x => x.chapterID == gameData.lastPlayedChapterID).attemptCountByCharacters.Count > 0)
+        if ((gameData.lastPlayedChapterID == "Endless" && RunModifierManager.instance.IsGameModeUnlocked(GameMode.TIME_ENDLESS)) || (ChapterManager.instance.chaptersData.chaptersList.Find(x => x.chapterID == gameData.lastPlayedChapterID).unlocked && ChapterManager.instance.chaptersData.chaptersList.Find(x => x.chapterID == gameData.lastPlayedChapterID).attemptCountByCharacters.Count > 0))
         {
             if (CharacterManager.instance.charactersData.charactersList.Find(x => x.characterID == gameData.lastPlayedCharacterID).unlocked)
             {

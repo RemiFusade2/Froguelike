@@ -120,6 +120,8 @@ public class CharacterManager : MonoBehaviour
     public ScrollRect statsListScrollRect;
     public ScrollbarKeepCursorSizeBehaviour statListScrollbar;
     public GameObject hideShopStats;
+    [Space]
+    public GameObject modifierNote;
 
     [Header("UI Prefab")]
     public GameObject characterPanelPrefab;
@@ -157,7 +159,6 @@ public class CharacterManager : MonoBehaviour
     {
         return charactersData.charactersList.Count(x => x.unlocked);
     }
-
 
     public PlayableCharacter GetPlayableCharacter(string characterID)
     {
@@ -324,6 +325,14 @@ public class CharacterManager : MonoBehaviour
         UpdateStatsList();
 
         // TODO Show the modifier info on the side. With a button to switch to that spread. Needs to check if any modifiers are unlocked, if so show note.
+        if (charactersData.availableGameModes != GameMode.NONE)
+        {
+            modifierNote.SetActive(true);
+        }
+        else
+        {
+            modifierNote.SetActive(false);
+        }
 
         if (buttonCount == 1 && defaultCharacter != null)
         {
@@ -729,6 +738,44 @@ public class CharacterManager : MonoBehaviour
             character.characterStatsIncrements = StatsWrapper.JoinLists(character.characterStatsIncrements, changedStatsValues);
             minifrogCharacter.characterStatsIncrements = StatsWrapper.JoinLists(minifrogCharacter.characterStatsIncrements, changedStatsValues);
             SaveDataManager.instance.isSaveDataDirty = true;
+        }
+    }
+
+    public bool AreAnyEternalsGained()
+    {
+        bool eternalGained = false;
+        foreach (PlayableCharacter character in charactersData.charactersList)
+        {
+            if (character.characterStatsIncrements.statsList.Count > 0)
+            {
+                eternalGained = true;
+                return eternalGained;
+            }
+        }
+
+        return eternalGained;
+    }
+
+    public bool AreAllEternalsGained()
+    {
+        List<StatValue> allPermanentUpgradeStats = new List<StatValue>();
+
+        foreach (RunPermanentUpgradeItemData permanentUpgrade in RunItemManager.instance.allPermanentUpgradeRunItemsScriptableObjects)
+        {
+            foreach (StatValue effect in permanentUpgrade.effect.statUpgrades.statsList)
+            {
+                allPermanentUpgradeStats.Add(effect);
+            }
+        }
+
+        List<StatValue> minifrogPermanentUpgrades = charactersData.charactersList.Find(x => x.characterID == "MINIFROG").characterStatsIncrements.statsList;
+        if (allPermanentUpgradeStats.Count == minifrogPermanentUpgrades.Count)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 

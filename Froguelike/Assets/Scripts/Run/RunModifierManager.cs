@@ -15,6 +15,10 @@ public class RunModifierManager : MonoBehaviour
     [Header("UI References")] // TODO add all panels, should the be blank/hidden before having one option unlocked? Or just ???? 
     public GameObject difficultyPanel;
     public TextMeshProUGUI difficultyPanelInfoText;
+    public Toggle hardToggle;
+    public Toggle harderToggle;
+    public Toggle hardestToggle;
+    public Toggle hardesterToggle;
     [Space]
     public GameObject timePanel;
     public Toggle halfTimeToggle;
@@ -28,8 +32,17 @@ public class RunModifierManager : MonoBehaviour
     public Toggle bugsMinToggle;
     [Space]
     public GameObject powerupPanel;
+    public Toggle freezeToggle;
+    public Toggle poisonToggle;
+    public Toggle curseToggle;
+    public Toggle superfrogToggle;
+    public Toggle partyToggle;
+    public Toggle goopToggle;
+    public Toggle upbugToggle;
+    public Toggle downbugToggle;
     [Space]
     public GameObject eternalsPanel;
+    public Toggle eternalsToggle;
     [Space]
     public GameObject hatPanel;
     public List<Toggle> hatToggles;
@@ -77,18 +90,112 @@ public class RunModifierManager : MonoBehaviour
     {
         selectedGameModes = Enum.Parse<GameMode>(GameManager.instance.GetCurrentSetGameModes());
 
-        difficultyPanel.SetActive(true); // TODO depending on if it is unlocked
-        DisplayDifficultyInfo(GetSelectedGameModes());
+        // Difficulty.
+        if (IsGameModeUnlocked(GameMode.HARD) || IsGameModeUnlocked(GameMode.HARDER) || IsGameModeUnlocked(GameMode.HARDEST) || IsGameModeUnlocked(GameMode.HARDESTER))
+        {
+            difficultyPanel.SetActive(true);
+            hardToggle.interactable = IsGameModeUnlocked(GameMode.HARD);
+            harderToggle.interactable = IsGameModeUnlocked(GameMode.HARDER);
+            hardestToggle.interactable = IsGameModeUnlocked(GameMode.HARDEST);
+            hardesterToggle.interactable = IsGameModeUnlocked(GameMode.HARDESTER);
+            DisplayDifficultyInfo(GetSelectedGameModes());
+        }
+        else
+        {
+            difficultyPanel.SetActive(false);
+            hardToggle.interactable = false;
+            harderToggle.interactable = false;
+            hardestToggle.interactable = false;
+            hardesterToggle.interactable = false;
+        }
 
-        timePanel.SetActive(true); // TODO depending on if it is unlocked
+        // Time.
+        if (IsGameModeUnlocked(GameMode.TIME_HALF) || IsGameModeUnlocked(GameMode.TIME_DOUBLE) || IsGameModeUnlocked(GameMode.TIME_ENDLESS))
+        {
+            timePanel.SetActive(true);
+            halfTimeToggle.interactable = IsGameModeUnlocked(GameMode.TIME_HALF);
+            doubleTimeToggle.interactable = IsGameModeUnlocked(GameMode.TIME_DOUBLE);
+            endlessModeToggle.interactable = IsGameModeUnlocked(GameMode.TIME_ENDLESS);
+        }
+        else
+        {
+            timePanel.SetActive(false);
+            halfTimeToggle.interactable = false;
+            doubleTimeToggle.interactable = false;
+            endlessModeToggle.interactable = false;
+        }
 
-        bugTierPanel.SetActive(true); // TODO depending on if it is unlocked
+        // Bug tier.
+        if (IsGameModeUnlocked(GameMode.BUGS_UP) || IsGameModeUnlocked(GameMode.BUGS_DOWN) || IsGameModeUnlocked(GameMode.BUGS_MAX) || IsGameModeUnlocked(GameMode.BUGS_MIN))
+        {
+            bugTierPanel.SetActive(true);
+            bugsUpToggle.interactable = IsGameModeUnlocked(GameMode.BUGS_UP);
+            bugsDownToggle.interactable = IsGameModeUnlocked(GameMode.BUGS_DOWN);
+            bugsMaxToggle.interactable = IsGameModeUnlocked(GameMode.BUGS_MAX);
+            bugsMinToggle.interactable = IsGameModeUnlocked(GameMode.BUGS_MIN);
+        }
+        else
+        {
+            bugTierPanel.SetActive(false);
+            bugsUpToggle.interactable = false;
+            bugsDownToggle.interactable = false;
+            bugsMaxToggle.interactable = false;
+            bugsMinToggle.interactable = false;
+        }
 
-        powerupPanel.SetActive(true); // TODO depending on if it is unlocked
+        // Power-ups.
+        if (IsGameModeUnlocked(GameMode.POWER_UP_FREEZE) || IsGameModeUnlocked(GameMode.POWER_UP_POISON) || IsGameModeUnlocked(GameMode.POWER_UP_CURSE) || IsGameModeUnlocked(GameMode.POWER_UP_SUPERFROG) || IsGameModeUnlocked(GameMode.POWER_UP_PARTY) || IsGameModeUnlocked(GameMode.POWER_UP_GOOP) || IsGameModeUnlocked(GameMode.POWER_UP_UP) || IsGameModeUnlocked(GameMode.POWER_UP_DOWN))
+        {
+            powerupPanel.SetActive(true);
+            freezeToggle.interactable = IsGameModeUnlocked(GameMode.POWER_UP_FREEZE);
+            poisonToggle.interactable = IsGameModeUnlocked(GameMode.POWER_UP_POISON);
+            curseToggle.interactable = IsGameModeUnlocked(GameMode.POWER_UP_CURSE);
+            superfrogToggle.interactable = IsGameModeUnlocked(GameMode.POWER_UP_SUPERFROG);
+            partyToggle.interactable = IsGameModeUnlocked(GameMode.POWER_UP_PARTY);
+            goopToggle.interactable = IsGameModeUnlocked(GameMode.POWER_UP_GOOP);
+            upbugToggle.interactable = IsGameModeUnlocked(GameMode.POWER_UP_UP);
+            downbugToggle.interactable = IsGameModeUnlocked(GameMode.POWER_UP_DOWN);
+        }
+        else
+        {
+            powerupPanel.SetActive(false);
+            freezeToggle.interactable = false;
+            poisonToggle.interactable = false;
+            curseToggle.interactable = false;
+            superfrogToggle.interactable = false;
+            partyToggle.interactable = false;
+            goopToggle.interactable = false;
+            upbugToggle.interactable = false;
+            downbugToggle.interactable = false;
+        }
 
-        eternalsPanel.SetActive(true); // TODO depending on if it is unlocked
+        // Eternals.
+        if (IsGameModeUnlocked(GameMode.IGNORE_ETERNALS))
+        {
+            eternalsPanel.SetActive(true);
+            eternalsToggle.interactable = IsGameModeUnlocked(GameMode.IGNORE_ETERNALS);
+        }
+        else
+        {
+            eternalsPanel.SetActive(false);
+            eternalsToggle.interactable = false;
+        }
 
-        hatPanel.SetActive(true); // TODO depending on if it is unlocked
+        // Hats.
+        List<HatType> foundHats = CollectiblesManager.instance.GetFoundHats();
+        hatPanel.SetActive(foundHats.Count > 0);
+        foreach (Toggle hatToggle in hatToggles)
+        {
+            if (foundHats.Contains(hatToggle.GetComponent<HatToggle>().hatType))
+            {
+                hatToggle.interactable = true;
+            }
+            else
+            {
+                hatToggle.interactable = false;
+            }
+        }
+
         selectedHatName = GameManager.instance.GetCurrentSetHatName();
 
         panelBehaviour.SetAllCheckmarks(GetSelectedGameModes(), DataManager.instance.GetTypeOfHatFromString(selectedHatName));
@@ -101,7 +208,7 @@ public class RunModifierManager : MonoBehaviour
 
     public void UnlockGameMode(GameMode gameMode)
     {
-        CharacterManager.instance.charactersData.availableGameModes |= gameMode;
+        CharacterManager.instance.charactersData.availableGameModes |= gameMode; // TODO does this work with multiple game modes?
         SaveDataManager.instance.isSaveDataDirty = true;
     }
 
@@ -123,7 +230,6 @@ public class RunModifierManager : MonoBehaviour
         bugTierModifier = 0;
         ignoreEternals = false;
     }
-
 
     #region Difficulty
 
@@ -195,8 +301,6 @@ public class RunModifierManager : MonoBehaviour
         GameManager.instance.SaveCurrentSetGameMode(selectedGameModes.ToString());
     }
 
-    #endregion Difficulty
-
     public void DisplayDifficultyInfo(GameMode gameMode)
     {
         string text = "";
@@ -228,6 +332,8 @@ public class RunModifierManager : MonoBehaviour
         text = "+" + modifierAmount + "% bug health\n+" + modifierAmount + "% bug speed\n+" + modifierAmount + "% bug strength\n+" + modifierAmount + "% froins";
         setThisText.text = text;
     }
+
+    #endregion Difficulty
 
     #region Power-ups
 
@@ -564,8 +670,6 @@ public class RunModifierManager : MonoBehaviour
 
     public void SelectHatToWear(HatToggle thisToggle)
     {
-        List<HatType> foundHats = CollectiblesManager.instance.GetFoundHats();
-        // Hat.
         bool modeIsSelected = thisToggle.thisToggle.isOn;
 
         if (modeIsSelected)

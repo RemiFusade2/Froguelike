@@ -378,6 +378,12 @@ public class AchievementManager : MonoBehaviour
                                 case AchievementConditionSpecialKey.START_10_CHAPTERS:
                                     conditionsAreMet &= (ChapterManager.instance.GetStartedChaptersCount() >= 10);
                                     break;
+                                case AchievementConditionSpecialKey.GET_FIRST_ETERNAL:
+                                    conditionsAreMet &= (CharacterManager.instance.AreAnyEternalsGained());
+                                    break;
+                                case AchievementConditionSpecialKey.GET_ALL_ETERNALS:
+                                    conditionsAreMet &= (CharacterManager.instance.AreAllEternalsGained());
+                                    break;
                                 default:
                                     conditionsAreMet = false;
                                     break;
@@ -535,6 +541,12 @@ public class AchievementManager : MonoBehaviour
                                     break;
                                 case AchievementConditionSpecialKey.START_10_CHAPTERS:
                                     conditionsAreMet &= (ChapterManager.instance.GetStartedChaptersCount() >= 10);
+                                    break;
+                                case AchievementConditionSpecialKey.GET_FIRST_ETERNAL:
+                                    conditionsAreMet &= (CharacterManager.instance.AreAnyEternalsGained());
+                                    break;
+                                case AchievementConditionSpecialKey.GET_ALL_ETERNALS:
+                                    conditionsAreMet &= (CharacterManager.instance.AreAllEternalsGained());
                                     break;
                             }
                             break;
