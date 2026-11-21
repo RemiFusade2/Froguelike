@@ -736,7 +736,8 @@ public class CharacterManager : MonoBehaviour
         if (character != null)
         {
             character.characterStatsIncrements = StatsWrapper.JoinLists(character.characterStatsIncrements, changedStatsValues);
-            minifrogCharacter.characterStatsIncrements = StatsWrapper.JoinLists(minifrogCharacter.characterStatsIncrements, changedStatsValues);
+            if (minifrogCharacter != null) 
+                minifrogCharacter.characterStatsIncrements = StatsWrapper.JoinLists(minifrogCharacter.characterStatsIncrements, changedStatsValues);
             SaveDataManager.instance.isSaveDataDirty = true;
         }
     }

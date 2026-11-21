@@ -1844,6 +1844,11 @@ public class RunManager : MonoBehaviour
 
                     pickedItemInfo = newStatItemInfo;
 
+                    // If all slots were already filled and the new item creates a new one, then we should increase the slot count
+                    int ownedStatItemCount = ownedItems.Count(x => (x is RunStatItemInfo));
+                    if (ownedStatItemCount == player.statItemSlotsCount)
+                        player.statItemSlotsCount++;
+
                     ownedItems.Add(pickedItemInfo);
 
                     // Show the new item in the in run UI.
@@ -1910,6 +1915,11 @@ public class RunManager : MonoBehaviour
                     newWeaponInfo.weaponItemData = pickedItemData as RunWeaponItemData;
 
                     pickedItemInfo = newWeaponInfo;
+
+                    // If all slots were already filled and the new item creates a new one, then we should increase the slot count
+                    int ownedWeaponsCount = ownedItems.Count(x => (x is RunWeaponInfo));
+                    if (ownedWeaponsCount == player.weaponSlotsCount)
+                        player.weaponSlotsCount++;
 
                     ownedItems.Add(pickedItemInfo);
 
@@ -2340,7 +2350,9 @@ public class RunManager : MonoBehaviour
                         }
                         else
                         {
-                            description = description.Replace("[FROGNAME]", currentPlayedCharacter.characterData.characterName + " and Minifrog");
+                            // TODO: Edit this for when we actually add Minifrog as a playable frog
+                            //description = description.Replace("[FROGNAME]", currentPlayedCharacter.characterData.characterName + " and Minifrog");
+                            description = description.Replace("[FROGNAME]", currentPlayedCharacter.characterData.characterName);
                         }
                     }
                 }

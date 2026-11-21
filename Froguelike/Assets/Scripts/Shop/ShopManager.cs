@@ -87,6 +87,16 @@ public class ShopManager : MonoBehaviour
     public TextMeshProUGUI availableCurrencyText;
     public Button refundButton;
     public ScrollbarKeepCursorSizeBehaviour shopScrollbar;
+    [Space]
+    public GameObject permanentUpgradePopUp;
+    public GameObject permanentUpgradIitemSlot;
+    public Image permanentUpgradeItemSlotFrame;
+    public Image permanentUpgradeItemSlotIcon;
+    public GameObject permanentUpgradeFrogSlot;
+    public Image permanentUpgradeFrogSlotFrame;
+    public Image permanentUpgradeFrogSlotIcon;
+    public TextMeshProUGUI permanentUpgradeDescriptionText;
+    public Button permanentUpgradeCloseButton;
 
     [Header("UI Prefabs")]
     public GameObject availableShopItemPanelPrefab;
@@ -95,14 +105,18 @@ public class ShopManager : MonoBehaviour
     [Header("Settings")]
     public bool displaySoldOutItems = true;
     public int baseFee = 10;
+    [Space]
+    public Color permanentUpgradeFrameGray;
+    public Color permanentUpgradeFrameGreen;
 
     [Header("Runtime")]
     public ShopSaveData shopData; // Will be loaded and saved when needed
     public List<StatValue> statsBonuses; // This is computed from the items bought
+    public GameObject permanentUpgradeShopButton;
 
     public Transform trash; // doesn't seem to change at runtime
     [Space]
-    public int currentFee; // reset after redund, increases with every item bought
+    public int currentFee; // reset after refund, increases with every item bought
 
     private void Awake()
     {
@@ -173,6 +187,177 @@ public class ShopManager : MonoBehaviour
     {
         currentFee = baseFee * shopData.shopItems.Sum(x => x.currentLevel);
     }
+
+    #region Permanent Upgraade shop iten
+
+    public void BuyPermanentUpgrade()
+    {
+        // Get the cost of that upgrade
+        int itemCost = 100000;
+        if (GameManager.instance.gameData.availableCurrency >= itemCost)
+        {
+            EventSystem.current.currentSelectedGameObject.name = "old";
+            // There's enough available currency, so buy the item!
+            // Remove that amount from available currency
+            GameManager.instance.ChangeAvailableCurrency(-itemCost);
+
+            // Update the shop display
+            DisplayShop(false);
+
+            // Play sound
+            SoundManager.instance.PlayBuyItemInShopSound();
+
+            permanentUpgradePopUp.SetActive(false);
+            permanentUpgradIitemSlot.SetActive(false);
+            permanentUpgradeFrogSlot.SetActive(false);
+            permanentUpgradeCloseButton.gameObject.SetActive(false);
+            permanentUpgradeDescriptionText.text = "";
+            StartCoroutine(BuyPermanentUpgradeAnimation());
+
+            if (logsVerboseLevel == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log("Shop - Buy permanent upgrade for a cost of " + itemCost + " Froins. Remaining available currency is " + GameManager.instance.gameData.availableCurrency + " Froins");
+            }
+        }
+        else
+        {
+            SoundManager.instance.PlayCantBuyItemInShopSound();
+        }
+
+    }
+
+    private IEnumerator BuyPermanentUpgradeAnimation()
+    {
+        EventSystem.current.SetSelectedGameObject(null); // No selection until animation is done! No input either
+
+        string greenColorString = "<color=#2b8d38>";
+        string defaultColorString = "<color=#18191F>";
+
+        List<RunPermanentUpgradeItemData> permanentUpgradesItemDataList = RunItemManager.instance.allPermanentUpgradeRunItemsScriptableObjects;
+        List<CharacterData> characterDataList = CharacterManager.instance.charactersScriptableObjectsList;
+
+        permanentUpgradePopUp.SetActive(true);
+
+        permanentUpgradeItemSlotFrame.color = permanentUpgradeFrameGray;
+        float delay = 0.1f;
+        permanentUpgradIitemSlot.SetActive(true);
+        RunPermanentUpgradeItemData permanentUpgradeItem;
+        string description;
+        do
+        {
+            bool itemIsUnlocked;
+            bool newIconIsDifferentFromPreviousIcon;
+            do
+            {
+                permanentUpgradeItem = permanentUpgradesItemDataList[Random.Range(0, permanentUpgradesItemDataList.Count)];
+                itemIsUnlocked = RunItemManager.instance.IsRunItemUnlocked(permanentUpgradeItem.itemName);
+                newIconIsDifferentFromPreviousIcon = (permanentUpgradeItemSlotIcon.sprite != permanentUpgradeItem.icon);
+            } while (!itemIsUnlocked || !newIconIsDifferentFromPreviousIcon);
+            SoundManager.instance.PlayEatBugSound();
+            permanentUpgradeItemSlotIcon.sprite = permanentUpgradeItem.icon;
+            description = permanentUpgradeItem.description.Replace("\\n", "\n").Replace("[FROGNAME]", "...");
+            permanentUpgradeDescriptionText.text = description;
+            yield return new WaitForSecondsRealtime(delay);
+            delay += 0.02f;
+        } while (delay < 0.5f);
+        SoundManager.instance.PlayPartySound();
+        permanentUpgradeItemSlotFrame.color = permanentUpgradeFrameGreen;
+
+        description = permanentUpgradeItem.description.Replace("\\n", "\n").Replace("[FROGNAME]", "...");
+        string[] descriptionSplit = System.Text.RegularExpressions.Regex.Split(description, "([+-])");
+        if (descriptionSplit.Length != 3)
+        {
+            Debug.LogWarning("description split for permanent stat upgrade failed");
+        }
+        else
+        {
+            description = greenColorString + descriptionSplit[0] + defaultColorString + descriptionSplit[1] + descriptionSplit[2];
+        }
+        permanentUpgradeDescriptionText.text = description;
+
+        yield return new WaitForSecondsRealtime(1.0f);
+
+        permanentUpgradeFrogSlotFrame.color = permanentUpgradeFrameGray;
+        delay = 0.1f;
+        permanentUpgradeFrogSlot.SetActive(true);
+        CharacterData characterData;
+        do
+        {
+            bool characterIsUnlocked;
+            bool newIconIsDifferentFromPreviousIcon;
+            int attemptCount = 0;
+            do
+            {
+                characterData = characterDataList[Random.Range(0, characterDataList.Count)];
+                characterIsUnlocked = CharacterManager.instance.IsCharacterUnlocked(characterData.characterID);
+                newIconIsDifferentFromPreviousIcon = (permanentUpgradeFrogSlotIcon.sprite != characterData.characterSprite);
+                attemptCount++;
+            } while ((!characterIsUnlocked || !newIconIsDifferentFromPreviousIcon) && (attemptCount < 50));
+            SoundManager.instance.PlayEatBugSound();
+            permanentUpgradeFrogSlotIcon.sprite = characterData.characterSprite;
+            description = permanentUpgradeItem.description.Replace("\\n", "\n").Replace("[FROGNAME]", characterData.characterName);
+            descriptionSplit = System.Text.RegularExpressions.Regex.Split(description, "([+-])");
+            if (descriptionSplit.Length != 3)
+            {
+                Debug.LogWarning("description split for permanent stat upgrade failed");
+            }
+            else
+            {
+                description = greenColorString + descriptionSplit[0] + defaultColorString + descriptionSplit[1] + descriptionSplit[2];
+            }
+            permanentUpgradeDescriptionText.text = description;
+            yield return new WaitForSecondsRealtime(delay);
+            delay += 0.02f;
+        } while (delay < 0.5f);
+        SoundManager.instance.PlayPartySound();
+        permanentUpgradeFrogSlotFrame.color = permanentUpgradeFrameGreen;
+
+        description = permanentUpgradeItem.description.Replace("\\n", "\n").Replace("[FROGNAME]", greenColorString + characterData.characterName + defaultColorString);
+        descriptionSplit = System.Text.RegularExpressions.Regex.Split(description, "([+-])");
+        if (descriptionSplit.Length != 3)
+        {
+            Debug.LogWarning("description split for permanent stat upgrade failed");
+        }
+        else
+        {
+            description = greenColorString + descriptionSplit[0] + defaultColorString + descriptionSplit[1] + descriptionSplit[2];
+        }
+        permanentUpgradeDescriptionText.text = description;
+
+        // Apply permanent upgrade!
+        CharacterManager.instance.IncrementCharacterStats(characterData.characterID, permanentUpgradeItem.effect.statUpgrades.statsList);
+
+        // Signal the SaveDataManager that information from the shop have been updated and should be saved when possible
+        SaveDataManager.instance.isSaveDataDirty = true;
+
+        yield return new WaitForSecondsRealtime(1.0f);
+
+        // Display button and select it
+        permanentUpgradeCloseButton.gameObject.SetActive(true);
+        EventSystem.current.SetSelectedGameObject(permanentUpgradeCloseButton.gameObject);
+    }
+
+    public void ClosePermanentUpgradePopUp(bool selectPermanentUpgradeShopButton = true)
+    {
+        permanentUpgradePopUp.SetActive(false);
+
+        if (selectPermanentUpgradeShopButton)
+        {
+            EventSystem.current.SetSelectedGameObject(permanentUpgradeShopButton);
+        }
+    }
+
+    public bool IsPermanentUpgradePopUpVisible()
+    {
+        return permanentUpgradePopUp.activeInHierarchy;
+    }
+
+    public bool IsPermanentUpgradePopUpCloseButtonVisible()
+    {
+        return permanentUpgradeCloseButton.gameObject.activeInHierarchy;
+    }
+
+    #endregion
 
     /// <summary>
     /// Attempt to buy an item.
@@ -400,6 +585,26 @@ public class ShopManager : MonoBehaviour
                     buttonCount++;
                 }
             }
+        }
+
+        // Last button is for a permanent upgrade
+        // This one will be treated differently than others: no levels, not refundable, upon being bought it will display a pop up
+        int permanentUpgradeCost = 100000;
+        if (GameManager.instance.gameData.availableCurrency >= permanentUpgradeCost)
+        {
+            permanentUpgradeShopButton = Instantiate(availableShopItemPanelPrefab, shopPanel);
+            ShopItemButton shopEternalItemButton = permanentUpgradeShopButton.GetComponent<ShopItemButton>();
+            shopEternalItemButton.buyButton.onClick.AddListener(delegate { BuyPermanentUpgrade(); });
+            shopEternalItemButton.InitializeForPermanentUpgradeButton(availableButCantBuy: GameManager.instance.gameData.availableCurrency < permanentUpgradeCost, permanentUpgradeCost);
+            buttonCount++;
+        }
+        else
+        {
+            permanentUpgradeShopButton = Instantiate(soldOutShopItemPanelPrefab, shopPanel);
+            ShopItemButton shopEternalItemButton = permanentUpgradeShopButton.GetComponent<ShopItemButton>();
+            shopEternalItemButton.buyButton.onClick.AddListener(delegate { SoundManager.instance.PlayCantBuyItemInShopSound(); });
+            shopEternalItemButton.InitializeForPermanentUpgradeButton(availableButCantBuy: GameManager.instance.gameData.availableCurrency < permanentUpgradeCost, permanentUpgradeCost);
+            buttonCount++;
         }
 
         // Set size of container panel
