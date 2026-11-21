@@ -492,8 +492,20 @@ public class GameManager : MonoBehaviour
         }
         else if (UIManager.instance.IsShopScreenVisible())
         {
-            // Shop is open, we hide shop
-            UIManager.instance.HideShop();
+            if (ShopManager.instance.IsPermanentUpgradePopUpVisible())
+            {
+                // Permanent upgrade pop up is active
+                if (ShopManager.instance.IsPermanentUpgradePopUpCloseButtonVisible())
+                {
+                    // Pop up can be closed, so we close it
+                    ShopManager.instance.ClosePermanentUpgradePopUp(true);
+                }
+            }
+            else
+            {
+                // Shop is open, we hide shop
+                UIManager.instance.HideShop();
+            }
         }
         else if (UIManager.instance.IsAchievementScreenVisible())
         {

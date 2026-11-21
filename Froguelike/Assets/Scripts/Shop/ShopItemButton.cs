@@ -25,6 +25,7 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
     public Animator animator;
     [Space]
     public GameObject soldOutImage;
+    public GameObject noRefundImage;
 
     [Header("Scrollview")]
     public ScrollRect scrollView;
@@ -36,6 +37,93 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
 
     private bool selectUsingMouseCursor = false;
 
+    private Coroutine changeButtonIconCoroutine;
+
+    public void Start()
+    {
+        if (name == "Eternal")
+        {
+            if (changeButtonIconCoroutine != null)
+            {
+                StopCoroutine(changeButtonIconCoroutine);
+            }
+            changeButtonIconCoroutine = StartCoroutine(ChangeButtonIcon(0.2f));
+        }
+    }
+
+    #region Permanent upgrade button
+
+    private IEnumerator ChangeButtonIcon(float delay)
+    {
+        List<RunPermanentUpgradeItemData> permanentUpgradesItemDataList = RunItemManager.instance.allPermanentUpgradeRunItemsScriptableObjects;
+        List<CharacterData> characterDataList = CharacterManager.instance.charactersScriptableObjectsList;
+        while (true)
+        {
+            bool characterOrItemIsUnlocked = false;
+            bool newIconIsDifferentFromPreviousIcon = false;
+            do
+            {
+                if (true) // We could be using "Random.Range(0,2) == 0" instead, but the frog sprite doesn't fit the image size
+                {
+                    RunPermanentUpgradeItemData itemData = permanentUpgradesItemDataList[Random.Range(0, permanentUpgradesItemDataList.Count)];
+                    characterOrItemIsUnlocked = RunItemManager.instance.IsRunItemUnlocked(itemData.itemName);
+                    newIconIsDifferentFromPreviousIcon = (itemIconImage.sprite != itemData.icon);
+                    itemIconImage.sprite = itemData.icon;
+                }
+                else
+                {
+                    CharacterData characterData = characterDataList[Random.Range(0, characterDataList.Count)];
+                    characterOrItemIsUnlocked = CharacterManager.instance.IsCharacterUnlocked(characterData.characterID);
+                    itemIconImage.sprite = characterData.characterSprite;
+                }
+            } while (!characterOrItemIsUnlocked || !newIconIsDifferentFromPreviousIcon);
+
+            yield return new WaitForSecondsRealtime(delay);
+        }
+    }
+
+    public void InitializeForPermanentUpgradeButton(bool availableButCantBuy, int cost)
+    {
+        buyButton.interactable = true;
+        buyButton.gameObject.SetActive(true);
+
+        if (soldOutImage != null)
+        {
+            soldOutImage.SetActive(!availableButCantBuy);
+        }
+        if (noRefundImage != null)
+        {
+            noRefundImage.SetActive(true);
+        }
+
+        if (availableButCantBuy)
+        {
+            var cantBuyColor = buyButton.colors;
+            cantBuyColor.selectedColor = Color.red;
+            buyButton.colors = cantBuyColor;
+        }
+
+        itemNameText.text = "Eternal";
+        itemDescriptionText.text = "1% increase to a random stat for a random frog";
+
+        foreach (Transform levelChild in levelPanelParent)
+        {
+            levelChild.gameObject.SetActive(false);
+            Destroy(levelChild.gameObject);
+        }
+
+        priceText.text = Tools.FormatCurrency(cost, DataManager.instance.currencySymbol);
+
+        name = "Eternal";
+
+        scrollView = transform.parent.parent.parent.parent.GetComponent<ScrollRect>();
+        viewportRT = transform.parent.parent.parent.GetComponent<RectTransform>();
+        thisRT = GetComponent<RectTransform>();
+        itemPanelTransform = transform.parent;
+    }
+
+    #endregion
+
     public void Initialize(ShopItem item, bool availableButCantBuy, int extraFee)
     {
         buyButton.interactable = true;
@@ -44,6 +132,10 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
         if (soldOutImage != null)
         {
             soldOutImage.SetActive(!availableButCantBuy);
+        }
+        if (noRefundImage != null)
+        {
+            noRefundImage.SetActive(false);
         }
 
         if (availableButCantBuy)
