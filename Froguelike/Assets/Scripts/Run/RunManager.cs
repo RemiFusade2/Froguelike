@@ -278,11 +278,7 @@ public class RunManager : MonoBehaviour
     public int maxChaptersInARun = 5;
 
     [Header("Settings - XP")]
-    public float startLevelXp = 5; // XP needed to go from level 1 to level 2
-    public float xpNeededForNextLevelMinFactor = 1.1f; // min factor applied on XP needed after each level
-    public float xpNeededForNextLevelMaxFactor = 1.5f; // max factor applied on XP needed after each level
-    [Space]
-    [Tooltip("This curve will be applied on the xp needed factor. 1 means multiply by the max factor. 0 means multiply by the min factor")]
+    [Tooltip("This curve is the xp needed per level")]
     public AnimationCurve xpNeededForEachLevelCurve; // curve applied on the xp needed factor
     [Tooltip("This curve will be applied on the earned. Time is the time since last level up.")]
     public AnimationCurve xpFactorRelativeToTimeSinceLastLevelup; // curve applied on the xp needed factor
@@ -598,7 +594,7 @@ public class RunManager : MonoBehaviour
         // Level and XP
         level = 1;
         xp = 0;
-        nextLevelXp = startLevelXp;
+        nextLevelXp = xpNeededForEachLevelCurve.Evaluate(level);
 
         // In-game UI
         UpdateLevelText(level);
@@ -689,9 +685,11 @@ public class RunManager : MonoBehaviour
 
             if (!preventXPIncrease)
             {
-                float levelOn100Ratio = Mathf.Clamp(level / 100.0f, 0, 1);
+                /*float levelOn100Ratio = Mathf.Clamp(level / 100.0f, 0, 1);
                 float nextLevelFactor = xpNeededForNextLevelMinFactor + (xpNeededForNextLevelMaxFactor - xpNeededForNextLevelMinFactor) * xpNeededForEachLevelCurve.Evaluate(levelOn100Ratio);
-                nextLevelXp *= nextLevelFactor;
+                nextLevelXp *= nextLevelFactor;*/
+
+                nextLevelXp = xpNeededForEachLevelCurve.Evaluate(level);
             }
         }
     }
