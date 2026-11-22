@@ -1273,37 +1273,97 @@ MonoBehaviour:
   highlightedTextColor: {r: 0.9960785, g: 0.74509805, b: 0.20000002, a: 1}
   maxChaptersInARun: 5
   startLevelXp: 5
-  xpNeededForNextLevelMinFactor: 1.09
-  xpNeededForNextLevelMaxFactor: 1.33
+  xpNeededForNextLevelMinFactor: 1.05
+  xpNeededForNextLevelMaxFactor: 1.8
   xpNeededForEachLevelCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 1
-      inSlope: -4.292454
-      outSlope: -4.292454
+      inSlope: 0
+      outSlope: 0
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.01923077
+      outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.09997468
-      value: 0.5002068
-      inSlope: -2.1215372
-      outSlope: -2.1215372
+      time: 0.042597406
+      value: 0.9283936
+      inSlope: -3.9270382
+      outSlope: -3.9270382
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.44292796
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.11133993
+      value: 0.37403265
+      inSlope: -5.020792
+      outSlope: -5.020792
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.3
+      value: 0.001
+      inSlope: 0
+      outSlope: 0
       tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
-      outWeight: 0.026980083
+      outWeight: 0.33333334
     - serializedVersion: 3
-      time: 1.0006104
-      value: 0.0047302246
-      inSlope: -0.1750071
-      outSlope: -0.1750071
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.04480608
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  xpFactorRelativeToTimeSinceLastLevelup:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 5
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 20
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 60
+      value: 5
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
@@ -1314,6 +1374,7 @@ MonoBehaviour:
   timerTextColorAfterEndOfChapter: {r: 0.9960785, g: 0.74509805, b: 0.20000002, a: 1}
   xp: 0
   level: 0
+  lastLevelUpTime: 0
   playedGameModes: 0
   gameModeBugHPMultiplier: 0
   gameModeBugSpeedMultiplier: 0

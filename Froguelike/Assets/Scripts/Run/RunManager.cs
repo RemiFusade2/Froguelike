@@ -284,6 +284,8 @@ public class RunManager : MonoBehaviour
     [Space]
     [Tooltip("This curve will be applied on the xp needed factor. 1 means multiply by the max factor. 0 means multiply by the min factor")]
     public AnimationCurve xpNeededForEachLevelCurve; // curve applied on the xp needed factor
+    [Tooltip("This curve will be applied on the earned. Time is the time since last level up.")]
+    public AnimationCurve xpFactorRelativeToTimeSinceLastLevelup; // curve applied on the xp needed factor
 
     [Header("Settings - End of chapter")]
     public float delayAfterEndOfChapter = 5;
@@ -294,6 +296,7 @@ public class RunManager : MonoBehaviour
     [Header("Runtime - XP")]
     public float xp;
     public int level;
+    public float lastLevelUpTime;
 
     [Header("Runtime - Current played game mode")]
     public GameMode playedGameModes;
@@ -894,7 +897,12 @@ public class RunManager : MonoBehaviour
         // Increase kill count by 1 and display it
         IncreaseKillCount(1);
 
-        IncreaseXP(experiencePoints * (1 + player.GetExperienceBoost()));
+        float actualExperiencePoints = experiencePoints * (1 + player.GetExperienceBoost());
+
+        // Increase experience depending on which chapter is played
+        actualExperiencePoints *= GetChapterCount();
+
+        IncreaseXP(actualExperiencePoints);
 
         // Also collect some currency when eating a bug
         float currencyBoost = player.GetCurrencyBoost();
@@ -1667,6 +1675,7 @@ public class RunManager : MonoBehaviour
 
     public void LevelUP()
     {
+        lastLevelUpTime = Time.time;
         isUsingBanishForCurrentItemSelection = false;
         foreach (UILevelUpChoicePanel levelUpChoicePanel in levelUpChoicesPanels)
         {
@@ -2084,7 +2093,21 @@ public class RunManager : MonoBehaviour
                 }
                 break;
             case CollectibleType.XP_BONUS:
-                IncreaseXP(collectibleValue * (1 + player.GetExperienceBoost()));
+                float actualExperiencePoints = collectibleValue * (1 + player.GetExperienceBoost());
+                // Increase experience depending on which chapter is played
+                actualExperiencePoints *= GetChapterCount();
+                // Change experience depending on how long it's been since last level up
+                float timeSinceLastLevelUp = Time.time - lastLevelUpTime;
+                float xpTimeFactor = xpFactorRelativeToTimeSinceLastLevelup.Evaluate(Mathf.Clamp(timeSinceLastLevelUp, 0,60));
+                actualExperiencePoints *= xpTimeFactor;
+                if ((xp + actualExperiencePoints) >= nextLevelXp)
+                {
+                    IncreaseXP(nextLevelXp - xp);
+                }
+                else
+                {
+                    IncreaseXP(actualExperiencePoints);
+                }
                 SoundManager.instance.PlayPickUpXPSound(collectibleValue);
                 if (logsVerboseLevel == VerboseLevel.MAXIMAL)
                 {
