@@ -64,12 +64,15 @@ public class EnemyMovePattern
     public float speedFactor;
     [Tooltip("In case of a bouncing pattern, how many times does it bounce before exiting the screen")]
     public int bouncecount;
+    [Tooltip("In case of a special effect that prevent from switching from directionless to follow")]
+    public bool forceDirectionless;
 
-    public EnemyMovePattern(EnemyMovePatternType movePatternType, float speedFactor, int bouncecount = 0)
+    public EnemyMovePattern(EnemyMovePatternType movePatternType, float speedFactor, int bouncecount = 0, bool forceDirectionless = false)
     {
         this.movePatternType = movePatternType;
         this.speedFactor = speedFactor;
         this.bouncecount = bouncecount;
+        this.forceDirectionless = forceDirectionless;
     }
 
     public EnemyMovePattern(EnemyMovePattern origin)
@@ -77,6 +80,7 @@ public class EnemyMovePattern
         this.movePatternType = origin.movePatternType;
         this.speedFactor = origin.speedFactor;
         this.bouncecount = origin.bouncecount;
+        this.forceDirectionless = origin.forceDirectionless;
     }
 }
 
