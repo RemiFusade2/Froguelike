@@ -1257,7 +1257,7 @@ public class WeaponBehaviour : MonoBehaviour
                 AttackLine(this.GetComponent<TongueLineRendererBehaviour>());
             }
 
-            if (tongueType == TongueType.RANDOM)
+            if (tongueType == TongueType.RANDOM || tongueType == TongueType.ENDLESS)
             {
                 // Set random positions
                 pos = GetRandomPositions();
@@ -1746,6 +1746,7 @@ public class WeaponBehaviour : MonoBehaviour
             TongueEffect activeEffect = TongueEffect.NONE;
             switch (tongueType)
             {
+                case TongueType.ENDLESS:
                 case TongueType.RANDOM:
                     TongueLineRendererBehaviour script = this.GetComponent<TongueLineRendererBehaviour>();
                     activeEffect = script.GetEffectFromTip();
@@ -1794,7 +1795,7 @@ public class WeaponBehaviour : MonoBehaviour
 
             // curse part, increase enemy speed
             bool tongueIsCursedTongueAndCurseIsActive = (tongueType == TongueType.CURSED && isCurseEffectActive);
-            bool tongueIsRandomTongueAndEffectIsCurse = (tongueType == TongueType.RANDOM && activeEffect == TongueEffect.CURSE);
+            bool tongueIsRandomTongueAndEffectIsCurse = ((tongueType == TongueType.RANDOM || tongueType == TongueType.ENDLESS) && activeEffect == TongueEffect.CURSE);
             if (tongueIsCursedTongueAndCurseIsActive)
             {
                 activeEffect = TongueEffect.CURSE;
