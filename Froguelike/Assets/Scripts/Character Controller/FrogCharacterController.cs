@@ -30,6 +30,7 @@ public class FrogCharacterController : MonoBehaviour
     [Header("References")]
     public Transform weaponsParent;
     public Transform edgeTongueParent;
+    public Transform tonguezillaParent;
     public Transform weaponStartPoint;
     public HealthBarBehaviour healthBar;
     [Space]
@@ -209,6 +210,11 @@ public class FrogCharacterController : MonoBehaviour
                 weaponTransform.GetComponent<WeaponBehaviour>().TryAttack();
             }
 
+            foreach (Transform weaponTransform in tonguezillaParent)
+            {
+                weaponTransform.GetComponent<WeaponBehaviour>().TryAttack();
+            }
+
             // Set animator speed
             float speed = Mathf.Clamp(playerRigidbody.velocity.magnitude, 0, 10);
             animator.SetFloat("Speed", speed);
@@ -279,7 +285,7 @@ public class FrogCharacterController : MonoBehaviour
         // Make sure that every tongue follows the frog
         foreach (Transform weaponTransform in weaponsParent)
         {
-            if (weaponTransform.gameObject.GetComponent<WeaponBehaviour>().tongueType != TongueType.EDGE) // The edge tongue sets its own position every time it does an attack and it's parent moves with the frog on it's own.
+            if (weaponTransform.gameObject.GetComponent<WeaponBehaviour>().tongueType != TongueType.EDGE && weaponTransform.gameObject.GetComponent<WeaponBehaviour>().tongueType != TongueType.TONGUEZILLA) // The edge tongue sets its own position every time it does an attack and it's parent moves with the frog on it's own.
             {
                 weaponTransform.GetComponent<WeaponBehaviour>().SetTonguePosition(weaponStartPoint);
             }

@@ -108,7 +108,7 @@ public class WeaponBehaviour : MonoBehaviour
         TongueLineRendererBehaviour tongueLineScript = this.GetComponent<TongueLineRendererBehaviour>();
         if (tongueLineScript != null)
         {
-            tongueLineScript.SetLineRenderersWidth(actualWidth, outlineWeight, 1, tongueType != TongueType.CAT);
+            tongueLineScript.SetLineRenderersWidth(actualWidth, outlineWeight, 1, (tongueType != TongueType.CAT && tongueType != TongueType.TONGUEZILLA));
         }
     }
 
@@ -1284,6 +1284,20 @@ public class WeaponBehaviour : MonoBehaviour
                 AttackLine(this.GetComponent<TongueLineRendererBehaviour>());
             }
 
+            if (tongueType == TongueType.TONGUEZILLA)
+            {
+                bool fromLeft = (Random.Range(0, 2) == 0);
+                float tongueTipRadius = tongueWidth * (1 + GameManager.instance.player.GetAttackSizeBoost());
+                Vector3 tongueTargetPosition = GameManager.instance.player.transform.position + (fromLeft ? new Vector3(-tongueTipRadius - 1,0) : new Vector3(tongueTipRadius+1, 0));
+                Vector3 localTargetPosition = tongueTargetPosition - GameManager.instance.player.transform.position;
+                this.transform.localPosition = fromLeft ? new Vector3(-40, 0) : new Vector3(40, 0); // left or right
+                pos = GetPositionsTowardsEnemy(tongueTargetPosition, LineShape.STRAIGHT_LINE, stopAtTarget: true);
+                effects.Add(TongueEffect.NONE);
+                this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects);
+                this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
+                AttackLine(this.GetComponent<TongueLineRendererBehaviour>());
+            }
+
             // Added for the rotatongue frusions
             if (tongueType == TongueType.POISONTATING)
             {
@@ -1400,7 +1414,7 @@ public class WeaponBehaviour : MonoBehaviour
             TongueLineRendererBehaviour tongueLineScript = this.GetComponent<TongueLineRendererBehaviour>();
             if (tongueLineScript != null)
             {
-                tongueLineScript.SetLineRenderersWidth(actualWidth, outlineWeight, tongueLength * t, tongueType != TongueType.CAT);
+                tongueLineScript.SetLineRenderersWidth(actualWidth, outlineWeight, tongueLength * t, (tongueType != TongueType.CAT && tongueType != TongueType.TONGUEZILLA));
             }
 
             if (t <= 1)
@@ -1443,7 +1457,7 @@ public class WeaponBehaviour : MonoBehaviour
             TongueLineRendererBehaviour tongueLineScript = this.GetComponent<TongueLineRendererBehaviour>();
             if (tongueLineScript != null)
             {
-                tongueLineScript.SetLineRenderersWidth(actualWidth, outlineWeight, tongueLength * t, tongueType != TongueType.CAT);
+                tongueLineScript.SetLineRenderersWidth(actualWidth, outlineWeight, tongueLength * t, (tongueType != TongueType.CAT && tongueType != TongueType.TONGUEZILLA));
             }
 
             tongueScript.DisplayTongue(t);
@@ -1550,7 +1564,7 @@ public class WeaponBehaviour : MonoBehaviour
             TongueLineRendererBehaviour tongueLineScript = this.GetComponent<TongueLineRendererBehaviour>();
             if (tongueLineScript != null)
             {
-                tongueLineScript.SetLineRenderersWidth(actualWidth, outlineWeight, actualRange * t, tongueType != TongueType.CAT);
+                tongueLineScript.SetLineRenderersWidth(actualWidth, outlineWeight, actualRange * t, (tongueType != TongueType.CAT && tongueType != TongueType.TONGUEZILLA));
             }
 
             // Display tongue
@@ -1593,7 +1607,7 @@ public class WeaponBehaviour : MonoBehaviour
             TongueLineRendererBehaviour tongueLineScript = this.GetComponent<TongueLineRendererBehaviour>();
             if (tongueLineScript != null)
             {
-                tongueLineScript.SetLineRenderersWidth(actualWidth, outlineWeight, actualRange * t, tongueType != TongueType.CAT);
+                tongueLineScript.SetLineRenderersWidth(actualWidth, outlineWeight, actualRange * t, (tongueType != TongueType.CAT && tongueType != TongueType.TONGUEZILLA));
             }
 
             // Display tongue

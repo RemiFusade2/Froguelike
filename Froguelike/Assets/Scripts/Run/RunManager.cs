@@ -1232,7 +1232,16 @@ public class RunManager : MonoBehaviour
         GameObject weaponPrefab = weaponData.weaponPrefab;
 
         // Instantiate weapon from prefab
-        GameObject weaponGo = Instantiate(weaponPrefab, player.weaponStartPoint.position, Quaternion.identity, weaponData.weaponType == TongueType.EDGE ? player.edgeTongueParent : player.weaponsParent);
+        Transform weaponParent = player.weaponsParent;
+        if (weaponData.weaponType == TongueType.EDGE)
+        {
+            weaponParent = player.edgeTongueParent;
+        }
+        if (weaponData.weaponType == TongueType.TONGUEZILLA)
+        {
+            weaponParent = player.tonguezillaParent;
+        }
+        GameObject weaponGo = Instantiate(weaponPrefab, player.weaponStartPoint.position, Quaternion.identity, weaponParent);
         weaponGo.name = $"{weaponData.weaponName}_{weaponItem.activeWeaponsList.Count + 1}";
 
         if (weaponItem.activeWeaponsList.Count > 0)

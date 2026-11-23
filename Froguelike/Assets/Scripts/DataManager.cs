@@ -77,7 +77,8 @@ public enum TongueType
     FREEZETATING, // same movement as a rotatongue, but it does freeze damage instead of regular damage
     VAMPITATING, // same movement as a rotatongue, but it does vampire damage instead of regular damage
     TRUCE, // evolution from Cursed tongue, it has the power to stop bugs from chasing you (they switch to random move pattern)
-    ENDLESS,
+    ENDLESS, // A very very longue randotongue (essentially the exact same as randotongue)
+    TONGUEZILLA, // Like Edge tongue but only left/right and cat shaped instead of frog shaped
 }
 
 /// <summary>
