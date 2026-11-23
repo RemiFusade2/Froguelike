@@ -3,28 +3,43 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.EventSystems;
 
-public class ModifierToggleBehaviour : MonoBehaviour
+public class ModifierToggleBehaviour : MonoBehaviour, ISelectHandler
 {
     [Header("References")]
     public Toggle toggle;
-    public Animator toggleAnimator;
     public GameObject staticCheckmark;
+    public GameObject modifierIcon;
+    public GameObject questionmarkIcon;
+    public GameObject modifierNameText;
+    public GameObject unknownText;
 
-    public void SetCheckmarkBehaviourOnSelect()
+    public void OnSelect(BaseEventData eventData)
     {
-        staticCheckmark.SetActive(false);
-        toggleAnimator.SetBool("Reverse", toggle.isOn);
+        if (toggle.interactable)
+        {
+            toggle.Select();
+        }
     }
 
-    public void SetCheckmarkBehaviourOnValueChange()
+    public void SetInteractability(bool interactable)
     {
-        staticCheckmark.SetActive(false);
-        toggleAnimator.SetBool("Reverse", toggle.isOn);
+        toggle.interactable = interactable;
+        modifierIcon.SetActive(interactable);
+        questionmarkIcon.SetActive(!interactable);
+        modifierNameText.SetActive(interactable);
+        unknownText.SetActive(!interactable);
     }
 
-    public void SetStaticCheckmarkVisibilityOnDeselect()
+    public void SetCheckmark()
     {
         staticCheckmark.SetActive(toggle.isOn);
+    }
+
+    public void ResetToggle()
+    {
+        toggle.isOn = false;
+        SetCheckmark();
     }
 }

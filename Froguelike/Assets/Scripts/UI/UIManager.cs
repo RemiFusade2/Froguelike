@@ -60,6 +60,7 @@ public class UIManager : MonoBehaviour
     public GameObject characterSelectionGridLayoutGroup;
     public GameObject characterSelectionBookImage;
     public GameObject modifierScreen;
+    public HalfBookmarkBehaviour backToSelectionButton;
 
     [Header("Settings Screen")]
     public GameObject settingsScreen;
@@ -346,6 +347,7 @@ public class UIManager : MonoBehaviour
         characterSelectionBookImage.SetActive(false);
         modifierScreen.SetActive(true);
         RunModifierManager.instance.UpdateModifierScreen();
+        backToSelectionButton.SetInfo();
     }
 
     public bool IsCharacterSelectionScreenVisible()
