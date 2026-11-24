@@ -121,7 +121,10 @@ public class CharacterManager : MonoBehaviour
     public ScrollbarKeepCursorSizeBehaviour statListScrollbar;
     public GameObject hideShopStats;
     [Space]
-    public GameObject modifierNote;
+    public GameObject modifierNoteGO;
+    public GameObject modifierIconParent;
+    public GameObject clearButtonGO;
+    public GameObject backToSelectionButton;
 
     [Header("UI Prefab")]
     public GameObject characterPanelPrefab;
@@ -324,15 +327,7 @@ public class CharacterManager : MonoBehaviour
 
         UpdateStatsList();
 
-        // TODO Show the modifier info on the side. With a button to switch to that spread. Needs to check if any modifiers are unlocked, if so show note.
-        if (charactersData.availableGameModes != GameMode.NONE)
-        {
-            modifierNote.SetActive(true);
-        }
-        else
-        {
-            modifierNote.SetActive(false);
-        }
+        UpdateModifierIconsOnCharacterSelection();
 
         if (buttonCount == 1 && defaultCharacter != null)
         {
@@ -341,6 +336,66 @@ public class CharacterManager : MonoBehaviour
         }
 
         return isCharacterSelectionScreen;
+    }
+
+    public void UpdateModifierIconsOnCharacterSelection()
+    {
+        // TODO Show the modifier info on the side. With a button to switch to that spread. Needs to check if any modifiers are unlocked, if so show note.
+        if (charactersData.availableGameModes != GameMode.NONE)
+        {
+            modifierNoteGO.SetActive(true);
+            int slotIndex = 0;
+            string currentGameModes = GameManager.instance.GetCurrentSetGameModes();
+            // Show icons.
+            foreach (GameModeInfo gameModeInfo in DataManager.instance.gameModeInfo)
+            {
+                if ((Enum.Parse<GameMode>(currentGameModes) & gameModeInfo.gameMode) == gameModeInfo.gameMode)
+                {
+                    modifierIconParent.GetComponentsInChildren<Image>()[slotIndex].sprite = gameModeInfo.modeIcon;
+                    slotIndex++;
+                }
+            }
+
+            if (GameManager.instance.GetCurrentSetHatName() != "NONE")
+            {
+                modifierIconParent.GetComponentsInChildren<Image>()[slotIndex].sprite = DataManager.instance.GetSpriteForHat(DataManager.instance.GetTypeOfHatFromString(GameManager.instance.GetCurrentSetHatName()));
+                slotIndex++;
+            }
+
+            while (slotIndex < modifierIconParent.GetComponentsInChildren<Image>().Length)
+            {
+                modifierIconParent.GetComponentsInChildren<Image>()[slotIndex].sprite = null;
+                slotIndex++;
+            }
+
+
+            // Show clear button, if any modes are selected.
+            if (currentGameModes == "NONE" && GameManager.instance.GetCurrentSetHatName() == "NONE")
+            {
+                clearButtonGO.GetComponent<Button>().interactable = false;
+                clearButtonGO.GetComponent<CanvasGroup>().blocksRaycasts = false;
+            }
+            else
+            {
+                clearButtonGO.GetComponent<Button>().interactable = true;
+                clearButtonGO.GetComponent<CanvasGroup>().blocksRaycasts = true;
+            }
+
+        }
+        else
+        {
+            modifierNoteGO.SetActive(false);
+        }
+    }
+
+    public void SetModifierButtonAsSelected()
+    {
+        UIManager.instance.SetSelectedButton(modifierNoteGO.GetComponentInChildren<Button>());
+    }
+
+    public void SetBackToSelectionButtonAsSelected()
+    {
+        UIManager.instance.SetSelectedButton(backToSelectionButton);
     }
 
     private void InstantiateStatLines()

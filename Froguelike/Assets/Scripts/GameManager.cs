@@ -298,6 +298,12 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void ClearCurrentSetModifiersAndHatButton()
+    {
+        gameData.currentSetModifiers = "NONE";
+        gameData.currentSetHatName = "NONE";
+    }
+
     public void ClearLastPlayedCharacterGameModeStartingChapterAndHat()
     {
         gameData.lastPlayedModifiers = "";

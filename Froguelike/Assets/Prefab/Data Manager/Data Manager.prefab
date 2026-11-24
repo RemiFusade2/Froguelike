@@ -502,26 +502,32 @@ MonoBehaviour:
     hatSprite: {fileID: 21300000, guid: e2476706cb932544ba6742e1ef9affd2, type: 3}
     hatHeight: 0.375
     hatName: Top hat
+    hatIcon: {fileID: 21300000, guid: 8c0b66853fc9adb4086dc02f04ec0331, type: 3}
   - hatType: 2
     hatSprite: {fileID: 21300000, guid: b3270297934ecb9458e1d7e2060cc88b, type: 3}
     hatHeight: 0.3125
     hatName: Sun hat
+    hatIcon: {fileID: 21300000, guid: eb5e8de1173e14b438f3103a19a4b9e5, type: 3}
   - hatType: 1
     hatSprite: {fileID: 21300000, guid: 80ef4ef9c2cc9524c9bc2c09abc6f2db, type: 3}
     hatHeight: 0.25
     hatName: Bowler hat
+    hatIcon: {fileID: 21300000, guid: 924bd7580e3f08f4b9ba54b4fde0487b, type: 3}
   - hatType: 3
     hatSprite: {fileID: 21300000, guid: 02e48d697bb2b28458571c9e7c904ecd, type: 3}
     hatHeight: 0.25
     hatName: Blue bow
+    hatIcon: {fileID: 21300000, guid: 1d05fc5c3e4280947be5a499f08066c4, type: 3}
   - hatType: 4
     hatSprite: {fileID: 21300000, guid: 66161fcf3297ac840b697290526f2925, type: 3}
     hatHeight: 0.25
     hatName: Red bow
+    hatIcon: {fileID: 21300000, guid: 77015f17d2a94a44ba63c03563a5a071, type: 3}
   - hatType: 5
     hatSprite: {fileID: 21300000, guid: f652acdac6802dc4289fecdf0c575f3c, type: 3}
     hatHeight: 0.25
     hatName: Purple bow
+    hatIcon: {fileID: 21300000, guid: c316d09eefc8b0e4cace95d6c217a842, type: 3}
   friendsDataList:
   - {fileID: 11400000, guid: 2ee40bc607ccbce4eb8e6e13006ead1f, type: 2}
   - {fileID: 11400000, guid: 5896c0f400e8e8f43af6b2876f2485d0, type: 2}
@@ -550,44 +556,64 @@ MonoBehaviour:
     icon: {fileID: 21300000, guid: 001f90dfdf9d146dd8d40cabf6955be5, type: 3}
   - countType: 3
     icon: {fileID: 21300000, guid: c5df677418598f54c8ad89fc10195d12, type: 3}
-  gameModeDisplayNames:
+  gameModeInfo:
   - gameMode: 1
     displayName: Hard
+    modeIcon: {fileID: 21300000, guid: b8f9422165c99054a93097fc9b48cfd5, type: 3}
   - gameMode: 2
     displayName: Harder
+    modeIcon: {fileID: 21300000, guid: 02a5bafdd82d9e2498f43d629bcd8ab1, type: 3}
   - gameMode: 4
     displayName: Hardest
+    modeIcon: {fileID: 21300000, guid: be318f6772895bc44a8f13e1d4d59210, type: 3}
   - gameMode: 8
     displayName: Hardester
+    modeIcon: {fileID: 21300000, guid: 3e523077ce3240c4f9a161713f9b8f48, type: 3}
   - gameMode: 16
     displayName: Half time
+    modeIcon: {fileID: 21300000, guid: 1c273a572c2b169448831bb6fc2278b1, type: 3}
   - gameMode: 32
     displayName: Double time
-  - gameMode: 64
-    displayName: One tier up
-  - gameMode: 128
-    displayName: One tier down
-  - gameMode: 256
-    displayName: All highest tier
-  - gameMode: 512
-    displayName: All lowest tier
-  - gameMode: 1024
-    displayName: Freeze
-  - gameMode: 2048
-    displayName: Poison
-  - gameMode: 4096
-    displayName: Curse
-  - gameMode: 8192
-    displayName: Super Frog
-  - gameMode: 16384
-    displayName: Party
-  - gameMode: 32768
-    displayName: Super goop
-  - gameMode: 65536
-    displayName: Up bug
-  - gameMode: 131072
-    displayName: Down bug
-  - gameMode: 262144
-    displayName: Ignore eternal upgrades
+    modeIcon: {fileID: 21300000, guid: 331d05ffb6b34af43a02775d20865282, type: 3}
   - gameMode: 524288
     displayName: Endless
+    modeIcon: {fileID: 21300000, guid: a6c4d433aecc0ab4fabc6431d717bd41, type: 3}
+  - gameMode: 64
+    displayName: Up one
+    modeIcon: {fileID: 21300000, guid: c6e741e092f0d0949a8f314a6247fef3, type: 3}
+  - gameMode: 128
+    displayName: Down one
+    modeIcon: {fileID: 21300000, guid: 56a84f0fad006ae4ab353ab035fbd0a9, type: 3}
+  - gameMode: 256
+    displayName: Max
+    modeIcon: {fileID: 21300000, guid: 27ce7b37279d87f44a5d0933a4189ff8, type: 3}
+  - gameMode: 512
+    displayName: Min
+    modeIcon: {fileID: 21300000, guid: 5369fa3c205d5284b87258f0c6225d3a, type: 3}
+  - gameMode: 1024
+    displayName: Freeze
+    modeIcon: {fileID: 21300000, guid: 496b70588a50441cd8f874d9a3371759, type: 3}
+  - gameMode: 2048
+    displayName: Poison
+    modeIcon: {fileID: 21300000, guid: ff9737f090ccc4d49a3cdccc098d33d2, type: 3}
+  - gameMode: 4096
+    displayName: Curse
+    modeIcon: {fileID: 21300000, guid: 8c2f0972e869a45d99028ab5b443bade, type: 3}
+  - gameMode: 8192
+    displayName: Super frog
+    modeIcon: {fileID: 21300000, guid: 0290034800e7a4cfda04a3cbdfaa9af5, type: 3}
+  - gameMode: 16384
+    displayName: Party
+    modeIcon: {fileID: 21300000, guid: 91571829d9cb04de98287ac92e1375c8, type: 3}
+  - gameMode: 32768
+    displayName: Mega goop
+    modeIcon: {fileID: 21300000, guid: 3fa2c9189909541caaff3285b25d3e40, type: 3}
+  - gameMode: 65536
+    displayName: Up bug
+    modeIcon: {fileID: 21300000, guid: 41e6da9a147424fcd80f1684ea4cd677, type: 3}
+  - gameMode: 131072
+    displayName: Down bug
+    modeIcon: {fileID: 21300000, guid: 1744b7c97deb2496498ab4e2f5a971d8, type: 3}
+  - gameMode: 262144
+    displayName: No eternals
+    modeIcon: {fileID: 21300000, guid: 7d1e2339014f81642a67a10b5878b31e, type: 3}

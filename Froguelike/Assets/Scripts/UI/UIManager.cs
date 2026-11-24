@@ -340,6 +340,7 @@ public class UIManager : MonoBehaviour
     {
         modifierScreen.SetActive(false);
         characterSelectionBookImage.SetActive(true);
+        CharacterManager.instance.SelectCharacter(CharacterManager.instance.currentSelectedCharacter);
     }
 
     public void SwitchToModifierScreen()
@@ -348,6 +349,7 @@ public class UIManager : MonoBehaviour
         modifierScreen.SetActive(true);
         RunModifierManager.instance.UpdateModifierScreen();
         backToSelectionButton.SetInfo();
+        SetSelectedButton(backToSelectionButton.gameObject);
     }
 
     public bool IsCharacterSelectionScreenVisible()

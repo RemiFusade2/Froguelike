@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -10,6 +11,13 @@ public class RetryButtonInfoBehaviour : MonoBehaviour
     public TextMeshProUGUI infoTextTMP;
     public string difficultyPrefix;
     public Image hatImage;
+    [Space]
+    public GameObject modifiersGO;
+    public List<GameObject> modifierIcons;
+    public List<GameObject> modifierFrames;
+    public float extraHeightInTopOfModifierPanel;
+    public float extraHeightInBottomOfModifierPanel;
+
 
     public void SetRetryInfo()
     {
@@ -36,7 +44,7 @@ public class RetryButtonInfoBehaviour : MonoBehaviour
         string gameModes = GameManager.instance.GetRetryRunInfoGameModes();
 
         // Chapter name.
-        if (gameModes.Contains("TIME_ENDLESS")) // TODO does this work??
+        if (gameModes.Contains("TIME_ENDLESS"))
         {
             infoText = "Endless";
         }
@@ -46,10 +54,64 @@ public class RetryButtonInfoBehaviour : MonoBehaviour
         }
 
         // Game modes.
-        if (gameModes != "NONE")
+        string lastPlayedGameModes = GameManager.instance.GetRetryRunInfoGameModes();
+        string lastPlayedHat = GameManager.instance.GetRetryRunInfoHatName();
+
+        if (lastPlayedGameModes != "NONE" || lastPlayedHat != "NONE")
+        {
+            modifiersGO.SetActive(true);
+            int slotIndex = 0;
+
+            // Show icons.
+            foreach (GameModeInfo gameModeInfo in DataManager.instance.gameModeInfo)
+            {
+                if ((Enum.Parse<GameMode>(lastPlayedGameModes) & gameModeInfo.gameMode) == gameModeInfo.gameMode)
+                {
+                    modifierIcons[slotIndex].SetActive(true);
+                    modifierIcons[slotIndex].GetComponent<Image>().sprite = gameModeInfo.modeIcon;
+                    modifierFrames[slotIndex].SetActive(true);
+                    slotIndex++;
+                }
+            }
+
+            if (GameManager.instance.GetCurrentSetHatName() != "NONE")
+            {
+                modifierIcons[slotIndex].SetActive(true);
+                modifierIcons[slotIndex].GetComponent<Image>().sprite = DataManager.instance.GetSpriteForHat(DataManager.instance.GetTypeOfHatFromString(GameManager.instance.GetCurrentSetHatName()));
+                modifierFrames[slotIndex].SetActive(true);
+                slotIndex++;
+            }
+
+            // Set size of modifiersGO.
+            if (slotIndex % 2 == 1)
+            {
+                modifierIcons[slotIndex].SetActive(true);
+                modifierIcons[slotIndex].GetComponent<Image>().sprite = null;
+                modifierFrames[slotIndex].SetActive(true);
+                slotIndex++;
+            }
+
+            Vector2 newPanelSize = new Vector2(modifiersGO.GetComponent<RectTransform>().sizeDelta.x, extraHeightInTopOfModifierPanel + 20 * (slotIndex / 2) + extraHeightInBottomOfModifierPanel);
+            modifiersGO.GetComponent<RectTransform>().sizeDelta = newPanelSize;
+
+            while (slotIndex < modifierIcons.Count)
+            {
+                modifierIcons[slotIndex].SetActive(false);
+                modifierIcons[slotIndex].GetComponent<Image>().sprite = null;
+                modifierFrames[slotIndex].SetActive(false);
+                slotIndex++;
+            }
+        }
+        else
+        {
+            modifiersGO.SetActive(false);
+        }
+
+
+        /*if (gameModes != "NONE")
         {
             infoText += "\n" + difficultyPrefix + gameModes[0].ToString().ToUpper() + gameModes.Substring(1).ToLower().Replace(", ", "+");
-        }
+        }*/
 
         // Display the info.
         infoTextTMP.SetText(infoText);

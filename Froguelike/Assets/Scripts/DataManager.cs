@@ -103,6 +103,7 @@ public class HatInfo
     public Sprite hatSprite;
     public float hatHeight;
     public string hatName;
+    public Sprite hatIcon;
 }
 
 [System.Serializable]
@@ -176,10 +177,11 @@ public class BugTypeSprites
 }
 
 [System.Serializable]
-public class GameModeNames
+public class GameModeInfo
 {
     public GameMode gameMode;
     public string displayName;
+    public Sprite modeIcon;
 }
 
 /// <summary>
@@ -274,7 +276,7 @@ public class DataManager : MonoBehaviour
     public List<NextChapterConditionCountInfo> nextChapterConditionCountInfoList;
 
     [Header("Game mode display names")]
-    public List<GameModeNames> gameModeDisplayNames;
+    public List<GameModeInfo> gameModeInfo;
 
     private Vector3 farAwayPosition;
 
