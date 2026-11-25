@@ -9,7 +9,6 @@ public class RetryButtonInfoBehaviour : MonoBehaviour
 {
     public Image characterImage;
     public TextMeshProUGUI infoTextTMP;
-    public string difficultyPrefix;
     public Image hatImage;
     [Space]
     public GameObject modifiersGO;
@@ -77,7 +76,7 @@ public class RetryButtonInfoBehaviour : MonoBehaviour
             if (GameManager.instance.GetCurrentSetHatName() != "NONE")
             {
                 modifierIcons[slotIndex].SetActive(true);
-                modifierIcons[slotIndex].GetComponent<Image>().sprite = DataManager.instance.GetSpriteForHat(DataManager.instance.GetTypeOfHatFromString(GameManager.instance.GetCurrentSetHatName()));
+                modifierIcons[slotIndex].GetComponent<Image>().sprite = DataManager.instance.hatInfoList.Find(x => x.hatType == DataManager.instance.GetTypeOfHatFromString(GameManager.instance.GetCurrentSetHatName())).hatIcon;
                 modifierFrames[slotIndex].SetActive(true);
                 slotIndex++;
             }
@@ -106,12 +105,6 @@ public class RetryButtonInfoBehaviour : MonoBehaviour
         {
             modifiersGO.SetActive(false);
         }
-
-
-        /*if (gameModes != "NONE")
-        {
-            infoText += "\n" + difficultyPrefix + gameModes[0].ToString().ToUpper() + gameModes.Substring(1).ToLower().Replace(", ", "+");
-        }*/
 
         // Display the info.
         infoTextTMP.SetText(infoText);

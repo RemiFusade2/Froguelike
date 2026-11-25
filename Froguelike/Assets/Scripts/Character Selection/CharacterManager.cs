@@ -340,7 +340,6 @@ public class CharacterManager : MonoBehaviour
 
     public void UpdateModifierIconsOnCharacterSelection()
     {
-        // TODO Show the modifier info on the side. With a button to switch to that spread. Needs to check if any modifiers are unlocked, if so show note.
         if (charactersData.availableGameModes != GameMode.NONE)
         {
             modifierNoteGO.SetActive(true);
@@ -358,7 +357,7 @@ public class CharacterManager : MonoBehaviour
 
             if (GameManager.instance.GetCurrentSetHatName() != "NONE")
             {
-                modifierIconParent.GetComponentsInChildren<Image>()[slotIndex].sprite = DataManager.instance.GetSpriteForHat(DataManager.instance.GetTypeOfHatFromString(GameManager.instance.GetCurrentSetHatName()));
+                modifierIconParent.GetComponentsInChildren<Image>()[slotIndex].sprite = DataManager.instance.hatInfoList.Find(x => x.hatType == DataManager.instance.GetTypeOfHatFromString(GameManager.instance.GetCurrentSetHatName())).hatIcon;
                 slotIndex++;
             }
 
@@ -542,7 +541,9 @@ public class CharacterManager : MonoBehaviour
                     shopValue += (float)statValue.value;
                 }
 
-                statLineScript.Initialize(stat, totalValue, frogValue, shopValue, currentSelectedCharacter.unlocked);
+                bool ignoreEternals = (RunModifierManager.instance.selectedGameModes & GameMode.IGNORE_ETERNALS) == GameMode.IGNORE_ETERNALS;
+                bool hasEternals = ignoreEternals ? false : currentSelectedCharacter.characterStatsIncrements.statsList.Contains(statValue);
+                statLineScript.Initialize(stat, totalValue, frogValue, shopValue, currentSelectedCharacter.unlocked, hasEternals);
 
                 lineCount++;
             }

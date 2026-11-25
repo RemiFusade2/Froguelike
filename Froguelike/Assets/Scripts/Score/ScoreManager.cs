@@ -1,6 +1,7 @@
+using Rewired;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using Rewired;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -28,8 +29,6 @@ public class ScoreManager : MonoBehaviour
     public TextMeshProUGUI totalScoreText;
     public TextMeshProUGUI totalTimeText;
     public TextMeshProUGUI currencyCollectedText;
-    public TextMeshProUGUI difficultyText;
-    public string difficultyPrefix;
     public TextMeshProUGUI moralText;
     [Space]
     public Transform tonguesPanel;
@@ -42,7 +41,12 @@ public class ScoreManager : MonoBehaviour
     public GameObject rightArrow;
     [Space]
     public CharacterBookmarkInRunInfoBehaviour characterInfoBookmark;
-
+    [Space]
+    public GameObject modifiersGO;
+    public List<GameObject> modifierIcons;
+    public List<GameObject> modifierFrames;
+    public float extraHeightInTopOfModifierPanel;
+    public float extraHeightInBottomOfModifierPanel;
 
     private void Awake()
     {
@@ -60,7 +64,7 @@ public class ScoreManager : MonoBehaviour
 
     private string GetRandomMoral()
     {
-        return possibleMorals[Random.Range(0, possibleMorals.Count)];
+        return possibleMorals[UnityEngine.Random.Range(0, possibleMorals.Count)];
     }
 
     /// <summary>
@@ -153,24 +157,12 @@ public class ScoreManager : MonoBehaviour
         // Display collected currency.
         currencyCollectedText.text = Tools.FormatCurrency(currencyCollected, DataManager.instance.currencySymbol);
 
-        // Display difficulty.
-        string gameMode = GameManager.instance.GetRetryRunInfoGameModes();
-        if (gameMode != "NONE")
-        {
-            difficultyText.gameObject.SetActive(true);
-            difficultyText.text = difficultyPrefix + gameMode[0].ToString().ToUpper() + gameMode.Substring(1).ToLower().Replace(", ", "+");
-        }
-        else
-        {
-            difficultyText.gameObject.SetActive(false);
-        }
-
-            // Pick a random moral to display
-            string moral = GetRandomMoral();
+        // Pick a random moral to display
+        string moral = GetRandomMoral();
         moralText.text = moral;
         scoreLog += $"-> Moral is: {moral}\n";
 
-        // Display all weapons used during this run and their levels
+        // Display all tongues used during this run and their levels
 
         // Remove previous tongue displays.
         foreach (Transform child in tonguesPanel)
@@ -243,6 +235,60 @@ public class ScoreManager : MonoBehaviour
 
         // Display character info.
         characterInfoBookmark.UpdateInRunBookmark();
+
+        // Display modifiers.
+        string lastPlayedGameModes = GameManager.instance.GetRetryRunInfoGameModes();
+        string lastPlayedHat = GameManager.instance.GetRetryRunInfoHatName();
+
+        if (lastPlayedGameModes != "NONE" || lastPlayedHat != "NONE")
+        {
+            modifiersGO.SetActive(true);
+            int slotIndex = 0;
+
+            // Show icons.
+            foreach (GameModeInfo gameModeInfo in DataManager.instance.gameModeInfo)
+            {
+                if ((Enum.Parse<GameMode>(lastPlayedGameModes) & gameModeInfo.gameMode) == gameModeInfo.gameMode)
+                {
+                    modifierIcons[slotIndex].SetActive(true);
+                    modifierIcons[slotIndex].GetComponent<Image>().sprite = gameModeInfo.modeIcon;
+                    modifierFrames[slotIndex].SetActive(true);
+                    slotIndex++;
+                }
+            }
+
+            if (GameManager.instance.GetCurrentSetHatName() != "NONE")
+            {
+                modifierIcons[slotIndex].SetActive(true);
+                modifierIcons[slotIndex].GetComponent<Image>().sprite = DataManager.instance.hatInfoList.Find(x => x.hatType == DataManager.instance.GetTypeOfHatFromString(GameManager.instance.GetCurrentSetHatName())).hatIcon;
+                modifierFrames[slotIndex].SetActive(true);
+                slotIndex++;
+            }
+
+            // Set size of modifiersGO.
+            if (slotIndex % 2 == 1)
+            {
+                modifierIcons[slotIndex].SetActive(true);
+                modifierIcons[slotIndex].GetComponent<Image>().sprite = null;
+                modifierFrames[slotIndex].SetActive(true);
+                slotIndex++;
+            }
+
+            Vector2 newPanelSize = new Vector2(modifiersGO.GetComponent<RectTransform>().sizeDelta.x, extraHeightInTopOfModifierPanel + 20 * (slotIndex / 2) + extraHeightInBottomOfModifierPanel);
+            modifiersGO.GetComponent<RectTransform>().sizeDelta = newPanelSize;
+
+            while (slotIndex < modifierIcons.Count)
+            {
+                modifierIcons[slotIndex].SetActive(false);
+                modifierIcons[slotIndex].GetComponent<Image>().sprite = null;
+                modifierFrames[slotIndex].SetActive(false);
+                slotIndex++;
+            }
+        }
+        else
+        {
+            modifiersGO.SetActive(false);
+        }
 
         // Clear hats.
         RunManager.instance.player.ClearHats();

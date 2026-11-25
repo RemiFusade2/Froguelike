@@ -12,7 +12,7 @@ public class RunModifierManager : MonoBehaviour
 
     public PanelBehaviour panelBehaviour;
     public FrogCharacterController frogCharacterController;
-    [Header("UI References")] // TODO add all panels, should the be blank/hidden before having one option unlocked? Or just ???? 
+    [Header("UI References")]
     public GameObject difficultyPanel;
     public TextMeshProUGUI difficultyPanelInfoText;
     public Toggle hardToggle;
@@ -88,6 +88,13 @@ public class RunModifierManager : MonoBehaviour
         }
     }
 
+
+    private void Start()
+    {
+        selectedGameModes = Enum.Parse<GameMode>(GameManager.instance.GetCurrentSetGameModes());
+        selectedHatName = GameManager.instance.GetCurrentSetHatName();
+    }
+
     public void UpdateModifierScreen()
     {
         selectedGameModes = Enum.Parse<GameMode>(GameManager.instance.GetCurrentSetGameModes());
@@ -106,7 +113,7 @@ public class RunModifierManager : MonoBehaviour
 
     public void UnlockGameMode(GameMode gameMode)
     {
-        CharacterManager.instance.charactersData.availableGameModes |= gameMode; // TODO does this work with multiple game modes?
+        CharacterManager.instance.charactersData.availableGameModes |= gameMode;
         SaveDataManager.instance.isSaveDataDirty = true;
     }
 

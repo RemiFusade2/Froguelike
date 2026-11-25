@@ -11,6 +11,8 @@ public class CharacterStatLine : MonoBehaviour
     public TextMeshProUGUI totalValueTextMesh;
     public TextMeshProUGUI frogValueTextMesh;
     public TextMeshProUGUI shopValueTextMesh;
+    public Color defaultTextColor;
+    public Color eternalTextColor;
 
     private string GetStringForValue(float value, bool usePercent)
     {
@@ -30,7 +32,7 @@ public class CharacterStatLine : MonoBehaviour
         return result;
     }
 
-    public void Initialize(CharacterStat stat, float totalValue, float frogValue, float shopValue, bool frogIsUnlocked)
+    public void Initialize(CharacterStat stat, float totalValue, float frogValue, float shopValue, bool frogIsUnlocked, bool hasEternalUpgrade)
     {
         if (DataManager.instance.TryGetStatData(stat, out string shortName, out string longName, out string unit, out bool usePercent, out Sprite icon))
         {
@@ -54,6 +56,7 @@ public class CharacterStatLine : MonoBehaviour
                 totalValueTextMesh.SetText($"{totalValue.ToString()}{unit}");
             }
             frogValueTextMesh.SetText(frogValueStr);
+            frogValueTextMesh.color = hasEternalUpgrade ? eternalTextColor : defaultTextColor;
             shopValueTextMesh.SetText(shopValueStr);
         }
     }
