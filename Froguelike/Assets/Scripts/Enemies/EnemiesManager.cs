@@ -150,6 +150,7 @@ public class EnemyInstance
     public ParticleSystem enemyVampireParticles;
     public ParticleSystem enemyFroinParticles;
     public ParticleSystem enemyXPParticles;
+    public ParticleSystem enemyTruceParticles;
 
     // A link to the last weapon that hit this enemy
     public Transform lastWeaponHitTransform;
@@ -180,6 +181,7 @@ public class EnemyInstance
         enemyVampireParticles = enemyTransform.Find("Vampire Particles").GetComponent<ParticleSystem>();
         enemyFroinParticles = enemyTransform.Find("Froin Particles").GetComponent<ParticleSystem>();
         enemyXPParticles = enemyTransform.Find("XP Particles").GetComponent<ParticleSystem>();
+        enemyTruceParticles = enemyTransform.Find("Truce Particles").GetComponent<ParticleSystem>();
     }
 
     public void RemovePoison()
@@ -268,6 +270,7 @@ public class EnemyInstance
         enemyVampireParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         enemyFroinParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         enemyXPParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        enemyTruceParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
     }
 }
 
@@ -334,6 +337,7 @@ public class EnemiesManager : MonoBehaviour
     public Color damageTextColor_curse;
     public Color damageTextColor_froin;
     public Color damageTextColor_xp;
+    public Color damageTextColor_truce;
 
     [Header("Settings - Effects (poison, frozen, etc.)")]
     public Color poisonedOverlayColor;
@@ -343,6 +347,7 @@ public class EnemiesManager : MonoBehaviour
     public Color knockbackOverlayColor;
     public Color froinOverlayColor;
     public Color xpOverlayColor;
+    public Color truceOverlayColor;
     public float delayBetweenPoisonDamage = 0.6f;
 
     [Header("Settings - Movement")]
@@ -1546,7 +1551,7 @@ public class EnemiesManager : MonoBehaviour
     /// <param name="damage"></param>
     /// <param name="weapon"></param>
     /// <returns></returns>
-    public bool DamageEnemy(int enemyIndex, float damage, Transform weapon, bool applyVampireEffect = false, bool applyFreezeEffect = false, bool applyCurse = false, bool poisonSource = false, bool applyFroinEffect = false, bool applyXPEffect = false)
+    public bool DamageEnemy(int enemyIndex, float damage, Transform weapon, bool applyVampireEffect = false, bool applyFreezeEffect = false, bool applyCurse = false, bool poisonSource = false, bool applyFroinEffect = false, bool applyXPEffect = false, bool applyTruceEffect = false)
     {
         EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
 
@@ -1643,7 +1648,11 @@ public class EnemiesManager : MonoBehaviour
                 damageTMPScript.color = damageTextColor_huge;
             }
 
-            if (applyVampireEffect)
+            if (applyTruceEffect)
+            {
+                damageTMPScript.color = damageTextColor_truce;
+            }
+            else if (applyVampireEffect)
             {
                 damageTMPScript.color = damageTextColor_vampire;
             }
@@ -1744,7 +1753,12 @@ public class EnemiesManager : MonoBehaviour
             }
         }
 
-        if (applyVampireEffect)
+        if (applyTruceEffect)
+        {
+            SetOverlayColor(enemy, truceOverlayColor, 0.3f);
+            enemy.enemyTruceParticles.Play();
+        }
+        else if (applyVampireEffect)
         {
             SetOverlayColor(enemy, vampireOverlayColor, 0.3f);
             enemy.enemyVampireParticles.Play();
@@ -1777,10 +1791,10 @@ public class EnemiesManager : MonoBehaviour
     }
 
     // Return true if enemy dieded
-    public bool DamageEnemy(string enemyGoName, float damage, Transform weapon, bool applyVampireEffect = false, bool applyFreezeEffect = false, bool applyCurse = false, bool poisonSource = false, bool applyFroinEffect = false, bool applyXPEffect = false)
+    public bool DamageEnemy(string enemyGoName, float damage, Transform weapon, bool applyVampireEffect = false, bool applyFreezeEffect = false, bool applyCurse = false, bool poisonSource = false, bool applyFroinEffect = false, bool applyXPEffect = false, bool applyTruceEffect = false)
     {
         int index = int.Parse(enemyGoName);
-        return DamageEnemy(index, damage, weapon, applyVampireEffect, applyFreezeEffect, applyCurse, poisonSource, applyFroinEffect, applyXPEffect);
+        return DamageEnemy(index, damage, weapon, applyVampireEffect, applyFreezeEffect, applyCurse, poisonSource, applyFroinEffect, applyXPEffect, applyTruceEffect);
     }
 
     public void ClearAllDamageTexts()
@@ -1958,12 +1972,15 @@ public class EnemiesManager : MonoBehaviour
                             // Special case for random enemies: they start following the frog if it goes too close
                             if (enableAggroForRandomMovementBugs && enemy.movePattern.movePatternType == EnemyMovePatternType.DIRECTIONLESS)
                             {
-                                if (distanceWithFrog <= aggroDistanceFromRandomMovementBugs)
+                                if (!enemy.movePattern.forceDirectionless)
                                 {
-                                    // Change move pattern from DIRECTIONLESS to FOLLOW_PLAYER
-                                    enemy.movePattern = new EnemyMovePattern(enemy.movePattern);
-                                    enemy.movePattern.movePatternType = EnemyMovePatternType.FOLLOW_PLAYER;
-                                    enemy.movePattern.speedFactor *= 1.5f;
+                                    if (distanceWithFrog <= aggroDistanceFromRandomMovementBugs)
+                                    {
+                                        // Change move pattern from DIRECTIONLESS to FOLLOW_PLAYER
+                                        enemy.movePattern = new EnemyMovePattern(enemy.movePattern);
+                                        enemy.movePattern.movePatternType = EnemyMovePatternType.FOLLOW_PLAYER;
+                                        enemy.movePattern.speedFactor *= 1.5f;
+                                    }
                                 }
                             }
 
@@ -2321,6 +2338,26 @@ public class EnemiesManager : MonoBehaviour
     {
         enemy.curseRemainingTime = duration;
         SetOverlayColor(enemy, cursedOverlayColor, 0.3f);
+        UpdateStatusParticles(enemy);
+    }
+
+    public void ApplyTruceEffect(string enemyGoName)
+    {
+        int enemyIndex = int.Parse(enemyGoName);
+        if (allActiveEnemiesDico.ContainsKey(enemyIndex))
+        {
+            EnemyInstance enemy = allActiveEnemiesDico[enemyIndex];
+            ApplyTruceEffect(enemy);
+        }
+    }
+
+    public void ApplyTruceEffect(EnemyInstance enemy)
+    {
+        if (enemy.movePattern.movePatternType != EnemyMovePatternType.NO_MOVEMENT)
+        {
+            enemy.movePattern = new EnemyMovePattern(EnemyMovePatternType.DIRECTIONLESS, 0.8f, forceDirectionless: true);
+        }
+        SetOverlayColor(enemy, truceOverlayColor, 0.5f);
         UpdateStatusParticles(enemy);
     }
 

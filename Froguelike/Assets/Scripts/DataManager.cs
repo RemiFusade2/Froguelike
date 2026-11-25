@@ -18,6 +18,7 @@ public enum VerboseLevel
 
 /// <summary>
 /// TongueEffect will be used as a mask, as a tongue could have multiple of these effects at the same time.
+/// Edit: I guess we're not using it as a mask anymore? So no multiple effects at the same time.
 /// </summary>
 [System.Serializable]
 public enum TongueEffect
@@ -28,7 +29,8 @@ public enum TongueEffect
     FREEZE = 4,
     CURSE = 8,
     FROIN = 9,
-    XP = 10
+    XP = 10,
+    TRUCE = 11
 }
 
 [System.Serializable]
@@ -71,7 +73,12 @@ public enum TongueType
     EDGE, // This tongue moves in a straight line from the edges of the screen
     DART, // Super quick and goes off the screen, hitting everything in its way
     FROIN, // Dark yellow, zig zag, long, quick and makes the bugs spawn froins when hit and only froins when eaten
-    XP // Dark blue, shape of a star, makes bugs spawn XP and only drop XP when eaten
+    XP, // Dark blue, shape of a star, makes bugs spawn XP and only drop XP when eaten
+    FREEZETATING, // same movement as a rotatongue, but it does freeze damage instead of regular damage
+    VAMPITATING, // same movement as a rotatongue, but it does vampire damage instead of regular damage
+    TRUCE, // evolution from Cursed tongue, it has the power to stop bugs from chasing you (they switch to random move pattern)
+    ENDLESS, // A very very longue randotongue (essentially the exact same as randotongue)
+    TONGUEZILLA, // Like Edge tongue but only left/right and cat shaped instead of frog shaped
 }
 
 /// <summary>
