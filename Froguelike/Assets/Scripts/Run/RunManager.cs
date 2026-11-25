@@ -121,6 +121,9 @@ public class UILevelUpChoicePanel
     public Image frusionItemIcon1;
     public Image frusionItemIcon2;
     public Image frusionItemIcon3;
+    public GameObject frusionAndNewItemParentPanel;
+    public GameObject frusionAndNewTongueParentPanel;
+    public GameObject frusionAndPermanentParentPanel;
 
     public GameObject newItemParentPanel;
     public GameObject newTongueParentPanel;
@@ -2265,6 +2268,9 @@ public class RunManager : MonoBehaviour
             levelUpChoicesPanels[index].newItemParentPanel.SetActive(false);
             levelUpChoicesPanels[index].newTongueParentPanel.SetActive(false);
             levelUpChoicesPanels[index].permanentParentPanel.SetActive(false);
+            levelUpChoicesPanels[index].frusionAndNewItemParentPanel.SetActive(false);
+            levelUpChoicesPanels[index].frusionAndNewTongueParentPanel.SetActive(false);
+            levelUpChoicesPanels[index].frusionAndPermanentParentPanel.SetActive(false);
             switch (itemType)
             {
                 case RunItemType.CONSUMABLE:
@@ -2276,17 +2282,31 @@ public class RunManager : MonoBehaviour
                 case RunItemType.WEAPON:
                     newItem = (level == 0);
                     maxLevelItem = (nextLevel >= item.GetMaxLevel());
-                    levelUpChoicesPanels[index].newTongueParentPanel.SetActive(newItem);
+                    if (frusionItem)
+                    {
+                        levelUpChoicesPanels[index].frusionAndNewTongueParentPanel.SetActive(newItem);
+                    }
+                    else
+                    {
+                        levelUpChoicesPanels[index].newTongueParentPanel.SetActive(newItem);
+                    }
                     break;
                 case RunItemType.STAT_BONUS:
                     newItem = (level == 0);
                     maxLevelItem = (nextLevel >= item.GetMaxLevelCount());
-                    levelUpChoicesPanels[index].newItemParentPanel.SetActive(newItem);
+                    if (frusionItem)
+                    {
+                        levelUpChoicesPanels[index].frusionAndNewItemParentPanel.SetActive(newItem);
+                    }
+                    else
+                    {
+                        levelUpChoicesPanels[index].newItemParentPanel.SetActive(newItem);
+                    }
                     break;
                 case RunItemType.PERMANENT_UPGRADE:
                     // item without levels
                     levelUpChoicesPanels[index].level.text = "";
-                    levelUpChoicesPanels[index].permanentParentPanel.SetActive(true);
+                    levelUpChoicesPanels[index].frusionAndPermanentParentPanel.SetActive(true);
                     buttonStyle = levelUpChoicesPanelStyle_permanent;
                     break;
             }
