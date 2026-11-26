@@ -2380,15 +2380,13 @@ public class RunManager : MonoBehaviour
 
                     if (description.Contains("[FROGNAME]"))
                     {
-                        if (currentPlayedCharacter.characterData.characterName.Equals("Minifrog"))
+                        if (currentPlayedCharacter.characterData.characterID.Equals("MINIFROG"))
                         {
-                            description = description.Replace("[FROGNAME]", "Minifrog, twice!");
+                            description = description.Replace("[FROGNAME]", currentPlayedCharacter.characterData.characterName + ", twice!");
                         }
                         else
                         {
-                            // TODO: Edit this for when we actually add Minifrog as a playable frog
-                            //description = description.Replace("[FROGNAME]", currentPlayedCharacter.characterData.characterName + " and Minifrog");
-                            description = description.Replace("[FROGNAME]", currentPlayedCharacter.characterData.characterName);
+                            description = description.Replace("[FROGNAME]", currentPlayedCharacter.characterData.characterName + " and " + CharacterManager.instance.GetCharacterData("MINIFROG").characterName);
                         }
                     }
                 }

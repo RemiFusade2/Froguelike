@@ -172,7 +172,7 @@ public class CharacterManager : MonoBehaviour
     public CharacterData GetCharacterData(string characterID)
     {
         CharacterData result = null;
-        if (charactersDataFromNameDico.ContainsKey(characterID))
+        if (charactersDataFromNameDico != null && charactersDataFromNameDico.ContainsKey(characterID))
         {
             result = charactersDataFromNameDico[characterID];
         }
@@ -529,10 +529,22 @@ public class CharacterManager : MonoBehaviour
                     }
                 }
 
+                if (totalValue.ToString().Contains('.') && totalValue.ToString().Split('.')[1].Length > 2)
+                {
+                    string newTotalValue = totalValue.ToString().Split('.')[0]+ '.' + totalValue.ToString().Split('.')[1][0] + totalValue.ToString().Split('.')[1][1];
+                    totalValue = float.Parse(newTotalValue);
+                }
+
                 statValue = currentCharacterStatList.FirstOrDefault(x => x.stat == stat);
                 if (statValue != null)
                 {
                     frogValue += (float)statValue.value;
+                }
+
+                if (frogValue.ToString().Contains('.') && frogValue.ToString().Split('.')[1].Length > 2)
+                {
+                    string newFrogValue = frogValue.ToString().Split('.')[0] + '.' + frogValue.ToString().Split('.')[1][0] + frogValue.ToString().Split('.')[1][1];
+                    frogValue = float.Parse(newFrogValue);
                 }
 
                 statValue = statBonusesFromShop.FirstOrDefault(x => x.stat == stat);
@@ -541,7 +553,14 @@ public class CharacterManager : MonoBehaviour
                     shopValue += (float)statValue.value;
                 }
 
+                if (shopValue.ToString().Contains('.') && shopValue.ToString().Split('.')[1].Length > 2)
+                {
+                    string newShopValue = shopValue.ToString().Split('.')[0] + '.' + shopValue.ToString().Split('.')[1][0] + shopValue.ToString().Split('.')[1][1];
+                    shopValue = float.Parse(newShopValue);
+                }
+
                 bool ignoreEternals = (RunModifierManager.instance.selectedGameModes & GameMode.IGNORE_ETERNALS) == GameMode.IGNORE_ETERNALS;
+                statValue = totalStatList.FirstOrDefault(x => x.stat == stat);
                 bool hasEternals = ignoreEternals ? false : currentSelectedCharacter.characterStatsIncrements.statsList.Contains(statValue);
                 statLineScript.Initialize(stat, totalValue, frogValue, shopValue, currentSelectedCharacter.unlocked, hasEternals);
 
