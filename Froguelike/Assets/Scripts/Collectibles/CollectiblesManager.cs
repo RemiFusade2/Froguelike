@@ -352,6 +352,22 @@ public class CollectiblesManager : MonoBehaviour
 
     #region Fixed Collectibles (not pooled)
 
+    public void RemoveFixedCollectibleAroundPosition(Vector2 position, float radius)
+    {
+        List<GameObject> collectiblesToDestroy = new List<GameObject>();
+        foreach (Transform fixedCollectibleChildTransform in fixedCollectiblesParent)
+        {
+            if (Vector2.Distance(position, fixedCollectibleChildTransform.position) < radius)
+            {
+                collectiblesToDestroy.Add(fixedCollectibleChildTransform.gameObject);
+            }
+        }
+        foreach (GameObject collectibleObject in collectiblesToDestroy)
+        {
+            Destroy(collectibleObject, 0.01f);
+        }
+    }
+
     public void SpawnFixedCollectible(FixedCollectible collectible, Vector2 position)
     {
         GameObject newCollectible = Instantiate(fixedCollectiblePrefab, position, Quaternion.identity, fixedCollectiblesParent);
@@ -405,6 +421,32 @@ public class CollectiblesManager : MonoBehaviour
         {
             Debug.Log("Collectible Manager - Collect fixed collectible: " + superCollectible.collectibleType.ToString());
         }
+    }
+
+    public List<HatType> GetFoundHats()
+    {
+        List<HatType> foundHats = new List<HatType>();
+
+        foreach (Chapter chapter in ChapterManager.instance.chaptersData.chaptersList)
+        {
+            foreach (FixedCollectible collectible in chapter.chapterData.specialCollectiblesOnTheMap)
+            {
+                string thisCollectiblesCoords = $"{collectible.tileCoordinates.x}_{collectible.tileCoordinates.y}";
+
+                if (collectible.collectibleType == FixedCollectibleType.HAT && chapter.fixedCollectiblesFoundList.Count > 0)
+                {
+                    for (int collectibleFoundIndex = 0; collectibleFoundIndex < chapter.fixedCollectiblesFoundList.Count; collectibleFoundIndex++)
+                    {
+                        if (chapter.fixedCollectiblesFoundList[collectibleFoundIndex].collectibleIdentifier == thisCollectiblesCoords && !foundHats.Contains(collectible.collectibleHatType))
+                        {
+                            foundHats.Add(collectible.collectibleHatType);
+                        }
+                    }
+                }
+            }
+        }
+
+        return foundHats;
     }
 
     #endregion

@@ -169,5 +169,15 @@ public class CombinedSaveData
             }
             AchievementManager.instance.UnlockListOfAchievements(saveData.achievementsSaveData.achievementsList);
         }
+
+        // Load attempts, completions and found fixed collectibles for chapters.
+        if (saveData.chaptersSaveData != null)
+        {
+            if (SaveDataManager.instance.verbose == VerboseLevel.MAXIMAL)
+            {
+                Debug.Log($"Debug info - Calling ChapterManager.instance.TransferAttemptsCompletionAndFoundCollectiblesForChaptersFromDemoToEA({saveData.chaptersSaveData})");
+            }
+            ChapterManager.instance.TransferAttemptsCompletionAndFoundCollectiblesForChaptersFromDemoToEA(saveData.chaptersSaveData.chaptersList);
+        }
     }
 }

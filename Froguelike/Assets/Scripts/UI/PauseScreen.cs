@@ -39,20 +39,27 @@ public class PauseScreen : MonoBehaviour
         try
         {
             string text = "";
-            // Previous chapters.
-            for (int chapterIndex = 0; chapterIndex < runManager.GetChapterCount() - 1; chapterIndex++)
+            if (runManager.IsCurrentRunEndless())
             {
-                text += "Chapter " + (chapterIndex + 1) + " - " + runManager.completedChaptersList[chapterIndex].chapterData.chapterTitle + "\n";
+                chapterText.SetText("Chapter 1 - Endless");
             }
-
-            if (!ChapterManager.instance.chapterChoiceIsVisible)
+            else
             {
-                // Current chapter, if we're not in the process of selecting it.
-                text += "Chapter " + runManager.GetChapterCount().ToString() + " - " + runManager.currentChapter.chapterData.chapterTitle;
-            }
+                // Previous chapters.
+                for (int chapterIndex = 0; chapterIndex < runManager.GetChapterCount() - 1; chapterIndex++)
+                {
+                    text += "Chapter " + (chapterIndex + 1) + " - " + runManager.completedChaptersList[chapterIndex].chapterData.chapterTitle + "\n";
+                }
 
-            // Update and display list.
-            chapterText.SetText(text);
+                if (!ChapterManager.instance.chapterChoiceIsVisible)
+                {
+                    // Current chapter, if we're not in the process of selecting it.
+                    text += "Chapter " + runManager.GetChapterCount().ToString() + " - " + runManager.currentChapter.chapterData.chapterTitle;
+                }
+
+                // Update and display list.
+                chapterText.SetText(text);
+            }
         }
         catch (Exception e)
         {

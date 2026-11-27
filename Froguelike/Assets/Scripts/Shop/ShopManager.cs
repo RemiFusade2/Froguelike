@@ -96,6 +96,7 @@ public class ShopManager : MonoBehaviour
     public Image permanentUpgradeFrogSlotFrame;
     public Image permanentUpgradeFrogSlotIcon;
     public TextMeshProUGUI permanentUpgradeDescriptionText;
+    public GameObject permanentUpgradeMinifrogIconGO;
     public Button permanentUpgradeCloseButton;
 
     [Header("UI Prefabs")]
@@ -229,6 +230,7 @@ public class ShopManager : MonoBehaviour
     private IEnumerator BuyPermanentUpgradeAnimation()
     {
         EventSystem.current.SetSelectedGameObject(null); // No selection until animation is done! No input either
+        permanentUpgradeMinifrogIconGO.SetActive(false);
 
         string greenColorString = "<color=#2b8d38>";
         string defaultColorString = "<color=#18191F>";
@@ -290,11 +292,14 @@ public class ShopManager : MonoBehaviour
             {
                 characterData = characterDataList[Random.Range(0, characterDataList.Count)];
                 characterIsUnlocked = CharacterManager.instance.IsCharacterUnlocked(characterData.characterID);
+                characterIsUnlocked = characterData.characterID == "MINIFROG" ? false : characterIsUnlocked; // Sets characterIsUnlocked to false if minifrog was picked, miniforg can't be picked.
                 newIconIsDifferentFromPreviousIcon = (permanentUpgradeFrogSlotIcon.sprite != characterData.characterSprite);
                 attemptCount++;
             } while ((!characterIsUnlocked || !newIconIsDifferentFromPreviousIcon) && (attemptCount < 50));
             SoundManager.instance.PlayEatBugSound();
             permanentUpgradeFrogSlotIcon.sprite = characterData.characterSprite;
+            permanentUpgradeFrogSlotIcon.GetComponent<RectTransform>().sizeDelta = new Vector2 (characterData.characterSprite.rect.size.x *2, characterData.characterSprite.rect.size.y * 2);
+            permanentUpgradeFrogSlotIcon.transform.localPosition = new Vector3(characterData.characterID == "STANLEY" ? 1 : 0, characterData.characterID == "STANLEY" ? 3 : 1, permanentUpgradeFrogSlotIcon.transform.localPosition.z);
             description = permanentUpgradeItem.description.Replace("\\n", "\n").Replace("[FROGNAME]", characterData.characterName);
             descriptionSplit = System.Text.RegularExpressions.Regex.Split(description, "([+-])");
             if (descriptionSplit.Length != 3)
@@ -323,6 +328,11 @@ public class ShopManager : MonoBehaviour
             description = greenColorString + descriptionSplit[0] + defaultColorString + descriptionSplit[1] + descriptionSplit[2];
         }
         permanentUpgradeDescriptionText.text = description;
+
+        // Show minifrog.
+        yield return new WaitForSecondsRealtime(1.0f);
+        permanentUpgradeDescriptionText.text += defaultColorString + " (and " + CharacterManager.instance.GetCharacterData("MINIFROG").characterName + ")";
+        permanentUpgradeMinifrogIconGO.SetActive(true);
 
         // Apply permanent upgrade!
         CharacterManager.instance.IncrementCharacterStats(characterData.characterID, permanentUpgradeItem.effect.statUpgrades.statsList);
@@ -534,12 +544,6 @@ public class ShopManager : MonoBehaviour
         availableCurrencyText.text = Tools.FormatCurrency(GameManager.instance.gameData.availableCurrency, DataManager.instance.currencySymbol);
 
         // Remove previous buttons
-        /* foreach (Transform child in shopPanel)
-        {
-            // child.parent = trash;
-            Destroy(child.gameObject);
-        } */
-
         while (shopPanel.childCount > 0)
         {
             Destroy(shopPanel.GetChild(0).gameObject);

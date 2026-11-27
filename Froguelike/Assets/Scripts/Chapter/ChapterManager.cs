@@ -951,6 +951,14 @@ public class ChapterManager : MonoBehaviour
         StartChapter(chapterInfo);
     }
 
+    public void StartEndless()
+    {
+        // No need to store any information about chapter starting: this is endless mode, we ignore chapters
+
+        // Tell the RunManager to start the endless mode
+        RunManager.instance.StartEndless();
+    }
+
     public void StartChapter(Chapter chapter)
     {
         // Save information about the current character attempting to play that chapter        
@@ -1140,7 +1148,14 @@ public class ChapterManager : MonoBehaviour
         // Debug log
         if (logsVerboseLevel == VerboseLevel.MAXIMAL)
         {
-            Debug.Log("Chapter - Start screen - " + chapter.chapterID);
+            if (chapter != null)
+            {
+                Debug.Log("Chapter - Start screen - " + chapter.chapterID);
+            }
+            else
+            {
+                Debug.Log("Chapter - Start screen - No chapter");
+            }
         }
 
         if (fadeOutChapterStartScreenCoroutine != null)
@@ -1154,7 +1169,14 @@ public class ChapterManager : MonoBehaviour
         // Display title
         chapterStartTopText.text = "Chapter " + chapterCount.ToString();
         chapterStartTopText.color = new Color(chapterStartTopText.color.r, chapterStartTopText.color.g, chapterStartTopText.color.b, 1);
-        chapterStartBottomText.text = chapter.chapterData.chapterTitle;
+        if (chapter != null)
+        {
+            chapterStartBottomText.text = chapter.chapterData.chapterTitle;
+        }
+        else
+        {
+            chapterStartBottomText.text = "ENDLESS";
+        }
         chapterStartBottomText.color = new Color(chapterStartBottomText.color.r, chapterStartBottomText.color.g, chapterStartBottomText.color.b, 1);
 
         // Display icons        
@@ -1162,11 +1184,14 @@ public class ChapterManager : MonoBehaviour
         {
             chapterStartIconsImageList[i].gameObject.SetActive(false);
         }
-        for (int i = 0; i < chapter.chapterData.icons.Count; i++)
+        if (chapter != null)
         {
-            chapterStartIconsImageList[i].color = new Color(chapterStartIconsImageList[i].color.r, chapterStartIconsImageList[i].color.g, chapterStartIconsImageList[i].color.b, 1);
-            chapterStartIconsImageList[i].gameObject.SetActive(true);
-            chapterStartIconsImageList[i].sprite = chapter.chapterData.icons[i];
+            for (int i = 0; i < chapter.chapterData.icons.Count; i++)
+            {
+                chapterStartIconsImageList[i].color = new Color(chapterStartIconsImageList[i].color.r, chapterStartIconsImageList[i].color.g, chapterStartIconsImageList[i].color.b, 1);
+                chapterStartIconsImageList[i].gameObject.SetActive(true);
+                chapterStartIconsImageList[i].sprite = chapter.chapterData.icons[i];
+            }
         }
 
         UIManager.instance.ShowChapterStart();
@@ -1304,6 +1329,31 @@ public class ChapterManager : MonoBehaviour
                 else
                 {
                     chapter.fixedCollectiblesFoundList = new List<FixedCollectibleFound>();
+                }
+            }
+        }
+    }
+
+    public void TransferAttemptsCompletionAndFoundCollectiblesForChaptersFromDemoToEA(List<Chapter> chaptersList)
+    {
+        foreach (Chapter chapter in chaptersData.chaptersList)
+        {
+            if (chapter.chapterID != "[CH_COLLECT_COINS]") // Skip that chapter, because it is unlocked in the demo from start but is not in the full game from the start. Altough, I figure out that that chapter still can't be played in the demo, but I will keep this code anyway.
+            {
+                Chapter chapterFromSave = chaptersList.FirstOrDefault(x => x.chapterID.Equals(chapter.chapterID));
+                if (chapterFromSave != null)
+                { 
+
+                    chapter.attemptCountByCharacters = new List<CharacterCount>(chapterFromSave.attemptCountByCharacters);
+                    chapter.completionCountByCharacters = new List<CharacterCount>(chapterFromSave.completionCountByCharacters);
+                    if (chapterFromSave.fixedCollectiblesFoundList != null)
+                    {
+                        chapter.fixedCollectiblesFoundList = new List<FixedCollectibleFound>(chapterFromSave.fixedCollectiblesFoundList);
+                    }
+                    else
+                    {
+                        chapter.fixedCollectiblesFoundList = new List<FixedCollectibleFound>();
+                    }
                 }
             }
         }

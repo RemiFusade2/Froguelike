@@ -179,7 +179,15 @@ public class SoundManager : MonoBehaviour
 
     public void SetPondAmbiencePondAmount()
     {
-        int pondAmount = RunManager.instance.currentChapter.chapterData.pondsSpawnFrequency.GetHashCode();
+        int pondAmount;
+        if (RunManager.instance.IsCurrentRunEndless() || RunManager.instance.currentChapter == null)
+        {
+            pondAmount = 1; // Todo: unsure what that does, I just wrote that to prevent a crash
+        }
+        else
+        {
+            pondAmount = RunManager.instance.currentChapter.chapterData.pondsSpawnFrequency.GetHashCode();
+        }
         RuntimeManager.StudioSystem.setParameterByName("PondAmount", pondAmount);
     }
 

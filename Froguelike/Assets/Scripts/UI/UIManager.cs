@@ -58,6 +58,9 @@ public class UIManager : MonoBehaviour
     [Header("Character Selection")]
     public GameObject characterSelectionScreen;
     public GameObject characterSelectionGridLayoutGroup;
+    public GameObject characterSelectionBookImage;
+    public GameObject modifierScreen;
+    public HalfBookmarkBehaviour backToSelectionButton;
 
     [Header("Settings Screen")]
     public GameObject settingsScreen;
@@ -193,6 +196,8 @@ public class UIManager : MonoBehaviour
         ClearSelectedButton();
         titleScreen.SetActive(false);
         characterSelectionScreen.SetActive(false);
+        modifierScreen.SetActive(false);
+        characterSelectionBookImage.SetActive(true);
         chapterSelectionScreen.SetActive(false);
         chapterStartScreen.SetActive(false);
         scoreScreen.SetActive(false);
@@ -296,11 +301,20 @@ public class UIManager : MonoBehaviour
         titleScreen.SetActive(true);
         SetScreenInteractability(menuButtonsGroup, !isThereCharacterSelection);
         characterSelectionScreen.SetActive(isThereCharacterSelection);
+        characterSelectionBookImage.SetActive(true);
 
         if (isThereCharacterSelection)
         {
-            // Pick the first character button.
-            SetSelectedButton(characterSelectionGridLayoutGroup.GetComponentInChildren<Transform>().GetComponentInChildren<Button>().gameObject);
+            if (CharacterManager.instance.currentSelectedCharacter.characterData != null)
+            {
+                CharacterManager.instance.SelectCharacter(CharacterManager.instance.currentSelectedCharacter);
+            }
+            else
+            {
+                // Pick the first character button.
+                SetSelectedButton(characterSelectionGridLayoutGroup.GetComponentInChildren<Transform>().GetComponentInChildren<Button>().gameObject);
+            }
+
         }
         else
         {
@@ -320,6 +334,22 @@ public class UIManager : MonoBehaviour
         {
             Debug.Log("UI - Display Character selection screen");
         }
+    }
+
+    public void SwitchToCharacterSelectionScreen()
+    {
+        modifierScreen.SetActive(false);
+        characterSelectionBookImage.SetActive(true);
+        CharacterManager.instance.SelectCharacter(CharacterManager.instance.currentSelectedCharacter);
+    }
+
+    public void SwitchToModifierScreen()
+    {
+        characterSelectionBookImage.SetActive(false);
+        modifierScreen.SetActive(true);
+        RunModifierManager.instance.UpdateModifierScreen();
+        backToSelectionButton.SetInfo();
+        SetSelectedButton(backToSelectionButton.gameObject);
     }
 
     public bool IsCharacterSelectionScreenVisible()

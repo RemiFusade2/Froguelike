@@ -16,7 +16,9 @@ public enum AchievementConditionSpecialKey
     UNLOCK_5_CHAPTERS = 9,
     DIE_IN_TOADS_END_CHAPTER = 10,
     MOVE_FAR_ENOUGH_IN_KERMITS_END_CHAPTER = 11,
-    START_10_CHAPTERS = 12
+    START_10_CHAPTERS = 12,
+    GET_FIRST_ETERNAL = 13,
+    GET_ALL_ETERNALS = 14
 }
 
 /// <summary>

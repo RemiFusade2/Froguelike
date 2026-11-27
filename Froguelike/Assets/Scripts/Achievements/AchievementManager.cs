@@ -378,6 +378,12 @@ public class AchievementManager : MonoBehaviour
                                 case AchievementConditionSpecialKey.START_10_CHAPTERS:
                                     conditionsAreMet &= (ChapterManager.instance.GetStartedChaptersCount() >= 10);
                                     break;
+                                case AchievementConditionSpecialKey.GET_FIRST_ETERNAL:
+                                    conditionsAreMet &= (CharacterManager.instance.AreAnyEternalsGained());
+                                    break;
+                                case AchievementConditionSpecialKey.GET_ALL_ETERNALS:
+                                    conditionsAreMet &= (CharacterManager.instance.AreAllEternalsGained());
+                                    break;
                                 default:
                                     conditionsAreMet = false;
                                     break;
@@ -536,6 +542,12 @@ public class AchievementManager : MonoBehaviour
                                 case AchievementConditionSpecialKey.START_10_CHAPTERS:
                                     conditionsAreMet &= (ChapterManager.instance.GetStartedChaptersCount() >= 10);
                                     break;
+                                case AchievementConditionSpecialKey.GET_FIRST_ETERNAL:
+                                    conditionsAreMet &= (CharacterManager.instance.AreAnyEternalsGained());
+                                    break;
+                                case AchievementConditionSpecialKey.GET_ALL_ETERNALS:
+                                    conditionsAreMet &= (CharacterManager.instance.AreAllEternalsGained());
+                                    break;
                             }
                             break;
                     }
@@ -666,7 +678,7 @@ public class AchievementManager : MonoBehaviour
                 unlockLog = $"Restock shop item {reward.shopItem.itemName}";
                 break;
             case AchievementRewardType.GAME_MODE:
-                CharacterManager.instance.UnlockGameMode(reward.gameMode);
+                RunModifierManager.instance.UnlockGameMode(reward.gameMode);
                 unlockLog = $"Unlock game mode {reward.gameMode.ToString()}";
                 break;
         }
@@ -697,7 +709,7 @@ public class AchievementManager : MonoBehaviour
         bool achievementConditionsCanBeFulfilled = true;
         foreach (AchievementCondition achievementCondition in achievement.achievementData.conditionsList)
         {
-            if (achievementCondition.conditionType == AchievementConditionType.GAME_MODE && !CharacterManager.instance.IsGameModeUnlocked(achievementCondition.gameModes))
+            if (achievementCondition.conditionType == AchievementConditionType.GAME_MODE && !RunModifierManager.instance.IsGameModeUnlocked(achievementCondition.gameModes))
             {
                 // The achievement requires to play a game mode that has not been unlocked yet
                 achievementConditionsCanBeFulfilled = false;

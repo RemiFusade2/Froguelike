@@ -1,3 +1,5 @@
+using Rewired;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -27,8 +29,6 @@ public class ScoreManager : MonoBehaviour
     public TextMeshProUGUI totalScoreText;
     public TextMeshProUGUI totalTimeText;
     public TextMeshProUGUI currencyCollectedText;
-    public TextMeshProUGUI difficultyText;
-    public string difficultyPrefix;
     public TextMeshProUGUI moralText;
     [Space]
     public Transform tonguesPanel;
@@ -41,7 +41,12 @@ public class ScoreManager : MonoBehaviour
     public GameObject rightArrow;
     [Space]
     public CharacterBookmarkInRunInfoBehaviour characterInfoBookmark;
-
+    [Space]
+    public GameObject modifiersGO;
+    public List<GameObject> modifierIcons;
+    public List<GameObject> modifierFrames;
+    public float extraHeightInTopOfModifierPanel;
+    public float extraHeightInBottomOfModifierPanel;
 
     private void Awake()
     {
@@ -59,7 +64,7 @@ public class ScoreManager : MonoBehaviour
 
     private string GetRandomMoral()
     {
-        return possibleMorals[Random.Range(0, possibleMorals.Count)];
+        return possibleMorals[UnityEngine.Random.Range(0, possibleMorals.Count)];
     }
 
     /// <summary>
@@ -68,7 +73,7 @@ public class ScoreManager : MonoBehaviour
     /// <param name="chaptersPlayed"></param>
     /// <param name="playedCharacter"></param>
     /// <param name="ownedItems"></param>
-    public void ShowScores(List<Chapter> chaptersPlayed, int[] chapterKillCounts, PlayableCharacter playedCharacter, List<RunItemInfo> ownedItems, List<Achievement> unlockedAchievements, int playedTimeLatestChapter, int currencyCollected)
+    public void ShowScores(List<Chapter> chaptersPlayed, int[] chapterKillCounts, PlayableCharacter playedCharacter, List<RunItemInfo> ownedItems, List<Achievement> unlockedAchievements, int playedTimeLatestChapter, int currencyCollected, float runTimeModifier, bool isEndlessMode = false)
     {
         string scoreLog = "";
 
@@ -80,42 +85,66 @@ public class ScoreManager : MonoBehaviour
         // Display every played chapter and its kill count
         int totalScore = 0;
         int totalTime = 0;
-        for (int i = 0; i < chaptersPlayed.Count; i++)
+        if (!isEndlessMode)
         {
-            if (i < chaptersTextList.Count && i < chaptersScoreTextList.Count)
+            for (int i = 0; i < chaptersPlayed.Count; i++)
             {
-                Chapter chapter = chaptersPlayed[i];
-                int enemiesKilledCount = chapterKillCounts[i];
-                int chapterTime = Mathf.FloorToInt(chapter.chapterData.chapterLengthInSeconds);
-                scoreLines[i].SetActive(true);
-
-                // Chapter number and name.
-                chaptersTextList[i].text = "Chapter " + (i + 1) + "\n          " + chapter.chapterData.chapterTitle;
-
-                // Flies eaten.
-                chaptersScoreTextList[i].text = enemiesKilledCount.ToString();
-                totalScore += enemiesKilledCount;
-
-                // Chapter time.
-                if (i == chaptersPlayed.Count - 1 && playedTimeLatestChapter != chapterTime)
+                if (i < chaptersTextList.Count && i < chaptersScoreTextList.Count)
                 {
-                    // For the last chapter if the run was not won.
-                    int chapterMinutes = playedTimeLatestChapter / 60;
-                    int chapterSeconds = playedTimeLatestChapter % 60;
-                    chaptersTimeTextList[i].text = chapterMinutes.ToString("00") + ":" + chapterSeconds.ToString("00");
-                    totalTime += playedTimeLatestChapter;
-                }
-                else
-                {
-                    int chapterMinutes = chapterTime / 60;
-                    int chapterSeconds = chapterTime % 60;
-                    chaptersTimeTextList[i].text = chapterMinutes.ToString("00") + ":" + chapterSeconds.ToString("00");
-                    totalTime += chapterTime;
-                }
+                    Chapter chapter = chaptersPlayed[i];
+                    int enemiesKilledCount = chapterKillCounts[i];
+                    int chapterTime = Mathf.FloorToInt(chapter.chapterData.chapterLengthInSeconds * runTimeModifier);
+                    scoreLines[i].SetActive(true);
 
-                scoreLog += $"Chapter {i} - {chapter.chapterID} - Kills: {enemiesKilledCount}\n";
+                    // Chapter number and name.
+                    chaptersTextList[i].text = "Chapter " + (i + 1) + "\n          " + chapter.chapterData.chapterTitle;
+
+                    // Flies eaten.
+                    chaptersScoreTextList[i].text = enemiesKilledCount.ToString();
+                    totalScore += enemiesKilledCount;
+
+                    // Chapter time.
+                    if (i == chaptersPlayed.Count - 1 && playedTimeLatestChapter != chapterTime)
+                    {
+                        // For the last chapter if the run was not won.
+                        int chapterMinutes = playedTimeLatestChapter / 60;
+                        int chapterSeconds = playedTimeLatestChapter % 60;
+                        chaptersTimeTextList[i].text = chapterMinutes.ToString("00") + ":" + chapterSeconds.ToString("00");
+                        totalTime += playedTimeLatestChapter;
+                    }
+                    else
+                    {
+                        int chapterMinutes = chapterTime / 60;
+                        int chapterSeconds = chapterTime % 60;
+                        chaptersTimeTextList[i].text = chapterMinutes.ToString("00") + ":" + chapterSeconds.ToString("00");
+                        totalTime += chapterTime;
+                    }
+
+                    scoreLog += $"Chapter {i} - {chapter.chapterID} - Kills: {enemiesKilledCount}\n";
+                }
             }
         }
+        else
+        {
+            // Endless
+            scoreLines[0].SetActive(true);
+
+            // Chapter number and name.
+            chaptersTextList[0].text = "Chapter 1\n          Endless";
+
+            // Flies eaten.
+            chaptersScoreTextList[0].text = chapterKillCounts[0].ToString();
+
+            // Chapter time.
+            // For the last chapter if the run was not won.
+            totalTime = playedTimeLatestChapter;
+            int chapterMinutes = playedTimeLatestChapter / 60;
+            int chapterSeconds = playedTimeLatestChapter % 60;
+            chaptersTimeTextList[0].text = chapterMinutes.ToString("00") + ":" + chapterSeconds.ToString("00");
+
+            scoreLog += $"Chapter - Endless - Kills: {chapterKillCounts[0]}\n"; // TODO
+        }
+
         // Display total kill count
         scoreLog += $"-> Total score: {totalScore}\n";
         totalScoreText.text = totalScore.ToString();
@@ -128,24 +157,12 @@ public class ScoreManager : MonoBehaviour
         // Display collected currency.
         currencyCollectedText.text = Tools.FormatCurrency(currencyCollected, DataManager.instance.currencySymbol);
 
-        // Display difficulty.
-        string gameMode = GameManager.instance.GetRetryRunInfoGameMode();
-        if (gameMode != "NONE")
-        {
-            difficultyText.gameObject.SetActive(true);
-            difficultyText.text = difficultyPrefix + gameMode[0].ToString().ToUpper() + gameMode.Substring(1).ToLower().Replace(", ", "+");
-        }
-        else
-        {
-            difficultyText.gameObject.SetActive(false);
-        }
-
-            // Pick a random moral to display
-            string moral = GetRandomMoral();
+        // Pick a random moral to display
+        string moral = GetRandomMoral();
         moralText.text = moral;
         scoreLog += $"-> Moral is: {moral}\n";
 
-        // Display all weapons used during this run and their levels
+        // Display all tongues used during this run and their levels
 
         // Remove previous tongue displays.
         foreach (Transform child in tonguesPanel)
@@ -218,6 +235,63 @@ public class ScoreManager : MonoBehaviour
 
         // Display character info.
         characterInfoBookmark.UpdateInRunBookmark();
+
+        // Display modifiers.
+        string lastPlayedGameModes = GameManager.instance.GetRetryRunInfoGameModes();
+        string lastPlayedHat = GameManager.instance.GetRetryRunInfoHatName();
+
+        if (lastPlayedGameModes != "NONE" || lastPlayedHat != "NONE")
+        {
+            modifiersGO.SetActive(true);
+            int slotIndex = 0;
+
+            // Show icons.
+            foreach (GameModeInfo gameModeInfo in DataManager.instance.gameModeInfo)
+            {
+                if ((Enum.Parse<GameMode>(lastPlayedGameModes) & gameModeInfo.gameMode) == gameModeInfo.gameMode)
+                {
+                    modifierIcons[slotIndex].SetActive(true);
+                    modifierIcons[slotIndex].GetComponent<Image>().sprite = gameModeInfo.modeIcon;
+                    modifierFrames[slotIndex].SetActive(true);
+                    slotIndex++;
+                }
+            }
+
+            if (GameManager.instance.GetCurrentSetHatName() != "NONE")
+            {
+                modifierIcons[slotIndex].SetActive(true);
+                modifierIcons[slotIndex].GetComponent<Image>().sprite = DataManager.instance.hatInfoList.Find(x => x.hatType == DataManager.instance.GetTypeOfHatFromString(GameManager.instance.GetCurrentSetHatName())).hatIcon;
+                modifierFrames[slotIndex].SetActive(true);
+                slotIndex++;
+            }
+
+            // Set size of modifiersGO.
+            if (slotIndex % 2 == 1)
+            {
+                modifierIcons[slotIndex].SetActive(true);
+                modifierIcons[slotIndex].GetComponent<Image>().sprite = null;
+                modifierFrames[slotIndex].SetActive(true);
+                slotIndex++;
+            }
+
+            Vector2 newPanelSize = new Vector2(modifiersGO.GetComponent<RectTransform>().sizeDelta.x, extraHeightInTopOfModifierPanel + 20 * (slotIndex / 2) + extraHeightInBottomOfModifierPanel);
+            modifiersGO.GetComponent<RectTransform>().sizeDelta = newPanelSize;
+
+            while (slotIndex < modifierIcons.Count)
+            {
+                modifierIcons[slotIndex].SetActive(false);
+                modifierIcons[slotIndex].GetComponent<Image>().sprite = null;
+                modifierFrames[slotIndex].SetActive(false);
+                slotIndex++;
+            }
+        }
+        else
+        {
+            modifiersGO.SetActive(false);
+        }
+
+        // Clear hats.
+        RunManager.instance.player.ClearHats();
 
         // Show the score screen
         UIManager.instance.ShowScoreScreen();

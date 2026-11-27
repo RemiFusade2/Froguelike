@@ -47,7 +47,7 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
             {
                 StopCoroutine(changeButtonIconCoroutine);
             }
-            changeButtonIconCoroutine = StartCoroutine(ChangeButtonIcon(0.2f));
+            changeButtonIconCoroutine = StartCoroutine(ChangeButtonIcon(0.5f));
         }
     }
 
@@ -63,7 +63,7 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
             bool newIconIsDifferentFromPreviousIcon = false;
             do
             {
-                if (true) // We could be using "Random.Range(0,2) == 0" instead, but the frog sprite doesn't fit the image size
+                if (Random.Range(0, 2) == 0)
                 {
                     RunPermanentUpgradeItemData itemData = permanentUpgradesItemDataList[Random.Range(0, permanentUpgradesItemDataList.Count)];
                     characterOrItemIsUnlocked = RunItemManager.instance.IsRunItemUnlocked(itemData.itemName);
@@ -74,7 +74,9 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
                 {
                     CharacterData characterData = characterDataList[Random.Range(0, characterDataList.Count)];
                     characterOrItemIsUnlocked = CharacterManager.instance.IsCharacterUnlocked(characterData.characterID);
-                    itemIconImage.sprite = characterData.characterSprite;
+                    characterOrItemIsUnlocked = characterData.characterID == "MINIFROG" ? false : characterOrItemIsUnlocked; // Sets characterIsUnlocked to false if minifrog was picked, miniforg can't be picked.
+                    newIconIsDifferentFromPreviousIcon = (itemIconImage.sprite != characterData.achievementIcon);
+                    itemIconImage.sprite = characterData.achievementIcon;
                 }
             } while (!characterOrItemIsUnlocked || !newIconIsDifferentFromPreviousIcon);
 
@@ -104,7 +106,10 @@ public class ShopItemButton : MonoBehaviour, ISelectHandler, IPointerEnterHandle
         }
 
         itemNameText.text = "Eternal";
-        itemDescriptionText.text = "1% increase to a random stat for a random frog";
+        string descriptionText = "A small increase to a random stat for a random frog\n(and ";
+        descriptionText += CharacterManager.instance.GetCharacterData("MINIFROG")?.characterName;
+        descriptionText += ")";
+        itemDescriptionText.text = descriptionText;
 
         foreach (Transform levelChild in levelPanelParent)
         {

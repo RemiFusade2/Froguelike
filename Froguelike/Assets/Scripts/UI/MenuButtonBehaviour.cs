@@ -12,7 +12,10 @@ public class MenuButtonBehaviour : MonoBehaviour, ISelectHandler, IDeselectHandl
 
     public void OnDeselect(BaseEventData eventData)
     {
-        menuTongueTargetingBehaviour.ReturnFromButton(target);
+        if (menuTongueTargetingBehaviour != null)
+        { 
+            menuTongueTargetingBehaviour.ReturnFromButton(target);
+        }
     }
 
     public void OnSelect(BaseEventData eventData)

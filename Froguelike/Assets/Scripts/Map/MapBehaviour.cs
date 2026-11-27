@@ -21,6 +21,8 @@ public class MapBehaviour : MonoBehaviour
     [Space]
     public List<GameObject> rocksPrefabs;
     public List<GameObject> watersPrefabs;
+    [Space]
+    public List<GameObject> superCollectibleTilePrefabs;
 
     [Header("Settings")]
     public Vector2 tileSize = new Vector2(40, 22.5f);
@@ -28,9 +30,12 @@ public class MapBehaviour : MonoBehaviour
     [Space]
     public Vector2Int validSortingOrderForWater;
     public Vector2Int validSortingOrderForRocks;
-
+    [Space]
+    public float endlessMode_delayBeforeSuperCollectibleAppear = 60;
+    public float endlessMode_chanceOfSuperCollectibleOnTile = 0.05f;
 
     private List<Vector2Int> existingTilesCoordinates;
+    private Dictionary<Vector2Int, GameObject> tileDictionary;
 
 
     private void Awake()
@@ -42,11 +47,13 @@ public class MapBehaviour : MonoBehaviour
     void Start()
     {
         existingTilesCoordinates = new List<Vector2Int>();
+        tileDictionary = new Dictionary<Vector2Int, GameObject>();
     }
 
     public void ClearMap()
     {
         existingTilesCoordinates.Clear();
+        tileDictionary.Clear();
         List<GameObject> gameObjectsToDestroyList = new List<GameObject>();
         foreach (Transform tile in mapTilesParent)
         {
@@ -79,7 +86,7 @@ public class MapBehaviour : MonoBehaviour
     {
         int randomIndex = Random.Range(0, prefabs.Count);
 
-        Vector2 randomPositionOnTile = GetWorldPositionOfTile(tileCoordinates) + Random.Range(-tileSize.x/2, tileSize.x/2) * Vector2.right + Random.Range(-tileSize.y/2, tileSize.y/2) * Vector2.up;
+        Vector2 randomPositionOnTile = GetWorldPositionOfTile(tileCoordinates) + Random.Range(-tileSize.x / 2, tileSize.x / 2) * Vector2.right + Random.Range(-tileSize.y / 2, tileSize.y / 2) * Vector2.up;
 
         if (!preventSpawnAtPosition || Vector2.Distance(randomPositionOnTile, preventSpawnPosition) > minDistanceWithPlayer)
         {
@@ -124,10 +131,36 @@ public class MapBehaviour : MonoBehaviour
         }
     }
 
+    private SpawnFrequency GetRandomSpawnFrequency(bool preventLots = false)
+    {
+        int randomValue = Random.Range(0, 4);
+        SpawnFrequency result = SpawnFrequency.NONE;
+        switch (randomValue)
+        {
+            case 1:
+                result = SpawnFrequency.FEW;
+                break;
+            case 2:
+                result = SpawnFrequency.MEDIUM;
+                break;
+            case 3:
+                result = SpawnFrequency.LOTS;
+                if (preventLots)
+                {
+                    result = SpawnFrequency.FEW;
+                }
+                break;
+            default:
+                result = SpawnFrequency.NONE;
+                break;
+        }
+        return result;
+    }
+
     private bool GetRandomSpawnPositionOnTile(Vector2Int tileCoordinates, out Vector2 spawnPosition)
     {
         spawnPosition = Vector2.zero;
-        
+
         // Attemp to find a valid spawn point. Loop and try again until it works.
         bool spawnPositionIsValid = false;
         int loopAttemptCount = 10;
@@ -160,17 +193,166 @@ public class MapBehaviour : MonoBehaviour
         Vector2 tileWorldPosition = tileCoordinates * tileSize;
 
         Chapter currentPlayedChapter = RunManager.instance.currentChapter;
-        if (currentPlayedChapter == null || currentPlayedChapter.chapterData == null) return;
-        List<FixedCollectible> superCollectiblesList = currentPlayedChapter.chapterData.specialCollectiblesOnTheMap;
+
+        List<FixedCollectible> superCollectiblesList = null;
+        SpawnFrequency pondsSpawnFrequency;
+        SpawnFrequency rocksSpawnFrequency;
+        SpawnFrequency coinsSpawnFrequency;
+        SpawnFrequency healthSpawnFrequency;
+        SpawnFrequency levelUpSpawnFrequency;
+        List<CollectibleSpawnFrequency> otherCollectibleSpawnFrequenciesList;
+        if (RunManager.instance.IsCurrentRunEndless())
+        {
+            // Endless mode, we simulate random chapter values to generate the map
+            superCollectiblesList = null;
+
+            pondsSpawnFrequency = GetRandomSpawnFrequency();
+            rocksSpawnFrequency = GetRandomSpawnFrequency();
+            coinsSpawnFrequency = GetRandomSpawnFrequency(preventLots: true);
+            healthSpawnFrequency = GetRandomSpawnFrequency();
+            levelUpSpawnFrequency = GetRandomSpawnFrequency(preventLots: true);
+
+            // other collectibles, by default there are none in endless mode, but you can switch them on as run modifiers if you want
+            otherCollectibleSpawnFrequenciesList = new List<CollectibleSpawnFrequency>();
+        }
+        else
+        {
+            if (currentPlayedChapter == null || currentPlayedChapter.chapterData == null) return;
+
+            // Not endless and current chapter isn't null, we get data from chapter
+            superCollectiblesList = currentPlayedChapter.chapterData.specialCollectiblesOnTheMap;
+
+            pondsSpawnFrequency = currentPlayedChapter.chapterData.pondsSpawnFrequency;
+            rocksSpawnFrequency = currentPlayedChapter.chapterData.rocksSpawnFrequency;
+            coinsSpawnFrequency = currentPlayedChapter.chapterData.coinsSpawnFrequency;
+            healthSpawnFrequency = currentPlayedChapter.chapterData.healthSpawnFrequency;
+            levelUpSpawnFrequency = currentPlayedChapter.chapterData.levelUpSpawnFrequency;
+            otherCollectibleSpawnFrequenciesList = currentPlayedChapter.chapterData.otherCollectibleSpawnFrequenciesList;
+        }
+
+
         FixedCollectible superCollectibleOnCurrentTile = null;
+        GameObject tile = null;
         if (superCollectiblesList != null)
         {
             superCollectibleOnCurrentTile = superCollectiblesList.FirstOrDefault(x => x.tileCoordinates.Equals(tileCoordinates));
         }
+        else if (RunManager.instance.IsCurrentRunEndless())
+        {
+            if (RunManager.instance.CurrentRunPlayTime() > endlessMode_delayBeforeSuperCollectibleAppear)
+            {
+                // After the first minute, there's a small chance of getting a super collectible on a tile
+                if (Random.Range(0, 1.0f) <= endlessMode_chanceOfSuperCollectibleOnTile)
+                {
+                    superCollectibleOnCurrentTile = new FixedCollectible();
+                    superCollectibleOnCurrentTile.tileCoordinates = tileCoordinates;
+                    superCollectibleOnCurrentTile.tilePrefab = superCollectibleTilePrefabs[Random.Range(0, superCollectibleTilePrefabs.Count)];
+                    superCollectibleOnCurrentTile.compassLevel = Random.Range(1, 4);
+
+                    int itemTypeValue = Random.Range(0, 8);
+                    if (itemTypeValue < 3)
+                    {
+                        // Stat item
+                        superCollectibleOnCurrentTile.foundCollectibleTitle = "You find";
+                        superCollectibleOnCurrentTile.collectibleDescription = "";
+                        superCollectibleOnCurrentTile.collectibleType = FixedCollectibleType.STATS_ITEM;
+                        do
+                        {
+                            superCollectibleOnCurrentTile.collectibleStatItemData = RunItemManager.instance.allRunStatsItemsScriptableObjects[Random.Range(0, RunItemManager.instance.allRunStatsItemsScriptableObjects.Count)];
+                        } while (superCollectibleOnCurrentTile.collectibleStatItemData.frusionRequirementList.Count > 0 || !RunItemManager.instance.IsRunItemUnlocked(superCollectibleOnCurrentTile.collectibleStatItemData.itemName));
+                        superCollectibleOnCurrentTile.collectibleName = superCollectibleOnCurrentTile.collectibleStatItemData.itemName;
+                        superCollectibleOnCurrentTile.forceAcceptType = FixedCollectibleForceAcceptType.NEVER;
+                        superCollectibleOnCurrentTile.acceptCollectibleStr = "Yum";
+                        superCollectibleOnCurrentTile.refuseCollectibleStr = "Nah";
+                    }
+                    else if (itemTypeValue < 6)
+                    {
+                        // Tongue item
+                        superCollectibleOnCurrentTile.foundCollectibleTitle = "You find";
+                        superCollectibleOnCurrentTile.collectibleDescription = "";
+                        superCollectibleOnCurrentTile.collectibleType = FixedCollectibleType.WEAPON_ITEM;
+                        do
+                        {
+                            superCollectibleOnCurrentTile.collectibleWeaponItemData = RunItemManager.instance.allRunWeaponsItemsScriptableObjects[Random.Range(0, RunItemManager.instance.allRunWeaponsItemsScriptableObjects.Count)];
+                        } while (superCollectibleOnCurrentTile.collectibleWeaponItemData.frusionRequirementList.Count > 0 || !RunItemManager.instance.IsRunItemUnlocked(superCollectibleOnCurrentTile.collectibleWeaponItemData.itemName)); 
+                        superCollectibleOnCurrentTile.collectibleName = superCollectibleOnCurrentTile.collectibleWeaponItemData.itemName;
+                        superCollectibleOnCurrentTile.forceAcceptType = FixedCollectibleForceAcceptType.NEVER;
+                        superCollectibleOnCurrentTile.acceptCollectibleStr = "Grab";
+                        superCollectibleOnCurrentTile.refuseCollectibleStr = "Ew!";
+                    }
+                    else if (itemTypeValue == 6)
+                    {
+                        // Hat
+                        superCollectibleOnCurrentTile.foundCollectibleTitle = "You find";
+                        superCollectibleOnCurrentTile.collectibleDescription = "It looks good";
+                        superCollectibleOnCurrentTile.collectibleType = FixedCollectibleType.HAT;
+                        superCollectibleOnCurrentTile.collectibleHatType = (HatType)Random.Range(0, 4);
+                        switch (superCollectibleOnCurrentTile.collectibleHatType)
+                        {
+                            case HatType.FANCY_HAT:
+                                superCollectibleOnCurrentTile.collectibleName = "A Fancy Hat";
+                                break;
+                            case HatType.FASHION_HAT:
+                                superCollectibleOnCurrentTile.collectibleName = "A Fashionable Hat";
+                                break;
+                            case HatType.SUN_HAT:
+                                superCollectibleOnCurrentTile.collectibleName = "A Sun Hat";
+                                break;
+                            default:
+                                int hatValue = Random.Range(0, 3);
+                                superCollectibleOnCurrentTile.collectibleHatType = hatValue == 0 ? HatType.BOW_BLUE : (hatValue == 0 ? HatType.BOW_PURPLE : HatType.BOW_RED);
+                                superCollectibleOnCurrentTile.collectibleName = "A Bow";
+                                break;
+                        }
+                        superCollectibleOnCurrentTile.acceptCollectibleStr = "Take";
+                        superCollectibleOnCurrentTile.refuseCollectibleStr = "Leave";
+                    }
+                    else
+                    {
+                        // Friend
+                        superCollectibleOnCurrentTile.foundCollectibleTitle = "You neet";
+                        superCollectibleOnCurrentTile.collectibleDescription = "They seem friendly";
+                        superCollectibleOnCurrentTile.collectibleType = FixedCollectibleType.FRIEND;
+
+                        if (RunManager.instance.currentPlayedCharacter.characterID == "GHOST")
+                        {
+                            superCollectibleOnCurrentTile.collectibleFriendType = FriendType.GHOST;
+                            superCollectibleOnCurrentTile.collectibleName = "A friendly ghost";
+                        }
+                        else
+                        {
+                            int friendValue = Random.Range(0, 4);
+                            switch (friendValue)
+                            {
+                                case 0:
+                                    superCollectibleOnCurrentTile.collectibleFriendType = FriendType.FROG;
+                                    superCollectibleOnCurrentTile.collectibleName = "A smol frog";
+                                    break;
+                                case 1:
+                                    superCollectibleOnCurrentTile.collectibleFriendType = FriendType.TOAD;
+                                    superCollectibleOnCurrentTile.collectibleName = "A smol toad";
+                                    break;
+                                case 2:
+                                    superCollectibleOnCurrentTile.collectibleFriendType = FriendType.BLUE;
+                                    superCollectibleOnCurrentTile.collectibleName = "A blue frog";
+                                    break;
+                                default:
+                                    superCollectibleOnCurrentTile.collectibleFriendType = FriendType.POISONOUS;
+                                    superCollectibleOnCurrentTile.collectibleName = "A toxic friend";
+                                    break;
+                            }
+                        }
+                        superCollectibleOnCurrentTile.acceptCollectibleStr = "Hi!";
+                        superCollectibleOnCurrentTile.refuseCollectibleStr = "Bye!";
+                    }
+                }
+            }
+        }
+
         if (superCollectibleOnCurrentTile != null)
         {
             // Special case when there is a super collectible on the new tile to spawn
-            GameObject tile = Instantiate(superCollectibleOnCurrentTile.tilePrefab, tileWorldPosition, Quaternion.identity, mapTilesParent);
+            tile = Instantiate(superCollectibleOnCurrentTile.tilePrefab, tileWorldPosition, Quaternion.identity, mapTilesParent);
 
             // In that situation, we just spawn the super collectible and that's it
             // Everything else is already on the treasure tile
@@ -180,10 +362,10 @@ public class MapBehaviour : MonoBehaviour
         {
             // If there's no collectible, then we spawn an empty tile and a bunch of random obstacles and collectbiles
             tilePrefab = emptyTilePrefab;
-            GameObject tile = Instantiate(tilePrefab, tileWorldPosition, Quaternion.identity, mapTilesParent);
-            
+            tile = Instantiate(tilePrefab, tileWorldPosition, Quaternion.identity, mapTilesParent);
+
             // generate water
-            Vector2 waterMinMax = DataManager.instance.GetSpawnProbability("pond", currentPlayedChapter.chapterData.pondsSpawnFrequency);
+            Vector2 waterMinMax = DataManager.instance.GetSpawnProbability("pond", pondsSpawnFrequency);
             float waterProba = Random.Range(waterMinMax.x, waterMinMax.y);
             float waterAmount = Mathf.Floor(waterProba) + ((Random.Range(Mathf.Floor(waterProba), Mathf.Ceil(waterProba)) < waterProba) ? 1 : 0);
             for (int i = 0; i < waterAmount; i++)
@@ -192,7 +374,7 @@ public class MapBehaviour : MonoBehaviour
             }
 
             // generate rocks
-            Vector2 rockMinMax = DataManager.instance.GetSpawnProbability("rock", currentPlayedChapter.chapterData.rocksSpawnFrequency);
+            Vector2 rockMinMax = DataManager.instance.GetSpawnProbability("rock", rocksSpawnFrequency);
             float rockProba = Random.Range(rockMinMax.x, rockMinMax.y);
             float rockAmount = Mathf.Floor(rockProba) + ((Random.Range(Mathf.Floor(rockProba), Mathf.Ceil(rockProba)) < rockProba) ? 1 : 0);
             for (int i = 0; i < rockAmount; i++)
@@ -201,7 +383,7 @@ public class MapBehaviour : MonoBehaviour
             }
 
             // generate currency collectibles
-            Vector2 currencyMinMax = DataManager.instance.GetSpawnProbability("currency", currentPlayedChapter.chapterData.coinsSpawnFrequency);
+            Vector2 currencyMinMax = DataManager.instance.GetSpawnProbability("currency", coinsSpawnFrequency);
             float currencyBonusFactor = 1 + RunManager.instance.player.GetCurrencyBoost() + (RunManager.instance.gameModeFroinsMultiplier - 1); // Game mode froins multiplier
             float currencyProba = Random.Range(currencyMinMax.x * currencyBonusFactor, currencyMinMax.y * currencyBonusFactor);
             float currencyAmount = Mathf.Floor(currencyProba) + ((Random.Range(Mathf.Floor(currencyProba), Mathf.Ceil(currencyProba)) < currencyProba) ? 1 : 0);
@@ -218,7 +400,7 @@ public class MapBehaviour : MonoBehaviour
             }
 
             // generate health collectibles
-            Vector2 healthMinMax = DataManager.instance.GetSpawnProbability("health", currentPlayedChapter.chapterData.healthSpawnFrequency);
+            Vector2 healthMinMax = DataManager.instance.GetSpawnProbability("health", healthSpawnFrequency);
             float healthAmount = Random.Range(healthMinMax.x, healthMinMax.y) * 100;
             float smolHealthValue = 20;
             float bigHealthValue = 100;
@@ -249,7 +431,7 @@ public class MapBehaviour : MonoBehaviour
             }
 
             // generate level up collectibles
-            Vector2 levelUpMinMax = DataManager.instance.GetSpawnProbability("levelUp", currentPlayedChapter.chapterData.levelUpSpawnFrequency);
+            Vector2 levelUpMinMax = DataManager.instance.GetSpawnProbability("levelUp", levelUpSpawnFrequency);
             float levelUpProba = Random.Range(levelUpMinMax.x, levelUpMinMax.y);
             float levelUpAmount = Mathf.Floor(levelUpProba) + ((Random.Range(Mathf.Floor(levelUpProba), Mathf.Ceil(levelUpProba)) < levelUpProba) ? 1 : 0);
             for (int i = 0; i < levelUpAmount; i++)
@@ -261,8 +443,26 @@ public class MapBehaviour : MonoBehaviour
             }
 
             // generate other collectibles
-            foreach (CollectibleSpawnFrequency collectibleSpawnFrequency in currentPlayedChapter.chapterData.otherCollectibleSpawnFrequenciesList)
-            {                
+            foreach (CollectibleSpawnFrequency collectibleSpawnFrequency in otherCollectibleSpawnFrequenciesList)
+            {
+                if (BuildManager.instance.IsCollectibleAvailable(collectibleSpawnFrequency.Type))
+                {
+                    Vector2 powerUpMinMax = DataManager.instance.GetSpawnProbability("powerUp", collectibleSpawnFrequency.Frequency);
+                    float powerUpProba = Random.Range(powerUpMinMax.x, powerUpMinMax.y);
+                    float powerUpAmount = Mathf.Floor(powerUpProba) + ((Random.Range(Mathf.Floor(powerUpProba), Mathf.Ceil(powerUpProba)) < powerUpProba) ? 1 : 0);
+                    for (int i = 0; i < powerUpAmount; i++)
+                    {
+                        if (GetRandomSpawnPositionOnTile(tileCoordinates, out Vector2 position))
+                        {
+                            CollectiblesManager.instance.SpawnCollectible(position, collectibleSpawnFrequency.Type, 1);
+                        }
+                    }
+                }
+            }
+
+            // Generate other collectibles from run modifers. 
+            foreach (CollectibleSpawnFrequency collectibleSpawnFrequency in RunModifierManager.instance.powerUpsModiferSpawnFrequencies)
+            {
                 if (BuildManager.instance.IsCollectibleAvailable(collectibleSpawnFrequency.Type))
                 {
                     Vector2 powerUpMinMax = DataManager.instance.GetSpawnProbability("powerUp", collectibleSpawnFrequency.Frequency);
@@ -281,6 +481,7 @@ public class MapBehaviour : MonoBehaviour
 
         // We add that new tile in the list of existing tiles
         existingTilesCoordinates.Add(tileCoordinates);
+        tileDictionary.Add(tileCoordinates, tile);
     }
 
     private Vector2Int GetTileForPosition(Vector2 position)
@@ -307,6 +508,36 @@ public class MapBehaviour : MonoBehaviour
                     AddTile(tileCoordinates, true, position);
                 }
             }
+        }
+    }
+
+    public void RemoveTilesAroundPosition(Vector2 position, float distance)
+    {
+        List<Vector2Int> listOfTilesToDestroy = new List<Vector2Int>();
+        foreach (Vector2Int existingTilePosition in existingTilesCoordinates)
+        {
+            Vector2 tileWorldPosition = existingTilePosition * tileSize;
+            if (tileDictionary.ContainsKey(existingTilePosition))
+            {
+                float distanceBetweenTileAndPosition = Vector2.Distance(position, tileWorldPosition);
+                GameObject tile = tileDictionary[existingTilePosition];
+                if (tile != null && distanceBetweenTileAndPosition > distance)
+                {
+                    // Remove tile
+                    listOfTilesToDestroy.Add(existingTilePosition);
+                }
+            }
+        }
+        foreach (Vector2Int existingTilePosition in listOfTilesToDestroy)
+        {
+            GameObject tile = tileDictionary[existingTilePosition];
+            Destroy(tile, 0.01f);
+            existingTilesCoordinates.Remove(existingTilePosition);
+            tileDictionary.Remove(existingTilePosition);
+
+            // Also remove any fixed collectible on that tile
+            Vector2 tileWorldPosition = existingTilePosition * tileSize;
+            CollectiblesManager.instance.RemoveFixedCollectibleAroundPosition(tileWorldPosition, 1.0f);
         }
     }
 }

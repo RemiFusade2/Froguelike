@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// PlayableCharacter describes a character in its current state.
@@ -41,7 +42,9 @@ public class PlayableCharacter
         {
             result = StatsWrapper.JoinLists(characterData.startingStatsList, characterData.startingStatsStoryUpgrade);
         }
-        if (characterStatsIncrements != null && characterStatsIncrements.statsList != null && characterStatsIncrements.statsList.Count > 0)
+
+        bool ignoreEternals = (RunModifierManager.instance.selectedGameModes & GameMode.IGNORE_ETERNALS) == GameMode.IGNORE_ETERNALS;
+        if (!ignoreEternals && characterStatsIncrements != null && characterStatsIncrements.statsList != null && characterStatsIncrements.statsList.Count > 0)
         {
             result = StatsWrapper.JoinLists(result.statsList, characterStatsIncrements.statsList);
         }
@@ -118,10 +121,10 @@ public class CharacterManager : MonoBehaviour
     public ScrollbarKeepCursorSizeBehaviour statListScrollbar;
     public GameObject hideShopStats;
     [Space]
-    public GameObject difficultyPanel1;
-    public TextMeshProUGUI difficultyPanel1InfoText;
-    public GameObject difficultyPanel2;
-    public TextMeshProUGUI difficultyPanel2InfoText;
+    public GameObject modifierNoteGO;
+    public GameObject modifierIconParent;
+    public GameObject clearButtonGO;
+    public GameObject backToSelectionButton;
 
     [Header("UI Prefab")]
     public GameObject characterPanelPrefab;
@@ -130,8 +133,6 @@ public class CharacterManager : MonoBehaviour
     [Header("Runtime")]
     public CharactersSaveData charactersData; // Will be loaded and saved when needed
     public PlayableCharacter currentSelectedCharacter;
-    [Space]
-    public GameMode selectedGameModes;
 
     private Dictionary<string, CharacterData> charactersDataFromNameDico;
 
@@ -162,7 +163,6 @@ public class CharacterManager : MonoBehaviour
         return charactersData.charactersList.Count(x => x.unlocked);
     }
 
-
     public PlayableCharacter GetPlayableCharacter(string characterID)
     {
         PlayableCharacter result = charactersData.charactersList.FirstOrDefault(x => x.characterID == characterID);
@@ -172,7 +172,7 @@ public class CharacterManager : MonoBehaviour
     public CharacterData GetCharacterData(string characterID)
     {
         CharacterData result = null;
-        if (charactersDataFromNameDico.ContainsKey(characterID))
+        if (charactersDataFromNameDico != null && charactersDataFromNameDico.ContainsKey(characterID))
         {
             result = charactersDataFromNameDico[characterID];
         }
@@ -187,7 +187,7 @@ public class CharacterManager : MonoBehaviour
     public bool UpdateCharacterSelectionScreen()
     {
         bool isCharacterSelectionScreen = true;
-        currentSelectedCharacter = null;
+        currentSelectedCharacter = GetPlayableCharacter(GameManager.instance.GetCurrentSetCharacterID());
 
         // Remove previous buttons
         foreach (Transform child in characterListGridLayoutGroup)
@@ -281,7 +281,7 @@ public class CharacterManager : MonoBehaviour
             thisCharacterButtonNav.selectOnLeft = backButton;
             thisCharacterButtonNav.selectOnRight = startButton;
 
-            // TODO set stat scroll to navigate to selected character on left
+            // set stat scroll to navigate to selected character on left
             // same for character scroll on right
             // instead of looping make navigation from characters to back button on up and to steam page or start (?) on down?
             // Figure out how scroll will work
@@ -290,7 +290,7 @@ public class CharacterManager : MonoBehaviour
 
             thisCharacterPanel.navigation = thisCharacterButtonNav;
         }
-        */ //TODO ^
+        */
         #endregion Button navigation
 
         characterLog = "Display " + buttonCount + " buttons\n" + characterLog;
@@ -306,7 +306,15 @@ public class CharacterManager : MonoBehaviour
         characterListContent.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, buttonCount * buttonHeight + padding);
 
         // Select first character by default
-        SelectCharacter(defaultCharacter);
+        if (currentSelectedCharacter.characterData == null)
+        {
+            SelectCharacter(defaultCharacter);
+        }
+        else
+        {
+            SelectCharacter(currentSelectedCharacter);
+        }
+
 
         // Set the cursor to the top.
         characterListScrollRect.verticalScrollbar.value = 0;
@@ -319,24 +327,7 @@ public class CharacterManager : MonoBehaviour
 
         UpdateStatsList();
 
-        // Display the right difficulty panel if unlocked.
-        if (IsGameModeUnlocked(GameMode.HARD))
-        {
-            GameObject difficultyPanel = difficultyPanel1;
-            difficultyPanel1.SetActive(true);
-            difficultyPanel2.SetActive(false);
-
-            if (IsGameModeUnlocked(GameMode.HARDER))
-            {
-                difficultyPanel = difficultyPanel2;
-                difficultyPanel2.SetActive(true);
-                difficultyPanel1.SetActive(false);
-            }
-
-            ResetDifficulty();
-            difficultyPanel.GetComponent<DifficultyPanelBehaviour>().SetToggleCheckmarks(GetSelectedGameModes());
-            DisplayDifficultyInfo(GetSelectedGameModes());
-        }
+        UpdateModifierIconsOnCharacterSelection();
 
         if (buttonCount == 1 && defaultCharacter != null)
         {
@@ -345,6 +336,65 @@ public class CharacterManager : MonoBehaviour
         }
 
         return isCharacterSelectionScreen;
+    }
+
+    public void UpdateModifierIconsOnCharacterSelection()
+    {
+        if (charactersData.availableGameModes != GameMode.NONE)
+        {
+            modifierNoteGO.SetActive(true);
+            int slotIndex = 0;
+            string currentGameModes = GameManager.instance.GetCurrentSetGameModes();
+            // Show icons.
+            foreach (GameModeInfo gameModeInfo in DataManager.instance.gameModeInfo)
+            {
+                if ((Enum.Parse<GameMode>(currentGameModes) & gameModeInfo.gameMode) == gameModeInfo.gameMode)
+                {
+                    modifierIconParent.GetComponentsInChildren<Image>()[slotIndex].sprite = gameModeInfo.modeIcon;
+                    slotIndex++;
+                }
+            }
+
+            if (GameManager.instance.GetCurrentSetHatName() != "NONE")
+            {
+                modifierIconParent.GetComponentsInChildren<Image>()[slotIndex].sprite = DataManager.instance.hatInfoList.Find(x => x.hatType == DataManager.instance.GetTypeOfHatFromString(GameManager.instance.GetCurrentSetHatName())).hatIcon;
+                slotIndex++;
+            }
+
+            while (slotIndex < modifierIconParent.GetComponentsInChildren<Image>().Length)
+            {
+                modifierIconParent.GetComponentsInChildren<Image>()[slotIndex].sprite = null;
+                slotIndex++;
+            }
+
+
+            // Show clear button, if any modes are selected.
+            if (currentGameModes == "NONE" && GameManager.instance.GetCurrentSetHatName() == "NONE")
+            {
+                clearButtonGO.GetComponent<Button>().interactable = false;
+                clearButtonGO.GetComponent<CanvasGroup>().blocksRaycasts = false;
+            }
+            else
+            {
+                clearButtonGO.GetComponent<Button>().interactable = true;
+                clearButtonGO.GetComponent<CanvasGroup>().blocksRaycasts = true;
+            }
+
+        }
+        else
+        {
+            modifierNoteGO.SetActive(false);
+        }
+    }
+
+    public void SetModifierButtonAsSelected()
+    {
+        UIManager.instance.SetSelectedButton(modifierNoteGO.GetComponentInChildren<Button>());
+    }
+
+    public void SetBackToSelectionButtonAsSelected()
+    {
+        UIManager.instance.SetSelectedButton(backToSelectionButton);
     }
 
     private void InstantiateStatLines()
@@ -376,6 +426,11 @@ public class CharacterManager : MonoBehaviour
             if (characterButton != null)
             {
                 characterButton.SetSelected(characterButton.character.Equals(selectedCharacter));
+                if (characterButton.character.Equals(selectedCharacter))
+                {
+                    // Set selected button.
+                    EventSystem.current.SetSelectedGameObject(characterButton.gameObject);
+                }
 
                 if (characterButton.character.Equals(selectedCharacter))
                 {
@@ -392,8 +447,14 @@ public class CharacterManager : MonoBehaviour
 
         // Display stats of this character and Start Run button
         currentSelectedCharacter = selectedCharacter;
+        GameManager.instance.SaveCurrentSetCharacter(currentSelectedCharacter.characterID);
 
         // Update stats
+        UpdateStatsList();
+    }
+
+    public void ReloadCharacterStats()
+    {
         UpdateStatsList();
     }
 
@@ -468,10 +529,22 @@ public class CharacterManager : MonoBehaviour
                     }
                 }
 
+                if (totalValue.ToString().Contains('.') && totalValue.ToString().Split('.')[1].Length > 2)
+                {
+                    string newTotalValue = totalValue.ToString().Split('.')[0]+ '.' + totalValue.ToString().Split('.')[1][0] + totalValue.ToString().Split('.')[1][1];
+                    totalValue = float.Parse(newTotalValue);
+                }
+
                 statValue = currentCharacterStatList.FirstOrDefault(x => x.stat == stat);
                 if (statValue != null)
                 {
                     frogValue += (float)statValue.value;
+                }
+
+                if (frogValue.ToString().Contains('.') && frogValue.ToString().Split('.')[1].Length > 2)
+                {
+                    string newFrogValue = frogValue.ToString().Split('.')[0] + '.' + frogValue.ToString().Split('.')[1][0] + frogValue.ToString().Split('.')[1][1];
+                    frogValue = float.Parse(newFrogValue);
                 }
 
                 statValue = statBonusesFromShop.FirstOrDefault(x => x.stat == stat);
@@ -480,7 +553,16 @@ public class CharacterManager : MonoBehaviour
                     shopValue += (float)statValue.value;
                 }
 
-                statLineScript.Initialize(stat, totalValue, frogValue, shopValue, currentSelectedCharacter.unlocked);
+                if (shopValue.ToString().Contains('.') && shopValue.ToString().Split('.')[1].Length > 2)
+                {
+                    string newShopValue = shopValue.ToString().Split('.')[0] + '.' + shopValue.ToString().Split('.')[1][0] + shopValue.ToString().Split('.')[1][1];
+                    shopValue = float.Parse(newShopValue);
+                }
+
+                bool ignoreEternals = (RunModifierManager.instance.selectedGameModes & GameMode.IGNORE_ETERNALS) == GameMode.IGNORE_ETERNALS;
+                statValue = totalStatList.FirstOrDefault(x => x.stat == stat);
+                bool hasEternals = ignoreEternals ? false : currentSelectedCharacter.characterStatsIncrements.statsList.Contains(statValue);
+                statLineScript.Initialize(stat, totalValue, frogValue, shopValue, currentSelectedCharacter.unlocked, hasEternals);
 
                 lineCount++;
             }
@@ -626,7 +708,7 @@ public class CharacterManager : MonoBehaviour
 
     public void StartRun()
     {
-        GameManager.instance.StartRunWithCharacter(currentSelectedCharacter, GetSelectedGameModes());
+        GameManager.instance.StartRunWithCharacter(currentSelectedCharacter, RunModifierManager.instance.GetSelectedGameModes());
     }
 
     /// <summary>
@@ -692,82 +774,6 @@ public class CharacterManager : MonoBehaviour
         SaveDataManager.instance.isSaveDataDirty = true;
     }
 
-    public bool IsGameModeUnlocked(GameMode gameMode)
-    {
-        return (charactersData.availableGameModes & gameMode) == gameMode;
-    }
-
-    public void UnlockGameMode(GameMode gameMode)
-    {
-        charactersData.availableGameModes |= gameMode;
-        SaveDataManager.instance.isSaveDataDirty = true;
-    }
-
-    public GameMode GetSelectedGameModes()
-    {
-        return selectedGameModes;
-    }
-
-    public void SelectGameModeHard(Toggle thisToggle)
-    {
-        bool hardModeIsSelected = thisToggle.isOn;
-
-        if (hardModeIsSelected)
-        {
-            selectedGameModes |= GameMode.HARD; // Add flag
-        }
-        else
-        {
-            selectedGameModes &= ~GameMode.HARD; // Remove flag
-        }
-
-        DisplayDifficultyInfo(GetSelectedGameModes());
-    }
-
-    public void SelectGameModeHarder(Toggle thisToggle)
-    {
-        bool harderModeIsSelected = thisToggle.isOn;
-
-        if (harderModeIsSelected)
-        {
-            selectedGameModes |= GameMode.HARDER; // Add flag
-        }
-        else
-        {
-            selectedGameModes &= ~GameMode.HARDER; // Remove flag
-        }
-
-        DisplayDifficultyInfo(GetSelectedGameModes());
-    }
-
-    public void ResetDifficulty()
-    {
-        selectedGameModes = GameMode.NONE;
-    }
-
-    public void DisplayDifficultyInfo(GameMode gameMode)
-    {
-        string text = "";
-        TextMeshProUGUI setThisText = IsGameModeUnlocked(GameMode.HARDER) ? difficultyPanel2InfoText : difficultyPanel1InfoText;
-        if (gameMode == GameMode.HARD)
-        {
-            // 50%
-            text = "+50% bug health\n+50% bug speed\n+50% bug strength\n+50% froins";
-        }
-        else if (gameMode == GameMode.HARDER)
-        {
-            // 100%
-            text = "+100% bug health\n+100% bug speed\n+100% bug strength\n+100% froins";
-        }
-        else if (gameMode == (GameMode.HARD | GameMode.HARDER))
-        {
-            // 150%
-            text = "+150% bug health\n+150% bug speed\n+150% bug strength\n+150% froins";
-        }
-
-        setThisText.SetText(text);
-    }
-
     /// <summary>
     /// Try to unlock the character using its identifier. Do not do anything if this character does not exist or is already unlocked.
     /// Return true if a new character has been unlocked.
@@ -808,6 +814,44 @@ public class CharacterManager : MonoBehaviour
             if (minifrogCharacter != null) 
                 minifrogCharacter.characterStatsIncrements = StatsWrapper.JoinLists(minifrogCharacter.characterStatsIncrements, changedStatsValues);
             SaveDataManager.instance.isSaveDataDirty = true;
+        }
+    }
+
+    public bool AreAnyEternalsGained()
+    {
+        bool eternalGained = false;
+        foreach (PlayableCharacter character in charactersData.charactersList)
+        {
+            if (character.characterStatsIncrements.statsList.Count > 0)
+            {
+                eternalGained = true;
+                return eternalGained;
+            }
+        }
+
+        return eternalGained;
+    }
+
+    public bool AreAllEternalsGained()
+    {
+        List<StatValue> allPermanentUpgradeStats = new List<StatValue>();
+
+        foreach (RunPermanentUpgradeItemData permanentUpgrade in RunItemManager.instance.allPermanentUpgradeRunItemsScriptableObjects)
+        {
+            foreach (StatValue effect in permanentUpgrade.effect.statUpgrades.statsList)
+            {
+                allPermanentUpgradeStats.Add(effect);
+            }
+        }
+
+        List<StatValue> minifrogPermanentUpgrades = charactersData.charactersList.Find(x => x.characterID == "MINIFROG").characterStatsIncrements.statsList;
+        if (allPermanentUpgradeStats.Count == minifrogPermanentUpgrades.Count)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 

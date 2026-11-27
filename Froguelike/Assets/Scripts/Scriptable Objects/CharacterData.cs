@@ -40,6 +40,8 @@ public class CharacterData : ScriptableObject
     public Sprite characterStarSprite;
     [Tooltip("The value (integer) used in the character controller animator")]
     public int characterAnimatorValue;
+    [Tooltip("To display on the eternal shop item")]
+    public Sprite achievementIcon;
 
     [Header("Starting Stats")]
     [Tooltip("The stats of this character at the start of the game. Any omitted stat will be set to default value")]
