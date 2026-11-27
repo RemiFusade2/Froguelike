@@ -11,7 +11,10 @@ public enum LineShape
     SQUARE_LINE,
     LOOPS_LINE,
     SPIRAL_LINE,
-    STAR_LINE
+    STAR_LINE,
+    SPIRAL_SINUSOID,
+    SPIRAL_TRIANGLE,
+    SPIRAL_LOOPS
 }
 
 public class WeaponBehaviour : MonoBehaviour
@@ -629,6 +632,7 @@ public class WeaponBehaviour : MonoBehaviour
         Vector2 lastPosition = Vector2.zero;
         float coneAngleInDegrees = 20;
         float scaleWithAmplitudeFactor = Mathf.Tan(Mathf.Deg2Rad * coneAngleInDegrees);
+        float spiralAngle = -5;
         switch (lineShape)
         {
             case LineShape.STRAIGHT_LINE:
@@ -864,7 +868,6 @@ public class WeaponBehaviour : MonoBehaviour
             case LineShape.SPIRAL_LINE:
                 direction = Vector2.up;
                 lastPosition = Vector2.zero;
-                float spiralAngle = -5;
                 // TODO: implement inverseValues
                 distanceFromFrog = 0;
                 while (distanceFromFrog < actualRange)
@@ -880,6 +883,206 @@ public class WeaponBehaviour : MonoBehaviour
                     distanceFromFrog += 0.1f;
 
                     result.Add(lastPosition);                    
+                }
+                break;
+            case LineShape.SPIRAL_SINUSOID:
+                frequency = 1;
+                baseAmplitude = 2f;
+                t = 0;
+                direction = Vector2.up;
+                lastPosition = Vector2.zero;
+                distanceFromFrog = 0;
+                scaleWithAmplitudeFactor = 0.2f;
+                spiralAngle = -0.8f;
+                while (distanceFromFrog < actualRange)
+                {
+                    Vector2 fromLastToCurrent = (distanceFromFrog * direction.normalized - lastPosition);
+                    Vector3 normalVector = Vector3.Cross(fromLastToCurrent, Vector3.forward);
+
+                    lastPosition = distanceFromFrog * direction.normalized;
+
+                    float x, y;
+                    x = direction.x;
+                    y = direction.y;
+                    direction.x = x * Mathf.Cos(spiralAngle * Mathf.Deg2Rad) - y * Mathf.Sin(spiralAngle * Mathf.Deg2Rad);
+                    direction.y = x * Mathf.Sin(spiralAngle * Mathf.Deg2Rad) + y * Mathf.Cos(spiralAngle * Mathf.Deg2Rad);
+
+                    amplitude = baseAmplitude + distanceFromFrog * scaleWithAmplitudeFactor;
+                    result.Add(lastPosition + amplitude * Mathf.Sin((t * 2 + 1) * Mathf.PI) * new Vector2 (normalVector.x, normalVector.y));
+
+                    distanceFromFrog += 0.04f;
+                    t += 0.1f * frequency;
+                }
+                break;
+            case LineShape.SPIRAL_TRIANGLE:
+                frequency = 12f;
+                amplitude = 2f;
+                t = 0;
+                offsetFromCenterDirection = 1;
+                baseAmplitude = 5f;
+                t = 0;
+                direction = Vector2.up;
+                lastPosition = Vector2.zero;
+                distanceFromFrog = 0;
+                scaleWithAmplitudeFactor = 0.1f;
+                spiralAngle = -1.2f;
+                while (distanceFromFrog < actualRange)
+                {
+                    Vector2 fromLastToCurrent = (distanceFromFrog * direction.normalized - lastPosition);
+                    Vector3 normalVector3 = Vector3.Cross(fromLastToCurrent, Vector3.forward);
+                    Vector2 normalVector = new Vector2(normalVector3.x, normalVector3.y);
+
+                    lastPosition = distanceFromFrog * direction.normalized;
+
+                    float x, y;
+                    x = direction.x;
+                    y = direction.y;
+                    direction.x = x * Mathf.Cos(spiralAngle * Mathf.Deg2Rad) - y * Mathf.Sin(spiralAngle * Mathf.Deg2Rad);
+                    direction.y = x * Mathf.Sin(spiralAngle * Mathf.Deg2Rad) + y * Mathf.Cos(spiralAngle * Mathf.Deg2Rad);
+
+                    amplitude = baseAmplitude + distanceFromFrog * scaleWithAmplitudeFactor;
+
+                    result.Add(distanceFromFrog * direction + offsetFromCenter * normalVector);
+                    if (switched)
+                    {
+                        result.Add(distanceFromFrog * direction + offsetFromCenter * normalVector);
+                        result.Add(distanceFromFrog * direction + offsetFromCenter * normalVector);
+                        switched = false;
+                    }
+
+                    offsetFromCenter += offsetFromCenterDirection * 0.1f * frequency;
+                    if (offsetFromCenter >= amplitude)
+                    {
+                        offsetFromCenter = amplitude;
+                        offsetFromCenterDirection = -1;
+                        switched = true;
+                    }
+                    else if (offsetFromCenter <= -amplitude)
+                    {
+                        offsetFromCenter = -amplitude;
+                        offsetFromCenterDirection = 1;
+                        switched = true;
+                    }
+
+                    distanceFromFrog += 0.04f;
+                    t += 0.1f * frequency;
+                }
+                break;
+            case LineShape.SPIRAL_LOOPS:
+                t = 0;
+                offsetFromCenterDirection = 1;
+                direction = Vector2.up;
+                distanceFromFrog = 0;
+                scaleWithAmplitudeFactor = 0.1f;
+                spiralAngle = -0.7f;
+
+                loopState = 0; // Random.Range(0, 6); // 6 steps, we can start with any
+                lastPosition = Vector2.zero;
+                result.Add(lastPosition);
+                loopAngle = 0;
+
+                loopBigRadius = 1.2f;
+                loopSmallRadius = 0.3f;
+                loopMediumRadius = 0.9f;
+
+                loopRadius = (loopState % 3 == 0) ? loopBigRadius : ((loopState % 3 == 1) ? loopSmallRadius : loopMediumRadius);
+
+                while (distanceFromFrog < actualRange)
+                {
+                    Vector2 fromLastToCurrent = (distanceFromFrog * direction.normalized - lastPosition);
+                    Vector3 normalVector3 = Vector3.Cross(direction.normalized, Vector3.forward);
+                    Vector2 normalVector = new Vector2(normalVector3.x, normalVector3.y);
+
+                    float x, y;
+                    x = direction.x;
+                    y = direction.y;
+                    direction.x = x * Mathf.Cos(spiralAngle * Mathf.Deg2Rad) - y * Mathf.Sin(spiralAngle * Mathf.Deg2Rad);
+                    direction.y = x * Mathf.Sin(spiralAngle * Mathf.Deg2Rad) + y * Mathf.Cos(spiralAngle * Mathf.Deg2Rad);
+
+                    switch (loopState)
+                    {
+                        case 0:
+                            // Move forwards, clockwise
+                            lastPosition += 0.1f * direction * Mathf.Sin(loopAngle * Mathf.Deg2Rad) * loopRadius + 0.1f * normalVector * Mathf.Cos(loopAngle * Mathf.Deg2Rad) * loopRadius;
+                            loopAngle += 10; // Degrees
+                            distanceFromFrog += 0.1f * Mathf.Sin(loopAngle * Mathf.Deg2Rad) * loopRadius;
+                            if (loopAngle > 180)
+                            {
+                                loopAngle = 0;
+                                loopState = 1;
+                                loopRadius = loopSmallRadius;
+                            }
+                            break;
+                        case 1:
+                            // Move backwards, clockwise
+                            lastPosition += -0.1f * direction * Mathf.Sin(loopAngle * Mathf.Deg2Rad) * loopRadius - 0.1f * normalVector * Mathf.Cos(loopAngle * Mathf.Deg2Rad) * loopRadius;
+                            loopAngle += 10; // Degrees
+                            distanceFromFrog -= 0.1f * Mathf.Sin(loopAngle * Mathf.Deg2Rad) * loopRadius;
+                            if (loopAngle > 180)
+                            {
+                                loopAngle = 0;
+                                loopState = 2;
+                                loopRadius = loopMediumRadius;
+                            }
+                            break;
+                        case 2:
+                            // Move forwards, clockwise
+                            lastPosition += 0.1f * direction * Mathf.Sin(loopAngle * Mathf.Deg2Rad) * loopRadius + 0.1f * normalVector * Mathf.Cos(loopAngle * Mathf.Deg2Rad) * loopRadius;
+                            loopAngle += 10; // Degrees
+                            distanceFromFrog += 0.1f * Mathf.Sin(loopAngle * Mathf.Deg2Rad) * loopRadius;
+                            if (loopAngle > 180)
+                            {
+                                loopAngle = 0;
+                                loopState = 3;
+                                loopRadius = loopBigRadius;
+                            }
+                            break;
+                        case 3:
+                            // Move forwards, counter clockwise
+                            lastPosition += 0.1f * direction * Mathf.Sin(loopAngle * Mathf.Deg2Rad) * loopRadius - 0.1f * normalVector * Mathf.Cos(loopAngle * Mathf.Deg2Rad) * loopRadius;
+                            loopAngle += 10; // Degrees
+                            distanceFromFrog += 0.1f * Mathf.Sin(loopAngle * Mathf.Deg2Rad) * loopRadius;
+                            if (loopAngle > 180)
+                            {
+                                loopAngle = 0;
+                                loopState = 4;
+                                loopRadius = loopSmallRadius;
+                            }
+                            break;
+                        case 4:
+                            // Move backwards, counter clockwise
+                            lastPosition += -0.1f * direction * Mathf.Sin(loopAngle * Mathf.Deg2Rad) * loopRadius + 0.1f * normalVector * Mathf.Cos(loopAngle * Mathf.Deg2Rad) * loopRadius;
+                            loopAngle += 10; // Degrees
+                            distanceFromFrog -= 0.1f * Mathf.Sin(loopAngle * Mathf.Deg2Rad) * loopRadius;
+                            if (loopAngle > 180)
+                            {
+                                loopAngle = 0;
+                                loopState = 5;
+                                loopRadius = loopMediumRadius;
+                            }
+                            break;
+                        case 5:
+                            // Move forwards, counter clockwise
+                            lastPosition += 0.1f * direction * Mathf.Sin(loopAngle * Mathf.Deg2Rad) * loopRadius - 0.1f * normalVector * Mathf.Cos(loopAngle * Mathf.Deg2Rad) * loopRadius;
+                            loopAngle += 10; // Degrees
+                            distanceFromFrog += 0.1f * Mathf.Sin(loopAngle * Mathf.Deg2Rad) * loopRadius;
+                            if (loopAngle > 180)
+                            {
+                                loopAngle = 0;
+                                loopState = 0;
+                                loopRadius = loopBigRadius;
+                            }
+                            break;
+                        default:
+                            lastPosition += 0.1f * direction;
+                            loopRadius = loopSmallRadius;
+                            distanceFromFrog += 0.1f;
+                            break;
+                    }
+                    offsetFromCenter += offsetFromCenterDirection * 0.1f * frequency;
+                    result.Add(lastPosition);
+                    distanceFromFrog += 0.04f;
+                    t += 0.1f * frequency;
                 }
                 break;
             case LineShape.STAR_LINE:
@@ -1301,7 +1504,7 @@ public class WeaponBehaviour : MonoBehaviour
             // Added for the rotatongue frusions
             if (tongueType == TongueType.POISONTATING)
             {
-                pos = GetPositionsTowardsEnemy(null, LineShape.SPIRAL_LINE, false);
+                pos = GetPositionsTowardsEnemy(null, LineShape.SPIRAL_SINUSOID, false);
                 effects.Add(TongueEffect.POISON);
                 this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects);
                 this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
@@ -1309,7 +1512,7 @@ public class WeaponBehaviour : MonoBehaviour
             }
             if (tongueType == TongueType.FREEZETATING)
             {
-                pos = GetPositionsTowardsEnemy(null, LineShape.SPIRAL_LINE, false);
+                pos = GetPositionsTowardsEnemy(null, LineShape.SPIRAL_TRIANGLE, false);
                 effects.Add(TongueEffect.FREEZE);
                 this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects);
                 this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
@@ -1317,7 +1520,7 @@ public class WeaponBehaviour : MonoBehaviour
             }
             if (tongueType == TongueType.VAMPITATING)
             {
-                pos = GetPositionsTowardsEnemy(null, LineShape.SPIRAL_LINE, false);
+                pos = GetPositionsTowardsEnemy(null, LineShape.SPIRAL_LOOPS, false);
                 effects.Add(TongueEffect.VAMPIRE);
                 this.GetComponent<TongueLineRendererBehaviour>().InitializeTongue(pos, effects);
                 this.GetComponent<TongueLineRendererBehaviour>().DisplayTongue(0);
